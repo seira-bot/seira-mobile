@@ -9,9 +9,11 @@ copy of them.
 
 ## Status
 
-The code comes from the OpenMausBot companion apps as they were on 2026-10-06,
-with their full history. The app names, bundle IDs and icons still use the
-OpenMausBot brand.
+The code comes from the companion apps as they were on 2026-10-06, with
+their full history. App names, store IDs and icons are Seira. Internal code
+names (Swift and Kotlin types, packages, the Android `namespace`, the
+XcodeGen project) and protocol identifiers (the pairing URL scheme, the mDNS service name and
+the well-known path) keep their old names until the server changes.
 
 ## Layout
 

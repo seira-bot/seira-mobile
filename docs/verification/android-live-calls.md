@@ -4,7 +4,7 @@ The phone holds its own WebRTC audio to OpenAI GPT-Live; the paired computer
 creates the session (its OpenAI key never leaves it) and runs the call. The
 chat stays on screen with a call bar above the composer. Never pair a
 verification build with your everyday workspace, and never point one at the
-sidecar of the OpenMausBot you use day to day; the fixture below gets its own
+sidecar of the Seira you use day to day; the fixture below gets its own
 ports.
 
 ## Unit suites
@@ -85,7 +85,7 @@ node --experimental-strip-types server/testing/fake-openai-live.ts 0
 OMB_OPENAI_LIVE_URL=http://127.0.0.1:FAKE_PORT OMB_OPENAI_LIVE_KEY=sk-fake \
   node --experimental-strip-types scripts/control-omb.ts launch
 
-# 3. A sidecar for that fixture, on ports your everyday OpenMausBot does not use
+# 3. A sidecar for that fixture, on ports your everyday Seira does not use
 OMB_PORT=PORT OMB_WEBHOOK_PORT=$((PORT + 1)) OMB_COMPANION_PORT=8820 OMB_CONTROL_PORT=8821 \
   OMB_COMPANION_NAME="Verification fixture" OMB_COMPANION_DIR="$(mktemp -d)" \
   node --experimental-strip-types companion/src/index.ts
@@ -108,15 +108,15 @@ $SDK/emulator/emulator -avd YOUR_ARM64_API35_PLUS_AVD -no-snapshot &      # add 
 $SDK/platform-tools/adb wait-for-device
 until [ "$($SDK/platform-tools/adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 5; done
 $SDK/platform-tools/adb install -r android/app/build/outputs/apk/preview/app-preview.apk
-$SDK/platform-tools/adb shell am start -n com.openmausbot.companion.preview/com.openmausbot.companion.MainActivity
+$SDK/platform-tools/adb shell am start -n bot.seira.companion.preview/com.openmausbot.companion.MainActivity
 ```
 
-In MausBot Preview, tap Connect my computer, then Other ways to connect, and
+In Seira Preview, tap Connect my computer, then Other ways to connect, and
 pair manually with the address `10.0.2.2:8820` and the code from the curl (the
 emulator reaches the host at 10.0.2.2; ask for a new code if the window
 closed). On Android 17 two system prompts come first:
 
-- **"Choose a device to connect"** lists every OpenMausBot computer the
+- **"Choose a device to connect"** lists every Seira computer the
   emulator can see on the network, the real one included. Tap **Don't
   connect**; never pick the real computer.
 - **Nearby devices** ("find, connect to, and determine the relative position
@@ -125,7 +125,7 @@ closed). On Android 17 two system prompts come first:
   **Don't allow**, Connect fails with "Couldn't reach this computer through any
   available route (http://10.0.2.2:8820)". Tap **Allow**, or grant it from the
   host and tap Connect again:
-  `adb shell pm grant com.openmausbot.companion.preview android.permission.ACCESS_LOCAL_NETWORK`.
+  `adb shell pm grant bot.seira.companion.preview android.permission.ACCESS_LOCAL_NETWORK`.
 
 Android 15 shows only the Nearby devices prompt, and pairs by address with
 Don't allow. Skip the notifications screen with Not now.
@@ -190,7 +190,7 @@ starts a fresh one with its own 20 seconds.
   the cross (leaving the app is not a drop), and the phone icon starts a
   fresh call.
 - Deny the microphone once: the bar reads "Live calls need Microphone access.
-  Enable it in Settings → MausBot." with only the cross (trying again cannot
+  Enable it in Settings → Seira." with only the cross (trying again cannot
   help until the setting changes); after allowing it in Settings, the phone
   icon asks again.
 
@@ -241,8 +241,8 @@ its temporary data (the log under `openmausbot-verification-evidence` stays).
 ## Sideloading
 
 `./gradlew :app:assemblePreview` writes
-`android/app/build/outputs/apk/preview/app-preview.apk` — **MausBot Preview**,
-application id `com.openmausbot.companion.preview`, debug-signed. It installs
+`android/app/build/outputs/apk/preview/app-preview.apk` — **Seira Preview**,
+application id `bot.seira.companion.preview`, debug-signed. It installs
 beside the real app with its own pairing and data:
 
 ```sh

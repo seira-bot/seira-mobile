@@ -95,7 +95,7 @@ android {
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.openmausbot.companion"
+        applicationId = "bot.seira.companion"
         minSdk = 26
         targetSdk = 37
         versionCode = appVersionCode

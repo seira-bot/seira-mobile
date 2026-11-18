@@ -18,7 +18,7 @@ import UIKit
 /// Stream lifecycle, in Console.app and the Xcode console. A companion that
 /// is silently not connected looks exactly like one with nothing to say, so
 /// the transitions are worth being able to read.
-private let log = Logger(subsystem: "com.openmausbot.companion", category: "stream")
+private let log = Logger(subsystem: "bot.seira.companion", category: "stream")
 
 private final class CachedAttachmentDownload: NSObject {
     let value: DownloadedFile
@@ -657,7 +657,7 @@ final class Session: ObservableObject {
             _ = try await probe.environment()
         } catch APIError.status(404, _) {
             throw APIError.transport(
-                "\(connection.displayAddress) isn't an OpenMausBot server. Check the address and try again."
+                "\(connection.displayAddress) isn't a Seira server. Check the address and try again."
             )
         }
     }
@@ -1323,7 +1323,7 @@ final class Session: ObservableObject {
                 do {
                     capable = try await client.imageCapableInstanceIDs()
                 } catch APIError.status(code: 404, message: _) {
-                    actionError = "Update OpenMausBot on this computer before sending images."
+                    actionError = "Update Seira on this computer before sending images."
                     return false
                 }
                 guard imageSupported(by: chat, capableInstances: capable) else {

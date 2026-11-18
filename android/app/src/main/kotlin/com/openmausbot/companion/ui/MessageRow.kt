@@ -128,7 +128,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 /** What the clipboard shows this came from. */
-private const val MESSAGE_CLIP_LABEL = "OpenMausMobile message"
+private const val MESSAGE_CLIP_LABEL = "Seira message"
 
 /**
  * One row of the transcript — the port of `MessageRow` in `ios/App/ChatView.swift`.
