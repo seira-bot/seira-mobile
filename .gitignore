@@ -1,0 +1,8 @@
+.DS_Store
+*.local
+
+# Local working files: never public. See "Local details stay local" in AGENTS.md.
+/internal/
+/AGENTS.local.md
+/CLAUDE.local.md
+/.leakcheck.local

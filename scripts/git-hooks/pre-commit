@@ -1,0 +1,13 @@
+#!/bin/sh
+# Stops a commit whose added lines name a home folder, a private host, a user name or a secret
+# (scripts/check-local-leaks.mjs). Skip once with `git commit --no-verify`, or for a session with OMB_SKIP_HOOKS=1.
+if [ -n "$OMB_SKIP_HOOKS" ]; then
+  echo "pre-commit: skipped (OMB_SKIP_HOOKS is set)"
+  exit 0
+fi
+cd "$(git rev-parse --show-toplevel)" || exit 0
+if [ ! -f scripts/check-local-leaks.mjs ] || ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: no node in this checkout, so the leak check did not run"
+  exit 0
+fi
+exec node scripts/check-local-leaks.mjs --staged
