@@ -30,8 +30,8 @@ Use current `main` after the companion lands. While reviewing the feature PR,
 GitHub CLI can create the correct local branch:
 
 ```sh
-git clone https://github.com/milind-soni/OpenMausBot
-cd OpenMausBot
+git clone https://github.com/seira-bot/seira-mobile
+cd seira-mobile
 gh pr checkout 161        # omit after the PR is merged
 ```
 
@@ -109,7 +109,7 @@ This is the likeliest snag on macOS, and it is not a bug in the phone.
   and normally shares it fine, but if something else grabbed it exclusively the
   advertisement cannot start. `sudo lsof -i :5353` shows who.
 - **The firewall is prompting.** System Settings → Network → Firewall. Incoming
-  connections to `node`/OpenMausBot must be allowed, or the phone reaches
+  connections to `node`/Seira must be allowed, or the phone reaches
   nothing on 8810 even with a correct address.
 - Neither blocks testing: use the typed address instead. Discovery failing is
   designed to be a fallback, not a dead end — that is worth confirming too.
@@ -176,8 +176,8 @@ paid account is required to run on your own phone.
 
 On the phone, in order:
 
-1. **Pair.** In OpenMausBot → Settings → Phone, choose **Pair a phone**.
-   Scan the QR code with the phone's Camera, open OpenMausMobile,
+1. **Pair.** In Seira → Settings → Phone, choose **Pair a phone**.
+   Scan the QR code with the phone's Camera, open Seira,
    confirm that the computer and six-digit code are filled in, then tap
    **Connect**. The computer should also appear by name for the manual path:
    tap it and type the same code.
@@ -186,7 +186,7 @@ On the phone, in order:
      into Keychain rather than only living in memory.
    - If the list stays empty, check in this order:
      1. **Local Network permission.** iOS asks once, and a denial is
-        permanent and silent. Settings → OpenMausBot → Local Network. If the
+        permanent and silent. Settings → Seira → Local Network. If the
         toggle is not even there, the prompt never fired — which points at the
         Info.plist. Deleting the app and reinstalling resets the decision and
         asks again.
@@ -255,7 +255,7 @@ so this is also how the phone reaches the Mac over cellular.
    App Store build) and sign in.
 2. **On the phone:** install Tailscale from the App Store, sign in to the *same*
    account, and turn the VPN on.
-3. **In OpenMausBot → Settings → Phone:** with Phone access on, the panel now
+3. **In Seira → Settings → Phone:** with Phone access on, the panel now
    shows a separate **Tailscale pairing** card. Choose **Turn on phone access &
    check** (or **Check again** when Phone access is already on); it should
    report a tailnet name such as `macbook.tail1234.ts.net`. If it
@@ -288,7 +288,7 @@ port — only the route to it is different.
 A Live call is GPT-Live as the voice and the bot as the brain. The Mac runs
 the call and keeps the OpenAI key; the phone holds the microphone and the
 speaker and talks to OpenAI directly over WebRTC. Needs: phone and Mac paired
-(Stage 4), an OpenAI key set up in OpenMausBot on the Mac (the desktop asks
+(Stage 4), an OpenAI key set up in Seira on the Mac (the desktop asks
 for it the first time you start a Live call there; the gear on the desktop's
 call bar changes or removes it), and a real iPhone. The Simulator can carry
 a call's audio through the Mac's microphone and speakers (once macOS lets it
@@ -397,7 +397,7 @@ usually the whole diagnosis:
 
 - **Desktop/server log:** the sidecar and harness record the stream opening and
   closing. No opening entry means the request never arrived.
-- **Xcode console**, subsystem `com.openmausbot.companion`: `opening stream`,
+- **Xcode console**, subsystem `bot.seira.companion`: `opening stream`,
   then `stream live, resumed=…`, then `hydrated N bots`. Whichever of those is
   missing is where it stopped.
 

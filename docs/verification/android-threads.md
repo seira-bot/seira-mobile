@@ -101,7 +101,7 @@ speech needs a real screen reader.
 ## Installable preview
 
 The output is `android/app/build/outputs/apk/preview/app-preview.apk`. This is
-a debug-signed **OpenMausBot Preview** with its own application ID, so it does
+a debug-signed **Seira Preview** with its own application ID, so it does
 not overwrite the released app or inherit its saved connections. Pair from
 inside Preview using the scanner or manual form. The preview intentionally
 does not register system share or pairing-link entrypoints.
@@ -160,7 +160,7 @@ without any task-switch POST or change to the server-selected thread.
 - 621 core tests and 971 app tests passed (`cleanTest :core:test
   :app:testDebugUnitTest`), with no failures or skips. `:app:assembleDebug` and
   `:app:assemblePreview` succeeded; the preview APK's v2 signature and its
-  `com.openmausbot.companion.preview` application ID were verified.
+  `bot.seira.companion.preview` application ID were verified.
 - Fixtures were synthetic and confined to a loopback server. No emulator,
   device installation, pairing or live-provider test was performed.
 

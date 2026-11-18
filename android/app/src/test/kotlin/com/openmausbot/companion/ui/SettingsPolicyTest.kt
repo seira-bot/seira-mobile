@@ -50,7 +50,7 @@ class SettingsPolicyTest {
     fun `the footers name the desktop section that exists`() {
         assertEquals(
             "Removes the pairing from this phone only. To stop it reaching the computer at all, " +
-                "remove the device in OpenMausBot → Settings → Phone.",
+                "remove the device in Seira → Settings → Phone.",
             SettingsPolicy.UNPAIR_FOOTER,
         )
         assertEquals(
@@ -401,7 +401,7 @@ class SharePayloadTest {
         // This names a file the app is about to write, so a directory part in it
         // is a path traversal, not a preference.
         for (hostile in listOf(
-            "../../../../data/data/com.openmausbot.companion/databases/tokens.db",
+            "../../../../data/data/bot.seira.companion/databases/tokens.db",
             "/etc/passwd",
             "..\\..\\windows\\system32\\evil.md",
             "sub/dir/transcript.md",

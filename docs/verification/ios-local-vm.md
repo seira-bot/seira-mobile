@@ -17,7 +17,7 @@ sidecar address and a pairing code. The desktop is a captured Local VM session
 (`scripts/testing/fixtures/local-vm-desktop.png`, an XFCE desktop with a terminal
 open and nothing private on it); each capture types one more character at the
 prompt, so a refresh is visible. It never reaches a
-real container runtime, a VM, or the user's OpenMausBot data. Ctrl-C stops the
+real container runtime, a VM, or the user's Seira data. Ctrl-C stops the
 server and sidecar and removes the temporary data.
 
 The sidecar listens on all interfaces like the real one, but only a device

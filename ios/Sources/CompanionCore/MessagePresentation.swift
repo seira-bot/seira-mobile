@@ -9,7 +9,7 @@ import Foundation
 /// paste was scanned line by line twenty times a second while any bot in the
 /// fleet streamed. The parsers are the same ones; only where they run moved.
 public struct MessagePresentation: Hashable, Sendable {
-    /// The text without OpenMausBot's attachment and paste wrappers, and the
+    /// The text without Seira's attachment and paste wrappers, and the
     /// attachments those tags named.
     public let attached: AttachedMessageContent
     /// A bot reply that is one whole patch, drawn as a diff card.

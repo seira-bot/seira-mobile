@@ -1,9 +1,9 @@
-# OpenMausBot Android companion
+# Seira Android companion
 
 The Android counterpart to the iOS companion app: pair a phone with a computer
-running OpenMausBot, then read and answer from the phone.
+running Seira, then read and answer from the phone.
 
-- `applicationId` — `com.openmausbot.companion`
+- `applicationId` — `bot.seira.companion`
 - `minSdk` 26 (Android 8.0), `targetSdk` / `compileSdk` 37
 - Deep-link scheme — `openmausbot`
 - Two modules: `:core` (protocol, ported from `ios/Sources/CompanionCore`) and
@@ -35,7 +35,7 @@ cd android
 ```
 
 Install `app/build/outputs/apk/preview/app-preview.apk`. Its launcher name is
-**OpenMausBot Preview**, its application ID is `com.openmausbot.companion.preview`,
+**Seira Preview**, its application ID is `bot.seira.companion.preview`,
 and its version ends in `-threads-preview`. Gradle signs it with the local debug
 key, so no release signing material is needed. It installs beside the released
 app with separate pairing, preferences and messages; it does not update that app.
