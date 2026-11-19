@@ -933,8 +933,20 @@ private fun ChatRow(
                     color = colors.ink,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f, fill = false),
                 )
+                if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_crown),
+                        contentDescription = localizedMobileCopy("Chief of Staff"),
+                        tint = colors.accent,
+                        modifier = Modifier
+                            .size(14.dp)
+                            .align(Alignment.CenterVertically)
+                            .testTag("chief-badge"),
+                    )
+                }
+                Spacer(Modifier.weight(1f))
                 Text(
                     text = RelativeStamp.list(summary.lastActivity, now, locale = Locale.getDefault()),
                     style = SeiraType.caption.copy(fontFeatureSettings = "tnum"),
@@ -951,6 +963,14 @@ private fun ChatRow(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(1f),
                 )
+                if (waiting) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_pan_tool),
+                        contentDescription = waitingLabel,
+                        tint = colors.warning,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
                 if (chat.busy) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(12.dp),
