@@ -124,6 +124,17 @@ object TranscriptLayout {
         return next.kind != Message.Kind.TEXT
     }
 
+    /**
+     * True when this row opens a run from one speaker: nothing before it, or
+     * the role or the speaker's name changed. A reply shows its header here only.
+     */
+    fun startsRowRun(rows: List<TranscriptRow>, index: Int): Boolean {
+        val previous = rows.getOrNull(index - 1) ?: return true
+        val current = rows.getOrNull(index) ?: return true
+        if (current.role != previous.role) return true
+        return current.senderName != previous.senderName
+    }
+
     /** Which side the tail hangs from, or none while the run continues. */
     fun tail(message: Message, endsRun: Boolean): BubbleTail = when {
         !endsRun -> BubbleTail.NONE
@@ -183,7 +194,10 @@ object SearchPolicy {
  * with a task list get the same task controls as an agent. Exporting is not a
  * bot idea — a room has a transcript like anything else.
  */
-enum class ChatActionId { PHOTOS, FILES, NEW_TASK, TASKS, WATCH_COMPUTER, SETTINGS, SHARE_MARKDOWN, SHARE_JSON, INTERRUPT }
+enum class ChatActionId {
+    PHOTOS, FILES, NEW_TASK, TASKS, WATCH_COMPUTER, SETTINGS, SHARE_MARKDOWN, SHARE_JSON, INTERRUPT,
+    CAMERA, LIVE_CALL, SCHEDULE,
+}
 
 data class ChatAction(
     val id: ChatActionId,
@@ -203,9 +217,22 @@ object ChatActions {
      * fresh thread over the one question on screen that only a person can
      * answer.
      */
-    fun sheet(chat: Chat, hasPendingApproval: Boolean, canAddAttachment: Boolean): List<ChatAction> {
+    fun sheet(
+        chat: Chat,
+        hasPendingApproval: Boolean,
+        canAddAttachment: Boolean,
+        /** This phone has a camera. Without one the Camera tile is not offered at all. */
+        hasCamera: Boolean = false,
+        /** A live call can start or open from this chat: [ChatCallAction] is not NONE. */
+        offersCall: Boolean = false,
+        /** The routine editor can open for this bot. */
+        offersSchedule: Boolean = false,
+    ): List<ChatAction> {
         val bot = (chat as? Chat.BotChat)?.bot
         val out = mutableListOf<ChatAction>()
+        if (hasCamera) {
+            out += ChatAction(ChatActionId.CAMERA, "Camera", "Take a photo for this message", enabled = canAddAttachment)
+        }
         // Attachments first, for a bot and a room alike — the order of iOS's
         // `plusActions`. [canAddAttachment] is false at the four-item cap and
         // while a send or an import is in flight.
@@ -238,6 +265,12 @@ object ChatActions {
                 title = "Bot settings",
                 subtitle = "Model, profile, voice and notifications",
             )
+            if (offersCall) {
+                out += ChatAction(ChatActionId.LIVE_CALL, "Live call", "Talk it through with ${bot.name}")
+            }
+            if (offersSchedule) {
+                out += ChatAction(ChatActionId.SCHEDULE, "Schedule", "Run it later, or every week")
+            }
             out += ChatAction(
                 id = ChatActionId.WATCH_COMPUTER,
                 title = "Watch computer",

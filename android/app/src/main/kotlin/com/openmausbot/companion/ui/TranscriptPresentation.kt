@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.ui.theme.Seira
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -105,9 +106,9 @@ fun AssistantTurnChip(
 fun WebhookMessageBody(content: WebhookMessageContent) {
     var expanded by remember(content) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(stringResource(R.string.mobile_webhook_task), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = BubbleColor.mineText)
+        Text(stringResource(R.string.mobile_webhook_task), fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = Seira.colors.ink)
         SelectionContainer {
-            Text(content.task, fontSize = 17.sp, color = BubbleColor.mineText)
+            Text(content.task, fontSize = 17.sp, color = Seira.colors.ink)
         }
         content.payload?.let { payload ->
             Row(
@@ -116,16 +117,16 @@ fun WebhookMessageBody(content: WebhookMessageContent) {
                     .localizedSemantics(stateDescription = { stringResource(if (expanded) R.string.mobile_a11y_expanded else R.string.mobile_a11y_collapsed) }),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(stringResource(R.string.mobile_webhook_event_payload), fontSize = 13.sp, color = BubbleColor.mineText, modifier = Modifier.weight(1f))
+                Text(stringResource(R.string.mobile_webhook_event_payload), fontSize = 13.sp, color = Seira.colors.ink, modifier = Modifier.weight(1f))
                 Icon(
                     if (expanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
-                    contentDescription = null, tint = BubbleColor.mineText,
+                    contentDescription = null, tint = Seira.colors.ink,
                 )
             }
             if (expanded) {
                 SelectionContainer {
                     Text(
-                        payload, fontSize = 12.sp, fontFamily = FontFamily.Monospace, color = BubbleColor.mineText,
+                        payload, fontSize = 12.sp, fontFamily = FontFamily.Monospace, color = Seira.colors.ink,
                         modifier = Modifier.heightIn(max = 180.dp).verticalScroll(rememberScrollState()),
                     )
                 }

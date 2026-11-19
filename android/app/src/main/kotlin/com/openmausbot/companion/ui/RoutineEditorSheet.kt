@@ -161,7 +161,7 @@ internal fun RoutineEditorSheet(
     }
     val legacyDurationMinutes = seed?.durationMinutes ?: RoutineRules.LEGACY_DURATION_MINUTES
     var timeoutMinutes by rememberSaveable { mutableStateOf(seed?.timeoutMinutes) }
-    var newIntervalTimeoutApplied by rememberSaveable { mutableStateOf(seed != null) }
+    var newIntervalTimeoutApplied by rememberSaveable { mutableStateOf(RoutineRules.defaultTimeoutAlreadyApplied(seed)) }
     var advancedExpanded by rememberSaveable {
         mutableStateOf(
             seed?.timeoutMinutes?.let { it != RoutineRules.DEFAULT_INTERVAL_TIMEOUT } ?: false,
