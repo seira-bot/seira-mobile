@@ -23,3 +23,7 @@ The iOS app bundles the Geist font (Geist-Regular, Geist-Medium and
 Geist-SemiBold), Copyright 2024 The Geist Project Authors
 (https://github.com/vercel/geist-font), used under the SIL Open Font License,
 Version 1.1. The full license text is in ios/App/Fonts/OFL.txt.
+
+The iOS app bundles the character kit, the carved avatar pictures and the accessory
+stickers of the Seira desktop project, and ports its character renderer code, used
+under the Apache License 2.0.
