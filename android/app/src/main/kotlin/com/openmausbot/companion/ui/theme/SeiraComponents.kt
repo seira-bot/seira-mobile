@@ -368,7 +368,7 @@ fun SegmentedControl(
                     .background(colors.thumb, RoundedCornerShape(12.dp)),
             )
         }
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = inset).fillMaxHeight()) {
+        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = inset)) {
             options.forEachIndexed { index, (label, icon) ->
                 val selected = index == selectedIndex
                 val tint by animateColorAsState(
@@ -379,7 +379,6 @@ fun SegmentedControl(
                 Box(
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxHeight()
                         .heightIn(min = TouchTarget)
                         .selectable(selected = selected, role = Role.RadioButton, onClick = { onSelect(index) }),
                     contentAlignment = Alignment.Center,
