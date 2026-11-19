@@ -82,7 +82,18 @@ class HomeScreenshotTest {
     fun darkComfortableHomeIsWritten() =
         assertTrue(capture("home-comfortable", ThemeMode.DARK, RosterDensity.COMFORTABLE))
 
-    private fun capture(name: String, mode: ThemeMode, density: RosterDensity): Boolean {
+    // The whole list in one picture: a screen tall enough that nothing scrolls.
+    @Test
+    @Config(sdk = [34], qualifiers = "w390dp-h1800dp-xxhdpi")
+    fun lightTallHomeIsWritten() =
+        assertTrue(capture("home-tall", ThemeMode.LIGHT, RosterDensity.COMPACT, scrolled = false))
+
+    @Test
+    @Config(sdk = [34], qualifiers = "w390dp-h1800dp-xxhdpi")
+    fun lightTallComfortableHomeIsWritten() =
+        assertTrue(capture("home-comfortable-tall", ThemeMode.LIGHT, RosterDensity.COMFORTABLE, scrolled = false))
+
+    private fun capture(name: String, mode: ThemeMode, density: RosterDensity, scrolled: Boolean = true): Boolean {
         val context: Context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences(ChatPreferences.NAME, Context.MODE_PRIVATE).edit().clear().commit()
         scene = WiringScene(
@@ -110,7 +121,7 @@ class HomeScreenshotTest {
                     compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
                 }
                 // The comfortable rows start under Needs attention: bring them up.
-                if (density == RosterDensity.COMFORTABLE) {
+                if (scrolled && density == RosterDensity.COMFORTABLE) {
                     val list = compose.onNodeWithTag("roster-list")
                     list.performScrollToNode(hasTestTag("chat-row.${RosterFixture.CHIEF}"))
                     compose.waitForIdle()

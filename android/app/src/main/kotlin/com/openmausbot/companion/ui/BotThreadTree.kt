@@ -37,6 +37,8 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ChatSummary
 import com.openmausbot.companion.core.forTask
 import com.openmausbot.companion.core.threadGroups
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraType
 
 /** Local search includes desktop folder names and every visible conversation title. */
 internal fun rosterThreadRows(
@@ -78,7 +80,7 @@ internal fun BotThreadTree(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 80.dp, end = 18.dp, bottom = if (isExpanded) 12.dp else 0.dp),
+            .padding(start = 68.dp, end = 18.dp, bottom = if (isExpanded) 12.dp else 0.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(
@@ -97,13 +99,13 @@ internal fun BotThreadTree(
                         },
                     )
                     .clickable(enabled = !searching, role = Role.Button, onClick = onToggle)
-                    .heightIn(min = 48.dp),
+                    .heightIn(min = 40.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 DisclosureIcon(isExpanded)
-                Text(stringResource(R.string.mobile_threads_bb12e8aa), fontSize = 13.sp, fontWeight = FontWeight.Medium, color = secondaryTint)
-                Text(count.toString(), fontSize = 13.sp, color = secondaryTint)
+                Text(stringResource(R.string.mobile_threads_bb12e8aa), style = SeiraType.callout, color = Seira.colors.ink2)
+                Text(count.toString(), style = SeiraType.callout, color = Seira.colors.ink2)
             }
             if (isExpanded) {
                 TouchTarget(
@@ -200,7 +202,7 @@ private fun DisclosureIcon(expanded: Boolean) {
     Icon(
         if (expanded) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
         contentDescription = null,
-        tint = secondaryTint,
+        tint = Seira.colors.ink3,
         modifier = Modifier.size(16.dp),
     )
 }

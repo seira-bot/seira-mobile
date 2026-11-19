@@ -86,6 +86,8 @@ internal fun TeamRail(
     Column(
         modifier = modifier
             .fillMaxWidth()
+            // 28 dp to the text; the 48 dp toggle row already adds 14 dp above it.
+            .padding(top = if (canExpand) 14.dp else 28.dp)
             .testTag("home-team")
             .animateContentSize(seiraTween(SeiraMotion.BASE)),
     ) {

@@ -445,7 +445,7 @@ class RosterScreenTest {
         compose.onNodeWithText("No bots yet").assertDoesNotExist()
 
         compose.runOnIdle { scene.environment.chatPreferences.setRosterDensity(RosterDensity.COMFORTABLE) }
-        compose.onAllNodesWithText("GROUPS").onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("Groups").onFirst().assertIsDisplayed()
         compose.onNodeWithText("No bots yet").assertDoesNotExist()
     }
 
@@ -498,7 +498,7 @@ class RosterScreenTest {
             compose.waitForIdle()
             list().performScrollToIndex(0)
             val header = compose.onNodeWithTag("roster-header").getBoundsInRoot()
-            val firstTitle = compose.onNodeWithText("NEEDS ATTENTION").getBoundsInRoot()
+            val firstTitle = compose.onNodeWithText("Needs attention").getBoundsInRoot()
             assertTrue(firstTitle.top >= header.bottom, "$density: the first title starts under the header")
 
             toEnd()

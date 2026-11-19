@@ -278,6 +278,19 @@ fun RosterScreen(navigator: CompanionNavigator) {
         )
     }
 
+    // Comfortable: a group is a design row with its two stacked faces.
+    val comfortableRoom: @Composable (Room) -> Unit = { room ->
+        summariesById[room.id]?.let { summary ->
+            ChatRow(
+                summary = summary,
+                face = MausState.IDLE,
+                waiting = room.id in waiting,
+                members = tiles[room.id].orEmpty(),
+                onClick = { navigator.open(Chat.RoomChat(room)) },
+            )
+        }
+    }
+
     val entry: @Composable (ChatSummary, Boolean) -> Unit = { summary, _ ->
         val chat = summary.chat
         if (compact) {
@@ -408,7 +421,8 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                 )
                             }
                         }
-                        if (team.isNotEmpty() && team.size + (if (chief != null) 1 else 0) >= 2) {
+                        val railShown = team.isNotEmpty() && team.size + (if (chief != null) 1 else 0) >= 2
+                        if (railShown) {
                             item(key = "home-team") {
                                 TeamRail(
                                     members = team,
@@ -420,7 +434,6 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     onOpen = { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) },
                                     onCreateThread = createThread,
                                     onManageThreads = { bot -> managingThreads = Chat.BotChat(bot) },
-                                    modifier = Modifier.padding(top = 28.dp),
                                 )
                             }
                         }
@@ -432,21 +445,23 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                 },
                                 onCalendar = { navigator.push(Destination.Calendar) },
                                 onSettings = openSettings,
-                                modifier = Modifier.padding(top = 20.dp),
+                                // The text sits 28 dp under the rail (6 dp of its own, and
+                                // half of the 48 dp row around "Chats").
+                                modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),
                             )
                         }
                     }
                     if (RosterLayout.showsGroups(query)) {
                         if (attention.isNotEmpty()) {
                             item(key = "attention-label") {
-                                SectionLabel(stringResource(R.string.mobile_roster_needs_attention), Modifier.padding(top = 2.dp, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.mobile_roster_needs_attention))
                             }
                             items(attention, key = { "attention-${it.id}" }) { entry ->
-                                AttentionRow(entry = entry, onOpen = {
-                                    fleet.bots.firstOrNull { it.id == entry.botId }
-                                        ?.let { bot -> Chat.BotChat(bot.forTask(entry.task.threadId) ?: bot) }
-                                        ?.let(navigator::open)
-                                })
+                                fleet.bots.firstOrNull { it.id == entry.botId }?.let { owner ->
+                                    AttentionRow(entry = entry, bot = owner, onOpen = {
+                                        navigator.open(Chat.BotChat(owner.forTask(entry.task.threadId) ?: owner))
+                                    })
+                                }
                             }
                         }
                         fleet.unsectionedChief?.let { chief ->
@@ -464,11 +479,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         val pinned = fleet.pinnedBots.mapNotNull { summariesById[it.id] }
                         if (pinned.isNotEmpty()) {
                             item(key = "pinned-label") {
-                                // a compact row above it leaves little air of its own
-                                SectionLabel(
-                                    stringResource(R.string.mobile_roster_pinned),
-                                    Modifier.padding(top = if (compact) sectionSpacing else 2.dp, bottom = 4.dp),
-                                )
+                                SectionLabel(stringResource(R.string.mobile_roster_pinned))
                             }
                             itemsIndexed(pinned, key = { _, summary -> "pinned-${summary.id}" }) { index, summary ->
                                 entry(summary, index == pinned.lastIndex)
@@ -482,41 +493,31 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             // Groups as rows under a title that carries the "+"
                             // the comfortable strip shows as a tile.
                             item(key = "groups-title") {
-                                CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup, spacing = sectionSpacing)
+                                CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup)
                             }
                             items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { compactRoom(it) }
                             if (fleet.botChats.isNotEmpty()) {
                                 item(key = "bot-chats-title") {
-                                    CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null, spacing = sectionSpacing)
+                                    CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null)
                                 }
                                 items(fleet.botChats, key = { "bot-chat-${it.id}" }) { compactRoom(it) }
                             }
                         } else {
-                            item(key = "channels") {
-                                GroupsStrip(
-                                    title = stringResource(R.string.mobile_groups_ae9629f4),
-                                    rooms = fleet.unsectionedChannels,
-                                    members = tiles,
-                                    onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                    onCreate = startNewGroup,
-                                )
+                            if (fleet.unsectionedChannels.isNotEmpty()) {
+                                item(key = "groups-title") { SectionLabel(stringResource(R.string.mobile_groups_ae9629f4)) }
                             }
+                            items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { comfortableRoom(it) }
                             if (fleet.botChats.isNotEmpty()) {
-                                item(key = "bot-chats") {
-                                    GroupsStrip(
-                                        title = stringResource(R.string.mobile_bot_threads_ec81acf2),
-                                        rooms = fleet.botChats,
-                                        members = tiles,
-                                        onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                        onCreate = null,
-                                    )
+                                item(key = "bot-chats-title") {
+                                    SectionLabel(stringResource(R.string.mobile_bot_threads_ec81acf2))
                                 }
+                                items(fleet.botChats, key = { "bot-chat-${it.id}" }) { comfortableRoom(it) }
                             }
                         }
                         val unsectioned = fleet.unsectionedBots.mapNotNull { summariesById[it.id] }
                         if (unsectioned.isNotEmpty()) {
                             item(key = "bots-label") {
-                                SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4), Modifier.padding(top = sectionSpacing, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4))
                             }
                             itemsIndexed(unsectioned, key = { _, summary -> "bot-${summary.id}" }) { index, summary ->
                                 entry(summary, index == unsectioned.lastIndex)
@@ -526,7 +527,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         // the order of `rosterSections` in `ChatListView.swift`.
                         fleet.sidebarSections.forEach { section ->
                             item(key = "section-${section.id}") {
-                                SectionLabel(section.name, Modifier.padding(top = sectionSpacing, bottom = 4.dp))
+                                SectionLabel(section.name)
                             }
                             val sectionChiefs = section.chiefs.mapNotNull { summariesById[it.id] }
                             val sectionBots = section.bots.mapNotNull { summariesById[it.id] }
@@ -549,14 +550,8 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                         compactRoom(it)
                                     }
                                 } else {
-                                    item(key = "section-${section.id}-channels") {
-                                        GroupsStrip(
-                                            title = stringResource(R.string.mobile_groups_ae9629f4),
-                                            rooms = section.channels,
-                                            members = tiles,
-                                            onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                            onCreate = null,
-                                        )
+                                    items(section.channels, key = { "section-${section.id}-group-${it.id}" }) {
+                                        comfortableRoom(it)
                                     }
                                 }
                             }
@@ -574,7 +569,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 10.dp, bottom = 4.dp),
+                                    .padding(top = 0.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 SectionLabel(stringResource(R.string.mobile_roster_messages))
@@ -607,7 +602,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             )
                         }
                         item(key = "chats-label") {
-                            SectionLabel(stringResource(R.string.mobile_threads_bb12e8aa), Modifier.padding(top = 14.dp, bottom = 4.dp))
+                            SectionLabel(stringResource(R.string.mobile_threads_bb12e8aa))
                         }
                     }
 
@@ -733,14 +728,12 @@ private val StringSetSaver = listSaver<Set<String>, String>(
 
 /**
  * A compact groups heading. The unsectioned one carries the "+" that makes a
- * group, where the comfortable strip has its dashed tile.
+ * group, now that the comfortable list has no dashed tile.
  */
 @Composable
-private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?, spacing: Dp) {
+private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = if (onCreate == null) spacing else 4.dp, bottom = if (onCreate == null) 4.dp else 0.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SectionLabel(title, Modifier.weight(1f))
@@ -757,137 +750,15 @@ private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?, spacing: 
     }
 }
 
-/** A heading over a stretch of the list. */
+/** A heading over a stretch of the list: sentence case, quiet, with its own air. */
 @Composable
 private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
-        text = RosterLayout.sectionLabel(text),
-        style = SeiraType.callout.copy(fontWeight = FontWeight.SemiBold, letterSpacing = 0.4.sp),
-        color = Seira.colors.ink2,
-        modifier = modifier.padding(horizontal = 20.dp),
+        text = text,
+        style = SeiraType.callout.copy(fontWeight = FontWeight.Medium),
+        color = Seira.colors.ink3,
+        modifier = modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 4.dp),
     )
-}
-
-/**
- * Every group, across the top, with the tile that makes one at the end — the
- * place iOS puts it, and the reason the header no longer carries a second plus.
- */
-@Composable
-private fun GroupsStrip(
-    title: String,
-    rooms: List<Room>,
-    members: Map<String, List<Bot>>,
-    onOpen: (Room) -> Unit,
-    onCreate: (() -> Unit)?,
-) {
-    Column(
-        modifier = Modifier.padding(top = 2.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        SectionLabel(title)
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-        ) {
-            items(rooms, key = { it.id }) { room ->
-                GroupTile(
-                    room = room,
-                    members = members[room.id].orEmpty(),
-                    onClick = { onOpen(room) },
-                )
-            }
-            if (onCreate != null) {
-                item(key = "new-group") { NewGroupTile(onClick = onCreate) }
-            }
-        }
-    }
-}
-
-/**
- * A room as a round tile: the first two members' mascots stacked, its name
- * beneath.
- */
-@Composable
-private fun GroupTile(room: Room, members: List<Bot>, onClick: () -> Unit) {
-    val colors = Seira.colors
-    GroupTileFrame(
-        label = room.name,
-        labelColor = colors.ink,
-        onClick = onClick,
-    ) {
-        Box(
-            Modifier
-                .size(64.dp)
-                .background(colors.tint, CircleShape),
-        )
-        RoomFaces(members = members, size = 44.dp)
-        if (room.unread) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(3.dp)
-                    .size(14.dp)
-                    .background(colors.app, CircleShape)
-                    .padding(2.dp)
-                    .background(colors.accent, CircleShape),
-            )
-        }
-    }
-}
-
-/** The empty tile at the end of the strip: this is where a group is made. */
-@Composable
-private fun NewGroupTile(onClick: () -> Unit) {
-    val outline = Seira.colors.ink3
-    GroupTileFrame(label = stringResource(R.string.mobile_new_group_f9850c0b), labelColor = Seira.colors.ink2, onClick = onClick) {
-        Spacer(
-            modifier = Modifier
-                .size(64.dp)
-                .drawWithCache {
-                    val width = 1.5.dp.toPx()
-                    val dash = 4.dp.toPx()
-                    val style = Stroke(
-                        width = width,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash), 0f),
-                    )
-                    val radius = size.minDimension / 2f - width / 2f
-                    onDrawBehind { drawCircle(color = outline, radius = radius, style = style) }
-                },
-        )
-        Icon(
-            imageVector = SeiraIcons.Plus,
-            contentDescription = null,
-            tint = Seira.colors.ink2,
-            modifier = Modifier.size(24.dp),
-        )
-    }
-}
-
-@Composable
-private fun GroupTileFrame(
-    label: String,
-    labelColor: Color,
-    onClick: () -> Unit,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .width(76.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(7.dp),
-    ) {
-        Box(modifier = Modifier.size(64.dp), contentAlignment = Alignment.Center, content = content)
-        Text(
-            text = label,
-            style = SeiraType.caption.copy(fontWeight = FontWeight.Medium),
-            color = labelColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
 }
 
 /**
@@ -907,13 +778,62 @@ private fun ChatRow(
     val colors = Seira.colors
     val chat = summary.chat
     val now = remember(summary.lastActivity) { System.currentTimeMillis() }
+    DesignChatRow(
+        title = chat.name,
+        bold = chat.unread,
+        time = RelativeStamp.list(summary.lastActivity, now, locale = Locale.getDefault()),
+        preview = summary.preview,
+        waiting = waiting,
+        busy = chat.busy,
+        unread = chat.unread && !chat.busy,
+        onClick = onClick,
+        modifier = Modifier.testTag("chat-row.${summary.id}"),
+        avatar = {
+            when (chat) {
+                is Chat.BotChat -> IdentityAvatar(bot = chat.bot, size = 48.dp, state = face, animated = false)
+                is Chat.RoomChat -> RoomFaces(members = members, size = 48.dp)
+            }
+        },
+        badge = {
+            if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_crown),
+                    contentDescription = localizedMobileCopy("Chief of Staff"),
+                    tint = colors.accent,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .testTag("chief-badge"),
+                )
+            }
+        },
+    )
+}
+
+/**
+ * The design's chat row, shared by every list that shows one: 68 dp tall, a
+ * 48 dp face, the title with its time at the end, one line of preview. Waiting
+ * colours the preview only; the title keeps the ink colour.
+ */
+@Composable
+internal fun DesignChatRow(
+    title: String,
+    bold: Boolean,
+    time: String,
+    preview: String,
+    waiting: Boolean,
+    busy: Boolean,
+    unread: Boolean,
+    onClick: () -> Unit,
+    avatar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    badge: @Composable () -> Unit = {},
+) {
+    val colors = Seira.colors
     val waitingLabel = stringResource(R.string.mobile_waiting_on_you_edab5b72)
     val unreadLabel = stringResource(R.string.mobile_unread_07b032b5)
-    val unread = chat.unread && !chat.busy
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .testTag("chat-row.${summary.id}")
             .clickable(role = Role.Button, onClick = onClick)
             .semantics { if (waiting) stateDescription = waitingLabel }
             .heightIn(min = 68.dp)
@@ -921,10 +841,7 @@ private fun ChatRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        when (chat) {
-            is Chat.BotChat -> IdentityAvatar(bot = chat.bot, size = 48.dp, state = face, animated = false)
-            is Chat.RoomChat -> RoomFaces(members = members, size = 48.dp)
-        }
+        avatar()
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
                 Row(
@@ -933,26 +850,17 @@ private fun ChatRow(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = chat.name,
-                        style = SeiraType.headline.copy(fontWeight = if (chat.unread) FontWeight.SemiBold else FontWeight.Medium),
+                        text = title,
+                        style = SeiraType.headline.copy(fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Medium),
                         color = colors.ink,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_crown),
-                            contentDescription = localizedMobileCopy("Chief of Staff"),
-                            tint = colors.accent,
-                            modifier = Modifier
-                                .size(14.dp)
-                                .testTag("chief-badge"),
-                        )
-                    }
+                    badge()
                 }
                 Text(
-                    text = RelativeStamp.list(summary.lastActivity, now, locale = Locale.getDefault()),
+                    text = time,
                     style = SeiraType.caption.copy(fontFeatureSettings = "tnum"),
                     color = colors.ink3,
                     maxLines = 1,
@@ -960,7 +868,7 @@ private fun ChatRow(
             }
             Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = summary.preview.ifEmpty { " " },
+                    text = preview.ifEmpty { " " },
                     style = SeiraType.callout,
                     color = if (waiting) colors.warningText else colors.ink2,
                     maxLines = 1,
@@ -975,7 +883,7 @@ private fun ChatRow(
                         modifier = Modifier.size(14.dp),
                     )
                 }
-                if (chat.busy) {
+                if (busy) {
                     CircularProgressIndicator(
                         modifier = Modifier.size(12.dp),
                         strokeWidth = 2.dp,

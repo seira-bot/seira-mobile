@@ -792,28 +792,34 @@ internal fun CompactRoomRow(
 @Composable
 internal fun RoomFaces(members: List<Bot>, size: Dp) {
     val colors = Seira.colors
+    // The row face (48 dp) holds two 32 dp circles. A small face keeps larger
+    // circles, because two thirds of 26 dp is too small to read.
+    val large = size >= 40.dp
+    val first = if (large) size * 2f / 3f else size * 0.74f
+    val second = if (large) size * 2f / 3f else size * 0.62f
+    val ring = 2.5.dp
     Box(modifier = Modifier.size(size)) {
-        val first = members.getOrNull(0)
-        if (first == null) {
+        val firstMember = members.getOrNull(0)
+        if (firstMember == null) {
             MausAvatar(color = ROOM_COLOR, size = size, state = MausState.HAPPY, animated = false)
         } else {
             IdentityAvatar(
-                bot = first,
-                size = size * 0.74f,
+                bot = firstMember,
+                size = first,
                 state = MausState.HAPPY,
                 animated = false,
                 modifier = Modifier.align(Alignment.TopStart),
             )
         }
-        members.getOrNull(1)?.let { second ->
+        members.getOrNull(1)?.let { secondMember ->
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .offset(x = 2.dp, y = 2.dp)
+                    .offset(x = ring, y = ring)
                     .background(colors.app, CircleShape)
-                    .padding(2.5.dp),
+                    .padding(ring),
             ) {
-                IdentityAvatar(bot = second, size = size * 0.62f, state = MausState.HAPPY, animated = false)
+                IdentityAvatar(bot = secondMember, size = second, state = MausState.HAPPY, animated = false)
             }
         }
     }
