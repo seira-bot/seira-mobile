@@ -756,14 +756,15 @@ internal fun CompactRoomRow(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        UnreadDot(visible = room.unread && !busy, color = ROOM_COLOR)
+        UnreadDot(visible = room.unread && !busy)
         RoomFaces(members = members, size = faceSize)
         Spacer(modifier = Modifier.width(CompactRosterMetrics.faceSpacing))
         val name: @Composable (Modifier, Int) -> Unit = { nameModifier, lines ->
             Text(
                 text = if (lines > 1) room.name.breakableAtHyphens() else room.name,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                fontWeight = if (room.unread && !busy) FontWeight.SemiBold else FontWeight.Medium,
+                color = Seira.colors.ink,
                 maxLines = lines,
                 overflow = TextOverflow.Ellipsis,
                 style = if (lines > 1) wrapsBetweenWords() else LocalTextStyle.current,
