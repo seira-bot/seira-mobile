@@ -84,7 +84,7 @@ class ServerPairingScreenTest {
 
     @Test
     fun manualEntryAcceptsServerCodesAndRetainsSixDigitCompanionCodes() {
-        compose.onNodeWithText("Other ways to connect").performClick()
+        compose.onNodeWithText("Enter a code instead").performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput(server.url("/").toString().trimEnd('/'))
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         compose.onNodeWithText("Connect").assertIsNotEnabled()
@@ -99,7 +99,7 @@ class ServerPairingScreenTest {
 
     @Test
     fun manualAddressAcceptsPastedServerPairingLink() {
-        compose.onNodeWithText("Other ways to connect").performClick()
+        compose.onNodeWithText("Enter a code instead").performClick()
         compose.onAllNodes(hasSetTextAction())[0]
             .performTextInput(server.url("/pair#code=ABCD-EFGH-JKLM").toString())
         compose.onNodeWithText("Continue").performScrollTo().performClick()
@@ -120,7 +120,7 @@ class ServerPairingScreenTest {
     @Test
     fun serverCodeWithLookalikeSymbolsSaysWhyConnectIsDisabled() {
         val hint = "A server's code is 12 letters and digits, never 0, O, 1 or I."
-        compose.onNodeWithText("Other ways to connect").performClick()
+        compose.onNodeWithText("Enter a code instead").performClick()
         compose.onAllNodes(hasSetTextAction())[0].performTextInput(server.url("/").toString().trimEnd('/'))
         compose.onNodeWithText("Continue").performScrollTo().performClick()
         val code = compose.onNode(hasSetTextAction())
@@ -163,7 +163,7 @@ class ServerPairingScreenTest {
     private fun retryAfterRateLimit(manual: Boolean) {
         failFirstPair = true
         val button = if (manual) {
-            compose.onNodeWithText("Other ways to connect").performClick()
+            compose.onNodeWithText("Enter a code instead").performClick()
             compose.onAllNodes(hasSetTextAction())[0].performTextInput(server.url("/").toString().trimEnd('/'))
             compose.onNodeWithText("Continue").performScrollTo().performClick()
             compose.onNode(hasSetTextAction()).performTextInput("abcd-efgh-jklm")

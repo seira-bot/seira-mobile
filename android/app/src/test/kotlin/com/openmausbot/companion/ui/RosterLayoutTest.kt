@@ -136,21 +136,6 @@ class RosterLayoutTest {
         )
     }
 
-    @Test
-    fun `section headings uppercase by the invariant rules`() {
-        val original = Locale.getDefault()
-        try {
-            Locale.setDefault(Locale.forLanguageTag("tr-TR"))
-            // `text.uppercased()` in Swift is canonical, not localised: a Turkish
-            // reader must still see BOTS and CHATS, not a dotted capital I.
-            assertEquals("BOTS", RosterLayout.sectionLabel("Bots"))
-            assertEquals("GROUPS", RosterLayout.sectionLabel("Groups"))
-            assertEquals("CHATS", RosterLayout.sectionLabel("Chats"))
-            assertEquals("MESSAGES", RosterLayout.sectionLabel("Messages"))
-        } finally {
-            Locale.setDefault(original)
-        }
-    }
 }
 
 /**

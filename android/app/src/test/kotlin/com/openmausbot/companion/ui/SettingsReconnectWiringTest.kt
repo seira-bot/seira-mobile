@@ -73,7 +73,8 @@ class SettingsReconnectWiringTest {
         compose.waitForIdle()
         assertEquals(0, scene.streamStarts.get(), "mounting Settings must not dial anything")
 
-        // The section sits below the fold on a phone-sized screen.
+        // The section sits below the fold, and the button sits inside the folded details.
+        compose.onNodeWithText("Connection details").performScrollTo().performClick()
         compose.onNodeWithText(reconnect).performScrollTo().assertIsEnabled().performClick()
         compose.waitUntil(5_000) { scene.streamStarts.get() == 1 }
 

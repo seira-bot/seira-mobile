@@ -14,6 +14,10 @@ import com.openmausbot.companion.lifecycle.ServiceProcessAnchor
 import com.openmausbot.companion.lifecycle.SessionLingerController
 import com.openmausbot.companion.lifecycle.installSessionLinger
 import com.openmausbot.companion.notifications.LocalNotificationPoster
+import com.openmausbot.companion.notifications.NotificationActionHandler
+import com.openmausbot.companion.shortcuts.BotShortcutSync
+import com.openmausbot.companion.shortcuts.BotShortcuts
+import com.openmausbot.companion.tile.TalkTileState
 import com.openmausbot.companion.permissions.CompanionPermissions
 import com.openmausbot.companion.sharing.ShareInbox
 import com.openmausbot.companion.storage.AlwaysOnPreferences
@@ -39,6 +43,10 @@ class OpenMausApp : Application() {
     lateinit var session: Session
         private set
     lateinit var notifications: LocalNotificationPoster
+        private set
+    lateinit var notificationActions: NotificationActionHandler
+        private set
+    lateinit var shortcuts: BotShortcuts
         private set
     lateinit var discovery: NsdDiscovery
         private set
@@ -92,6 +100,12 @@ class OpenMausApp : Application() {
             notificationSink = notifications,
         )
         avatars = AvatarImageStore(fetch = session::avatarData)
+        shortcuts = BotShortcuts(this)
+        notifications.bind(session, avatars, shortcuts, appScope)
+        notificationActions = NotificationActionHandler(session, notifications)
+        appScope.launch {
+            BotShortcutSync(session, avatars, shortcuts, TalkTileState(this@OpenMausApp)).run()
+        }
         // Live calls hold media across screens, and end when the process
         // leaves the foreground — not when a rotation recreates the Activity —
         // so the manager is app-scoped and observes the process lifecycle, as

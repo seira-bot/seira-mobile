@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Good morning</string>
+    <string name="home_greeting_afternoon">Good afternoon</string>
+    <string name="home_greeting_evening">Good evening</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">More options</string>
+    <string name="home_talk">Talk</string>
+    <string name="home_status_ready">Ready</string>
+    <string name="home_team">Team</string>
+    <string name="home_team_see_all">See all %1$d</string>
+    <string name="home_team_show_less">Show less</string>
+    <string name="home_chats">Chats</string>
+    <string name="home_search_prompt">Search chats and bots</string>
+    <string name="home_new_chat">New chat</string>
+    <string name="home_talk_to">Talk to %1$s</string>
+    <string name="home_team_member_working">%1$s, working</string>
+    <string name="home_team_member_waiting">%1$s, waiting on you</string>
+    <string name="home_manage_threads">Manage threads</string>
+</resources>

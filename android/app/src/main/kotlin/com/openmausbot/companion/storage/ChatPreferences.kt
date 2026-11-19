@@ -7,7 +7,7 @@ import com.openmausbot.companion.core.forTask
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.QuickReply
 import com.openmausbot.companion.core.RosterDensity
-import com.openmausbot.companion.ui.AppearanceSkin
+import com.openmausbot.companion.ui.theme.ThemeMode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -35,10 +35,8 @@ class ChatPreferences(
     private val _quickReplies = MutableStateFlow(QuickReply.decode(prefs.getString(QUICK_REPLIES, "").orEmpty()))
     val quickReplies: StateFlow<List<QuickReply>> = _quickReplies.asStateFlow()
 
-    private val _appearanceSkin = MutableStateFlow(
-        AppearanceSkin.fromWire(prefs.getString(APPEARANCE_SKIN, null)),
-    )
-    val appearanceSkin: StateFlow<AppearanceSkin> = _appearanceSkin.asStateFlow()
+    private val _themeMode = MutableStateFlow(ThemeMode.fromWire(prefs.getString(THEME_MODE, null)))
+    val themeMode: StateFlow<ThemeMode> = _themeMode.asStateFlow()
 
     /**
      * How much each home-list row says. Per device, like the desktop's sidebar
@@ -74,10 +72,10 @@ class ChatPreferences(
 
     fun resetQuickReplies() = setQuickReplies(QuickReply.DEFAULTS)
 
-    fun setAppearanceSkin(skin: AppearanceSkin) {
-        if (_appearanceSkin.value == skin && prefs.getString(APPEARANCE_SKIN, null) == skin.wireValue) return
-        prefs.edit().putString(APPEARANCE_SKIN, skin.wireValue).commit()
-        _appearanceSkin.value = skin
+    fun setThemeMode(mode: ThemeMode) {
+        if (_themeMode.value == mode && prefs.getString(THEME_MODE, null) == mode.wireValue) return
+        prefs.edit().putString(THEME_MODE, mode.wireValue).commit()
+        _themeMode.value = mode
     }
 
     fun lastShareDestination(connectionId: String): String? =
@@ -109,7 +107,7 @@ class ChatPreferences(
         const val FILE = "$NAME.xml"
         private const val ACTIVITY_DETAIL = "companion.prefs.activityDetail"
         private const val QUICK_REPLIES = "companion.prefs.quickReplies"
-        private const val APPEARANCE_SKIN = "companion.prefs.appearanceSkin"
+        private const val THEME_MODE = "companion.prefs.themeMode"
         private const val ROSTER_DENSITY = "companion.prefs.rosterDensity"
 
         private fun threadKey(connectionId: String, botId: String): String =

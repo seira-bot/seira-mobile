@@ -1,5 +1,22 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.runtime.remember
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.SeiraType
+import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -71,11 +88,24 @@ fun MarkdownText(
      */
     openLink: ((String) -> Unit)? = null,
 ) {
-    val blocks = Markdown.blocks(source)
+    val segments = remember(source) { MarkdownTables.split(source) }
     CompositionLocalProvider(LocalLinkOpener provides openLink) {
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            blocks.forEachIndexed { index, block ->
-                MarkdownBlockView(block, tail = caret && index == blocks.lastIndex)
+            segments.forEachIndexed { segmentIndex, segment ->
+                val lastSegment = segmentIndex == segments.lastIndex
+                when (segment) {
+                    is MarkdownSegment.Table -> {
+                        MarkdownTableView(segment, Modifier.padding(vertical = 6.dp))
+                        // The caret still needs a line to sit on after a closing table.
+                        if (caret && lastSegment) MarkdownBlockView(MarkdownBlock.Paragraph(""), tail = true)
+                    }
+                    is MarkdownSegment.Prose -> {
+                        val blocks = remember(segment.source) { Markdown.blocks(segment.source) }
+                        blocks.forEachIndexed { index, block ->
+                            MarkdownBlockView(block, tail = caret && lastSegment && index == blocks.lastIndex)
+                        }
+                    }
+                }
             }
         }
     }
@@ -89,7 +119,7 @@ private fun MarkdownBlockView(block: MarkdownBlock, tail: Boolean) {
     val muted = secondaryTint
     when (block) {
         is MarkdownBlock.Paragraph ->
-            Text(inline(block.text, tail, muted), fontSize = 17.sp)
+            Text(inline(block.text, tail, muted), style = SeiraType.body, color = Seira.colors.ink, inlineContent = caretContent())
 
         is MarkdownBlock.Heading ->
             // Three sizes, not six. A chat bubble is not a document, and an h4
@@ -97,11 +127,14 @@ private fun MarkdownBlockView(block: MarkdownBlock, tail: Boolean) {
             Text(
                 text = inline(block.text, tail, muted),
                 fontSize = when {
-                    block.level <= 1 -> 21.sp
-                    block.level == 2 -> 19.sp
-                    else -> 17.sp
+                    block.level <= 1 -> 20.sp
+                    block.level == 2 -> 17.sp
+                    else -> 15.sp
                 },
+                lineHeight = 24.sp,
+                color = Seira.colors.ink,
                 fontWeight = FontWeight.SemiBold,
+                inlineContent = caretContent(),
                 modifier = Modifier.padding(top = 2.dp),
             )
 
@@ -120,7 +153,7 @@ private fun MarkdownBlockView(block: MarkdownBlock, tail: Boolean) {
                         .fillMaxHeight()
                         .background(muted.copy(alpha = 0.4f), RoundedCornerShape(1.5.dp)),
                 )
-                Text(inline(block.text, tail, muted), fontSize = 17.sp, color = muted)
+                Text(inline(block.text, tail, muted), style = SeiraType.body, color = muted, inlineContent = caretContent())
             }
 
         is MarkdownBlock.Code ->
@@ -148,10 +181,12 @@ private fun MarkdownBlockView(block: MarkdownBlock, tail: Boolean) {
                 Text(
                     text = buildAnnotatedString {
                         append(block.text)
-                        appendCaret(tail, muted)
+                        appendCaret(tail)
                     },
                     fontSize = 14.sp,
                     fontFamily = FontFamily.Monospace,
+                    color = Seira.colors.ink,
+                    inlineContent = caretContent(),
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                 )
             }
@@ -169,11 +204,11 @@ private fun MarkerRow(symbol: String, indent: Int, text: String, tail: Boolean, 
     ) {
         Text(
             text = symbol,
-            fontSize = 17.sp,
+            style = SeiraType.body,
             color = muted,
             modifier = Modifier.widthIn(min = 16.dp),
         )
-        Text(inline(text, tail, muted), fontSize = 17.sp)
+        Text(inline(text, tail, muted), style = SeiraType.body, color = Seira.colors.ink, inlineContent = caretContent())
     }
 }
 
@@ -211,16 +246,63 @@ private fun inline(text: String, tail: Boolean, muted: Color): AnnotatedString {
                 ) { append(span.text) }
             }
         }
-        appendCaret(tail, muted)
+        appendCaret(tail)
     }
 }
 
+/** The id the caret's inline content is registered under. */
+private const val CARET_ID = "stream-caret"
+
+/** The tag a test finds the caret by. */
+internal const val STREAM_CARET_TAG = "stream-caret"
+private const val CARET_BLINK = "caret"
+private const val CARET_ALPHA = "caret-alpha"
+
 /**
- * A figure space then a block, so the caret sits off the last glyph rather than
- * touching it. It does not blink, deliberately — a caret that blinks twice and
- * stops looks more broken than one that never blinks.
+ * A space, then the caret as inline content, so it sits on the last line of the
+ * prose off the last glyph instead of on a line of its own.
  */
-private fun androidx.compose.ui.text.AnnotatedString.Builder.appendCaret(tail: Boolean, muted: Color) {
+private fun androidx.compose.ui.text.AnnotatedString.Builder.appendCaret(tail: Boolean) {
     if (!tail) return
-    withStyle(SpanStyle(color = muted)) { append(" ▍") }
+    append(" ")
+    appendInlineContent(CARET_ID, "|")
+}
+
+/**
+ * The caret: 8 by 17 in ink, blinking once a second. Where the system removes
+ * animations it holds still, a little faint.
+ */
+@Composable
+private fun caretContent(): Map<String, InlineTextContent> {
+    val color = Seira.colors.ink
+    val reduced = rememberReducedMotion()
+    return remember(color, reduced) {
+        mapOf(
+            CARET_ID to InlineTextContent(
+                Placeholder(8.sp, 17.sp, PlaceholderVerticalAlign.TextCenter),
+            ) {
+                val alpha = if (reduced) {
+                    0.7f
+                } else {
+                    val blink = rememberInfiniteTransition(label = CARET_BLINK)
+                    blink.animateFloat(
+                        initialValue = 0.7f,
+                        targetValue = 0.1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 500, easing = SeiraMotion.Ease),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                        label = CARET_ALPHA,
+                    ).value
+                }
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .testTag(STREAM_CARET_TAG)
+                        .graphicsLayer { this.alpha = alpha }
+                        .background(color),
+                )
+            },
+        )
+    }
 }

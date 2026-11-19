@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.audio.LiveCallPhase
 import com.openmausbot.companion.core.ChatTarget
+import com.openmausbot.companion.ui.theme.Seira
 import kotlinx.coroutines.delay
 
 object LiveCallBannerRules {
@@ -42,19 +43,19 @@ object LiveCallBannerRules {
     }
 }
 
-/** A thin green strip: the call, its clock, and a way back to it. [onHangUp] is null while the hang-up is on its way. */
+/** A thin strip: the call, its clock, and a way back to it. [onHangUp] is null while the hang-up is on its way. */
 @Composable
 fun LiveCallBanner(title: String, onOpen: () -> Unit, onHangUp: (() -> Unit)?, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(LIVE_GREEN.copy(alpha = 0.16f))
+            .background(Seira.colors.successSoft)
             .statusBarsPadding()
             .clickable(role = Role.Button, onClick = onOpen)
             .padding(start = 16.dp, end = 4.dp, top = 2.dp, bottom = 2.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(imageVector = Icons.Filled.Call, contentDescription = null, tint = LIVE_GREEN, modifier = Modifier.size(16.dp))
+        Icon(imageVector = Icons.Filled.Call, contentDescription = null, tint = Seira.colors.success, modifier = Modifier.size(16.dp))
         Text(
             text = localizedMobileCopy(title),
             fontSize = 14.sp,
@@ -81,6 +82,7 @@ fun LiveCallBanner(title: String, onOpen: () -> Unit, onHangUp: (() -> Unit)?, m
  */
 @Composable
 fun LiveCallBannerHost(navigator: CompanionNavigator) {
+    val callUi = LocalCompanion.current.callUi
     val liveCalls = LocalCompanion.current.liveCalls
     val local by liveCalls.state.collectAsState()
     if (!local.active) return
@@ -101,7 +103,10 @@ fun LiveCallBannerHost(navigator: CompanionNavigator) {
     }
     LiveCallBanner(
         title = title,
-        onOpen = { navigator.push(Destination.Chat(ChatTarget.Bot(botId, threadId))) },
+        onOpen = {
+            navigator.push(Destination.Chat(ChatTarget.Bot(botId, threadId)))
+            callUi.expand()
+        },
         onHangUp = if (local.holdsMedia) liveCalls::hangUp else null,
     )
 }
