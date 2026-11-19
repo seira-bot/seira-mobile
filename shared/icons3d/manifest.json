@@ -1,0 +1,143 @@
+{
+  "version": 1,
+  "masterSize": 1024,
+  "accessibility": "When visible text beside the icon says the same thing, hide the icon from assistive technology. Use label only when the icon stands alone.",
+  "icons": [
+    {
+      "name": "camera",
+      "place": "Add sheet tile",
+      "sizePt": 44,
+      "label": "Camera",
+      "iosAsset": "Icons3D/camera",
+      "androidDrawable": "icon3d_camera"
+    },
+    {
+      "name": "photos",
+      "place": "Add sheet tile",
+      "sizePt": 44,
+      "label": "Photos",
+      "iosAsset": "Icons3D/photos",
+      "androidDrawable": "icon3d_photos"
+    },
+    {
+      "name": "files",
+      "place": "Add sheet tile",
+      "sizePt": 44,
+      "label": "Files",
+      "iosAsset": "Icons3D/files",
+      "androidDrawable": "icon3d_files"
+    },
+    {
+      "name": "live-call",
+      "place": "Add sheet row",
+      "sizePt": 44,
+      "label": "Live call",
+      "iosAsset": "Icons3D/live-call",
+      "androidDrawable": "icon3d_live_call"
+    },
+    {
+      "name": "schedule",
+      "place": "Add sheet row",
+      "sizePt": 44,
+      "label": "Schedule",
+      "iosAsset": "Icons3D/schedule",
+      "androidDrawable": "icon3d_schedule"
+    },
+    {
+      "name": "cloud-desktop",
+      "place": "Add sheet row",
+      "sizePt": 44,
+      "label": "Cloud desktop",
+      "iosAsset": "Icons3D/cloud-desktop",
+      "androidDrawable": "icon3d_cloud_desktop"
+    },
+    {
+      "name": "appearance",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Appearance",
+      "iosAsset": "Icons3D/appearance",
+      "androidDrawable": "icon3d_appearance"
+    },
+    {
+      "name": "computer",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Your computer",
+      "iosAsset": "Icons3D/computer",
+      "androidDrawable": "icon3d_computer"
+    },
+    {
+      "name": "notifications",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Notifications",
+      "iosAsset": "Icons3D/notifications",
+      "androidDrawable": "icon3d_notifications"
+    },
+    {
+      "name": "voice",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Voice and calls",
+      "iosAsset": "Icons3D/voice",
+      "androidDrawable": "icon3d_voice"
+    },
+    {
+      "name": "privacy",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Privacy",
+      "iosAsset": "Icons3D/privacy",
+      "androidDrawable": "icon3d_privacy"
+    },
+    {
+      "name": "help",
+      "place": "Settings row",
+      "sizePt": 30,
+      "label": "Help",
+      "iosAsset": "Icons3D/help",
+      "androidDrawable": "icon3d_help"
+    },
+    {
+      "name": "empty-chats",
+      "place": "Empty state: no chats",
+      "sizePt": 120,
+      "label": "No chats yet",
+      "iosAsset": "Icons3D/empty-chats",
+      "androidDrawable": "icon3d_empty_chats"
+    },
+    {
+      "name": "not-connected",
+      "place": "Empty state: not connected",
+      "sizePt": 120,
+      "label": "Not connected",
+      "iosAsset": "Icons3D/not-connected",
+      "androidDrawable": "icon3d_not_connected"
+    },
+    {
+      "name": "offline",
+      "place": "Empty state: offline",
+      "sizePt": 120,
+      "label": "Offline",
+      "iosAsset": "Icons3D/offline",
+      "androidDrawable": "icon3d_offline"
+    },
+    {
+      "name": "all-done",
+      "place": "Empty state: all caught up",
+      "sizePt": 120,
+      "label": "All caught up",
+      "iosAsset": "Icons3D/all-done",
+      "androidDrawable": "icon3d_all_done"
+    },
+    {
+      "name": "pair",
+      "place": "Pair hero",
+      "sizePt": 120,
+      "label": "Connect your computer",
+      "iosAsset": "Icons3D/pair",
+      "androidDrawable": "icon3d_pair"
+    }
+  ]
+}
