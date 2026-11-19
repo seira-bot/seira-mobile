@@ -133,8 +133,7 @@ class HomeScreenTest {
         val navigator = mount()
         compose.onNodeWithTag("home-hero").assertIsDisplayed()
         compose.onNodeWithTag("home-hero-open")
-            .assert(hasText("Atlas"))
-            .assert(hasText("Chief of Staff"))
+            .assert(hasContentDescription("Atlas, Chief of Staff", substring = true))
             .performClick()
         assertEquals(RosterFixture.CHIEF, ((navigator.current as Destination.Chat).target as ChatTarget.Bot).botId)
     }

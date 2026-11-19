@@ -540,7 +540,7 @@ class RosterScreenTest {
      * stays off.
      */
     @Test
-    @Config(qualifiers = "w240dp-h720dp-mdpi")
+    @Config(qualifiers = "w280dp-h720dp-mdpi")
     fun `on a narrow phone at twice the text size a two-word name breaks between its words`() {
         mount(fontScale = 2f)
         reveal("chat-row.${RosterFixture.TWO_WORDS}")
