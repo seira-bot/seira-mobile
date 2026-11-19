@@ -35,6 +35,8 @@ commit and artifact being submitted; unchecked items remain release work.
   (Console rules, read 2026-11-19). Show no call entry point.
 - [ ] Render the screenshots again on the release UI (see README, "Screenshots"),
   then run `python3 android/PlayStore/tools/frame.py`.
+- [ ] Confirm the release build has the Seira character heads and the Change
+  look sheet. Screenshot 2 and the listing line about each bot's look need them.
 - [ ] Use the 512×512 icon that matches the release launcher icon.
 - [ ] Check current Console asset requirements and use only reviewed images.
 - [ ] Confirm support contacts, website, privacy policy URL, category, pricing,

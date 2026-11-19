@@ -1,36 +1,39 @@
 #!/usr/bin/env python3
-"""Build framed Google Play screenshots and feature graphics.
+"""Build the framed Google Play screenshots and the feature graphics (v2).
 
 Run from anywhere: python3 android/PlayStore/tools/frame.py
-Reads ../frames/captions.json and ../raw/*.png. Writes ../frames/<lang>/<id>.png
-and ../graphics/feature-graphic-<lang>.png. The app renders are only scaled and
-given rounded corners. No UI is drawn here.
+
+Inputs:
+  ../frames/captions.json      titles, layout, and mascot placement
+  ../raw/*.png                 real app renders (StoreScreenshotTest)
+  ../raw/cast/<id>.png         transparent cast portraits (CastPortraitTest)
+  ../graphics/source/bg/*.png  decorative backgrounds (gpt-image-2.6, no UI)
+
+Outputs:
+  ../frames/<lang>/<id>.png and ../graphics/feature-graphic-<lang>.png
+
+The app renders are only scaled, put in a phone body, and turned a little.
+This script draws no app UI. The mascots come from the app's own character
+renderer, so they look the same as the avatars in the app.
 """
 import json
 import sys
 from pathlib import Path
 
-from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 HERE = Path(__file__).resolve().parent
 PS = HERE.parent
 RAW = PS / "raw"
+CAST = RAW / "cast"
 FRAMES = PS / "frames"
 GRAPHICS = PS / "graphics"
-FONT_REG = HERE / "fonts" / "Geist-Regular.ttf"
-FONT_SEMI = HERE / "fonts" / "Geist-SemiBold.ttf"
-HEAD = GRAPHICS / "source" / "seira-head.png"
+BG = GRAPHICS / "source" / "bg"
+FONTS = HERE / "fonts"
 LANGS = ["en-US", "id-ID"]
 
 W, H = 1080, 1920
-MAX_TEXT_W = 920
-
-THEMES = {
-    "light": dict(top="#FBF7F8", bottom="#F1ECEE", glow=0.10, title="#141417",
-                  sub="#5B5B66", border="#E4E1E3", shadow=0.18),
-    "dark": dict(top="#111113", bottom="#1A1A1E", glow=0.18, title="#F2F2F3",
-                 sub="#A6A6B0", border="#2A2A30", shadow=0.50),
-}
+TEXT_W = 960
 
 
 def rgb(h):
@@ -38,11 +41,23 @@ def rgb(h):
     return tuple(int(h[i:i + 2], 16) for i in (0, 2, 4))
 
 
-def font(path, size):
-    return ImageFont.truetype(str(path), size)
+def font(name, size):
+    p = FONTS / f"Geist-{name}.ttf"
+    if not p.is_file():
+        # Pillow would quietly load a system font of the same name instead.
+        sys.exit(f"ERROR: missing font {p}")
+    return ImageFont.truetype(str(p), size)
 
 
-def vgradient(size, top, bottom):
+def cover(img, w, h):
+    """Scale to fill w x h, then crop the center."""
+    k = max(w / img.width, h / img.height)
+    img = img.resize((round(img.width * k), round(img.height * k)), Image.LANCZOS)
+    x, y = (img.width - w) // 2, (img.height - h) // 2
+    return img.crop((x, y, x + w, y + h))
+
+
+def gradient(size, top, bottom):
     w, h = size
     col = Image.new("RGB", (1, h))
     t, b = rgb(top), rgb(bottom)
@@ -52,17 +67,22 @@ def vgradient(size, top, bottom):
     return col.resize((w, h))
 
 
-def add_glow(img, color, opacity, cx, cy, radius):
-    """Smooth radial glow: full strength at center, zero at radius."""
-    g = Image.radial_gradient("L").resize((2 * radius, 2 * radius), Image.BICUBIC)
-    # radial_gradient reaches 128 at the square's edge midpoint: map 0..128 to full..zero
-    g = g.point(lambda v: int(max(0, 255 - v * 2) * opacity))
-    g = g.filter(ImageFilter.GaussianBlur(radius / 8))
-    layer = Image.new("RGB", g.size, rgb(color))
-    img.paste(layer, (cx - radius, cy - radius), g)
+def background(name, size, fallback):
+    p = BG / f"{name}.png"
+    if p.is_file():
+        return cover(Image.open(p).convert("RGB"), *size)
+    print(f"  note: {p.name} is missing, a plain gradient is used")
+    return gradient(size, *fallback)
 
 
-def wrap(draw, text, fnt, max_w, max_lines, what):
+def rounded_mask(size, radius, scale=4):
+    w, h = size
+    m = Image.new("L", (w * scale, h * scale), 0)
+    ImageDraw.Draw(m).rounded_rectangle((0, 0, w * scale - 1, h * scale - 1), radius * scale, fill=255)
+    return m.resize((w, h), Image.LANCZOS)
+
+
+def wrap(draw, text, fnt, max_w):
     words = text.split()
     lines, cur = [], ""
     for w in words:
@@ -73,120 +93,170 @@ def wrap(draw, text, fnt, max_w, max_lines, what):
             lines.append(cur)
             cur = w
     lines.append(cur)
-    if len(lines) == 2:
-        # balance the two lines so no single word is left alone on line 2
+    if len(lines) == 2 and len(words) > 2:
+        # balance the two lines so a single word does not hang on line 2
         best = min(range(1, len(words)),
                    key=lambda i: max(draw.textlength(" ".join(words[:i]), font=fnt),
                                      draw.textlength(" ".join(words[i:]), font=fnt)))
-        lines = [" ".join(words[:best]), " ".join(words[best:])]
-    if len(lines) > max_lines:
-        sys.exit(f"ERROR: {what} needs {len(lines)} lines (max {max_lines}): {text!r}")
-    for ln in lines:
-        if draw.textlength(ln, font=fnt) > max_w:
-            sys.exit(f"ERROR: {what} line too wide: {ln!r}")
+        cand = [" ".join(words[:best]), " ".join(words[best:])]
+        if all(draw.textlength(c, font=fnt) <= max_w for c in cand):
+            lines = cand
     return lines
 
 
-def draw_lines(draw, lines, fnt, fill, y, line_h, cx=None, x=None):
-    for ln in lines:
-        if cx is not None:
-            draw.text((cx, y), ln, font=fnt, fill=fill, anchor="ma")
-        else:
-            draw.text((x, y), ln, font=fnt, fill=fill, anchor="la")
-        y += line_h
+def fit(draw, text, face, sizes, max_w, max_lines, what):
+    """The largest size in `sizes` that keeps `text` in `max_lines` lines."""
+    for s in sizes:
+        fnt = font(face, s)
+        lines = wrap(draw, text, fnt, max_w)
+        if len(lines) <= max_lines and all(draw.textlength(l, font=fnt) <= max_w for l in lines):
+            return fnt, s, lines
+    sys.exit(f"ERROR: {what} does not fit in {max_lines} lines: {text!r}")
+
+
+def text_block(img, items, anchor_x, y, align="ma", shadow=0.35):
+    """items: list of (lines, font, size, line_height_factor, fill, gap_after)."""
+    layer = Image.new("RGBA", img.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    for lines, fnt, size, lhf, fill, gap in items:
+        lh = round(size * lhf)
+        for ln in lines:
+            d.text((anchor_x, y), ln, font=fnt, fill=fill, anchor=align)
+            y += lh
+        y += gap - (lh - size)
+    # soft shadow so white text stays readable on light parts of the background
+    alpha = layer.getchannel("A").filter(ImageFilter.GaussianBlur(10))
+    sh = Image.new("RGBA", img.size, (20, 6, 40, 0))
+    sh.putalpha(alpha.point(lambda v: int(v * shadow)))
+    img.alpha_composite(sh, (0, 6))
+    img.alpha_composite(layer)
     return y
 
 
-def rounded_mask(size, radius, scale=4):
-    w, h = size
-    m = Image.new("L", (w * scale, h * scale), 0)
-    ImageDraw.Draw(m).rounded_rectangle((0, 0, w * scale - 1, h * scale - 1),
-                                        radius * scale, fill=255)
-    return m.resize((w, h), Image.LANCZOS)
+def drop_shadow(rgba, blur, opacity, tint=(25, 8, 45)):
+    a = rgba.getchannel("A").filter(ImageFilter.GaussianBlur(blur))
+    pad = blur * 3
+    out = Image.new("RGBA", (rgba.width + 2 * pad, rgba.height + 2 * pad), tint + (0,))
+    big = Image.new("L", out.size, 0)
+    big.paste(a, (pad, pad))
+    out.putalpha(big.filter(ImageFilter.GaussianBlur(blur)).point(lambda v: int(v * opacity)))
+    return out, pad
+
+
+def phone(raw, width, dark):
+    """The real render inside a plain phone body. Returns RGBA."""
+    bezel, r_out = 16, 76
+    sw = width - 2 * bezel
+    sh = round(raw.height * sw / raw.width)
+    shot = raw.resize((sw, sh), Image.LANCZOS).convert("RGBA")
+    size = (width, sh + 2 * bezel)
+    body = Image.new("RGBA", size, (0, 0, 0, 0))
+    edge = rgb("#4A4A58" if dark else "#34343F") + (255,)
+    body.paste(Image.new("RGBA", size, edge), (0, 0), rounded_mask(size, r_out))
+    inner = (width - 6, size[1] - 6)
+    body.paste(Image.new("RGBA", inner, rgb("#0C0C11") + (255,)), (3, 3), rounded_mask(inner, r_out - 3))
+    body.paste(shot, (bezel, bezel), rounded_mask((sw, sh), r_out - bezel))
+    return body
+
+
+def place(img, rgba, cx, cy, angle=0.0, shadow=(36, 0.45), offset=(0, 26)):
+    if angle:
+        rgba = rgba.rotate(angle, resample=Image.BICUBIC, expand=True)
+    if shadow:
+        sh, pad = drop_shadow(rgba, *shadow)
+        img.alpha_composite(sh, (round(cx - rgba.width / 2 - pad + offset[0]),
+                                 round(cy - rgba.height / 2 - pad + offset[1])))
+    img.alpha_composite(rgba, (round(cx - rgba.width / 2), round(cy - rgba.height / 2)))
+
+
+def mascot(m):
+    name = m["id"] + ("" if m.get("mood", "happy") == "happy" else f"-{m['mood']}")
+    p = CAST / f"{name}.png"
+    if not p.is_file():
+        sys.exit(f"ERROR: missing cast portrait {p}")
+    im = Image.open(p).convert("RGBA")
+    # The renderer draws a soft ground shadow under the head. Keep only the
+    # opaque head (plus its edge), so place() can add one shadow of its own.
+    l, t, r, b = im.getchannel("A").point(lambda v: 255 if v > 200 else 0).getbbox()
+    im = im.crop((max(l - 3, 0), max(t - 3, 0), min(r + 3, im.width), min(b + 3, im.height)))
+    k = m["size"] / max(im.width, im.height)
+    im = im.resize((round(im.width * k), round(im.height * k)), Image.LANCZOS)
+    if m.get("flip"):
+        im = im.transpose(Image.FLIP_LEFT_RIGHT)
+    return im
 
 
 def build_phone(shot, lang):
-    th = THEMES[shot["theme"]]
-    img = vgradient((W, H), th["top"], th["bottom"])
-    add_glow(img, "#FF3D64", th["glow"], W // 2, 700, 700)
+    dark = shot["theme"] == "dark"
+    img = background(shot["bg"], (W, H), shot["fallback"]).convert("RGBA")
     d = ImageDraw.Draw(img)
 
-    f_t, f_s = font(FONT_SEMI, 68), font(FONT_REG, 36)
-    t_lines = wrap(d, shot["title"][lang], f_t, MAX_TEXT_W, 2, f"title {shot['id']}/{lang}")
-    s_lines = wrap(d, shot["sub"][lang], f_s, MAX_TEXT_W, 2, f"sub {shot['id']}/{lang}")
-    t_lh, s_lh = round(68 * 1.15), round(36 * 1.3)
+    t_font, t_size, t_lines = fit(d, shot["title"][lang], "ExtraBold", range(92, 63, -2), TEXT_W, 2,
+                                  f"title {shot['id']}/{lang}")
+    s_font, s_size, s_lines = fit(d, shot["sub"][lang], "Medium", range(42, 33, -1), TEXT_W - 40, 2,
+                                  f"sub {shot['id']}/{lang}")
 
-    y = draw_lines(d, t_lines, f_t, th["title"], 110, t_lh, cx=W // 2)
-    # last title line occupies t_lh; sub starts 22 px below its bottom
-    sub_top = y + 22
-    sub_bottom = draw_lines(d, s_lines, f_s, th["sub"], sub_top, s_lh, cx=W // 2)
-    sub_bottom -= (s_lh - 36)  # trim trailing leading to the glyph box
+    # x in captions.json is for a phone on the right. "side": "left" mirrors it.
+    left = shot.get("side", "right") == "left"
+
+    def mx(m):
+        return W - m["x"] if left else m["x"]
+
+    def ma(m):
+        return -m.get("angle", 0) if left else m.get("angle", 0)
+
+    for m in shot["mascots"]:
+        if m.get("z", 1) < 0:
+            place(img, mascot(m), mx(m), m["y"], ma(m), shadow=(28, 0.35))
 
     raw = Image.open(RAW / shot["raw"][lang]).convert("RGB")
-    top = max(400, sub_bottom + 56)
-    sw = 820
-    while True:
-        sh = round(raw.height * sw / raw.width)
-        if top + sh <= H - 16:
-            break
-        sw -= 4
-    shot_img = raw.resize((sw, sh), Image.LANCZOS)
-    x = (W - sw) // 2
+    body = phone(raw, shot.get("phone_w", 680), dark)
+    dx = shot.get("phone_dx", 105)
+    place(img, body, W / 2 + (-dx if left else dx), shot.get("phone_y", 1235), shot.get("tilt", 0),
+          shadow=(44, 0.55), offset=(0, 34))
 
-    mask = rounded_mask((sw, sh), 44)
+    for m in shot["mascots"]:
+        if m.get("z", 1) >= 0:
+            place(img, mascot(m), mx(m), m["y"], ma(m))
 
-    # shadow
-    sh_layer = Image.new("L", (W, H), 0)
-    sh_layer.paste(mask.point(lambda v: int(v * th["shadow"])), (x, top + 16))
-    sh_layer = sh_layer.filter(ImageFilter.GaussianBlur(40 / 2))
-    img.paste(Image.new("RGB", (W, H), (0, 0, 0)), (0, 0), sh_layer)
-
-    # border: rounded rect 2 px larger-in-ring, following the shape
-    bw = 2
-    outer = rounded_mask((sw + 2 * bw, sh + 2 * bw), 44 + bw)
-    img.paste(Image.new("RGB", outer.size, rgb(th["border"])), (x - bw, top - bw), outer)
-    # screenshot on top, inset so the ring shows
-    inner_mask = mask
-    img.paste(shot_img, (x, top), inner_mask)
-    return img, dict(shot_w=sw, top=top, bottom=top + sh)
+    text_block(img, [(t_lines, t_font, t_size, 1.08, (255, 255, 255, 255), 22),
+                     (s_lines, s_font, s_size, 1.25, (255, 255, 255, 232), 0)], W // 2, 96)
+    return img.convert("RGB")
 
 
 def build_feature(cfg, lang):
     fw, fh = cfg["size"]
-    img = Image.new("RGB", (fw, fh), rgb("#0E0E10"))
-    add_glow(img, "#FF3D64", 0.22, 260, 250, 380)
-    add_glow(img, "#4F8DFF", 0.08, 900, 120, 380)
+    img = background(cfg["bg"], (fw, fh), cfg["fallback"]).convert("RGBA")
     d = ImageDraw.Draw(img)
-
-    head = Image.open(HEAD).convert("RGBA").resize((300, 300), Image.LANCZOS)
-    img.paste(head, (80, (fh - 300) // 2), head)
-
-    f_t, f_s = font(FONT_SEMI, 104), font(FONT_REG, 40)
-    t_lh, s_lh = round(104 * 1.15), round(40 * 1.3)
-    lines = wrap(d, cfg["tagline"][lang], f_s, 540, 2, f"tagline {lang}")
-    block = t_lh + 18 + len(lines) * s_lh - (s_lh - 40)
-    y0 = (fh - block) // 2
-    d.text((430, y0), cfg["title"], font=f_t, fill=rgb("#F2F2F3"), anchor="la")
-    draw_lines(d, lines, f_s, rgb("#C9C9D1"), y0 + t_lh + 18, s_lh, x=430)
-    return img
+    for m in sorted(cfg["mascots"], key=lambda m: m.get("z", 0)):
+        place(img, mascot(m), m["x"], m["y"], m.get("angle", 0), shadow=(22, 0.4), offset=(0, 16))
+    t_font = font("Black", 128)
+    s_font, s_size, s_lines = fit(d, cfg["tagline"][lang], "Bold", range(42, 31, -1), 420, 2, f"tagline {lang}")
+    block = 128 + 16 + round(s_size * 1.2) * len(s_lines)
+    y0 = (fh - block) // 2 - 8
+    text_block(img, [(["Seira"], t_font, 128, 1.0, (255, 255, 255, 255), 16),
+                     (s_lines, s_font, s_size, 1.2, (255, 255, 255, 240), 0)], 64, y0, align="la", shadow=0.4)
+    return img.convert("RGB")
 
 
 def main():
     cap = json.loads((FRAMES / "captions.json").read_text())
-    outs = []  # (path, expected size, max bytes)
+    only = set(sys.argv[1:])
+    outs = []
     for lang in LANGS:
         (FRAMES / lang).mkdir(parents=True, exist_ok=True)
         for shot in cap["shots"]:
-            img, info = build_phone(shot, lang)
+            if only and shot["id"] not in only:
+                continue
             p = FRAMES / lang / f"{shot['id']}.png"
-            img.save(p, optimize=True)
+            build_phone(shot, lang).save(p, optimize=True)
             outs.append((p, (W, H), 8 * 1024 * 1024))
     gcfg = cap["feature_graphic"]
-    for lang in LANGS:
-        img = build_feature(gcfg, lang)
-        p = GRAPHICS / f"feature-graphic-{lang}.png"
-        img.save(p, optimize=True)
-        outs.append((p, tuple(gcfg["size"]), 15 * 1024 * 1024))
+    if not only or "feature" in only:
+        for lang in LANGS:
+            p = GRAPHICS / f"feature-graphic-{lang}.png"
+            build_feature(gcfg, lang).save(p, optimize=True)
+            outs.append((p, tuple(gcfg["size"]), 15 * 1024 * 1024))
 
     bad = False
     for p, size, mx in outs:

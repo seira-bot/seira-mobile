@@ -25,6 +25,7 @@ Your Seira bots work on your computer. When a bot needs an answer, you might be 
 
 What you can do
 • See all your bots in one list. Bots that need your attention come first.
+• Give each bot its own look: a character, hair, color, and extras.
 • Read each conversation as the reply comes in, with tables and formatted text.
 • Allow or deny a request when a bot asks before it acts.
 • Send a message or a new task. Type it, or use dictation.
@@ -54,13 +55,16 @@ First release of Seira for Android. Pair your phone with Seira on your computer,
 
 ## Claims and their source
 
-Each feature claim above maps to code in the release candidate (PR #3,
-`claude/android-redesign-d4dc4b`). Verify each one again on the signed release
-build before submission.
+Each feature claim above maps to code in the release candidate: PR #3
+(`claude/android-redesign-d4dc4b`) plus the Seira character work
+(`claude/android-character` and `claude/android-character-sheet`). The
+screenshots also come from that combined code. Do not submit until all three
+are in the release build. Verify each claim again on the signed release build.
 
 | Claim | Where it is in the app |
 | --- | --- |
 | Bots that need attention come first | Home roster, "Needs attention" group |
+| Each bot its own look | Change look sheet (`ChangeLookSheet.kt`): Characters, Hair, Colour, Face, Extras |
 | Reply appears as it comes in, tables, formatted text | Chat screen, streamed Markdown replies |
 | Allow or deny a request | Chat approval card ("Needs your OK") |
 | Dictation | Composer dictation button |

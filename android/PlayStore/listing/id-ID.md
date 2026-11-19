@@ -28,6 +28,7 @@ Bot Seira Anda bekerja di komputer. Saat bot butuh jawaban, Anda mungkin sedang 
 
 Yang bisa Anda lakukan
 • Lihat semua bot dalam satu daftar. Bot yang perlu perhatian Anda tampil paling atas.
+• Beri setiap bot tampilannya sendiri: karakter, rambut, warna, dan aksesori.
 • Baca percakapan saat balasan masuk, lengkap dengan tabel dan teks berformat.
 • Setujui atau tolak saat bot meminta persetujuan sebelum bertindak.
 • Kirim pesan atau tugas baru dengan mengetik atau dengan dikte suara.

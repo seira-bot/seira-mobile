@@ -7,8 +7,9 @@ lalu mengisinya sendiri di Play Console.
 
 Dasar usulan:
 
-- Kandidat rilis: PR #3 (`claude/android-redesign-d4dc4b`), manifest dan
-  dependensi pada 2026-11-19.
+- Kandidat rilis: PR #3 (`claude/android-redesign-d4dc4b`) ditambah karakter
+  Seira (`claude/android-character`) dan sheet Change look
+  (`claude/android-character-sheet`), manifest dan dependensi pada 2026-11-19.
 - Aturan Play dibaca pada 2026-11-19: Data safety (`answer/10787469`), AI-Generated
   Content (`answer/14094294`), dan data disclosure ML Kit
   (`developers.google.com/ml-kit/android-data-disclosure`).
@@ -49,7 +50,7 @@ pihak ketiga.
 | Photos and videos → Photos | Yes | Yes | No | Lampiran dan berbagi dari app lain (`ShareReceiveActivity`, `SEND`/`SEND_MULTIPLE`) |
 | Files and docs → Files and docs | Yes | Yes | No | Lampiran PDF dan berkas office lewat share |
 | Audio files → Voice or sound recordings | Yes (lihat D-1) | Yes | Dikte: Yes. Panggilan: TBD | Dikte memakai pengenal suara platform yang bisa memakai jaringan (`dictation/SpeechDictation.kt`). Panggilan mengalirkan mikrofon ke komputer lewat WebRTC (`audio/LiveCallService`). |
-| App activity → App interactions | Yes | No | No | Jawaban persetujuan (Allow/Deny), pilihan balasan cepat |
+| App activity → App interactions | Yes | No | No | Jawaban persetujuan (Allow/Deny), pilihan balasan cepat, tampilan bot yang pengguna pilih di Change look |
 | App activity → Other user-generated content | Yes | No | No | Tugas dan instruksi yang pengguna kirim ke bot |
 | Personal info → Name, Email address | TBD (D-2) | — | — | Profil di Settings menampilkan nama dan email dari komputer. Tandai Yes hanya kalau app mengirimnya keluar. |
 | Device or other IDs → Device or other IDs | Yes | No | No | Nama perangkat saat pairing (`deviceName`). ML Kit: "Per-installation identifiers". |

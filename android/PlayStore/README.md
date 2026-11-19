@@ -51,7 +51,7 @@ approved upload set.
 | --- | --- | --- |
 | Copy, English (United States), default | [listing/en-US.md](listing/en-US.md) | Check each claim against the release build. The file maps each claim to the app. |
 | Copy, Indonesian | [listing/id-ID.md](listing/id-ID.md) | Same claims as en-US. It states that the app screens are in English. |
-| Phone screenshots, 1080×1920 (9:16) | [frames/en-US/](frames/en-US/), [frames/id-ID/](frames/id-ID/) | Five images per language. Compare with the release build. |
+| Phone screenshots, 1080×1920 (9:16) | [frames/en-US/](frames/en-US/), [frames/id-ID/](frames/id-ID/) | Six images per language. Compare with the release build. |
 | Feature graphic, 1024×500 | [graphics/feature-graphic-en-US.png](graphics/feature-graphic-en-US.png), [graphics/feature-graphic-id-ID.png](graphics/feature-graphic-id-ID.png) | Check Seira branding. |
 | Icon, 512×512 | [assets/play-icon-512.png](assets/play-icon-512.png) | Use the icon that matches the release launcher icon. |
 | Declarations | [declarations-proposal.md](declarations-proposal.md) | Proposed answers only. The release owner decides and enters them. |
@@ -68,23 +68,40 @@ separate feature. The old screenshots, including the call screen, are removed.
 Each screenshot is a real render of the app with synthetic data, in a frame
 with a short caption. The frame never draws or changes app UI.
 
-1. Render the app screens. `StoreScreenshotTest` on branch
-   `claude/play-store-screens` (based on the redesign, PR #3) renders them with
-   Robolectric at 411×731 dp (9:16). From `android/`, run
-   `./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest'`.
-2. Copy `android/app/build/design-screens/store-*.png` to [raw/](raw/).
-3. Edit captions in [frames/captions.json](frames/captions.json) if needed.
+The renders need the Seira character work: the 3D character heads
+(`claude/android-character`) and the Change look sheet
+(`claude/android-character-sheet`). Screenshot 2 and the listing line about
+each bot's look show that sheet. Do not submit them unless the release build
+has both.
+
+1. Render the app screens and the cast portraits. `StoreScreenshotTest` and
+   `CastPortraitTest` on branch `claude/play-store-screens-3d` (built on the
+   redesign, PR #3, and the character work) render them with Robolectric at
+   411×731 dp (9:16). From `android/`, run
+   `./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest' --tests '*CastPortraitTest'`.
+2. Copy `android/app/build/design-screens/store-*.png` to [raw/](raw/). Copy
+   the portraits that [frames/captions.json](frames/captions.json) names to
+   [raw/cast/](raw/cast/).
+3. Edit captions and mascot placement in
+   [frames/captions.json](frames/captions.json) if needed.
 4. From the repository root, run `python3 android/PlayStore/tools/frame.py`.
    It rebuilds every framed screenshot and both feature graphics, and checks
    size, color mode, and file size. It needs Pillow.
 
+Where each part of an image comes from:
+
+| Part | Source |
+| --- | --- |
+| Phone screen | The app render in `raw/` |
+| Mascots | The app's own character renderer (`CastPortraitTest`), so they match the avatars in the app |
+| Background | Generated decoration in [graphics/source/bg/](graphics/source/bg/): confetti, stars, and color only, no UI and no text |
+| Caption | [frames/captions.json](frames/captions.json), drawn by `frame.py` |
+
 The render test hides every call entry point (the Home Talk pill, the chat call
 button, and the composer talk button). Check each image again when the UI changes.
-The current renders show the mascot faces of PR #3. Render again when the
-Seira character work merges.
 
-`raw/` also holds tablet renders (1920×1080 and 2560×1440). They are not framed
-and not in the upload set.
+`raw/` also holds tablet renders (1920×1080 and 2560×1440) and extra Change look
+renders. They are not framed and not in the upload set.
 
 The frame font is Geist, under the SIL Open Font License
 ([tools/fonts/OFL.txt](tools/fonts/OFL.txt)).
