@@ -29,6 +29,8 @@ internal fun designScreenshotFile(name: String, mode: ThemeMode): File {
 internal fun ComposeContentTestRule.captureDesign(
     name: String,
     mode: ThemeMode,
+    /** Runs after the first frame and before the picture: wait for data, scroll. */
+    beforeCapture: () -> Unit = {},
     content: @Composable () -> Unit,
 ): File {
     require(mode != ThemeMode.AUTO) { "A screenshot needs an explicit light or dark mode." }
@@ -37,6 +39,8 @@ internal fun ComposeContentTestRule.captureDesign(
             Box(Modifier.fillMaxSize().background(Seira.colors.app)) { content() }
         }
     }
+    waitForIdle()
+    beforeCapture()
     waitForIdle()
     val file = designScreenshotFile(name, mode)
     val decor = (this as AndroidComposeTestRule<*, *>).activity.window.decorView

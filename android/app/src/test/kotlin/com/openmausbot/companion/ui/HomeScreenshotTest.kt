@@ -6,7 +6,12 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performScrollToNode
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.RosterDensity
@@ -34,6 +39,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w390dp-h844dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@OptIn(ExperimentalTestApi::class)
 class HomeScreenshotTest {
     @get:Rule val compose = createComposeRule()
 
@@ -93,7 +99,21 @@ class HomeScreenshotTest {
         while (scene.session.state.value.bots.isEmpty() && System.currentTimeMillis() < deadline) {
             Thread.sleep(50)
         }
-        return compose.captureDesign(name, mode) { Home() }.length() > 0
+        val file = compose.captureDesign(
+            name,
+            mode,
+            beforeCapture = {
+                // Same state in both modes: the profile has loaded and the greeting names her.
+                compose.waitUntil(10_000) {
+                    compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
+                }
+                // The comfortable rows start under Needs attention: bring them up.
+                if (density == RosterDensity.COMFORTABLE) {
+                    compose.onNodeWithTag("roster-list").performScrollToNode(hasTestTag("chat-row.${RosterFixture.CHIEF}"))
+                }
+            },
+        ) { Home() }
+        return file.length() > 0
     }
 
     @Composable

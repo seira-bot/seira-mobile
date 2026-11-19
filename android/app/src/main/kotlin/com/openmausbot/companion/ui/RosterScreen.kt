@@ -420,7 +420,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     onOpen = { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) },
                                     onCreateThread = createThread,
                                     onManageThreads = { bot -> managingThreads = Chat.BotChat(bot) },
-                                    modifier = Modifier.padding(top = 20.dp),
+                                    modifier = Modifier.padding(top = 28.dp),
                                 )
                             }
                         }
@@ -432,7 +432,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                 },
                                 onCalendar = { navigator.push(Destination.Calendar) },
                                 onSettings = openSettings,
-                                modifier = Modifier.padding(top = 12.dp),
+                                modifier = Modifier.padding(top = 20.dp),
                             )
                         }
                     }

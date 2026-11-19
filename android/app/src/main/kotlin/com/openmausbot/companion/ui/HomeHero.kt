@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,6 @@ import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.ui.theme.AvatarRing
 import com.openmausbot.companion.ui.theme.IdentityAvatar
-import com.openmausbot.companion.ui.theme.InkPillButton
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraType
@@ -129,14 +129,18 @@ internal fun HomeHero(
             }
         }
         if (canTalk) {
-            InkPillButton(
-                text = stringResource(R.string.home_talk),
-                icon = SeiraIcons.AudioLines,
-                onClick = onTalk,
+            Box(
                 modifier = Modifier
                     .testTag("home-talk")
-                    .semantics(mergeDescendants = true) { contentDescription = talkLabel },
-            )
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(colors.primary, CircleShape)
+                    .clickable(role = Role.Button, onClick = onTalk)
+                    .semantics { contentDescription = talkLabel },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(SeiraIcons.AudioLines, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(20.dp))
+            }
         }
     }
 }

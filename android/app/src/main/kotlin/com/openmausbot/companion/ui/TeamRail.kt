@@ -129,7 +129,7 @@ internal fun TeamRail(
             FlowRow(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 6.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
@@ -140,7 +140,7 @@ internal fun TeamRail(
         } else {
             LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 6.dp),
+                contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 6.dp),
             ) {
                 items(members, key = { it.bot.id }) {
                     TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) })
