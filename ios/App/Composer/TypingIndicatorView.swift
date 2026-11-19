@@ -1,12 +1,8 @@
 import SwiftUI
 
-/// The bot is typing: three dots bouncing in the bot's own received-message
-/// bubble, the way Messages shows someone typing.
+/// The bot is typing: three dots bouncing where the reply will start.
 ///
-/// Drawn in the same bubble, padding and tail as `StreamingBubble` and a
-/// settled reply, so the reply that replaces it arrives as text in a bubble
-/// that was already there rather than as a new shape. One line high, so the
-/// handover does not jump the transcript by much either.
+/// One line high, so the handover to the reply does not jump the transcript.
 ///
 /// Reduce Motion holds the dots still and a little fainter: still three dots,
 /// because a reader who asked for less motion did not ask to be told less.
@@ -33,21 +29,16 @@ struct TypingIndicatorView: View {
                     ForEach(0..<3, id: \.self) { index in
                         let lift = reduceMotion ? 0 : Self.lift(index, at: context.date.timeIntervalSinceReferenceDate)
                         Circle()
-                            .fill(Color.secondary)
+                            .fill(Color.seiraInk3)
                             .frame(width: Self.dotSize, height: Self.dotSize)
                             .opacity(reduceMotion ? 0.45 : 0.55 + 0.4 * lift)
                             .offset(y: -Self.bounceHeight * lift)
                     }
                 }
-                // A line of body text tall, so the bubble matches a one-line
-                // reply and the bounce has room inside it.
+                // A line of body text tall, so the bounce has room.
                 .frame(height: 22)
             }
-            .padding(.horizontal, 15)
-            .padding(.vertical, 11)
-            .background(SpeechBubble(tail: .leading).fill(BubbleColor.theirs))
-            .padding(.bottom, SpeechBubble.tailDrop())
-            Spacer(minLength: 44)
+            Spacer(minLength: 24)
         }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text("\(name) is typing"))
