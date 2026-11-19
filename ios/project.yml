@@ -65,6 +65,8 @@ targets:
       - path: App
       - path: AppShared
       - path: Shared
+      - path: SeiraKit
+        type: folder
     dependencies:
       - package: CompanionCore
         product: CompanionCore
@@ -269,6 +271,11 @@ targets:
       # MascotState resolves the face for the post-answer refresh a widget
       # performs; it is self-contained above Core, so it rides along.
       - path: App/MascotState.swift
+      # The character kit and the code that draws it. Widgets, Live
+      # Activities and intents draw the carved avatar from these.
+      - path: App/Character
+      - path: SeiraKit
+        type: folder
     dependencies:
       # MausAvatar draws whichever body a bot wears, and the body catalog and
       # its path parser live in CompanionCore. The extension shares the
