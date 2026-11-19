@@ -39,6 +39,7 @@ internal fun SeiraCharacter(
     mood: CharacterMood = CharacterMood.IDLE,
     sway: Boolean = false,
     talkLevel: () -> Float = { 0f },
+    animated: Boolean = true,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -51,6 +52,7 @@ internal fun SeiraCharacter(
         mood = mood,
         sway = sway,
         talkLevel = talkLevel,
+        animated = animated,
         contentDescription = contentDescription,
         modifier = modifier,
     )
@@ -58,7 +60,7 @@ internal fun SeiraCharacter(
 
 /**
  * The animated Seira character. A change of hair, colour, accessories, face ink or mood cross-fades in 180 ms,
- * or at once when the system removes animations. [talkLevel] is read while drawing, so it never recomposes.
+ * or at once when the system removes animations. With [animated] false it stays still, with no blink and no sway. [talkLevel] is read while drawing, so it never recomposes.
  */
 @Composable
 internal fun SeiraCharacter(
@@ -70,11 +72,12 @@ internal fun SeiraCharacter(
     mood: CharacterMood = CharacterMood.IDLE,
     sway: Boolean = false,
     talkLevel: () -> Float = { 0f },
+    animated: Boolean = true,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val reduced = rememberReducedMotion()
+    val reduced = rememberReducedMotion() || !animated
     val assets = remember(context) { SeiraAssets.forContext(context) }
     val renderer = remember(assets) { SeiraCharacterRenderer(assets) }
     val outgoing = remember(assets) { SeiraCharacterRenderer(assets) }
@@ -108,6 +111,7 @@ internal fun SeiraCharacter(
             clock.floatValue = 0f
             return@LaunchedEffect
         }
+        if (motionIsOff()) return@LaunchedEffect
         var start = Long.MIN_VALUE
         while (true) {
             withFrameNanos { now ->

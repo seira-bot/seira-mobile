@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
@@ -21,6 +22,7 @@ import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.normalize
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 
 /**
@@ -77,6 +79,7 @@ internal fun CarvedAvatar(
     if (live) {
         LaunchedEffect(mood) {
             animator.mood = mood
+            if (motionIsOff()) return@LaunchedEffect
             while (true) {
                 val now = withFrameNanos { it / 1_000_000 }
                 val next = animator.step(now)
@@ -87,6 +90,7 @@ internal fun CarvedAvatar(
     }
     if (swaying) {
         LaunchedEffect(Unit) {
+            if (motionIsOff()) return@LaunchedEffect
             var start = Long.MIN_VALUE
             while (true) {
                 withFrameNanos { now ->
@@ -114,5 +118,9 @@ internal fun CarvedAvatar(
         }
     }
 }
+
+/** Whether the frame loops must stay off because the composition runs with a motion scale of 0. */
+internal suspend fun motionIsOff(): Boolean =
+    (currentCoroutineContext()[MotionDurationScale]?.scaleFactor ?: 1f) == 0f
 
 private const val IDLE_SLEEP_MS = 40L

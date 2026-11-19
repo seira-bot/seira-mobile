@@ -1,11 +1,12 @@
 package com.openmausbot.companion.character
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.test.captureToImage
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
@@ -32,7 +33,7 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class BotLookAvatarTest {
     @get:Rule
-    val rule = createComposeRule()
+    val rule = createAndroidComposeRule<ComponentActivity>()
 
     private val bot = Bot(
         id = "b1",
@@ -60,8 +61,9 @@ class BotLookAvatarTest {
                 }
             }
         }
-        val drawn = rule.onNodeWithContentDescription("bot").captureToImage().asAndroidBitmap()
-        val carved = rule.onNodeWithContentDescription("carved").captureToImage().asAndroidBitmap()
+        rule.waitForIdle()
+        val drawn = capture("bot")
+        val carved = capture("carved")
         assertTrue(drawn.sameAs(carved))
         assertTrue(opaquePixels(drawn) > 0)
     }
@@ -83,7 +85,19 @@ class BotLookAvatarTest {
         assertNotEquals(plate, adaptive.getPixel(adaptive.width / 2, adaptive.height / 2))
     }
 
-    private fun opaquePixels(bitmap: android.graphics.Bitmap): Int {
+    private fun capture(description: String): Bitmap {
+        val decor = rule.activity.window.decorView
+        val metrics = decor.resources.displayMetrics
+        val window = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888)
+        decor.layout(0, 0, metrics.widthPixels, metrics.heightPixels)
+        decor.draw(Canvas(window))
+        val bounds = rule.onNodeWithContentDescription(description).fetchSemanticsNode().boundsInRoot
+        return Bitmap.createBitmap(
+            window, bounds.left.toInt(), bounds.top.toInt(), bounds.width.toInt(), bounds.height.toInt(),
+        )
+    }
+
+    private fun opaquePixels(bitmap: Bitmap): Int {
         var count = 0
         for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) {
             if (Color.alpha(bitmap.getPixel(x, y)) > 200) count++

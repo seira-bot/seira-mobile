@@ -343,7 +343,8 @@ private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, spea
             SeiraCharacter(
                 look = bot?.let(SeiraLook::from) ?: SeiraLook.SEIRA,
                 size = minOf(156.dp, ring * 0.7f),
-                sway = animateAvatar,
+                sway = true,
+                animated = animateAvatar,
                 talkLevel = { talk.value },
             )
         }
