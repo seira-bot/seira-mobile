@@ -76,7 +76,7 @@ has both.
 
 1. Render the app screens and the cast portraits. `StoreScreenshotTest` and
    `CastPortraitTest` on branch `claude/play-store-screens-3d` (built on the
-   redesign, PR #3, and the character work) render them with Robolectric at
+   redesign from PR #3, now in `main`, and the character work) render them with Robolectric at
    411×731 dp (9:16). From `android/`, run
    `./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest' --tests '*CastPortraitTest'`.
 2. Copy `android/app/build/design-screens/store-*.png` to [raw/](raw/). Copy

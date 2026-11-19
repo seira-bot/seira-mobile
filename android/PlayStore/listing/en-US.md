@@ -55,11 +55,11 @@ First release of Seira for Android. Pair your phone with Seira on your computer,
 
 ## Claims and their source
 
-Each feature claim above maps to code in the release candidate: PR #3
-(`claude/android-redesign-d4dc4b`) plus the Seira character work
+Each feature claim above maps to code in the release candidate: `main` with
+the redesign (PR #3, merged as `c7b84a4`) plus the Seira character work
 (`claude/android-character` and `claude/android-character-sheet`). The
-screenshots also come from that combined code. Do not submit until all three
-are in the release build. Verify each claim again on the signed release build.
+screenshots also come from that combined code. Do not submit until the two
+character branches are in the release build. Verify each claim again on the signed release build.
 
 | Claim | Where it is in the app |
 | --- | --- |

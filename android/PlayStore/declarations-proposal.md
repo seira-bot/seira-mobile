@@ -7,8 +7,8 @@ lalu mengisinya sendiri di Play Console.
 
 Dasar usulan:
 
-- Kandidat rilis: PR #3 (`claude/android-redesign-d4dc4b`) ditambah karakter
-  Seira (`claude/android-character`) dan sheet Change look
+- Kandidat rilis: `main` setelah redesign PR #3 merge (`c7b84a4`), ditambah
+  karakter Seira (`claude/android-character`) dan sheet Change look
   (`claude/android-character-sheet`), manifest dan dependensi pada 2026-11-19.
 - Aturan Play dibaca pada 2026-11-19: Data safety (`answer/10787469`), AI-Generated
   Content (`answer/14094294`), dan data disclosure ML Kit
