@@ -14,7 +14,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -27,20 +28,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Create
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -71,6 +62,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -80,14 +74,24 @@ import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Chat
+import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.ChatSummary
 import com.openmausbot.companion.core.Room
+import com.openmausbot.companion.core.RosterRowStatus
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.SearchHit
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.chat
 import com.openmausbot.companion.core.chatSummaries
 import com.openmausbot.companion.core.forTask
+import com.openmausbot.companion.core.rosterStatus
+import com.openmausbot.companion.ui.theme.BottomFade
+import com.openmausbot.companion.ui.theme.IdentityAvatar
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraType
+import com.openmausbot.companion.ui.theme.glass
+import com.openmausbot.companion.ui.theme.seiraShadow
 import java.util.Locale
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -145,12 +149,22 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // would race two bots into existence.
     var creatingBot by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf<Chat?>(null) }
+    var showingNewChat by remember { mutableStateOf(false) }
+    var teamExpanded by rememberSaveable { mutableStateOf(false) }
+    var profile by remember { mutableStateOf<Profile?>(null) }
+    val liveCall by environment.liveCalls.state.collectAsState()
     // What the floating bar measures, so the list's end clears it exactly.
     // Zero until the first layout, when the list is at its top anyway.
     val density = LocalDensity.current
     var barHeight by remember { mutableStateOf(0.dp) }
 
     val query = bar.query
+
+    LaunchedEffect(connection?.id, status) {
+        if (status == Session.Status.Live) {
+            session.configStatus()?.profile?.let { profile = it }
+        }
+    }
 
     // Local filtering is always on; the computer is only asked past two
     // characters and after a quiet moment (§10).
@@ -199,12 +213,27 @@ fun RosterScreen(navigator: CompanionNavigator) {
     val tiles = remember(fleet) {
         rooms.associate { it.id to RosterLayout.memberBots(fleet, it) }
     }
-    // Read by the bar over the list and by nothing inside it, so the rows never
-    // recompose for it. `approvals` is handed over rather than walked again.
-    // The one fold keyed on the whole state: a working line quotes the stream.
-    val updates = remember(state, approvals, activityDetail) { state.updates(approvals, activityDetail) }
     // The cross-bot Needs attention section rides above every roster section.
     val attention = remember(fleet) { fleet.crossBotAttention() }
+    // The hero shows the Chief of Staff the crown marks in the list.
+    val chief = remember(fleet) {
+        fleet.unsectionedChief ?: fleet.bots.firstOrNull { it.hidden != true && it.chiefOfStaff == true }
+    }
+    val team = remember(fleet, summaries, waiting, faces, chief?.id) {
+        val visible = summaries.mapNotNull { (it.chat as? Chat.BotChat)?.bot }.filter { it.id != chief?.id }
+        val members = visible.map { bot ->
+            val status = bot.rosterStatus(hasPendingCard = bot.id in waiting)
+            TeamMember(
+                bot = bot,
+                waiting = status == RosterRowStatus.WAITING_ON_YOU,
+                working = status == RosterRowStatus.WORKING,
+                face = faces[bot.id] ?: MausState.IDLE,
+            )
+        }
+        // Who needs you leads, then who works; the list's own order breaks ties.
+        members.sortedBy { if (it.waiting) 0 else if (it.working) 1 else 2 }
+    }
+    val canTalk = LiveCallRules.offersCall(liveCall, state.liveCall)
 
     val queuedThreadIds = fleet.queuedThreadIds
     val toggleBot: (String) -> Unit = { botId ->
@@ -249,7 +278,20 @@ fun RosterScreen(navigator: CompanionNavigator) {
         )
     }
 
-    val entry: @Composable (ChatSummary, Boolean) -> Unit = { summary, last ->
+    // Comfortable: a group is a design row with its two stacked faces.
+    val comfortableRoom: @Composable (Room) -> Unit = { room ->
+        summariesById[room.id]?.let { summary ->
+            ChatRow(
+                summary = summary,
+                face = MausState.IDLE,
+                waiting = room.id in waiting,
+                members = tiles[room.id].orEmpty(),
+                onClick = { navigator.open(Chat.RoomChat(room)) },
+            )
+        }
+    }
+
+    val entry: @Composable (ChatSummary, Boolean) -> Unit = { summary, _ ->
         val chat = summary.chat
         if (compact) {
             when (chat) {
@@ -280,7 +322,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                     summary = summary,
                     face = faces[summary.id] ?: MausState.IDLE,
                     waiting = summary.id in waiting,
-                    last = last,
+                    members = (chat as? Chat.RoomChat)?.let { tiles[it.room.id] }.orEmpty(),
                     onClick = { openRow(summary) },
                 )
                 (chat as? Chat.BotChat)?.bot?.let { bot ->
@@ -302,16 +344,15 @@ fun RosterScreen(navigator: CompanionNavigator) {
         }
     }
 
+    val openChief: () -> Unit = {
+        chief?.let { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) }
+    }
+    val greetingHour = LocalHomeHour.current
+    val greeting = homeGreetingText(remember { greetingHour() }, profile?.name)
+    val openSettings = { navigator.push(Destination.Settings) }
+
     Box(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            RosterHeader(
-                name = connection?.name,
-                status = status,
-                onSettings = { navigator.push(Destination.Settings) },
-                onCalendar = { navigator.push(Destination.Calendar) },
-            )
-            StatusBanner()
-
             PullToRefreshBox(
                 isRefreshing = refreshing,
                 onRefresh = {
@@ -348,17 +389,79 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         .testTag("roster-list"),
                     contentPadding = PaddingValues(bottom = barHeight + LIST_END_MARGIN),
                 ) {
+                    item(key = "home-header") {
+                        HomeHeader(
+                            greeting = greeting,
+                            initials = HomeGreeting.initials(profile?.name),
+                            onProfile = openSettings,
+                        )
+                    }
+                    item(key = "home-banner") { StatusBanner() }
+                    if (RosterLayout.showsGroups(query)) {
+                        if (chief != null) {
+                            item(key = "home-hero") {
+                                val summary = summariesById[chief.id]
+                                val chiefStatus = chief.rosterStatus(hasPendingCard = chief.id in waiting)
+                                HomeHero(
+                                    bot = chief,
+                                    role = localizedMobileCopy("Chief of Staff"),
+                                    status = summary?.preview?.takeIf { it.isNotBlank() }
+                                        ?: stringResource(R.string.home_status_ready),
+                                    busy = chiefStatus == RosterRowStatus.WORKING,
+                                    waiting = chiefStatus == RosterRowStatus.WAITING_ON_YOU,
+                                    face = faces[chief.id] ?: MausState.IDLE,
+                                    canTalk = canTalk,
+                                    onOpen = openChief,
+                                    onTalk = {
+                                        haptics.play(HapticCue.SELECT)
+                                        environment.callUi.request(chief.id)
+                                        openChief()
+                                    },
+                                    modifier = Modifier.padding(top = 20.dp),
+                                )
+                            }
+                        }
+                        val railShown = team.isNotEmpty() && team.size + (if (chief != null) 1 else 0) >= 2
+                        if (railShown) {
+                            item(key = "home-team") {
+                                TeamRail(
+                                    members = team,
+                                    expanded = teamExpanded,
+                                    onToggle = {
+                                        haptics.play(HapticCue.SELECT)
+                                        teamExpanded = !teamExpanded
+                                    },
+                                    onOpen = { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) },
+                                    onCreateThread = createThread,
+                                    onManageThreads = { bot -> managingThreads = Chat.BotChat(bot) },
+                                )
+                            }
+                        }
+                        item(key = "home-chats-heading") {
+                            ChatsHeading(
+                                onUpdates = {
+                                    haptics.play(TactileAction.OPEN_UPDATES)
+                                    showingUpdates = true
+                                },
+                                onCalendar = { navigator.push(Destination.Calendar) },
+                                onSettings = openSettings,
+                                // The text sits 28 dp under the rail (6 dp of its own, and
+                                // half of the 48 dp row around "Chats").
+                                modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),
+                            )
+                        }
+                    }
                     if (RosterLayout.showsGroups(query)) {
                         if (attention.isNotEmpty()) {
                             item(key = "attention-label") {
-                                SectionLabel(stringResource(R.string.mobile_roster_needs_attention), Modifier.padding(top = 2.dp, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.mobile_roster_needs_attention))
                             }
                             items(attention, key = { "attention-${it.id}" }) { entry ->
-                                AttentionRow(entry = entry, onOpen = {
-                                    fleet.bots.firstOrNull { it.id == entry.botId }
-                                        ?.let { bot -> Chat.BotChat(bot.forTask(entry.task.threadId) ?: bot) }
-                                        ?.let(navigator::open)
-                                })
+                                fleet.bots.firstOrNull { it.id == entry.botId }?.let { owner ->
+                                    AttentionRow(entry = entry, bot = owner, onOpen = {
+                                        navigator.open(Chat.BotChat(owner.forTask(entry.task.threadId) ?: owner))
+                                    })
+                                }
                             }
                         }
                         fleet.unsectionedChief?.let { chief ->
@@ -376,11 +479,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         val pinned = fleet.pinnedBots.mapNotNull { summariesById[it.id] }
                         if (pinned.isNotEmpty()) {
                             item(key = "pinned-label") {
-                                // a compact row above it leaves little air of its own
-                                SectionLabel(
-                                    stringResource(R.string.mobile_roster_pinned),
-                                    Modifier.padding(top = if (compact) sectionSpacing else 2.dp, bottom = 4.dp),
-                                )
+                                SectionLabel(stringResource(R.string.mobile_roster_pinned))
                             }
                             itemsIndexed(pinned, key = { _, summary -> "pinned-${summary.id}" }) { index, summary ->
                                 entry(summary, index == pinned.lastIndex)
@@ -394,41 +493,31 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             // Groups as rows under a title that carries the "+"
                             // the comfortable strip shows as a tile.
                             item(key = "groups-title") {
-                                CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup, spacing = sectionSpacing)
+                                CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup)
                             }
                             items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { compactRoom(it) }
                             if (fleet.botChats.isNotEmpty()) {
                                 item(key = "bot-chats-title") {
-                                    CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null, spacing = sectionSpacing)
+                                    CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null)
                                 }
                                 items(fleet.botChats, key = { "bot-chat-${it.id}" }) { compactRoom(it) }
                             }
                         } else {
-                            item(key = "channels") {
-                                GroupsStrip(
-                                    title = stringResource(R.string.mobile_groups_ae9629f4),
-                                    rooms = fleet.unsectionedChannels,
-                                    members = tiles,
-                                    onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                    onCreate = startNewGroup,
-                                )
+                            if (fleet.unsectionedChannels.isNotEmpty()) {
+                                item(key = "groups-title") { SectionLabel(stringResource(R.string.mobile_groups_ae9629f4)) }
                             }
+                            items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { comfortableRoom(it) }
                             if (fleet.botChats.isNotEmpty()) {
-                                item(key = "bot-chats") {
-                                    GroupsStrip(
-                                        title = stringResource(R.string.mobile_bot_threads_ec81acf2),
-                                        rooms = fleet.botChats,
-                                        members = tiles,
-                                        onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                        onCreate = null,
-                                    )
+                                item(key = "bot-chats-title") {
+                                    SectionLabel(stringResource(R.string.mobile_bot_threads_ec81acf2))
                                 }
+                                items(fleet.botChats, key = { "bot-chat-${it.id}" }) { comfortableRoom(it) }
                             }
                         }
                         val unsectioned = fleet.unsectionedBots.mapNotNull { summariesById[it.id] }
                         if (unsectioned.isNotEmpty()) {
                             item(key = "bots-label") {
-                                SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4), Modifier.padding(top = sectionSpacing, bottom = 4.dp))
+                                SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4))
                             }
                             itemsIndexed(unsectioned, key = { _, summary -> "bot-${summary.id}" }) { index, summary ->
                                 entry(summary, index == unsectioned.lastIndex)
@@ -438,7 +527,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         // the order of `rosterSections` in `ChatListView.swift`.
                         fleet.sidebarSections.forEach { section ->
                             item(key = "section-${section.id}") {
-                                SectionLabel(section.name, Modifier.padding(top = sectionSpacing, bottom = 4.dp))
+                                SectionLabel(section.name)
                             }
                             val sectionChiefs = section.chiefs.mapNotNull { summariesById[it.id] }
                             val sectionBots = section.bots.mapNotNull { summariesById[it.id] }
@@ -461,14 +550,8 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                         compactRoom(it)
                                     }
                                 } else {
-                                    item(key = "section-${section.id}-channels") {
-                                        GroupsStrip(
-                                            title = stringResource(R.string.mobile_groups_ae9629f4),
-                                            rooms = section.channels,
-                                            members = tiles,
-                                            onOpen = { navigator.open(Chat.RoomChat(it)) },
-                                            onCreate = null,
-                                        )
+                                    items(section.channels, key = { "section-${section.id}-group-${it.id}" }) {
+                                        comfortableRoom(it)
                                     }
                                 }
                             }
@@ -486,7 +569,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(top = 10.dp, bottom = 4.dp),
+                                    .padding(top = 0.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 SectionLabel(stringResource(R.string.mobile_roster_messages))
@@ -519,7 +602,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                             )
                         }
                         item(key = "chats-label") {
-                            SectionLabel(stringResource(R.string.mobile_threads_bb12e8aa), Modifier.padding(top = 14.dp, bottom = 4.dp))
+                            SectionLabel(stringResource(R.string.mobile_threads_bb12e8aa))
                         }
                     }
 
@@ -532,19 +615,40 @@ fun RosterScreen(navigator: CompanionNavigator) {
             }
         }
 
+        BottomFade(height = 128.dp, modifier = Modifier.align(Alignment.BottomCenter))
         RosterBottomBar(
-            updates = updates,
             bar = bar,
             onBar = { bar = it },
-            onOpenUpdates = {
-                haptics.play(TactileAction.OPEN_UPDATES)
-                showingUpdates = true
-            },
             onOpenSearch = {
                 haptics.play(TactileAction.OPEN_SEARCH)
                 bar = bar.openSearch()
             },
-            onCreateBot = {
+            onNewChat = { showingNewChat = true },
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .testTag("roster-bottom-bar")
+                .onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+        )
+    }
+
+    if (showingNewChat) {
+        NewChatSheet(
+            bots = remember(summaries) { summaries.mapNotNull { (it.chat as? Chat.BotChat)?.bot } },
+            canCreateBot = !creatingBot,
+            // The same rule the section sheet picks from: two copies of "which
+            // bots can be sectioned" could disagree about a hidden one.
+            canOrganize = remember(fleet) { SectionRules.selectable(fleet).isNotEmpty() },
+            onBot = { bot ->
+                showingNewChat = false
+                createThread(bot)
+            },
+            onNewGroup = {
+                showingNewChat = false
+                haptics.play(TactileAction.START_NEW_GROUP)
+                showingNewGroup = true
+            },
+            onNewBot = {
+                showingNewChat = false
                 if (!creatingBot) {
                     creatingBot = true
                     scope.launch {
@@ -559,18 +663,12 @@ fun RosterScreen(navigator: CompanionNavigator) {
                     }
                 }
             },
-            canCreateBot = !creatingBot,
-            onCreateSection = {
+            onOrganize = {
+                showingNewChat = false
                 haptics.play(TactileAction.START_NEW_SECTION)
                 showingNewSection = true
             },
-            // The same rule the sheet picks from: two copies of "which bots can
-            // be sectioned" could disagree about a hidden one.
-            canCreateSection = remember(fleet) { SectionRules.selectable(fleet).isNotEmpty() },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .testTag("roster-bottom-bar")
-                .onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+            onDismiss = { showingNewChat = false },
         )
     }
 
@@ -629,81 +727,22 @@ private val StringSetSaver = listSaver<Set<String>, String>(
 )
 
 /**
- * You (the computer you are paired with) on the left, settings on the right, and
- * where you are in between. Search and both creations are not here any more —
- * they live in the bar at the bottom and at the end of the groups strip.
- */
-@Composable
-private fun RosterHeader(name: String?, status: Session.Status, onSettings: () -> Unit, onCalendar: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("roster-header")
-            .padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        TouchTarget(onClick = onSettings, size = 44.dp, contentDescription = stringResource(R.string.mobile_settings_c7f73bb5)) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .chromeCapsule(),
-                contentAlignment = Alignment.Center,
-            ) {
-                ProfileAvatar(name = name ?: "You", size = 30.dp)
-            }
-        }
-
-        Column(
-            modifier = Modifier.weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(stringResource(R.string.mobile_threads_bb12e8aa), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-            Text(
-                text = localizedRosterHeaderSubtitle(name, status),
-                fontSize = 13.sp,
-                color = secondaryTint,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-
-        // Routines on a calendar, a tap from Home rather than buried in
-        // Settings (MOCA-191).
-        ChromeButton(
-            icon = Icons.Filled.DateRange,
-            contentDescription = stringResource(R.string.mobile_calendar_open),
-            onClick = onCalendar,
-            modifier = Modifier.testTag("open-calendar"),
-        )
-        ChromeButton(
-            icon = Icons.Filled.Settings,
-            contentDescription = stringResource(R.string.mobile_settings_c7f73bb5),
-            onClick = onSettings,
-        )
-    }
-}
-
-/**
  * A compact groups heading. The unsectioned one carries the "+" that makes a
- * group, where the comfortable strip has its dashed tile.
+ * group, now that the comfortable list has no dashed tile.
  */
 @Composable
-private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?, spacing: Dp) {
+private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = if (onCreate == null) spacing else 4.dp, bottom = if (onCreate == null) 4.dp else 0.dp),
+        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         SectionLabel(title, Modifier.weight(1f))
         if (onCreate != null) {
             TouchTarget(onClick = onCreate, contentDescription = stringResource(R.string.mobile_new_group_f9850c0b), modifier = Modifier.padding(end = 4.dp)) {
                 Icon(
-                    imageVector = Icons.Filled.Add,
+                    imageVector = SeiraIcons.Plus,
                     contentDescription = null,
-                    tint = secondaryTint,
+                    tint = Seira.colors.ink2,
                     modifier = Modifier.size(22.dp),
                 )
             }
@@ -711,378 +750,210 @@ private fun CompactGroupsTitle(title: String, onCreate: (() -> Unit)?, spacing: 
     }
 }
 
-/** A heading over a stretch of the list. */
+/** A heading over a stretch of the list: sentence case, quiet, with its own air. */
 @Composable
 private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
     Text(
-        text = RosterLayout.sectionLabel(text),
-        fontSize = 13.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 0.4.sp,
-        color = secondaryTint,
-        modifier = modifier.padding(horizontal = 20.dp),
+        text = text,
+        style = SeiraType.callout.copy(fontWeight = FontWeight.Medium),
+        color = Seira.colors.ink3,
+        modifier = modifier.padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 4.dp),
     )
 }
 
 /**
- * Every group, across the top, with the tile that makes one at the end — the
- * place iOS puts it, and the reason the header no longer carries a second plus.
+ * One chat as the design's row: the face (two stacked faces for a group), the
+ * name with its time, and one line of what was said. A bot that waits on you
+ * has its line in the warning colour; the dot at the end is unread, or a
+ * spinner while the bot works.
  */
-@Composable
-private fun GroupsStrip(
-    title: String,
-    rooms: List<Room>,
-    members: Map<String, List<Bot>>,
-    onOpen: (Room) -> Unit,
-    onCreate: (() -> Unit)?,
-) {
-    Column(
-        modifier = Modifier.padding(top = 2.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
-    ) {
-        SectionLabel(title)
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = PaddingValues(horizontal = 16.dp),
-        ) {
-            items(rooms, key = { it.id }) { room ->
-                GroupTile(
-                    room = room,
-                    members = members[room.id].orEmpty(),
-                    onClick = { onOpen(room) },
-                )
-            }
-            if (onCreate != null) {
-                item(key = "new-group") { NewGroupTile(onClick = onCreate) }
-            }
-        }
-    }
-}
-
-/**
- * A room as a round tile: the first two members' mascots stacked, its name
- * beneath.
- */
-@Composable
-private fun GroupTile(room: Room, members: List<Bot>, onClick: () -> Unit) {
-    GroupTileFrame(
-        label = room.name,
-        labelColor = MaterialTheme.colorScheme.onSurface,
-        onClick = onClick,
-    ) {
-        Box(
-            Modifier
-                .size(64.dp)
-                .background(secondaryTint.copy(alpha = 0.14f), CircleShape),
-        )
-        members.getOrNull(0)?.let {
-            BotAvatar(
-                bot = it,
-                size = 34.dp,
-                state = MausState.HAPPY,
-                animated = false,
-                modifier = Modifier.offset(x = (-9).dp, y = (-6).dp),
-            )
-        }
-        members.getOrNull(1)?.let {
-            Box(
-                modifier = Modifier
-                    .offset(x = 11.dp, y = 9.dp)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-                    .padding(2.dp),
-            ) {
-                BotAvatar(bot = it, size = 30.dp, state = MausState.HAPPY, animated = false)
-            }
-        }
-        if (room.unread) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(3.dp)
-                    .size(14.dp)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-                    .padding(2.dp)
-                    .background(BubbleColor.mine, CircleShape),
-            )
-        }
-    }
-}
-
-/** The empty tile at the end of the strip: this is where a group is made. */
-@Composable
-private fun NewGroupTile(onClick: () -> Unit) {
-    val outline = secondaryTint.copy(alpha = 0.6f)
-    GroupTileFrame(label = stringResource(R.string.mobile_new_group_f9850c0b), labelColor = secondaryTint, onClick = onClick) {
-        Spacer(
-            modifier = Modifier
-                .size(64.dp)
-                .drawWithCache {
-                    val width = 1.5.dp.toPx()
-                    val dash = 4.dp.toPx()
-                    val style = Stroke(
-                        width = width,
-                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(dash, dash), 0f),
-                    )
-                    val radius = size.minDimension / 2f - width / 2f
-                    onDrawBehind { drawCircle(color = outline, radius = radius, style = style) }
-                },
-        )
-        Icon(
-            imageVector = Icons.Filled.Add,
-            contentDescription = null,
-            tint = secondaryTint,
-            modifier = Modifier.size(24.dp),
-        )
-    }
-}
-
-@Composable
-private fun GroupTileFrame(
-    label: String,
-    labelColor: Color,
-    onClick: () -> Unit,
-    content: @Composable BoxScope.() -> Unit,
-) {
-    Column(
-        modifier = Modifier
-            .width(76.dp)
-            .clip(RoundedCornerShape(18.dp))
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(vertical = 6.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(7.dp),
-    ) {
-        Box(modifier = Modifier.size(64.dp), contentAlignment = Alignment.Center, content = content)
-        Text(
-            text = label,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Medium,
-            color = labelColor,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-        )
-    }
-}
-
 @Composable
 private fun ChatRow(
     summary: ChatSummary,
     face: MausState,
     waiting: Boolean,
-    last: Boolean,
+    members: List<Bot>,
     onClick: () -> Unit,
 ) {
+    val colors = Seira.colors
     val chat = summary.chat
     val now = remember(summary.lastActivity) { System.currentTimeMillis() }
-    val accent = remember(chat.color) { Color(MausPalette.argb(chat.color)) }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .testTag("chat-row.${summary.id}")
-            .clickable(role = Role.Button, onClick = onClick)
-            .padding(start = 6.dp),
-        verticalAlignment = Alignment.Top,
-    ) {
-        // The unread dot, in the bot's own colour, at the very edge.
-        Box(
-            modifier = Modifier
-                .width(22.dp)
-                .align(Alignment.CenterVertically),
-            contentAlignment = Alignment.Center,
-        ) {
-            if (chat.unread && !chat.busy) {
-                Box(Modifier.size(10.dp).background(accent, CircleShape))
+    DesignChatRow(
+        title = chat.name,
+        bold = chat.unread,
+        time = RelativeStamp.list(summary.lastActivity, now, locale = Locale.getDefault()),
+        preview = summary.preview,
+        waiting = waiting,
+        busy = chat.busy,
+        unread = chat.unread && !chat.busy,
+        onClick = onClick,
+        modifier = Modifier.testTag("chat-row.${summary.id}"),
+        avatar = {
+            when (chat) {
+                is Chat.BotChat -> IdentityAvatar(bot = chat.bot, size = 48.dp, state = face, animated = false)
+                is Chat.RoomChat -> RoomFaces(members = members, size = 48.dp)
             }
-        }
+        },
+        badge = {
+            if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_crown),
+                    contentDescription = localizedMobileCopy("Chief of Staff"),
+                    tint = colors.accent,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .testTag("chief-badge"),
+                )
+            }
+        },
+    )
+}
 
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = 16.dp),
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            ChatAvatar(
-                chat = chat,
-                size = 52.dp,
-                state = face,
-                modifier = Modifier.padding(top = 12.dp),
-            )
-
-            Box(modifier = Modifier.weight(1f)) {
-                Column(
-                    modifier = Modifier.padding(vertical = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+/**
+ * The design's chat row, shared by every list that shows one: 68 dp tall, a
+ * 48 dp face, the title with its time at the end, one line of preview. Waiting
+ * colours the preview only; the title keeps the ink colour.
+ */
+@Composable
+internal fun DesignChatRow(
+    title: String,
+    bold: Boolean,
+    time: String,
+    preview: String,
+    waiting: Boolean,
+    busy: Boolean,
+    unread: Boolean,
+    onClick: () -> Unit,
+    avatar: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    badge: @Composable () -> Unit = {},
+) {
+    val colors = Seira.colors
+    val waitingLabel = stringResource(R.string.mobile_waiting_on_you_edab5b72)
+    val unreadLabel = stringResource(R.string.mobile_unread_07b032b5)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics { if (waiting) stateDescription = waitingLabel }
+            .heightIn(min = 68.dp)
+            .padding(horizontal = 20.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        avatar()
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Row(
-                            modifier = Modifier.weight(1f),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = chat.name,
-                                fontSize = 17.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.weight(1f, fill = false),
-                            )
-                            // The bot's job, the way the desktop shows it.
-                            if (chat.subtitle.isNotEmpty()) {
-                                Text(
-                                    text = chat.subtitle,
-                                    fontSize = 13.sp,
-                                    color = secondaryTint,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                    modifier = Modifier
-                                        .weight(1f, fill = false)
-                                        .background(
-                                            secondaryTint.copy(alpha = 0.15f),
-                                            CircleShape,
-                                        )
-                                        .padding(horizontal = 8.dp, vertical = 3.dp),
-                                )
-                            }
-                        }
-                        Text(
-                            text = RelativeStamp.list(
-                                summary.lastActivity,
-                                now,
-                                locale = Locale.getDefault(),
-                            ),
-                            fontSize = 15.sp,
-                            color = secondaryTint,
-                            maxLines = 1,
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = null,
-                            tint = secondaryTint.copy(alpha = 0.5f),
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        verticalAlignment = Alignment.Top,
-                    ) {
-                        // One line for every bot, so the rows keep one rhythm.
-                        Text(
-                            text = summary.preview.ifEmpty { " " },
-                            fontSize = 15.sp,
-                            color = secondaryTint,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                            modifier = Modifier.weight(1f),
-                        )
-                        if (chat.busy) {
-                            CircularProgressIndicator(
-                                modifier = Modifier
-                                    .padding(top = 3.dp)
-                                    .size(12.dp),
-                                strokeWidth = 2.dp,
-                            )
-                        }
-                    }
-
-                    if (waiting) {
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 4.dp)
-                                .background(accent, CircleShape)
-                                .padding(horizontal = 9.dp, vertical = 4.dp),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Icon(
-                                imageVector = Icons.Filled.Notifications,
-                                contentDescription = null,
-                                tint = Color.White,
-                                modifier = Modifier.size(12.dp),
-                            )
-                            Text(
-                                text = stringResource(R.string.mobile_waiting_on_you_edab5b72),
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                color = Color.White,
-                            )
-                        }
-                    }
+                    Text(
+                        text = title,
+                        style = SeiraType.headline.copy(fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Medium),
+                        color = colors.ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    badge()
                 }
-
-                if (!last) HorizontalDivider(modifier = Modifier.align(Alignment.BottomStart))
+                Text(
+                    text = time,
+                    style = SeiraType.caption.copy(fontFeatureSettings = "tnum"),
+                    color = colors.ink3,
+                    maxLines = 1,
+                )
+            }
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = preview.ifEmpty { " " },
+                    style = SeiraType.callout,
+                    color = if (waiting) colors.warningText else colors.ink2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                if (waiting) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_pan_tool),
+                        contentDescription = waitingLabel,
+                        tint = colors.warning,
+                        modifier = Modifier.size(14.dp),
+                    )
+                }
+                if (busy) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(12.dp),
+                        strokeWidth = 2.dp,
+                        color = colors.success,
+                    )
+                } else if (unread) {
+                    Box(
+                        Modifier
+                            .size(8.dp)
+                            .background(colors.accent, CircleShape)
+                            .semantics { contentDescription = unreadLabel },
+                    )
+                }
             }
         }
     }
 }
 
 /**
- * The bar over the bottom of the list: Updates beside search and new bot, or —
- * once search is open — the field beside Cancel.
+ * The bar over the bottom of the list: the glass search pill beside the ink
+ * New chat button, or, once search is open, the field beside Cancel.
  *
- * Cancel is what closes it, and it takes the query with it: that is what puts the
- * groups strip back and returns the list to bots only.
+ * Cancel takes the query with it, which is what puts the Home sections back.
  */
 @Composable
 private fun RosterBottomBar(
-    updates: List<ChatUpdate>,
     bar: RosterBar,
     onBar: (RosterBar) -> Unit,
-    onOpenUpdates: () -> Unit,
     onOpenSearch: () -> Unit,
-    onCreateBot: () -> Unit,
-    canCreateBot: Boolean,
-    onCreateSection: () -> Unit,
-    canCreateSection: Boolean,
+    onNewChat: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val colors = Seira.colors
     val focus = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
     LaunchedEffect(bar.searchOpen) {
         if (bar.searchOpen) focus.requestFocus() else focusManager.clearFocus()
     }
+    val prompt = stringResource(R.string.home_search_prompt)
+    val newChat = stringResource(R.string.home_new_chat)
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .navigationBarsPadding()
+            .padding(start = 16.dp, end = 16.dp, bottom = 30.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (bar.searchOpen) {
             Row(
                 modifier = Modifier
                     .weight(1f)
-                    .chromeCapsule()
-                    .height(BAR_HEIGHT)
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    .heightIn(min = BAR_HEIGHT)
+                    .glass(CircleShape)
+                    .padding(horizontal = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(
-                    imageVector = Icons.Filled.Search,
-                    contentDescription = null,
-                    tint = secondaryTint,
-                    modifier = Modifier.size(18.dp),
-                )
+                Icon(SeiraIcons.Search, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
                 Box(modifier = Modifier.weight(1f)) {
                     if (bar.query.isEmpty()) {
-                        Text(stringResource(R.string.mobile_search_threads_006299d3), fontSize = 17.sp, color = secondaryTint)
+                        Text(prompt, style = SeiraType.body, color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
                     }
                     BasicTextField(
                         value = bar.query,
                         onValueChange = { onBar(bar.typed(it)) },
                         singleLine = true,
-                        textStyle = LocalTextStyle.current.copy(
-                            fontSize = 17.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
+                        textStyle = SeiraType.body.copy(color = colors.ink),
+                        cursorBrush = SolidColor(colors.ink),
                         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                         modifier = Modifier
                             .fillMaxWidth()
@@ -1090,57 +961,54 @@ private fun RosterBottomBar(
                     )
                 }
                 if (bar.query.isNotEmpty()) {
-                    TouchTarget(onClick = { onBar(bar.clearQuery()) }, size = 24.dp) {
+                    TouchTarget(onClick = { onBar(bar.clearQuery()) }, size = 48.dp) {
                         Icon(
-                            imageVector = Icons.Filled.Close,
+                            imageVector = SeiraIcons.X,
                             contentDescription = stringResource(R.string.mobile_clear_search_67300d0f),
-                            tint = secondaryTint,
-                            modifier = Modifier.size(20.dp),
+                            tint = colors.ink2,
+                            modifier = Modifier.size(18.dp),
                         )
                     }
                 }
             }
-
             Box(
                 modifier = Modifier
-                    .chromeCapsule()
+                    .heightIn(min = BAR_HEIGHT)
                     .clip(CircleShape)
-                    .height(BAR_HEIGHT)
                     .clickable(role = Role.Button, onClick = { onBar(bar.cancelSearch()) })
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 12.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.mobile_cancel_77dfd213), fontSize = 17.sp)
+                Text(stringResource(R.string.mobile_cancel_77dfd213), style = SeiraType.headline, color = colors.ink)
             }
         } else {
-            UpdatesBar(
-                updates = updates,
-                onOpen = onOpenUpdates,
-                modifier = Modifier.weight(1f),
-            )
-            ChromeButton(
-                icon = Icons.Filled.Search,
-                contentDescription = stringResource(R.string.mobile_search_bce06414),
-                onClick = onOpenSearch,
-                size = MIN_TOUCH_TARGET,
-            )
-            ChromeButton(
-                icon = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.mobile_organize_bots_into_a_section_9293c5af),
-                onClick = onCreateSection,
-                enabled = canCreateSection,
-                size = MIN_TOUCH_TARGET,
-            )
-            // Writing something new, which is what making a bot is. The empty
-            // tile in the groups strip wears a plus because gathering existing
-            // bots into a room is the other thing — two glyphs, two actions.
-            ChromeButton(
-                icon = Icons.Filled.Create,
-                contentDescription = stringResource(R.string.mobile_new_bot_66d3c052),
-                onClick = onCreateBot,
-                enabled = canCreateBot,
-                size = MIN_TOUCH_TARGET,
-            )
+            Row(
+                modifier = Modifier
+                    .weight(1f)
+                    .heightIn(min = BAR_HEIGHT)
+                    .glass(CircleShape)
+                    .clip(CircleShape)
+                    .clickable(role = Role.Button, onClick = onOpenSearch)
+                    .padding(horizontal = 18.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(SeiraIcons.Search, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+                Text(prompt, style = SeiraType.body, color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            }
+            Box(
+                modifier = Modifier
+                    .testTag("home-new-chat")
+                    .size(BAR_HEIGHT)
+                    .seiraShadow(CircleShape)
+                    .background(colors.primary, CircleShape)
+                    .clip(CircleShape)
+                    .clickable(role = Role.Button, onClick = onNewChat)
+                    .semantics { contentDescription = newChat },
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(SeiraIcons.PenSquare, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(20.dp))
+            }
         }
     }
 }

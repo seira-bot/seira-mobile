@@ -2,13 +2,14 @@ package com.openmausbot.companion.onboarding
 
 import android.Manifest
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.openmausbot.companion.permissions.CompanionPermissions
 import com.openmausbot.companion.ui.CompanionTheme
 import com.openmausbot.companion.ui.LocalCompanion
@@ -45,8 +46,8 @@ class PairingDiscoveryTimingTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private val otherWays = "Other ways to connect"
-    private val discoveryHeader = "On this network".uppercase()
+    private val otherWays = "Enter a code instead"
+    private val discoveryHeader = "On this network"
 
     /** API 37 in the permission model, so the local-network grant is in scope. */
     private fun scene(
@@ -69,8 +70,8 @@ class PairingDiscoveryTimingTest {
         val scene = scene()
         mount(scene)
 
-        compose.onNodeWithText("Scan QR Code").assertIsDisplayed()
-        compose.onNodeWithText(otherWays).assertIsDisplayed()
+        compose.onNodeWithText("Scan QR Code").assertExists()
+        compose.onNodeWithText(otherWays).assertExists()
 
         assertEquals(
             0,
@@ -89,10 +90,10 @@ class PairingDiscoveryTimingTest {
         val scene = scene()
         mount(scene)
 
-        compose.onNodeWithText(otherWays).performClick()
+        compose.onNodeWithText(otherWays).performScrollTo().performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText(discoveryHeader).assertIsDisplayed()
+        compose.onNodeWithText(discoveryHeader).assertExists()
         assertEquals(1, scene.discovery.starts.value)
         assertEquals(1, scene.discovery.active.value)
         assertEquals(
@@ -114,11 +115,11 @@ class PairingDiscoveryTimingTest {
         val scene = scene()
         mount(scene)
 
-        compose.onNodeWithText(otherWays).performClick()
+        compose.onNodeWithText(otherWays).performScrollTo().performClick()
         compose.waitForIdle()
         assertEquals(1, scene.discovery.active.value)
 
-        compose.onNodeWithText(otherWays).performClick()
+        compose.onNodeWithText(otherWays).performScrollTo().performClick()
         compose.waitForIdle()
 
         compose.onNodeWithText(discoveryHeader).assertDoesNotExist()
@@ -140,7 +141,7 @@ class PairingDiscoveryTimingTest {
         )
         mount(scene)
 
-        compose.onNodeWithText(otherWays).performClick()
+        compose.onNodeWithText(otherWays).performScrollTo().performClick()
         compose.waitForIdle()
 
         assertEquals(1, scene.discovery.starts.value)
@@ -187,12 +188,12 @@ class PairingDiscoveryTimingTest {
     }
 
     @Test
-    fun `Not now leaves the pairing screen`() {
+    fun `Back leaves the pairing screen`() {
         val scene = scene()
         var cancelled = 0
         mount(scene) { cancelled += 1 }
 
-        compose.onNodeWithText("Not now").performClick()
+        compose.onNodeWithContentDescription("Back to settings").performClick()
         compose.waitForIdle()
 
         assertEquals(1, cancelled)
@@ -205,7 +206,7 @@ class PairingDiscoveryTimingTest {
      * the attempt settles, whichever way it settles.
      */
     @Test
-    fun `Not now is refused while a redemption is in flight`() {
+    fun `Back is refused while a redemption is in flight`() {
         val gate = CompletableDeferred<Unit>()
         val scene = scene(pairSuspendsUntil = gate)
         var cancelled = 0
@@ -218,12 +219,12 @@ class PairingDiscoveryTimingTest {
         compose.waitForIdle()
         // The link carried the credential, so the step is a confirmation of the
         // computer rather than a code to type.
-        compose.onNodeWithText("Not now").assertIsEnabled()
+        compose.onNodeWithContentDescription("Back to settings").assertIsEnabled()
 
-        compose.onNodeWithText("Pair with this computer").performClick()
+        compose.onNodeWithText("Pair with this computer").performScrollTo().performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText("Not now").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("Back to settings").assertIsNotEnabled()
         assertEquals(0, cancelled)
 
         gate.complete(Unit)

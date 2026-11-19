@@ -15,6 +15,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -37,9 +39,11 @@ fun interface MicrophoneAccess {
  * Try again only after a drop or a failed start. Losing the pairing hangs the
  * call up at once; switching to another computer leaves it behind.
  *
- * Ends on process `ON_STOP` ([androidx.lifecycle.ProcessLifecycleOwner],
+ * Leaves on process `ON_STOP` ([androidx.lifecycle.ProcessLifecycleOwner],
  * 700 ms debounced), never the Activity's: rotation recreates MainActivity
- * (the manifest declares no `configChanges`) and must not hang up.
+ * (the manifest declares no `configChanges`) and must not hang up. A call
+ * with its foreground service ([LiveCallService]) goes on in the background;
+ * a call whose service could not start ends there.
  *
  * **Main-thread confined.** Lifecycle callbacks and the computer's frames
  * arrive on [scope] (`Dispatchers.Main.immediate` in production); WebRTC's
@@ -55,7 +59,11 @@ class LiveCallManager internal constructor(
     private val preferences: LiveCallPreferences,
     /** This phone's clock, epoch ms: the bar's clock counts from the moment the call went live on it. */
     private val clock: () -> Long = System::currentTimeMillis,
-) : DefaultLifecycleObserver {
+    /** Keeps the call alive when the app leaves the screen; [LiveCallBackground.None] ends it, as before. */
+    private val background: LiveCallBackground = LiveCallBackground.None,
+    /** Turns the screen off at the ear. */
+    private val proximity: LiveCallProximity = LiveCallProximity.None,
+) : DefaultLifecycleObserver, LiveCallService.Host {
 
     constructor(context: Context, session: Session, scope: CoroutineScope) : this(
         api = SessionLiveCallApi(session),
@@ -63,10 +71,21 @@ class LiveCallManager internal constructor(
         transports = LiveCallTransportFactory { WebRtcLiveCallTransport(context) },
         audio = AndroidLiveCallAudioRoute(context),
         preferences = SharedLiveCallPreferences(context),
+        background = ServiceLiveCallBackground(context),
+        proximity = AndroidProximityLock(context),
     )
 
     private val _state = MutableStateFlow(LiveCallSnapshot(speaker = preferences.speaker))
-    val state: StateFlow<LiveCallSnapshot> = _state.asStateFlow()
+    override val state: StateFlow<LiveCallSnapshot> = _state.asStateFlow()
+
+    /** The foreground service holds the call; the app may leave the screen. */
+    private var backgroundRunning = false
+
+    /** The app is stopped (not visible). */
+    private var appStopped = false
+
+    /** The app left the screen with the call running and it went on; the call screen opens when the app returns. */
+    private var continuedInBackground = false
 
     /** The media of the call in progress; null between calls. Identity doubles as "is this attempt still wanted". */
     private var transport: LiveCallTransport? = null
@@ -105,6 +124,11 @@ class LiveCallManager internal constructor(
     init {
         scope.launch { api.serverCall.collect { onServerCall(it) } }
         scope.launch { api.link.collect { onLink(it) } }
+        scope.launch {
+            _state.map { (it.phase == LiveCallPhase.LIVE) to it.speaker }
+                .distinctUntilChanged()
+                .collect { (live, speaker) -> proximity.update(live, speaker) }
+        }
     }
 
     /**
@@ -162,7 +186,7 @@ class LiveCallManager internal constructor(
      * still reads as this phone's call, not another device's. Before the
      * computer named it there is nothing to wait for, and the bar goes now.
      */
-    fun hangUp() {
+    override fun hangUp() {
         val current = _state.value
         if (!current.holdsMedia) return
         releaseMedia(tellOpenAi = true)
@@ -203,10 +227,39 @@ class LiveCallManager internal constructor(
         }
     }
 
-    /** The app left the foreground or the screen locked: the call ends (background calls are a later feature). Not a drop: no Try again. */
+    /**
+     * The app left the foreground or the screen locked. With the foreground
+     * service running the call goes on; without it the call ends. Not a drop:
+     * no Try again.
+     */
     override fun onStop(owner: LifecycleOwner) {
+        appStopped = true
         if (!_state.value.holdsMedia) return
+        if (backgroundRunning) {
+            continuedInBackground = true
+            return
+        }
         endLocally(LiveCallRules.CALL_ENDED, tellComputer = true, canRetry = false)
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        appStopped = false
+    }
+
+    /** True once after the app returns to a call that went on in the background; the call screen opens then. */
+    fun takeBackgroundReturn(): Boolean {
+        val returned = continuedInBackground && _state.value.holdsMedia
+        continuedInBackground = false
+        return returned
+    }
+
+    /** The service could not run as a foreground service. A call already in the background ends. */
+    override fun onBackgroundFailed() {
+        backgroundRunning = false
+        if (appStopped && _state.value.holdsMedia) {
+            continuedInBackground = false
+            endLocally(LiveCallRules.CALL_ENDED, tellComputer = true, canRetry = false)
+        }
     }
 
     private suspend fun connect() {
@@ -222,6 +275,7 @@ class LiveCallManager internal constructor(
             // Another app took the audio: the call ended, it did not drop.
             scope.launch { if (transport === media) endLocally(LiveCallRules.FOCUS_LOST_MESSAGE, tellComputer = true, canRetry = false) }
         }
+        if (transport === media) backgroundRunning = background.start()
         val offer = try {
             media.offer(listenerFor(media))
         } catch (error: CancellationException) {
@@ -472,6 +526,11 @@ class LiveCallManager internal constructor(
 
     private fun releaseMedia(tellOpenAi: Boolean) {
         clearConnectDeadline()
+        if (backgroundRunning) {
+            backgroundRunning = false
+            background.stop()
+        }
+        continuedInBackground = false
         val media = transport
         transport = null
         if (media != null) {

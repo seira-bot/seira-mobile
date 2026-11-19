@@ -185,10 +185,20 @@ starts a fresh one with its own 20 seconds.
   just before the call, whose download finishes during it, does not play
   either: it waits with the same line and plays after Hang up without
   downloading again. `VoiceNoteWiringTest` pins both without an emulator.
-- Press Home during a call: within a few seconds the computer ends it
-  (`{"call":null}`); back in the app the bar reads "Call ended." with only
-  the cross (leaving the app is not a drop), and the phone icon starts a
-  fresh call.
+- Press Home during a call: the call goes on. A "Live calls" notification
+  with the bot's name, the clock and Hang up shows, and the status bar shows
+  the microphone indicator. Tap the notification: the app opens on the call
+  screen. Press Hang up in the notification: the call ends and the
+  notification goes. If the system refuses the foreground service, the call
+  ends as before and the bar reads "Call ended." with only the cross.
+- The call screen opens by itself when a call starts. It shows the bot, the
+  clock, "Listening", "<Bot> is speaking" or "You are muted", the caption
+  card, and Mute, Speaker, Captions and End. "Back to chat" shows the chat
+  bar with the call still running; the bar and the banner reopen the screen.
+  Check light and dark, font scale 2.0 and TalkBack labels.
+- Proximity (real phone only, emulators have no sensor): with the speaker off
+  and no headset, hold the phone to the ear: the screen turns off. Turn the
+  speaker on, plug in a headset, or end the call: the screen stays on.
 - Deny the microphone once: the bar reads "Live calls need Microphone access.
   Enable it in Settings → Seira." with only the cross (trying again cannot
   help until the setting changes); after allowing it in Settings, the phone

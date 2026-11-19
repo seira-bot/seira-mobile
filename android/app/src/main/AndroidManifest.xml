@@ -42,6 +42,14 @@
       permission, granted at install; the WebRTC AAR declares none itself.
     -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!--
+      A live call goes on after the app leaves the screen. Android 14+ needs
+      FOREGROUND_SERVICE_MICROPHONE for a foreground service of type
+      microphone. WAKE_LOCK is for the proximity lock that turns the screen
+      off at the ear.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
@@ -80,6 +88,7 @@
     <application
         android:name=".OpenMausApp"
         android:allowBackup="true"
+        android:enableOnBackInvokedCallback="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
@@ -99,14 +108,19 @@
         -->
         <activity
             android:name=".MainActivity"
+            android:configChanges="uiMode"
             android:exported="true"
             android:launchMode="singleTop"
             android:persistableMode="persistNever"
+            android:theme="@style/Theme.Seira.Starting"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <!--
@@ -217,6 +231,12 @@
             android:foregroundServiceType="connectedDevice"
             android:stopWithTask="false" />
 
+        <service
+            android:name=".audio.LiveCallService"
+            android:exported="false"
+            android:foregroundServiceType="microphone"
+            android:stopWithTask="true" />
+
         <!--
           Restarts AlwaysOnConnectionService after a reboot, only when the user
           left the Settings toggle on. Not exported beyond what BOOT_COMPLETED
@@ -230,6 +250,29 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!--
+          Approve and Reply buttons of a notification. Not exported: only the
+          PendingIntents this app hands to the notification shade reach it.
+        -->
+        <receiver
+            android:name=".notifications.NotificationActionReceiver"
+            android:exported="false" />
+
+        <!--
+          Quick Settings tile that starts a call with the chief of staff. The
+          system binds it, so the bind permission is the only guard it needs.
+        -->
+        <service
+            android:name=".tile.TalkTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_talk"
+            android:label="@string/tile_talk_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <!--
           Share sheet hand-off for exported transcripts. Not exported, no

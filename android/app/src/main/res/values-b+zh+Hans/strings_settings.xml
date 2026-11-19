@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">你的电脑</string>
+    <string name="settings_appearance_caption">“自动”会跟随手机的设置。</string>
+    <string name="settings_pair_another">配对另一台电脑</string>
+    <string name="settings_state_same_wifi">已连接 · 同一 Wi-Fi</string>
+    <string name="settings_state_tailscale">已连接 · Tailscale</string>
+    <string name="settings_state_internet">已连接 · 通过互联网</string>
+    <string name="settings_state_connected">已连接</string>
+    <string name="settings_state_saved">已保存在这部手机上</string>
+    <string name="settings_connection_details">连接详情</string>
+    <string name="settings_notif_approval_title">需要你确认</string>
+    <string name="settings_notif_approval_body">当机器人在等你回答时</string>
+    <string name="settings_notif_done_title">任务完成</string>
+    <string name="settings_notif_done_body">当机器人完成一项工作时</string>
+    <string name="settings_notif_routine_title">例行任务出问题</string>
+    <string name="settings_notif_routine_body">当定时任务失败时</string>
+    <string name="settings_notif_turn_on">开启通知</string>
+    <string name="settings_notif_turn_on_body">让机器人能联系到你</string>
+    <string name="settings_privacy">隐私</string>
+    <string name="settings_connected_apps">已连接的应用</string>
+    <string name="settings_sign_out">退出登录</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">无法连接到你的电脑</string>
+    <string name="settings_reconnect">重新连接</string>
+</resources>
