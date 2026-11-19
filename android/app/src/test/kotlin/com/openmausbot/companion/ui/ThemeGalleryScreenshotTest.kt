@@ -93,6 +93,7 @@ class ThemeGalleryScreenshotTest {
                             size = 56.dp,
                             ring = if (index == 0) AvatarRing.Working else AvatarRing.None,
                             waitingDot = index == 1,
+                            animated = false,
                         )
                     }
                 }
