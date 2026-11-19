@@ -133,7 +133,7 @@ fun ClaudeUpdateCard(messageId: String, instanceId: String) {
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                val green = Color(MausPalette.argb("green"))
+                val green = Color(BotPalette.argb("green"))
                 Icon(Icons.Filled.Check, contentDescription = null, tint = green, modifier = Modifier.size(16.dp))
                 Text(
                     stringResource(R.string.mobile_claude_update_updated, current.version),

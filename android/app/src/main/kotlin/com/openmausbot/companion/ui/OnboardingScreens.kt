@@ -156,7 +156,7 @@ fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
                 OnboardingPrimary(stringResource(R.string.mobile_onboarding_connect_computer), onConnect)
             },
         ) {
-            OnboardingHero(SeiraIcons.Smartphone)
+            Icon3d(R.drawable.icon3d_not_connected, 120.dp, "not_connected")
             Text(
                 text = stringResource(R.string.mobile_onboarding_unpaired_title),
                 style = SeiraType.title2,

@@ -24,12 +24,15 @@ class BotShortcuts(context: Context) {
 
     fun shortcutId(computerId: String, bot: String): String = "${prefix(computerId)}${Uri.encode(bot)}"
 
+    private fun characterFor(identity: BotIdentity, avatar: Bitmap?): Bitmap? =
+        if (avatar == null) BotIcons.character(appContext, identity) else null
+
     fun person(identity: BotIdentity, key: String, avatar: Bitmap?): Person =
         Person.Builder()
             .setName(identity.name)
             .setKey(key)
             .setBot(true)
-            .setIcon(IconCompat.createWithBitmap(BotIcons.circle(avatar, identity.name, identity.color)))
+            .setIcon(IconCompat.createWithBitmap(BotIcons.circle(avatar, identity.name, identity.color, character = characterFor(identity, avatar))))
             .build()
 
     fun push(computerId: String, identity: BotIdentity, avatar: Bitmap?) {
@@ -93,7 +96,7 @@ class BotShortcuts(context: Context) {
                 NotificationIntents.openIntent(appContext, identity.botId, identity.threadId)
                     .putExtra(NotificationIntents.EXTRA_SHORTCUT_ID, id),
             )
-            .setIcon(IconCompat.createWithAdaptiveBitmap(BotIcons.adaptive(avatar, name, identity.color)))
+            .setIcon(IconCompat.createWithAdaptiveBitmap(BotIcons.adaptive(avatar, name, identity.color, character = characterFor(identity, avatar))))
             .setPerson(person(identity, id, avatar))
             .setLongLived(true)
             .setLocusId(LocusIdCompat(id))

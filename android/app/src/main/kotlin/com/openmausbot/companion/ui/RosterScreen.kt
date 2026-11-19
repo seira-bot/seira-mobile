@@ -71,8 +71,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
+import com.openmausbot.companion.character.CarvedAvatar
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.ChatSummary
@@ -119,7 +122,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RosterScreen(navigator: CompanionNavigator) {
+fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildConfig.LIVE_CALLS) {
     val environment = LocalCompanion.current
     val session = environment.session
     val scope = rememberCoroutineScope()
@@ -149,6 +152,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // would race two bots into existence.
     var creatingBot by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf<Chat?>(null) }
+    var changingLookId by rememberSaveable { mutableStateOf<String?>(null) }
     var showingNewChat by remember { mutableStateOf(false) }
     var teamExpanded by rememberSaveable { mutableStateOf(false) }
     var profile by remember { mutableStateOf<Profile?>(null) }
@@ -204,7 +208,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // One pass over the fleet rather than one per row: resolving a face walks the
     // chat's visible transcript.
     val faces = remember(fleet, summaries) {
-        summaries.associate { it.id to MausState.forChat(it.chat, fleet) }
+        summaries.associate { it.id to CharacterMood.forChat(it.chat, fleet) }
     }
     val summariesById = remember(summaries) { summaries.associateBy { it.id } }
     // Hoisted out of the list: read inside a lazy item, `state` would make that
@@ -227,13 +231,13 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 bot = bot,
                 waiting = status == RosterRowStatus.WAITING_ON_YOU,
                 working = status == RosterRowStatus.WORKING,
-                face = faces[bot.id] ?: MausState.IDLE,
+                face = faces[bot.id] ?: CharacterMood.IDLE,
             )
         }
         // Who needs you leads, then who works; the list's own order breaks ties.
         members.sortedBy { if (it.waiting) 0 else if (it.working) 1 else 2 }
     }
-    val canTalk = LiveCallRules.offersCall(liveCall, state.liveCall)
+    val canTalk = LiveCallRules.offersCall(liveCall, state.liveCall, callsEnabled)
 
     val queuedThreadIds = fleet.queuedThreadIds
     val toggleBot: (String) -> Unit = { botId ->
@@ -283,7 +287,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
         summariesById[room.id]?.let { summary ->
             ChatRow(
                 summary = summary,
-                face = MausState.IDLE,
+                face = CharacterMood.IDLE,
                 waiting = room.id in waiting,
                 members = tiles[room.id].orEmpty(),
                 onClick = { navigator.open(Chat.RoomChat(room)) },
@@ -298,7 +302,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 is Chat.BotChat -> CompactBotEntry(
                     bot = chat.bot,
                     lastActivity = summary.lastActivity,
-                    face = faces[summary.id] ?: MausState.IDLE,
+                    face = faces[summary.id] ?: CharacterMood.IDLE,
                     hasPendingCard = summary.id in waiting,
                     query = query,
                     expanded = chat.bot.id in expandedBots,
@@ -320,7 +324,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
             Column {
                 ChatRow(
                     summary = summary,
-                    face = faces[summary.id] ?: MausState.IDLE,
+                    face = faces[summary.id] ?: CharacterMood.IDLE,
                     waiting = summary.id in waiting,
                     members = (chat as? Chat.RoomChat)?.let { tiles[it.room.id] }.orEmpty(),
                     onClick = { openRow(summary) },
@@ -380,6 +384,13 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         } else {
                             stringResource(R.string.mobile_roster_no_thread_matches, query)
                         },
+                        art = if (query.isNotEmpty()) {
+                            null
+                        } else if (status is Session.Status.Offline) {
+                            Art3d(R.drawable.icon3d_offline, "offline")
+                        } else {
+                            Art3d(R.drawable.icon3d_empty_chats, "empty_chats")
+                        },
                     )
                 }
 
@@ -409,7 +420,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                         ?: stringResource(R.string.home_status_ready),
                                     busy = chiefStatus == RosterRowStatus.WORKING,
                                     waiting = chiefStatus == RosterRowStatus.WAITING_ON_YOU,
-                                    face = faces[chief.id] ?: MausState.IDLE,
+                                    face = faces[chief.id] ?: CharacterMood.IDLE,
                                     canTalk = canTalk,
                                     onOpen = openChief,
                                     onTalk = {
@@ -434,6 +445,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     onOpen = { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) },
                                     onCreateThread = createThread,
                                     onManageThreads = { bot -> managingThreads = Chat.BotChat(bot) },
+                                    onChangeLook = { bot -> changingLookId = bot.id },
                                 )
                             }
                         }
@@ -696,6 +708,10 @@ fun RosterScreen(navigator: CompanionNavigator) {
         NewSectionSheet(onDismiss = { showingNewSection = false })
     }
 
+    changingLookId?.let { id ->
+        state.bot(id)?.let { bot -> ChangeLookSheet(bot = bot, onDismiss = { changingLookId = null }) }
+    }
+
     managingThreads?.let { chat ->
         TaskSheet(
             chat = chat,
@@ -770,7 +786,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun ChatRow(
     summary: ChatSummary,
-    face: MausState,
+    face: CharacterMood,
     waiting: Boolean,
     members: List<Bot>,
     onClick: () -> Unit,
@@ -1026,22 +1042,25 @@ private fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        // Who said it. Two hits with the same words are otherwise identical.
-        Icon(
-            // A person for what you said, the Maus mark for what a bot said —
-            // iOS makes the same split with person.fill and a speech bubble.
-            painter = if (SearchHitRole.isFromUser(hit.role)) {
-                rememberVectorPainter(Icons.Filled.Person)
-            } else {
-                painterResource(R.drawable.ic_maus_mark)
-            },
-            contentDescription = localizedMobileCopy(SearchHitRole.contentDescription(hit.role, hit.name)),
-            tint = secondaryTint,
-            modifier = Modifier
-                .size(26.dp)
-                .background(secondaryTint.copy(alpha = 0.13f), CircleShape)
-                .padding(5.dp),
-        )
+        val who = localizedMobileCopy(SearchHitRole.contentDescription(hit.role, hit.name))
+        if (SearchHitRole.isFromUser(hit.role)) {
+            Icon(
+                painter = rememberVectorPainter(Icons.Filled.Person),
+                contentDescription = who,
+                tint = secondaryTint,
+                modifier = Modifier
+                    .size(26.dp)
+                    .background(secondaryTint.copy(alpha = 0.13f), CircleShape)
+                    .padding(5.dp),
+            )
+        } else {
+            CarvedAvatar(
+                look = SeiraLook.SEIRA,
+                size = 26.dp,
+                contentDescription = who,
+                modifier = Modifier.background(secondaryTint.copy(alpha = 0.13f), CircleShape),
+            )
+        }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
@@ -1097,7 +1116,7 @@ fun StatusBanner() {
     val banner: Pair<String, Color>? = when (val current = status) {
         Session.Status.Live, Session.Status.Unpaired -> null
         Session.Status.Connecting -> stringResource(R.string.mobile_connecting_fd3e7969) to secondaryTint
-        is Session.Status.Offline -> current.message to Color(MausPalette.argb("orange"))
+        is Session.Status.Offline -> current.message to Color(BotPalette.argb("orange"))
         Session.Status.Unauthorized ->
             stringResource(R.string.mobile_phone_unpaired_banner) to MaterialTheme.colorScheme.error
     }

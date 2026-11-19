@@ -97,9 +97,12 @@ public struct OptionCard: Codable, Hashable, Sendable {
     }
 
     /// The wire API accepts an approval behavior rather than the button's
-    /// display text. Treat the one refusal as deny and every other offered
-    /// permission choice as allow: providers may say "Approve", "Yes", or
-    /// "Always allow", and none of those should accidentally become a deny.
+    /// display text.
+    ///
+    /// Security invariant: a permission answer is "allow" only for a label in
+    /// `approvals`. The wire contract (`OptionCardData.options` in
+    /// seira-bot/seira) carries labels only, and a provider may supply its
+    /// own, so an unknown or localized label answers "deny".
     public func responseBehavior(for choice: String) -> String {
         Self.responseBehavior(for: choice, isPermission: isPermission)
     }
@@ -108,15 +111,34 @@ public struct OptionCard: Codable, Hashable, Sendable {
     /// card kind but not the full card payload.
     public static func responseBehavior(for choice: String, isPermission: Bool) -> String {
         guard isPermission else { return "answer" }
-        return isRefusal(choice) ? "deny" : "allow"
+        return isApproval(choice) ? "allow" : "deny"
     }
 
-    /// Shared by all of the app's card surfaces and by Live Activities.
-    /// "Skip" is the team-memory card's refusal; answering it as allow
-    /// would remember the very thing the person skipped.
+    /// The positive labels of the computer's permission cards
+    /// (seira-bot/seira v0.1.179) and earlier provider wording.
+    private static let approvals: Set<String> = [
+        "allow", "allow once", "always allow", "approve", "yes",
+        "enable", "update", "turn on", "turn off", "delete", "change", "remove",
+        "remember", "confirm", "apply setup", "delete bot",
+    ]
+
+    private static let refusals: Set<String> = [
+        "deny", "cancel", "dismiss", "skip", "no", "reject", "decline", "block", "not now",
+    ]
+
+    private static func normalized(_ choice: String) -> String {
+        choice.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    }
+
+    public static func isApproval(_ choice: String) -> Bool {
+        approvals.contains(normalized(choice))
+    }
+
+    /// Only the quieter button tint and the settled-card wording use this.
+    /// The wire answer comes from `isApproval`: a label in neither set is
+    /// still answered "deny". "Skip" is the team-memory card's refusal.
     public static func isRefusal(_ choice: String) -> Bool {
-        let normalized = choice.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-        return ["deny", "cancel", "dismiss", "skip"].contains(normalized)
+        refusals.contains(normalized(choice))
     }
 
     /// A provider may include the standing grant as an option of its own.

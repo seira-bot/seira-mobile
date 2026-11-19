@@ -283,7 +283,7 @@ class MainActivity : ComponentActivity() {
         // composition consumed it still navigates, and one after it does not.
         notificationNavigation.offer(intent.notificationTarget(), fresh = fresh)
         intent.getStringExtra(NotificationIntents.EXTRA_SHORTCUT_ID)?.let(app.shortcuts::reportUsed)
-        if (talk && intent.action == TalkIntents.ACTION_TALK) {
+        if (BuildConfig.LIVE_CALLS && talk && intent.action == TalkIntents.ACTION_TALK) {
             TalkRequestHandler(app.session, callUi, notificationNavigation, lifecycleScope).handle()
         }
     }

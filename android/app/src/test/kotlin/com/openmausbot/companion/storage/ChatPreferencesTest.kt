@@ -39,6 +39,19 @@ class ChatPreferencesTest {
     }
 
     @Test
+    fun `live captions are on until the person turns them off`() {
+        assertEquals(true, store("chat-captions-fresh").liveCaptions.value)
+    }
+
+    @Test
+    fun `live captions off survives a new preferences instance`() {
+        val name = "chat-captions-saved"
+        store(name).setLiveCaptions(false)
+
+        assertEquals(false, store(name).liveCaptions.value)
+    }
+
+    @Test
     fun `a fresh install lists the roster compactly`() {
         assertEquals(RosterDensity.COMPACT, store("chat-density-fresh").rosterDensity.value)
     }

@@ -160,7 +160,7 @@ internal fun BotPickRow(bot: Bot, selected: Boolean, onToggle: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         // A list of many, and a picker is not a place anything is happening.
-        BotAvatar(bot = bot, size = 36.dp, state = MausState.IDLE, animated = false)
+        BotAvatar(bot = bot, size = 36.dp, state = CharacterMood.IDLE, animated = false)
 
         Column(
             modifier = Modifier.weight(1f),
@@ -190,7 +190,7 @@ internal fun BotPickRow(bot: Bot, selected: Boolean, onToggle: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
-                tint = Color(MausPalette.argb(bot.color)),
+                tint = Color(BotPalette.argb(bot.color)),
                 modifier = Modifier.size(22.dp),
             )
         } else {

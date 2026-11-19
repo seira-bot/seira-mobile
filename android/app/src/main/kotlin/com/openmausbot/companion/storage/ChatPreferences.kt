@@ -46,6 +46,16 @@ class ChatPreferences(
     private val _rosterDensity = MutableStateFlow(RosterDensity.fromWire(prefs.getString(ROSTER_DENSITY, null)))
     val rosterDensity: StateFlow<RosterDensity> = _rosterDensity.asStateFlow()
 
+    /** Whether a Live call shows the spoken words. Per phone; Settings and the call screen share it. */
+    private val _liveCaptions = MutableStateFlow(prefs.getBoolean(LIVE_CAPTIONS, true))
+    val liveCaptions: StateFlow<Boolean> = _liveCaptions.asStateFlow()
+
+    fun setLiveCaptions(on: Boolean) {
+        if (_liveCaptions.value == on && prefs.contains(LIVE_CAPTIONS)) return
+        prefs.edit().putBoolean(LIVE_CAPTIONS, on).commit()
+        _liveCaptions.value = on
+    }
+
     fun setActivityDetail(detail: ActivityDetail) {
         if (_activityDetail.value == detail && prefs.contains(ACTIVITY_DETAIL)) return
         // The value is small and changed only from Settings. Commit makes a
@@ -109,6 +119,7 @@ class ChatPreferences(
         private const val QUICK_REPLIES = "companion.prefs.quickReplies"
         private const val THEME_MODE = "companion.prefs.themeMode"
         private const val ROSTER_DENSITY = "companion.prefs.rosterDensity"
+        private const val LIVE_CAPTIONS = "companion.prefs.liveCaptions"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"

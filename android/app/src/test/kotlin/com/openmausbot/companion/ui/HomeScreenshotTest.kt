@@ -9,6 +9,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
@@ -43,7 +44,9 @@ import org.robolectric.annotation.GraphicsMode
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 @OptIn(ExperimentalTestApi::class)
 class HomeScreenshotTest {
-    @get:Rule val compose = createComposeRule()
+    @get:Rule val compose = createComposeRule(
+        effectContext = object : MotionDurationScale { override val scaleFactor = 0f },
+    )
 
     private lateinit var server: MockWebServer
     private lateinit var scene: WiringScene

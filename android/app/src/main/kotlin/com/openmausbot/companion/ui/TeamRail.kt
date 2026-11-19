@@ -57,7 +57,7 @@ internal data class TeamMember(
     val bot: Bot,
     val waiting: Boolean,
     val working: Boolean,
-    val face: MausState,
+    val face: CharacterMood,
 )
 
 /** About what one screen width holds; with more bots than this, "See all" earns its place. */
@@ -79,6 +79,7 @@ internal fun TeamRail(
     onOpen: (Bot) -> Unit,
     onCreateThread: (Bot) -> Unit,
     onManageThreads: (Bot) -> Unit,
+    onChangeLook: (Bot) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colors = Seira.colors
@@ -136,7 +137,7 @@ internal fun TeamRail(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 members.forEach {
-                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) })
+                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
                 }
             }
         } else {
@@ -145,7 +146,7 @@ internal fun TeamRail(
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 6.dp),
             ) {
                 items(members, key = { it.bot.id }) {
-                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) })
+                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
                 }
             }
         }
@@ -159,6 +160,7 @@ private fun TeamMemberItem(
     onOpen: () -> Unit,
     onCreateThread: () -> Unit,
     onManageThreads: () -> Unit,
+    onChangeLook: () -> Unit,
 ) {
     val colors = Seira.colors
     val bot = member.bot
@@ -169,6 +171,7 @@ private fun TeamMemberItem(
     }
     val newThread = stringResource(R.string.mobile_new_thread_02057e28)
     val manageThreads = stringResource(R.string.home_manage_threads)
+    val changeLook = stringResource(R.string.change_look_title)
     var menuOpen by remember { mutableStateOf(false) }
     Box {
         Column(
@@ -191,6 +194,10 @@ private fun TeamMemberItem(
                         },
                         CustomAccessibilityAction(manageThreads) {
                             onManageThreads()
+                            true
+                        },
+                        CustomAccessibilityAction(changeLook) {
+                            onChangeLook()
                             true
                         },
                     )
@@ -233,6 +240,14 @@ private fun TeamMemberItem(
                     onManageThreads()
                 },
                 modifier = Modifier.testTag("team-manage-threads.${bot.id}"),
+            )
+            DropdownMenuItem(
+                text = { Text(changeLook) },
+                onClick = {
+                    menuOpen = false
+                    onChangeLook()
+                },
+                modifier = Modifier.testTag("team-change-look.${bot.id}"),
             )
         }
     }

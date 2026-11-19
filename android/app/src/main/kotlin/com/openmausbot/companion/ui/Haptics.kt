@@ -69,6 +69,9 @@ internal enum class TactileAction(val cue: HapticCue) {
 
     /** Picking the mark a quick reply carries (`QuickRepliesEditor.swift:138`). */
     CHOOSE_QUICK_REPLY_ICON(HapticCue.SELECT),
+
+    /** The computer accepted a new look (`ChangeLookSheet.swift` `save`). */
+    SAVE_LOOK_SUCCESS(HapticCue.SUCCESS),
 }
 
 object CompanionHaptics {

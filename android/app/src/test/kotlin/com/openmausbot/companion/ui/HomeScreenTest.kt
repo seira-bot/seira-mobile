@@ -154,6 +154,13 @@ class HomeScreenTest {
     }
 
     @Test
+    fun `a build without calls has no Talk pill but keeps the hero`() {
+        mount(callsEnabled = false)
+        compose.onNodeWithTag("home-hero").assertIsDisplayed()
+        compose.onNodeWithTag("home-talk").assertDoesNotExist()
+    }
+
+    @Test
     fun `the rail marks who works and who waits, for TalkBack too`() {
         mount()
         compose.onNodeWithTag("team-member.${RosterFixture.WORKING}").assert(hasContentDescription("Forge, working"))
@@ -239,6 +246,7 @@ class HomeScreenTest {
     private fun mount(
         hour: Int = 9,
         fleet: Fleet = RosterFixture.fleet(),
+        callsEnabled: Boolean = true,
     ): CompanionNavigator {
         context.getSharedPreferences(ChatPreferences.NAME, Context.MODE_PRIVATE).edit().clear().commit()
         val navigator = CompanionNavigator()
@@ -260,7 +268,7 @@ class HomeScreenTest {
                 CompanionTheme(darkTheme = false) {
                     Surface(Modifier.fillMaxSize()) {
                         val state by scene.session.state.collectAsState()
-                        if (state.bots.isNotEmpty()) Screens(navigator)
+                        if (state.bots.isNotEmpty()) Screens(navigator, callsEnabled)
                     }
                 }
             }
@@ -272,9 +280,9 @@ class HomeScreenTest {
     }
 
     @Composable
-    private fun Screens(navigator: CompanionNavigator) {
+    private fun Screens(navigator: CompanionNavigator, callsEnabled: Boolean) {
         when (navigator.current) {
-            Destination.Roster -> RosterScreen(navigator)
+            Destination.Roster -> RosterScreen(navigator, callsEnabled)
             Destination.Settings -> Text("Settings")
             else -> Text("Conversation")
         }
