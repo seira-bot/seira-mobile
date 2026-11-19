@@ -9,6 +9,7 @@ import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
@@ -160,6 +161,7 @@ class ChangeLookSheetTest {
     private fun pickBlueAndSave() {
         compose.onNodeWithText("Colour").performClick()
         compose.onNodeWithContentDescription("Blue").performClick()
+        compose.onNodeWithContentDescription("Blue").assertIsSelected()
         compose.onNodeWithTag("change-look-save").assertIsEnabled().performClick()
     }
 }
