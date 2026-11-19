@@ -24,22 +24,33 @@ commit and artifact being submitted; unchecked items remain release work.
 
 ## Listing and reviewer access
 
-- [ ] Write the description and release notes from features verified in this
-  release, including its Seira desktop dependency.
+- [ ] Review the drafts in `listing/en-US.md` and `listing/id-ID.md` against
+  features verified in this release, including its Seira desktop dependency.
+  Run `node android/PlayStore/tools/check-listing.mjs`.
 - [ ] Exclude unmerged call-mode and voice-key setup claims (#739/#1531).
 - [ ] Review icon, feature graphic, and each selected screenshot against the
   release, with Seira branding and no private data.
-- [ ] Keep `assets/screenshots/03-call.png` excluded: it is unapproved and unusable
-  until the actual release supports and verifies the depicted call feature.
+- [ ] Use only the framed screenshots in `frames/<language>/`. Phone images must
+  be 9:16 or 16:9, each side 320–3840 px, at most 8 MB, 2 to 8 per language
+  (Console rules, read 2026-11-19). Show no call entry point.
+- [ ] Render the screenshots again on the release UI (see README, "Screenshots"),
+  then run `python3 android/PlayStore/tools/frame.py`.
+- [ ] Confirm the release build has the Seira character heads and the Change
+  look sheet. Screenshot 2 and the listing line about each bot's look need them.
+- [ ] Use the 512×512 icon that matches the release launcher icon.
 - [ ] Check current Console asset requirements and use only reviewed images.
-- [ ] Confirm support contacts, website, category, pricing, and distribution
-  choices with the release owner.
+- [ ] Confirm support contacts, website, privacy policy URL, category, pricing,
+  and distribution choices with the release owner.
 - [ ] Prepare and test reviewer setup/access instructions, including the actual
   signup, authentication, desktop, and server-settings requirements.
 
 ## Declarations and submission
 
 - [ ] Review current Console requirements for the account and release track.
+  The account is an Organization account, so the 12-tester, 14-day closed test
+  rule does not apply (checked 2026-11-19). The account owner must declare
+  trader status before February 2027.
+- [ ] Decide the open items D-1 to D-5 in `declarations-proposal.md`.
 - [ ] Complete content, age-rating, target-audience, ads, permission, and other
   applicable forms from the shipped behavior; this checklist supplies no answers.
 - [ ] Review data flows across local connections, hosted access, model providers,
