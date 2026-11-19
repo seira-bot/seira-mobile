@@ -20,4 +20,4 @@ internal fun Icon3d(@DrawableRes res: Int, size: Dp, name: String, modifier: Mod
 }
 
 /** A 3D icon and the name its test tag carries. */
-class Art3d(@DrawableRes val res: Int, val name: String)
+class Art3d(@param:DrawableRes val res: Int, val name: String)
