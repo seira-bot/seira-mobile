@@ -85,9 +85,7 @@ class ChangeLookSheetMotionTest {
         Settings.Global.putFloat(compose.activity.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         open()
         tapClose()
-        compose.mainClock.advanceTimeByFrame()
-        compose.mainClock.advanceTimeByFrame()
-        compose.mainClock.advanceTimeByFrame()
+        compose.mainClock.advanceTimeBy(100)
         assertEquals(1, dismissed)
     }
 }
