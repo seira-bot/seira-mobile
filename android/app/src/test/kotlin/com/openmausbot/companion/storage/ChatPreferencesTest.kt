@@ -11,7 +11,7 @@ import com.openmausbot.companion.ui.room
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.QuickReply
 import com.openmausbot.companion.core.RosterDensity
-import com.openmausbot.companion.ui.AppearanceSkin
+import com.openmausbot.companion.ui.theme.ThemeMode
 import com.openmausbot.companion.ui.cssHexToArgb
 import kotlin.test.assertEquals
 import org.junit.Test
@@ -84,26 +84,33 @@ class ChatPreferencesTest {
     }
 
     @Test
-    fun `appearance skin defaults to desktop midnight and survives relaunch`() {
-        val name = "chat-appearance-skin"
+    fun `theme mode defaults to auto and survives relaunch`() {
+        val name = "chat-theme-mode"
         context.getSharedPreferences(name, Context.MODE_PRIVATE).edit().clear().commit()
-        assertEquals(AppearanceSkin.MIDNIGHT, store(name).appearanceSkin.value)
-        store(name).setAppearanceSkin(AppearanceSkin.LAGOON)
-        assertEquals(AppearanceSkin.LAGOON, store(name).appearanceSkin.value)
+        assertEquals(ThemeMode.AUTO, store(name).themeMode.value)
+        store(name).setThemeMode(ThemeMode.DARK)
+        assertEquals(ThemeMode.DARK, store(name).themeMode.value)
+        store(name).setThemeMode(ThemeMode.LIGHT)
+        assertEquals(ThemeMode.LIGHT, store(name).themeMode.value)
     }
 
     @Test
-    fun `appearance offers the desktop's eight named skins`() {
-        assertEquals(
-            listOf("Midnight", "Atelier", "Foundry", "Lagoon", "Graphite", "Linen", "Dusk", "Daylight"),
-            AppearanceSkin.entries.map(AppearanceSkin::label),
-        )
+    fun `an unreadable theme mode reads as auto`() {
+        val name = "chat-theme-mode-bad"
+        context.getSharedPreferences(name, Context.MODE_PRIVATE).edit()
+            .putString("companion.prefs.themeMode", "sepia").commit()
+
+        assertEquals(ThemeMode.AUTO, store(name).themeMode.value)
     }
 
     @Test
-    fun `CSS RGBA token keeps its desktop alpha in Compose`() {
-        assertEquals("FCFCFC99", AppearanceSkin.MIDNIGHT.colors.secondaryInk)
-        assertEquals(0x99FCFCFCL, cssHexToArgb(AppearanceSkin.MIDNIGHT.colors.secondaryInk))
+    fun `theme offers light, dark and auto`() {
+        assertEquals(listOf("light", "dark", "auto"), ThemeMode.entries.map(ThemeMode::wireValue))
+    }
+
+    @Test
+    fun `CSS RGBA token keeps its alpha in Compose`() {
+        assertEquals(0x99FCFCFCL, cssHexToArgb("FCFCFC99"))
         assertEquals(0x99FCFCFC.toInt(), Color(cssHexToArgb("FCFCFC99")).toArgb())
     }
 
