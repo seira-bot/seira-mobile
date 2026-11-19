@@ -78,7 +78,7 @@ struct SettingsView: View {
 
     private var appearanceSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Appearance")
+            SettingsSectionHeader(title: "Appearance", icon3D: "Icons3D/appearance")
             AppearanceSegmentedControl()
                 .padding(6)
                 .seiraCard(radius: 22)
@@ -88,7 +88,7 @@ struct SettingsView: View {
 
     private var computerSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Your computer")
+            SettingsSectionHeader(title: "Your computer", icon3D: "Icons3D/computer")
             SettingsCard { computerRows }
         }
     }
@@ -141,7 +141,7 @@ struct SettingsView: View {
 
     private var notificationsSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Notifications")
+            SettingsSectionHeader(title: "Notifications", icon3D: "Icons3D/notifications")
             SettingsCard {
                 notificationStatusRow
                 SettingsDivider()
@@ -288,7 +288,7 @@ struct SettingsView: View {
 
     private var voiceSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Voice and calls")
+            SettingsSectionHeader(title: "Voice and calls", icon3D: "Icons3D/voice")
             SettingsCard {
                 SettingsToggleRow(
                     symbol: "captions.bubble",
@@ -656,7 +656,7 @@ struct ConnectionSecurityView: View {
                 }
                 .listRowBackground(Color.seiraTint)
             } else {
-                EmptyStateView("No computer connected", systemImage: "laptopcomputer.slash")
+                SeiraEmptyState(icon: "Icons3D/not-connected", title: "No computer connected")
             }
         }
         .settingsListChrome()

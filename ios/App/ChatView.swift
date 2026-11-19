@@ -1020,16 +1020,19 @@ struct ChatView: View {
         if CameraPicker.isAvailable {
             tiles.append(AddToChatTile(
                 id: "camera", systemImage: "camera", title: "Camera",
-                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason,
+                icon3D: "Icons3D/camera"
             ) { showingCamera = true })
         }
         tiles.append(AddToChatTile(
             id: "photos", systemImage: "photo.on.rectangle", title: "Photos",
-            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason,
+            icon3D: "Icons3D/photos"
         ) { photos?.run() })
         tiles.append(AddToChatTile(
             id: "files", systemImage: "paperclip", title: "Files",
-            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason
+            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason,
+            icon3D: "Icons3D/files"
         ) { files?.run() })
         return tiles
     }
@@ -1039,7 +1042,8 @@ struct ChatView: View {
         if let bot = currentBot, canStartLiveCall {
             rows.append(AddToChatAction(
                 id: "live-call", systemImage: "waveform", title: "Live call",
-                subtitle: "Talk it through with \(bot.name)"
+                subtitle: "Talk it through with \(bot.name)",
+                icon3D: "Icons3D/live-call"
             ) { beginLiveCall() })
         }
         if let computer = actions.first(where: { $0.id == "computer" }) { rows.append(computer) }
@@ -1086,7 +1090,8 @@ struct ChatView: View {
             ) { showingProfile = true })
             out.append(AddToChatAction(
                 id: "computer", systemImage: "display", title: "Cloud desktop",
-                subtitle: "Watch \(bot.name) work on screen"
+                subtitle: "Watch \(bot.name) work on screen",
+                icon3D: "Icons3D/cloud-desktop"
             ) { showingComputer = true })
         }
         if case let .room(room) = current, room.dm != true {

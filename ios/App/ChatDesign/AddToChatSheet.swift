@@ -9,6 +9,7 @@ struct AddToChatAction: Identifiable {
     var destructive = false
     var disabled = false
     var disabledReason: LocalizedStringKey? = nil
+    var icon3D: String? = nil
     let run: () -> Void
 }
 
@@ -19,6 +20,7 @@ struct AddToChatTile: Identifiable {
     let title: LocalizedStringKey
     var disabled = false
     var disabledReason: LocalizedStringKey? = nil
+    var icon3D: String? = nil
     let run: () -> Void
 }
 
@@ -135,7 +137,10 @@ struct AddToChatSheet: View {
         if !actions.isEmpty {
             VStack(spacing: 0) {
                 ForEach(Array(actions.enumerated()), id: \.element.id) { index, action in
-                    if index > 0 { Color.seiraChatHairline.frame(height: 1).padding(.leading, 52) }
+                    if index > 0 {
+                        Color.seiraChatHairline.frame(height: 1)
+                            .padding(.leading, action.icon3D == nil ? 52 : 72)
+                    }
                     SheetRow(action: action, onClose: onClose)
                 }
             }
@@ -149,6 +154,15 @@ private struct SheetTile: View {
     let onClose: () -> Void
     @State private var taps = 0
 
+    @ViewBuilder private var tileIcon: some View {
+        if let icon = tile.icon3D {
+            SheetIcon3D(name: icon)
+        } else {
+            Image(systemName: tile.systemImage)
+                .font(.system(size: 22, weight: .regular))
+        }
+    }
+
     var body: some View {
         Button {
             taps += 1
@@ -156,8 +170,7 @@ private struct SheetTile: View {
             tile.run()
         } label: {
             VStack(spacing: 8) {
-                Image(systemName: tile.systemImage)
-                    .font(.system(size: 22, weight: .regular))
+                tileIcon
                 Text(tile.title)
                     .font(.seira(13, .medium, relativeTo: .subheadline))
             }
@@ -182,6 +195,17 @@ private struct SheetRow: View {
 
     private var ink: Color { action.destructive ? Color.seiraDangerText : Color.seiraInk }
 
+    @ViewBuilder private var rowIcon: some View {
+        if let icon = action.icon3D {
+            SheetIcon3D(name: icon)
+        } else {
+            Image(systemName: action.systemImage)
+                .font(.system(size: 20, weight: .regular))
+                .foregroundStyle(ink)
+                .frame(width: 24)
+        }
+    }
+
     var body: some View {
         Button {
             taps += 1
@@ -189,10 +213,7 @@ private struct SheetRow: View {
             action.run()
         } label: {
             HStack(spacing: 14) {
-                Image(systemName: action.systemImage)
-                    .font(.system(size: 20, weight: .regular))
-                    .foregroundStyle(ink)
-                    .frame(width: 24)
+                rowIcon
                 VStack(alignment: .leading, spacing: 1) {
                     Text(action.title)
                         .font(.seira(15, .medium))
@@ -212,5 +233,17 @@ private struct SheetRow: View {
         .disabled(action.disabled)
         .opacity(action.disabled ? 0.45 : 1)
         .feedback(.selection, trigger: taps)
+    }
+}
+
+private struct SheetIcon3D: View {
+    let name: String
+
+    var body: some View {
+        Image(name)
+            .resizable()
+            .scaledToFit()
+            .frame(width: 44, height: 44)
+            .accessibilityHidden(true)
     }
 }

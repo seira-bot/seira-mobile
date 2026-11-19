@@ -17,7 +17,10 @@ struct PairBackButton: View {
 struct PairHeader: View {
     var body: some View {
         VStack(spacing: 0) {
-            SeiraMark(size: 36)
+            Image("Icons3D/pair")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 120, height: 120)
                 .accessibilityHidden(true)
             Text("Connect your computer")
                 .font(.seira(24, .semibold, relativeTo: .title2))
