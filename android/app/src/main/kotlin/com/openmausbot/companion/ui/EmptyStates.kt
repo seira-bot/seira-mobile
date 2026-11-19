@@ -17,7 +17,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.theme.InkPillButton
@@ -43,7 +42,7 @@ internal fun rememberPhoneOnline(): Boolean {
     val override = LocalPhoneOnline.current
     val inspecting = LocalInspectionMode.current
     val context = LocalContext.current
-    val manager = remember(context) { context.getSystemService(ConnectivityManager::class.java) }
+    val manager: ConnectivityManager? = remember(context) { context.getSystemService(ConnectivityManager::class.java) }
     val tracked = override == null && !inspecting && manager != null
     var online by remember(manager) { mutableStateOf(manager?.hasInternet(manager.activeNetwork) ?: true) }
     DisposableEffect(manager, tracked) {
@@ -83,7 +82,7 @@ private fun EmptyPill(text: String, tag: String, enabled: Boolean = true, onClic
         text = text,
         onClick = onClick,
         enabled = enabled,
-        modifier = Modifier.semantics(mergeDescendants = true) {}.testTag(tag),
+        modifier = Modifier.testTag(tag),
     )
 }
 

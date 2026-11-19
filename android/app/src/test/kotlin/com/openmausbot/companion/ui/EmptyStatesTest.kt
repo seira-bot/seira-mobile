@@ -6,13 +6,15 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasAnyAncestor
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.openmausbot.companion.core.Session
-import com.openmausbot.companion.ui.theme.CompanionTheme
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.Rule
@@ -42,6 +44,9 @@ class EmptyStatesTest {
             )
         }
     }
+
+    private fun primaryButton() =
+        compose.onNode(hasClickAction() and hasAnyAncestor(hasTestTag(EMPTY_PRIMARY_TAG)).or(hasTestTag(EMPTY_PRIMARY_TAG)))
 
     private fun hasArt(name: String) =
         compose.onAllNodesWithTag("icon3d.$name", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
@@ -75,7 +80,7 @@ class EmptyStatesTest {
         compose.onNodeWithText("Open Seira on your computer. Your chats come back when it connects.").assertIsDisplayed()
         assertTrue(hasArt("not_connected"))
 
-        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertTextContains("Pair a computer").performClick()
+        primaryButton().assertTextContains("Pair a computer").performClick()
         compose.onNodeWithTag(EMPTY_SECONDARY_TAG).assertTextContains("Try again").performClick()
         assertEquals(listOf("pair", "refresh"), calls)
     }
@@ -88,7 +93,7 @@ class EmptyStatesTest {
         assertTrue(hasArt("offline"))
         compose.onNodeWithTag(EMPTY_SECONDARY_TAG).assertDoesNotExist()
 
-        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertTextContains("Try again").performClick()
+        primaryButton().assertTextContains("Try again").performClick()
         assertEquals(listOf("refresh"), calls)
     }
 
@@ -96,13 +101,13 @@ class EmptyStatesTest {
     fun `the second button waits while a refresh runs`() {
         compose.setContent { Roster(RosterEmpty.NOT_CONNECTED, refreshing = true) }
         compose.onNodeWithTag(EMPTY_SECONDARY_TAG).assertIsNotEnabled()
-        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertIsEnabled()
+        primaryButton().assertIsEnabled()
     }
 
     @Test
     fun `the offline retry waits while a refresh runs`() {
         compose.setContent { Roster(RosterEmpty.OFFLINE, refreshing = true) }
-        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertIsNotEnabled()
+        primaryButton().assertIsNotEnabled()
     }
 
     @Test
@@ -126,7 +131,7 @@ class EmptyStatesTest {
         compose.onNodeWithText("Nothing waits for your answer right now.").assertIsDisplayed()
         assertTrue(hasArt("all_done"))
 
-        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertTextContains("Back to chats").performClick()
+        primaryButton().assertTextContains("Back to chats").performClick()
         assertEquals(listOf("back"), calls)
     }
 }
