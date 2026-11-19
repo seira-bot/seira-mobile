@@ -445,7 +445,15 @@ struct ChatView: View {
         // Reading scrollback — one tap back to the end, streaming or
         // not, the same pill the desktop chat offers.
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { bottom in
+            // The call bar or a taller composer took room from the bottom.
+            // The end stays where it was on screen, now under that room,
+            // so a reader who was at the end goes back to it.
+            let shrank = viewportBottom > 0 && bottom < viewportBottom - 0.5
+            let wasAtEnd = !readerDetached && scrollReading.endGap <= Self.followSlack
             viewportBottom = bottom
+            if shrank, wasAtEnd {
+                proxy.scrollTo(Self.transcriptEndId, anchor: .bottom)
+            }
         }
         .overlay(alignment: .bottom) { jumpToLatestPill(proxy) }
         .task { await playIslandIntro() }
