@@ -1,6 +1,6 @@
 package com.openmausbot.companion.ui
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.runtime.rememberUpdatedState
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.glass
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,6 +42,7 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -59,10 +64,8 @@ data class LiveCallBarActions(
     val onHangUp: () -> Unit,
     val onRetry: () -> Unit,
     val onDismiss: () -> Unit,
+    val onOpen: () -> Unit = {},
 )
-
-/** The green a running call wears, in the bar and the banner. */
-internal val LIVE_GREEN = Color(0xFF34C759)
 
 /**
  * The compact call bar above the composer: the bot and the clock, one caption
@@ -97,12 +100,18 @@ private val NOTICE_END_INSET = 8.dp
 @Composable
 private fun LocalBar(model: LiveCallBarModel.Local, actions: LiveCallBarActions, modifier: Modifier) {
     val callLabel = localizedMobileCopy("Live call")
+    val openLabel = stringResource(R.string.call_open_call)
+    val open by rememberUpdatedState(actions.onOpen)
+    val tappable = model.phase == LiveCallPhase.LIVE || model.phase == LiveCallPhase.STARTING
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+            .glass(RoundedCornerShape(22.dp))
+            .then(if (tappable) Modifier.pointerInput(Unit) { detectTapGestures(onTap = { open() }) } else Modifier)
             .padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
-            .semantics { contentDescription = callLabel },
+            .semantics {
+                contentDescription = callLabel
+                if (tappable) onClick(label = openLabel) { open(); true }
+            },
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         if (model.phase == LiveCallPhase.ENDED) {
@@ -114,7 +123,7 @@ private fun LocalBar(model: LiveCallBarModel.Local, actions: LiveCallBarActions,
             }
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                BarTitle(text = model.title, tint = LIVE_GREEN, maxLines = 1, modifier = Modifier.weight(1f), clock = model.clock)
+                BarTitle(text = model.title, tint = Seira.colors.success, maxLines = 1, modifier = Modifier.weight(1f), clock = model.clock)
                 BarIcon(contentDescription = localizedMobileCopy("Live call settings"), onClick = actions.onSettings, icon = Icons.Filled.Settings)
                 BarIcon(
                     contentDescription = localizedMobileCopy(if (model.muted) "Unmute" else "Mute"),
@@ -272,13 +281,12 @@ private fun RemoteBar(model: LiveCallBarModel.Remote, onHangUp: () -> Unit, modi
     val callLabel = localizedMobileCopy("Live call on another device")
     Column(
         modifier = modifier
-            .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+            .glass(RoundedCornerShape(22.dp))
             .padding(start = 12.dp, end = 4.dp, top = 2.dp, bottom = 4.dp)
             .semantics { contentDescription = callLabel },
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            BarTitle(text = model.title, tint = LIVE_GREEN, maxLines = 1, modifier = Modifier.weight(1f), clock = model.clock)
+            BarTitle(text = model.title, tint = Seira.colors.success, maxLines = 1, modifier = Modifier.weight(1f), clock = model.clock)
             TextButton(onClick = onHangUp) { Text(localizedMobileCopy("Hang up"), color = MaterialTheme.colorScheme.error) }
         }
         Text(
@@ -349,6 +357,7 @@ fun LiveCallBarHost(chat: Chat, onSettings: () -> Unit, modifier: Modifier = Mod
             },
             onRetry = { liveCalls.retry(MicrophoneAccess { environment.mic.ensure(it) }) },
             onDismiss = liveCalls::dismiss,
+            onOpen = environment.callUi::expand,
         ),
         modifier = modifier,
     )

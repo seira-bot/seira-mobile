@@ -311,6 +311,7 @@ fun CompanionRoot(
                     }
                 }
             }
+            if (route == OnboardingRoute.CHATS) LiveCallScreenHost()
             // Pairing failures are shown inline on the pairing form, where the
             // action was — a modal on top of it would say the same thing twice.
             if (route != OnboardingRoute.PAIRING) {
