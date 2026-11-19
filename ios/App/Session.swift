@@ -2341,6 +2341,21 @@ final class Session: ObservableObject {
         }
     }
 
+    /// Sends only the look fields that differ from `original`. Gives true when nothing needed sending.
+    /// A failure is not put in `actionError`: the Change look sheet shows it in place.
+    func saveLook(_ look: SeiraLook, from original: SeiraLook, for bot: Bot) async -> Bool {
+        let patch = BotLookPatch(from: original, to: look)
+        if patch.isEmpty { return true }
+        guard let client else { return false }
+        do {
+            let updated = try await client.updateLook(botId: bot.id, patch: patch)
+            state.apply(.bot(updated))
+            return true
+        } catch {
+            return false
+        }
+    }
+
     func uploadAvatar(_ data: Data, mime: String, for bot: Bot, crop: AvatarCrop) async -> Bot? {
         guard let client else { return nil }
         do {
