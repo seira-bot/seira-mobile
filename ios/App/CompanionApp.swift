@@ -28,6 +28,7 @@ struct CompanionApp: App {
                 .appliesAppearance()
                 .environmentObject(session)
                 .environmentObject(liveCall)
+                .liveCallScreen()
                 .environment(\.avatarLoader, AvatarLoader(session: session))
                 // One modifier is the whole language seam. SwiftUI resolves a
                 // `LocalizedStringKey` against the environment's locale, so
