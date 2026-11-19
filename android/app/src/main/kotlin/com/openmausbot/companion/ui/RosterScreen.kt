@@ -382,6 +382,13 @@ fun RosterScreen(navigator: CompanionNavigator) {
                         } else {
                             stringResource(R.string.mobile_roster_no_thread_matches, query)
                         },
+                        art = if (query.isNotEmpty()) {
+                            null
+                        } else if (status is Session.Status.Offline) {
+                            Art3d(R.drawable.icon3d_offline, "offline")
+                        } else {
+                            Art3d(R.drawable.icon3d_empty_chats, "empty_chats")
+                        },
                     )
                 }
 

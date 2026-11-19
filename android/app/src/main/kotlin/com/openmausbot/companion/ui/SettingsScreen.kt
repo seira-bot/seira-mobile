@@ -198,12 +198,18 @@ internal fun SettingsScreen(
                     selectedIndex = modes.indexOf(themeMode).coerceAtLeast(0),
                     onSelect = { environment.chatPreferences.setThemeMode(modes[it]) },
                 )
-                Text(
-                    stringResource(R.string.settings_appearance_caption),
-                    style = SeiraType.callout,
-                    color = colors.ink3,
-                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 6.dp),
-                )
+                Row(
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 10.dp, bottom = 6.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon3d(R.drawable.icon3d_appearance, 30.dp, "appearance")
+                    Text(
+                        stringResource(R.string.settings_appearance_caption),
+                        style = SeiraType.callout,
+                        color = colors.ink3,
+                    )
+                }
             }
         }
 
@@ -228,6 +234,7 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = bound.name,
                     icon = SeiraIcons.Laptop,
+                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                     subtitle = computerStatusPhrase(status),
                     subtitleDot = if (live) colors.success else if (offline) colors.danger else null,
@@ -339,16 +346,18 @@ internal fun SettingsScreen(
                     title = stringResource(R.string.mobile_settings_connection_label),
                     subtitle = localizedConnectionStatus(status),
                     icon = SeiraIcons.Laptop,
+                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                 )
             }
 
             connections.filter { it.id != bound?.id }.forEach { computer ->
-                SettingsHairline(50.dp)
+                SettingsHairline(60.dp)
                 DesignRow(
                     title = computer.name,
                     subtitle = stringResource(R.string.settings_state_saved),
                     icon = SeiraIcons.Laptop,
+                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                     onClick = {
                         haptics.play(TactileAction.SWITCH_COMPUTER)
@@ -363,10 +372,11 @@ internal fun SettingsScreen(
             }
 
             if (bound == null && onConnect != null) {
-                SettingsHairline(50.dp)
+                SettingsHairline(60.dp)
                 DesignRow(
                     title = stringResource(R.string.mobile_settings_connect_computer),
                     icon = SeiraIcons.Plus,
+                    art = Art3d(R.drawable.icon3d_pair, "pair"),
                     onClick = onConnect,
                     trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
                 )
@@ -381,6 +391,7 @@ internal fun SettingsScreen(
                     title = stringResource(R.string.settings_notif_turn_on),
                     subtitle = stringResource(R.string.settings_notif_turn_on_body),
                     icon = SeiraIcons.Bell,
+                    art = Art3d(R.drawable.icon3d_notifications, "notifications"),
                     minHeight = 64.dp,
                     enabled = NotificationPermissionController.buttonEnabled(notifications),
                     onClick = environment.notifications::act,
@@ -388,11 +399,12 @@ internal fun SettingsScreen(
                 )
             } else {
                 NotificationChannelRow.entries.forEachIndexed { index, row ->
-                    if (index > 0) SettingsHairline(50.dp)
+                    if (index > 0) SettingsHairline(60.dp)
                     SwitchRow(
                         title = stringResource(row.title),
                         subtitle = stringResource(row.body),
                         icon = SeiraIcons.Bell,
+                        art = Art3d(R.drawable.icon3d_notifications, "notifications"),
                         checked = channelStates[row.channelId] ?: true,
                         onToggle = { openChannelSettings(context, row.channelId) },
                     )
@@ -453,6 +465,7 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = stringResource(R.string.settings_connected_apps),
                     icon = SeiraIcons.Shield,
+                    art = Art3d(R.drawable.icon3d_privacy, "privacy"),
                     onClick = onOpenConnectedApps,
                     trailing = {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
