@@ -44,8 +44,6 @@ struct ChangeLookSheet: View {
             }
             .padding(.bottom, 16)
         }
-        .overlay(alignment: .bottom) { toast }
-        .seiraAnimation(SeiraMotion.fast, value: model.toastShown)
     }
 
     // MARK: Header
@@ -93,10 +91,9 @@ struct ChangeLookSheet: View {
         Button { model.celebrate() } label: {
             ZStack {
                 Circle().fill(SeiraIdentity.plate(hex: model.colorHex))
-                SeiraCharacter(look: model.look, size: 200, mood: model.mood, motion: .sway)
+                SeiraCharacter(look: model.look, size: 184, mood: model.mood, motion: .sway)
             }
-            .frame(width: 232, height: 232)
-            .modifier(ChangeLookShake(travel: CGFloat(model.shakes)))
+            .frame(width: 216, height: 216)
             .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -114,19 +111,6 @@ struct ChangeLookSheet: View {
                 }
             }
             .padding(.horizontal, 16)
-        }
-    }
-
-    @ViewBuilder private var toast: some View {
-        if model.toastShown {
-            Text("Up to 3 extras. Remove one first.")
-                .font(.seira(14, .medium, relativeTo: .subheadline))
-                .foregroundStyle(Color.seiraOnInverse)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(Color.seiraInverse, in: Capsule())
-                .padding(.bottom, 8)
-                .transition(.opacity)
         }
     }
 

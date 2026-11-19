@@ -279,7 +279,7 @@ enum SeiraAvatarHeadRenderer {
         if let picture = headPicture(style: style, body: body, pixels: pixels, hex: tint(for: look)) {
             ctx.drawUpright(picture, in: CGRect(x: 0, y: 0, width: square, height: square))
         }
-        let ink = SeiraFaceInk(faceInk: look.faceInk)
+        let ink = SeiraFaceInk.dark
         drawEyes(ctx, geometry, body: body, ink: ink, glow: unit * device, clipPath: clip(for: style, body: body))
         if body.eyes.mouth { drawMouth(ctx, geometry, body: body, ink: ink, glow: unit * device) }
         for mark in marks {

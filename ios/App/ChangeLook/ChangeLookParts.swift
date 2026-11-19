@@ -3,7 +3,26 @@ import SwiftUI
 
 enum ChangeLookLabels {
     static func hair(_ id: String) -> LocalizedStringKey {
-        LocalizedStringKey(SeiraKit.styles[id]?.label ?? id)
+        switch id {
+        case "seira": return "Seira"
+        case "seira-long": return "Seira long"
+        case "bob": return "Bob"
+        case "twin-tails": return "Twin tails"
+        case "ponytail": return "Ponytail"
+        case "long-straight": return "Long straight"
+        case "bun": return "Bun"
+        case "long-wavy": return "Long wavy"
+        case "short-neat": return "Short neat"
+        case "center-part": return "Centre part"
+        case "spiky": return "Spiky"
+        case "slick-back": return "Slick back"
+        case "long-tied": return "Long tied"
+        case "long-loose": return "Long loose"
+        case "buzz": return "Buzz"
+        case "messy": return "Messy"
+        case "none": return "No hair"
+        default: return LocalizedStringKey(id)
+        }
     }
 
     static func color(_ name: String) -> LocalizedStringKey {
@@ -24,16 +43,11 @@ enum ChangeLookLabels {
 
     static func expression(_ id: String) -> LocalizedStringKey {
         switch id {
-        case "idle": return "Idle"
+        case "idle": return "Calm"
         case "happy": return "Happy"
-        case "curious": return "Curious"
-        case "drowsy": return "Drowsy"
-        case "working": return "Working"
+        case "surprised": return "Surprised"
+        case "drowsy": return "Sleepy"
         case "thinking": return "Thinking"
-        case "listening": return "Listening"
-        case "sleeping": return "Sleeping"
-        case "suspicious": return "Suspicious"
-        case "proud": return "Proud"
         default: return LocalizedStringKey(id)
         }
     }
@@ -70,19 +84,6 @@ enum ChangeLookLabels {
 enum ChangeLookMetrics {
     static let animation = Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.18)
     static let threeColumns = Array(repeating: GridItem(.flexible(), spacing: 12), count: 3)
-}
-
-struct ChangeLookShake: GeometryEffect {
-    var travel: CGFloat
-
-    var animatableData: CGFloat {
-        get { travel }
-        set { travel = newValue }
-    }
-
-    func effectValue(size: CGSize) -> ProjectionTransform {
-        ProjectionTransform(CGAffineTransform(translationX: 8 * sin(travel * .pi * 4), y: 0))
-    }
 }
 
 /// A tile with a caption. The tile carries the selection ring and the spoken label.
@@ -159,47 +160,6 @@ struct ChangeLookChip: View {
             .frame(minWidth: 44)
             .frame(height: 36)
             .background(fill, in: Capsule())
-    }
-}
-
-struct ChangeLookSegmented: View {
-    let blackSelected: Bool
-    let choose: (Bool) -> Void
-
-    var body: some View {
-        HStack(spacing: 0) {
-            segment(Text("White"), isBlack: false)
-            segment(Text("Black"), isBlack: true)
-        }
-        .padding(.horizontal, 4)
-        .frame(height: 44)
-        .background(Color.seiraSegment, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
-        .feedback(.selection, trigger: blackSelected)
-        .accessibilityElement(children: .contain)
-    }
-
-    private func segment(_ title: Text, isBlack: Bool) -> some View {
-        let isSelected = isBlack == blackSelected
-        let ink: Color = isSelected ? .seiraInk : .seiraInk2
-        return Button { choose(isBlack) } label: {
-            title
-                .font(.seira(14, .medium, relativeTo: .subheadline))
-                .foregroundStyle(ink)
-                .frame(maxWidth: .infinity, minHeight: 44)
-                .background { thumb(isSelected) }
-                .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(isSelected ? .isSelected : [])
-    }
-
-    @ViewBuilder private func thumb(_ isSelected: Bool) -> some View {
-        if isSelected {
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.seiraThumb)
-                .shadow(color: .black.opacity(0.12), radius: 1, x: 0, y: 1)
-                .frame(height: 36)
-        }
     }
 }
 

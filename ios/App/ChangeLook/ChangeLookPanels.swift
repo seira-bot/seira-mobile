@@ -95,24 +95,12 @@ struct ChangeLookFacePanel: View {
     private let columns = [GridItem(.adaptive(minimum: 92), spacing: 8)]
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 20) {
-            VStack(alignment: .leading, spacing: 8) {
-                Text("Screen")
-                    .font(.seira(13, .medium, relativeTo: .subheadline))
-                    .foregroundStyle(Color.seiraInk2)
-                    .accessibilityAddTraits(.isHeader)
-                ChangeLookSegmented(blackSelected: model.screenIsBlack) { model.setScreen(black: $0) }
-            }
-            LazyVGrid(columns: columns, spacing: 0) {
-                ChangeLookChip(title: Text("Auto"), selected: model.look.expression == nil) {
-                    model.setExpression(nil)
-                }
-                ForEach(SeiraLookCatalog.expressions, id: \.self) { id in
-                    ChangeLookChip(
-                        title: Text(ChangeLookLabels.expression(id)),
-                        selected: model.look.expression == id
-                    ) { model.setExpression(id) }
-                }
+        LazyVGrid(columns: columns, spacing: 0) {
+            ForEach(SeiraLookCatalog.faceExpressions, id: \.self) { id in
+                ChangeLookChip(
+                    title: Text(ChangeLookLabels.expression(id)),
+                    selected: model.isExpressionSelected(id)
+                ) { model.setExpression(id) }
             }
         }
     }
@@ -120,16 +108,23 @@ struct ChangeLookFacePanel: View {
 
 struct ChangeLookExtrasPanel: View {
     @ObservedObject var model: ChangeLookModel
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
     private let columns = [GridItem(.adaptive(minimum: 80), spacing: 12)]
 
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
+            counter
             ForEach(SeiraLookSlot.allCases, id: \.self) { slot in
                 section(slot)
             }
         }
+    }
+
+    private var counter: some View {
+        let count = model.look.accessories.count
+        return Text("\(count) of 3")
+            .font(.seira(13, .medium, relativeTo: .subheadline))
+            .foregroundStyle(Color.seiraInk2)
+            .accessibilityLabel(Text("\(count) extras on"))
     }
 
     private func ids(in slot: SeiraLookSlot) -> [String] {
@@ -158,7 +153,7 @@ struct ChangeLookExtrasPanel: View {
             height: 80,
             radius: 18,
             captionSize: 12,
-            action: { model.toggleExtra(id, shake: !reduceMotion) }
+            action: { model.toggleExtra(id) }
         ) {
             ZStack(alignment: .topTrailing) {
                 sticker(id)

@@ -226,7 +226,7 @@ enum SeiraCharacterRenderer {
         let pixel = maxPixel(lead.view, unit: unit, device: device, natural: natural)
         guard let mask = visorMask(lead, pixel: pixel) else { return }
         let id = pose.face ?? SeiraFaces.id(expression: look.expression, mood: mood)
-        var input = SeiraFaceInput(spec: SeiraFaces.spec(id), ink: SeiraFaceInk(faceInk: look.faceInk))
+        var input = SeiraFaceInput(spec: SeiraFaces.spec(id), ink: .dark)
         input.blink = pose.blink
         input.talk = pose.talk
         input.time = pose.time

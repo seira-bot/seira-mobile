@@ -27,13 +27,10 @@ final class ChangeLookModel: ObservableObject {
     }
     @Published var category = ChangeLookCategory.characters
     @Published private(set) var celebrating = false
-    @Published private(set) var shakes = 0
-    @Published private(set) var toastShown = false
     @Published var saving = false
     @Published var saveFailed = false
 
     private var celebrateTask: Task<Void, Never>?
-    private var toastTask: Task<Void, Never>?
 
     init(original: SeiraLook) {
         self.original = original
@@ -48,9 +45,11 @@ final class ChangeLookModel: ObservableObject {
         return CharacterMood.normalize(look.expression) ?? .idle
     }
 
-    var colorHex: String? { SeiraLookCatalog.colorHex[look.color] }
+    func isExpressionSelected(_ id: String) -> Bool {
+        id == "idle" ? (look.expression == nil || look.expression == "idle") : look.expression == id
+    }
 
-    var screenIsBlack: Bool { look.faceInk == "black" }
+    var colorHex: String? { SeiraLookCatalog.colorHex[look.color] }
 
     private static func loadCast() -> [SeiraCastMember] {
         guard let url = SeiraKit.url("cast.json"),
@@ -72,27 +71,16 @@ final class ChangeLookModel: ObservableObject {
         look.color = name
     }
 
-    func setScreen(black: Bool) {
-        if black {
-            look.faceInk = "black"
+    func setExpression(_ id: String) {
+        if id == "idle" {
+            look.expression = original.expression == "idle" ? "idle" : nil
         } else {
-            look.faceInk = original.faceInk == "white" ? "white" : nil
+            look.expression = id
         }
     }
 
-    func setExpression(_ id: String?) {
-        look.expression = id
-    }
-
-    func toggleExtra(_ id: String, shake: Bool) {
-        switch SeiraLookCatalog.toggle(id, in: look.accessories) {
-        case .updated(let list):
-            look.accessories = list
-        case .full:
-            Haptics.notification(.warning)
-            if shake { withAnimation(.easeOut(duration: 0.4)) { shakes += 1 } }
-            showToast()
-        }
+    func toggleExtra(_ id: String) {
+        look.accessories = SeiraLookCatalog.toggle(id, in: look.accessories)
     }
 
     func surprise() {
@@ -107,20 +95,6 @@ final class ChangeLookModel: ObservableObject {
             try? await Task.sleep(nanoseconds: 1_200_000_000)
             guard !Task.isCancelled else { return }
             self?.celebrating = false
-        }
-    }
-
-    private func showToast() {
-        toastTask?.cancel()
-        toastShown = true
-        UIAccessibility.post(
-            notification: .announcement,
-            argument: String(localized: "Up to 3 extras. Remove one first.")
-        )
-        toastTask = Task { [weak self] in
-            try? await Task.sleep(nanoseconds: 2_400_000_000)
-            guard !Task.isCancelled else { return }
-            self?.toastShown = false
         }
     }
 }
