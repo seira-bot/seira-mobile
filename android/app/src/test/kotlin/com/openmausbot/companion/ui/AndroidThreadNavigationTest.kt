@@ -470,6 +470,7 @@ class AndroidThreadNavigationTest {
     private fun openThreads(on: String) {
         compose.onNodeWithContentDescription("More").performClick()
         compose.onNodeWithText("Threads").performClick()
-        compose.waitUntil(5_000) { compose.onAllNodesWithText(on).fetchSemanticsNodes().isNotEmpty() }
+        val other = if (on == "First thread") "Second thread" else "First thread"
+        compose.waitUntil(5_000) { compose.onAllNodesWithText(other).fetchSemanticsNodes().isNotEmpty() }
     }
 }

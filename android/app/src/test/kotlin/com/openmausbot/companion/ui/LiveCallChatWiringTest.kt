@@ -157,6 +157,14 @@ class LiveCallChatWiringTest {
         assertEquals(1, transport.closeSent)
     }
 
+    @Test
+    fun `a request from outside the chat starts the call the same way the button does`() {
+        mount { chatScreen() }
+        compose.runOnIdle { scene.environment.callUi.request(fixture.id) }
+        compose.waitUntil(10_000) { requests.any { it.path == "/api/live/session" } }
+        compose.onNodeWithText("Connecting…").assertIsDisplayed()
+    }
+
     /**
      * A phone has no Live switch: its first call is where Live is turned on,
      * so it says first what a call sends to OpenAI, with Start call and

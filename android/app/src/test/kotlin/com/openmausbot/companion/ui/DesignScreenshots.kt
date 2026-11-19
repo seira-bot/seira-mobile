@@ -37,6 +37,14 @@ internal fun ComposeContentTestRule.captureDesign(
             Box(Modifier.fillMaxSize().background(Seira.colors.app)) { content() }
         }
     }
+    return captureWindow(name, mode)
+}
+
+/**
+ * Draws the window as it is now to `build/design-screens/<name>-<light|dark>.png`.
+ * For a screen that needs a step after `setContent`, such as a connection or a tap.
+ */
+internal fun ComposeContentTestRule.captureWindow(name: String, mode: ThemeMode): File {
     waitForIdle()
     val file = designScreenshotFile(name, mode)
     val decor = (this as AndroidComposeTestRule<*, *>).activity.window.decorView
