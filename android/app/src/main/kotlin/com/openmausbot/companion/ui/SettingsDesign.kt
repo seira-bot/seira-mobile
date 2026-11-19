@@ -207,3 +207,22 @@ internal fun ProfileAvatar(initials: String?, size: androidx.compose.ui.unit.Dp 
 @Composable
 internal fun connectedStateText(connection: Connection): String =
     stringResource(SettingsDesign.connectedStateLabel(connection))
+
+/** Two sheets, one in front of the other. The theme set has no copy icon. */
+internal val CopyIcon: ImageVector = ImageVector.Builder(
+    name = "Copy",
+    defaultWidth = 24.dp,
+    defaultHeight = 24.dp,
+    viewportWidth = 24f,
+    viewportHeight = 24f,
+).apply {
+    for (path in listOf("M10 9h9a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1h-9a1 1 0 0 1-1-1v-9a1 1 0 0 1 1-1Z", "M15 9V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h4")) {
+        addPath(
+            pathData = androidx.compose.ui.graphics.vector.addPathNodes(path),
+            stroke = androidx.compose.ui.graphics.SolidColor(androidx.compose.ui.graphics.Color.Black),
+            strokeLineWidth = 1.85f,
+            strokeLineCap = androidx.compose.ui.graphics.StrokeCap.Round,
+            strokeLineJoin = androidx.compose.ui.graphics.StrokeJoin.Round,
+        )
+    }
+}.build()

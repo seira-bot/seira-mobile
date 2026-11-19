@@ -6,6 +6,8 @@ import android.content.ClipData
 import android.content.Context
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
@@ -67,6 +70,9 @@ import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraCard
 import com.openmausbot.companion.ui.theme.SeiraMark
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.rememberReducedMotion
+import com.openmausbot.companion.ui.theme.seiraTween
 import com.openmausbot.companion.ui.theme.SeiraType
 import com.openmausbot.companion.ui.theme.SegmentedControl
 import com.openmausbot.companion.ui.theme.GlassCircleButton
@@ -203,65 +209,130 @@ internal fun SettingsScreen(
 
         SettingsGroupTitle(stringResource(R.string.settings_your_computer))
         SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            val reduced = rememberReducedMotion()
+            var detailsOpen by remember { mutableStateOf(false) }
+            val chevronTurn by animateFloatAsState(
+                if (detailsOpen) 180f else 0f,
+                seiraTween(SeiraMotion.BASE, reduced),
+            )
+            val reconnect: () -> Unit = {
+                scope.launch {
+                    reconnecting = true
+                    session.refresh()
+                    reconnecting = false
+                }
+            }
             if (bound != null) {
                 val live = status == Session.Status.Live
+                val offline = status is Session.Status.Offline
                 DesignRow(
                     title = bound.name,
                     icon = SeiraIcons.Laptop,
                     minHeight = 64.dp,
-                    subtitle = if (live) connectedStateText(bound) else localizedConnectionStatus(status),
-                    subtitleDot = if (live) colors.success else null,
+                    subtitle = computerStatusPhrase(status),
+                    subtitleDot = if (live) colors.success else if (offline) colors.danger else null,
                 )
-                SettingsHairline(50.dp)
-                val address = SettingsPolicy.addressText(bound)
-                DesignRow(
-                    title = stringResource(R.string.mobile_address_d70f93df),
-                    subtitle = if (showingFullAddress) null else shortenedAddress(address),
-                    onClick = { showingFullAddress = !showingFullAddress },
-                    trailing = {
-                        Text(
-                            if (showingFullAddress) stringResource(R.string.mobile_hide_full_address_63c5e519) else stringResource(R.string.mobile_show_full_address_889be5c7),
-                            style = SeiraType.callout,
-                            color = colors.ink3,
-                        )
-                    },
-                )
-                if (showingFullAddress) {
-                    SelectionContainer {
-                        Text(
-                            text = address,
-                            style = SeiraType.callout,
-                            fontFamily = FontFamily.Monospace,
-                            color = colors.ink2,
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                if (offline) {
+                    Box(modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp)) {
+                        FullWidthPill(
+                            text = stringResource(R.string.settings_reconnect),
+                            onClick = reconnect,
+                            enabled = !reconnecting,
+                            height = 48.dp,
                         )
                     }
                 }
-                Row(modifier = Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(
-                        onClick = {
-                            scope.launch {
-                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(ADDRESS_CLIP_LABEL, address)))
-                                addressCopied = true
-                                delay(COPIED_LABEL_MILLIS)
-                                addressCopied = false
-                            }
+                SettingsHairline(50.dp)
+                Column(modifier = Modifier.animateContentSize(seiraTween(SeiraMotion.BASE, reduced))) {
+                    DesignRow(
+                        title = stringResource(R.string.settings_connection_details),
+                        icon = SeiraIcons.Monitor,
+                        onClick = { detailsOpen = !detailsOpen },
+                        trailing = {
+                            Icon(
+                                SeiraIcons.ChevronDown,
+                                contentDescription = null,
+                                tint = colors.ink3,
+                                modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = chevronTurn },
+                            )
                         },
-                        modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET),
-                    ) {
-                        Text(
-                            if (addressCopied) stringResource(R.string.mobile_copied_8e3df45a) else stringResource(R.string.mobile_copy_af74f7c5),
-                            color = colors.ink,
+                    )
+                    if (detailsOpen) {
+                        val address = SettingsPolicy.addressText(bound)
+                        SettingsHairline(50.dp)
+                        DesignRow(
+                            title = stringResource(R.string.mobile_address_d70f93df),
+                            subtitle = if (showingFullAddress) null else shortenedAddress(address),
+                            icon = SeiraIcons.Shield,
+                            onClick = { showingFullAddress = !showingFullAddress },
+                            trailing = {
+                                TouchTarget(
+                                    onClick = {
+                                        scope.launch {
+                                            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(ADDRESS_CLIP_LABEL, address)))
+                                            addressCopied = true
+                                            delay(COPIED_LABEL_MILLIS)
+                                            addressCopied = false
+                                        }
+                                    },
+                                    contentDescription = stringResource(
+                                        if (addressCopied) R.string.mobile_copied_8e3df45a else R.string.mobile_copy_af74f7c5,
+                                    ),
+                                ) {
+                                    Icon(
+                                        if (addressCopied) SeiraIcons.Check else CopyIcon,
+                                        contentDescription = null,
+                                        tint = colors.ink2,
+                                        modifier = Modifier.size(20.dp),
+                                    )
+                                }
+                            },
+                        )
+                        if (showingFullAddress) {
+                            SelectionContainer {
+                                Text(
+                                    text = address,
+                                    style = SeiraType.callout,
+                                    fontFamily = FontFamily.Monospace,
+                                    color = colors.ink2,
+                                    modifier = Modifier.padding(start = 50.dp, end = 16.dp, bottom = 12.dp),
+                                )
+                            }
+                        }
+                        SettingsHairline(50.dp)
+                        DesignRow(
+                            title = stringResource(R.string.mobile_edit_address_31fe67f4),
+                            icon = SeiraIcons.PenSquare,
+                            onClick = {
+                                addressText = address
+                                addressError = null
+                                editingAddress = true
+                            },
+                            trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                        )
+                        SettingsHairline(50.dp)
+                        DesignRow(
+                            title = stringResource(R.string.settings_pair_another),
+                            icon = SeiraIcons.Plus,
+                            onClick = {
+                                haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
+                                session.beginPairing()
+                            },
+                            trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                        )
+                        SettingsHairline(50.dp)
+                        DesignRow(
+                            title = stringResource(R.string.mobile_settings_try_reconnecting),
+                            icon = SeiraIcons.Monitor,
+                            enabled = !reconnecting,
+                            onClick = reconnect,
+                            trailing = {
+                                if (reconnecting) {
+                                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = colors.ink2)
+                                }
+                            },
                         )
                     }
-                    TextButton(
-                        onClick = {
-                            addressText = address
-                            addressError = null
-                            editingAddress = true
-                        },
-                        modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET),
-                    ) { Text(stringResource(R.string.mobile_edit_address_31fe67f4), color = colors.ink) }
                 }
             } else {
                 DesignRow(
@@ -291,38 +362,8 @@ internal fun SettingsScreen(
                 )
             }
 
-            SettingsHairline(50.dp)
-            if (bound != null) {
-                DesignRow(
-                    title = stringResource(R.string.settings_pair_another),
-                    icon = SeiraIcons.Plus,
-                    onClick = {
-                        haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
-                        session.beginPairing()
-                    },
-                    trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
-                )
+            if (bound == null && onConnect != null) {
                 SettingsHairline(50.dp)
-                DesignRow(
-                    title = stringResource(R.string.mobile_settings_try_reconnecting),
-                    subtitle = localizedTroubleshootingText(status),
-                    icon = SeiraIcons.Monitor,
-                    enabled = !reconnecting,
-                    minHeight = 64.dp,
-                    onClick = {
-                        scope.launch {
-                            reconnecting = true
-                            session.refresh()
-                            reconnecting = false
-                        }
-                    },
-                    trailing = {
-                        if (reconnecting) {
-                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = colors.ink2)
-                        }
-                    },
-                )
-            } else if (onConnect != null) {
                 DesignRow(
                     title = stringResource(R.string.mobile_settings_connect_computer),
                     icon = SeiraIcons.Plus,
@@ -713,12 +754,9 @@ private fun localizedConnectionStatus(status: Session.Status): String = when (st
 }
 
 @Composable
-private fun localizedTroubleshootingText(status: Session.Status): String = when (status) {
-    Session.Status.Live -> stringResource(R.string.mobile_settings_troubleshooting_live)
-    Session.Status.Connecting -> stringResource(R.string.mobile_settings_troubleshooting_connecting)
-    Session.Status.Unauthorized -> stringResource(R.string.mobile_settings_troubleshooting_unpaired)
-    Session.Status.Unpaired -> stringResource(R.string.mobile_settings_troubleshooting_not_paired)
-    is Session.Status.Offline -> status.message
+private fun computerStatusPhrase(status: Session.Status): String = when (status) {
+    is Session.Status.Offline -> stringResource(R.string.settings_state_offline)
+    else -> localizedConnectionStatus(status)
 }
 
 @Composable
