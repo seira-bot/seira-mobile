@@ -1313,6 +1313,16 @@ public struct CompanionClient: Sendable {
         ).bot
     }
 
+    /// The profile route rejects the look fields (colour, hair, face ink,
+    /// expression, accessories), so they use the general bot PATCH.
+    public func updateLook(botId: String, patch: BotLookPatch) async throws -> Bot {
+        guard Self.validRouteID(botId) else { throw APIError.badURL }
+        return try await send(
+            try makeRequest("PATCH", "/api/bots/\(botId)", encodedBody: patch),
+            as: BotResponse.self
+        ).bot
+    }
+
     /// A captured thread uses the task route, which cannot change siblings or
     /// the profile default. Omitting it retains the legacy narrow model API.
     public func updateModel(botId: String, selection: ModelSelection, threadId: String? = nil) async throws -> Bot {
