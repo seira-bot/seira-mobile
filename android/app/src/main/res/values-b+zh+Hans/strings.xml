@@ -453,9 +453,7 @@
     <string name="mobile_discovery_unavailable">本地网络发现目前不可用。请在下方输入“手机”设置中显示的地址。</string>
     <string name="mobile_discovery_keeps_failing">此手机上的本地网络发现一再中断。请在下方输入“手机”设置中显示的地址。</string>
 
-    <string name="mobile_roster_no_bots_yet">还没有机器人</string>
     <string name="mobile_roster_nothing_matches">没有匹配项</string>
-    <string name="mobile_roster_empty_description">你在电脑上创建的机器人会显示在这里。</string>
     <string name="mobile_roster_no_thread_matches">没有与“%1$s”匹配的对话。</string>
     <string name="mobile_roster_needs_attention">需要处理</string>
     <string name="mobile_roster_pinned">已置顶</string>
@@ -659,7 +657,6 @@
 
     <string name="mobile_what_s_next_3d4b36bc">接下来呢？</string>
 
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">机器人等待回答、正在运行任务或完成工作时，都会显示于此。</string>
 
     <string name="mobile_where_does_it_run_6e4a5297">运行位置？</string>
 

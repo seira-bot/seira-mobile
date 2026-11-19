@@ -454,9 +454,7 @@
     <string name="mobile_discovery_unavailable">Local discovery isn\'t available right now. Enter the address shown in Phone settings below.</string>
     <string name="mobile_discovery_keeps_failing">Local discovery keeps getting interrupted on this phone. Enter the address shown in Phone settings below.</string>
 
-    <string name="mobile_roster_no_bots_yet">No bots yet</string>
     <string name="mobile_roster_nothing_matches">Nothing matches</string>
-    <string name="mobile_roster_empty_description">Bots you create on your computer show up here.</string>
     <string name="mobile_roster_no_thread_matches">No thread matches “%1$s”.</string>
     <string name="mobile_roster_needs_attention">Needs attention</string>
     <string name="mobile_roster_pinned">Pinned</string>
@@ -660,7 +658,6 @@
 
     <string name="mobile_what_s_next_3d4b36bc">What\'s next?</string>
 
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">When a bot stops for an answer, is mid-task, or finishes something, it shows up here.</string>
 
     <string name="mobile_where_does_it_run_6e4a5297">Where does it run?</string>
 
