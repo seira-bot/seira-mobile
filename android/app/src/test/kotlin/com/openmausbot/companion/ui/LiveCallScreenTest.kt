@@ -63,7 +63,7 @@ class LiveCallScreenTest {
 
     private fun mount(model: LiveCallBarModel.Local, speaking: Boolean = false) {
         compose.setContent {
-            WithEnvironment { LiveCallScreen(model, bot, "Dina", speaking, actions) }
+            WithEnvironment { LiveCallScreen(model, bot, "Dina", speaking, actions, animateAvatar = false) }
         }
     }
 
@@ -157,7 +157,7 @@ class LiveCallScreenTest {
             WithEnvironment {
                 Box {
                     if (expanded) {
-                        LiveCallScreen(model, bot, "Dina", false, LiveCallScreenActions({ expanded = false }, {}, {}, {}, {}, {}))
+                        LiveCallScreen(model, bot, "Dina", false, LiveCallScreenActions({ expanded = false }, {}, {}, {}, {}, {}), animateAvatar = false)
                     } else {
                         LiveCallBar(model, LiveCallBarActions({}, {}, {}, {}, {}, onOpen = { expanded = true }))
                     }

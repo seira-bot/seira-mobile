@@ -222,6 +222,7 @@ internal fun LiveCallScreen(
     speaking: Boolean,
     actions: LiveCallScreenActions,
     modifier: Modifier = Modifier,
+    animateAvatar: Boolean = true,
 ) {
     val colors = Seira.colors
     val call = colors.call
@@ -234,7 +235,7 @@ internal fun LiveCallScreen(
             Column(modifier = Modifier.fillMaxSize()) {
                 TopRow(model, actions.onBack)
                 Spacer(Modifier.height(minOf(54.dp, available * 0.05f)))
-                Hero(model, bot, botName, speaking, ring)
+                Hero(model, bot, botName, speaking, ring, animateAvatar)
             }
             if (!over) {
                 CaptionCard(
@@ -306,7 +307,7 @@ private fun TopRow(model: LiveCallBarModel.Local, onBack: () -> Unit) {
 }
 
 @Composable
-private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, speaking: Boolean, ring: Dp) {
+private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, speaking: Boolean, ring: Dp, animateAvatar: Boolean) {
     val colors = Seira.colors
     val identity = Color(identityArgb(bot))
     val muted = model.muted && model.phase == LiveCallPhase.LIVE
@@ -336,7 +337,7 @@ private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, spea
             Box(Modifier.size(ring - inset60 * 2).background(identity.copy(alpha = a1), CircleShape))
             val face = ring * 0.52f
             if (bot != null) {
-                IdentityAvatar(bot = bot, size = face)
+                IdentityAvatar(bot = bot, size = face, animated = animateAvatar)
             } else {
                 Box(Modifier.size(face).background(identityPlate(null, colors.isDark), CircleShape))
             }

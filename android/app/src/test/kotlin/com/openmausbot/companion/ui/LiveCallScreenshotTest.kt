@@ -42,16 +42,16 @@ class LiveCallScreenshotTest {
 
     @Test
     fun lightCallIsWritten() {
-        assertTrue(compose.captureDesign("call", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions) } }.length() > 0)
+        assertTrue(compose.captureDesign("call", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions, animateAvatar = false) } }.length() > 0)
     }
 
     @Test
     fun darkCallIsWritten() {
-        assertTrue(compose.captureDesign("call", ThemeMode.DARK) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions) } }.length() > 0)
+        assertTrue(compose.captureDesign("call", ThemeMode.DARK) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions, animateAvatar = false) } }.length() > 0)
     }
 
     @Test
     fun mutedCallIsWritten() {
-        assertTrue(compose.captureDesign("call-muted", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(true), bot, "Seira", false, actions) } }.length() > 0)
+        assertTrue(compose.captureDesign("call-muted", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(true), bot, "Seira", false, actions, animateAvatar = false) } }.length() > 0)
     }
 }
