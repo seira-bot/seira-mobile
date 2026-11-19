@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -228,10 +229,11 @@ internal fun LiveCallScreen(
     val over = model.phase == LiveCallPhase.ENDED || model.phase == LiveCallPhase.ENDING
     Box(modifier = modifier.fillMaxSize().background(call.app)) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-            val ring = minOf(300.dp, maxHeight * 0.36f)
+            val available = maxHeight
+            val ring = minOf(300.dp, available * 0.36f)
             Column(modifier = Modifier.fillMaxSize()) {
                 TopRow(model, actions.onBack)
-                Spacer(Modifier.height(minOf(54.dp, maxHeight * 0.05f)))
+                Spacer(Modifier.height(minOf(54.dp, available * 0.05f)))
                 Hero(model, bot, botName, speaking, ring)
             }
             if (!over) {

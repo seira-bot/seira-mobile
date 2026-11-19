@@ -125,7 +125,7 @@ class LiveCallManager internal constructor(
         scope.launch { api.serverCall.collect { onServerCall(it) } }
         scope.launch { api.link.collect { onLink(it) } }
         scope.launch {
-            _state.map { it.phase == LiveCallPhase.LIVE to it.speaker }
+            _state.map { (it.phase == LiveCallPhase.LIVE) to it.speaker }
                 .distinctUntilChanged()
                 .collect { (live, speaker) -> proximity.update(live, speaker) }
         }
