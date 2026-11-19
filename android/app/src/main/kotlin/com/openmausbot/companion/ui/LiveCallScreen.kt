@@ -45,7 +45,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -230,7 +229,8 @@ internal fun LiveCallScreen(
 ) {
     val colors = Seira.colors
     val call = colors.call
-    var captionsOn by rememberSaveable { mutableStateOf(true) }
+    val preferences = LocalCompanion.current.chatPreferences
+    val captionsOn by preferences.liveCaptions.collectAsState()
     val over = model.phase == LiveCallPhase.ENDED || model.phase == LiveCallPhase.ENDING
     Box(modifier = modifier.fillMaxSize().background(call.app)) {
         BoxWithConstraints(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
@@ -252,7 +252,7 @@ internal fun LiveCallScreen(
                 Controls(
                     model = model,
                     captionsOn = captionsOn,
-                    onToggleCaptions = { captionsOn = !captionsOn },
+                    onToggleCaptions = { preferences.setLiveCaptions(!captionsOn) },
                     actions = actions,
                     modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = 44.dp),
                 )

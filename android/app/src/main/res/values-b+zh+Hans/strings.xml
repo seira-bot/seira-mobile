@@ -392,6 +392,12 @@
     <string name="mobile_settings_status_label">状态</string>
     <string name="mobile_settings_activity_label">活动详情</string>
     <string name="mobile_settings_notifications_section">通知</string>
+    <string name="mobile_settings_voice_calls_section">语音和通话</string>
+    <string name="mobile_settings_live_captions">实时字幕</string>
+    <string name="mobile_settings_live_captions_body">通话时显示对话文字</string>
+    <string name="mobile_settings_help_section">帮助</string>
+    <string name="mobile_settings_help_faq">常见问题</string>
+    <string name="mobile_settings_help_report">报告问题</string>
     <string name="mobile_settings_chat_section">聊天</string>
     <string name="mobile_settings_workspace_section">工作区</string>
     <string name="mobile_settings_remove_this_computer">移除此电脑</string>

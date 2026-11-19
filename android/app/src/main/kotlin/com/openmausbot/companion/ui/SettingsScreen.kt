@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -41,6 +42,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
@@ -103,6 +105,7 @@ internal fun SettingsScreen(
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
     val themeMode by environment.chatPreferences.themeMode.collectAsState()
     val rosterDensity by environment.chatPreferences.rosterDensity.collectAsState()
+    val liveCaptions by environment.chatPreferences.liveCaptions.collectAsState()
     val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
@@ -122,6 +125,12 @@ internal fun SettingsScreen(
     var choosingActivity by remember { mutableStateOf(false) }
     var choosingDensity by remember { mutableStateOf(false) }
     var editingQuickReplies by remember { mutableStateOf(false) }
+    var showingLiveSettings by rememberSaveable { mutableStateOf(false) }
+    var liveVoice by remember { mutableStateOf<String?>(null) }
+    LaunchedEffect(connection?.id, status, showingLiveSettings) {
+        if (connection == null || status != Session.Status.Live || showingLiveSettings) return@LaunchedEffect
+        liveVoice = session.liveSettings()?.let { LiveCallRules.voiceLabel(it.voice) }
+    }
 
     var channelStates by remember { mutableStateOf(readChannelStates(context)) }
     LifecycleResumeEffect(Unit) {
@@ -412,6 +421,30 @@ internal fun SettingsScreen(
             }
         }
 
+        if (bound != null) {
+            SettingsGroupTitle(stringResource(R.string.mobile_settings_voice_calls_section))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                DesignRow(
+                    title = stringResource(R.string.mobile_voice_3091c844),
+                    icon = SeiraIcons.Volume2,
+                    art = Art3d(R.drawable.icon3d_voice, "voice"),
+                    onClick = { showingLiveSettings = true },
+                    trailing = {
+                        liveVoice?.let { ValueWithChevron(it) }
+                            ?: Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+                    },
+                )
+                SettingsHairline(60.dp)
+                SwitchRow(
+                    title = stringResource(R.string.mobile_settings_live_captions),
+                    subtitle = stringResource(R.string.mobile_settings_live_captions_body),
+                    icon = SeiraIcons.Captions,
+                    checked = liveCaptions,
+                    onToggle = { environment.chatPreferences.setLiveCaptions(!liveCaptions) },
+                )
+            }
+        }
+
         SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
         SeiraCard(modifier = Modifier.fillMaxWidth()) {
             SwitchRow(
@@ -475,6 +508,24 @@ internal fun SettingsScreen(
                     },
                 )
             }
+        }
+
+        SettingsGroupTitle(stringResource(R.string.mobile_settings_help_section))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            DesignRow(
+                title = stringResource(R.string.mobile_settings_help_faq),
+                icon = SeiraIcons.Search,
+                art = Art3d(R.drawable.icon3d_help, "help"),
+                onClick = { openLink(context, SettingsPolicy.HELP_FAQ_URL) },
+                trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+            )
+            SettingsHairline(60.dp)
+            DesignRow(
+                title = stringResource(R.string.mobile_settings_help_report),
+                icon = SeiraIcons.File,
+                onClick = { openLink(context, SettingsPolicy.HELP_REPORT_URL) },
+                trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+            )
         }
 
         if (bound != null) {
@@ -559,6 +610,10 @@ internal fun SettingsScreen(
                 TextButton(onClick = { editingAddress = false }) { Text(stringResource(R.string.mobile_cancel_77dfd213)) }
             },
         )
+    }
+
+    if (showingLiveSettings) {
+        LiveCallSettingsSheet(onDismiss = { showingLiveSettings = false })
     }
 
     if (confirmingUnpair) {
@@ -668,6 +723,13 @@ private fun ProfileCard(profile: Profile?, connection: Connection) {
                 }
             }
         }
+    }
+}
+
+private fun openLink(context: Context, url: String) {
+    try {
+        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+    } catch (_: ActivityNotFoundException) {
     }
 }
 
