@@ -249,7 +249,6 @@ private fun ColumnScope.Preview(state: ChangeLookState) {
         Crossfade(
             targetState = state.look,
             animationSpec = if (reduced) snap() else tween(FADE_MILLIS, easing = SeiraMotion.Ease),
-            label = "look",
         ) { look ->
             CarvedAvatar(
                 look = look,

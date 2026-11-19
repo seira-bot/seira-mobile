@@ -1,6 +1,8 @@
 package com.openmausbot.companion.ui
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.MotionDurationScale
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.SemanticsMatcher
@@ -42,11 +44,14 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ChangeLookSheetTest {
-    @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val compose = createAndroidComposeRule<ComponentActivity>(
+        effectContext = object : MotionDurationScale { override val scaleFactor = 0f },
+    )
     private val server = MockWebServer()
     private val patches = ConcurrentLinkedQueue<RecordedRequest>()
     private var scene: WiringScene? = null

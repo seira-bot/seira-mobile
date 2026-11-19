@@ -1,6 +1,8 @@
 package com.openmausbot.companion.ui
 
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.MotionDurationScale
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Alignment
@@ -18,11 +20,14 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
+@OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w390dp-h844dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ChangeLookSheetPreviewTest {
-    @get:Rule val compose = createAndroidComposeRule<ComponentActivity>()
+    @get:Rule val compose = createAndroidComposeRule<ComponentActivity>(
+        effectContext = object : MotionDurationScale { override val scaleFactor = 0f },
+    )
 
     private fun cast() = SeiraCast.decode(
         java.io.File("src/main/assets/seira-character/cast.json").takeIf(File::isFile)?.readText()
