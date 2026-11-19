@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import android.view.KeyCharacterMap
 import androidx.compose.material.icons.filled.Warning
