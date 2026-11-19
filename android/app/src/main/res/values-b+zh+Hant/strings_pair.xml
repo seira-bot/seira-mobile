@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pair_title">連接你的電腦</string>
+    <string name="pair_body">在電腦上開啟 Seira 並顯示配對碼，然後用相機對準它。</string>
+    <string name="pair_status_point">把相機對準配對碼</string>
+    <string name="pair_status_found">已找到配對碼</string>
+    <string name="pair_status_connecting">正在連線…</string>
+    <string name="pair_status_paired_with">已與 %1$s 配對</string>
+    <string name="pair_flash_on">開啟手電筒</string>
+    <string name="pair_flash_off">關閉手電筒</string>
+    <string name="pair_viewfinder">用於掃描配對碼的相機取景框</string>
+    <string name="pair_kind_same_wifi">同一 Wi-Fi</string>
+    <string name="pair_kind_tailscale">Tailscale</string>
+    <string name="pair_kind_internet">透過網際網路</string>
+    <string name="pair_found_just_now">%1$s · 剛剛找到</string>
+    <string name="pair_waiting">正在等待你的電腦</string>
+    <string name="pair_waiting_body">配對碼會顯示在電腦上的 Seira 中。</string>
+    <string name="pair_enter_code">改為輸入配對碼</string>
+    <string name="pair_scan_instead">改為掃描配對碼</string>
+    <string name="pair_connected_title">已連線</string>
+    <string name="pair_connected_body">你的對話和機器人已在這部手機上就緒。</string>
+    <string name="pair_done">完成</string>
+    <string name="pair_camera_off_title">相機已關閉</string>
+    <string name="pair_camera_off_body">允許使用相機即可掃描配對碼，也可以輸入配對碼或位址。</string>
+    <string name="pair_camera_starting">正在啟動相機…</string>
+</resources>
