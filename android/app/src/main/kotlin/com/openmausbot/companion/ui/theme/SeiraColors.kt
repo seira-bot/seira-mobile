@@ -5,7 +5,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
-import com.openmausbot.companion.ui.MausPalette
+import com.openmausbot.companion.ui.BotPalette
 
 /** Colours of the full-screen Live call, which is darker than the app in dark mode. */
 @Immutable
@@ -157,11 +157,11 @@ private val PlateBaseDark = 0xFF1C1C21.toInt()
 
 /** ARGB of the plate behind a bot's face: its identity colour mixed into a neutral base. */
 fun identityPlateArgb(colorName: String?, dark: Boolean): Int {
-    val identity = if (colorName == null) MausPalette.FALLBACK else MausPalette.argb(colorName)
+    val identity = if (colorName == null) BotPalette.FALLBACK else BotPalette.argb(colorName)
     return if (dark) {
-        MausPalette.mix(PlateBaseDark, identity, 0.34)
+        BotPalette.mix(PlateBaseDark, identity, 0.34)
     } else {
-        MausPalette.mix(PlateBaseLight, identity, 0.26)
+        BotPalette.mix(PlateBaseLight, identity, 0.26)
     }
 }
 

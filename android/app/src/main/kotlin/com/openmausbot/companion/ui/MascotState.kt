@@ -15,26 +15,26 @@ import com.openmausbot.companion.core.Message
  */
 
 /** The desktop's legacy names, kept so an older bot record still resolves. */
-private val legacy: Map<String, MausState> = mapOf(
-    "deadpan" to MausState.IDLE,
-    "friendly" to MausState.HAPPY,
-    "focused" to MausState.WORKING,
-    "thinking" to MausState.THINKING,
-    "excited" to MausState.EXCITED,
-    "sleepy" to MausState.DROWSY,
-    "surprised" to MausState.SURPRISED,
-    "skeptical" to MausState.SUSPICIOUS,
-    "worried" to MausState.SCARED,
-    "mischievous" to MausState.PLAYFUL,
+private val legacy: Map<String, CharacterMood> = mapOf(
+    "deadpan" to CharacterMood.IDLE,
+    "friendly" to CharacterMood.HAPPY,
+    "focused" to CharacterMood.WORKING,
+    "thinking" to CharacterMood.THINKING,
+    "excited" to CharacterMood.EXCITED,
+    "sleepy" to CharacterMood.DROWSY,
+    "surprised" to CharacterMood.SURPRISED,
+    "skeptical" to CharacterMood.SUSPICIOUS,
+    "worried" to CharacterMood.SCARED,
+    "mischievous" to CharacterMood.PLAYFUL,
 )
 
-private val byId: Map<String, MausState> = MausState.entries.associateBy(MausState::id)
+private val byId: Map<String, CharacterMood> = CharacterMood.entries.associateBy(CharacterMood::id)
 
 /**
  * A face a bot's description argues for, and the words that argue for it. Whole
  * words only: a "codebase" bot is not a coder, and "qa" must not match "aqua".
  */
-private class RoleFace(val state: MausState, words: List<String>) {
+private class RoleFace(val state: CharacterMood, words: List<String>) {
     private val patterns = words.map { Regex("\\b${Regex.escape(it)}\\b") }
 
     fun matches(profile: String): Boolean = patterns.any { it.containsMatchIn(profile) }
@@ -43,73 +43,73 @@ private class RoleFace(val state: MausState, words: List<String>) {
 /** In order: the first that matches wins, as on the desktop. */
 private val roleFaces: List<RoleFace> = listOf(
     RoleFace(
-        MausState.WORKING,
+        CharacterMood.WORKING,
         listOf("code", "coding", "developer", "development", "engineer", "engineering", "build", "debug", "program", "software"),
     ),
     RoleFace(
-        MausState.SEARCHING,
+        CharacterMood.SEARCHING,
         listOf("research", "researcher", "search", "investigate", "strategy", "strategist", "study", "learn", "knowledge"),
     ),
     RoleFace(
-        MausState.EXCITED,
+        CharacterMood.EXCITED,
         listOf("marketing", "growth", "launch", "campaign", "social", "sales", "outreach", "brand"),
     ),
     RoleFace(
-        MausState.DROWSY,
+        CharacterMood.DROWSY,
         listOf("overnight", "night", "background", "async", "queue", "batch", "long-running"),
     ),
     RoleFace(
-        MausState.RADAR,
+        CharacterMood.RADAR,
         listOf("monitor", "monitoring", "incident", "alert", "watch", "status", "uptime"),
     ),
     RoleFace(
-        MausState.SUSPICIOUS,
+        CharacterMood.SUSPICIOUS,
         listOf("review", "reviewer", "audit", "critic", "critique", "quality", "qa", "test", "legal"),
     ),
     RoleFace(
-        MausState.SCARED,
+        CharacterMood.SCARED,
         listOf("security", "secure", "compliance", "risk", "privacy", "finance", "financial"),
     ),
     RoleFace(
-        MausState.PLAYFUL,
+        CharacterMood.PLAYFUL,
         listOf("design", "designer", "creative", "brainstorm", "art", "illustration", "music", "story"),
     ),
     RoleFace(
-        MausState.HAPPY,
+        CharacterMood.HAPPY,
         listOf("support", "help", "success", "onboarding", "coach", "teacher", "guide", "welcome"),
     ),
 )
 
 /** Resolves any stored value — current, legacy or junk — to a real state. */
-internal fun MausState.Companion.normalize(value: String?): MausState? {
+internal fun CharacterMood.Companion.normalize(value: String?): CharacterMood? {
     if (value.isNullOrEmpty()) return null
     return byId[value] ?: legacy[value]
 }
 
-internal fun MausState.Companion.forBot(bot: Bot, last: Message?): MausState {
+internal fun CharacterMood.Companion.forBot(bot: Bot, last: Message?): CharacterMood {
     normalize(bot.mascotExpression)?.let { return it }
 
-    if (last?.kind == Message.Kind.ACTIVITY && last.tool?.ok == false) return MausState.ALERTING
-    if (bot.busy == true) return MausState.WORKING
-    if (bot.unread) return MausState.NOTIFYING
-    if (last?.kind == Message.Kind.OPTIONS) return MausState.CURIOUS
+    if (last?.kind == Message.Kind.ACTIVITY && last.tool?.ok == false) return CharacterMood.ALERTING
+    if (bot.busy == true) return CharacterMood.WORKING
+    if (bot.unread) return CharacterMood.NOTIFYING
+    if (last?.kind == Message.Kind.OPTIONS) return CharacterMood.CURIOUS
 
     val profile = "${bot.name} ${bot.title} ${bot.description}".lowercase()
     for (role in roleFaces) {
         if (role.matches(profile)) return role.state
     }
-    return MausState.IDLE
+    return CharacterMood.IDLE
 }
 
 /**
  * The face for a chat as a whole: a bot's own, a room's is "happy" — which is what
  * the desktop draws for room avatars.
  */
-internal fun MausState.Companion.forChat(chat: Chat, state: CompanionState): MausState =
+internal fun CharacterMood.Companion.forChat(chat: Chat, state: CompanionState): CharacterMood =
     forChat(chat, state.visibleTranscript(chat.threadId).lastOrNull())
 
 /** The same, for a caller that already walked the chat's visible transcript. */
-internal fun MausState.Companion.forChat(chat: Chat, last: Message?): MausState = when (chat) {
+internal fun CharacterMood.Companion.forChat(chat: Chat, last: Message?): CharacterMood = when (chat) {
     is Chat.BotChat -> forBot(chat.bot, last)
-    is Chat.RoomChat -> MausState.HAPPY
+    is Chat.RoomChat -> CharacterMood.HAPPY
 }

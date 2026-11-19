@@ -120,6 +120,6 @@ internal fun AttentionRow(entry: AttentionEntry, bot: Bot, onOpen: () -> Unit) {
         unread = entry.task.unread == true && !working,
         onClick = onOpen,
         modifier = Modifier.testTag("attention-row.${entry.id}"),
-        avatar = { IdentityAvatar(bot = bot, size = 48.dp, state = MausState.IDLE, animated = false) },
+        avatar = { IdentityAvatar(bot = bot, size = 48.dp, state = CharacterMood.IDLE, animated = false) },
     )
 }

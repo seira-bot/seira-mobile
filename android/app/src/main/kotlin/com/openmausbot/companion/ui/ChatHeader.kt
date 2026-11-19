@@ -104,7 +104,7 @@ internal val CHAT_HEADER_TOP_GAP = 8.dp
 private val HEADER_CONTROL = 48.dp
 private val HEADER_PILL = 44.dp
 
-/** The face for a chat: a bot's own, or the blue mascot a room has. */
+/** The face for a chat: a bot's own, or its member bots stacked for a room. */
 @Composable
 internal fun ChatFace(
     chat: Chat,
@@ -112,7 +112,7 @@ internal fun ChatFace(
     modifier: Modifier = Modifier,
     ring: AvatarRing = AvatarRing.None,
     waitingDot: Boolean = false,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
 ) {
     when (chat) {
@@ -120,15 +120,7 @@ internal fun ChatFace(
             bot = chat.bot, size = size, modifier = modifier, ring = ring,
             waitingDot = waitingDot, state = state, animated = animated,
         )
-        is Chat.RoomChat -> Box(
-            modifier = modifier
-                .size(size)
-                .clip(CircleShape)
-                .background(identityPlate("blue", Seira.colors.isDark), CircleShape),
-            contentAlignment = Alignment.Center,
-        ) {
-            MausAvatar(color = "blue", size = size, state = state, animated = animated)
-        }
+        is Chat.RoomChat -> RoomAvatar(room = chat.room, size = size, modifier = modifier)
     }
 }
 
@@ -140,7 +132,7 @@ internal fun ChatFace(
 @Composable
 internal fun ChatHeader(
     chat: Chat,
-    face: MausState,
+    face: CharacterMood,
     status: ChatStatus,
     unreadElsewhere: Int,
     call: ChatCallAction,
@@ -208,7 +200,7 @@ internal fun ChatHeader(
 @Composable
 private fun ChatNamePill(
     chat: Chat,
-    face: MausState,
+    face: CharacterMood,
     status: ChatStatus,
     onOpen: (() -> Unit)?,
     modifier: Modifier = Modifier,

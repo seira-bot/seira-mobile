@@ -645,7 +645,7 @@ private fun userBubbleShape(): RoundedCornerShape {
 private fun ReplyHeader(bot: Bot?, name: String, colorName: String?, at: Double?) {
     val colors = Seira.colors
     val context = LocalContext.current
-    val identity = Color(colorName?.let { MausPalette.argb(it) } ?: MausPalette.FALLBACK)
+    val identity = Color(colorName?.let { BotPalette.argb(it) } ?: BotPalette.FALLBACK)
     val time = remember(at) {
         at?.takeIf { it > 0.0 }?.let { android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(it.toLong())) }
     }
@@ -1429,7 +1429,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
         }
 
         if (card.showsHeldNote) {
-            Text(card.held.orEmpty(), fontSize = 13.sp, color = Color(MausPalette.argb("orange")))
+            Text(card.held.orEmpty(), fontSize = 13.sp, color = Color(BotPalette.argb("orange")))
         }
 
         skillRequest?.let { skill ->
@@ -1485,12 +1485,12 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                     Icon(
                         imageVector = Icons.Filled.Warning,
                         contentDescription = null,
-                        tint = Color(MausPalette.argb("orange")),
+                        tint = Color(BotPalette.argb("orange")),
                     )
                     Text(
                         stringResource(R.string.mobile_old_proposal_hint),
                         fontSize = 12.sp,
-                        color = Color(MausPalette.argb("orange")),
+                        color = Color(BotPalette.argb("orange")),
                         modifier = Modifier.weight(1f),
                     )
                 }
@@ -1870,12 +1870,9 @@ fun StreamingBubble(text: String?, reasoning: String?, bot: Bot? = null, name: S
  */
 @Composable
 fun WorkingBubble(name: String, bot: Bot? = null) {
-    val clock = remember { MausFrameClock() }
-    // Android says "reduce motion" through the animator duration scale, and this
-    // reads it the way MausAvatar does — through a snapshotFlow, so turning the
-    // setting off while a turn is running stops the dots on the next frame
-    // rather than at the end of the turn. At zero they sit still on the line, a
-    // little fainter: still three dots, just still ones.
+    val clock = remember { FrameClock() }
+    // Android says "reduce motion" through the animator duration scale. The
+    // snapshotFlow stops the dots on the next frame when the setting turns on.
     var moving by remember { mutableStateOf(false) }
     LaunchedEffect(Unit) {
         val durationScale = coroutineContext[MotionDurationScale]

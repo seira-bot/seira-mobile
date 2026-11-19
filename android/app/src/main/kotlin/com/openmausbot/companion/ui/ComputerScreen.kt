@@ -140,7 +140,7 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 color = if (bot.busy == true) {
-                    Color(MausPalette.argb("green"))
+                    Color(BotPalette.argb("green"))
                 } else {
                     Color.White.copy(alpha = 0.6f)
                 },

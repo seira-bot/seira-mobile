@@ -29,14 +29,14 @@ class TypingBubbleTest {
 
     @Test
     fun theBubbleIsNamedForTheBotThatIsTyping() {
-        compose.setContent { WorkingBubble(name = "Maus") }
-        compose.onNodeWithContentDescription("Maus is typing").assertIsDisplayed()
+        compose.setContent { WorkingBubble(name = "Dina Pratama") }
+        compose.onNodeWithContentDescription("Dina Pratama is typing").assertIsDisplayed()
     }
 
     @Test
     @Config(qualifiers = "zh-rCN")
     fun simplifiedChineseSaysItInChinese() {
-        compose.setContent { WorkingBubble(name = "Maus") }
-        compose.onNodeWithContentDescription("Maus 正在输入").assertIsDisplayed()
+        compose.setContent { WorkingBubble(name = "Dina Pratama") }
+        compose.onNodeWithContentDescription("Dina Pratama 正在输入").assertIsDisplayed()
     }
 }

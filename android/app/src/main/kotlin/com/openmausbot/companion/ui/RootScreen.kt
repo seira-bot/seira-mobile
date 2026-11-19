@@ -496,6 +496,7 @@ private fun UnpairedScreen(onPairAgain: () -> Unit, onChooseAnother: (() -> Unit
     EmptyState(
         title = stringResource(R.string.mobile_this_phone_was_unpaired_09273604),
         description = "It was removed from the computer's Phone settings, or the pairing was reset.",
+        art = Art3d(R.drawable.icon3d_not_connected, "not_connected"),
     ) {
         Button(onClick = onPairAgain) { Text(stringResource(R.string.mobile_pair_again_379e2bf5)) }
         onChooseAnother?.let { choose ->
@@ -510,6 +511,7 @@ fun EmptyState(
     title: String,
     description: String,
     modifier: Modifier = Modifier,
+    art: Art3d? = null,
     actions: @Composable () -> Unit = {},
 ) {
     Column(
@@ -519,9 +521,11 @@ fun EmptyState(
         verticalArrangement = Arrangement.spacedBy(10.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if (art != null) Icon3d(art.res, 120.dp, art.name)
         Text(
             text = localizedMobileCopy(title),
             style = MaterialTheme.typography.titleMedium,
+            color = Seira.colors.ink,
             textAlign = TextAlign.Center,
         )
         Text(

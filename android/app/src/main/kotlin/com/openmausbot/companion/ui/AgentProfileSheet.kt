@@ -65,6 +65,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.openmausbot.companion.R
+import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.avatar.AvatarImagePicker
 import com.openmausbot.companion.avatar.AvatarImageRules
 import com.openmausbot.companion.avatar.PreparedAvatar
@@ -124,6 +125,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
+    var changingLook by rememberSaveable { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
     // Read-only facts from the overview route; reloads on reopen, so plain
     // remember — there is nothing here a rotation needs to defend.
@@ -211,6 +213,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+        if (changingLook) ChangeLookSheet(bot = current, onDismiss = { changingLook = false })
         Box {
             Column(
                 modifier = Modifier
@@ -238,6 +241,11 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         text = "What this bot does",
                         icon = Icons.Filled.Info,
                         onClick = { onOpenOverview(bot.id) },
+                    )
+                    ActionRow(
+                        text = stringResource(R.string.change_look_title),
+                        icon = SeiraIcons.User,
+                        onClick = { changingLook = true },
                     )
                 }
 
@@ -382,7 +390,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         BotAvatar(
                             bot = current,
                             size = 112.dp,
-                            state = MausState.HAPPY,
+                            state = CharacterMood.HAPPY,
                             contentDescription = stringResource(R.string.mobile_current_name_avatar_de638954, current.name),
                         )
                     }

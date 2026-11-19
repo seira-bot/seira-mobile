@@ -57,7 +57,6 @@ import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
-import com.openmausbot.companion.ui.theme.SeiraMark
 import com.openmausbot.companion.ui.theme.SeiraMotion
 import com.openmausbot.companion.ui.theme.SeiraType
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
@@ -136,7 +135,7 @@ internal fun PairFrame(
                         modifier = Modifier.padding(start = 32.dp, end = 32.dp, top = 12.dp),
                         horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
-                        SeiraMark(36.dp)
+                        Icon3d(R.drawable.icon3d_pair, 64.dp, "pair")
                         Text(
                             stringResource(R.string.pair_title),
                             style = SeiraType.title2.copy(

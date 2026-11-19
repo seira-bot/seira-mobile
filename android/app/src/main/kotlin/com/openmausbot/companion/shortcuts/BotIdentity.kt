@@ -12,9 +12,13 @@ data class BotIdentity(
     val name: String,
     val color: String?,
     val avatarUrl: String?,
+    val mascotBody: String? = null,
+    val mascotAccessories: List<String>? = null,
 ) {
     companion object {
-        fun of(bot: Bot) = BotIdentity(bot.id, bot.threadId, bot.name, bot.color, bot.avatarUrl)
+        fun of(bot: Bot) = BotIdentity(
+            bot.id, bot.threadId, bot.name, bot.color, bot.avatarUrl, bot.mascotBody, bot.mascotAccessories,
+        )
     }
 }
 
