@@ -202,6 +202,13 @@ final class Session: ObservableObject {
         NotificationCoordinator.shared.responseHandler = { [weak self] target in
             Task { @MainActor in await self?.openNotification(target) }
         }
+        NotificationCoordinator.shared.approveHandler = { [weak self] target in
+            await self?.approveFromNotification(target) ?? false
+        }
+        NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
+            guard let self, let bot = self.state.bot(botId) else { return nil }
+            return await self.avatarData(for: bot)
+        }
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
         if (arguments.contains("-store-preview") || arguments.contains("-computer-switcher-preview")),
@@ -2778,6 +2785,27 @@ final class Session: ObservableObject {
     }
 
     func consumeNotificationChat() { notificationChat = nil }
+
+    /// The Approve button of an approval notification. It answers only when
+    /// the thread has one open card with one clear "yes" option. It returns
+    /// false in every other case, and the caller opens the chat instead.
+    func approveFromNotification(_ target: NotificationTarget) async -> Bool {
+        let deadline = Date().addingTimeInterval(10)
+        while status != .live, !Task.isCancelled, Date() < deadline {
+            try? await Task.sleep(nanoseconds: 200_000_000)
+        }
+        guard status == .live, let chat = state.chat(forThread: target.threadId) else { return false }
+        let open = state.pendingApprovals.filter { $0.threadId == target.threadId }
+        guard open.count == 1, let card = open[0].message.card,
+              card.skillRequest == nil, card.questionRequest == nil else { return false }
+        let accepted: Set<String> = ["approve", "approve all", "allow", "allow once", "yes"]
+        let matches = card.options.filter {
+            accepted.contains($0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+        }
+        guard matches.count == 1 else { return false }
+        await answer(chat: chat, card: card, choice: matches[0], rememberingPermission: false)
+        return true
+    }
 
     // MARK: - Thread chips
 
