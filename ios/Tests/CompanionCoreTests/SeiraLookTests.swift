@@ -40,7 +40,7 @@ private final class LookRequestStub: URLProtocol {
     }
 }
 
-private struct SeededGenerator: RandomNumberGenerator {
+private struct LookSeededGenerator: RandomNumberGenerator {
     var state: UInt64
 
     mutating func next() -> UInt64 {
@@ -249,7 +249,7 @@ final class SeiraLookTests: XCTestCase {
     func testSurpriseNeverReturnsTheCurrentLook() throws {
         let cast = try SeiraCast.decode(Data(Self.castJSON.utf8))
         let current = cast[0].look
-        var generator = SeededGenerator(state: 42)
+        var generator = LookSeededGenerator(state: 42)
         for _ in 0..<50 {
             let pick = SeiraCast.surprise(from: cast, current: current, using: &generator)
             XCTAssertNotEqual(pick, current)
@@ -258,7 +258,7 @@ final class SeiraLookTests: XCTestCase {
 
     func testSurpriseFallsBackWhenNoOtherLookExists() throws {
         let cast = try SeiraCast.decode(Data(Self.castJSON.utf8))
-        var generator = SeededGenerator(state: 7)
+        var generator = LookSeededGenerator(state: 7)
         let single = [cast[0]]
         XCTAssertEqual(
             SeiraCast.surprise(from: single, current: cast[0].look, using: &generator),
