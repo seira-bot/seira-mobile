@@ -28,7 +28,7 @@ internal object SeiraCharacterSnapshot {
         talkLevel: Float,
     ): Bitmap {
         val assets = SeiraAssets.forContext(context)
-        val look = SeiraLook.of(assets, hair, color, accessories, faceInk, mood)
+        val look = FrameLook.of(assets, hair, color, accessories, faceInk, mood)
         val bitmap = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888)
         SeiraCharacterRenderer(assets).draw(Canvas(bitmap), look, sizePx, sizePx, talk = talkLevel)
         return bitmap

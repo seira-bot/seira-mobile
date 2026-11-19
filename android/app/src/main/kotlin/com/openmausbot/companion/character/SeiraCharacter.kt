@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import kotlin.math.roundToInt
@@ -29,6 +30,31 @@ import kotlinx.coroutines.withContext
 
 private const val CROSS_FADE_MS = 180
 private val CrossFadeEasing = CubicBezierEasing(0.22f, 1f, 0.36f, 1f)
+
+/** The animated Seira character of a [look]. The face ink comes from `look.faceInk`. */
+@Composable
+internal fun SeiraCharacter(
+    look: SeiraLook,
+    size: Dp,
+    mood: CharacterMood = CharacterMood.IDLE,
+    sway: Boolean = false,
+    talkLevel: () -> Float = { 0f },
+    contentDescription: String? = null,
+    modifier: Modifier = Modifier,
+) {
+    SeiraCharacter(
+        hair = look.hair,
+        color = look.color,
+        accessories = look.accessories,
+        faceInk = look.faceInk,
+        size = size,
+        mood = mood,
+        sway = sway,
+        talkLevel = talkLevel,
+        contentDescription = contentDescription,
+        modifier = modifier,
+    )
+}
 
 /**
  * The animated Seira character. A change of hair, colour, accessories, face ink or mood cross-fades in 180 ms,
@@ -52,10 +78,10 @@ internal fun SeiraCharacter(
     val assets = remember(context) { SeiraAssets.forContext(context) }
     val renderer = remember(assets) { SeiraCharacterRenderer(assets) }
     val outgoing = remember(assets) { SeiraCharacterRenderer(assets) }
-    val target = SeiraLook.of(assets, hair, color, accessories, faceInk, mood)
+    val target = FrameLook.of(assets, hair, color, accessories, faceInk, mood)
 
-    var shown by remember { mutableStateOf<SeiraLook?>(null) }
-    var previous by remember { mutableStateOf<SeiraLook?>(null) }
+    var shown by remember { mutableStateOf<FrameLook?>(null) }
+    var previous by remember { mutableStateOf<FrameLook?>(null) }
     val fade = remember { Animatable(1f) }
     val clock = remember { mutableFloatStateOf(0f) }
 

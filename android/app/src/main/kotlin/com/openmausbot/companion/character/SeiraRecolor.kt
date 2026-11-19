@@ -4,7 +4,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
 
-private val MAUS_COLORS = mapOf(
+private val APP_COLORS = mapOf(
     "green" to 0x009957,
     "blue" to 0x377FE6,
     "red" to 0xD94B52,
@@ -28,7 +28,7 @@ internal object SeiraRecolor {
      * Grey colours keep the silver of the Seira style. Every other style would stay magenta, so it gets silver.
      */
     fun tintFor(hair: String?, color: String): Int? {
-        val colour = if (color in GREY_COLORS) null else MAUS_COLORS[color]
+        val colour = if (color in GREY_COLORS) null else APP_COLORS[color]
         return colour ?: if ((hair ?: SEIRA_DEFAULT_HAIR) != SEIRA_DEFAULT_HAIR) SEIRA_SILVER else null
     }
 

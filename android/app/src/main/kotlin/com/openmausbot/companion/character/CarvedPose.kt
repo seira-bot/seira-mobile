@@ -1,5 +1,6 @@
 package com.openmausbot.companion.character
 
+import com.openmausbot.companion.core.SeiraLookCatalog
 import com.openmausbot.companion.ui.CharacterMood
 import kotlin.math.abs
 import kotlin.math.exp
@@ -171,24 +172,16 @@ internal class CarvedLook(val body: SeiraBody, val sprites: List<CarvedSprite>) 
     val viewBox: DoubleArray = spritesViewBox(sprites)
 
     companion object {
-        private const val MAX_ACCESSORIES = 3
         private const val BOX_X = -14.0
         private const val BOX_Y = -14.0
         private const val BOX_SIDE = 268.0
 
         /** The body of a hair id; an unknown or retired id is Seira. */
-        fun bodyOf(hair: String?): SeiraBody = SeiraBodies.all[hair] ?: SeiraBodies.all.getValue("seira")
+        fun bodyOf(hair: String?): SeiraBody = SeiraBodies.all.getValue(SeiraLookCatalog.hair(hair))
 
         /** Known ids only, the first one in each slot, at most three. */
         fun worn(ids: List<String>): List<SeiraSticker> {
-            val slots = HashSet<String>()
-            val list = ArrayList<SeiraSticker>()
-            for (id in ids) {
-                val sticker = SeiraBodies.stickers[id] ?: continue
-                if (list.size == MAX_ACCESSORIES || !slots.add(sticker.slot)) continue
-                list += sticker
-            }
-            return list
+            return SeiraLookCatalog.accessories(ids).mapNotNull { SeiraBodies.stickers[it] }
         }
 
         fun of(hair: String?, accessories: List<String>): CarvedLook {

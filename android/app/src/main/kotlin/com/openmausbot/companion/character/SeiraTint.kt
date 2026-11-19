@@ -1,6 +1,6 @@
 package com.openmausbot.companion.character
 
-import com.openmausbot.companion.ui.MausPalette
+import com.openmausbot.companion.ui.BotPalette
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
@@ -17,7 +17,7 @@ internal object SeiraTint {
 
     /** The colour a bot name stands for; an unknown name reads as green, as on the desktop. */
     fun base(color: String?): Int =
-        if (color != null && color in MausPalette.names) MausPalette.argb(color) else MausPalette.argb("green")
+        if (color != null && color in BotPalette.names) BotPalette.argb(color) else BotPalette.argb("green")
 
     /** Silver and chrome keep the hair as it was rendered. */
     fun isGrey(color: String?): Boolean = color == "silver" || color == "chrome"

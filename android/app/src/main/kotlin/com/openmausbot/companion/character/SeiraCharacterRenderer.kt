@@ -9,6 +9,7 @@ import android.graphics.PorterDuffXfermode
 import android.graphics.RadialGradient
 import android.graphics.RectF
 import android.graphics.Shader
+import com.openmausbot.companion.core.SeiraLookCatalog
 import com.openmausbot.companion.ui.CharacterMood
 import kotlin.math.abs
 import kotlin.math.cos
@@ -22,12 +23,11 @@ private const val BOX_Y0 = -2.05f
 private const val BOX_Y1 = 2.0f
 private const val GROUND = 1.82f
 private const val BODY_PIVOT_Y = 1.25f
-private const val MAX_ACCESSORIES = 3
 private const val NEAR_VIEW_YAW = 20f
 private const val DEG = (Math.PI / 180.0).toFloat()
 
-/** What the character wears and feels. Build it with [of] so equal looks compare equal. */
-internal data class SeiraLook(
+/** What the character wears and feels. Build it with [of] so equal looks compare equal. The core model is `SeiraLook`. */
+internal data class FrameLook(
     val hair: String,
     val color: String,
     val accessories: List<String>,
@@ -35,7 +35,7 @@ internal data class SeiraLook(
     val mood: CharacterMood,
 ) {
     companion object {
-        /** Unknown hair becomes "seira". Unknown accessories drop out, then one per slot, at most three. */
+        /** The normalisation of `SeiraLookCatalog`: unknown hair becomes "seira"; unknown accessories drop out, then one per slot, at most three. */
         fun of(
             assets: SeiraAssets,
             hair: String?,
@@ -43,13 +43,9 @@ internal data class SeiraLook(
             accessories: List<String>,
             faceInk: String?,
             mood: CharacterMood,
-        ): SeiraLook {
-            val slots = HashSet<String>()
-            val worn = accessories.take(MAX_ACCESSORIES).filter { id ->
-                val spec = assets.accessory(id)
-                spec != null && slots.add(spec.slot)
-            }
-            return SeiraLook(assets.styleFor(hair).id, color, worn, faceInk, mood)
+        ): FrameLook {
+            val worn = SeiraLookCatalog.accessories(accessories).filter { assets.accessory(it) != null }
+            return FrameLook(assets.styleFor(SeiraLookCatalog.hair(hair)).id, color, worn, faceInk, mood)
         }
     }
 }
@@ -95,7 +91,7 @@ internal class SeiraCharacterRenderer(private val assets: SeiraAssets) {
      */
     fun draw(
         canvas: Canvas,
-        look: SeiraLook,
+        look: FrameLook,
         width: Int,
         height: Int,
         yawDegrees: Float = 0f,
@@ -266,7 +262,7 @@ internal class SeiraCharacterRenderer(private val assets: SeiraAssets) {
         else -> name
     }
 
-    private fun drawAccessories(canvas: Canvas, look: SeiraLook, views: List<ViewUse>, place: FacePlace?, yaw: Float) {
+    private fun drawAccessories(canvas: Canvas, look: FrameLook, views: List<ViewUse>, place: FacePlace?, yaw: Float) {
         for (id in look.accessories) {
             val spec = assets.accessory(id) ?: continue
             val image = assets.accessoryImage(spec) ?: continue

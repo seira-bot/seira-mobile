@@ -36,9 +36,18 @@ internal object CarvedAvatarRenderer {
         accessories: List<String>,
         pose: CarvedPose,
         sizePx: Float,
-    ) = draw(canvas, assets, CarvedLook.of(hair, accessories), color, pose, sizePx)
+        swayDegrees: Float = 0f,
+    ) = draw(canvas, assets, CarvedLook.of(hair, accessories), color, pose, sizePx, swayDegrees)
 
-    fun draw(canvas: Canvas, assets: AssetManager, look: CarvedLook, color: String, pose: CarvedPose, sizePx: Float) {
+    fun draw(
+        canvas: Canvas,
+        assets: AssetManager,
+        look: CarvedLook,
+        color: String,
+        pose: CarvedPose,
+        sizePx: Float,
+        swayDegrees: Float = 0f,
+    ) {
         val body = look.body
         val geometry = carvedGeometry(body, pose)
         val scale = sizePx / look.viewBox[2].toFloat()
@@ -48,7 +57,7 @@ internal object CarvedAvatarRenderer {
             canvas.scale(scale, scale)
             canvas.translate(-look.viewBox[0].toFloat(), -look.viewBox[1].toFloat())
             canvas.translate(BODY_PIVOT_X.toFloat(), BODY_PIVOT_Y.toFloat())
-            canvas.rotate(geometry.lean.toFloat())
+            canvas.rotate(geometry.lean.toFloat() + swayDegrees)
             canvas.scale(geometry.scaleX.toFloat(), geometry.scaleY.toFloat())
             canvas.translate(-BODY_PIVOT_X.toFloat(), -BODY_PIVOT_Y.toFloat())
             val headPx = UNITS * scale
