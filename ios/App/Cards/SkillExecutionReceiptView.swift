@@ -69,7 +69,9 @@ public struct SkillExecutionReceiptView: View {
             }
         }
         .frame(minHeight: 28)
+        .padding(.vertical, 8)
         .contentShape(Rectangle())
+        .padding(.vertical, -8)
     }
 
     private var details: some View {
@@ -122,9 +124,9 @@ public struct SkillExecutionReceiptView: View {
 
     private var statusText: String {
         switch status {
-        case "success": return "Done"
-        case "running": return "Running"
-        default: return "Failed"
+        case "success": return String(localized: "Done")
+        case "running": return String(localized: "Running")
+        default: return String(localized: "Failed")
         }
     }
 

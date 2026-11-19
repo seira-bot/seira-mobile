@@ -438,7 +438,10 @@ struct ChatView: View {
             SeiraFade(edge: .top, height: 120, color: .seiraApp).ignoresSafeArea(edges: .top)
         }
         .safeAreaInset(edge: .top, spacing: 0) { headerBar }
-        .overlay(alignment: .top) { floatingFace }
+        .overlay(alignment: .top) {
+            GeometryReader { floatingFace(width: $0.size.width) }
+                .allowsHitTesting(false)
+        }
         // Reading scrollback — one tap back to the end, streaming or
         // not, the same pill the desktop chat offers.
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { bottom in
@@ -719,12 +722,13 @@ struct ChatView: View {
     /// One face, in one layer, measured from the screen's top
     /// edge: it sits in the island while that is open and
     /// glides into its header slot when the island lets go.
-    private var floatingFace: some View {
+    private func floatingFace(width: CGFloat) -> some View {
         let topInset = IslandGeometry.topInset
         let islandSide: CGFloat = 220
         // centred in the part of the square the hardware island does not cover
         let islandFaceCentre = IslandGeometry.top + IslandGeometry.size.height + (islandSide - IslandGeometry.size.height) / 2
         let headerFaceCentre = topInset + 26
+        let headerFaceX: CGFloat = 12 + 44 + 8 + 6 + 16
         let faceSize = 32 + 100 * facePhase
         let faceCentre = headerFaceCentre + (islandFaceCentre - headerFaceCentre) * facePhase
         return ZStack(alignment: .top) {
@@ -735,7 +739,7 @@ struct ChatView: View {
             }
             if islandVisible {
                 ChatAvatarView(chat: current, size: faceSize, state: MausState.forChat(current, in: session.state), animated: MausState.forChat(current, in: session.state).showsActivity || islandExpanded, comets: islandExpanded)
-                    .offset(y: faceCentre - faceSize / 2)
+                    .offset(x: (headerFaceX - width / 2) * (1 - facePhase), y: faceCentre - faceSize / 2)
                     .allowsHitTesting(false)
             }
         }
@@ -1015,14 +1019,17 @@ struct ChatView: View {
         var tiles: [AddToChatTile] = []
         if CameraPicker.isAvailable {
             tiles.append(AddToChatTile(
-                id: "camera", systemImage: "camera", title: "Camera", disabled: photos?.disabled ?? false
+                id: "camera", systemImage: "camera", title: "Camera",
+                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
             ) { showingCamera = true })
         }
         tiles.append(AddToChatTile(
-            id: "photos", systemImage: "photo.on.rectangle", title: "Photos", disabled: photos?.disabled ?? false
+            id: "photos", systemImage: "photo.on.rectangle", title: "Photos",
+            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
         ) { photos?.run() })
         tiles.append(AddToChatTile(
-            id: "files", systemImage: "paperclip", title: "Files", disabled: files?.disabled ?? false
+            id: "files", systemImage: "paperclip", title: "Files",
+            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason
         ) { files?.run() })
         return tiles
     }
@@ -1040,16 +1047,24 @@ struct ChatView: View {
     }
 
     private var plusActions: [AddToChatAction] {
-        let canAddAttachment = attachments.count < AttachmentPolicy.maximumItems
-            && !preparingAttachments && !sendingMessage
+        let atLimit = attachments.count >= AttachmentPolicy.maximumItems
+        let canAddAttachment = !atLimit && !preparingAttachments && !sendingMessage
+        let limitReason: LocalizedStringKey? = atLimit
+            ? "You can add up to \(AttachmentPolicy.maximumItems) items to one message."
+            : nil
+        let roomThreadReason: LocalizedStringKey = current.busy
+            ? "Wait until the bots finish this turn."
+            : "Answer the open question first."
         var out: [AddToChatAction] = [
             AddToChatAction(
                 id: "photos", systemImage: "photo.on.rectangle", title: "Photo Library",
-                subtitle: "Add a photo to this message", disabled: !canAddAttachment
+                subtitle: "Add a photo to this message", disabled: !canAddAttachment,
+                disabledReason: limitReason
             ) { showingPhotoPicker = true },
             AddToChatAction(
                 id: "files", systemImage: "paperclip", title: "Choose File",
-                subtitle: "Add a document from Files", disabled: !canAddAttachment
+                subtitle: "Add a document from Files", disabled: !canAddAttachment,
+                disabledReason: limitReason
             ) { showingFileImporter = true },
         ]
         if case let .bot(bot) = current {
@@ -1078,7 +1093,8 @@ struct ChatView: View {
             out.append(AddToChatAction(
                 id: "task", systemImage: "plus.square.on.square", title: "New thread",
                 subtitle: "Start a fresh conversation in \(room.name)",
-                disabled: current.busy || hasPendingApproval
+                disabled: current.busy || hasPendingApproval,
+                disabledReason: roomThreadReason
             ) { Task { await session.createTask(for: room, title: nil) } })
             out.append(AddToChatAction(
                 id: "tasks", systemImage: "square.stack", title: "Threads",
@@ -1135,8 +1151,10 @@ struct ChatView: View {
 
     private func startsRun(at index: Int, in rows: [TranscriptRow]) -> Bool {
         guard index > 0 else { return true }
-        let this = rows[index], previous = rows[index - 1]
-        guard case .message = previous, previous.kind == .text else { return true }
+        let this = rows[index]
+        guard let previous = rows[..<index].last(where: { row in
+            if case .message = row { return true } else { return false }
+        }), previous.kind == .text else { return true }
         return previous.role != this.role || previous.senderName != this.senderName
     }
 
@@ -1176,11 +1194,11 @@ struct ChatView: View {
     }
 
     private var composerPrompt: String {
-        if sendingMessage { return "Sending…" }
-        if dictation.isListening { return "Listening…" }
+        if sendingMessage { return String(localized: "Sending…") }
+        if dictation.isListening { return String(localized: "Listening…") }
         if let asker = composerQuestion?.asker { return String(localized: "Answer \(asker)…") }
-        if current.busy { return engineCanSteer ? "Sends into this turn" : "Sends after this turn" }
-        return "Message \(current.name)"
+        if current.busy { return engineCanSteer ? String(localized: "Sends into this turn") : String(localized: "Sends after this turn") }
+        return String(localized: "Message \(current.name)")
     }
 
     private func steerQueued(pendingApproval: Bool) -> (() -> Void)? {
@@ -1339,6 +1357,7 @@ struct ChatView: View {
             attachmentError = "Send up to \(AttachmentPolicy.maximumItems) items at a time."
             return
         }
+        attachmentError = nil
         let candidate = PendingMessageAttachment(
             id: UUID(), data: jpeg, name: "Photo.jpg", mime: "image/jpeg", kind: .image
         )
@@ -1717,7 +1736,7 @@ struct ChatView: View {
             dictationButton
             trailingButton(canSend: typed)
         }
-        .padding(6)
+        .padding(4)
         .frame(minHeight: 52)
         .background(Color.seiraComposer, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
         .shadow(color: Color.black.opacity(0.10), radius: 18, y: 4)
@@ -1738,6 +1757,7 @@ struct ChatView: View {
                 .foregroundStyle(Color.seiraOnPrimary)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Color.seiraPrimary))
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -1758,6 +1778,7 @@ struct ChatView: View {
                 .animation(reduceMotion ? nil : Animation.seira(0.24), value: showingPlus)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Color.seiraControl))
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -1777,7 +1798,10 @@ struct ChatView: View {
             Image(systemName: "command")
                 .font(.system(size: 13, weight: .bold))
                 .foregroundStyle(showCommandHUD ? Color.seiraInk : Color.seiraInk3)
-                .frame(width: 30, height: 40)
+                .frame(width: 30, height: 44)
+                .padding(.horizontal, 7)
+                .contentShape(Rectangle())
+                .padding(.horizontal, -7)
         }
         .buttonStyle(.plain)
         .disabled(preparingAttachments || sendingMessage)
@@ -1825,6 +1849,7 @@ struct ChatView: View {
                 .foregroundStyle(Color.seiraInk)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Color.seiraControl))
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -1843,7 +1868,7 @@ struct ChatView: View {
             Image(systemName: listening ? "mic.fill" : "mic")
                 .font(.system(size: 17, weight: .regular))
                 .foregroundStyle(tint)
-                .frame(width: 40, height: 40)
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
                 .pulseCompat(isActive: listening)
         }
@@ -1859,6 +1884,7 @@ struct ChatView: View {
                 .foregroundStyle(Color.seiraOnPrimary)
                 .frame(width: 40, height: 40)
                 .background(Circle().fill(Color.seiraPrimary))
+                .frame(width: 44, height: 44)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
@@ -2938,7 +2964,7 @@ struct CardView: View {
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .seiraCard(radius: 22)
-            .feedback(.success, trigger: card.isPending)
+            .feedback(.success, trigger: card.outcome?.isPositive == true)
         }
     }
 

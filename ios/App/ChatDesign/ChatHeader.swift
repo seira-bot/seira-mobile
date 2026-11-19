@@ -69,7 +69,7 @@ struct ChatHeaderBar: View {
     }
 
     private var roomLabel: String {
-        if case let .room(room) = chat { return "\(room.name), \(room.memberIds.count) bots" }
+        if case let .room(room) = chat { return String(localized: "\(room.name), \(room.memberIds.count) bots") }
         return chat.name
     }
 

@@ -303,9 +303,10 @@ struct TranscriptRowView: View, Equatable {
 
     @ViewBuilder private var replyHeader: some View {
         if startsRun, case let .message(message) = row, message.role == .bot, message.kind == .text {
+            let own = message.from.map { $0.botId == context.botId } ?? true
             BotReplyHeader(
                 name: message.from?.name ?? context.name, date: message.date,
-                faceBot: context.faceBot, isChief: context.isChief
+                faceBot: own ? context.faceBot : nil, isChief: own && context.isChief
             )
             .padding(.top, 18)
         }

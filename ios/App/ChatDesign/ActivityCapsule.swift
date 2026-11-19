@@ -83,7 +83,6 @@ enum ActivityDuration {
     static func text(milliseconds: Double) -> String? {
         let seconds = Int((milliseconds / 1_000).rounded())
         guard seconds >= 1 else { return nil }
-        if seconds < 60 { return "\(seconds)s" }
-        return "\(seconds / 60)m \(seconds % 60)s"
+        return Duration.seconds(seconds).formatted(.units(allowed: [.minutes, .seconds], width: .narrow))
     }
 }

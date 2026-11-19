@@ -21,13 +21,15 @@ struct ActivityRunChip: View {
     private var running: Bool { items.contains { $0.tool?.ok == nil } }
 
     private var summary: String {
-        running ? "Running \(items.count) steps" : "Ran \(items.count) steps"
+        running
+            ? String(localized: "Running \(items.count) steps")
+            : String(localized: "Ran \(items.count) steps")
     }
 
     private var capsuleText: String {
         guard !running, let first = items.map(\.at).min(), let last = items.map(\.at).max(),
               let took = ActivityDuration.text(milliseconds: last - first) else { return summary }
-        return "\(summary) · \(took)"
+        return String(localized: "\(summary) · \(took)")
     }
 
     private var speakers: [String] {

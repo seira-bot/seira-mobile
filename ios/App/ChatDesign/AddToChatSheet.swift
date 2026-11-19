@@ -8,6 +8,7 @@ struct AddToChatAction: Identifiable {
     let subtitle: LocalizedStringKey
     var destructive = false
     var disabled = false
+    var disabledReason: LocalizedStringKey? = nil
     let run: () -> Void
 }
 
@@ -17,6 +18,7 @@ struct AddToChatTile: Identifiable {
     let systemImage: String
     let title: LocalizedStringKey
     var disabled = false
+    var disabledReason: LocalizedStringKey? = nil
     let run: () -> Void
 }
 
@@ -29,6 +31,7 @@ struct AddToChatSheet: View {
     let onClose: () -> Void
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @GestureState private var drag: CGFloat = 0
+    @AccessibilityFocusState private var titleFocused: Bool
 
     var body: some View {
         GeometryReader { proxy in
@@ -67,6 +70,7 @@ struct AddToChatSheet: View {
         .accessibilityElement(children: .contain)
         .accessibilityAddTraits(.isModal)
         .accessibilityAction(.escape, onClose)
+        .onAppear { titleFocused = true }
     }
 
     private var header: some View {
@@ -79,6 +83,7 @@ struct AddToChatSheet: View {
                     .font(.seira(17, .semibold, relativeTo: .headline))
                     .foregroundStyle(Color.seiraInk)
                     .accessibilityAddTraits(.isHeader)
+                    .accessibilityFocused($titleFocused)
                 Spacer(minLength: 8)
                 closeButton
             }
@@ -111,9 +116,17 @@ struct AddToChatSheet: View {
     }
 
     private var tileRow: some View {
-        HStack(spacing: 10) {
-            ForEach(tiles) { tile in
-                SheetTile(tile: tile, onClose: onClose)
+        VStack(spacing: 8) {
+            HStack(spacing: 10) {
+                ForEach(tiles) { tile in
+                    SheetTile(tile: tile, onClose: onClose)
+                }
+            }
+            if let reason = tiles.first(where: { $0.disabled && $0.disabledReason != nil })?.disabledReason {
+                Text(reason)
+                    .font(.seira(13, .regular, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk2)
+                    .frame(maxWidth: .infinity, alignment: .leading)
             }
         }
     }
@@ -157,6 +170,7 @@ private struct SheetTile: View {
         .buttonStyle(.plain)
         .disabled(tile.disabled)
         .opacity(tile.disabled ? 0.45 : 1)
+        .accessibilityHint(tile.disabled ? (tile.disabledReason.map { Text($0) } ?? Text(verbatim: "")) : Text(verbatim: ""))
         .feedback(.selection, trigger: taps)
     }
 }
@@ -183,7 +197,7 @@ private struct SheetRow: View {
                     Text(action.title)
                         .font(.seira(15, .medium))
                         .foregroundStyle(ink)
-                    Text(action.subtitle)
+                    Text(action.disabled ? (action.disabledReason ?? action.subtitle) : action.subtitle)
                         .font(.seira(12, .regular, relativeTo: .caption))
                         .foregroundStyle(Color.seiraInk3)
                         .lineLimit(2)
