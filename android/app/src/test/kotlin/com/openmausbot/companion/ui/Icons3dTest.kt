@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onAllNodesWithTag
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.Connection
@@ -78,7 +78,9 @@ class Icons3dTest {
 
     private fun ComposeContentTestRule.assertTags(vararg names: String) {
         waitForIdle()
-        names.forEach { onNodeWithTag("icon3d.$it").assertExists() }
+        names.forEach {
+            assertTrue(onAllNodesWithTag("icon3d.$it", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty(), "no icon3d.$it")
+        }
     }
 
     private fun publish(name: String, mode: ThemeMode, content: @Composable () -> Unit) {
