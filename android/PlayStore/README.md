@@ -1,8 +1,8 @@
 # Seira Google Play release preparation
 
 Use this guide with the [release checklist](CHECKLIST.md). It records repository
-inputs and checks to perform for each release; it does not supply approved Play
-Console declarations or establish that a release is ready to publish.
+inputs and checks to perform for each release. It does not establish that a
+release is ready to publish.
 
 ## Release identity and build
 
@@ -54,7 +54,7 @@ approved upload set.
 | Phone screenshots, 1080×1920 (9:16) | [frames/en-US/](frames/en-US/), [frames/id-ID/](frames/id-ID/) | Six images per language. Compare with the release build. |
 | Feature graphic, 1024×500 | [graphics/feature-graphic-en-US.png](graphics/feature-graphic-en-US.png), [graphics/feature-graphic-id-ID.png](graphics/feature-graphic-id-ID.png) | Check Seira branding. |
 | Icon, 512×512 | [assets/play-icon-512.png](assets/play-icon-512.png) | Use the icon that matches the release launcher icon. |
-| Declarations | [declarations-proposal.md](declarations-proposal.md) | Proposed answers only. The release owner decides and enters them. |
+| Declarations | [declarations-proposal.md](declarations-proposal.md) | Answers saved in Play Console for release 1.0.0, and the open steps. Check them again when the release build changes. |
 
 Run `node android/PlayStore/tools/check-listing.mjs` from the repository root.
 It checks the Console length limits and words that the copy must not use.
@@ -111,8 +111,8 @@ The frame font is Geist, under the SIL Open Font License
 The release owner must complete current Console forms using the shipped app,
 its dependencies, and the deployed services. Review all applicable declarations,
 including data safety, permissions, content rating, audience, ads, and app access.
-[declarations-proposal.md](declarations-proposal.md) holds proposed answers with
-their sources. They are not approved answers.
+[declarations-proposal.md](declarations-proposal.md) records the answers that
+are saved in Play Console for release 1.0.0, with their sources and open steps.
 
 Account for each supported connection, provider, and hosting configuration:
 
