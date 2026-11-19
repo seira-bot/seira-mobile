@@ -64,8 +64,9 @@ class BotLookAvatarTest {
         rule.waitForIdle()
         val drawn = capture("bot")
         val carved = capture("carved")
-        assertTrue(drawn.sameAs(carved))
-        assertTrue(opaquePixels(drawn) > 0)
+        assertTrue(opaquePixels(carved) > 0, "the carved avatar drew nothing: ${carved.width}x${carved.height}")
+        assertTrue(opaquePixels(drawn) > 0, "the bot avatar drew nothing: ${drawn.width}x${drawn.height}")
+        assertTrue(drawn.sameAs(carved), "the pictures differ: ${opaquePixels(drawn)} and ${opaquePixels(carved)} opaque pixels")
     }
 
     @Test
