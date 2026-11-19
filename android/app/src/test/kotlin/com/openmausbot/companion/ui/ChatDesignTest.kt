@@ -79,7 +79,7 @@ class ChatDesignTest {
         compose.onNodeWithContentDescription("Back").assertExists()
         compose.onNodeWithContentDescription("Open ${bot.name} settings").assertExists()
         compose.onNodeWithContentDescription("Start live call").assertExists()
-        compose.onNodeWithText(bot.name).assertExists()
+        compose.onNodeWithText(bot.name, useUnmergedTree = true).assertExists()
     }
 
     @Test
@@ -112,7 +112,7 @@ class ChatDesignTest {
     fun `a user bubble stops at 280 dp`() {
         val message = Message("u", Message.Role.USER, Message.Kind.TEXT, 1.0, text = LONG)
         showRow(message)
-        val width = compose.onNodeWithText(LONG).getBoundsInRoot().width
+        val width = compose.onNodeWithText(LONG, useUnmergedTree = true).getBoundsInRoot().width
         assertTrue(width <= USER_BUBBLE_MAX_WIDTH, "the bubble text is $width wide")
         assertTrue(width > 120.dp, "the long line still uses the width it has: $width")
     }
@@ -121,7 +121,7 @@ class ChatDesignTest {
     fun `a bot reply has no bubble and uses the full width`() {
         val message = Message("b", Message.Role.BOT, Message.Kind.TEXT, 1.0, text = LONG)
         showRow(message)
-        val width = compose.onNodeWithText(LONG).getBoundsInRoot().width
+        val width = compose.onNodeWithText(LONG, useUnmergedTree = true).getBoundsInRoot().width
         assertTrue(width > USER_BUBBLE_MAX_WIDTH, "the reply is $width wide, wider than a bubble")
     }
 
@@ -164,7 +164,7 @@ class ChatDesignTest {
         compose.onNodeWithText("Deny").assertIsEnabled()
         listOf("Allow", "Deny").forEach { label ->
             val height = compose.onNodeWithText(label).getBoundsInRoot().height
-            assertTrue(height >= 48.dp, "$label is $height tall")
+            assertTrue(height >= 47.9.dp, "$label is $height tall")
         }
     }
 

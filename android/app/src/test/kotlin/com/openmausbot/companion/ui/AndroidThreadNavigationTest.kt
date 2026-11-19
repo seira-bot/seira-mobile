@@ -19,6 +19,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.openmausbot.companion.core.Bot
@@ -469,7 +470,7 @@ class AndroidThreadNavigationTest {
     /** The + sheet's Threads action opens the picker. [on] is the thread this chat shows now. */
     private fun openThreads(on: String) {
         compose.onNodeWithContentDescription("More").performClick()
-        compose.onNodeWithText("Threads").performClick()
+        compose.onNodeWithText("Threads").performScrollTo().performClick()
         val other = if (on == "First thread") "Second thread" else "First thread"
         compose.waitUntil(5_000) { compose.onAllNodesWithText(other).fetchSemanticsNodes().isNotEmpty() }
     }
