@@ -65,6 +65,7 @@ import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.RosterRowStatus
+import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.StreamFrame
 import com.openmausbot.companion.core.rosterStatus
 import com.openmausbot.companion.core.rosterThreadCount
@@ -662,13 +663,15 @@ class RosterScreenTest {
                 CompanionTheme(darkTheme = false) {
                     Surface(Modifier.fillMaxSize()) {
                         val state by scene.session.state.collectAsState()
-                        if (state.bots.isNotEmpty()) Screens(navigator)
+                        if (state.bots.isNotEmpty() || fleet.bots.isEmpty()) Screens(navigator)
                     }
                 }
             }
         }
         compose.runOnIdle { scene.session.connect() }
-        compose.waitUntil(5_000) { scene.session.state.value.bots.isNotEmpty() }
+        compose.waitUntil(5_000) {
+            if (fleet.bots.isEmpty()) scene.session.status.value == Session.Status.Live else scene.session.state.value.bots.isNotEmpty()
+        }
         compose.waitForIdle()
         return navigator
     }

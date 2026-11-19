@@ -68,9 +68,9 @@ class Icons3dTest {
     }
 
     @Composable
-    private fun Empty() {
+    private fun Empty(empty: RosterEmpty = RosterEmpty.CHATS) {
         RosterEmptyState(
-            empty = RosterEmpty.CHATS,
+            empty = empty,
             refreshing = false,
             onNewChat = {},
             onPairComputer = {},
@@ -158,6 +158,24 @@ class Icons3dTest {
 
     @Test
     fun darkEmptyPreviewIsWritten() = publish("empty", ThemeMode.DARK) { Empty() }
+
+    @Test
+    fun lightNotConnectedPreviewIsWritten() = publish("empty-not-connected", ThemeMode.LIGHT) { Empty(RosterEmpty.NOT_CONNECTED) }
+
+    @Test
+    fun darkNotConnectedPreviewIsWritten() = publish("empty-not-connected", ThemeMode.DARK) { Empty(RosterEmpty.NOT_CONNECTED) }
+
+    @Test
+    fun lightOfflinePreviewIsWritten() = publish("empty-offline", ThemeMode.LIGHT) { Empty(RosterEmpty.OFFLINE) }
+
+    @Test
+    fun darkOfflinePreviewIsWritten() = publish("empty-offline", ThemeMode.DARK) { Empty(RosterEmpty.OFFLINE) }
+
+    @Test
+    fun lightAllDonePreviewIsWritten() = publish("empty-all-done", ThemeMode.LIGHT) { UpdatesEmptyState(onBack = {}) }
+
+    @Test
+    fun darkAllDonePreviewIsWritten() = publish("empty-all-done", ThemeMode.DARK) { UpdatesEmptyState(onBack = {}) }
 
     @Test
     fun lightSettingsPreviewIsWritten() = publish("settings", ThemeMode.LIGHT) { Settings(mac) }
