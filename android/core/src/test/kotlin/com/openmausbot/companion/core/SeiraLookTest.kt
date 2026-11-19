@@ -85,36 +85,33 @@ class SeiraLookTest {
 
     @Test
     fun toggleTurnsOnAndOff() {
-        assertEquals(SeiraExtraToggle.Updated(listOf("glasses")), SeiraLookCatalog.toggle("glasses", emptyList()))
-        assertEquals(
-            SeiraExtraToggle.Updated(listOf("bowtie")),
-            SeiraLookCatalog.toggle("glasses", listOf("glasses", "bowtie")),
-        )
+        assertEquals(listOf("glasses"), SeiraLookCatalog.toggle("glasses", emptyList()))
+        assertEquals(listOf("bowtie"), SeiraLookCatalog.toggle("glasses", listOf("glasses", "bowtie")))
     }
 
     @Test
-    fun toggleSwapsInTakenSlotAtSamePosition() {
+    fun toggleReplacesTheExtraInATakenSlot() {
         assertEquals(
-            SeiraExtraToggle.Updated(listOf("earring", "sunglasses", "scarf")),
+            listOf("earring", "scarf", "sunglasses"),
             SeiraLookCatalog.toggle("sunglasses", listOf("earring", "glasses", "scarf")),
         )
         assertEquals(
-            SeiraExtraToggle.Updated(listOf("glasses", "earring", "tiara")),
+            listOf("glasses", "earring", "tiara"),
             SeiraLookCatalog.toggle("tiara", listOf("glasses", "earring", "ribbon")),
         )
     }
 
     @Test
-    fun toggleReportsFullForFourthSlot() {
-        assertEquals(SeiraExtraToggle.Full, SeiraLookCatalog.toggle("cap", listOf("glasses", "earring", "ribbon")))
+    fun toggleDropsTheOldestExtraForAFourthSlot() {
+        assertEquals(
+            listOf("earring", "ribbon", "cap"),
+            SeiraLookCatalog.toggle("cap", listOf("glasses", "earring", "ribbon")),
+        )
     }
 
     @Test
     fun toggleLeavesListAloneForUnknownId() {
-        assertEquals(
-            SeiraExtraToggle.Updated(listOf("glasses")),
-            SeiraLookCatalog.toggle("monocle", listOf("glasses")),
-        )
+        assertEquals(listOf("glasses"), SeiraLookCatalog.toggle("monocle", listOf("glasses")))
     }
 
     @Test

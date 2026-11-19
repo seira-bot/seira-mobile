@@ -11,11 +11,6 @@ import kotlin.random.Random
 
 enum class SeiraLookSlot { FACE, EARS, HAIR, TOP, NECK }
 
-sealed interface SeiraExtraToggle {
-    data class Updated(val ids: List<String>) : SeiraExtraToggle
-    data object Full : SeiraExtraToggle
-}
-
 /**
  * The values a Seira look may take. They must match the desktop catalog:
  * the server reads an id it does not know as the default look.
@@ -61,21 +56,15 @@ object SeiraLookCatalog {
     }
 
     /**
-     * An id that is on comes off. An id whose slot is taken swaps with the one
-     * worn there. A new slot while the limit is reached gives [SeiraExtraToggle.Full].
+     * An id that is on comes off. A new id replaces the one worn in its slot,
+     * then the oldest one past [MAX_ACCESSORIES] comes off, as the desktop
+     * `toggleMascotAccessory` does. An unknown id changes nothing.
      */
-    fun toggle(id: String, current: List<String>): SeiraExtraToggle {
+    fun toggle(id: String, current: List<String>): List<String> {
         val worn = accessories(current)
-        if (id in worn) return SeiraExtraToggle.Updated(worn.filter { it != id })
-        val newSlot = slot(id) ?: return SeiraExtraToggle.Updated(worn)
-        val index = worn.indexOfFirst { slot(it) == newSlot }
-        if (index >= 0) {
-            val swapped = worn.toMutableList()
-            swapped[index] = id
-            return SeiraExtraToggle.Updated(swapped)
-        }
-        if (worn.size >= MAX_ACCESSORIES) return SeiraExtraToggle.Full
-        return SeiraExtraToggle.Updated(worn + id)
+        if (id in worn) return worn.filter { it != id }
+        val newSlot = slot(id) ?: return worn
+        return (worn.filter { slot(it) != newSlot } + id).takeLast(MAX_ACCESSORIES)
     }
 
     val starterColors: List<String> = listOf(
@@ -107,6 +96,7 @@ object SeiraLookCatalog {
     val expressions: List<String> = listOf(
         "idle", "happy", "curious", "drowsy", "working",
         "thinking", "listening", "sleeping", "suspicious", "proud",
+        "surprised",
     )
 }
 
