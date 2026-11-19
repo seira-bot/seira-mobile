@@ -88,11 +88,24 @@ fun MarkdownText(
      */
     openLink: ((String) -> Unit)? = null,
 ) {
-    val blocks = Markdown.blocks(source)
+    val segments = remember(source) { MarkdownTables.split(source) }
     CompositionLocalProvider(LocalLinkOpener provides openLink) {
         Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            blocks.forEachIndexed { index, block ->
-                MarkdownBlockView(block, tail = caret && index == blocks.lastIndex)
+            segments.forEachIndexed { segmentIndex, segment ->
+                val lastSegment = segmentIndex == segments.lastIndex
+                when (segment) {
+                    is MarkdownSegment.Table -> {
+                        MarkdownTableView(segment, Modifier.padding(vertical = 6.dp))
+                        // The caret still needs a line to sit on after a closing table.
+                        if (caret && lastSegment) MarkdownBlockView(MarkdownBlock.Paragraph(""), tail = true)
+                    }
+                    is MarkdownSegment.Prose -> {
+                        val blocks = remember(segment.source) { Markdown.blocks(segment.source) }
+                        blocks.forEachIndexed { index, block ->
+                            MarkdownBlockView(block, tail = caret && lastSegment && index == blocks.lastIndex)
+                        }
+                    }
+                }
             }
         }
     }

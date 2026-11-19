@@ -16,12 +16,14 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.performClick
 import androidx.test.core.app.ApplicationProvider
+import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.Message
+import com.openmausbot.companion.core.QuickReply
 import com.openmausbot.companion.core.StreamFrame
 import com.openmausbot.companion.core.ToolActivity
 import com.openmausbot.companion.ui.theme.Seira
@@ -63,17 +65,17 @@ class ChatScreenshotTest {
     private val scout: Bot = bot().copy(
         messages = listOf(
             Message("m1", Message.Role.USER, Message.Kind.TEXT, 1.0, text = "Can you check which March invoices are still open for Dina Pratama?"),
-            tool("m2", 2.0, "Read invoices"),
-            tool("m3", 3.0, "Check totals"),
+            tool("m2", 2.0, "Read invoices", parent = "m1"),
+            tool("m3", 3.0, "Check totals", parent = "m2"),
             Message(
-                "m4", Message.Role.BOT, Message.Kind.TEXT, 4.0,
+                "m4", Message.Role.BOT, Message.Kind.TEXT, 4.0, parentId = "m3",
                 text = "Two invoices are still open for Dina Pratama.\n\n" +
-                    "| Invoice | Total | Due |\n| --- | --- | --- |\n" +
+                    "| Invoice | Total | Due |\n| --- | ---: | --- |\n" +
                     "| INV-1042 | 1.250.000 | 5 Apr |\n| INV-1043 | 480.000 | 12 Apr |\n\n" +
                     "The larger one is due first, so I would send that reminder today.",
             ),
-            Message("m5", Message.Role.USER, Message.Kind.TEXT, 5.0, text = "Yes, draft the reminder."),
-            Message("m6", Message.Role.BOT, Message.Kind.TEXT, 6.0, text = "Done. The draft is in your outbox, ready to send."),
+            Message("m5", Message.Role.USER, Message.Kind.TEXT, 5.0, text = "Yes, draft the reminder.", parentId = "m4"),
+            Message("m6", Message.Role.BOT, Message.Kind.TEXT, 6.0, text = "Done. The draft is in your outbox, ready to send.", parentId = "m5"),
         ),
     )
 
@@ -140,6 +142,16 @@ class ChatScreenshotTest {
                 }
             }
         }
+        // The app's own settings: folded steps show as one pill, and the chips
+        // above the composer are the ones that fit this conversation.
+        scene.environment.chatPreferences.setActivityDetail(ActivityDetail.REDUCED)
+        scene.environment.chatPreferences.setQuickReplies(
+            listOf(
+                QuickReply("fx.remind", "Send reminder", "Send the reminder for INV-1042", "send"),
+                QuickReply("fx.invoice", "Open invoice", "Show invoice INV-1042", "document"),
+                QuickReply("fx.next", "What's next?", "What should we do next?", "next"),
+            ),
+        )
         compose.runOnIdle { scene.session.connect() }
         compose.waitUntil(5_000) { scene.session.state.value.bot(scout.id) != null }
         compose.waitForIdle()
@@ -151,8 +163,8 @@ class ChatScreenshotTest {
         assertTrue(compose.captureWindow(name, mode).length() > 0)
     }
 
-    private fun tool(id: String, at: Double, name: String) =
-        Message(id, Message.Role.BOT, Message.Kind.ACTIVITY, at, tool = ToolActivity(name = name, ok = true))
+    private fun tool(id: String, at: Double, name: String, parent: String) =
+        Message(id, Message.Role.BOT, Message.Kind.ACTIVITY, at, tool = ToolActivity(name = name, ok = true), parentId = parent)
 
     private fun json(body: String): MockResponse = MockResponse()
         .setResponseCode(200)
