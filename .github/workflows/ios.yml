@@ -1,0 +1,190 @@
+name: iOS
+
+# Swift package tests and a simulator build for every pull request that
+# changes the iOS app. The UI tests cost many macOS minutes, so they run
+# only when a person starts this workflow by hand with `ui_tests` set.
+# A hand start needs this file on the default branch.
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - "scripts/check-ios-view-shims.sh"
+      - ".github/workflows/ios.yml"
+  workflow_dispatch:
+    inputs:
+      ui_tests:
+        description: "Run the UI tests on one iPhone simulator (about 30 to 90 macOS minutes)"
+        type: boolean
+        default: false
+      ui_test_classes:
+        description: "UI test classes to run, separated by spaces. Empty runs all of them."
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to a pull request stops the older run of that pull request.
+  group: ios-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+jobs:
+  build:
+    name: Swift tests + iOS build
+    runs-on: macos-latest
+    # A hang guard. A clean build takes about 10 minutes.
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show the Xcode version
+        run: xcodebuild -version
+
+      - name: No #available branch in a View extension
+        # This shape makes IRGen run without end. See ios/App/BackDeployCompat.swift.
+        run: bash scripts/check-ios-view-shims.sh
+
+      - name: CompanionCore tests
+        run: swift test --package-path ios
+
+      - name: Restore the Swift package cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/spm-packages
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/project.yml', 'ios/Package.swift') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Build the app, the extensions and the UI test bundle
+        # One arm64 slice for the simulator, and no code signing. The scheme
+        # builds the widget and share extensions as app dependencies.
+        # build-for-testing also compiles the UI test bundle, but runs nothing.
+        run: |
+          set -o pipefail
+          cd ios
+          xcodebuild \
+            -project OpenMausCompanion.xcodeproj \
+            -scheme OpenMausCompanion \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath "$RUNNER_TEMP/derived-data" \
+            -clonedSourcePackagesDirPath "$HOME/spm-packages" \
+            ARCHS=arm64 \
+            CODE_SIGNING_ALLOWED=NO \
+            build-for-testing > "$RUNNER_TEMP/xcodebuild.log" 2>&1 \
+            || { grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild.log" | sed -E 's#^.*/ios/#ios/#' | sort -u | head -200; tail -40 "$RUNNER_TEMP/xcodebuild.log"; exit 1; }
+          tail -5 "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: No Swift expression or body over the type-check limit
+        # ios/project.yml makes the compiler warn at 500 ms for one
+        # expression or function body. The shared runner is about 2x slower
+        # than a Mac, so the step lists every warning and fails only at 1500 ms.
+        run: |
+          fail_over_ms=1500
+          warnings=$(grep -E 'took [0-9]+ms to type-check \(limit: ' "$RUNNER_TEMP/xcodebuild.log" | sed -E 's#^.*/ios/##' | sort -u || true)
+          if [ -n "$warnings" ]; then
+            echo "Over the 500 ms warning limit on this runner (fails at ${fail_over_ms} ms):"
+            printf '%s\n' "$warnings"
+          fi
+          hits=$(printf '%s\n' "$warnings" | awk -v limit="$fail_over_ms" 'match($0, /took [0-9]+ms/) { ms = substr($0, RSTART + 5, RLENGTH - 7) + 0; if (ms > limit) print }')
+          if [ -n "$hits" ]; then
+            printf '%s\n' "$hits"
+            echo "::error::The Swift type checker spent over ${fail_over_ms} ms on the expression(s) above. Split that body into smaller views or functions, and give colours chosen by a ternary an explicit Color type."
+            exit 1
+          fi
+          echo "No expression or function body took the type checker over ${fail_over_ms} ms."
+
+  ui-tests:
+    name: UI tests (iPhone simulator)
+    needs: build
+    if: github.event_name == 'workflow_dispatch' && inputs.ui_tests
+    runs-on: macos-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore the Swift package cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/spm-packages
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/project.yml', 'ios/Package.swift') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Run the UI tests on a new iPhone simulator
+        # The tests use bundled synthetic data. They pair with no computer.
+        env:
+          UI_TEST_CLASSES: ${{ inputs.ui_test_classes }}
+        run: |
+          set -euo pipefail
+          cd ios
+          runtime_id=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, sys
+          runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("identifier", "").startswith("com.apple.CoreSimulator.SimRuntime.iOS")]
+          if not runtimes: raise SystemExit("No iOS simulator runtime is available")
+          runtimes.sort(key=lambda r: tuple(int(p) for p in r["version"].split(".")))
+          print(runtimes[-1]["identifier"])
+          ')
+          type_id=$(xcrun simctl list devicetypes -j | python3 -c '
+          import json, sys
+          types = [t for t in json.load(sys.stdin)["devicetypes"] if t["name"].startswith("iPhone") and "Pro" in t["name"] and "Max" not in t["name"]]
+          if not types: raise SystemExit("No iPhone Pro simulator type is available")
+          print(types[-1]["identifier"])
+          ')
+          simulator_id=$(xcrun simctl create "seira-ui-${GITHUB_RUN_ID}" "$type_id" "$runtime_id")
+          trap 'xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true' EXIT
+          only=()
+          set -f
+          for name in $UI_TEST_CLASSES; do
+            case "$name" in
+              *[!A-Za-z0-9_]*) echo "::error::Not a test class name: $name"; exit 1 ;;
+            esac
+            only+=("-only-testing:OpenMausCompanionUITests/$name")
+          done
+          set +f
+          xcodebuild \
+            -project OpenMausCompanion.xcodeproj \
+            -scheme OpenMausCompanion \
+            -configuration Debug \
+            -destination "platform=iOS Simulator,id=${simulator_id}" \
+            -derivedDataPath "$RUNNER_TEMP/derived-data" \
+            -clonedSourcePackagesDirPath "$HOME/spm-packages" \
+            -resultBundlePath "$RUNNER_TEMP/seira-ui-tests.xcresult" \
+            -parallel-testing-enabled NO \
+            ${only[@]+"${only[@]}"} \
+            CODE_SIGNING_ALLOWED=NO \
+            test
+
+      - name: Keep the UI test results
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ios-ui-tests-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/seira-ui-tests.xcresult
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7
