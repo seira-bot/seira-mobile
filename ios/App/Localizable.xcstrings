@@ -16050,6 +16050,50 @@
           }
         }
       }
+    },
+    "You are offline": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Você está offline"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已离线"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "你已離線"
+          }
+        }
+      }
+    },
+    "Check your internet connection. Seira picks up where you left off.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verifique sua conexão com a internet. A Seira continua de onde você parou."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请检查你的网络连接。Seira 会从你离开的地方继续。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請檢查你的網路連線。Seira 會從你離開的地方繼續。"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

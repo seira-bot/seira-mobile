@@ -296,10 +296,10 @@ struct UnpairedView: View {
 
     var body: some View {
         NavigationStack {
-            EmptyStateView(
-                title: String(localized: "This device was unpaired"),
-                systemImage: "lock.slash",
-                description: Text("The connection was removed on your computer. Pair again to keep using your chats here.")
+            SeiraEmptyState(
+                icon: "Icons3D/not-connected",
+                title: "This device was unpaired",
+                message: "The connection was removed on your computer. Pair again to keep using your chats here."
             ) {
                 // A Live call the refusal hung up says why here: this screen
                 // replaces the chat whose bar would have said it.

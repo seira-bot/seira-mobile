@@ -214,15 +214,25 @@ struct ChatListView: View {
     @ViewBuilder
     private func emptyState(matches: [ChatSummary]) -> some View {
         if rosterIsEmpty(matches: matches) {
-            EmptyStateView(
-                query.isEmpty ? "No bots" : "Nothing matches",
-                systemImage: query.isEmpty ? "bubble.left.and.bubble.right" : "magnifyingglass",
-                description: Text(
-                    query.isEmpty
-                        ? "Bots you create on your computer show up here."
-                        : "No thread matches \u{201C}\(query)\u{201D}."
+            if !query.isEmpty {
+                EmptyStateView(
+                    "Nothing matches",
+                    systemImage: "magnifyingglass",
+                    description: Text("No thread matches \u{201C}\(query)\u{201D}.")
                 )
-            )
+            } else if case .offline = session.status {
+                SeiraEmptyState(
+                    icon: "Icons3D/offline",
+                    title: "You are offline",
+                    message: "Check your internet connection. Seira picks up where you left off."
+                )
+            } else {
+                SeiraEmptyState(
+                    icon: "Icons3D/empty-chats",
+                    title: "No bots",
+                    message: "Bots you create on your computer show up here."
+                )
+            }
         }
     }
 

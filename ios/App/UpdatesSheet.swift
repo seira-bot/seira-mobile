@@ -32,10 +32,10 @@ struct UpdatesSheet: View {
                 .padding(.bottom, 6)
 
                 if updates.isEmpty {
-                    EmptyStateView(
-                        "Nothing needs you",
-                        systemImage: "checkmark.circle",
-                        description: Text("When a bot stops for an answer, is mid-task, or finishes something, it shows up here.")
+                    SeiraEmptyState(
+                        icon: "Icons3D/all-done",
+                        title: "Nothing needs you",
+                        message: "When a bot stops for an answer, is mid-task, or finishes something, it shows up here."
                     )
                     .padding(.top, 24)
                 } else {
