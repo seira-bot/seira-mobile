@@ -20,7 +20,7 @@ struct PairHeader: View {
             Image("Icons3D/pair")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 120, height: 120)
+                .frame(width: 64, height: 64)
                 .accessibilityHidden(true)
             Text("Connect your computer")
                 .font(.seira(24, .semibold, relativeTo: .title2))
