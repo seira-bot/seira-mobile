@@ -2,6 +2,19 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.platform.LocalLayoutDirection
+import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.ui.theme.IdentityAvatar
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.SeiraType
+import com.openmausbot.companion.ui.theme.seiraTween
 import androidx.compose.ui.res.stringResource
 
 import android.content.ClipData
@@ -133,15 +146,15 @@ private const val MESSAGE_CLIP_LABEL = "Seira message"
 /**
  * One row of the transcript — the port of `MessageRow` in `ios/App/ChatView.swift`.
  *
- * [endsRun] is the last bubble of a run from the same side: the one that gets the
- * tail. [TranscriptLayout.endsRun] decides it, over the whole transcript, so a row
- * never has to look at its neighbours.
+ * [startsRun] is the first reply of a run from the same speaker: the one that shows
+ * the speaker's face, name and time. [TranscriptLayout.startsRowRun] decides it,
+ * over the whole transcript, so a row never has to look at its neighbours.
  */
 @Composable
 fun MessageRow(
     chat: Chat,
     message: Message,
-    endsRun: Boolean = true,
+    startsRun: Boolean = true,
     /** Where a tapped link in a bot reply goes; null leaves it to the system. */
     openLink: ((String, Message) -> Unit)? = null,
     /** Open one exact user attachment through the authenticated computer route. */
@@ -167,6 +180,9 @@ fun MessageRow(
     val editPending = state.pendingEdits[chat.threadId]
     val isPendingEdit = editPending?.placeholderId == message.id
     val mine = message.role == Message.Role.USER
+    // Whose face and name head a reply: the bot of this chat, or, in a room,
+    // the member who said it.
+    val replyBot = bot ?: message.from?.botId?.let { id -> state.bots.firstOrNull { it.id == id } }
 
     Box(
         modifier = Modifier
@@ -192,7 +208,8 @@ fun MessageRow(
             MessageContent(
                 chat = chat,
                 message = message,
-                endsRun = endsRun,
+                startsRun = startsRun,
+                replyBot = replyBot,
                 haptics = haptics,
                 openLink = openLink,
                 openAttachment = openAttachment,
@@ -438,7 +455,8 @@ private fun SelectableTextDialog(text: String, onDismiss: () -> Unit) {
 private fun MessageContent(
     chat: Chat,
     message: Message,
-    endsRun: Boolean,
+    startsRun: Boolean,
+    replyBot: Bot?,
     haptics: Haptics,
     openLink: ((String, Message) -> Unit)?,
     openAttachment: ((DisplayedMessageAttachment, Message, DownloadedFile?) -> Unit)?,
@@ -446,7 +464,7 @@ private fun MessageContent(
     runRef: ThreadRef?,
 ) {
     when (message.kind) {
-        Message.Kind.TEXT -> TextBubble(chat.threadId, message, endsRun, openLink, openAttachment)
+        Message.Kind.TEXT -> TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         // A structured ask draws its own card: its answers are the model's
         // questions, not an allow/deny a tap could stand for.
         Message.Kind.OPTIONS -> if (QuestionCardRules.drawsQuestionCard(message)) {
@@ -487,21 +505,23 @@ private fun MessageContent(
         // show, show nothing — a placeholder saying "unsupported" is a worse gap
         // than the gap.
         Message.Kind.UNKNOWN -> if (!message.text.isNullOrEmpty()) {
-            TextBubble(chat.threadId, message, endsRun, openLink, openAttachment)
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
     }
 }
 
 @Composable
 private fun TextBubble(
-    threadId: String,
+    chat: Chat,
     message: Message,
-    endsRun: Boolean,
+    startsRun: Boolean,
+    replyBot: Bot?,
     openLink: ((String, Message) -> Unit)?,
     openAttachment: ((DisplayedMessageAttachment, Message, DownloadedFile?) -> Unit)?,
 ) {
+    val threadId = chat.threadId
+    val colors = Seira.colors
     val mine = message.role == Message.Role.USER
-    val tail = TranscriptLayout.tail(message, endsRun)
     // A reply that is *entirely* a patch or a table is drawn as one. The gate is
     // in `:core` and it is strict: anything with a sentence in it stays a
     // paragraph, because a card around a paragraph hides the paragraph.
@@ -510,50 +530,36 @@ private fun TextBubble(
     // prose, and a server-controlled path must never be presented as a link.
     val attached = remember(message.id, message.text) { AttachedMessageContent.parse(message.text.orEmpty()) }
     val webhook = remember(message) { message.webhookContent }
-    // A card brings its own surface, so it drops the bubble — and with it the
-    // tail, which is a bubble's chin and not a card's.
-    val bubble = card == null
-    // No face beside the bubble: the bot's face is in the header, and in a room
-    // the name line says who spoke. The bubble sits at the edge.
+    // Only what you sent sits in a bubble. A reply is plain text under its
+    // speaker's header, and a card brings its own surface.
+    val bubble = mine && card == null
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (mine) Arrangement.End else Arrangement.Start,
         verticalAlignment = Alignment.Bottom,
     ) {
-        // iOS spaces the far side with `Spacer(minLength:)`; a non-filling weight
-        // lets the bubble shrink to its text while never crossing that gutter.
-        if (mine) Spacer(Modifier.width(56.dp))
         Column(
             modifier = Modifier
                 .weight(1f, fill = false)
-                .widthIn(max = 640.dp)
-                // Room for the tail below, so the next row does not sit on it.
-                .padding(bottom = if (bubble && endsRun) SpeechBubble.tailDrop() else 0.dp)
+                .widthIn(max = if (mine) USER_BUBBLE_MAX_WIDTH else 640.dp)
                 .then(
                     if (bubble) {
                         Modifier
-                            .background(
-                                if (mine) BubbleColor.mine else BubbleColor.theirs,
-                                SpeechBubbleShape.of(tail),
-                            )
-                            .padding(horizontal = 15.dp, vertical = 11.dp)
+                            .background(colors.bubble, userBubbleShape())
+                            .padding(horizontal = 16.dp, vertical = 11.dp)
                     } else {
                         Modifier
                     },
                 ),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(if (mine) 4.dp else 6.dp),
         ) {
-            // Rooms attribute each line to the member who said it. Only theirs:
-            // your own bubble is already on your side.
-            if (!mine) {
-                message.from?.let {
-                    Text(
-                        text = it.name,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color(MausPalette.argb(it.color)),
-                    )
-                }
+            if (!mine && startsRun) {
+                ReplyHeader(
+                    bot = replyBot,
+                    name = message.from?.name ?: replyBot?.name ?: chat.name,
+                    colorName = message.from?.color ?: replyBot?.color,
+                    at = message.at,
+                )
             }
             // Voice notes sit above the attachment gallery, as they do on the
             // desktop transcript: the note is the message, not an appendix to it.
@@ -568,7 +574,7 @@ private fun TextBubble(
             message.attachedFiles.forEach { attachment ->
                 SharedAttachmentView(
                     threadId, message, attachment, openAttachment,
-                    foreground = if (mine) BubbleColor.mineText else MaterialTheme.colorScheme.onSurface,
+                    foreground = if (mine) colors.ink else MaterialTheme.colorScheme.onSurface,
                 )
             }
             // Bots get markdown, you do not — the same split the desktop makes.
@@ -579,7 +585,7 @@ private fun TextBubble(
             // left out: selecting text that is still growing fights the reader.
             when (card) {
                 is TranscriptCard.Diff -> DiffCard(card)
-                is TranscriptCard.Table -> DataTableCard(card)
+                is TranscriptCard.Table -> DataTableCard(card, from = replyBot?.name ?: message.from?.name)
                 null -> if (webhook != null) {
                     WebhookMessageBody(webhook)
                 } else if (mine) {
@@ -596,8 +602,8 @@ private fun TextBubble(
                             SelectionContainer {
                                 Text(
                                     text = attached.text,
-                                    fontSize = 17.sp,
-                                    color = BubbleColor.mineText,
+                                    style = SeiraType.body,
+                                    color = colors.ink,
                                 )
                             }
                         }
@@ -612,9 +618,56 @@ private fun TextBubble(
                 }
             }
         }
-        if (!mine) Spacer(Modifier.width(44.dp))
     }
 }
+
+/** Your own bubble never grows past this, however long the line. */
+internal val USER_BUBBLE_MAX_WIDTH = 280.dp
+
+/** Large corners, with the small one at the bottom edge on the side you speak from. */
+@Composable
+private fun userBubbleShape(): RoundedCornerShape {
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val big = 22.dp
+    val small = 6.dp
+    return if (rtl) {
+        RoundedCornerShape(topStart = big, topEnd = big, bottomEnd = big, bottomStart = small)
+    } else {
+        RoundedCornerShape(topStart = big, topEnd = big, bottomEnd = small, bottomStart = big)
+    }
+}
+
+/**
+ * The line above a speaker's run: face, name in the speaker's own colour pulled
+ * until it reads, and the time. A room has no single face, so it starts at the name.
+ */
+@Composable
+private fun ReplyHeader(bot: Bot?, name: String, colorName: String?, at: Double?) {
+    val colors = Seira.colors
+    val context = LocalContext.current
+    val identity = Color(colorName?.let { MausPalette.argb(it) } ?: MausPalette.FALLBACK)
+    val time = remember(at) {
+        at?.takeIf { it > 0.0 }?.let { android.text.format.DateFormat.getTimeFormat(context).format(java.util.Date(it.toLong())) }
+    }
+    Row(
+        modifier = Modifier.semantics(mergeDescendants = true) { },
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        if (bot != null) IdentityAvatar(bot = bot, size = REPLY_FACE, animated = false)
+        Text(
+            text = name,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = ChatNames.readableOn(identity, colors.app),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+        )
+        if (time != null) Text(text = time, fontSize = 12.sp, color = colors.ink3, maxLines = 1)
+    }
+}
+
+private val REPLY_FACE = 28.dp
 
 @Composable
 private fun SharedAttachmentView(
@@ -623,7 +676,7 @@ private fun SharedAttachmentView(
     attachment: DisplayedMessageAttachment,
     onOpen: ((DisplayedMessageAttachment, Message, DownloadedFile?) -> Unit)?,
     /** Your own bubble is blue with white text; a bot's file sits on the theme surface. */
-    foreground: Color = BubbleColor.mineText,
+    foreground: Color = Seira.colors.ink,
 ) {
     if (attachment.kind == DisplayedMessageAttachment.Kind.IMAGE) {
         SharedImageAttachment(threadId, message, attachment, onOpen)
@@ -701,7 +754,7 @@ private fun SharedImageAttachment(
     attachment: DisplayedMessageAttachment,
     onOpen: ((DisplayedMessageAttachment, Message, DownloadedFile?) -> Unit)?,
 ) {
-    val foreground = if (message.role == Message.Role.USER) BubbleColor.mineText else MaterialTheme.colorScheme.onSurface
+    val foreground = if (message.role == Message.Role.USER) Seira.colors.ink else MaterialTheme.colorScheme.onSurface
     val session = LocalCompanion.current.session
     val shapeKey = "$threadId\u001F${message.id}\u001F${attachment.path}"
     var attempt by remember(message.id, attachment.path) { mutableStateOf(0) }
@@ -803,7 +856,7 @@ internal const val CARD_ANSWER_FIELD_TAG = "card-answer-field"
 internal const val CARD_ANSWER_SEND_TAG = "card-answer-send"
 
 @Composable
-private fun AttachmentLoadFailure(label: String, foreground: Color = BubbleColor.mineText, onRetry: () -> Unit) {
+private fun AttachmentLoadFailure(label: String, foreground: Color = Seira.colors.ink, onRetry: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Icon(
             imageVector = Icons.Filled.Warning,
@@ -851,7 +904,7 @@ private fun VoiceNoteAttachmentView(
     message: Message,
     note: DisplayedMessageAttachment,
 ) {
-    val foreground = if (message.role == Message.Role.USER) BubbleColor.mineText else MaterialTheme.colorScheme.onSurface
+    val foreground = if (message.role == Message.Role.USER) Seira.colors.ink else MaterialTheme.colorScheme.onSurface
     val session = LocalCompanion.current.session
     val player = LocalCompanion.current.voiceNotes
     val liveCall by LocalCompanion.current.liveCalls.state.collectAsState()
@@ -1179,8 +1232,14 @@ private fun ReceiptChip(label: String, detail: String) {
 
 /** Several consecutive successful/running activity receipts, folded on demand. */
 @Composable
-fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = null) {
+fun ActivityRunChip(
+    items: List<Message>,
+    openThread: ((ThreadRef) -> Unit)? = null,
+    /** Who did the work; up to four faces stack at the pill's start. */
+    bots: List<Bot> = emptyList(),
+) {
     if (items.isEmpty()) return
+    val colors = Seira.colors
     val haptics = rememberHaptics()
     // Keyed on the run's identity — the same one the LazyColumn keys the row by
     // (`TranscriptRow.ActivityRun.id = "run.${head.id}"`). Keying on the last id
@@ -1193,11 +1252,13 @@ fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = n
     } else {
         stringResource(R.string.mobile_ran_steps, items.size)
     }
-    Column(
-        modifier = Modifier.padding(start = 4.dp),
-        verticalArrangement = Arrangement.spacedBy(5.dp),
-    ) {
-        // The pill is ~30 dp tall; the target around it is MIN_TOUCH_TARGET, the
+    val turn by animateFloatAsState(
+        targetValue = if (expanded) 180f else 0f,
+        animationSpec = seiraTween(SeiraMotion.BASE),
+        label = "activity-chevron",
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        // The pill is 32 dp tall; the target around it is MIN_TOUCH_TARGET, the
         // way TouchTarget does it for the round buttons. Not TouchTarget itself:
         // that helper is a square box, which would clip a capsule this wide.
         Box(
@@ -1218,32 +1279,62 @@ fun ActivityRunChip(items: List<Message>, openThread: ((ThreadRef) -> Unit)? = n
         ) {
             Row(
                 modifier = Modifier
-                    .background(secondaryTint.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    .height(ACTIVITY_PILL_HEIGHT)
+                    .background(colors.tint, CircleShape)
+                    .padding(horizontal = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                if (bots.isNotEmpty()) {
+                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
+                        bots.take(4).forEach { IdentityAvatar(bot = it, size = 18.dp, animated = false) }
+                    }
+                }
                 if (running) {
-                    CircularProgressIndicator(modifier = Modifier.size(13.dp), strokeWidth = 1.5.dp)
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(13.dp),
+                        strokeWidth = 1.5.dp,
+                        color = colors.ink2,
+                    )
                 } else {
                     Icon(
                         imageVector = Icons.Filled.Check,
                         contentDescription = null,
-                        tint = Color(0xFF22C55E),
+                        tint = colors.success,
                         modifier = Modifier.size(14.dp),
                     )
                 }
-                Text(summary, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Text(if (expanded) stringResource(R.string.mobile_hide_34d8b60f) else stringResource(R.string.mobile_show_d97d1ee3), fontSize = 12.sp, color = secondaryTint)
+                Text(summary, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = colors.ink2)
+                Icon(
+                    imageVector = SeiraIcons.ChevronDown,
+                    contentDescription = null,
+                    tint = colors.ink3,
+                    modifier = Modifier
+                        .size(14.dp)
+                        .graphicsLayer { rotationZ = turn }
+                        .testTag(ACTIVITY_CHEVRON_TAG),
+                )
             }
         }
         if (expanded) {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            val line = colors.hairline
+            Column(
+                modifier = Modifier
+                    .padding(start = 12.dp)
+                    .drawBehind {
+                        drawLine(line, Offset(0f, 0f), Offset(0f, size.height), strokeWidth = 1.dp.toPx())
+                    }
+                    .padding(start = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 items.forEach { item -> ActivityChip(item.tool, item.threadRef, openThread, teammateReport = item.threadRef != null || item.comm != null) }
             }
         }
     }
 }
+
+private val ACTIVITY_PILL_HEIGHT = 32.dp
+internal const val ACTIVITY_CHEVRON_TAG = "activity-chevron"
 
 /** The receipt's status dot, sized to sit level with the 13 sp name beside it. */
 private val ACTIVITY_DOT = 7.dp
@@ -1264,32 +1355,46 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
     var typedAnswer by remember(message.id) { mutableStateOf("") }
     val skillRequest = card.skillRequest
     val presentation = card.presentation
+    val colors = Seira.colors
+    val cardShape = RoundedCornerShape(22.dp)
+    val waitingLabel = stringResource(R.string.mobile_card_waiting_on_you, chat.name)
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(secondaryTint.copy(alpha = 0.13f), RoundedCornerShape(22.dp))
-            .then(
-                if (card.isPending) {
-                    Modifier.border(
-                        1.5.dp,
-                        MaterialTheme.colorScheme.primary,
-                        RoundedCornerShape(22.dp),
-                    )
-                } else {
-                    Modifier
-                },
-            )
+            .background(colors.tint, cardShape)
+            .border(1.dp, colors.hairline, cardShape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         if (card.isPending) {
-            Text(
-                stringResource(R.string.mobile_card_waiting_on_you, chat.name),
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.primary,
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics(mergeDescendants = true) { contentDescription = waitingLabel },
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                (chat as? Chat.BotChat)?.bot?.let { IdentityAvatar(bot = it, size = 32.dp, animated = false) }
+                Text(
+                    text = chat.name,
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f),
+                )
+                Text(
+                    text = stringResource(R.string.chat_needs_ok),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.warningText,
+                    modifier = Modifier
+                        .background(colors.warningSoft, CircleShape)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                )
+            }
         }
         // "Send to Linear?" for a held send to one app, the generic question
         // for several, and the computer's own title for every other card.
@@ -1298,11 +1403,11 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
             card.outboundApp != null -> stringResource(R.string.mobile_card_send_to_app, card.outboundApp.orEmpty())
             else -> stringResource(R.string.mobile_card_send_on_your_behalf)
         }
-        Text(headline, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
+        Text(headline, style = SeiraType.headline, color = colors.ink)
         if (presentation == CardPresentation.STANDARD) {
             // Proposals are reviewed in full; the detail is the thing worth copying.
             SelectionContainer {
-                Text(card.subtitle, fontSize = 15.sp, color = secondaryTint)
+                Text(card.subtitle, fontSize = 15.sp, color = colors.ink2)
             }
         } else {
             // An approval leads with one line; the request itself, raw
@@ -1312,7 +1417,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                 Text(
                     summary,
                     fontSize = 15.sp,
-                    color = secondaryTint,
+                    color = colors.ink2,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                 )
@@ -1396,7 +1501,15 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
             // here. Session maps the choice to allow/deny/answer.
             val optionButton: @Composable (String, Modifier) -> Unit = { option, buttonModifier ->
                 val refusal = ApprovalChoices.emphasis(option) == OptionEmphasis.SECONDARY
-                Button(
+                CardChoiceButton(
+                    text = option,
+                    primary = !refusal,
+                    fullWidth = card.stacksOptions,
+                    enabled = !answering && (
+                        skillRequest == null ||
+                            refusal ||
+                            skillRequest.reviewedSha256 != null
+                        ),
                     onClick = {
                         haptics.play(TactileAction.CHOOSE_APPROVAL)
                         answering = true
@@ -1406,22 +1519,7 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
                         }
                     },
                     modifier = buttonModifier,
-                    enabled = !answering && (
-                        skillRequest == null ||
-                            refusal ||
-                            skillRequest.reviewedSha256 != null
-                        ),
-                    // Same `isRefusal` that picks the allow choice picks the
-                    // weight, so the most sensible action on the most
-                    // sensitive screen is not the same shape as the refusal.
-                    colors = if (refusal) {
-                        ButtonDefaults.filledTonalButtonColors()
-                    } else {
-                        ButtonDefaults.buttonColors()
-                    },
-                ) {
-                    Text(option, textAlign = TextAlign.Center)
-                }
+                )
             }
             if (card.stacksOptions) {
                 // A question's answers are sentences: one under another, full
@@ -1516,20 +1614,74 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
             val outcome = card.outcome
             if (outcome != null) {
                 Row(
+                    modifier = Modifier
+                        .background(
+                            if (outcome.isPositive) colors.successSoft else colors.control,
+                            CircleShape,
+                        )
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         imageVector = if (outcome.isPositive) Icons.Filled.Check else Icons.Filled.Close,
                         contentDescription = null,
-                        tint = secondaryTint,
+                        tint = if (outcome.isPositive) colors.success else colors.ink2,
                         modifier = Modifier.size(16.dp),
                     )
-                    Text(outcomeText(outcome), fontSize = 14.sp, color = secondaryTint)
+                    Text(
+                        outcomeText(outcome),
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = if (outcome.isPositive) colors.success else colors.ink2,
+                    )
                 }
             } else if (card.expired == true) {
                 Text(stringResource(R.string.mobile_card_expired), fontSize = 14.sp, color = secondaryTint)
             }
+        }
+    }
+}
+
+/**
+ * One answer on a card. The allow choice is ink and the others sit on the control
+ * colour, both 44 dp tall inside a 48 dp touch target. A disabled one stays
+ * visible and dimmed, and does not take a tap.
+ */
+@Composable
+private fun CardChoiceButton(
+    text: String,
+    primary: Boolean,
+    fullWidth: Boolean,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = Seira.colors
+    Box(
+        modifier = modifier
+            .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
+            .heightIn(min = MIN_TOUCH_TARGET)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
+                .heightIn(min = 44.dp)
+                .background(
+                    (if (primary) colors.primary else colors.control).copy(alpha = if (enabled) 1f else 0.4f),
+                    CircleShape,
+                )
+                .padding(horizontal = 22.dp, vertical = 8.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text = text,
+                style = SeiraType.headline,
+                color = if (primary) colors.onPrimary else colors.ink,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -1674,32 +1826,28 @@ private sealed interface ScreenShotState {
  * says how far along it is.
  */
 @Composable
-fun StreamingBubble(text: String?, reasoning: String?) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
-        Column(
-            modifier = Modifier
-                .weight(1f, fill = false)
-                .padding(bottom = SpeechBubble.tailDrop())
-                .background(BubbleColor.theirs, SpeechBubbleShape.of(BubbleTail.LEADING))
-                .padding(horizontal = 15.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            if (!reasoning.isNullOrEmpty() && text.isNullOrEmpty()) {
-                // Folded away by default, because reasoning is not the answer.
-                // Tail-limited: it runs to thousands of words and the part worth
-                // reading is always the end. Plain lines, unlike the answer: the
-                // tail cut lands wherever it lands, and rendering markdown that
-                // starts mid-syntax invents structure the model did not write.
-                ThoughtChamber(reasoning = reasoning)
-            }
-            if (!text.isNullOrEmpty()) {
-                // Same renderer as the settled bubble: a live reply showing
-                // `**bold**` that snaps to bold on arrival is the message
-                // jumping, just in a different dimension.
-                MarkdownText(source = text, caret = true)
-            }
+fun StreamingBubble(text: String?, reasoning: String?, bot: Bot? = null, name: String? = null) {
+    Column(
+        modifier = Modifier.fillMaxWidth().widthIn(max = 640.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        ReplyHeader(bot = bot, name = name ?: bot?.name.orEmpty(), colorName = bot?.color, at = null)
+        if (!reasoning.isNullOrEmpty() && text.isNullOrEmpty()) {
+            // Folded away by default, because reasoning is not the answer.
+            // Tail-limited: it runs to thousands of words and the part worth
+            // reading is always the end. Plain lines, unlike the answer: the
+            // tail cut lands wherever it lands, and rendering markdown that
+            // starts mid-syntax invents structure the model did not write.
+            ThoughtChamber(reasoning = reasoning)
         }
-        Spacer(Modifier.width(44.dp))
+        if (!text.isNullOrEmpty()) {
+            // Same renderer as the settled reply: a live reply showing
+            // `**bold**` that snaps to bold on arrival is the message
+            // jumping, just in a different dimension.
+            MarkdownText(source = text, caret = true)
+        } else if (reasoning.isNullOrEmpty()) {
+            MarkdownText(source = stringResource(R.string.chat_writing), caret = true)
+        }
     }
 }
 
@@ -1720,7 +1868,7 @@ fun StreamingBubble(text: String?, reasoning: String?) {
  * shape changing. The dots are the bubble's quiet foreground, as on iOS.
  */
 @Composable
-fun WorkingBubble(name: String) {
+fun WorkingBubble(name: String, bot: Bot? = null) {
     val clock = remember { MausFrameClock() }
     // Android says "reduce motion" through the animator duration scale, and this
     // reads it the way MausAvatar does — through a snapshotFlow, so turning the
@@ -1738,14 +1886,15 @@ fun WorkingBubble(name: String) {
             }
     }
 
-    val dots = secondaryTint
+    val dots = Seira.colors.ink3
     val label = stringResource(R.string.mobile_chat_typing, name)
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        ReplyHeader(bot = bot, name = name, colorName = bot?.color, at = null)
         Box(
             modifier = Modifier
-                .padding(bottom = SpeechBubble.tailDrop())
-                .background(BubbleColor.theirs, SpeechBubbleShape.of(BubbleTail.LEADING))
-                .padding(horizontal = 15.dp, vertical = 11.dp)
                 .semantics {
                     contentDescription = label
                     liveRegion = LiveRegionMode.Polite
@@ -1774,7 +1923,6 @@ fun WorkingBubble(name: String) {
                 }
             }
         }
-        Spacer(Modifier.width(44.dp))
     }
 }
 

@@ -1,115 +1,63 @@
 package com.openmausbot.companion.ui
 
+import android.content.ActivityNotFoundException
+import android.content.pm.PackageManager
+import android.net.Uri
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.ui.layout.onSizeChanged
+import com.openmausbot.companion.core.Routine
+import com.openmausbot.companion.core.RoutineRunLocation
+import com.openmausbot.companion.core.RoutineSchedule
 import androidx.compose.ui.res.stringResource
 
-import android.view.KeyCharacterMap
 import androidx.activity.compose.BackHandler
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.foundation.horizontalScroll
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Call
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalTextStyle
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithCache
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.input.key.isShiftPressed
 import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.onPreviewKeyEvent
-import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.stateDescription
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -122,11 +70,9 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ComposerMention
 import com.openmausbot.companion.core.ComposerQuestion
 import com.openmausbot.companion.core.TypedAnswerResult
-import com.openmausbot.companion.core.MentionChoice
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.LocalMessageLink
 import com.openmausbot.companion.core.PendingMessageAttachment
-import com.openmausbot.companion.core.QueuedSend
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Dictation
 import com.openmausbot.companion.core.DisplayedMessageAttachment
@@ -219,7 +165,11 @@ private fun OpeningThread(onBack: () -> Unit) {
                 .padding(horizontal = 12.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            BackPill(unreadElsewhere = 0, onBack = onBack)
+            GlassCircleButton(
+                icon = SeiraIcons.ChevronLeft,
+                contentDescription = stringResource(R.string.mobile_back_b52b36b7),
+                onClick = onBack,
+            )
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator(modifier = Modifier.size(22.dp), strokeWidth = 2.dp)
@@ -298,6 +248,7 @@ private fun LoadedChat(
         }
     }
     var showingTasks by remember { mutableStateOf(false) }
+    var showingSchedule by remember(chatId) { mutableStateOf(false) }
     var creatingThread by remember(chatId) { mutableStateOf(false) }
     // Saveable: the profile form is a form, and a rotation must not throw away
     // what was typed into it — the sheet has to come back for that to matter.
@@ -379,13 +330,49 @@ private fun LoadedChat(
             }
         }
     }
-    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
-        if (uris.isEmpty()) return@rememberLauncherForActivityResult
+    val pickFiles = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
+        if (uri == null) return@rememberLauncherForActivityResult
         val target = pickerDraft
         scope.launch {
-            importInto(target, uris.size) { index, remaining ->
-                AttachmentImport.readDocument(context.contentResolver, uris[index], remaining)
+            importInto(target, 1) { _, remaining ->
+                AttachmentImport.readDocument(context.contentResolver, uri, remaining)
             }
+        }
+    }
+
+    // The camera writes into the app's own cache through the file provider, so
+    // no storage permission is asked for and the photo is deleted once it is attached.
+    val hasCamera = remember(context) {
+        context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
+    }
+    var captureUri by remember { mutableStateOf<Uri?>(null) }
+    val takePicture = rememberLauncherForActivityResult(ActivityResultContracts.TakePicture()) { taken ->
+        val uri = captureUri
+        captureUri = null
+        val target = pickerDraft
+        if (!taken || uri == null) {
+            CameraCapture.clear(context)
+            return@rememberLauncherForActivityResult
+        }
+        scope.launch {
+            try {
+                importInto(target, 1) { index, remaining ->
+                    AttachmentImport.readPhoto(context.contentResolver, uri, index, 1, remaining)
+                }
+            } finally {
+                CameraCapture.clear(context)
+            }
+        }
+    }
+    fun capturePhoto() {
+        pickerDraft = attachmentDraft
+        val uri = CameraCapture.newUri(context)
+        captureUri = uri
+        try {
+            takePicture.launch(uri)
+        } catch (_: ActivityNotFoundException) {
+            captureUri = null
+            CameraCapture.clear(context)
         }
     }
 
@@ -611,6 +598,7 @@ private fun LoadedChat(
     LaunchedEffect(showingPlus) { if (showingPlus) dictation.stop() }
     LaunchedEffect(showingTasks) { if (showingTasks) dictation.stop() }
     LaunchedEffect(showingProfile) { if (showingProfile) dictation.stop() }
+    LaunchedEffect(showingSchedule) { if (showingSchedule) dictation.stop() }
 
     val connection by session.connection.collectAsState()
     LaunchedEffect(chatId, threadId, connection?.id) {
@@ -704,6 +692,34 @@ private fun LoadedChat(
     // The computer is bot-only; a non-DM room exposes task navigation when the
     // paired desktop supplied a task list. Both answers are constants.
     val commands = SlashCommands.forChat(chat)
+    val density = LocalDensity.current
+    var headerPx by remember { mutableIntStateOf(0) }
+    var composerPx by remember { mutableIntStateOf(0) }
+    val logTop = if (headerPx > 0) with(density) { headerPx.toDp() } + LOG_TOP_GAP else LOG_TOP_FALLBACK
+    val logBottom = if (composerPx > 0) with(density) { composerPx.toDp() } + LOG_BOTTOM_GAP else LOG_BOTTOM_FALLBACK
+    val callAction = ChatCallRules.of(liveCall, state.liveCall, isBotChat = bot != null)
+
+    // The one way a call starts: the header, the composer's ink circle, the
+    // sheet, and a request from outside the chat all come through here.
+    fun beginCall() {
+        val target = bot ?: return
+        // MicPermissionController holds one pending callback:
+        // dictation must be off before the call asks.
+        dictation.stop()
+        focusManager.clearFocus()
+        val call = PendingLiveCall(target.id, threadId, target.name)
+        // A phone's first Live call says first what a call sends to OpenAI.
+        if (liveCalls.disclosureDue) pendingLiveCall = call else startLiveCall(call)
+    }
+    fun callOrOpen() {
+        if (callAction == ChatCallAction.OPEN) environment.callUi.expand() else beginCall()
+    }
+    val requestedCall by environment.callUi.requestedBotId.collectAsState()
+    LaunchedEffect(requestedCall, bot?.id) {
+        val target = bot ?: return@LaunchedEffect
+        if (requestedCall == target.id && environment.callUi.consume(target.id)) callOrOpen()
+    }
+
     // One handler for the one door. The name pill stopped being the second when
     // it became the way into a bot's profile, so the + now carries every action
     // there is — including both export formats.
@@ -712,15 +728,18 @@ private fun LoadedChat(
             ChatActionId.PHOTOS -> {
                 pickerDraft = attachmentDraft
                 pickPhotos.launch(
-                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
+                    PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                 )
             }
             ChatActionId.FILES -> {
                 pickerDraft = attachmentDraft
                 pickFiles.launch(
-                (AttachmentPolicy.IMAGE_MIME_TYPES + AttachmentPolicy.DOCUMENT_MIME_TYPES).toTypedArray(),
+                    (AttachmentPolicy.IMAGE_MIME_TYPES + AttachmentPolicy.DOCUMENT_MIME_TYPES).toTypedArray(),
                 )
             }
+            ChatActionId.CAMERA -> capturePhoto()
+            ChatActionId.LIVE_CALL -> callOrOpen()
+            ChatActionId.SCHEDULE -> if (bot != null) showingSchedule = true
             ChatActionId.NEW_TASK -> if (!creatingThread && TaskRules.canCreate(chat)) {
                 creatingThread = true
                 scope.launch {
@@ -932,184 +951,168 @@ private fun LoadedChat(
             .fillMaxSize()
             .horizontalBackSwipe(onBack = { latestBackBySwipe.value() }),
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    // Tapping the transcript puts the keyboard away, the way
-                    // it does on iOS. `detectTapGestures` and not `clickable`:
-                    // the transcript is not a button, so it should not answer
-                    // to TalkBack as one, and a tap a row has already taken —
-                    // a link, a card button — never reaches this far.
-                    .pointerInput(Unit) {
-                        detectTapGestures { focusManager.clearFocus() }
-                    },
-            ) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .widthIn(max = CHAT_CONTENT_MAX_WIDTH)
-                        .fillMaxSize(),
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        // Room for the floating face when scrolled to the top.
-                        top = HEADER_CLEARANCE,
-                        bottom = 12.dp,
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    if (hasMore) {
-                        item(key = LOAD_EARLIER_KEY) {
-                            TextButton(
-                                onClick = {
-                                    // Keep the reader where they were: after older
-                                    // messages are prepended, sit back on the one
-                                    // that used to be at the top.
-                                    val anchor = transcript.firstOrNull()?.id
-                                    scope.launch {
-                                        session.loadOlder(threadId)
-                                        if (anchor == null) return@launch
-                                        val fresh = session.state.value
-                                        val freshRows = transcriptRows(
-                                            fresh.visibleTranscript(threadId),
-                                            activityDetail,
-                                        )
-                                        val index = freshRows.indexOfFirst { row ->
-                                            row.id == anchor || row.containsMessage(anchor)
-                                        }
-                                        if (index < 0) return@launch
-                                        // The "load earlier" row is item 0 for as
-                                        // long as there is still more to fetch.
-                                        val offset = if (fresh.hasMore[threadId] == true) 1 else 0
-                                        listState.scrollToItem(index + offset)
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .align(Alignment.Center)
+                .widthIn(max = CHAT_CONTENT_MAX_WIDTH)
+                .fillMaxSize()
+                // Tapping the transcript puts the keyboard away, the way
+                // it does on iOS. `detectTapGestures` and not `clickable`:
+                // the transcript is not a button, so it should not answer
+                // to TalkBack as one, and a tap a row has already taken —
+                // a link, a card button — never reaches this far.
+                .pointerInput(Unit) {
+                    detectTapGestures { focusManager.clearFocus() }
+                },
+            contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = logTop, bottom = logBottom),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+                if (hasMore) {
+                    item(key = LOAD_EARLIER_KEY) {
+                        TextButton(
+                            onClick = {
+                                // Keep the reader where they were: after older
+                                // messages are prepended, sit back on the one
+                                // that used to be at the top.
+                                val anchor = transcript.firstOrNull()?.id
+                                scope.launch {
+                                    session.loadOlder(threadId)
+                                    if (anchor == null) return@launch
+                                    val fresh = session.state.value
+                                    val freshRows = transcriptRows(
+                                        fresh.visibleTranscript(threadId),
+                                        activityDetail,
+                                    )
+                                    val index = freshRows.indexOfFirst { row ->
+                                        row.id == anchor || row.containsMessage(anchor)
                                     }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                            ) {
-                                Text(stringResource(R.string.mobile_load_earlier_messages_4ac08d16), fontSize = 13.sp)
-                            }
-                        }
-                    }
-
-                    itemsIndexedKeyed(transcript) { index, message ->
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                            // A gap in time is worth marking; a timestamp on every
-                            // message is just noise.
-                            if (TranscriptLayout.startsNewRowStretch(transcript, index)) {
-                                Text(
-                                    text = localizedMobileCopy(RelativeStamp.separator(
-                                        message.at,
-                                        System.currentTimeMillis(),
-                                        locale = Locale.getDefault(),
-                                    )),
-                                    fontSize = 13.sp,
-                                    color = secondaryTint,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(top = 6.dp),
-                                    textAlign = TextAlign.Center,
-                                )
-                            }
-                            when (message) {
-                                is TranscriptRow.Single -> MessageRow(
-                                    chat = chat,
-                                    message = message.message,
-                                    // One tail per run of bubbles from the same author,
-                                    // not one per bubble.
-                                    endsRun = TranscriptLayout.endsRowRun(transcript, index),
-                                    openLink = ::openLink,
-                                    openAttachment = ::openAttachment,
-                                    openThread = ::openThread,
-                                )
-                                is TranscriptRow.ActivityRun -> ActivityRunChip(message.items, ::openThread)
-                                is TranscriptRow.AssistantTurn -> AssistantTurnChip(
-                                    turn = message,
-                                    chat = chat,
-                                    expanded = message.turnId in expandedTurns,
-                                    revealMessageId = revealedTurnMessageId,
-                                    onRevealed = { target ->
-                                        session.consumeFocus(target)
-                                        if (revealedTurnMessageId == target) revealedTurnMessageId = null
-                                    },
-                                    onToggle = {
-                                        expandedTurns = if (message.turnId in expandedTurns) expandedTurns - message.turnId
-                                            else expandedTurns + message.turnId
-                                    },
-                                    openLink = ::openLink,
-                                    openAttachment = ::openAttachment,
-                                    openThread = ::openThread,
-                                )
-                            }
-                        }
-                    }
-
-                    if (liveCount == 1) {
-                        item(key = LIVE_BUBBLE_KEY) {
-                            if (tail == TranscriptTail.WORKING) {
-                                WorkingBubble(name = chat.name)
-                            } else {
-                                StreamingBubble(text = liveText, reasoning = liveReasoning)
-                            }
+                                    if (index < 0) return@launch
+                                    // The "load earlier" row is item 0 for as
+                                    // long as there is still more to fetch.
+                                    val offset = if (fresh.hasMore[threadId] == true) 1 else 0
+                                    listState.scrollToItem(index + offset)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
+                            Text(stringResource(R.string.mobile_load_earlier_messages_4ac08d16), fontSize = 13.sp)
                         }
                     }
                 }
 
-                ChatHeader(
-                    chat = chat,
-                    face = remember(chat, rawTranscript) {
-                        MausState.forChat(chat, rawTranscript.lastOrNull())
-                    },
-                    unreadElsewhere = remember(state, chat) {
-                        (state.unreadCount - if (chat.unread) 1 else 0).coerceAtLeast(0)
-                    },
-                    onBack = { backBySwipe() },
-                    onOpenThreads = {
-                        dictation.stop()
-                        focusManager.clearFocus()
-                        showingTasks = true
-                    },
-                    onWatchComputer = {
-                        dictation.stop()
-                        if (bot != null) onOpenComputer(bot.id)
-                    },
-                    onCall = {
-                        if (bot != null) {
-                            // MicPermissionController holds one pending callback:
-                            // dictation must be off before the call asks.
-                            dictation.stop()
-                            focusManager.clearFocus()
-                            val call = PendingLiveCall(bot.id, threadId, bot.name)
-                            // A phone's first Live call says first what a call sends to OpenAI.
-                            if (liveCalls.disclosureDue) pendingLiveCall = call else startLiveCall(call)
+                itemsIndexedKeyed(transcript) { index, message ->
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        // A gap in time is worth marking; a timestamp on every
+                        // message is just noise.
+                        if (TranscriptLayout.startsNewRowStretch(transcript, index)) {
+                            Text(
+                                text = localizedMobileCopy(RelativeStamp.separator(
+                                    message.at,
+                                    System.currentTimeMillis(),
+                                    locale = Locale.getDefault(),
+                                )),
+                                fontSize = 13.sp,
+                                color = secondaryTint,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 6.dp),
+                                textAlign = TextAlign.Center,
+                            )
                         }
-                    },
-                    showCall = LiveCallRules.offersCall(liveCall, state.liveCall),
-                    // A bot's face is the door to its profile. A room has no
-                    // profile and its face opens nothing.
-                    onOpenProfile = { if (bot != null) showingProfile = true },
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
-                )
-            }
+                        when (message) {
+                            is TranscriptRow.Single -> MessageRow(
+                                chat = chat,
+                                message = message.message,
+                                // One tail per run of bubbles from the same author,
+                                // not one per bubble.
+                                startsRun = TranscriptLayout.startsRowRun(transcript, index),
+                                openLink = ::openLink,
+                                openAttachment = ::openAttachment,
+                                openThread = ::openThread,
+                            )
+                            is TranscriptRow.ActivityRun -> ActivityRunChip(message.items, ::openThread, bots = listOfNotNull(bot))
+                            is TranscriptRow.AssistantTurn -> AssistantTurnChip(
+                                turn = message,
+                                chat = chat,
+                                expanded = message.turnId in expandedTurns,
+                                revealMessageId = revealedTurnMessageId,
+                                onRevealed = { target ->
+                                    session.consumeFocus(target)
+                                    if (revealedTurnMessageId == target) revealedTurnMessageId = null
+                                },
+                                onToggle = {
+                                    expandedTurns = if (message.turnId in expandedTurns) expandedTurns - message.turnId
+                                        else expandedTurns + message.turnId
+                                },
+                                openLink = ::openLink,
+                                openAttachment = ::openAttachment,
+                                openThread = ::openThread,
+                            )
+                        }
+                    }
+                }
 
+                if (liveCount == 1) {
+                    item(key = LIVE_BUBBLE_KEY) {
+                        if (tail == TranscriptTail.WORKING) {
+                            WorkingBubble(name = chat.name, bot = bot)
+                        } else {
+                            StreamingBubble(text = liveText, reasoning = liveReasoning, bot = bot, name = chat.name)
+                        }
+                    }
+                }
+        }
+
+        BottomFade(CHAT_HEADER_FADE, modifier = Modifier.align(Alignment.BottomCenter))
+
+        ChatHeader(
+            chat = chat,
+            face = remember(chat, rawTranscript) {
+                MausState.forChat(chat, rawTranscript.lastOrNull())
+            },
+            status = ChatStatusRules.of(busy = chat.busy, pendingApproval = pendingApproval),
+            unreadElsewhere = remember(state, chat) {
+                (state.unreadCount - if (chat.unread) 1 else 0).coerceAtLeast(0)
+            },
+            call = callAction,
+            onBack = { backBySwipe() },
+            onCall = ::callOrOpen,
+            // The pill is the door a bot's face used to be: its profile. A
+            // room has no profile; its pill opens the room's threads when it has them.
+            onOpenPill = when {
+                bot != null -> ({ showingProfile = true })
+                chat.supportsTasks -> ({
+                    dictation.stop()
+                    focusManager.clearFocus()
+                    showingTasks = true
+                })
+                else -> null
+            },
+            onHeight = { headerPx = it },
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .widthIn(max = CHAT_CONTENT_MAX_WIDTH)
+                .fillMaxWidth()
+                .onSizeChanged { composerPx = it.height },
+        ) {
             LiveCallBarHost(
                 chat = chat,
                 onSettings = { showingLiveSettings = true },
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
-                    .widthIn(max = CHAT_CONTENT_MAX_WIDTH)
                     .fillMaxWidth()
                     .padding(horizontal = 12.dp),
             )
 
-            Composer(
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
+            ChatComposer(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
                 name = chat.name,
                 draft = draft,
                 accessory = ComposerAccessories.accessory(
@@ -1170,8 +1173,8 @@ private fun LoadedChat(
                     else ComposerMention.choicesFor(draft, ComposerMention.pool(chat, state.bots)),
                 mentionBots = state.bots,
                 onSelectMention = { choice ->
-                    if (dictationLocked) return@Composer
-                    val completed = ComposerMention.complete(draft, choice) ?: return@Composer
+                    if (dictationLocked) return@ChatComposer
+                    val completed = ComposerMention.complete(draft, choice) ?: return@ChatComposer
                     composer.onTypedChange(completed)
                     publishFrom(composer)
                 },
@@ -1189,12 +1192,12 @@ private fun LoadedChat(
                     showingPlus = !showingPlus
                 },
                 onDraftChange = { next ->
-                    if (dictationLocked) return@Composer
+                    if (dictationLocked) return@ChatComposer
                     composer.onTypedChange(next)
                     publishFrom(composer)
                 },
                 onToggleDictation = {
-                    if (callHoldsMic) return@Composer
+                    if (callHoldsMic) return@ChatComposer
                     focusManager.clearFocus()
                     dictation.toggle(capturing = draft)
                 },
@@ -1213,14 +1216,23 @@ private fun LoadedChat(
                 onSelectCommand = { selectCommand(it) },
                 // A chip is the whole message, sent on the tap.
                 onSelectChip = { submit(it.prompt) },
+                callAction = callAction,
+                onCall = ::callOrOpen,
             )
         }
 
-        PlusSheet(
+        ChatPlusSheet(
             open = showingPlus,
             chat = chat,
-            actions = remember(chat, pendingApproval, canAddAttachment) {
-                ChatActions.sheet(chat, hasPendingApproval = pendingApproval, canAddAttachment = canAddAttachment)
+            actions = remember(chat, pendingApproval, canAddAttachment, hasCamera, callAction) {
+                ChatActions.sheet(
+                    chat,
+                    hasPendingApproval = pendingApproval,
+                    canAddAttachment = canAddAttachment,
+                    hasCamera = hasCamera,
+                    offersCall = callAction != ChatCallAction.NONE,
+                    offersSchedule = bot != null,
+                )
             },
             onDismiss = { showingPlus = false },
             onAction = {
@@ -1228,6 +1240,32 @@ private fun LoadedChat(
                 onAction(it)
             },
         )
+    }
+
+    if (showingSchedule && bot != null) {
+        val seed = remember(bot.id) {
+            val now = System.currentTimeMillis().toDouble()
+            Routine(
+                id = "",
+                name = "",
+                prompt = "",
+                botId = bot.id,
+                runOn = RoutineRunLocation.MAUS.wireValue,
+                enabled = true,
+                schedule = RoutineSchedule(RoutineSchedule.Kind.DAILY),
+                durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES,
+                createdAt = now,
+                updatedAt = now,
+            )
+        }
+        val target = remember(seed) { RoutineEditorTarget(routineId = null, enabled = null, seed = seed) }
+        key(target.stateKey) {
+            RoutineEditorSheet(
+                target = target,
+                onSaved = { showingSchedule = false },
+                onDismiss = { showingSchedule = false },
+            )
+        }
     }
 
     if (showingTasks) {
@@ -1287,6 +1325,10 @@ private fun share(
     }
 }
 
+private val LOG_TOP_GAP = 12.dp
+private val LOG_TOP_FALLBACK = 116.dp
+private val LOG_BOTTOM_GAP = 24.dp
+private val LOG_BOTTOM_FALLBACK = 140.dp
 private const val LOAD_EARLIER_KEY = "companion.loadEarlier"
 private const val LIVE_BUBBLE_KEY = "companion.live"
 private val CHAT_CONTENT_MAX_WIDTH = 840.dp
@@ -1301,858 +1343,6 @@ private fun androidx.compose.foundation.lazy.LazyListScope.itemsIndexedKeyed(
         key = { messages[it].id },
         itemContent = { index -> content(index, messages[index]) },
     )
-}
-
-// The strip the top controls sit on, and the air the transcript needs below the
-// face before its first row: the strip and its fade, which the 60 dp face (at
-// 2 dp from the top) ends inside.
-private val HEADER_BAR = 56.dp
-private val HEADER_SCRIM_FADE = 24.dp
-private val HEADER_CLEARANCE = HEADER_BAR + HEADER_SCRIM_FADE
-
-// The face in the middle of the strip, the air kept beside it, and the parts of
-// the Threads chip around its word.
-private val HEADER_FACE = 60.dp
-private val HEADER_FACE_AIR = 4.dp
-private val HEADER_PADDING = 12.dp
-private val HEADER_GAP = 8.dp
-private val THREADS_CHIP_PADDING = 10.dp
-private val THREADS_CHIP_GLYPH = 18.dp
-private val THREADS_CHIP_SPACING = 6.dp
-private val THREADS_CHIP_TEXT_SIZE = 14.sp
-
-/**
- * Back on the left with the rest-of-app unread count and a Live call; Threads
- * and the bot's computer on the right; the bot's face between them — the
- * layout iOS's chat header has.
- *
- * The strip behind the buttons is opaque and then fades out, so the transcript
- * slides under the chrome and disappears rather than stopping at a line. The
- * face floats over it on its own. The thread you are on is named by the Threads
- * chip, the one way to the others.
- */
-@Composable
-private fun ChatHeader(
-    chat: Chat,
-    face: MausState,
-    unreadElsewhere: Int,
-    onBack: () -> Unit,
-    onWatchComputer: () -> Unit,
-    onCall: () -> Unit,
-    /**
-     * False while this phone is on a call (the bar has the controls) and while
-     * the computer reports one running from another device, which has to hang
-     * up first: [LiveCallRules.offersCall].
-     */
-    showCall: Boolean,
-    onOpenProfile: () -> Unit,
-    onOpenThreads: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val surface = MaterialTheme.colorScheme.surface
-    val threadsWord = stringResource(R.string.mobile_threads_bb12e8aa)
-    val threadsStyle = LocalTextStyle.current.merge(
-        TextStyle(fontSize = THREADS_CHIP_TEXT_SIZE, fontWeight = FontWeight.Medium),
-    )
-    val measurer = rememberTextMeasurer()
-    val density = LocalDensity.current
-    BoxWithConstraints(modifier = modifier.fillMaxWidth()) {
-        // The Threads chip keeps its word only when the whole chip fits between
-        // the computer and the face — measured, so a larger font size or a
-        // longer translation drops to the glyph rather than reaching under it.
-        val wordWidth = with(density) {
-            measurer.measure(threadsWord, threadsStyle, maxLines = 1).size.width.toDp()
-        }
-        val chipWidth = THREADS_CHIP_PADDING * 2 + THREADS_CHIP_GLYPH + THREADS_CHIP_SPACING + wordWidth
-        val besideFace = maxWidth / 2 - HEADER_FACE / 2 - HEADER_FACE_AIR -
-            HEADER_PADDING - MIN_TOUCH_TARGET - HEADER_GAP
-        val labelThreads = chipWidth <= besideFace
-        Spacer(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(HEADER_BAR + HEADER_SCRIM_FADE)
-                .drawWithCache {
-                    val solid = HEADER_BAR.toPx() / size.height
-                    val brush = Brush.verticalGradient(
-                        0f to surface,
-                        solid to surface,
-                        1f to Color.Transparent,
-                    )
-                    onDrawBehind { drawRect(brush) }
-                },
-        )
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = HEADER_PADDING, vertical = 4.dp),
-            verticalAlignment = Alignment.Top,
-        ) {
-            BackPill(unreadElsewhere = unreadElsewhere, onBack = onBack)
-            // Beside Back, as on iOS: the right side holds Threads and the
-            // computer, and one more button there reaches under the face.
-            // The computer and the phone are bot ideas; a room has neither (§12).
-            if (chat is Chat.BotChat && showCall) {
-                Spacer(Modifier.width(8.dp))
-                ChromeButton(
-                    icon = Icons.Filled.Call,
-                    contentDescription = stringResource(R.string.mobile_chat_call_bot, chat.name),
-                    onClick = onCall,
-                )
-            }
-            Spacer(Modifier.weight(1f))
-            if (chat.supportsTasks) {
-                ThreadsChip(
-                    threadTitle = chat.threadTitle,
-                    word = threadsWord.takeIf { labelThreads },
-                    style = threadsStyle,
-                    onOpen = onOpenThreads,
-                )
-                Spacer(Modifier.width(HEADER_GAP))
-            }
-            if (chat is Chat.BotChat) {
-                ChromeButton(
-                    painter = painterResource(R.drawable.ic_display),
-                    contentDescription = stringResource(R.string.mobile_watch_chat_name_s_computer_92efc119, chat.name),
-                    onClick = onWatchComputer,
-                )
-            } else {
-                Spacer(Modifier.size(MIN_TOUCH_TARGET))
-            }
-        }
-
-        ChatAvatar(
-            chat = chat,
-            size = HEADER_FACE,
-            state = face,
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 2.dp)
-                .then(
-                    when (chat) {
-                        is Chat.BotChat -> Modifier
-                            .clickable(role = Role.Button, onClick = onOpenProfile)
-                            .localizedSemantics(contentDescription = {
-                                stringResource(R.string.mobile_a11y_open_chat_settings, chat.name)
-                            })
-                        // The header has no other place for a room's name and
-                        // members, so its face says them.
-                        is Chat.RoomChat -> Modifier.localizedSemantics(contentDescription = {
-                            stringResource(R.string.mobile_a11y_room_header, chat.name, chat.room.memberIds.size)
-                        })
-                    },
-                ),
-        )
-    }
-}
-
-/** Leaving, with what is unread everywhere else — the badge Messages puts there. */
-@Composable
-private fun BackPill(unreadElsewhere: Int, onBack: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .chromeCapsule()
-            .clip(CircleShape)
-            .heightIn(min = MIN_TOUCH_TARGET)
-            .clickable(role = Role.Button, onClick = onBack)
-            .padding(
-                start = 14.dp,
-                end = if (unreadElsewhere > 0) 10.dp else 14.dp,
-            ),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-            contentDescription = stringResource(R.string.mobile_back_b52b36b7),
-            modifier = Modifier.size(20.dp),
-        )
-        if (unreadElsewhere > 0) {
-            Text(
-                text = "$unreadElsewhere",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                    .defaultMinSize(minWidth = 22.dp, minHeight = 22.dp)
-                    .padding(horizontal = 7.dp, vertical = 2.dp),
-                textAlign = TextAlign.Center,
-            )
-        }
-    }
-}
-
-/**
- * The door to this chat's threads, named for the one you are on — what the
- * pill under the face used to say. A glyph alone when [word] is null: the
- * header found no room for it beside the face.
- */
-@Composable
-private fun ThreadsChip(threadTitle: String, word: String?, style: TextStyle, onOpen: () -> Unit) {
-    val description = stringResource(R.string.mobile_a11y_threads_current, threadTitle)
-    if (word == null) {
-        ChromeButton(
-            icon = Icons.AutoMirrored.Filled.List,
-            contentDescription = description,
-            onClick = onOpen,
-            modifier = Modifier.testTag(THREADS_CHIP_TAG),
-        )
-        return
-    }
-    Row(
-        modifier = Modifier
-            .testTag(THREADS_CHIP_TAG)
-            .chromeCapsule()
-            .clip(CircleShape)
-            .heightIn(min = MIN_TOUCH_TARGET)
-            .clickable(role = Role.Button, onClick = onOpen)
-            .clearAndSetSemantics {
-                contentDescription = description
-                role = Role.Button
-            }
-            .padding(horizontal = THREADS_CHIP_PADDING),
-        horizontalArrangement = Arrangement.spacedBy(THREADS_CHIP_SPACING),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            imageVector = Icons.AutoMirrored.Filled.List,
-            contentDescription = null,
-            modifier = Modifier.size(THREADS_CHIP_GLYPH),
-        )
-        Text(text = word, style = style, maxLines = 1)
-    }
-}
-
-/** The header's Threads chip, for tests. */
-internal const val THREADS_CHIP_TAG = "header-threads"
-
-/**
- * What the composer's + opens: the things you can do here, each with a line
- * saying what it does. Rises above the composer; tapping anywhere else, the back
- * gesture, or the × the + became, puts it away.
- */
-@Composable
-private fun BoxScope.PlusSheet(
-    open: Boolean,
-    chat: Chat,
-    actions: List<ChatAction>,
-    onDismiss: () -> Unit,
-    onAction: (ChatActionId) -> Unit,
-) {
-    AnimatedVisibility(
-        visible = open,
-        enter = fadeIn(tween(PLUS_MILLIS)),
-        exit = fadeOut(tween(PLUS_MILLIS)),
-        modifier = Modifier.matchParentSize(),
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.scrim.copy(alpha = 0.35f))
-                // The scrim is a dismissal, not a control: no ripple, and the
-                // back gesture does the same thing for anyone not using touch.
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    role = Role.Button,
-                    onClick = onDismiss,
-                )
-                .localizedSemantics(contentDescription = { stringResource(R.string.mobile_a11y_close) }),
-        )
-    }
-
-    AnimatedVisibility(
-        visible = open,
-        enter = slideInVertically(tween(PLUS_MILLIS)) { it / 2 } + fadeIn(tween(PLUS_MILLIS)),
-        exit = slideOutVertically(tween(PLUS_MILLIS)) { it / 2 } + fadeOut(tween(PLUS_MILLIS)),
-        modifier = Modifier
-            .align(Alignment.BottomStart)
-            .padding(start = 12.dp, end = 44.dp, bottom = 70.dp),
-    ) {
-        Column(
-            modifier = Modifier
-                .chromeSheet()
-                .clip(RoundedCornerShape(PLUS_SHEET_RADIUS))
-                .padding(vertical = 10.dp),
-        ) {
-            actions.forEach { action ->
-                val tint = if (action.destructive) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                }
-                val alpha = if (action.enabled) 1f else 0.45f
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 64.dp)
-                        .clickable(
-                            enabled = action.enabled,
-                            role = Role.Button,
-                            onClick = { onAction(action.id) },
-                        )
-                        .padding(horizontal = 18.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .background(
-                                MaterialTheme.colorScheme.onSurface.copy(alpha = 0.10f * alpha),
-                                CircleShape,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        ChatActionIcon(id = action.id, tint = tint.copy(alpha = alpha))
-                    }
-                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text(
-                            text = localizedChatActionTitle(action.id),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = tint.copy(alpha = alpha),
-                        )
-                        Text(
-                            text = localizedChatActionSubtitle(action.id, chat),
-                            fontSize = 13.sp,
-                            color = secondaryTint.copy(alpha = alpha),
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun localizedChatActionTitle(id: ChatActionId): String = when (id) {
-    ChatActionId.PHOTOS -> stringResource(R.string.mobile_photo_library_26def20d)
-    ChatActionId.FILES -> stringResource(R.string.mobile_choose_file_54a2a841)
-    ChatActionId.NEW_TASK -> stringResource(R.string.mobile_new_thread_02057e28)
-    ChatActionId.TASKS -> stringResource(R.string.mobile_threads_bb12e8aa)
-    ChatActionId.WATCH_COMPUTER -> stringResource(R.string.mobile_watch_computer_c96208ca)
-    ChatActionId.SETTINGS -> stringResource(R.string.mobile_bot_settings_7092a294)
-    ChatActionId.SHARE_MARKDOWN -> stringResource(R.string.mobile_share_transcript_004e223a)
-    ChatActionId.SHARE_JSON -> stringResource(R.string.mobile_share_as_json_df80c8e6)
-    ChatActionId.INTERRUPT -> stringResource(R.string.mobile_interrupt_d5db4549)
-}
-
-@Composable
-private fun localizedChatActionSubtitle(id: ChatActionId, chat: Chat): String = when (id) {
-    ChatActionId.PHOTOS -> stringResource(R.string.mobile_action_add_photo)
-    ChatActionId.FILES -> stringResource(R.string.mobile_action_add_document)
-    ChatActionId.NEW_TASK -> when (chat) {
-        is Chat.BotChat -> stringResource(R.string.mobile_action_new_thread_for_bot, chat.bot.name)
-        is Chat.RoomChat -> stringResource(R.string.mobile_action_new_conversation_in_channel, chat.room.name)
-    }
-    ChatActionId.TASKS -> stringResource(R.string.mobile_action_manage_threads)
-    ChatActionId.WATCH_COMPUTER -> stringResource(R.string.mobile_action_live_computer, (chat as Chat.BotChat).bot.name)
-    ChatActionId.SETTINGS -> stringResource(R.string.mobile_action_bot_settings)
-    ChatActionId.SHARE_MARKDOWN -> stringResource(R.string.mobile_action_markdown_transcript)
-    ChatActionId.SHARE_JSON -> stringResource(R.string.mobile_action_structured_transcript)
-    ChatActionId.INTERRUPT -> stringResource(R.string.mobile_action_stop_turn)
-}
-
-private const val PLUS_MILLIS = 280
-private val PLUS_SHEET_RADIUS = 28.dp
-
-/** The + becomes an ×. */
-private const val PLUS_TURN_DEGREES = 45f
-
-/**
- * The names an @ can tag, above the composer while one is being typed — iOS
- * `MentionPicker`. Tapping writes the exact name, so the harness's routing
- * always matches and the keyboard's corrections never touch it.
- */
-@Composable
-private fun MentionPicker(choices: List<MentionChoice>, bots: List<Bot>, onPick: (MentionChoice) -> Unit) {
-    val label = stringResource(R.string.mobile_mention_someone)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            // Four rows, then it scrolls: a big room stays reachable without
-            // the list climbing over the conversation.
-            .heightIn(max = MENTION_ROW_HEIGHT * 4)
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.06f), RoundedCornerShape(12.dp))
-            .verticalScroll(rememberScrollState())
-            .semantics { contentDescription = label },
-    ) {
-        choices.forEach { choice ->
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(MENTION_ROW_HEIGHT)
-                    .clickable(role = Role.Button) { onPick(choice) }
-                    .padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                val bot = bots.firstOrNull { it.id == choice.id }
-                if (bot != null) {
-                    BotAvatar(bot = bot, size = 26.dp, animated = false)
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = null,
-                        tint = secondaryTint,
-                        modifier = Modifier
-                            .size(26.dp)
-                            .background(secondaryTint.copy(alpha = 0.15f), CircleShape)
-                            .padding(5.dp),
-                    )
-                }
-                Text(text = "@" + choice.name, fontSize = 15.sp, fontWeight = FontWeight.Medium, maxLines = 1)
-                if (choice.isEveryone) {
-                    Text(text = stringResource(R.string.mobile_mention_everyone), fontSize = 13.sp, color = secondaryTint, maxLines = 1)
-                }
-            }
-        }
-    }
-}
-
-private val MENTION_ROW_HEIGHT = 44.dp
-
-/**
- * What a working bot is saying, at Hidden: one grey line above the composer,
- * replaced by each new message, instead of a bubble per message. Port of the iOS
- * `LiveStatusLine`.
- */
-@Composable
-private fun LiveStatusLine(text: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
-            .testTag("live-status-line")
-            .semantics(mergeDescendants = true) { },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // No spinner of its own: the typing bubble in the transcript says the
-        // bot is working, and this line says what at.
-        Text(
-            text = text.replace('\n', ' '),
-            fontSize = 13.sp,
-            color = secondaryTint,
-            maxLines = 1,
-            // The newest words are the ones worth reading, as on iOS.
-            overflow = TextOverflow.StartEllipsis,
-        )
-    }
-}
-
-/** A quiet progress line above the field — `ProgressView` plus a caption on iOS. */
-@Composable
-private fun ComposerStatusLine(text: String) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 4.dp)
-            .semantics(mergeDescendants = true) { },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        CircularProgressIndicator(modifier = Modifier.size(14.dp), strokeWidth = 2.dp)
-        Text(text = text, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = secondaryTint, maxLines = 1)
-    }
-}
-
-/**
- * The glyph beside an action. Decorative: the row's own text is the label, and
- * TalkBack reading the icon too would say everything twice.
- */
-@Composable
-private fun ChatActionIcon(id: ChatActionId, tint: Color) {
-    val modifier = Modifier.size(22.dp)
-    when (id) {
-        ChatActionId.PHOTOS ->
-            Icon(painterResource(R.drawable.ic_photo), null, tint = tint, modifier = modifier)
-        ChatActionId.FILES ->
-            Icon(painterResource(R.drawable.ic_attach_file), null, tint = tint, modifier = modifier)
-        ChatActionId.NEW_TASK ->
-            Icon(Icons.Filled.Add, null, tint = tint, modifier = modifier)
-        ChatActionId.TASKS ->
-            Icon(Icons.AutoMirrored.Filled.List, null, tint = tint, modifier = modifier)
-        ChatActionId.WATCH_COMPUTER ->
-            Icon(painterResource(R.drawable.ic_display), null, tint = tint, modifier = modifier)
-        ChatActionId.SETTINGS ->
-            Icon(Icons.Filled.Settings, null, tint = tint, modifier = modifier)
-        ChatActionId.SHARE_MARKDOWN, ChatActionId.SHARE_JSON ->
-            Icon(Icons.Filled.Share, null, tint = tint, modifier = modifier)
-        ChatActionId.INTERRUPT ->
-            Icon(Icons.Filled.Close, null, tint = tint, modifier = modifier)
-    }
-}
-
-/** A round + and a pill with the send button inside it. */
-@Composable
-private fun Composer(
-    modifier: Modifier = Modifier,
-    name: String,
-    draft: String,
-    accessory: ComposerAccessory,
-    commands: List<SlashCommand>,
-    plusOpen: Boolean,
-    dictationListening: Boolean,
-    dictationLocked: Boolean,
-    dictationError: String?,
-    onTogglePlus: () -> Unit,
-    onDraftChange: (String) -> Unit,
-    onToggleDictation: () -> Unit,
-    onSend: () -> Unit,
-    onToggleHud: () -> Unit,
-    onCloseHud: () -> Unit,
-    onSelectCommand: (SlashCommand) -> Unit,
-    chips: List<PredictiveChip>,
-    onSelectChip: (PredictiveChip) -> Unit,
-    attachments: List<PendingMessageAttachment>,
-    sending: Boolean,
-    preparing: Boolean,
-    busy: Boolean,
-    engineCanSteer: Boolean,
-    /** The bot waiting on the one open question Send would answer. */
-    questionAsker: String?,
-    queuedSends: List<QueuedSend>,
-    steering: Boolean,
-    onSteer: (() -> Unit)?,
-    onCancelQueued: (QueuedSend) -> Unit,
-    onEditQueued: (QueuedSend) -> Unit,
-    openingFileName: String?,
-    attachmentError: String?,
-    onRemoveAttachment: (PendingMessageAttachment) -> Unit,
-    onDismissError: () -> Unit,
-    mentions: List<MentionChoice>,
-    mentionBots: List<Bot>,
-    onSelectMention: (MentionChoice) -> Unit,
-    stoppable: Boolean,
-    onStop: () -> Unit,
-    liveStatus: String? = null,
-) {
-    val canSend = AttachmentImportRules.canSend(draft, attachments.size, preparing, sending)
-    var fieldFocused by remember { mutableStateOf(false) }
-    // The field keeps its own caret. A draft changed from outside it — a
-    // picked @tag, dictation, a queued message handed back — puts the caret
-    // at the end, where those words were written; the string overload would
-    // leave it wherever it was, in the middle of the new name.
-    var field by remember { mutableStateOf(TextFieldValue(draft, TextRange(draft.length))) }
-    val fieldValue = if (field.text == draft) field else TextFieldValue(draft, TextRange(draft.length))
-    val inFlight = preparing || sending
-    // Held as the state rather than unwrapped with `by`: read inside the layer
-    // block, the turn is a new frame, not a new composition of the composer.
-    val turn = animateFloatAsState(
-        targetValue = if (plusOpen) PLUS_TURN_DEGREES else 0f,
-        animationSpec = tween(PLUS_MILLIS),
-        label = stringResource(R.string.mobile_plus_6a8437dd),
-    )
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 12.dp, end = 12.dp, top = 6.dp, bottom = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
-    ) {
-        if (fieldFocused && mentions.isNotEmpty()) {
-            MentionPicker(choices = mentions, bots = mentionBots, onPick = onSelectMention)
-        }
-        liveStatus?.trim()?.takeIf { it.isNotEmpty() }?.let { LiveStatusLine(it) }
-        if (dictationError != null) {
-            Text(
-                text = dictationError,
-                fontSize = 13.sp,
-                color = Color(0xFFFF9800),
-                modifier = Modifier.padding(horizontal = 4.dp),
-            )
-        }
-        // What is in flight, in the order iOS stacks them: the send or the
-        // import, then a file on its way, then whatever went wrong.
-        if (inFlight) {
-            ComposerStatusLine(stringResource(if (preparing) R.string.mobile_preparing_attachments_343475f3 else R.string.mobile_sending_cf765512))
-        }
-        if (openingFileName != null) {
-            ComposerStatusLine(stringResource(R.string.mobile_chat_opening_file, openingFileName))
-        }
-        if (attachmentError != null) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color(0xFFFF9800).copy(alpha = 0.12f), RoundedCornerShape(12.dp))
-                    .padding(horizontal = 12.dp, vertical = 9.dp)
-                    .semantics(mergeDescendants = true) { },
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Warning,
-                    contentDescription = null,
-                    tint = Color(0xFFFF9800),
-                    modifier = Modifier.size(18.dp),
-                )
-                Text(text = localizedMobileCopy(attachmentError), fontSize = 13.sp, modifier = Modifier.weight(1f))
-                Text(
-                    text = stringResource(R.string.mobile_dismiss_70afe9ef),
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .clickable(role = Role.Button, onClick = onDismissError)
-                        .padding(horizontal = 6.dp, vertical = 4.dp),
-                )
-            }
-        }
-        // Everything the computer is holding, stacked straight above the chat
-        // bar in the order it was sent.
-        queuedSends.forEach { queued ->
-            QueuedSendRow(
-                send = queued,
-                onSteer = onSteer,
-                steering = steering,
-                onEdit = { onEditQueued(queued) },
-                onCancel = { onCancelQueued(queued) },
-                modifier = Modifier.fillMaxWidth(),
-            )
-        }
-        if (attachments.isNotEmpty()) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .horizontalScroll(rememberScrollState())
-                    .padding(horizontal = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                attachments.forEach { attachment ->
-                    PendingAttachmentChip(
-                        attachment = attachment,
-                        enabled = !inFlight,
-                        onRemove = { onRemoveAttachment(attachment) },
-                    )
-                }
-            }
-        }
-        // One or the other, never both: the HUD is what the composer is doing
-        // right now, and a row of send-immediately chips under it would be a
-        // second thing to tap by accident.
-        when (accessory) {
-            ComposerAccessory.HUD -> CommandSkillHud(
-                commands = commands,
-                draft = draft,
-                onSelect = onSelectCommand,
-                onClose = onCloseHud,
-            )
-
-            ComposerAccessory.CHIPS -> PredictiveChipsRow(chips = chips, onSelect = onSelectChip)
-
-            ComposerAccessory.NONE -> Unit
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.Bottom,
-        ) {
-            TouchTarget(
-                onClick = onTogglePlus,
-                contentDescription = stringResource(if (plusOpen) R.string.mobile_a11y_close else R.string.mobile_more_4bab2d8f),
-            ) {
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .chromeCapsule()
-                        .then(
-                            if (plusOpen) {
-                                Modifier.background(MaterialTheme.colorScheme.onSurface, CircleShape)
-                            } else {
-                                Modifier
-                            },
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                        tint = if (plusOpen) {
-                            MaterialTheme.colorScheme.surface
-                        } else {
-                            MaterialTheme.colorScheme.onSurface
-                        },
-                        modifier = Modifier
-                            .size(22.dp)
-                            .graphicsLayer { rotationZ = turn.value },
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier
-                    .weight(1f)
-                    // A capsule at one line (48dp tall, 24dp corners) that keeps
-                    // those corners as the draft grows, the way Messages does.
-                    // CircleShape rounds to half the height, and a five-line
-                    // draft became a giant pill.
-                    .chromeSheet(cornerRadius = MIN_TOUCH_TARGET / 2)
-                    .heightIn(min = MIN_TOUCH_TARGET),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.Bottom,
-            ) {
-                // The way into the HUD that does not start with typing. iOS draws
-                // the `command` glyph here; Android's core icon set has no
-                // counterpart, and the character the feature is named after says
-                // it better than a borrowed symbol would.
-                TouchTarget(
-                    onClick = onToggleHud,
-                    contentDescription = stringResource(R.string.mobile_slash_commands_efce77da),
-                    modifier = Modifier.localizedSemantics(stateDescription = {
-                        stringResource(
-                            if (accessory == ComposerAccessory.HUD) R.string.mobile_a11y_expanded
-                            else R.string.mobile_a11y_collapsed,
-                        )
-                    }),
-                ) {
-                    Text(
-                        text = "/",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = FontFamily.Monospace,
-                        color = if (accessory == ComposerAccessory.HUD) {
-                            MaterialTheme.colorScheme.onSurface
-                        } else {
-                            secondaryTint
-                        },
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .padding(top = 13.dp, bottom = 13.dp),
-                ) {
-                    if (draft.isEmpty()) {
-                        Text(
-                            text = localizedMobileCopy(ComposerPromise.placeholder(
-                                name = name,
-                                busy = busy,
-                                engineCanSteer = engineCanSteer,
-                                sending = sending,
-                                listening = dictationListening,
-                                questionAsker = questionAsker,
-                            )),
-                            fontSize = 17.sp,
-                            color = secondaryTint,
-                        )
-                    }
-                    BasicTextField(
-                        value = fieldValue,
-                        onValueChange = { next ->
-                            field = next
-                            if (next.text != draft) onDraftChange(next.text)
-                        },
-                        // Partials rebuild from a frozen base; prevent competing
-                        // edits without dimming the text.
-                        readOnly = dictationLocked,
-                        maxLines = 5,
-                        textStyle = LocalTextStyle.current.copy(
-                            fontSize = 17.sp,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        ),
-                        cursorBrush = SolidColor(MaterialTheme.colorScheme.onSurface),
-                        // The software keyboard's Return breaks the line, like
-                        // Messages; the arrow button on the bar is the one send.
-                        // A hardware Return still sends and Shift+Return breaks
-                        // the line. Some soft keyboards deliver their Return as a
-                        // key event too, so the rule also asks where it came from.
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .onFocusChanged { fieldFocused = it.isFocused }
-                            .onPreviewKeyEvent { event ->
-                                val sends = ComposerReturn.sends(
-                                    isReturnKey = event.key == Key.Enter || event.key == Key.NumPadEnter,
-                                    keyDown = event.type == KeyEventType.KeyDown,
-                                    shift = event.isShiftPressed,
-                                    fromSoftwareKeyboard =
-                                        event.nativeKeyEvent.deviceId == KeyCharacterMap.VIRTUAL_KEYBOARD,
-                                )
-                                if (sends) onSend()
-                                sends
-                            },
-                    )
-                }
-
-                // Stop sits in the bar while the turn runs, as it does on the
-                // desktop and iOS. The Interrupt chat action was the only way
-                // before, and rooms had none at all. It takes the mic's slot,
-                // as on the desktop: four 48dp targets left a 360dp phone a
-                // field about 60dp wide. A dictation already running keeps
-                // its mic so it can be stopped.
-                if (stoppable) {
-                    TouchTarget(onClick = onStop, contentDescription = stringResource(R.string.mobile_action_stop_turn)) {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .background(secondaryTint.copy(alpha = 0.12f), CircleShape),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(11.dp)
-                                    .background(MaterialTheme.colorScheme.onSurface, RoundedCornerShape(2.dp)),
-                            )
-                        }
-                    }
-                }
-
-                if (!stoppable || dictationListening) TouchTarget(
-                    onClick = onToggleDictation,
-                    contentDescription = if (dictationListening) {
-                        "Stop dictation"
-                    } else {
-                        "Start dictation"
-                    },
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                if (dictationListening) {
-                                    Color.Red.copy(alpha = 0.2f)
-                                } else {
-                                    secondaryTint.copy(alpha = 0.12f)
-                                },
-                                CircleShape,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_mic),
-                            contentDescription = null,
-                            tint = if (dictationListening) Color.Red else MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                }
-
-                TouchTarget(onClick = onSend, enabled = canSend) {
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                if (canSend) BubbleColor.mine else secondaryTint.copy(alpha = 0.18f),
-                                CircleShape,
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.Send,
-                            contentDescription = stringResource(
-                                if (questionAsker != null) R.string.mobile_submit_answer_bf80bc31 else R.string.mobile_send_9bc2575c,
-                            ),
-                            tint = if (canSend) BubbleColor.mineText else secondaryTint,
-                            modifier = Modifier.size(16.dp),
-                        )
-                    }
-                }
-            }
-        }
-    }
 }
 
 /** A Live call the phone button asked for, while the first-call disclosure is up. */

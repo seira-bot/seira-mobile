@@ -3,6 +3,11 @@ package com.openmausbot.companion.ui
 import androidx.compose.ui.res.stringResource
 
 import android.content.ClipData
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -282,15 +287,17 @@ private fun DiffLine(line: String) {
  * first and then hands it that width.
  */
 @Composable
-fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier) {
+fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier, from: String? = null) {
     val copy = rememberCopy()
     val scroll = rememberScrollState()
+    val colors = Seira.colors
+    val shape = RoundedCornerShape(18.dp)
 
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer, RoundedCornerShape(14.dp))
-            .padding(12.dp),
+            .border(1.dp, colors.hairline, shape)
+            .padding(14.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Row(
@@ -298,20 +305,32 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier) {
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            Icon(
+                imageVector = SeiraIcons.File,
+                contentDescription = null,
+                tint = colors.ink2,
+                modifier = Modifier.size(16.dp),
+            )
             Text(
                 text = stringResource(R.string.mobile_data_table_54baf78e),
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.ink,
+            )
+            Text(
+                text = from?.let { stringResource(R.string.chat_from_bot, it) }.orEmpty(),
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
+                color = colors.ink3,
+                maxLines = 1,
                 modifier = Modifier.weight(1f),
             )
             Text(
                 text = if (card.rows.size == 1) stringResource(R.string.mobile_table_one_row) else stringResource(R.string.mobile_table_rows, card.rows.size),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
-                color = secondaryTint,
+                color = colors.ink2,
                 modifier = Modifier
-                    .background(secondaryTint.copy(alpha = 0.14f), CircleShape)
+                    .background(colors.control, CircleShape)
                     .padding(horizontal = 8.dp, vertical = 3.dp),
             )
         }
@@ -326,10 +345,10 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier) {
             )
         }
 
-        HorizontalDivider(color = secondaryTint.copy(alpha = 0.2f))
+        HorizontalDivider(color = colors.hairline)
 
         TextButton(onClick = { copy(card.csv()) }) {
-            Text(stringResource(R.string.mobile_copy_csv_b810b7cd), fontSize = 13.sp)
+            Text(stringResource(R.string.mobile_copy_csv_b810b7cd), fontSize = 13.sp, color = colors.ink)
         }
     }
 }
@@ -364,7 +383,7 @@ private fun DataGrid(
                     fontSize = 11.sp,
                     fontFamily = FontFamily.Monospace,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary,
+                    color = Seira.colors.ink2,
                     softWrap = false,
                 )
             }
