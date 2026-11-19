@@ -136,9 +136,12 @@ internal fun ChangeLookSheet(bot: Bot, onDismiss: () -> Unit) {
         val window = (LocalView.current.parent as? DialogWindowProvider)?.window
         SideEffect { window?.setDimAmount(0f) }
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(visibleState = visible, enter = fadeIn(seiraTween(SCRIM_MILLIS, reduced)),
+            AnimatedVisibility(
+                visibleState = visible,
+                enter = fadeIn(seiraTween(SCRIM_MILLIS, reduced)),
                 exit = fadeOut(seiraTween(SCRIM_MILLIS, reduced)),
-                modifier = Modifier.fillMaxSize()) {
+                modifier = Modifier.fillMaxSize(),
+            ) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
