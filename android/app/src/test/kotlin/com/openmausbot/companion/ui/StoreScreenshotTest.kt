@@ -68,6 +68,7 @@ class StoreScreenshotTest {
 
     private lateinit var server: MockWebServer
     private lateinit var scene: WiringScene
+    private val callReads = java.util.concurrent.atomic.AtomicInteger()
 
     @Before
     fun start() {
@@ -77,7 +78,10 @@ class StoreScreenshotTest {
         server.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse = when {
                 request.path == "/api/config" -> json("""{"profile":{"name":"Dina Pratama","email":"dina@example.com"}}""")
-                request.path == "/api/live/call" -> json(OTHER_CHAT_CALL)
+                request.path == "/api/live/call" -> {
+                    callReads.incrementAndGet()
+                    json(OTHER_CHAT_CALL)
+                }
                 request.path == "/api/instances" -> json("""{"instances":[]}""")
                 request.path?.startsWith("/api/threads/") == true -> json("""{"messages":[],"hasMore":false}""")
                 else -> MockResponse().setResponseCode(404)
@@ -223,7 +227,12 @@ class StoreScreenshotTest {
         compose.runOnIdle { scene.session.connect() }
         compose.waitUntil(5_000) { scene.session.state.value.bot(scout.id) != null }
         // The computer reports a call on another chat: this chat offers no call button.
-        compose.waitUntil(5_000) { scene.session.state.value.liveCall != null }
+        val deadline = System.currentTimeMillis() + 20_000
+        while (scene.session.state.value.liveCall == null && System.currentTimeMillis() < deadline) {
+            compose.waitForIdle()
+            Thread.sleep(100)
+        }
+        assertTrue(scene.session.state.value.liveCall != null, "call reads on the server: ${callReads.get()}")
         compose.waitForIdle()
         assertTrue(compose.captureWindow(name, mode).length() > 0)
     }
