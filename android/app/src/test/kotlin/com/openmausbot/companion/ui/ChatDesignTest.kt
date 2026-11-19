@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
+import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.getBoundsInRoot
@@ -23,8 +24,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import androidx.test.core.app.ApplicationProvider
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.OptionCard
@@ -50,6 +54,7 @@ import org.robolectric.annotation.GraphicsMode
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w393dp-h852dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
+@OptIn(ExperimentalTestApi::class)
 class ChatDesignTest {
     @get:Rule
     val compose = createAndroidComposeRule<ComponentActivity>(
