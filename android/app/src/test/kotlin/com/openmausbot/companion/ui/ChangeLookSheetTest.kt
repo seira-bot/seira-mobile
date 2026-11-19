@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.hasText
+import androidx.compose.ui.test.junit4.StateRestorationTester
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
@@ -124,6 +125,28 @@ class ChangeLookSheetTest {
         assertEquals(1, patches.size)
         val body = CompanionJson.parseToJsonElement(patches.single().body.readUtf8()) as JsonObject
         assertEquals(setOf("color"), body.keys)
+    }
+
+    @Test
+    fun `a picked colour and the open tab survive a restore`() {
+        start(succeed = true)
+        val wiring = scene!!
+        val restoration = StateRestorationTester(compose)
+        restoration.setContent {
+            CompositionLocalProvider(LocalCompanion provides wiring.environment) {
+                CompanionTheme(darkTheme = false) { ChangeLookSheet(bot = bot, onDismiss = {}) }
+            }
+        }
+        compose.runOnIdle { wiring.session.connect() }
+        compose.waitUntil(10_000) { wiring.session.status.value is Session.Status.Live }
+        compose.onNodeWithText("Colour").performClick()
+        compose.onNodeWithContentDescription("Blue").performClick()
+        compose.onNodeWithContentDescription("Blue").assertIsSelected()
+
+        restoration.emulateSavedInstanceStateRestore()
+
+        compose.onNodeWithContentDescription("Blue").assertIsSelected()
+        compose.onNodeWithTag("change-look-save").assertIsEnabled()
     }
 
     private fun androidx.compose.ui.test.junit4.ComposeContentTestRule.onAllNodesWithTextCount(text: String) =

@@ -5,6 +5,7 @@ import com.openmausbot.companion.core.BotLookPatch
 import com.openmausbot.companion.core.ModelSelection
 import com.openmausbot.companion.core.SeiraCastMember
 import com.openmausbot.companion.core.SeiraLook
+import androidx.compose.runtime.saveable.SaverScope
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -145,5 +146,44 @@ class ChangeLookStateTest {
         assertEquals(listOf(BotLookPatch(color = "blue")), sent)
         assertFalse(state.saveFailed)
         assertFalse(state.saving)
+    }
+
+    private fun roundTrip(state: ChangeLookState): ChangeLookState {
+        val saver = ChangeLookState.saver(cast)
+        val saved = with(saver) { SaverScope { true }.save(state) }
+        return requireNotNull(saver.restore(requireNotNull(saved)))
+    }
+
+    @Test
+    fun `the saver keeps the original, the look, the tab and the failed flag`() {
+        val state = ChangeLookState(SeiraLook.from(saved), cast, Random(1))
+        state.setHair("bob")
+        state.setColor("blue")
+        state.setExpression("happy")
+        state.toggleExtra("glasses")
+        state.category = ChangeLookCategory.FACE
+        runBlocking { state.save { null } }
+        val back = roundTrip(state)
+        assertEquals(state.original, back.original)
+        assertEquals(state.look, back.look)
+        assertEquals(ChangeLookCategory.FACE, back.category)
+        assertEquals(state.changed, back.changed)
+        assertEquals(state.patch(), back.patch())
+        assertTrue(back.saveFailed)
+        assertFalse(back.saving)
+    }
+
+    @Test
+    fun `the saver keeps a look without a face ink, an expression or extras`() {
+        val bare = SeiraLook(hair = "bob", color = "teal", faceInk = null, expression = null, accessories = emptyList())
+        val state = ChangeLookState(bare, cast, Random(1))
+        val back = roundTrip(state)
+        assertEquals(bare, back.original)
+        assertEquals(bare, back.look)
+        assertNull(back.look.faceInk)
+        assertNull(back.look.expression)
+        assertEquals(emptyList(), back.look.accessories)
+        assertFalse(back.changed)
+        assertFalse(back.saveFailed)
     }
 }

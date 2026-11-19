@@ -3,6 +3,8 @@ package com.openmausbot.companion.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.listSaver
 import androidx.compose.runtime.setValue
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotLookPatch
@@ -19,16 +21,19 @@ internal class ChangeLookState(
     val original: SeiraLook,
     members: List<SeiraCastMember>,
     private val random: Random = Random.Default,
+    restoredLook: SeiraLook = original,
+    restoredCategory: ChangeLookCategory = ChangeLookCategory.CHARACTERS,
+    restoredSaveFailed: Boolean = false,
 ) {
     /** Seira first, then the rest in catalog order. */
     val cast: List<SeiraCastMember> = members.filter { it.id == SEIRA_ID } + members.filter { it.id != SEIRA_ID }
 
-    var look by mutableStateOf(original)
+    var look by mutableStateOf(restoredLook)
         private set
-    var category by mutableStateOf(ChangeLookCategory.CHARACTERS)
+    var category by mutableStateOf(restoredCategory)
     var saving by mutableStateOf(false)
         private set
-    var saveFailed by mutableStateOf(false)
+    var saveFailed by mutableStateOf(restoredSaveFailed)
         private set
 
     /** Counts taps on the preview; the screen shows the happy face for a moment after each. */
@@ -89,6 +94,35 @@ internal class ChangeLookState(
     companion object {
         const val CALM = "idle"
         private const val SEIRA_ID = "seira"
+
+        private fun SeiraLook.pack(): List<Any> = listOf(
+            hair, color, ArrayList(listOfNotNull(faceInk)), ArrayList(listOfNotNull(expression)), ArrayList(accessories),
+        )
+
+        @Suppress("UNCHECKED_CAST")
+        private fun unpack(values: List<Any>): SeiraLook = SeiraLook(
+            hair = values[0] as String,
+            color = values[1] as String,
+            faceInk = (values[2] as List<String>).firstOrNull(),
+            expression = (values[3] as List<String>).firstOrNull(),
+            accessories = (values[4] as List<String>).toList(),
+        )
+
+        /** Keeps the choices across a rotation and a process restart; a save in flight is not kept. */
+        fun saver(members: List<SeiraCastMember>): Saver<ChangeLookState, Any> = listSaver(
+            save = { state ->
+                state.original.pack() + state.look.pack() + state.category.name + state.saveFailed
+            },
+            restore = { values ->
+                ChangeLookState(
+                    original = unpack(values.subList(0, 5)),
+                    members = members,
+                    restoredLook = unpack(values.subList(5, 10)),
+                    restoredCategory = ChangeLookCategory.valueOf(values[10] as String),
+                    restoredSaveFailed = values[11] as Boolean,
+                )
+            },
+        )
 
         val faceExpressions: List<String> = listOf(CALM, "happy", "surprised", "drowsy", "thinking")
     }

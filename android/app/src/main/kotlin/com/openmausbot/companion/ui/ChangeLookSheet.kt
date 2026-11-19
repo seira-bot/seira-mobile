@@ -6,7 +6,9 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -39,6 +41,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,6 +80,7 @@ import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraShadow
 import com.openmausbot.companion.ui.theme.seiraTween
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private val SHEET_RADIUS = 34.dp
@@ -94,14 +100,30 @@ internal fun ChangeLookSheet(bot: Bot, onDismiss: () -> Unit) {
     val context = LocalContext.current
     val session = LocalCompanion.current.session
     val status by session.status.collectAsState()
-    val state = remember(bot.id) {
-        val cast = runCatching { SeiraCast.decode(SeiraAssets.forContext(context).castJson()) }.getOrDefault(emptyList())
+    val cast = remember {
+        runCatching { SeiraCast.decode(SeiraAssets.forContext(context).castJson()) }.getOrDefault(emptyList())
+    }
+    val state = rememberSaveable(bot.id, saver = ChangeLookState.saver(cast)) {
         ChangeLookState(SeiraLook.from(bot), cast)
     }
     val haptics = rememberHaptics()
     val scope = rememberCoroutineScope()
-    val close = { if (!state.saving) onDismiss() }
-    val visible = remember { MutableTransitionState(false).apply { targetState = true } }
+    val reduced = rememberReducedMotion()
+    var opened by rememberSaveable { mutableStateOf(false) }
+    val visible = remember { MutableTransitionState(opened).apply { targetState = true } }
+    var closing by remember { mutableStateOf(false) }
+    val currentOnDismiss by rememberUpdatedState(onDismiss)
+    val close = {
+        if (!state.saving && !closing) {
+            closing = true
+            visible.targetState = false
+        }
+    }
+    LaunchedEffect(Unit) { opened = true }
+    LaunchedEffect(visible) {
+        snapshotFlow { closing && visible.isIdle && !visible.currentState }.first { it }
+        currentOnDismiss()
+    }
 
     Dialog(
         onDismissRequest = close,
@@ -114,7 +136,9 @@ internal fun ChangeLookSheet(bot: Bot, onDismiss: () -> Unit) {
         val window = (LocalView.current.parent as? DialogWindowProvider)?.window
         SideEffect { window?.setDimAmount(0f) }
         Box(modifier = Modifier.fillMaxSize()) {
-            AnimatedVisibility(visibleState = visible, enter = fadeIn(seiraTween(SCRIM_MILLIS)), modifier = Modifier.fillMaxSize()) {
+            AnimatedVisibility(visibleState = visible, enter = fadeIn(seiraTween(SCRIM_MILLIS, reduced)),
+                exit = fadeOut(seiraTween(SCRIM_MILLIS, reduced)),
+                modifier = Modifier.fillMaxSize()) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -130,7 +154,8 @@ internal fun ChangeLookSheet(bot: Bot, onDismiss: () -> Unit) {
             }
             AnimatedVisibility(
                 visibleState = visible,
-                enter = slideInVertically(seiraTween(SeiraMotion.SHEET)) { (it * SLIDE_FROM).toInt() },
+                enter = slideInVertically(seiraTween(SeiraMotion.SHEET, reduced)) { (it * SLIDE_FROM).toInt() },
+                exit = slideOutVertically(seiraTween(SeiraMotion.SHEET, reduced)) { (it * SLIDE_FROM).toInt() },
                 modifier = Modifier.align(Alignment.BottomCenter),
             ) {
                 ChangeLookSheetBody(
@@ -139,10 +164,12 @@ internal fun ChangeLookSheet(bot: Bot, onDismiss: () -> Unit) {
                     connected = status is Session.Status.Live,
                     onClose = close,
                     onSave = {
-                        scope.launch {
-                            if (state.save { patch -> session.updateLook(bot.id, patch) }) {
-                                haptics.play(TactileAction.SAVE_LOOK_SUCCESS)
-                                onDismiss()
+                        if (!closing) {
+                            scope.launch {
+                                if (state.save { patch -> session.updateLook(bot.id, patch) }) {
+                                    haptics.play(TactileAction.SAVE_LOOK_SUCCESS)
+                                    close()
+                                }
                             }
                         }
                     },

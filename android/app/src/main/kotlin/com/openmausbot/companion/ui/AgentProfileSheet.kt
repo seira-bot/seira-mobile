@@ -125,7 +125,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
-    var changingLook by remember { mutableStateOf(false) }
+    var changingLook by rememberSaveable { mutableStateOf(false) }
     var switchingEngine by remember { mutableStateOf(false) }
     // Read-only facts from the overview route; reloads on reopen, so plain
     // remember — there is nothing here a rotation needs to defend.
