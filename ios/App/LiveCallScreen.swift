@@ -249,7 +249,7 @@ private struct LiveCallCharacter: View {
 }
 
 extension LiveCallFeed {
-    func botIsSpeaking(in status: LiveCallStatus) -> Bool {
+    fileprivate func botIsSpeaking(in status: LiveCallStatus) -> Bool {
         status == .talking && !captions.line.isEmpty && captions.speaker == .voice
     }
 }
