@@ -17,6 +17,8 @@ import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.MeasurePolicy
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraType
