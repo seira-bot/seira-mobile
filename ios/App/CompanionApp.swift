@@ -92,6 +92,7 @@ struct RootView: View {
     @EnvironmentObject private var session: Session
     @EnvironmentObject private var liveCall: LiveCallController
     @ObservedObject private var router = AppRouter.shared
+    @State private var talkConfirmation: Bot?
     @AppStorage("companion.onboarding.welcomeSeen") private var hasSeenWelcome = false
     @AppStorage("companion.onboarding.notificationsSeen") private var hasSeenNotificationPrompt = false
     @AppStorage(CompanionOnboardingPreferences.pendingNotificationOnboardingKey)
@@ -166,6 +167,7 @@ struct RootView: View {
             session.beginPairing()
         }
         .onAppear { reconcileNotificationOnboarding() }
+        .modifier(TalkConfirmation(bot: $talkConfirmation, start: startTalk))
         .onValueChange(of: router.pending, initial: true) { _ in handlePendingRoute() }
         .onValueChange(of: session.status) { _ in handlePendingRoute() }
         .onValueChange(of: session.connection?.id) { _ in handlePendingRoute() }
@@ -262,14 +264,21 @@ struct RootView: View {
         switch route {
         case .newChat:
             session.openChat(threadId: chief.threadId)
-        case .talk:
-            if LiveCallDisclosure().isDue {
-                session.openChat(threadId: chief.threadId)
-            } else if !liveCall.machine.isActive {
-                liveCall.start(bot: chief)
+        case .talk(let confirmed):
+            if liveCall.machine.isActive {
                 liveCall.presentScreen()
+            } else if confirmed, !LiveCallDisclosure().isDue {
+                startTalk(chief)
+            } else {
+                talkConfirmation = chief
             }
         }
+    }
+
+    private func startTalk(_ bot: Bot) {
+        guard !liveCall.machine.isActive else { return }
+        liveCall.start(bot: bot)
+        liveCall.presentScreen()
     }
 }
 

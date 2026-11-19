@@ -7,7 +7,7 @@ struct TalkToSeiraIntent: AppIntent {
 
     @MainActor
     func perform() async throws -> some IntentResult {
-        AppRouter.shared.pending = .talk
+        AppRouter.shared.pending = .talk(confirmed: true)
         return .result()
     }
 }

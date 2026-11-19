@@ -1,7 +1,10 @@
 import Foundation
 
 enum AppRoute: Equatable {
-    case talk
+    /// Security invariant: any app can open a `seira://` link, so a link never
+    /// starts a call. Only the app's own intent sets `confirmed`; every other
+    /// call waits for the person to tap Start call.
+    case talk(confirmed: Bool)
     case newChat
 }
 
@@ -14,7 +17,7 @@ final class AppRouter: ObservableObject {
     nonisolated static func route(for url: URL) -> AppRoute? {
         guard url.scheme?.lowercased() == "seira" else { return nil }
         switch url.host?.lowercased() {
-        case "talk": return .talk
+        case "talk": return .talk(confirmed: false)
         case "new-chat": return .newChat
         default: return nil
         }
