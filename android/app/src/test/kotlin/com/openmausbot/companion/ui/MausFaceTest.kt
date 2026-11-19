@@ -14,8 +14,8 @@ class MausFaceDataTest {
 
     @Test
     fun `every state has a pool, a cadence and a motion`() {
-        assertEquals(40, MausState.entries.size)
-        for (state in MausState.entries) {
+        assertEquals(40, CharacterMood.entries.size)
+        for (state in CharacterMood.entries) {
             assertTrue(MausFaceData.pools.containsKey(state), "pool ${state.id}")
             assertTrue(MausFaceData.expressionCadence.containsKey(state), "cadence ${state.id}")
             assertTrue(MausFaceData.motion.containsKey(state), "motion ${state.id}")
@@ -109,7 +109,7 @@ class MausFaceEngineTest {
 
     @Test
     fun `a face that is never advanced rests on the desktop's face for its state`() {
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             val engine = MausFaceEngine()
             engine.setState(state, 0L)
             val expression = MausGolden.RESTING.getValue(state.id)
@@ -139,11 +139,11 @@ class MausFaceEngineTest {
     @Test
     fun `the morph settles on the face of the state it was handed`() {
         val engine = MausFaceEngine()
-        engine.setState(MausState.IDLE, 0L)
+        engine.setState(CharacterMood.IDLE, 0L)
         engine.advance(0L)
-        engine.setState(MausState.LAUGHING, 0L)
+        engine.setState(CharacterMood.LAUGHING, 0L)
 
-        val target = MausGolden.RESTING.getValue(MausState.LAUGHING.id)
+        val target = MausGolden.RESTING.getValue(CharacterMood.LAUGHING.id)
         MausFaceData.copyRing(target, 0, ring)
         assertTrue(kotlin.math.abs(engine.ring(0)[0] - ring[0]) > 1f, "morphed with no morph in")
 
@@ -157,13 +157,13 @@ class MausFaceEngineTest {
     @Test
     fun `a face that stops being advanced settles on the state it was handed`() {
         val engine = MausFaceEngine()
-        engine.setState(MausState.IDLE, 0L)
+        engine.setState(CharacterMood.IDLE, 0L)
         engine.advance(0L)
-        engine.setState(MausState.ANGRY, 0L)
+        engine.setState(CharacterMood.ANGRY, 0L)
         engine.advance(FRAME_NANOS)
         engine.rest()
 
-        val target = MausGolden.RESTING.getValue(MausState.ANGRY.id)
+        val target = MausGolden.RESTING.getValue(CharacterMood.ANGRY.id)
         MausFaceData.copyRing(target, 0, ring)
         val offsetX = MausGolden.GAZE[target * 2] * LOOK_AROUND
         assertEquals(ring[0] + offsetX, engine.ring(0)[0], 0.001f)
@@ -173,7 +173,7 @@ class MausFaceEngineTest {
     @Test
     fun `a state that blinks shuts its eyes and opens them again`() {
         val engine = MausFaceEngine()
-        engine.setState(MausState.IDLE, 0L)
+        engine.setState(CharacterMood.IDLE, 0L)
         var shut = 1f
         var open = 0f
         // past the longest gap between blinks the desktop allows for idle
@@ -190,7 +190,7 @@ class MausFaceEngineTest {
     @Test
     fun `a state with no blink rhythm never blinks`() {
         val engine = MausFaceEngine()
-        engine.setState(MausState.SLEEPING, 0L)
+        engine.setState(CharacterMood.SLEEPING, 0L)
         for (frame in 0..60 * 30) {
             engine.advance(frame * FRAME_NANOS)
             assertEquals(1f, engine.blinkScale(frame * FRAME_NANOS), "blinked while asleep")
@@ -199,7 +199,7 @@ class MausFaceEngineTest {
 
     @Test
     fun `a run of frames keeps the face inside the catalogue`() {
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             val engine = MausFaceEngine()
             engine.setState(state, 0L)
             for (frame in 0..20 * 30) {
@@ -226,7 +226,7 @@ class MausBodyPoseTest {
 
     @Test
     fun `a state with no motion leaves the body where it stands`() {
-        MausFaceData.motion.getValue(MausState.THINKING_DOTS).poseAt(1234f, pose)
+        MausFaceData.motion.getValue(CharacterMood.THINKING_DOTS).poseAt(1234f, pose)
         assertEquals(0f, pose.dx)
         assertEquals(0f, pose.dy)
         assertEquals(0f, pose.rotationDegrees)
@@ -237,7 +237,7 @@ class MausBodyPoseTest {
 
     @Test
     fun `a tilt is held for as long as the state is`() {
-        val dragging = MausFaceData.motion.getValue(MausState.DRAGGING)
+        val dragging = MausFaceData.motion.getValue(CharacterMood.DRAGGING)
         dragging.poseAt(0f, pose)
         assertEquals(-6f, pose.rotationDegrees, 0.001f)
     }
@@ -245,7 +245,7 @@ class MausBodyPoseTest {
     @Test
     fun `a bob lifts the body, and squashes it as it lands`() {
         // bouncing bobs 12 units over 560ms and squashes 0.45 on the way down
-        val bouncing = MausFaceData.motion.getValue(MausState.BOUNCING)
+        val bouncing = MausFaceData.motion.getValue(CharacterMood.BOUNCING)
 
         bouncing.poseAt(140f, pose)
         assertEquals(-12f, pose.dy, 0.001f)
@@ -261,7 +261,7 @@ class MausBodyPoseTest {
     @Test
     fun `an entrance grows to full size and then stops growing`() {
         // spawning enters at 2% of its size over 820ms, then only breathes: ±1.4%
-        val spawning = MausFaceData.motion.getValue(MausState.SPAWNING)
+        val spawning = MausFaceData.motion.getValue(CharacterMood.SPAWNING)
 
         spawning.poseAt(0f, pose)
         assertEquals(0.02f, pose.scale, 0.001f)
@@ -280,7 +280,7 @@ class MausCometFieldTest {
     @Test
     fun `a comet ring passes behind the body and in front of it`() {
         val field = MausCometField()
-        val spec = MausComets.trails.getValue(MausState.ORBIT)
+        val spec = MausComets.trails.getValue(CharacterMood.ORBIT)
         var behind = 0
         var front = 0
         for (frame in 0 until 90) {
@@ -316,9 +316,9 @@ class MausCometFieldTest {
     @Test
     fun `an empty frame leaves nothing behind from the last one`() {
         val field = MausCometField()
-        field.update(MausComets.trails.getValue(MausState.ORBIT), 0f, CENTRE, CENTRE)
+        field.update(MausComets.trails.getValue(CharacterMood.ORBIT), 0f, CENTRE, CENTRE)
         assertTrue(field.count > 0)
-        field.update(MausComets.trails.getValue(MausState.RADAR).copy(count = 0), 0f, CENTRE, CENTRE)
+        field.update(MausComets.trails.getValue(CharacterMood.RADAR).copy(count = 0), 0f, CENTRE, CENTRE)
         assertEquals(0, field.count)
     }
 

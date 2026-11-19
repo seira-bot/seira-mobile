@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.ui.BotAvatar
-import com.openmausbot.companion.ui.MausState
+import com.openmausbot.companion.ui.CharacterMood
 
 private val TouchTarget: Dp = 48.dp
 private val ShadowElevation: Dp = 10.dp
@@ -223,7 +223,7 @@ internal fun IdentityAvatar(
     modifier: Modifier = Modifier,
     ring: AvatarRing = AvatarRing.None,
     waitingDot: Boolean = false,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
     contentDescription: String? = null,
 ) {

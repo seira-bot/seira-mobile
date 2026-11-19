@@ -359,7 +359,7 @@ private fun RoutineRow(
             BotAvatar(
                 bot = bot,
                 size = 42.dp,
-                state = if (routine.enabled) MausState.IDLE else MausState.SLEEPING,
+                state = if (routine.enabled) CharacterMood.IDLE else CharacterMood.SLEEPING,
                 animated = false,
             )
         } else {

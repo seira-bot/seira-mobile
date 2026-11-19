@@ -168,7 +168,7 @@ internal fun MascotStack(colors: List<String>, size: Dp = 28.dp, overlap: Dp = 1
                     .background(MaterialTheme.colorScheme.surface, CircleShape)
                     .padding(2.dp),
             ) {
-                MausAvatar(color = color, size = size, state = MausState.IDLE, animated = false)
+                MausAvatar(color = color, size = size, state = CharacterMood.IDLE, animated = false)
             }
         }
     }
@@ -193,7 +193,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
     // One pass over the fleet rather than one per row: resolving a face walks the
     // chat's visible transcript.
     val faces = remember(state, updates) {
-        updates.associate { it.id to MausState.forChat(it.chat, state) }
+        updates.associate { it.id to CharacterMood.forChat(it.chat, state) }
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -241,7 +241,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                 items(items, key = { it.id }) { update ->
                     UpdateRow(
                         update = update,
-                        face = faces[update.id] ?: MausState.IDLE,
+                        face = faces[update.id] ?: CharacterMood.IDLE,
                         onOpen = { onOpen(update.chat) },
                     )
                 }
@@ -251,7 +251,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
+private fun UpdateRow(update: ChatUpdate, face: CharacterMood, onOpen: () -> Unit) {
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()

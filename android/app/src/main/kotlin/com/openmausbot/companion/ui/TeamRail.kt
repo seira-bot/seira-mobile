@@ -57,7 +57,7 @@ internal data class TeamMember(
     val bot: Bot,
     val waiting: Boolean,
     val working: Boolean,
-    val face: MausState,
+    val face: CharacterMood,
 )
 
 /** About what one screen width holds; with more bots than this, "See all" earns its place. */

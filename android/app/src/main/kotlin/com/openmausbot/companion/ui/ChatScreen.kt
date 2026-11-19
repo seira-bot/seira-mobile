@@ -1077,7 +1077,7 @@ private fun LoadedChat(
         ChatHeader(
             chat = chat,
             face = remember(chat, rawTranscript) {
-                MausState.forChat(chat, rawTranscript.lastOrNull())
+                CharacterMood.forChat(chat, rawTranscript.lastOrNull())
             },
             status = ChatStatusRules.of(busy = chat.busy, pendingApproval = pendingApproval),
             unreadElsewhere = remember(state, chat) {

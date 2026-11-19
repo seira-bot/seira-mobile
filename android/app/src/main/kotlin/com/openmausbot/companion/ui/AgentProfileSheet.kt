@@ -382,7 +382,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         BotAvatar(
                             bot = current,
                             size = 112.dp,
-                            state = MausState.HAPPY,
+                            state = CharacterMood.HAPPY,
                             contentDescription = stringResource(R.string.mobile_current_name_avatar_de638954, current.name),
                         )
                     }

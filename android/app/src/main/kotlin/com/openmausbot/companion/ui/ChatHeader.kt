@@ -112,7 +112,7 @@ internal fun ChatFace(
     modifier: Modifier = Modifier,
     ring: AvatarRing = AvatarRing.None,
     waitingDot: Boolean = false,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
 ) {
     when (chat) {
@@ -140,7 +140,7 @@ internal fun ChatFace(
 @Composable
 internal fun ChatHeader(
     chat: Chat,
-    face: MausState,
+    face: CharacterMood,
     status: ChatStatus,
     unreadElsewhere: Int,
     call: ChatCallAction,
@@ -208,7 +208,7 @@ internal fun ChatHeader(
 @Composable
 private fun ChatNamePill(
     chat: Chat,
-    face: MausState,
+    face: CharacterMood,
     status: ChatStatus,
     onOpen: (() -> Unit)?,
     modifier: Modifier = Modifier,

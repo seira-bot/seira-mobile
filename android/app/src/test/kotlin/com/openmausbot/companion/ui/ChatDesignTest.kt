@@ -234,7 +234,7 @@ class ChatDesignTest {
     private fun showHeader(call: ChatCallAction) = show {
         ChatHeader(
             chat = chat,
-            face = MausState.IDLE,
+            face = CharacterMood.IDLE,
             status = ChatStatus.IDLE,
             unreadElsewhere = 0,
             call = call,

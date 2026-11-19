@@ -295,13 +295,13 @@ class MausCatalogueGoldenTest {
 
     @Test
     fun `the states are still the desktop's forty, in order`() {
-        assertEquals(MausGolden.STATES, MausState.entries.map { it.id })
+        assertEquals(MausGolden.STATES, CharacterMood.entries.map { it.id })
     }
 
     @Test
     fun `every state still drifts through the desktop's pool`() {
         assertEquals(MausGolden.POOLS.keys, MausFaceData.pools.keys.map { it.id }.toSet())
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             assertEquals(MausGolden.POOLS.getValue(state.id), MausFaceData.pools[state], state.id)
         }
     }
@@ -309,7 +309,7 @@ class MausCatalogueGoldenTest {
     @Test
     fun `every state still holds an expression for the desktop's span`() {
         assertEquals(MausGolden.CADENCE.keys, MausFaceData.expressionCadence.keys.map { it.id }.toSet())
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             val expected = MausGolden.CADENCE.getValue(state.id)
             val actual = MausFaceData.expressionCadence.getValue(state)
             assertEquals(expected.first.toFloat(), actual.minMillis, state.id)
@@ -320,7 +320,7 @@ class MausCatalogueGoldenTest {
     @Test
     fun `the same states still blink, on the same rhythm`() {
         assertEquals(MausGolden.BLINK.keys, MausFaceData.blink.keys.map { it.id }.toSet())
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             val expected = MausGolden.BLINK[state.id]
             val actual = MausFaceData.blink[state]
             if (expected == null) {
@@ -334,7 +334,7 @@ class MausCatalogueGoldenTest {
 
     @Test
     fun `every body still moves the way the desktop moves it`() {
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             assertEquals(
                 MausGolden.MOTION.getValue(state.id),
                 render(MausFaceData.motion.getValue(state)),
@@ -346,7 +346,7 @@ class MausCatalogueGoldenTest {
     @Test
     fun `the comet rings are still the desktop's`() {
         assertEquals(MausGolden.TRAILS.keys, MausComets.trails.keys.map { it.id }.toSet())
-        for (state in MausState.entries) {
+        for (state in CharacterMood.entries) {
             val expected = MausGolden.TRAILS[state.id] ?: continue
             assertEquals(expected, render(MausComets.trails.getValue(state)), state.id)
         }
@@ -385,7 +385,7 @@ class MausCatalogueGoldenTest {
     fun `a blink still takes 320ms, shut at 42 percent of it`() {
         // MausAvatar.swift:611-617, landing on idle's earliest blink — 6000ms
         val engine = MausFaceEngine(AT_THE_EARLIEST)
-        engine.setState(MausState.IDLE, 0L)
+        engine.setState(CharacterMood.IDLE, 0L)
         engine.advance(0L)
         engine.advance(millis(6000f))
 
@@ -402,9 +402,9 @@ class MausCatalogueGoldenTest {
         // 7, stepped at 30fps, is 87% of the way there after half a second and 99%
         // after one. A softer 5 would be 73%, a stiffer 9 would be 93%.
         val engine = MausFaceEngine()
-        engine.setState(MausState.IDLE, 0L)
+        engine.setState(CharacterMood.IDLE, 0L)
         engine.advance(0L)
-        engine.setState(MausState.LAUGHING, 0L)
+        engine.setState(CharacterMood.LAUGHING, 0L)
         assertEquals(0f, progress(engine), 0.001f)
 
         for (frame in 1..15) engine.advance(frame * FRAME_NANOS)
@@ -417,15 +417,15 @@ class MausCatalogueGoldenTest {
     fun `a clock that jumped is still worth at most 100ms of spring`() {
         // MausAvatar.swift:313
         val jumped = MausFaceEngine()
-        jumped.setState(MausState.IDLE, 0L)
+        jumped.setState(CharacterMood.IDLE, 0L)
         jumped.advance(0L)
-        jumped.setState(MausState.LAUGHING, 0L)
+        jumped.setState(CharacterMood.LAUGHING, 0L)
         jumped.advance(millis(10_000f))
 
         val stepped = MausFaceEngine()
-        stepped.setState(MausState.IDLE, 0L)
+        stepped.setState(CharacterMood.IDLE, 0L)
         stepped.advance(0L)
-        stepped.setState(MausState.LAUGHING, 0L)
+        stepped.setState(CharacterMood.LAUGHING, 0L)
         stepped.advance(millis(100f))
 
         assertEquals(progress(stepped), progress(jumped), 0.0001f)

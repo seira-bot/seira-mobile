@@ -204,7 +204,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // One pass over the fleet rather than one per row: resolving a face walks the
     // chat's visible transcript.
     val faces = remember(fleet, summaries) {
-        summaries.associate { it.id to MausState.forChat(it.chat, fleet) }
+        summaries.associate { it.id to CharacterMood.forChat(it.chat, fleet) }
     }
     val summariesById = remember(summaries) { summaries.associateBy { it.id } }
     // Hoisted out of the list: read inside a lazy item, `state` would make that
@@ -227,7 +227,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 bot = bot,
                 waiting = status == RosterRowStatus.WAITING_ON_YOU,
                 working = status == RosterRowStatus.WORKING,
-                face = faces[bot.id] ?: MausState.IDLE,
+                face = faces[bot.id] ?: CharacterMood.IDLE,
             )
         }
         // Who needs you leads, then who works; the list's own order breaks ties.
@@ -283,7 +283,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
         summariesById[room.id]?.let { summary ->
             ChatRow(
                 summary = summary,
-                face = MausState.IDLE,
+                face = CharacterMood.IDLE,
                 waiting = room.id in waiting,
                 members = tiles[room.id].orEmpty(),
                 onClick = { navigator.open(Chat.RoomChat(room)) },
@@ -298,7 +298,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                 is Chat.BotChat -> CompactBotEntry(
                     bot = chat.bot,
                     lastActivity = summary.lastActivity,
-                    face = faces[summary.id] ?: MausState.IDLE,
+                    face = faces[summary.id] ?: CharacterMood.IDLE,
                     hasPendingCard = summary.id in waiting,
                     query = query,
                     expanded = chat.bot.id in expandedBots,
@@ -320,7 +320,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
             Column {
                 ChatRow(
                     summary = summary,
-                    face = faces[summary.id] ?: MausState.IDLE,
+                    face = faces[summary.id] ?: CharacterMood.IDLE,
                     waiting = summary.id in waiting,
                     members = (chat as? Chat.RoomChat)?.let { tiles[it.room.id] }.orEmpty(),
                     onClick = { openRow(summary) },
@@ -409,7 +409,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                         ?: stringResource(R.string.home_status_ready),
                                     busy = chiefStatus == RosterRowStatus.WORKING,
                                     waiting = chiefStatus == RosterRowStatus.WAITING_ON_YOU,
-                                    face = faces[chief.id] ?: MausState.IDLE,
+                                    face = faces[chief.id] ?: CharacterMood.IDLE,
                                     canTalk = canTalk,
                                     onOpen = openChief,
                                     onTalk = {
@@ -770,7 +770,7 @@ private fun SectionLabel(text: String, modifier: Modifier = Modifier) {
 @Composable
 private fun ChatRow(
     summary: ChatSummary,
-    face: MausState,
+    face: CharacterMood,
     waiting: Boolean,
     members: List<Bot>,
     onClick: () -> Unit,

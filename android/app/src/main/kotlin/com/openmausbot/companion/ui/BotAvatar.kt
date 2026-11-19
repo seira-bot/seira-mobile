@@ -41,7 +41,7 @@ import com.openmausbot.companion.core.Chat
 internal fun BotAvatar(
     bot: Bot,
     size: Dp,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
     /**
      * Left null where the name is already beside the face — the row would
@@ -109,7 +109,7 @@ internal fun BotAvatar(
 internal fun ChatAvatar(
     chat: Chat,
     size: Dp,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,

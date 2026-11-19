@@ -57,7 +57,7 @@ internal fun MausAvatar(
     /** Which catalog body to draw; null and unknown ids fall back to the cursor. */
     bodyId: String? = MausSilhouette.defaultBody,
     size: Dp = 52.dp,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     /** Off draws the state's resting face, still. For lists of many. */
     animated: Boolean = true,
     modifier: Modifier = Modifier,

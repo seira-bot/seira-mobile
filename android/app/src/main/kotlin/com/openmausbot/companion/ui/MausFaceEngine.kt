@@ -20,7 +20,7 @@ import kotlin.random.Random
  * is the still pose, and the whole of the face when animations are switched off.
  */
 internal class MausFaceEngine(private val random: Random = Random.Default) {
-    var state: MausState = MausState.IDLE
+    var state: CharacterMood = CharacterMood.IDLE
         private set
 
     var motion: MausBodyMotion = MausBodyMotion()
@@ -56,7 +56,7 @@ internal class MausFaceEngine(private val random: Random = Random.Default) {
         MausFaceData.copyMouth(0, targetMouth)
     }
 
-    fun setState(next: MausState, nowNanos: Long) {
+    fun setState(next: CharacterMood, nowNanos: Long) {
         if (started && next == state) return
         started = true
         state = next

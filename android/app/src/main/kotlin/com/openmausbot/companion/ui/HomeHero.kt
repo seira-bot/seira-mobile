@@ -46,7 +46,7 @@ internal fun HomeHero(
     status: String,
     busy: Boolean,
     waiting: Boolean,
-    face: MausState,
+    face: CharacterMood,
     canTalk: Boolean,
     onOpen: () -> Unit,
     onTalk: () -> Unit,

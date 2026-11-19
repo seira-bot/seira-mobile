@@ -25,12 +25,12 @@ internal data class MausCometSpec(
 )
 
 internal object MausComets {
-    val trails: Map<MausState, MausCometSpec> = mapOf(
-        MausState.ORBIT to MausCometSpec(6, 3000f, 105f, 5f, 2.5f, 0.72f),
-        MausState.RADAR to MausCometSpec(4, 2400f, 106f, 4.5f, 2.1f, 0.72f),
-        MausState.PROGRESS to MausCometSpec(5, 2000f, 104f, 4.8f, 2.3f, 0.74f),
-        MausState.LOADING to MausCometSpec(5, 2400f, 105f, 5f, 2.6f, 0.72f),
-        MausState.UPLOADING to MausCometSpec(4, 1800f, 104f, 4.8f, 2.2f, 0.74f),
+    val trails: Map<CharacterMood, MausCometSpec> = mapOf(
+        CharacterMood.ORBIT to MausCometSpec(6, 3000f, 105f, 5f, 2.5f, 0.72f),
+        CharacterMood.RADAR to MausCometSpec(4, 2400f, 106f, 4.5f, 2.1f, 0.72f),
+        CharacterMood.PROGRESS to MausCometSpec(5, 2000f, 104f, 4.8f, 2.3f, 0.74f),
+        CharacterMood.LOADING to MausCometSpec(5, 2400f, 105f, 5f, 2.6f, 0.72f),
+        CharacterMood.UPLOADING to MausCometSpec(4, 1800f, 104f, 4.8f, 2.2f, 0.74f),
     )
 
     /**
