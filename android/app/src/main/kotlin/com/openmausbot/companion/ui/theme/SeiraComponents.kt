@@ -44,7 +44,9 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.drawOutline
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.PathParser
@@ -85,9 +87,30 @@ fun Modifier.seiraShadow(shape: Shape, elevation: Dp = ShadowElevation): Modifie
             val stroke = Stroke(width = 0.5.dp.toPx())
             onDrawWithContent {
                 drawContent()
-                drawOutline(outline, ring, style = stroke)
+                strokeOutline(outline, ring, stroke)
             }
         }
+}
+
+private fun DrawScope.strokeOutline(outline: Outline, color: Color, stroke: Stroke) {
+    when (outline) {
+        is Outline.Rectangle -> drawRect(color, outline.rect.topLeft, outline.rect.size, style = stroke)
+        is Outline.Rounded -> {
+            val box = outline.roundRect
+            if (box.topLeftCornerRadius.x == box.topLeftCornerRadius.y) {
+                drawRoundRect(
+                    color = color,
+                    topLeft = Offset(box.left, box.top),
+                    size = androidx.compose.ui.geometry.Size(box.width, box.height),
+                    cornerRadius = CornerRadius(box.topLeftCornerRadius.x, box.topLeftCornerRadius.y),
+                    style = stroke,
+                )
+            } else {
+                drawPath(Path().apply { addRoundRect(box) }, color, style = stroke)
+            }
+        }
+        is Outline.Generic -> drawPath(outline.path, color, style = stroke)
+    }
 }
 
 /** Translucent chrome. No blur: `RenderEffect` blur starts at API 31 and the app starts at 26. */
