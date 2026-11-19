@@ -42,6 +42,14 @@
       permission, granted at install; the WebRTC AAR declares none itself.
     -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <!--
+      A live call goes on after the app leaves the screen. Android 14+ needs
+      FOREGROUND_SERVICE_MICROPHONE for a foreground service of type
+      microphone. WAKE_LOCK is for the proximity lock that turns the screen
+      off at the ear.
+    -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-feature
         android:name="android.hardware.microphone"
         android:required="false" />
@@ -219,6 +227,12 @@
             android:exported="false"
             android:foregroundServiceType="connectedDevice"
             android:stopWithTask="false" />
+
+        <service
+            android:name=".audio.LiveCallService"
+            android:exported="false"
+            android:foregroundServiceType="microphone"
+            android:stopWithTask="true" />
 
         <!--
           Restarts AlwaysOnConnectionService after a reboot, only when the user
