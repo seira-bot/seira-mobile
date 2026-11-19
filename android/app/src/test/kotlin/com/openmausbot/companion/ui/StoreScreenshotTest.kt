@@ -54,7 +54,7 @@ import org.robolectric.annotation.GraphicsMode
  * The screens for the Play Store listing, drawn from the real app UI with made-up
  * data to `build/design-screens/store-*.png`. Phone images are 9:16.
  * Tablet images are landscape and light only.
- * The computer reports a call on a different chat, so the chat header shows no call button.
+ * The computer reports a call on a different chat, so no Talk pill, call button or composer talk shows.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w411dp-h731dp-xxhdpi")
@@ -174,6 +174,8 @@ class StoreScreenshotTest {
             name,
             mode,
             beforeCapture = {
+                // The computer reports a call on another chat: Home offers no Talk pill.
+                compose.waitUntil(10_000) { scene.session.state.value.liveCall != null }
                 compose.waitUntil(10_000) {
                     compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
                 }
