@@ -417,23 +417,47 @@ fun SeiraCard(
     )
 }
 
+/** The app colour stays solid down to [solidUntil] of the height, then fades out, as in the design. */
 @Composable
-fun TopFade(height: Dp, modifier: Modifier = Modifier, color: Color = Seira.colors.app) {
+fun TopFade(
+    height: Dp,
+    modifier: Modifier = Modifier,
+    color: Color = Seira.colors.app,
+    solidUntil: Float = 0.4f,
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .background(Brush.verticalGradient(listOf(color, color.copy(alpha = 0f)))),
+            .background(
+                Brush.verticalGradient(
+                    0f to color,
+                    solidUntil to color,
+                    1f to color.copy(alpha = 0f),
+                ),
+            ),
     )
 }
 
+/** The app colour fades in and is solid from [solidFrom] of the height, so text under the floating bar stays hidden. */
 @Composable
-fun BottomFade(height: Dp, modifier: Modifier = Modifier, color: Color = Seira.colors.app) {
+fun BottomFade(
+    height: Dp,
+    modifier: Modifier = Modifier,
+    color: Color = Seira.colors.app,
+    solidFrom: Float = 0.55f,
+) {
     Box(
         modifier = modifier
             .fillMaxWidth()
             .height(height)
-            .background(Brush.verticalGradient(listOf(color.copy(alpha = 0f), color))),
+            .background(
+                Brush.verticalGradient(
+                    0f to color.copy(alpha = 0f),
+                    solidFrom to color,
+                    1f to color,
+                ),
+            ),
     )
 }
 
