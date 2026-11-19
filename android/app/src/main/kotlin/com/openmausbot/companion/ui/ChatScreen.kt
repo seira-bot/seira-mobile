@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.openmausbot.companion.ui.theme.GlassCircleButton
 import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.BottomFade
 import androidx.compose.ui.res.stringResource
 
 import androidx.activity.compose.BackHandler
