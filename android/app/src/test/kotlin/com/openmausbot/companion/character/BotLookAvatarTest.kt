@@ -64,9 +64,9 @@ class BotLookAvatarTest {
         rule.waitForIdle()
         val drawn = capture("bot")
         val carved = capture("carved")
-        assertTrue(opaquePixels(carved) > 0, "the carved avatar drew nothing: ${carved.width}x${carved.height}")
-        assertTrue(opaquePixels(drawn) > 0, "the bot avatar drew nothing: ${drawn.width}x${drawn.height}")
-        assertTrue(drawn.sameAs(carved), "the pictures differ: ${opaquePixels(drawn)} and ${opaquePixels(carved)} opaque pixels")
+        assertTrue(colours(carved) > 1, "the carved avatar drew nothing")
+        assertTrue(colours(drawn) > 1, "the bot avatar drew nothing")
+        assertTrue(drawn.sameAs(carved), "the pictures differ: ${colours(drawn)} and ${colours(carved)} colours, ${differing(drawn, carved)} pixels, ${drawn.width}x${drawn.height} and ${carved.width}x${carved.height}")
     }
 
     @Test
@@ -98,10 +98,16 @@ class BotLookAvatarTest {
         )
     }
 
-    private fun opaquePixels(bitmap: Bitmap): Int {
+    private fun colours(bitmap: Bitmap): Int {
+        val seen = HashSet<Int>()
+        for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) seen.add(bitmap.getPixel(x, y))
+        return seen.size
+    }
+
+    private fun differing(a: Bitmap, b: Bitmap): Int {
         var count = 0
-        for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) {
-            if (Color.alpha(bitmap.getPixel(x, y)) > 200) count++
+        for (y in 0 until minOf(a.height, b.height)) for (x in 0 until minOf(a.width, b.width)) {
+            if (a.getPixel(x, y) != b.getPixel(x, y)) count++
         }
         return count
     }
