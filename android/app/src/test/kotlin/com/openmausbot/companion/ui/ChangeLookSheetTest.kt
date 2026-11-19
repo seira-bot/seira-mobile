@@ -47,7 +47,7 @@ import org.robolectric.annotation.GraphicsMode
 
 @OptIn(ExperimentalTestApi::class)
 @RunWith(RobolectricTestRunner::class)
-@Config(sdk = [34])
+@Config(sdk = [34], qualifiers = "w390dp-h844dp-xxhdpi")
 @GraphicsMode(GraphicsMode.Mode.NATIVE)
 class ChangeLookSheetTest {
     @get:Rule val compose = createAndroidComposeRule<ComponentActivity>(
