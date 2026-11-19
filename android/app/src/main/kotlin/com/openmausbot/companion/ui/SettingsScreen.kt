@@ -46,6 +46,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
+import com.openmausbot.companion.ui.theme.ThemeMode
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.RosterDensity
@@ -83,7 +84,7 @@ fun SettingsScreen(
     val status by session.status.collectAsState()
     val notifications by environment.notifications.access.collectAsState()
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
-    val appearanceSkin by environment.chatPreferences.appearanceSkin.collectAsState()
+    val themeMode by environment.chatPreferences.themeMode.collectAsState()
     val rosterDensity by environment.chatPreferences.rosterDensity.collectAsState()
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
@@ -252,8 +253,8 @@ fun SettingsScreen(
             }
 
             SettingsSection(stringResource(R.string.mobile_settings_appearance)) {
-                SettingsRow(stringResource(R.string.mobile_settings_skin), appearanceSkin.label)
-                SettingsButton(stringResource(R.string.mobile_settings_choose_skin)) { choosingAppearance = true }
+                SettingsRow(stringResource(R.string.theme_mode_title), themeModeLabel(themeMode))
+                SettingsButton(stringResource(R.string.theme_mode_choose)) { choosingAppearance = true }
             }
 
             // Routine schedules live on the computer this phone is bound to.
@@ -420,19 +421,19 @@ fun SettingsScreen(
     if (choosingAppearance) {
         AlertDialog(
             onDismissRequest = { choosingAppearance = false },
-            title = { Text(stringResource(R.string.mobile_settings_choose_skin)) },
+            title = { Text(stringResource(R.string.theme_mode_choose)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    AppearanceSkin.entries.forEach { skin ->
+                    ThemeMode.entries.forEach { mode ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .heightIn(min = MIN_TOUCH_TARGET)
                                 .selectable(
-                                    selected = skin == appearanceSkin,
+                                    selected = mode == themeMode,
                                     role = Role.RadioButton,
                                     onClick = {
-                                        environment.chatPreferences.setAppearanceSkin(skin)
+                                        environment.chatPreferences.setThemeMode(mode)
                                         choosingAppearance = false
                                     },
                                 )
@@ -440,8 +441,8 @@ fun SettingsScreen(
                             horizontalArrangement = Arrangement.spacedBy(10.dp),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            RadioButton(selected = skin == appearanceSkin, onClick = null)
-                            Text(skin.label, modifier = Modifier.weight(1f))
+                            RadioButton(selected = mode == themeMode, onClick = null)
+                            Text(themeModeLabel(mode), modifier = Modifier.weight(1f))
                         }
                     }
                 }
@@ -707,3 +708,12 @@ internal fun shortenedAddress(address: String): String {
     val leading = minOf(20, maxOf(8, address.length - 8))
     return address.take(leading) + "…" + address.takeLast(6)
 }
+
+@Composable
+private fun themeModeLabel(mode: ThemeMode): String = stringResource(
+    when (mode) {
+        ThemeMode.LIGHT -> R.string.theme_mode_light
+        ThemeMode.DARK -> R.string.theme_mode_dark
+        ThemeMode.AUTO -> R.string.theme_mode_auto
+    },
+)

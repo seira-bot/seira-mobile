@@ -1,6 +1,8 @@
 package com.openmausbot.companion
 
 import android.Manifest
+import android.app.UiModeManager
+import android.graphics.Color
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -9,13 +11,21 @@ import android.os.Bundle
 import android.os.LocaleList
 import android.provider.Settings
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.lifecycleScope
+import com.openmausbot.companion.ui.theme.NightModeApplier
+import com.openmausbot.companion.ui.theme.resolvesDark
+import kotlinx.coroutines.launch
 import com.openmausbot.companion.dictation.SpeechDictation
 import com.openmausbot.companion.lifecycle.AlwaysOnConnectionService
 import com.openmausbot.companion.notifications.notificationTarget
@@ -88,7 +98,9 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
 
         notificationNavigation = PendingThreadNavigation(
             savedInstanceState?.getString(STATE_CONSUMED_NOTIFICATION),
@@ -167,12 +179,18 @@ class MainActivity : ComponentActivity() {
         val sharing = TranscriptSharing(this)
         val browser = CloudDesktopBrowser(this)
 
+        val chatPreferences = ChatPreferences(this)
+        val nightMode = NightModeApplier(getSystemService(UiModeManager::class.java))
+        lifecycleScope.launch {
+            chatPreferences.themeMode.collect(nightMode::apply)
+        }
+
         val environment = CompanionEnvironment(
             session = app.session,
             permissions = app.permissions,
             discovery = app.discovery,
             onboarding = app.onboarding,
-            chatPreferences = ChatPreferences(this),
+            chatPreferences = chatPreferences,
             camera = camera,
             mic = mic,
             notifications = notifications,
@@ -195,6 +213,13 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val pendingTarget by notificationNavigation.pending.collectAsState()
+            val themeMode by chatPreferences.themeMode.collectAsState()
+            val dark = themeMode.resolvesDark()
+            DisposableEffect(dark) {
+                val style = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark }
+                enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
+                onDispose {}
+            }
             CompositionLocalProvider(LocalCompanion provides environment) {
                 CompanionRoot(
                     pendingNotification = pendingTarget,
