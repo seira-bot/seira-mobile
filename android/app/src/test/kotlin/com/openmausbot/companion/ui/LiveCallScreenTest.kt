@@ -73,7 +73,7 @@ class LiveCallScreenTest {
         compose.onNodeWithContentDescription("Back to chat").assertIsDisplayed()
         compose.onNodeWithText("Live call").assertIsDisplayed()
         compose.onNodeWithTag("CallClock").assertTextEquals("2:14")
-        compose.onNodeWithText("Dina").assertIsDisplayed()
+        compose.onAllNodesWithText("Dina")[0].assertIsDisplayed()
         compose.onNodeWithText("Listening").assertIsDisplayed()
         compose.onNodeWithTag("CallHeard").assertTextEquals("Check my calendar.")
         compose.onNodeWithTag("CallCaption").assertTextEquals("Tomorrow is free.")

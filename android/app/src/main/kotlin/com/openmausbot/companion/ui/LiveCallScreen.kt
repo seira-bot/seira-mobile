@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -536,7 +537,6 @@ private fun CallControl(
     Column(
         modifier = modifier
             .width(64.dp)
-            .clip(RoundedCornerShape(32.dp))
             .clickable(role = Role.Button, onClick = onClick)
             .then(semanticsModifier),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -545,7 +545,7 @@ private fun CallControl(
         Box(Modifier.size(64.dp).background(fill, CircleShape), contentAlignment = Alignment.Center) {
             Icon(icon, contentDescription = null, tint = ink, modifier = Modifier.size(24.dp))
         }
-        Text(label, style = SeiraType.caption, color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        Text(label, style = SeiraType.caption, color = colors.ink3, maxLines = 1, softWrap = false, modifier = Modifier.wrapContentWidth(unbounded = true))
     }
 }
 
