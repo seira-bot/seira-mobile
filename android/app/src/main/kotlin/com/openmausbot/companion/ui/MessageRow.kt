@@ -1255,7 +1255,7 @@ fun ActivityRunChip(
     val turn by animateFloatAsState(
         targetValue = if (expanded) 180f else 0f,
         animationSpec = seiraTween(SeiraMotion.BASE),
-        label = "activity-chevron",
+        label = ACTIVITY_CHEVRON_ANIMATION,
     )
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         // The pill is 32 dp tall; the target around it is MIN_TOUCH_TARGET, the
@@ -1335,6 +1335,7 @@ fun ActivityRunChip(
 
 private val ACTIVITY_PILL_HEIGHT = 32.dp
 internal const val ACTIVITY_CHEVRON_TAG = "activity-chevron"
+private const val ACTIVITY_CHEVRON_ANIMATION = "activity-chevron"
 
 /** The receipt's status dot, sized to sit level with the 13 sp name beside it. */
 private val ACTIVITY_DOT = 7.dp

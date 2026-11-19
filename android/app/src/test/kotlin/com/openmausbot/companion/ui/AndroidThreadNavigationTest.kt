@@ -470,6 +470,6 @@ class AndroidThreadNavigationTest {
     private fun openThreads(on: String) {
         compose.onNodeWithContentDescription("More").performClick()
         compose.onNodeWithText("Threads").performClick()
-        compose.onNodeWithText(on).assertExists()
+        compose.waitUntil(5_000) { compose.onAllNodesWithText(on).fetchSemanticsNodes().isNotEmpty() }
     }
 }

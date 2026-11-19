@@ -27,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -317,13 +318,17 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier, fro
                 fontWeight = FontWeight.SemiBold,
                 color = colors.ink,
             )
-            Text(
-                text = from?.let { stringResource(R.string.chat_from_bot, it) }.orEmpty(),
-                fontSize = 12.sp,
-                color = colors.ink3,
-                maxLines = 1,
-                modifier = Modifier.weight(1f),
-            )
+            if (from != null) {
+                Text(
+                    text = stringResource(R.string.chat_from_bot, from),
+                    fontSize = 12.sp,
+                    color = colors.ink3,
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f),
+                )
+            } else {
+                Spacer(Modifier.weight(1f))
+            }
             Text(
                 text = if (card.rows.size == 1) stringResource(R.string.mobile_table_one_row) else stringResource(R.string.mobile_table_rows, card.rows.size),
                 fontSize = 12.sp,

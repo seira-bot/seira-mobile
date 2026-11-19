@@ -242,6 +242,8 @@ private const val CARET_ID = "stream-caret"
 
 /** The tag a test finds the caret by. */
 internal const val STREAM_CARET_TAG = "stream-caret"
+private const val CARET_BLINK = "caret"
+private const val CARET_ALPHA = "caret-alpha"
 
 /**
  * A space, then the caret as inline content, so it sits on the last line of the
@@ -269,7 +271,7 @@ private fun caretContent(): Map<String, InlineTextContent> {
                 val alpha = if (reduced) {
                     0.7f
                 } else {
-                    val blink = rememberInfiniteTransition(label = "caret")
+                    val blink = rememberInfiniteTransition(label = CARET_BLINK)
                     blink.animateFloat(
                         initialValue = 0.7f,
                         targetValue = 0.1f,
@@ -277,7 +279,7 @@ private fun caretContent(): Map<String, InlineTextContent> {
                             animation = tween(durationMillis = 500, easing = SeiraMotion.Ease),
                             repeatMode = RepeatMode.Reverse,
                         ),
-                        label = "caret-alpha",
+                        label = CARET_ALPHA,
                     ).value
                 }
                 Box(

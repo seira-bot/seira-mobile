@@ -652,7 +652,7 @@ private fun LoadedChat(
         if (liveCount == 0 || itemCount == 0) return@LaunchedEffect
         listState.scrollToItem(itemCount - 1)
     }
-    // The call bar sits under the transcript and changes height as a call
+    // The call bar sits over the transcript's end and changes height as a call
     // goes on: a caption line once it is live, a second line on the remote
     // bar. The list gets shorter from the bottom then, and a LazyColumn keeps
     // its top where it was, so the newest message would slide out of sight
@@ -661,8 +661,11 @@ private fun LoadedChat(
     LaunchedEffect(listState) {
         var height = -1
         snapshotFlow { listState.layoutInfo }.collect { info ->
-            val shrunkBy = if (height < 0) 0 else height - info.viewportSize.height
-            height = info.viewportSize.height
+            // The list runs under the bar and the composer, so the bar grows
+            // its bottom padding and the viewport itself stays the same size.
+            val room = info.viewportSize.height - info.beforeContentPadding - info.afterContentPadding
+            val shrunkBy = if (height < 0) 0 else height - room
+            height = room
             val by = TranscriptLayout.keepEndInView(info.endHiddenBelow(), shrunkBy)
             if (by == 0 || listState.isScrollInProgress) return@collect
             try {
