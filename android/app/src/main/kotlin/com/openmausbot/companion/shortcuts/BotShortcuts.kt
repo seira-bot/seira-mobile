@@ -53,7 +53,10 @@ class BotShortcuts(context: Context) {
                     id.startsWith(ID_PREFIX) &&
                         (!id.startsWith(mine) || Uri.decode(id.removePrefix(mine)) !in knownBotIds)
                 }
-            if (stale.isNotEmpty()) ShortcutManagerCompat.removeLongLivedShortcuts(appContext, stale)
+            if (stale.isNotEmpty()) {
+                ShortcutManagerCompat.removeDynamicShortcuts(appContext, stale)
+                ShortcutManagerCompat.removeLongLivedShortcuts(appContext, stale)
+            }
         }
         recent.reversed().forEach { (identity, avatar) -> push(computerId, identity, avatar) }
     }

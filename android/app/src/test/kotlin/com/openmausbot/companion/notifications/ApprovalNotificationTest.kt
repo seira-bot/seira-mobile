@@ -15,6 +15,7 @@ import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.notifications.NotificationFixture.REQUEST_ID
 import com.openmausbot.companion.notifications.NotificationFixture.THREAD_ID
 import com.openmausbot.companion.notifications.NotificationFixture.BOT_ID
+import com.openmausbot.companion.notifications.NotificationFixture.answerDispatcher
 import com.openmausbot.companion.notifications.NotificationFixture.liveSession
 import com.openmausbot.companion.shortcuts.BotShortcuts
 import kotlin.test.AfterTest
@@ -50,6 +51,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 class ApprovalNotificationTest {
     private lateinit var server: MockWebServer
+    private lateinit var dispatcher: NotificationFixture.AnswerDispatcher
     private lateinit var context: Application
     private lateinit var manager: NotificationManager
     private lateinit var poster: LocalNotificationPoster
@@ -57,6 +59,7 @@ class ApprovalNotificationTest {
     @BeforeTest
     fun setUp() {
         server = MockWebServer().apply { start() }
+        dispatcher = server.answerDispatcher()
         context = RuntimeEnvironment.getApplication() as Application
         shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
         manager = context.getSystemService(NotificationManager::class.java)
@@ -133,14 +136,14 @@ class ApprovalNotificationTest {
         val approved = NotificationActionHandler(session, poster).approve(request())
 
         assertTrue(approved)
-        val sent = server.takeRequest()
+        val sent = dispatcher.answers.poll(5, java.util.concurrent.TimeUnit.SECONDS)!!
         assertEquals("/api/threads/$THREAD_ID/respond", sent.path)
         assertEquals(
             mapOf("requestId" to REQUEST_ID, "behavior" to "allow"),
             CompanionJson.parseToJsonElement(sent.body.readUtf8()).jsonObject
                 .mapValues { it.value.jsonPrimitive.content },
         )
-        assertEquals(1, server.requestCount, "no always-allow grant is written")
+        assertEquals(1, dispatcher.answers.size, "no always-allow grant is written")
         assertEquals("Approved", text(posted(approvalFrame(), 1)))
         assertTrue(posted(approvalFrame(), 1).flags and Notification.FLAG_AUTO_CANCEL != 0)
     }
@@ -154,7 +157,7 @@ class ApprovalNotificationTest {
         NotificationActionHandler(session, poster)
             .handle(NotificationActions.approveIntent(context, request()))
 
-        assertEquals("/api/threads/$THREAD_ID/respond", server.takeRequest().path)
+        assertEquals("/api/threads/$THREAD_ID/respond", dispatcher.answers.poll(5, java.util.concurrent.TimeUnit.SECONDS)!!.path)
     }
 
     @Test
@@ -179,7 +182,7 @@ class ApprovalNotificationTest {
         val approved = NotificationActionHandler(session, poster).approve(request())
 
         assertFalse(approved)
-        assertEquals(0, server.requestCount)
+        assertEquals(0, dispatcher.answers.size)
         assertEquals("Couldn't approve. Open the chat to review.", text(posted(approvalFrame(), 1)))
     }
 
@@ -191,7 +194,7 @@ class ApprovalNotificationTest {
         val approved = NotificationActionHandler(session, poster).approve(request())
 
         assertFalse(approved)
-        assertEquals(0, server.requestCount)
+        assertEquals(0, dispatcher.answers.size)
     }
 
     @Test
@@ -202,7 +205,7 @@ class ApprovalNotificationTest {
         val approved = NotificationActionHandler(session, poster).approve(request())
 
         assertFalse(approved)
-        assertEquals(0, server.requestCount)
+        assertEquals(0, dispatcher.answers.size)
     }
 
     @Test
@@ -212,7 +215,7 @@ class ApprovalNotificationTest {
         val approved = NotificationActionHandler(session, poster).approve(request())
 
         assertFalse(approved)
-        assertEquals(0, server.requestCount)
+        assertEquals(0, dispatcher.answers.size)
     }
 
     @Test

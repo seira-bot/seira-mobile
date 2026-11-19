@@ -82,7 +82,19 @@ internal object NotificationFixture {
         .setHeader("Content-Type", "application/json")
         .setBody("{}")
 
-    /** A session already live on [server] with [fleet] loaded. */
+    class AnswerDispatcher : okhttp3.mockwebserver.QueueDispatcher() {
+        val answers = java.util.concurrent.LinkedBlockingQueue<okhttp3.mockwebserver.RecordedRequest>()
+
+        override fun dispatch(request: okhttp3.mockwebserver.RecordedRequest): MockResponse {
+            if (request.method == "GET") return MockResponse().setResponseCode(404)
+            answers.add(request)
+            return super.dispatch(request)
+        }
+    }
+
+    fun MockWebServer.answerDispatcher(): AnswerDispatcher =
+        AnswerDispatcher().also { dispatcher = it }
+
     suspend fun TestScope.liveSession(server: MockWebServer, fleet: Fleet): Session {
         val connection = requireNotNull(Connection.parse(server.url("/").toString()))
         val session = Session(

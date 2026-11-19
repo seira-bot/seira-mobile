@@ -17,6 +17,7 @@ import com.openmausbot.companion.core.NotificationFrame
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.notifications.NotificationFixture.BOT_ID
 import com.openmausbot.companion.notifications.NotificationFixture.THREAD_ID
+import com.openmausbot.companion.notifications.NotificationFixture.answerDispatcher
 import com.openmausbot.companion.notifications.NotificationFixture.liveSession
 import com.openmausbot.companion.shortcuts.BotShortcuts
 import kotlin.test.AfterTest
@@ -48,6 +49,7 @@ import org.robolectric.annotation.Config
 @Config(sdk = [34])
 class ConversationNotificationTest {
     private lateinit var server: MockWebServer
+    private lateinit var dispatcher: NotificationFixture.AnswerDispatcher
     private lateinit var context: Application
     private lateinit var manager: NotificationManager
     private lateinit var poster: LocalNotificationPoster
@@ -56,6 +58,7 @@ class ConversationNotificationTest {
     @BeforeTest
     fun setUp() {
         server = MockWebServer().apply { start() }
+        dispatcher = server.answerDispatcher()
         context = RuntimeEnvironment.getApplication() as Application
         shadowOf(context).grantPermissions(Manifest.permission.POST_NOTIFICATIONS)
         manager = context.getSystemService(NotificationManager::class.java)
@@ -139,7 +142,7 @@ class ConversationNotificationTest {
         val sent = NotificationActionHandler(session, poster).reply(request(), "On my way")
 
         assertTrue(sent)
-        val wire = server.takeRequest()
+        val wire = dispatcher.answers.poll(5, java.util.concurrent.TimeUnit.SECONDS)!!
         assertEquals("/api/bots/$BOT_ID/messages", wire.path)
         val body = CompanionJson.parseToJsonElement(wire.body.readUtf8()).jsonObject
         assertEquals("On my way", body.getValue("text").jsonPrimitive.content)
@@ -166,7 +169,7 @@ class ConversationNotificationTest {
 
         NotificationActionHandler(session, poster).handle(intent)
 
-        val body = CompanionJson.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
+        val body = CompanionJson.parseToJsonElement(dispatcher.answers.poll(5, java.util.concurrent.TimeUnit.SECONDS)!!.body.readUtf8()).jsonObject
         assertEquals("Thanks", body.getValue("text").jsonPrimitive.content)
     }
 
