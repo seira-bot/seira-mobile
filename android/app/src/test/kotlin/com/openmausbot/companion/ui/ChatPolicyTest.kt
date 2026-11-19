@@ -453,6 +453,8 @@ class ApprovalChoicesTest {
         )
         assertEquals("main", ApprovalChoices.alwaysAllowChoice(question))
         assertNull(ApprovalChoices.alwaysAllowChoice(question.copy(options = listOf("Deny"))))
+        // The same options on a permission card: "main" would answer "deny".
+        assertNull(ApprovalChoices.alwaysAllowChoice(question.copy(tool = "shell")))
     }
 
     private fun card(allowKey: String?) = OptionCard(

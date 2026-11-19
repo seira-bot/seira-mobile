@@ -419,13 +419,14 @@ object ApprovalChoices {
         if (isRefusal(option)) OptionEmphasis.SECONDARY else OptionEmphasis.PRIMARY
 
     /**
-     * Security invariant: the standing grant answers only with a label that
-     * `OptionCard.responseBehavior` sends as "allow", so a grant is never
-     * written beside a "deny".
+     * Security invariant: on a permission card the standing grant answers only
+     * with a label that `OptionCard.responseBehavior` sends as "allow", so a
+     * grant is never written beside a "deny". A question answers with its own
+     * text, so it takes the first option that is not a refusal.
      */
-    fun allowChoice(options: List<String>): String? =
+    fun allowChoice(options: List<String>, isPermission: Boolean = true): String? =
         options.firstOrNull { it.equals(ALLOW, ignoreCase = true) }
-            ?: options.firstOrNull { OptionCard.isApproval(it) }
+            ?: options.firstOrNull { if (isPermission) OptionCard.isApproval(it) else !isRefusal(it) }
 
     /**
      * What "Always allow this tool" answers with once the grant is written, or
@@ -436,7 +437,7 @@ object ApprovalChoices {
      * permission card as much as for a question.
      */
     fun alwaysAllowChoice(card: OptionCard): String? =
-        if (!card.isPending || card.allowKey == null) null else allowChoice(card.options)
+        if (!card.isPending || card.allowKey == null) null else allowChoice(card.options, card.isPermission)
 
     /**
      * "Always allow this tool" needs a key the card itself carried and a bot to

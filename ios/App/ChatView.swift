@@ -2964,12 +2964,15 @@ struct CardView: View {
     /// to explain it. The conventional label wins when it is present, which
     /// keeps the ordinary permission card behaving exactly as before.
     ///
-    /// Security invariant: only a label `OptionCard.responseBehavior` sends
-    /// as "allow", so a grant is never written beside a "deny".
+    /// Security invariant: on a permission card, only a label
+    /// `OptionCard.responseBehavior` sends as "allow", so a grant is never
+    /// written beside a "deny". A question answers with its own text, so it
+    /// takes the first option that is not a refusal.
     private var allowChoice: String? {
-        guard let options = message.card?.options else { return nil }
+        guard let card = message.card else { return nil }
+        let options = card.options
         return options.first { $0.caseInsensitiveCompare("Allow") == .orderedSame }
-            ?? options.first { OptionCard.isApproval($0) }
+            ?? options.first { card.isPermission ? OptionCard.isApproval($0) : !Self.isRefusal($0) }
     }
 
     /// The quieter button tint only. The wire answer comes from
