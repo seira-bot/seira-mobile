@@ -50,12 +50,20 @@ class LiveCallScreenTest {
         onClose = { taps += "close" },
     )
 
+    @androidx.compose.runtime.Composable
+    private fun WithEnvironment(content: @androidx.compose.runtime.Composable () -> Unit) {
+        val scene = androidx.compose.runtime.remember { WiringScene() }
+        androidx.compose.runtime.CompositionLocalProvider(LocalCompanion provides scene.environment) {
+            CompanionTheme(darkTheme = false, content = content)
+        }
+    }
+
     private fun live(muted: Boolean = false, speaker: Boolean = true, caption: String = "Tomorrow is free.", heard: String = "Check my calendar.") =
         LiveCallBarModel.Local("Live with Dina", caption, heard, muted, speaker, LiveCallPhase.LIVE, clock = "2:14")
 
     private fun mount(model: LiveCallBarModel.Local, speaking: Boolean = false) {
         compose.setContent {
-            CompanionTheme(darkTheme = false) { LiveCallScreen(model, bot, "Dina", speaking, actions) }
+            WithEnvironment { LiveCallScreen(model, bot, "Dina", speaking, actions) }
         }
     }
 
@@ -146,7 +154,7 @@ class LiveCallScreenTest {
         var expanded by mutableStateOf(true)
         val model = live()
         compose.setContent {
-            CompanionTheme(darkTheme = false) {
+            WithEnvironment {
                 Box {
                     if (expanded) {
                         LiveCallScreen(model, bot, "Dina", false, LiveCallScreenActions({ expanded = false }, {}, {}, {}, {}, {}))

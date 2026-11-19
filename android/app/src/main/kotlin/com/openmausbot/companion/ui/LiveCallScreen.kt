@@ -312,8 +312,8 @@ private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, spea
     val muted = model.muted && model.phase == LiveCallPhase.LIVE
     val reduced = rememberReducedMotion()
     val target = LiveCallScreenRules.ringScale(muted)
-    val outer by animateFloatAsState(target, seiraTween(SeiraMotion.SLOW, reduced), label = "ringOuter")
-    val middle by animateFloatAsState(target, seiraTween(260, reduced), label = "ringMiddle")
+    val outer by animateFloatAsState(target, seiraTween(SeiraMotion.SLOW, reduced))
+    val middle by animateFloatAsState(target, seiraTween(260, reduced))
     val (a3, a2, a1) = if (colors.isDark) Triple(0.12f, 0.22f, 0.10f) else Triple(0.10f, 0.18f, 0.07f)
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         Box(
@@ -387,11 +387,10 @@ private fun VoiceBars(moving: Boolean, muted: Boolean) {
     val reduced = rememberReducedMotion()
     val heights = LiveCallScreenRules.barHeights(muted)
     val swing = if (moving && !reduced) {
-        rememberInfiniteTransition(label = "voiceBars").animateFloat(
+        rememberInfiniteTransition().animateFloat(
             initialValue = 0f,
             targetValue = 1f,
             animationSpec = infiniteRepeatable(tween(520, easing = LinearEasing), RepeatMode.Reverse),
-            label = "voiceSwing",
         ).value
     } else {
         0f
@@ -404,7 +403,7 @@ private fun VoiceBars(moving: Boolean, muted: Boolean) {
         heights.forEachIndexed { index, base ->
             val wave = if (index % 2 == 0) swing else 1f - swing
             val target = if (muted) base.dp else (base + (16 - base) * wave * 0.5f).dp
-            val height by animateDpAsState(target, seiraTween(SeiraMotion.BASE, reduced), label = "bar$index")
+            val height by animateDpAsState(target, seiraTween(SeiraMotion.BASE, reduced))
             Box(Modifier.width(3.dp).height(height).background(colors.ink2, CircleShape))
         }
     }
@@ -515,7 +514,6 @@ private fun CallControl(
             else -> colors.call.control
         },
         seiraTween(SeiraMotion.FAST, reduced),
-        label = "controlFill",
     )
     val ink by animateColorAsState(
         when {
@@ -524,7 +522,6 @@ private fun CallControl(
             else -> colors.ink
         },
         seiraTween(SeiraMotion.FAST, reduced),
-        label = "controlInk",
     )
     val semanticsModifier = if (description != null) {
         Modifier.clearAndSetSemantics {

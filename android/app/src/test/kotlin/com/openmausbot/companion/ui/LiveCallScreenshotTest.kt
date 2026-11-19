@@ -24,6 +24,12 @@ class LiveCallScreenshotTest {
     )
     private val actions = LiveCallScreenActions({}, {}, {}, {}, {}, {})
 
+    @androidx.compose.runtime.Composable
+    private fun WithEnvironment(content: @androidx.compose.runtime.Composable () -> Unit) {
+        val scene = androidx.compose.runtime.remember { WiringScene() }
+        androidx.compose.runtime.CompositionLocalProvider(LocalCompanion provides scene.environment, content = content)
+    }
+
     private fun model(muted: Boolean) = LiveCallBarModel.Local(
         title = "Live with Seira",
         caption = "Dina is free from 10:00 to 11:00. Should I send the invite now?",
@@ -36,16 +42,16 @@ class LiveCallScreenshotTest {
 
     @Test
     fun lightCallIsWritten() {
-        assertTrue(compose.captureDesign("call", ThemeMode.LIGHT) { LiveCallScreen(model(false), bot, "Seira", true, actions) }.length() > 0)
+        assertTrue(compose.captureDesign("call", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions) } }.length() > 0)
     }
 
     @Test
     fun darkCallIsWritten() {
-        assertTrue(compose.captureDesign("call", ThemeMode.DARK) { LiveCallScreen(model(false), bot, "Seira", true, actions) }.length() > 0)
+        assertTrue(compose.captureDesign("call", ThemeMode.DARK) { WithEnvironment { LiveCallScreen(model(false), bot, "Seira", true, actions) } }.length() > 0)
     }
 
     @Test
     fun mutedCallIsWritten() {
-        assertTrue(compose.captureDesign("call-muted", ThemeMode.LIGHT) { LiveCallScreen(model(true), bot, "Seira", false, actions) }.length() > 0)
+        assertTrue(compose.captureDesign("call-muted", ThemeMode.LIGHT) { WithEnvironment { LiveCallScreen(model(true), bot, "Seira", false, actions) } }.length() > 0)
     }
 }
