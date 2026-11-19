@@ -78,7 +78,7 @@ internal fun BotThreadTree(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(start = 88.dp, end = 18.dp, bottom = if (isExpanded) 12.dp else 0.dp),
+            .padding(start = 80.dp, end = 18.dp, bottom = if (isExpanded) 12.dp else 0.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Row(
