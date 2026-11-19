@@ -204,8 +204,10 @@ final class Session: ObservableObject {
         }
         NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
             guard let self, let bot = self.state.bot(botId) else { return nil }
-            if let path = bot.avatarUrl,
-               let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
+            guard let path = bot.avatarUrl, (bot.avatarCrop ?? .mascot) != .mascot else {
+                return SeiraPlate.plateImage(look: SeiraLook(bot: bot), size: 128, scale: 2)?.pngData()
+            }
+            if let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
             Task { _ = await self.avatarData(for: bot) }
             return nil
         }

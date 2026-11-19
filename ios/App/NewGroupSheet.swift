@@ -29,7 +29,7 @@ struct NewGroupSheet: View {
                             Haptics.selection()
                         } label: {
                             HStack(spacing: 12) {
-                                BotAvatarView(bot: bot, size: 36, state: .idle, animated: false)
+                                BotAvatarView(bot: bot, size: 36)
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text(bot.name).font(.system(size: 16, weight: .semibold)).foregroundStyle(Color.primary)
                                     if !bot.title.isEmpty {
@@ -39,7 +39,7 @@ struct NewGroupSheet: View {
                                 Spacer()
                                 Image(systemName: members.contains(bot.id) ? "checkmark.circle.fill" : "circle")
                                     .font(.system(size: 22))
-                                    .foregroundStyle(members.contains(bot.id) ? MausPalette.color(bot.color) : Color.secondary.opacity(0.4))
+                                    .foregroundStyle(members.contains(bot.id) ? SeiraPalette.color(bot.color) : Color.secondary.opacity(0.4))
                             }
                         }
                         .buttonStyle(.plain)

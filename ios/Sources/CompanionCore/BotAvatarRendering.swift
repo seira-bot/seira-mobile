@@ -13,26 +13,26 @@ import Foundation
 /// renderers can be compared by reading them side by side.
 public enum BotAvatarOutcome: String, CaseIterable, Hashable, Sendable {
     /// The uploaded picture itself, masked to a circle/rounded/square, shown
-    /// exactly as it is. No mascot: the image replaces it.
+    /// exactly as it is. No character: the image replaces it.
     case flatImage
-    /// The mascot in the bot's own colour gradient. Also the fallback for
-    /// everything that cannot be drawn.
-    case gradientMascot
+    /// The Seira character in the bot's own look, on its identity plate. Also
+    /// the fallback for everything that cannot be drawn.
+    case character
 }
 
 /// Pick how to draw a bot's avatar from the profile plus what has actually
 /// been confirmed to load.
 ///
 /// The fallback is the spec's, not a convenience: a missing, stale or
-/// undecodable attachment lands on `.gradientMascot`, so identity is never an
+/// undecodable attachment lands on `.character`, so identity is never an
 /// empty placeholder or a half-drawn body. On the phone the confirmation is
 /// the decode itself — `imageDecoded` is true only once `UIImage(data:)`
 /// returned something — where the desktop leans on the `<img>` element's own
 /// `onError` instead.
 ///
 /// `failed` is a fetch or decode that already came back empty; `imageDecoded
-/// == false` on its own also covers "still in flight". Both draw the gradient
-/// mascot, and deliberately so: an avatar that is still loading shows the
+/// == false` on its own also covers "still in flight". Both draw the
+/// character, and deliberately so: an avatar that is still loading shows the
 /// bot's colours rather than a hole.
 public func resolveBotAvatarOutcome(
     crop: AvatarCrop,
@@ -40,10 +40,10 @@ public func resolveBotAvatarOutcome(
     imageDecoded: Bool,
     failed: Bool
 ) -> BotAvatarOutcome {
-    // No attachment at all, or the bot asked for the plain mascot.
-    guard hasUrl, crop != .mascot else { return .gradientMascot }
+    // No attachment at all, or the bot asked for the plain character.
+    guard hasUrl, crop != .mascot else { return .character }
     // Nothing to draw with yet — in flight, or gone.
-    guard imageDecoded, !failed else { return .gradientMascot }
+    guard imageDecoded, !failed else { return .character }
     return .flatImage
 }
 

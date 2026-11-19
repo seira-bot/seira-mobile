@@ -62,6 +62,10 @@ struct ChatEntity: AppEntity, Codable, Equatable {
     let name: String
     let color: String
     let face: String
+    /// Optional so an identity saved before the look existed still decodes.
+    let mascotBody: String?
+    let mascotFaceColor: String?
+    let mascotAccessories: [String]?
 
     static let typeDisplayRepresentation = TypeDisplayRepresentation(name: "Chat")
     static let defaultQuery = ChatEntityQuery()
@@ -72,19 +76,38 @@ struct ChatEntity: AppEntity, Codable, Equatable {
         DisplayRepresentation(title: "\(name)")
     }
 
-    init(id: String, name: String, color: String, face: String) {
+    var look: SeiraLook {
+        SeiraLook(
+            hair: mascotBody ?? SeiraLookCatalog.defaultHair,
+            color: color,
+            faceInk: mascotFaceColor,
+            accessories: mascotAccessories ?? []
+        )
+    }
+
+    init(
+        id: String, name: String, color: String, face: String,
+        mascotBody: String? = nil, mascotFaceColor: String? = nil, mascotAccessories: [String]? = nil
+    ) {
         self.id = id
         self.name = name
         self.color = color
         self.face = face
+        self.mascotBody = mascotBody
+        self.mascotFaceColor = mascotFaceColor
+        self.mascotAccessories = mascotAccessories
     }
 
     init(row: WidgetSnapshot.Row) {
+        let look = row.chat.seiraLook
         self.init(
             id: row.chat.threadId,
             name: row.chat.name,
             color: row.chat.color,
-            face: row.face
+            face: row.face,
+            mascotBody: look.hair,
+            mascotFaceColor: look.faceInk,
+            mascotAccessories: look.accessories
         )
     }
 }
@@ -192,7 +215,7 @@ struct BotTimelineProvider: AppIntentTimelineProvider {
         BotEntry(
             date: Date(),
             state: .quiet(WidgetSnapshot.empty()),
-            entity: ChatEntity(id: "demo", name: "Seira", color: "", face: MausState.idle.rawValue)
+            entity: ChatEntity(id: "demo", name: "Seira", color: "", face: CharacterMood.idle.rawValue)
         )
     }
 
@@ -283,15 +306,17 @@ struct BotWidgetView: View {
         .widgetURL(entry.entity.flatMap { WidgetChatLink.url(threadId: $0.threadId) })
     }
 
+    private func faceHead(_ entity: ChatEntity) -> some View {
+        let look = entry.row?.chat.seiraLook ?? entity.look
+        let mood = CharacterMood(rawValue: entry.row?.face ?? entity.face) ?? .idle
+        return SeiraPlateHead(look: look, mood: mood, size: 28)
+    }
+
     @ViewBuilder
     private func content(for entity: ChatEntity) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                MausFaceStill(
-                    color: entry.row?.chat.color ?? entity.color,
-                    state: MausState(rawValue: entry.row?.face ?? entity.face) ?? .idle,
-                    size: 28
-                )
+                faceHead(entity)
                 Text(entry.row?.chat.name ?? entity.name)
                     .font(.system(size: 14, weight: .semibold))
                     .lineLimit(1)
