@@ -44,6 +44,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -75,7 +76,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.openmausbot.companion.R
 import com.openmausbot.companion.audio.LiveCallPhase
 import com.openmausbot.companion.audio.MicrophoneAccess
+import com.openmausbot.companion.character.SeiraCharacter
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.ui.theme.IdentityAvatar
 import com.openmausbot.companion.ui.theme.InkPillButton
 import com.openmausbot.companion.ui.theme.Seira
@@ -336,12 +339,13 @@ private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, spea
                     .border(BorderStroke(1.dp, identity.copy(alpha = a2)), CircleShape),
             )
             Box(Modifier.size(ring - inset60 * 2).background(identity.copy(alpha = a1), CircleShape))
-            val face = ring * 0.52f
-            if (bot != null) {
-                IdentityAvatar(bot = bot, size = face, animated = animateAvatar)
-            } else {
-                Box(Modifier.size(face).background(identityPlate(null, colors.isDark), CircleShape))
-            }
+            val talk = rememberUpdatedState(if (speaking) SPEAKING_TALK_LEVEL else 0f)
+            SeiraCharacter(
+                look = bot?.let(SeiraLook::from) ?: SeiraLook.SEIRA,
+                size = minOf(156.dp, ring * 0.7f),
+                sway = animateAvatar,
+                talkLevel = { talk.value },
+            )
         }
         Spacer(Modifier.height(8.dp))
         Text(botName, style = SeiraType.title2, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.padding(horizontal = 24.dp))
@@ -350,8 +354,10 @@ private fun Hero(model: LiveCallBarModel.Local, bot: Bot?, botName: String, spea
     }
 }
 
+private const val SPEAKING_TALK_LEVEL = 0.6f
+
 private fun identityArgb(bot: Bot?): Int =
-    if (bot == null) MausPalette.FALLBACK else MausPalette.argb(bot.color)
+    if (bot == null) BotPalette.FALLBACK else BotPalette.argb(bot.color)
 
 @Composable
 private fun StatusLine(model: LiveCallBarModel.Local, botName: String, speaking: Boolean, muted: Boolean) {

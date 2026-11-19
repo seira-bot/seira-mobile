@@ -72,7 +72,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
+import com.openmausbot.companion.character.CarvedAvatar
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.ChatSummary
@@ -1026,22 +1028,25 @@ private fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.Top,
     ) {
-        // Who said it. Two hits with the same words are otherwise identical.
-        Icon(
-            // A person for what you said, the Maus mark for what a bot said —
-            // iOS makes the same split with person.fill and a speech bubble.
-            painter = if (SearchHitRole.isFromUser(hit.role)) {
-                rememberVectorPainter(Icons.Filled.Person)
-            } else {
-                painterResource(R.drawable.ic_maus_mark)
-            },
-            contentDescription = localizedMobileCopy(SearchHitRole.contentDescription(hit.role, hit.name)),
-            tint = secondaryTint,
-            modifier = Modifier
-                .size(26.dp)
-                .background(secondaryTint.copy(alpha = 0.13f), CircleShape)
-                .padding(5.dp),
-        )
+        val who = localizedMobileCopy(SearchHitRole.contentDescription(hit.role, hit.name))
+        if (SearchHitRole.isFromUser(hit.role)) {
+            Icon(
+                painter = rememberVectorPainter(Icons.Filled.Person),
+                contentDescription = who,
+                tint = secondaryTint,
+                modifier = Modifier
+                    .size(26.dp)
+                    .background(secondaryTint.copy(alpha = 0.13f), CircleShape)
+                    .padding(5.dp),
+            )
+        } else {
+            CarvedAvatar(
+                look = SeiraLook.SEIRA,
+                size = 26.dp,
+                contentDescription = who,
+                modifier = Modifier.background(secondaryTint.copy(alpha = 0.13f), CircleShape),
+            )
+        }
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(
@@ -1097,7 +1102,7 @@ fun StatusBanner() {
     val banner: Pair<String, Color>? = when (val current = status) {
         Session.Status.Live, Session.Status.Unpaired -> null
         Session.Status.Connecting -> stringResource(R.string.mobile_connecting_fd3e7969) to secondaryTint
-        is Session.Status.Offline -> current.message to Color(MausPalette.argb("orange"))
+        is Session.Status.Offline -> current.message to Color(BotPalette.argb("orange"))
         Session.Status.Unauthorized ->
             stringResource(R.string.mobile_phone_unpaired_banner) to MaterialTheme.colorScheme.error
     }

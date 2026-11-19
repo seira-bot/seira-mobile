@@ -293,7 +293,7 @@ class RoutineRulesTest {
         val blocked = RoutineRunAvailability(cloudConfigured = true, cloudEngines = emptySet())
 
         assertEquals(
-            RoutineRules.MAUS_FOOTER,
+            RoutineRules.PAIRED_COMPUTER_FOOTER,
             RoutineRules.locationFooter(RoutineRunLocation.MAUS, blocked, "claude"),
         )
         assertEquals(

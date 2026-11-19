@@ -592,7 +592,7 @@ internal fun runStatusTint(status: RoutineRules.RunStatus): Color = when (status
 }
 
 /** What "this stopped and is waiting for you" is painted with. */
-internal val attentionTint: Color = Color(MausPalette.argb("orange"))
+internal val attentionTint: Color = Color(BotPalette.argb("orange"))
 
 @Composable
 internal fun SectionHeading(text: String) {

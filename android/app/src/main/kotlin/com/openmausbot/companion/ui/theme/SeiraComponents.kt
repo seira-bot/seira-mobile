@@ -225,6 +225,7 @@ internal fun IdentityAvatar(
     waitingDot: Boolean = false,
     state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
+    sway: Boolean = false,
     contentDescription: String? = null,
 ) {
     val colors = Seira.colors
@@ -257,6 +258,7 @@ internal fun IdentityAvatar(
                 size = size,
                 state = state,
                 animated = animated,
+                sway = sway,
                 contentDescription = contentDescription,
             )
         }

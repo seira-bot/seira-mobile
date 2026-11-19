@@ -190,7 +190,7 @@ internal fun BotPickRow(bot: Bot, selected: Boolean, onToggle: () -> Unit) {
             Icon(
                 imageVector = Icons.Filled.CheckCircle,
                 contentDescription = null,
-                tint = Color(MausPalette.argb(bot.color)),
+                tint = Color(BotPalette.argb(bot.color)),
                 modifier = Modifier.size(22.dp),
             )
         } else {

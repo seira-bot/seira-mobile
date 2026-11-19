@@ -801,7 +801,7 @@ internal fun RoomFaces(members: List<Bot>, size: Dp) {
     Box(modifier = Modifier.size(size)) {
         val firstMember = members.getOrNull(0)
         if (firstMember == null) {
-            MausAvatar(color = ROOM_COLOR, size = size, state = CharacterMood.HAPPY, animated = false)
+            SeiraRoomAvatar(size = size)
         } else {
             IdentityAvatar(
                 bot = firstMember,

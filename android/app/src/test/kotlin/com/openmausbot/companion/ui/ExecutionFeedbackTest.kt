@@ -499,9 +499,9 @@ class CardClipboardTest {
     @Test
     fun `Copy CSV writes the table and confirms it exactly once`() {
         val recorder = Recorder()
-        recorder.clipboard()("id,name\n1,maus")
+        recorder.clipboard()("id,name\n1,dina")
 
-        assertEquals(listOf("id,name\n1,maus"), recorder.written)
+        assertEquals(listOf("id,name\n1,dina"), recorder.written)
         assertEquals(listOf(HapticCue.SELECT), recorder.played)
     }
 
