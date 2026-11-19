@@ -79,7 +79,7 @@ fun LiveCallSettingsSheet(onDismiss: () -> Unit) {
     }
 
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
+    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = com.openmausbot.companion.ui.theme.Seira.colors.sheet) {
         LiveCallSettingsForm(
             settings = settings,
             speaker = local.speaker,
