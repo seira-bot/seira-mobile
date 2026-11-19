@@ -98,11 +98,13 @@ extension Color {
 }
 
 enum SeiraIdentity {
-    private static let fallbackHex: UInt32 = 0xFF3D64
+    private static let fallbackHex: UInt32 = 0x8E8E93
 
+    /// A bot's `color` is a palette name ("green", "teal"); a hex value also works.
     private static func parse(_ hex: String?) -> UInt32 {
         guard let hex else { return fallbackHex }
-        let digits = hex.hasPrefix("#") ? String(hex.dropFirst()) : hex
+        let resolved = MausPalette.hexString(hex.lowercased()) ?? hex
+        let digits = resolved.hasPrefix("#") ? String(resolved.dropFirst()) : resolved
         guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return fallbackHex }
         return value
     }
