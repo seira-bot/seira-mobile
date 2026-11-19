@@ -85,7 +85,12 @@ class ChangeLookSheetMotionTest {
         Settings.Global.putFloat(compose.activity.contentResolver, Settings.Global.ANIMATOR_DURATION_SCALE, 0f)
         open()
         tapClose()
-        compose.mainClock.advanceTimeBy(1000)
+        for (t in listOf(16, 100, 1000)) {
+            compose.mainClock.advanceTimeBy(t.toLong())
+            val n = compose.onAllNodes(androidx.compose.ui.test.hasText("Change look")).fetchSemanticsNodes().size
+            val c = compose.onAllNodesWithContentDescription("Close").fetchSemanticsNodes().size
+            println("PROBE t=$t title=$n close=$c dismissed=$dismissed")
+        }
         assertEquals(1, dismissed)
     }
 }
