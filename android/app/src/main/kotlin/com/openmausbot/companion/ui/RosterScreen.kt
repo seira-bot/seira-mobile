@@ -151,6 +151,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
     // would race two bots into existence.
     var creatingBot by remember { mutableStateOf(false) }
     var managingThreads by remember { mutableStateOf<Chat?>(null) }
+    var changingLook by remember { mutableStateOf<Bot?>(null) }
     var showingNewChat by remember { mutableStateOf(false) }
     var teamExpanded by rememberSaveable { mutableStateOf(false) }
     var profile by remember { mutableStateOf<Profile?>(null) }
@@ -443,6 +444,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
                                     onOpen = { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) },
                                     onCreateThread = createThread,
                                     onManageThreads = { bot -> managingThreads = Chat.BotChat(bot) },
+                                    onChangeLook = { bot -> changingLook = bot },
                                 )
                             }
                         }
@@ -703,6 +705,10 @@ fun RosterScreen(navigator: CompanionNavigator) {
 
     if (showingNewSection) {
         NewSectionSheet(onDismiss = { showingNewSection = false })
+    }
+
+    changingLook?.let { bot ->
+        ChangeLookSheet(bot = state.bot(bot.id) ?: bot, onDismiss = { changingLook = null })
     }
 
     managingThreads?.let { chat ->

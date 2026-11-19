@@ -435,6 +435,7 @@ class TactileActionTest {
                 TactileAction.SWITCH_COMPUTER to HapticCue.SELECT,
                 TactileAction.CONNECT_ANOTHER_COMPUTER to HapticCue.SELECT,
                 TactileAction.CHOOSE_QUICK_REPLY_ICON to HapticCue.SELECT,
+                TactileAction.SAVE_LOOK_SUCCESS to HapticCue.SUCCESS,
             ),
             TactileAction.entries.associateWith { it.cue },
         )
