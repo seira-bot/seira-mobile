@@ -1,24 +1,33 @@
 package com.openmausbot.companion.ui
 
-import androidx.compose.ui.res.stringResource
-
+import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.ClipData
+import android.content.Context
+import android.content.Intent
+import android.provider.Settings
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -32,50 +41,52 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.openmausbot.companion.R
-import com.openmausbot.companion.ui.theme.ThemeMode
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.Session
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraCard
+import com.openmausbot.companion.ui.theme.SeiraMark
+import com.openmausbot.companion.ui.theme.SeiraType
+import com.openmausbot.companion.ui.theme.SegmentedControl
+import com.openmausbot.companion.ui.theme.GlassCircleButton
+import com.openmausbot.companion.ui.theme.ThemeMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * What little the phone gets to configure — the port of
- * `ios/App/SettingsView.swift`.
- *
- * Almost nothing, on purpose: Phone settings, API keys and pairing all live
- * on the computer, because losing the phone must not mean losing the ability to
- * lock it out (§13). This is a status page with an unpair button.
- *
- * It is also the screen the unpaired home reaches, which is why both actions are
- * optional. `SettingsView(onConnect:)` in `ios/App/SettingsView.swift` does the
- * same thing: someone who answered "Not now" can still get to notifications
- * without first entering the connection flow they just declined, and the parts
- * that need a pairing — routines, unpairing, the address — are simply not there
- * to be pressed.
+ * Phone settings. Almost everything else lives on the computer, because losing
+ * the phone must not mean losing the ability to lock it out. The screen is also
+ * the one the unpaired home reaches, so the actions that need a pairing are
+ * simply absent without one.
  */
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
     onOpenRoutines: (() -> Unit)? = null,
     onOpenConnectedApps: (() -> Unit)? = null,
-    /** Offered instead of the computer's details when there is no pairing. */
     onConnect: (() -> Unit)? = null,
+    accounts: AccountInfoSource? = null,
 ) {
     val environment = LocalCompanion.current
     val session = environment.session
@@ -86,9 +97,12 @@ fun SettingsScreen(
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
     val themeMode by environment.chatPreferences.themeMode.collectAsState()
     val rosterDensity by environment.chatPreferences.rosterDensity.collectAsState()
+    val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
     val haptics = rememberHaptics()
+    val context = LocalContext.current
+    val colors = Seira.colors
 
     var editingAddress by remember { mutableStateOf(false) }
     var addressText by remember { mutableStateOf("") }
@@ -100,198 +114,351 @@ fun SettingsScreen(
     var confirmingUnpair by remember { mutableStateOf(false) }
     var pendingComputerRemoval by remember { mutableStateOf<Connection?>(null) }
     var choosingActivity by remember { mutableStateOf(false) }
-    var choosingAppearance by remember { mutableStateOf(false) }
     var choosingDensity by remember { mutableStateOf(false) }
     var editingQuickReplies by remember { mutableStateOf(false) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderBackButton(onBack)
-            Text(stringResource(R.string.mobile_settings_c7f73bb5), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-        }
-        HorizontalDivider()
+    var channelStates by remember { mutableStateOf(readChannelStates(context)) }
+    LifecycleResumeEffect(Unit) {
+        environment.notifications.refresh()
+        channelStates = readChannelStates(context)
+        onPauseOrDispose {}
+    }
 
-        Column(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
-        ) {
-            SettingsSection(stringResource(R.string.mobile_computer_924645b3)) {
-                val bound = connection
-                if (bound != null) {
-                    val address = SettingsPolicy.addressText(bound)
-                    SettingsRow(stringResource(R.string.mobile_settings_name), bound.name)
-                    AddressRow(
-                        address = address,
-                        expanded = showingFullAddress,
-                        copied = addressCopied,
-                        onToggle = { showingFullAddress = !showingFullAddress },
-                        onCopy = {
+    val showsApps = onOpenConnectedApps != null
+    val source = accounts ?: remember(session, showsApps) {
+        AccountInfoSource {
+            AccountInfo(
+                profile = session.configStatus()?.profile,
+                connectedApps = if (showsApps) {
+                    session.loadAllConnectorStatuses()
+                        ?.takeIf { it.isAuthoritative }
+                        ?.services?.values?.count { it.connected }
+                } else {
+                    null
+                },
+            )
+        }
+    }
+    var account by remember { mutableStateOf(AccountInfo()) }
+    LaunchedEffect(connection?.id, source) {
+        account = if (connection != null) source.load() else AccountInfo()
+    }
+
+    val version = remember {
+        runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
+            .getOrNull()
+            .orEmpty()
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(colors.app)
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp),
+    ) {
+        Column(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) {
+            Row(modifier = Modifier.padding(start = 0.dp)) {
+                GlassCircleButton(
+                    icon = SeiraIcons.ChevronLeft,
+                    contentDescription = stringResource(R.string.mobile_back_b52b36b7),
+                    onClick = onBack,
+                )
+            }
+            Text(
+                stringResource(R.string.mobile_settings_c7f73bb5),
+                style = SeiraType.title1,
+                color = colors.ink,
+                modifier = Modifier.padding(start = 4.dp, top = 6.dp),
+            )
+        }
+
+        val bound = connection
+        if (bound != null) {
+            Spacer(Modifier.height(18.dp))
+            ProfileCard(account.profile, bound)
+        }
+
+        SettingsGroupTitle(stringResource(R.string.mobile_settings_appearance))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            Column(modifier = Modifier.padding(6.dp)) {
+                val modes = listOf(ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.AUTO)
+                SegmentedControl(
+                    options = listOf(
+                        stringResource(R.string.theme_mode_light) to SeiraIcons.Sun,
+                        stringResource(R.string.theme_mode_dark) to SeiraIcons.Moon,
+                        stringResource(R.string.theme_mode_auto) to SeiraIcons.Smartphone,
+                    ),
+                    selectedIndex = modes.indexOf(themeMode).coerceAtLeast(0),
+                    onSelect = { environment.chatPreferences.setThemeMode(modes[it]) },
+                )
+                Text(
+                    stringResource(R.string.settings_appearance_caption),
+                    style = SeiraType.callout,
+                    color = colors.ink3,
+                    modifier = Modifier.padding(start = 10.dp, end = 10.dp, top = 8.dp, bottom = 6.dp),
+                )
+            }
+        }
+
+        SettingsGroupTitle(stringResource(R.string.settings_your_computer))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            if (bound != null) {
+                val live = status == Session.Status.Live
+                DesignRow(
+                    title = bound.name,
+                    icon = SeiraIcons.Laptop,
+                    minHeight = 64.dp,
+                    subtitle = if (live) connectedStateText(bound) else localizedConnectionStatus(status),
+                    subtitleDot = if (live) colors.success else null,
+                )
+                SettingsHairline(50.dp)
+                val address = SettingsPolicy.addressText(bound)
+                DesignRow(
+                    title = stringResource(R.string.mobile_address_d70f93df),
+                    subtitle = if (showingFullAddress) null else shortenedAddress(address),
+                    onClick = { showingFullAddress = !showingFullAddress },
+                    trailing = {
+                        Text(
+                            if (showingFullAddress) stringResource(R.string.mobile_hide_full_address_63c5e519) else stringResource(R.string.mobile_show_full_address_889be5c7),
+                            style = SeiraType.callout,
+                            color = colors.ink3,
+                        )
+                    },
+                )
+                if (showingFullAddress) {
+                    SelectionContainer {
+                        Text(
+                            text = address,
+                            style = SeiraType.callout,
+                            fontFamily = FontFamily.Monospace,
+                            color = colors.ink2,
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                        )
+                    }
+                }
+                Row(modifier = Modifier.padding(horizontal = 8.dp), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(
+                        onClick = {
                             scope.launch {
-                                clipboard.setClipEntry(
-                                    ClipEntry(ClipData.newPlainText(ADDRESS_CLIP_LABEL, address)),
-                                )
+                                clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(ADDRESS_CLIP_LABEL, address)))
                                 addressCopied = true
                                 delay(COPIED_LABEL_MILLIS)
                                 addressCopied = false
                             }
                         },
-                    )
-                    // The stored address can simply go stale. Editing it here
-                    // keeps the pairing and its token (§7).
-                    SettingsButton(stringResource(R.string.mobile_edit_address_31fe67f4)) {
-                        addressText = address
-                        addressError = null
-                        editingAddress = true
+                        modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET),
+                    ) {
+                        Text(
+                            if (addressCopied) stringResource(R.string.mobile_copied_8e3df45a) else stringResource(R.string.mobile_copy_af74f7c5),
+                            color = colors.ink,
+                        )
                     }
-                } else if (onConnect != null) {
-                    SettingsButton(stringResource(R.string.mobile_settings_connect_computer), onClick = onConnect)
+                    TextButton(
+                        onClick = {
+                            addressText = address
+                            addressError = null
+                            editingAddress = true
+                        },
+                        modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET),
+                    ) { Text(stringResource(R.string.mobile_edit_address_31fe67f4), color = colors.ink) }
                 }
-                SettingsRow(stringResource(R.string.mobile_settings_connection_label), localizedConnectionStatus(status))
-                if (bound != null) {
-                    SettingsButton(stringResource(R.string.mobile_settings_connect_another_computer)) {
-                        haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
-                        session.beginPairing()
-                    }
-                }
+            } else {
+                DesignRow(
+                    title = stringResource(R.string.mobile_settings_connection_label),
+                    subtitle = localizedConnectionStatus(status),
+                    icon = SeiraIcons.Laptop,
+                    minHeight = 64.dp,
+                )
             }
 
-            val otherComputers = connections.filter { it.id != connection?.id }
-            if (otherComputers.isNotEmpty()) {
-                SettingsSection(stringResource(R.string.mobile_settings_other_computers)) {
-                    otherComputers.forEach { computer ->
-                        SettingsButton(stringResource(R.string.mobile_settings_use_computer, computer.name)) {
-                            haptics.play(TactileAction.SWITCH_COMPUTER)
-                            session.switchComputer(computer.id)
-                        }
-                        SettingsButton(stringResource(R.string.mobile_settings_remove_computer, computer.name), destructive = true) {
+            connections.filter { it.id != bound?.id }.forEach { computer ->
+                SettingsHairline(50.dp)
+                DesignRow(
+                    title = computer.name,
+                    subtitle = stringResource(R.string.settings_state_saved),
+                    icon = SeiraIcons.Laptop,
+                    minHeight = 64.dp,
+                    onClick = {
+                        haptics.play(TactileAction.SWITCH_COMPUTER)
+                        session.switchComputer(computer.id)
+                    },
+                    trailing = {
+                        ControlRemoveButton(stringResource(R.string.mobile_settings_remove_computer, computer.name)) {
                             pendingComputerRemoval = computer
                         }
-                    }
-                    Footnote(stringResource(R.string.mobile_settings_computers_paired_separately))
-                }
-            }
-
-            if (connection != null) {
-                SettingsSection(stringResource(R.string.mobile_settings_troubleshooting)) {
-                    Footnote(localizedTroubleshootingText(status))
-                    SettingsButton(
-                        text = stringResource(R.string.mobile_settings_try_reconnecting),
-                        enabled = !reconnecting,
-                        trailing = {
-                            if (reconnecting) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(16.dp),
-                                    strokeWidth = 2.dp,
-                                )
-                            }
-                        },
-                    ) {
-                        scope.launch {
-                            reconnecting = true
-                            // Waits until the stream leaves connecting (or 10s),
-                            // so the spinner means what it appears to mean.
-                            session.refresh()
-                            reconnecting = false
-                        }
-                    }
-                }
-            }
-
-            SettingsSection(stringResource(R.string.mobile_settings_notifications_section)) {
-                SettingsRow(
-                    stringResource(R.string.mobile_settings_status_label),
-                    localizedNotificationStatus(notifications),
-                )
-                SettingsButton(
-                    text = localizedNotificationButton(notifications),
-                    enabled = NotificationPermissionController.buttonEnabled(notifications),
-                    onClick = environment.notifications::act,
-                )
-                Footnote(stringResource(R.string.mobile_settings_notifications_footer))
-            }
-
-            SettingsSection(stringResource(R.string.mobile_settings_background_connection)) {
-                val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
-                SettingsRow(
-                    stringResource(R.string.mobile_settings_status_label),
-                    stringResource(if (alwaysOnEnabled) R.string.mobile_settings_always_on else R.string.mobile_settings_only_while_open),
-                )
-                SettingsButton(
-                    text = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_turn_off else R.string.mobile_settings_turn_on),
-                    onClick = environment.onToggleAlwaysOn,
-                )
-                Footnote(
-                    if (alwaysOnEnabled) {
-                        stringResource(R.string.mobile_settings_background_on_description)
-                    } else {
-                        stringResource(R.string.mobile_settings_background_off_description)
                     },
                 )
             }
 
-            SettingsSection(stringResource(R.string.mobile_settings_chat_section)) {
-                SettingsRow(stringResource(R.string.mobile_settings_activity_label), localizedActivityLabel(activityDetail))
-                SettingsButton(stringResource(R.string.mobile_settings_change_activity_detail)) { choosingActivity = true }
-                SettingsButton(stringResource(R.string.mobile_quick_replies_c14223c4)) { editingQuickReplies = true }
-                Footnote(localizedActivityCaption(activityDetail))
+            SettingsHairline(50.dp)
+            if (bound != null) {
+                DesignRow(
+                    title = stringResource(R.string.settings_pair_another),
+                    icon = SeiraIcons.Plus,
+                    onClick = {
+                        haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
+                        session.beginPairing()
+                    },
+                    trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                )
+                SettingsHairline(50.dp)
+                DesignRow(
+                    title = stringResource(R.string.mobile_settings_try_reconnecting),
+                    subtitle = localizedTroubleshootingText(status),
+                    icon = SeiraIcons.Monitor,
+                    enabled = !reconnecting,
+                    minHeight = 64.dp,
+                    onClick = {
+                        scope.launch {
+                            reconnecting = true
+                            session.refresh()
+                            reconnecting = false
+                        }
+                    },
+                    trailing = {
+                        if (reconnecting) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = colors.ink2)
+                        }
+                    },
+                )
+            } else if (onConnect != null) {
+                DesignRow(
+                    title = stringResource(R.string.mobile_settings_connect_computer),
+                    icon = SeiraIcons.Plus,
+                    onClick = onConnect,
+                    trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                )
             }
+        }
 
-            // Per device, like the desktop's sidebar density: a phone and a
-            // laptop have different room for a list.
-            SettingsSection("Threads list") {
-                SettingsRow("List density", localizedMobileCopy(rosterDensity.label))
-                SettingsButton("Change list density") { choosingDensity = true }
-                Footnote(rosterDensity.caption)
-            }
-
-            SettingsSection(stringResource(R.string.mobile_settings_appearance)) {
-                SettingsRow(stringResource(R.string.theme_mode_title), themeModeLabel(themeMode))
-                SettingsButton(stringResource(R.string.theme_mode_choose)) { choosingAppearance = true }
-            }
-
-            // Routine schedules live on the computer this phone is bound to.
-            // With no binding there is nothing to schedule against, so the row
-            // is absent rather than present and dead.
-            if (onOpenRoutines != null || onOpenConnectedApps != null) {
-                SettingsSection(stringResource(R.string.mobile_settings_workspace_section)) {
-                    onOpenRoutines?.let { openRoutines ->
-                        SettingsButton(
-                            text = stringResource(R.string.mobile_threads_routines_65d7efcd),
-                            icon = R.drawable.ic_schedule,
-                            onClick = openRoutines,
-                        )
-                    }
-                    onOpenConnectedApps?.let { openConnectedApps ->
-                        SettingsButton(
-                            text = stringResource(R.string.mobile_connected_apps_8ab72a8e),
-                            onClick = openConnectedApps,
-                        )
-                    }
-                    Footnote(stringResource(R.string.mobile_settings_workspace_footer))
+        SettingsGroupTitle(stringResource(R.string.mobile_settings_notifications_section))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            val appEnabled = notifications == NotificationAccess.GRANTED
+            if (!appEnabled) {
+                DesignRow(
+                    title = stringResource(R.string.settings_notif_turn_on),
+                    subtitle = stringResource(R.string.settings_notif_turn_on_body),
+                    icon = SeiraIcons.Bell,
+                    minHeight = 64.dp,
+                    enabled = NotificationPermissionController.buttonEnabled(notifications),
+                    onClick = environment.notifications::act,
+                    trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                )
+            } else {
+                NotificationChannelRow.entries.forEachIndexed { index, row ->
+                    if (index > 0) SettingsHairline(50.dp)
+                    SwitchRow(
+                        title = stringResource(row.title),
+                        subtitle = stringResource(row.body),
+                        icon = SeiraIcons.Bell,
+                        checked = channelStates[row.channelId] ?: true,
+                        onToggle = { openChannelSettings(context, row.channelId) },
+                    )
                 }
             }
+        }
 
-            if (connection != null) {
-                SettingsSection(null) {
-                    SettingsButton(
-                        text = stringResource(if (connections.size > 1) R.string.mobile_settings_remove_this_computer else R.string.mobile_settings_unpair_this_phone),
-                        destructive = true,
-                    ) { confirmingUnpair = true }
-                    Footnote(stringResource(R.string.mobile_settings_unpair_footer))
+        SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            SwitchRow(
+                title = stringResource(R.string.mobile_settings_always_on),
+                subtitle = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_background_on_description else R.string.mobile_settings_background_off_description),
+                icon = SeiraIcons.Phone,
+                checked = alwaysOnEnabled,
+                onToggle = environment.onToggleAlwaysOn,
+            )
+        }
+
+        SettingsGroupTitle(stringResource(R.string.mobile_settings_chat_section))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            DesignRow(
+                title = stringResource(R.string.mobile_settings_change_activity_detail),
+                onClick = { choosingActivity = true },
+                trailing = { ValueWithChevron(localizedActivityLabel(activityDetail)) },
+            )
+            SettingsHairline()
+            DesignRow(
+                title = stringResource(R.string.mobile_quick_replies_c14223c4),
+                onClick = { editingQuickReplies = true },
+                trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+            )
+        }
+
+        SettingsGroupTitle(localizedMobileCopy("List density"))
+        SeiraCard(modifier = Modifier.fillMaxWidth()) {
+            DesignRow(
+                title = localizedMobileCopy("Change list density"),
+                onClick = { choosingDensity = true },
+                trailing = { ValueWithChevron(localizedMobileCopy(rosterDensity.label)) },
+            )
+        }
+
+        if (onOpenRoutines != null) {
+            SettingsGroupTitle(stringResource(R.string.mobile_settings_workspace_section))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                DesignRow(
+                    title = stringResource(R.string.mobile_threads_routines_65d7efcd),
+                    icon = SeiraIcons.CalendarClock,
+                    onClick = onOpenRoutines,
+                    trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                )
+            }
+        }
+
+        if (onOpenConnectedApps != null) {
+            SettingsGroupTitle(stringResource(R.string.settings_privacy))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                DesignRow(
+                    title = stringResource(R.string.settings_connected_apps),
+                    icon = SeiraIcons.Shield,
+                    onClick = onOpenConnectedApps,
+                    trailing = {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            account.connectedApps?.let { Text(it.toString(), style = SeiraType.body, color = colors.ink2) }
+                            Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+                        }
+                    },
+                )
+            }
+        }
+
+        if (bound != null) {
+            Spacer(Modifier.height(12.dp))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 56.dp)
+                        .clickable(role = Role.Button) { confirmingUnpair = true },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        stringResource(if (connections.size > 1) R.string.mobile_settings_remove_this_computer else R.string.settings_sign_out),
+                        style = SeiraType.bodyMedium.copy(fontSize = 16.sp),
+                        color = colors.danger,
+                    )
                 }
             }
+            Text(
+                stringResource(R.string.mobile_settings_unpair_footer),
+                style = SeiraType.callout,
+                color = colors.ink3,
+                modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 8.dp),
+            )
+        }
 
-            SettingsSection(stringResource(R.string.mobile_settings_not_here)) {
-                Footnote(stringResource(R.string.mobile_settings_not_here_body))
-            }
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 32.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            SeiraMark(28.dp, color = colors.ink3)
+            Text(
+                if (version.isBlank()) stringResource(R.string.mobile_openmausbot_befe710d) else stringResource(R.string.settings_version_footer, version),
+                style = SeiraType.callout,
+                color = colors.ink3,
+            )
         }
     }
 
@@ -418,45 +585,69 @@ fun SettingsScreen(
         )
     }
 
-    if (choosingAppearance) {
-        AlertDialog(
-            onDismissRequest = { choosingAppearance = false },
-            title = { Text(stringResource(R.string.theme_mode_choose)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    ThemeMode.entries.forEach { mode ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = MIN_TOUCH_TARGET)
-                                .selectable(
-                                    selected = mode == themeMode,
-                                    role = Role.RadioButton,
-                                    onClick = {
-                                        environment.chatPreferences.setThemeMode(mode)
-                                        choosingAppearance = false
-                                    },
-                                )
-                                .padding(vertical = 6.dp),
-                            horizontalArrangement = Arrangement.spacedBy(10.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            RadioButton(selected = mode == themeMode, onClick = null)
-                            Text(themeModeLabel(mode), modifier = Modifier.weight(1f))
-                        }
-                    }
-                }
-            },
-            confirmButton = {},
-            dismissButton = { TextButton(onClick = { choosingAppearance = false }) { Text(stringResource(R.string.mobile_cancel_77dfd213)) } },
-        )
-    }
-
     if (editingQuickReplies) {
         QuickRepliesEditor(
             preferences = environment.chatPreferences,
             onDismiss = { editingQuickReplies = false },
         )
+    }
+}
+
+
+@Composable
+private fun ProfileCard(profile: Profile?, connection: Connection) {
+    val colors = Seira.colors
+    val name = profile?.name?.takeIf { it.isNotBlank() }
+    val email = profile?.email?.takeIf { it.isNotBlank() }
+    SeiraCard(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ProfileAvatar(name?.let(SettingsDesign::initials))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(name ?: connection.name, style = SeiraType.title3, color = colors.ink, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                if (email != null) {
+                    Text(email, style = SeiraType.body.copy(fontSize = 14.sp), color = colors.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ValueWithChevron(value: String) {
+    val colors = Seira.colors
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Text(value, style = SeiraType.body, color = colors.ink2)
+        Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+    }
+}
+
+@Composable
+private fun ControlRemoveButton(label: String, onClick: () -> Unit) {
+    TouchTarget(onClick = onClick, contentDescription = label) {
+        Icon(SeiraIcons.X, contentDescription = null, tint = Seira.colors.ink3, modifier = Modifier.size(18.dp))
+    }
+}
+
+private fun readChannelStates(context: Context): Map<String, Boolean> {
+    val manager = NotificationManagerCompat.from(context)
+    val enabled = manager.areNotificationsEnabled()
+    return NotificationChannelRow.entries.associate { row ->
+        row.channelId to SettingsDesign.channelIsOn(enabled, manager.getNotificationChannel(row.channelId)?.importance)
+    }
+}
+
+private fun openChannelSettings(context: Context, channelId: String) {
+    val intent = Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)
+        .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        .putExtra(Settings.EXTRA_CHANNEL_ID, channelId)
+    if (context !is Activity) intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    try {
+        context.startActivity(intent)
+    } catch (_: ActivityNotFoundException) {
     }
 }
 
@@ -512,131 +703,6 @@ private fun <T> ChoiceDialog(
 }
 
 @Composable
-private fun SettingsSection(title: String?, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        title?.let {
-            Text(
-                text = localizedMobileCopy(it).uppercase(),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.SemiBold,
-                color = secondaryTint,
-            )
-        }
-        HorizontalDivider()
-        content()
-    }
-}
-
-@Composable
-private fun SettingsRow(label: String, value: String) {
-    Row(modifier = Modifier.fillMaxWidth()) {
-        Text(localizedMobileCopy(label), fontSize = 15.sp, color = secondaryTint)
-        Text(
-            text = value,
-            fontSize = 15.sp,
-            textAlign = TextAlign.End,
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = 12.dp),
-        )
-    }
-}
-
-/**
- * The address, short enough to read at a glance and long enough to copy — the
- * port of the connection details in `ios/App/SettingsView.swift:346-371`.
- */
-@Composable
-private fun AddressRow(
-    address: String,
-    expanded: Boolean,
-    copied: Boolean,
-    onToggle: () -> Unit,
-    onCopy: () -> Unit,
-) {
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text(stringResource(R.string.mobile_address_d70f93df), fontSize = 15.sp, color = secondaryTint)
-        if (expanded) {
-            // Selectable, because the reason to show it in full is to take it away.
-            SelectionContainer {
-                Text(
-                    text = address,
-                    fontSize = 13.sp,
-                    fontFamily = FontFamily.Monospace,
-                    color = secondaryTint,
-                )
-            }
-        } else {
-            Text(
-                text = shortenedAddress(address),
-                fontSize = 13.sp,
-                fontFamily = FontFamily.Monospace,
-                color = secondaryTint,
-                maxLines = 1,
-                overflow = TextOverflow.MiddleEllipsis,
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            TextButton(onClick = onToggle) {
-                Text(if (expanded) stringResource(R.string.mobile_hide_full_address_63c5e519) else stringResource(R.string.mobile_show_full_address_889be5c7))
-            }
-            TextButton(onClick = onCopy) {
-                Text(if (copied) stringResource(R.string.mobile_copied_8e3df45a) else stringResource(R.string.mobile_copy_af74f7c5))
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsButton(
-    text: String,
-    enabled: Boolean = true,
-    destructive: Boolean = false,
-    icon: Int? = null,
-    /** Drawn at the end of the row — a progress indicator while one is running. */
-    trailing: (@Composable () -> Unit)? = null,
-    onClick: () -> Unit,
-) {
-    val tint = if (destructive) {
-        MaterialTheme.colorScheme.error
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
-    TextButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_TARGET),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            icon?.let {
-                Icon(
-                    painter = painterResource(it),
-                    contentDescription = null,
-                    tint = tint,
-                    modifier = Modifier.size(20.dp),
-                )
-            }
-            Text(
-                text = localizedMobileCopy(text),
-                modifier = Modifier.weight(1f),
-                textAlign = TextAlign.Start,
-                color = tint,
-            )
-            trailing?.invoke()
-        }
-    }
-}
-
-@Composable
-private fun Footnote(text: String) {
-    Text(text = localizedMobileCopy(text), fontSize = 13.sp, color = secondaryTint)
-}
-
-@Composable
 private fun localizedConnectionStatus(status: Session.Status): String = when (status) {
     Session.Status.Live -> stringResource(R.string.mobile_settings_connected_status)
     Session.Status.Connecting -> stringResource(R.string.mobile_settings_connecting_status)
@@ -652,20 +718,6 @@ private fun localizedTroubleshootingText(status: Session.Status): String = when 
     Session.Status.Unauthorized -> stringResource(R.string.mobile_settings_troubleshooting_unpaired)
     Session.Status.Unpaired -> stringResource(R.string.mobile_settings_troubleshooting_not_paired)
     is Session.Status.Offline -> status.message
-}
-
-@Composable
-private fun localizedNotificationStatus(access: NotificationAccess): String = when (access) {
-    NotificationAccess.GRANTED -> stringResource(R.string.mobile_settings_notifications_allowed)
-    NotificationAccess.ASKABLE -> stringResource(R.string.mobile_settings_notifications_not_allowed)
-    NotificationAccess.BLOCKED -> stringResource(R.string.mobile_settings_notifications_disabled)
-}
-
-@Composable
-private fun localizedNotificationButton(access: NotificationAccess): String = when (access) {
-    NotificationAccess.GRANTED -> stringResource(R.string.mobile_settings_notifications_on)
-    NotificationAccess.ASKABLE -> stringResource(R.string.mobile_settings_enable_notifications)
-    NotificationAccess.BLOCKED -> stringResource(R.string.mobile_settings_open_notification_settings)
 }
 
 @Composable
@@ -708,12 +760,3 @@ internal fun shortenedAddress(address: String): String {
     val leading = minOf(20, maxOf(8, address.length - 8))
     return address.take(leading) + "…" + address.takeLast(6)
 }
-
-@Composable
-private fun themeModeLabel(mode: ThemeMode): String = stringResource(
-    when (mode) {
-        ThemeMode.LIGHT -> R.string.theme_mode_light
-        ThemeMode.DARK -> R.string.theme_mode_dark
-        ThemeMode.AUTO -> R.string.theme_mode_auto
-    },
-)
