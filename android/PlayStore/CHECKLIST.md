@@ -50,7 +50,8 @@ commit and artifact being submitted; unchecked items remain release work.
   The account is an Organization account, so the 12-tester, 14-day closed test
   rule does not apply (checked 2026-11-19). The account owner must declare
   trader status before February 2027.
-- [ ] Decide the open items D-1 to D-5 in `declarations-proposal.md`.
+- [ ] Compare the saved answers in `declarations-proposal.md` with the release
+  build. Complete its "Langkah yang tersisa" list.
 - [ ] Complete content, age-rating, target-audience, ads, permission, and other
   applicable forms from the shipped behavior; this checklist supplies no answers.
 - [ ] Review data flows across local connections, hosted access, model providers,
