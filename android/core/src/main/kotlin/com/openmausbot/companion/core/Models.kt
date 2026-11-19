@@ -448,10 +448,12 @@ data class Bot(
     val voice: String? = null,
     val mascotExpression: String? = null,
     /**
-     * Which body from the mascot body catalog this bot wears. Absent (an older
-     * harness included) means the shipped `cursor` silhouette.
+     * Which hair style from the Seira look catalog this bot wears. An absent,
+     * unknown or retired id draws the default "seira" hair.
      */
     val mascotBody: String? = null,
+    val mascotFaceColor: String? = null,
+    val mascotAccessories: List<String>? = null,
     val tasks: List<BotTask>? = null,
     val messages: List<Message>? = null,
     val activeLeafId: String? = null,

@@ -464,6 +464,11 @@ class CompanionClient(
         ).bot
     }
 
+    suspend fun updateLook(botId: String, patch: BotLookPatch): Bot =
+        send<BotResponse>(
+            makeRequest("PATCH", "/api/bots/${segment(botId)}", body = patch.toJson()),
+        ).bot
+
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
