@@ -832,6 +832,25 @@ class RoutineRulesTest {
     }
 
     @Test
+    fun `a new routine started from the chat still gets the 30 minute interval timeout`() {
+        val draft = Routine(
+            id = "", name = "", prompt = "", botId = "bot-1", runOn = RoutineRunLocation.MAUS.wireValue,
+            enabled = true, schedule = RoutineSchedule(RoutineSchedule.Kind.DAILY),
+            durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES, createdAt = 0.0, updatedAt = 0.0,
+        )
+        assertFalse(RoutineRules.defaultTimeoutAlreadyApplied(draft))
+        assertFalse(RoutineRules.defaultTimeoutAlreadyApplied(null))
+        assertEquals(
+            30,
+            RoutineRules.intervalTimeoutOnFirstSelection(
+                draft.timeoutMinutes,
+                RoutineRules.defaultTimeoutAlreadyApplied(draft),
+            ),
+        )
+        assertTrue(RoutineRules.defaultTimeoutAlreadyApplied(draft.copy(id = "saved-1")))
+    }
+
+    @Test
     fun `a wall-clock time is written zero padded, in 24 hours`() {
         assertEquals("00:00", RoutineRules.timeText(0, 0))
         assertEquals("09:05", RoutineRules.timeText(9, 5))

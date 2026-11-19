@@ -31,7 +31,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,8 +41,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.ui.theme.ControlCircleButton
@@ -73,6 +74,10 @@ private val TILE_HEIGHT = 88.dp
 private val TILE_RADIUS = 20.dp
 private val ROW_HEIGHT = 56.dp
 private val CARD_RADIUS = 22.dp
+
+/** The tiles and cards sit on the sheet. In dark the tint is as dark as the sheet, so they take the control colour. */
+@Composable
+private fun cardColor() = Seira.colors.let { if (it.isDark) it.control else it.tint }
 private const val SCRIM_MILLIS = 240
 private const val SLIDE_FROM = 1.12f
 
@@ -128,17 +133,16 @@ internal fun BoxScope.ChatPlusSheet(
                     .background(colors.sheet, shape)
                     .heightIn(max = maxHeight * 0.92f)
                     .verticalScroll(rememberScrollState())
-                    .padding(start = 16.dp, end = 16.dp, bottom = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.CenterHorizontally)
-                        .padding(top = 10.dp)
                         .size(width = 36.dp, height = 5.dp)
                         .background(colors.grabber, CircleShape),
                 )
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 0.dp)) {
                     Text(
                         text = stringResource(R.string.chat_sheet_title),
                         style = SeiraType.title3,
@@ -155,7 +159,7 @@ internal fun BoxScope.ChatPlusSheet(
 
                 val tiles = ChatSheetLayout.tiles(actions)
                 if (tiles.isNotEmpty()) {
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         tiles.forEach { action ->
                             ActionTile(action, Modifier.weight(1f)) { onAction(action.id) }
                         }
@@ -179,16 +183,16 @@ private fun ActionTile(action: ChatAction, modifier: Modifier, onClick: () -> Un
         modifier = modifier
             .height(TILE_HEIGHT)
             .clip(shape)
-            .background(colors.tint, shape)
+            .background(cardColor(), shape)
             .clickable(enabled = action.enabled, role = Role.Button, onClick = onClick)
             .padding(horizontal = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
-        Icon(chatActionIcon(action.id), contentDescription = null, tint = colors.ink.copy(alpha = alpha), modifier = Modifier.size(26.dp))
+        Icon(chatActionIcon(action.id), contentDescription = null, tint = colors.ink.copy(alpha = alpha), modifier = Modifier.size(22.dp))
         Text(
             text = chatActionTitle(action.id),
-            style = SeiraType.callout,
+            style = SeiraType.callout.copy(fontWeight = FontWeight.Medium),
             color = colors.ink.copy(alpha = alpha),
             textAlign = TextAlign.Center,
             maxLines = 1,
@@ -200,9 +204,8 @@ private fun ActionTile(action: ChatAction, modifier: Modifier, onClick: () -> Un
 private fun ActionCard(actions: List<ChatAction>, chat: Chat, onAction: (ChatActionId) -> Unit) {
     val colors = Seira.colors
     val shape = RoundedCornerShape(CARD_RADIUS)
-    Column(modifier = Modifier.fillMaxWidth().clip(shape).background(colors.tint, shape)) {
-        actions.forEachIndexed { index, action ->
-            if (index > 0) HorizontalDivider(modifier = Modifier.padding(start = 64.dp), color = colors.hairline)
+    Column(modifier = Modifier.fillMaxWidth().clip(shape).background(cardColor(), shape).padding(vertical = 4.dp)) {
+        actions.forEach { action ->
             val tint = if (action.destructive) colors.danger else colors.ink
             val alpha = if (action.enabled) 1f else 0.45f
             Row(
@@ -210,20 +213,15 @@ private fun ActionCard(actions: List<ChatAction>, chat: Chat, onAction: (ChatAct
                     .fillMaxWidth()
                     .heightIn(min = ROW_HEIGHT)
                     .clickable(enabled = action.enabled, role = Role.Button) { onAction(action.id) }
-                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Box(
-                    modifier = Modifier.size(36.dp).background(colors.control, CircleShape),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(chatActionIcon(action.id), contentDescription = null, tint = tint.copy(alpha = alpha), modifier = Modifier.size(20.dp))
-                }
+                Icon(chatActionIcon(action.id), contentDescription = null, tint = tint.copy(alpha = alpha), modifier = Modifier.size(22.dp))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = chatActionTitle(action.id),
-                        style = SeiraType.bodyMedium,
+                        style = SeiraType.bodyMedium.copy(lineHeight = 20.sp),
                         color = tint.copy(alpha = alpha),
                         maxLines = 1,
                     )
