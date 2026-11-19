@@ -25,6 +25,7 @@ struct CompanionApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .appliesAppearance()
                 .environmentObject(session)
                 .environmentObject(liveCall)
                 .environment(\.avatarLoader, AvatarLoader(session: session))
