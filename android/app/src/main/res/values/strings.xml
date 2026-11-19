@@ -422,8 +422,6 @@
     <string name="mobile_routine_run_show_less">Show less</string>
     <string name="mobile_routine_run_nothing_recorded">Nothing was recorded for this turn.</string>
     <string name="mobile_settings_appearance">Appearance</string>
-    <string name="mobile_settings_skin">Skin</string>
-    <string name="mobile_settings_choose_skin">Choose skin</string>
     <string name="mobile_claude_update_offer">This model needs a newer Claude Code. I can update Claude for you.</string>
     <string name="mobile_claude_update_do_it">Update Claude for me</string>
     <string name="mobile_claude_update_myself">I\'ll do it myself</string>

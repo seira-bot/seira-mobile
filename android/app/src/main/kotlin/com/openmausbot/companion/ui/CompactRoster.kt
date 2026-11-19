@@ -77,6 +77,9 @@ import com.openmausbot.companion.core.isClosed
 import com.openmausbot.companion.core.isSnoozed
 import com.openmausbot.companion.core.labelsUnfiledThreads
 import com.openmausbot.companion.core.listStamp
+import com.openmausbot.companion.ui.theme.IdentityAvatar
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraType
 import com.openmausbot.companion.core.threadGroups
 import java.util.Locale
 
@@ -281,8 +284,8 @@ private fun CompactBotLine(
                     .padding(vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                UnreadDot(visible = row.showsUnreadDot, color = bot.color)
-                BotAvatar(bot = bot, size = faceSize, state = face, animated = false)
+                UnreadDot(visible = row.showsUnreadDot)
+                IdentityAvatar(bot = bot, size = faceSize, state = face, animated = false)
                 Spacer(modifier = Modifier.width(CompactRosterMetrics.faceSpacing))
                 val status: @Composable () -> Unit = {
                     RowStatus(
@@ -359,8 +362,9 @@ private fun BotName(bot: Bot, row: RosterBotRow, maxLines: Int) {
     ) {
         Text(
             text = if (maxLines > 1) bot.name.breakableAtHyphens() else bot.name,
-            fontSize = 17.sp,
-            fontWeight = FontWeight.SemiBold,
+            fontSize = 15.sp,
+            fontWeight = if (row.showsUnreadDot) FontWeight.SemiBold else FontWeight.Medium,
+            color = Seira.colors.ink,
             maxLines = maxLines,
             overflow = TextOverflow.Ellipsis,
             style = if (maxLines > 1) wrapsBetweenWords() else LocalTextStyle.current,
@@ -378,7 +382,7 @@ private fun Separator() {
     Text(
         text = "·",
         fontSize = 15.sp,
-        color = secondaryTint,
+        color = Seira.colors.ink2,
         modifier = Modifier.clearAndSetSemantics {},
     )
 }
@@ -388,8 +392,8 @@ private fun Separator() {
 private fun RoleText(title: String, modifier: Modifier = Modifier) {
     Text(
         text = title,
-        fontSize = 15.sp,
-        color = secondaryTint,
+        fontSize = 13.sp,
+        color = Seira.colors.ink2,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = modifier,
@@ -462,14 +466,14 @@ private fun ThreadControl(bot: Bot, count: Int, listed: Boolean, enabled: Boolea
         Icon(
             imageVector = if (listed) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = secondaryTint,
+            tint = Seira.colors.ink2,
             modifier = Modifier.size(glyph(16.sp)),
         )
         Text(
             text = count.toString(),
             fontSize = 15.sp,
             fontWeight = FontWeight.Medium,
-            color = secondaryTint,
+            color = Seira.colors.ink2,
         )
     }
 }
@@ -572,7 +576,7 @@ private fun CompactThreadLine(task: BotTask, now: Long, queued: Boolean, color: 
                 text = if (lines > 1) task.displayTitle.breakableAtHyphens() else task.displayTitle,
                 fontSize = 15.sp,
                 fontWeight = if (task.unread == true) FontWeight.SemiBold else FontWeight.Normal,
-                color = if (dimmed) secondaryTint else MaterialTheme.colorScheme.onSurface,
+                color = if (dimmed) Seira.colors.ink2 else MaterialTheme.colorScheme.onSurface,
                 maxLines = lines,
                 overflow = TextOverflow.Ellipsis,
                 style = if (lines > 1) wrapsBetweenWords() else LocalTextStyle.current,
@@ -583,7 +587,7 @@ private fun CompactThreadLine(task: BotTask, now: Long, queued: Boolean, color: 
                 Icon(
                     painter = painterResource(R.drawable.ic_push_pin),
                     contentDescription = PINNED,
-                    tint = secondaryTint,
+                    tint = Seira.colors.ink2,
                     modifier = Modifier.size(glyph(12.sp)),
                 )
             }
@@ -631,21 +635,21 @@ private fun ThreadMarks(task: BotTask, runtime: String?, stamp: String, color: S
             WAITING_ON_YOU -> Icon(
                 painter = painterResource(R.drawable.ic_pan_tool),
                 contentDescription = runtime,
-                tint = Color(MausPalette.argb(color)),
+                tint = Seira.colors.warning,
                 modifier = Modifier.size(size),
             )
             // a quiet clock, never a spinner: nothing is running yet
             "Waiting on teammate", "Queued" -> Icon(
                 painter = painterResource(R.drawable.ic_schedule),
                 contentDescription = runtime,
-                tint = secondaryTint,
+                tint = Seira.colors.ink2,
                 modifier = Modifier.size(size),
             )
         }
         if (runtime == WORKING) {
             Spinner(size)
         } else if (stamp.isNotEmpty()) {
-            Text(text = stamp, fontSize = 13.sp, color = secondaryTint, maxLines = 1)
+            Text(text = stamp, fontSize = 13.sp, color = Seira.colors.ink2, maxLines = 1)
         }
     }
 }
@@ -671,7 +675,7 @@ private fun FolderLine(folder: BotProject, key: String, open: Boolean, enabled: 
             text = folder.name,
             fontSize = 13.sp,
             fontWeight = FontWeight.Medium,
-            color = secondaryTint,
+            color = Seira.colors.ink2,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f, fill = false),
@@ -679,7 +683,7 @@ private fun FolderLine(folder: BotProject, key: String, open: Boolean, enabled: 
         Icon(
             imageVector = if (open) Icons.Filled.KeyboardArrowDown else Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = secondaryTint,
+            tint = Seira.colors.ink2,
             modifier = Modifier.size(glyph(14.sp)),
         )
     }
@@ -695,7 +699,7 @@ private fun UnfiledLabel(bot: Bot) {
         text = UNFILED_THREADS,
         fontSize = 13.sp,
         fontWeight = FontWeight.Medium,
-        color = secondaryTint,
+        color = Seira.colors.ink2,
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         modifier = Modifier
@@ -752,14 +756,15 @@ internal fun CompactRoomRow(
             .padding(vertical = 4.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        UnreadDot(visible = room.unread && !busy, color = ROOM_COLOR)
+        UnreadDot(visible = room.unread && !busy)
         RoomFaces(members = members, size = faceSize)
         Spacer(modifier = Modifier.width(CompactRosterMetrics.faceSpacing))
         val name: @Composable (Modifier, Int) -> Unit = { nameModifier, lines ->
             Text(
                 text = if (lines > 1) room.name.breakableAtHyphens() else room.name,
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
+                fontSize = 15.sp,
+                fontWeight = if (room.unread && !busy) FontWeight.SemiBold else FontWeight.Medium,
+                color = Seira.colors.ink,
                 maxLines = lines,
                 overflow = TextOverflow.Ellipsis,
                 style = if (lines > 1) wrapsBetweenWords() else LocalTextStyle.current,
@@ -785,29 +790,36 @@ internal fun CompactRoomRow(
  * second down and to the end on a ring of the list's background.
  */
 @Composable
-private fun RoomFaces(members: List<Bot>, size: Dp) {
+internal fun RoomFaces(members: List<Bot>, size: Dp) {
+    val colors = Seira.colors
+    // The row face (48 dp) holds two 32 dp circles. A small face keeps larger
+    // circles, because two thirds of 26 dp is too small to read.
+    val large = size >= 40.dp
+    val first = if (large) size * 2f / 3f else size * 0.74f
+    val second = if (large) size * 2f / 3f else size * 0.62f
+    val ring = 2.5.dp
     Box(modifier = Modifier.size(size)) {
-        val first = members.getOrNull(0)
-        if (first == null) {
+        val firstMember = members.getOrNull(0)
+        if (firstMember == null) {
             MausAvatar(color = ROOM_COLOR, size = size, state = MausState.HAPPY, animated = false)
         } else {
-            BotAvatar(
-                bot = first,
-                size = size * 0.74f,
+            IdentityAvatar(
+                bot = firstMember,
+                size = first,
                 state = MausState.HAPPY,
                 animated = false,
                 modifier = Modifier.align(Alignment.TopStart),
             )
         }
-        members.getOrNull(1)?.let { second ->
+        members.getOrNull(1)?.let { secondMember ->
             Box(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .offset(x = 3.dp, y = 3.dp)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-                    .padding(1.5.dp),
+                    .offset(x = ring, y = ring)
+                    .background(colors.app, CircleShape)
+                    .padding(ring),
             ) {
-                BotAvatar(bot = second, size = size * 0.62f, state = MausState.HAPPY, animated = false)
+                IdentityAvatar(bot = secondMember, size = second, state = MausState.HAPPY, animated = false)
             }
         }
     }
@@ -815,13 +827,13 @@ private fun RoomFaces(members: List<Bot>, size: Dp) {
 
 /** The unread dot, in its own gutter at the row's leading edge, in the chat's colour. */
 @Composable
-private fun UnreadDot(visible: Boolean, color: String) {
+private fun UnreadDot(visible: Boolean) {
     Box(modifier = Modifier.width(CompactRosterMetrics.dotGutter), contentAlignment = Alignment.Center) {
         if (visible) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .background(Color(MausPalette.argb(color)), CircleShape)
+                    .background(Seira.colors.accent, CircleShape)
                     .semantics { contentDescription = UNREAD },
             )
         }
@@ -850,14 +862,14 @@ private fun RowStatus(
             Icon(
                 painter = painterResource(R.drawable.ic_pan_tool),
                 contentDescription = WAITING_ON_YOU,
-                tint = Color(MausPalette.argb(color)),
+                tint = Seira.colors.warning,
                 modifier = Modifier.size(size),
             )
         }
         if (working) {
             Spinner(size, workingLabel)
         } else if (stamp.isNotEmpty()) {
-            Text(text = stamp, fontSize = 15.sp, color = secondaryTint, maxLines = 1)
+            Text(text = stamp, style = SeiraType.caption.copy(fontFeatureSettings = "tnum"), color = Seira.colors.ink3, maxLines = 1)
         }
     }
 }
@@ -879,7 +891,7 @@ private fun ChiefBadge() {
     Icon(
         painter = painterResource(R.drawable.ic_crown),
         contentDescription = localizedMobileCopy("Chief of Staff"),
-        tint = MaterialTheme.colorScheme.primary,
+        tint = Seira.colors.accent,
         modifier = Modifier
             .size(glyph(14.sp))
             .testTag("chief-badge"),

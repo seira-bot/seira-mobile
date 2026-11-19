@@ -53,3 +53,12 @@ not establish physical-device pairing, live webhook delivery, or HTTPS behavior.
   application ID were verified with the Android SDK tools.
 - Before/after screenshots from the native graphics fixture were visually
   inspected. All conversation state and HTTP responses were synthetic.
+
+## Chat screen redesign — 2026-11-19
+
+- `ChatDesignTest` checks the header, user bubble width, bot reply, activity
+  pill, table card, approval buttons, stream caret and + sheet.
+- `ChatScreenshotTest` writes `chat` and `chat-sheet` in light and dark to
+  `android/app/build/design-screens/` at 390 by 844 dp. All data is synthetic.
+- Robolectric has no camera, so the Camera tile does not show in the sheet image.
+- Full run: 1210 app tests, 0 failed. `assembleDebug` and `lintDebug` pass.
