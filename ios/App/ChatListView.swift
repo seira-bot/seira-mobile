@@ -37,8 +37,6 @@ struct ChatListView: View {
     /// for a thread that changed. Filled while rendering: it is a cache,
     /// not something any view observes.
     @State private var previewCache = RosterPreviewCache()
-    /// Working bots' faces in comfortable rows: six move at once.
-    @State private var motionBudget = MascotMotionBudget(limit: 6)
     @FocusState private var searchFocused: Bool
 
     /// Space between the header and whatever the list starts with.
@@ -198,7 +196,6 @@ struct ChatListView: View {
                 .padding(.top, Self.listTopInset)
                 .padding(.bottom, Self.listBottomMargin)
             }
-            .environment(\.mascotMotionBudget, motionBudget)
             .refreshable { await session.refresh() }
             .accessibilityIdentifier("roster-list")
             .overlay { emptyState(matches: matches) }
@@ -583,7 +580,7 @@ struct ChatListView: View {
             case let .bot(bot):
                 CompactBotEntry(
                     bot: bot,
-                    face: MausState.forChat(summary.chat, in: session.state),
+                    face: CharacterMood.forChat(summary.chat, in: session.state),
                     lastActivity: summary.lastActivity,
                     today: today,
                     hasPendingCard: waiting.contains(bot.id),
@@ -664,7 +661,7 @@ struct ChatListView: View {
                 preview: summary.preview,
                 at: summary.lastActivity,
                 today: today,
-                state: MausState.forChat(summary.chat, in: state),
+                state: CharacterMood.forChat(summary.chat, in: state),
                 waiting: waiting.contains(summary.chat.id)
             )
             return ComfortableEntry(row: row, queued: queued, held: held)
@@ -1041,7 +1038,7 @@ struct ChatRow: View, Equatable {
     /// The day the list drew on (`RosterDay.today`); see
     /// `CompactBotEntry.today`. "9:15 AM" must still become "Yesterday".
     let today: Date
-    var state: MausState = .idle
+    var state: CharacterMood = .idle
     var waiting = false
 
     /// `Chat`'s own `==` compares identity (id and thread) only; a row
@@ -1092,7 +1089,7 @@ struct UpdatesPill: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 if !updates.isEmpty {
-                    MascotStack(colors: Array(updates.prefix(3).map(\.chat.color)))
+                    HeadStack(colors: Array(updates.prefix(3).map(\.chat.color)))
                 }
                 VStack(alignment: .leading, spacing: 1) {
                     headline
@@ -1149,8 +1146,8 @@ struct UpdatesPill: View {
     }
 }
 
-/// Up to three mascots overlapping, the way a group of faces reads at a glance.
-struct MascotStack: View {
+/// Up to three heads overlapping, the way a group of faces reads at a glance.
+struct HeadStack: View {
     let colors: [String]
     var size: CGFloat = 28
     var overlap: CGFloat = 12
@@ -1158,7 +1155,8 @@ struct MascotStack: View {
     var body: some View {
         HStack(spacing: -overlap) {
             ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
-                MausAvatar(color: color, size: size, state: .idle, animated: false)
+                SeiraAvatarHead(look: SeiraLook(hair: "seira", color: color), size: size)
+                    .background(Circle().fill(SeiraIdentity.plate(hex: color)))
                     .padding(2)
                     .background(Circle().fill(Color(uiColor: .systemBackground)))
             }

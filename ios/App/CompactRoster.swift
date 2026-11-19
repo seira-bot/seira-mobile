@@ -26,8 +26,8 @@ enum CompactRosterMetrics {
 struct CompactBotEntry: View, Equatable {
     /// The bot as the state holds it now.
     let bot: Bot
-    /// Its face (`MausState.forChat`), worked out by the list.
-    let face: MausState
+    /// Its face (`CharacterMood.forChat`), worked out by the list.
+    let face: CharacterMood
     /// When the bot's current thread last moved, from the roster summary.
     let lastActivity: Double
     /// The day the list drew on (`RosterDay.today`). The stamps say "9:15 AM",

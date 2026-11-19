@@ -263,7 +263,7 @@ struct NewSectionSheet: View {
         let selected = selection.contains(bot.id)
         let candidate = selection.candidate?.id == bot.id
         let order = selection.selectedIDs.firstIndex(of: bot.id).map { $0 + 1 }
-        let tint = MausPalette.color(bot.color)
+        let tint = SeiraPalette.color(bot.color)
 
         return Button {
             if selection.toggle(bot.id) {
@@ -288,7 +288,7 @@ struct NewSectionSheet: View {
     private func botTile(_ bot: Bot, selected: Bool, candidate: Bool, order: Int?, tint: Color) -> some View {
         VStack(spacing: 9) {
             ZStack(alignment: .topTrailing) {
-                BotAvatarView(bot: bot, size: 52, animated: false)
+                BotAvatarView(bot: bot, size: 52)
                 if let order {
                     orderBadge(order, tint: tint)
                 }
@@ -554,7 +554,7 @@ struct NewSectionSheet: View {
             ForEach(Array(selection.selectedIDs.enumerated()), id: \.element) { index, id in
                 if let bot = bots.first(where: { $0.id == id }) {
                     HStack(spacing: 7) {
-                        BotAvatarView(bot: bot, size: 26, animated: false)
+                        BotAvatarView(bot: bot, size: 26)
                         Text("\(index + 1). \(bot.name)")
                             .font(.system(size: 13, weight: .semibold))
                             .lineLimit(1)

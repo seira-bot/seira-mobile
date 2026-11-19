@@ -98,41 +98,11 @@ extension Color {
 }
 
 enum SeiraIdentity {
-    private static let fallbackHex: UInt32 = 0x8E8E93
-
-    /// A bot's `color` is a palette name ("green", "teal"); a hex value also works.
-    private static func parse(_ hex: String?) -> UInt32 {
-        guard let hex else { return fallbackHex }
-        let resolved = MausPalette.hexString(hex.lowercased()) ?? hex
-        let digits = resolved.hasPrefix("#") ? String(resolved.dropFirst()) : resolved
-        guard digits.count == 6, let value = UInt32(digits, radix: 16) else { return fallbackHex }
-        return value
-    }
-
     static func color(hex: String?) -> Color {
-        Color(SeiraRGBA(hex: parse(hex)).uiColor)
+        Color(SeiraRGBA(hex: SeiraPlate.rgb(hex)).uiColor)
     }
 
     static func plate(hex: String?) -> Color {
-        let identity = SeiraRGBA(hex: parse(hex)).uiColor
-        return Color(UIColor { traits in
-            let dark = traits.userInterfaceStyle == .dark
-            let base = SeiraRGBA(hex: dark ? 0x1C1C21 : 0xF1F1F4).uiColor
-            return mix(identity, base, identityShare: dark ? 0.34 : 0.26)
-        })
-    }
-
-    private static func mix(_ identity: UIColor, _ base: UIColor, identityShare: CGFloat) -> UIColor {
-        var ir: CGFloat = 0, ig: CGFloat = 0, ib: CGFloat = 0, ia: CGFloat = 0
-        var br: CGFloat = 0, bg: CGFloat = 0, bb: CGFloat = 0, ba: CGFloat = 0
-        identity.getRed(&ir, green: &ig, blue: &ib, alpha: &ia)
-        base.getRed(&br, green: &bg, blue: &bb, alpha: &ba)
-        let rest = 1 - identityShare
-        return UIColor(
-            red: ir * identityShare + br * rest,
-            green: ig * identityShare + bg * rest,
-            blue: ib * identityShare + bb * rest,
-            alpha: 1
-        )
+        Color(SeiraPlate.dynamicColor(hex))
     }
 }

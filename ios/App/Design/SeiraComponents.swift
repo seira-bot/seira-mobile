@@ -11,19 +11,25 @@ struct SeiraAvatar: View {
     var ring: SeiraAvatarRing = .none
     var waiting = false
     var ringGap: Color = .seiraApp
+    var mood: CharacterMood = .idle
+    var motion: SeiraCharacterMotion = .still
 
     init(
         bot: Bot,
         size: CGFloat,
         ring: SeiraAvatarRing = .none,
         waiting: Bool = false,
-        ringGap: Color = .seiraApp
+        ringGap: Color = .seiraApp,
+        mood: CharacterMood = .idle,
+        motion: SeiraCharacterMotion = .still
     ) {
         self.bot = bot
         self.size = size
         self.ring = ring
         self.waiting = waiting
         self.ringGap = ringGap
+        self.mood = mood
+        self.motion = motion
     }
 
     var body: some View {
@@ -36,10 +42,18 @@ struct SeiraAvatar: View {
     private var face: some View {
         ZStack {
             Circle().fill(SeiraIdentity.plate(hex: bot.color))
-            BotAvatarView(bot: bot, size: size)
+            portrait
         }
         .frame(width: size, height: size)
         .clipShape(Circle())
+    }
+
+    @ViewBuilder private var portrait: some View {
+        if motion == .still {
+            BotAvatarView(bot: bot, size: size, state: mood)
+        } else {
+            BotCharacterView(bot: bot, size: size, mood: mood, motion: motion)
+        }
     }
 
     @ViewBuilder private var workingRing: some View {

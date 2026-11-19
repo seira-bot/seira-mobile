@@ -19,7 +19,7 @@ public struct WidgetSnapshot: Codable, Equatable, Sendable {
         public let line: String
         /// The ask to answer, when `kind == .needsYou`.
         public let card: OptionCard?
-        /// The mascot face the app had resolved for this chat, as its raw
+        /// The mood the app had resolved for this chat, as its raw
         /// name — precomputed so the widget needs no live state to draw.
         public let face: String
         /// When this chat's current kind began, when the writer knew — the
@@ -36,6 +36,12 @@ public struct WidgetSnapshot: Codable, Equatable, Sendable {
             ChatUpdate.answerOptions(kind: kind, card: card)
         }
 
+        /// The look a widget draws for a bot; a room has none of its own.
+        private static func look(of chat: Chat) -> SeiraLook? {
+            guard case let .bot(bot) = chat else { return nil }
+            return SeiraLook(bot: bot)
+        }
+
         /// Everything a widget draws from this row except `line`. `Chat`'s
         /// own equality is ids only, so the identity a widget renders —
         /// the thread it deep-links to, the name, the colour, the thread
@@ -45,6 +51,7 @@ public struct WidgetSnapshot: Codable, Equatable, Sendable {
                 && kind == other.kind
                 && card == other.card
                 && face == other.face
+                && Self.look(of: chat) == Self.look(of: other.chat)
                 && since == other.since
                 && chat.threadId == other.chat.threadId
                 && chat.name == other.chat.name
@@ -173,8 +180,8 @@ extension WidgetSnapshot {
 
 extension CompanionState {
     /// Freezes the current `updates` for the widget extension, one row per
-    /// update. `face` resolves each chat's mascot at write time — a closure
-    /// because the mascot tables live in the app target, above Core; the
+    /// update. `face` resolves each chat's mood at write time — a closure
+    /// because the mood tables live in the app target, above Core; the
     /// widget only ever sees the resulting string.
     public func widgetSnapshot(
         connectionID: String,

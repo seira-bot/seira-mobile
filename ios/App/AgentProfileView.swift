@@ -235,7 +235,7 @@ struct AgentProfileView: View {
         Section {
             HStack {
                 Spacer()
-                BotAvatarView(bot: current, size: 112, state: .happy, animated: true)
+                BotAvatarView(bot: current, size: 112, state: .happy)
                 Spacer()
             }
             .listRowBackground(Color.clear)
