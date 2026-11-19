@@ -34,7 +34,7 @@ class SettingsVoiceHelpTest {
 
     private val mac = Connection(id = "c1", name = "Dina's MacBook", host = "192.168.1.20", port = 8810)
 
-    private fun mount(connection: Connection?): WiringScene {
+    private fun mount(connection: Connection?, callsEnabled: Boolean = true): WiringScene {
         val scene = WiringScene(connection = connection)
         compose.setContent {
             CompositionLocalProvider(LocalCompanion provides scene.environment) {
@@ -42,6 +42,7 @@ class SettingsVoiceHelpTest {
                     SettingsScreen(
                         onBack = {},
                         onOpenConnectedApps = {},
+                        callsEnabled = callsEnabled,
                         accounts = AccountInfoSource {
                             AccountInfo(Profile(name = "Dina Pratama", email = "dina@example.com"), connectedApps = 3)
                         },
@@ -85,6 +86,14 @@ class SettingsVoiceHelpTest {
         compose.onNodeWithText("Live captions").performClick()
         compose.waitForIdle()
         assertEquals(true, preferences.liveCaptions.value)
+    }
+
+    @Test
+    fun `a build without calls hides voice and calls on a paired phone`() {
+        mount(mac, callsEnabled = false)
+        compose.onAllNodesWithText("Voice and calls").assertCountEquals(0)
+        compose.onAllNodesWithText("Live captions").assertCountEquals(0)
+        compose.onNodeWithText("Help").performScrollTo()
     }
 
     @Test
