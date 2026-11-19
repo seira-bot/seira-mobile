@@ -31,18 +31,14 @@ struct SeiraShortcuts: AppShortcutsProvider {
             phrases: [
                 "Talk to \(.applicationName)",
                 "Call \(.applicationName)",
-            ],
-            shortTitle: "Talk to Seira",
-            systemImageName: "waveform"
+            ]
         )
         AppShortcut(
             intent: NewChatIntent(),
             phrases: [
                 "Start a chat in \(.applicationName)",
                 "New \(.applicationName) chat",
-            ],
-            shortTitle: "New chat",
-            systemImageName: "square.and.pencil"
+            ]
         )
     }
 }

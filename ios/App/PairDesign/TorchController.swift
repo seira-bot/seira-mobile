@@ -7,9 +7,18 @@ final class TorchController: ObservableObject {
 
     private var device: AVCaptureDevice? { AVCaptureDevice.default(for: .video) }
 
-    var isAvailable: Bool {
-        guard let device else { return false }
-        return device.hasTorch && device.isTorchAvailable
+    @Published private(set) var isAvailable = false
+
+    init() {
+        refreshAvailability()
+    }
+
+    private func refreshAvailability() {
+        guard let device else {
+            isAvailable = false
+            return
+        }
+        isAvailable = device.hasTorch && device.isTorchAvailable
     }
 
     func toggle() {
@@ -22,6 +31,7 @@ final class TorchController: ObservableObject {
     }
 
     private func setOn(_ on: Bool) {
+        defer { refreshAvailability() }
         guard let device, device.hasTorch else {
             isOn = false
             return

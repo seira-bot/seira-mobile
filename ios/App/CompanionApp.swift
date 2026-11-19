@@ -25,10 +25,10 @@ struct CompanionApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .liveCallScreen()
                 .appliesAppearance()
                 .environmentObject(session)
                 .environmentObject(liveCall)
-                .liveCallScreen()
                 .environment(\.avatarLoader, AvatarLoader(session: session))
                 // One modifier is the whole language seam. SwiftUI resolves a
                 // `LocalizedStringKey` against the environment's locale, so
@@ -263,7 +263,11 @@ struct RootView: View {
         guard let chief = store.unsectionedChief ?? store.sidebarSections.flatMap(\.chiefs).first else { return }
         switch route {
         case .newChat:
-            session.openChat(threadId: chief.threadId)
+            Task {
+                if let created = await session.createRosterThread(for: chief) {
+                    session.openChat(threadId: created.threadId)
+                }
+            }
         case .talk(let confirmed):
             if liveCall.machine.isActive {
                 liveCall.presentScreen()

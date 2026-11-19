@@ -42,6 +42,7 @@ private struct TalkWidgetView: View {
         case .accessoryCircular:
             Image(systemName: "waveform")
                 .font(.system(size: 22, weight: .semibold))
+                .accessibilityLabel("Talk to Seira")
                 .widgetAccessoryBackground()
         case .accessoryRectangular:
             HStack(spacing: 8) {
@@ -62,9 +63,9 @@ private struct TalkWidgetView: View {
         VStack(spacing: 10) {
             Image(systemName: "waveform")
                 .font(.system(size: 20, weight: .semibold))
-                .foregroundStyle(Color.white)
+                .foregroundStyle(Color(.systemBackground))
                 .frame(width: 48, height: 48)
-                .background(Circle().fill(Color.black))
+                .background(Circle().fill(Color.primary))
             Text("Talk to Seira")
                 .font(.system(size: 14, weight: .semibold))
                 .multilineTextAlignment(.center)

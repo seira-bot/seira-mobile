@@ -10,7 +10,7 @@ struct BotThreadRow: View {
     /// it, so the row derives it here rather than parsing activity.
     var queued = false
 
-    private var runtime: (title: String, icon: String, color: Color)? {
+    private var runtime: (title: LocalizedStringKey, icon: String, color: Color)? {
         // Ordered as the desktop orders its row: the person first, then a
         // teammate wait as a quiet clock (never a spinner), then work.
         if task.activity == "waiting-on-you" { return ("Waiting on you", "hand.raised.fill", .seiraWarningText) }

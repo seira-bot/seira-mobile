@@ -29,12 +29,14 @@ struct SettingsView: View {
                 computerSection
                 notificationsSection
                 chatSection
-                densitySection
-                languageSection
-                voiceSection
-                workspaceSection
-                signOutButton
-                SettingsFooter()
+                Group {
+                    densitySection
+                    languageSection
+                    voiceSection
+                    workspaceSection
+                    signOutButton
+                    SettingsFooter()
+                }
             }
             .padding(.horizontal, 16)
         }
@@ -392,6 +394,7 @@ struct SettingsView: View {
         .padding(.horizontal, 16)
         .frame(minHeight: 56)
         .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
     }
 
     @ViewBuilder private var notificationTrailing: some View {
@@ -665,7 +668,7 @@ struct ConnectionSecurityView: View {
                 .autocorrectionDisabled()
             Button("Save") {
                 if !session.updateAddress(addressText) {
-                    session.actionError = "That address doesn't look right. Copy it from Phone settings and try again."
+                    session.actionError = String(localized: "That address doesn't look right. Copy it from Phone settings and try again.")
                 }
             }
             Button("Cancel", role: .cancel) {}

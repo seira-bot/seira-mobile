@@ -107,7 +107,13 @@ struct PairPrimaryButton: View {
 
     var body: some View {
         Button(action: action) {
-            Text(title)
+            HStack(spacing: 8) {
+                if isBusy {
+                    ProgressView()
+                        .tint(Color.seiraOnPrimary)
+                }
+                Text(title)
+            }
         }
         .buttonStyle(SeiraPrimaryButtonStyle())
         .opacity(isBusy || isDisabled ? 0.6 : 1)

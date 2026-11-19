@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 enum PairViewfinderPhase {
-    case scanning, found, connected
+    case scanning, found
 }
 
 extension Color {
@@ -17,7 +17,6 @@ struct PairViewfinder: View {
 
     @StateObject private var camera = PairingCamera()
     @Environment(\.scenePhase) private var scenePhase
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var bracketColor: Color {
         phase == .scanning ? .white : .seiraViewfinderGreen
@@ -32,15 +31,14 @@ struct PairViewfinder: View {
             background
             scannerLayer
             PairBrackets(color: bracketColor, scaled: phase != .scanning)
-            checkBadge
         }
         .overlay(alignment: .bottomTrailing) { torchButton }
         .frame(width: 270, height: 270)
         .clipShape(RoundedRectangle(cornerRadius: 34, style: .continuous))
-        .task { await camera.resolve() }
+        .task(id: isScanning) { if isScanning { await camera.resolve() } }
         .onValueChange(of: scenePhase) { newPhase in
             if newPhase == .active {
-                Task { await camera.resolve() }
+                if isScanning { Task { await camera.resolve() } }
             } else {
                 torch.turnOff()
             }
@@ -88,20 +86,6 @@ struct PairViewfinder: View {
                 showsSettingsButton: false
             )
         }
-    }
-
-    private var checkBadge: some View {
-        let connected = phase == .connected
-        let scale: CGFloat = connected || reduceMotion ? 1 : 0.6
-        return Image(systemName: "checkmark")
-            .font(.system(size: 30, weight: .bold))
-            .foregroundStyle(Color(hex: "#0c0c0e"))
-            .frame(width: 72, height: 72)
-            .background(Color.seiraViewfinderGreen, in: Circle())
-            .scaleEffect(scale)
-            .opacity(connected ? 1 : 0)
-            .animation(reduceMotion ? nil : Animation.seira(0.3), value: connected)
-            .accessibilityHidden(true)
     }
 
     @ViewBuilder private var torchButton: some View {

@@ -30,20 +30,26 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     private static var categories: Set<UNNotificationCategory> {
         let approve = UNNotificationAction(
             identifier: approveActionIdentifier,
-            title: "Approve",
+            title: String(localized: "Approve"),
             options: [.authenticationRequired, .foreground]
         )
         let review = UNNotificationAction(
             identifier: reviewActionIdentifier,
-            title: "Review",
+            title: String(localized: "Review"),
             options: [.foreground]
         )
         let approval = UNNotificationCategory(
             identifier: "OPENMAUS_APPROVAL",
             actions: [approve, review],
             intentIdentifiers: [],
-            hiddenPreviewsBodyPlaceholder: "Needs your OK",
-            categorySummaryFormat: "%u more from %@",
+            hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
+            options: []
+        )
+        let question = UNNotificationCategory(
+            identifier: "OPENMAUS_QUESTION",
+            actions: [review],
+            intentIdentifiers: [],
+            hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
             options: []
         )
         let update = UNNotificationCategory(
@@ -51,10 +57,17 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
             actions: [],
             intentIdentifiers: [],
             hiddenPreviewsBodyPlaceholder: "",
-            categorySummaryFormat: "%u more from %@",
             options: []
         )
-        return [approval, update]
+        return [approval, question, update]
+    }
+
+    private static func categoryIdentifier(for notification: NotificationFrame) -> String {
+        switch notification.kind {
+        case "approval": return "OPENMAUS_APPROVAL"
+        case "question": return "OPENMAUS_QUESTION"
+        default: return "OPENMAUS_UPDATE"
+        }
     }
 
     func authorizationStatus() async -> UNAuthorizationStatus {
@@ -85,9 +98,8 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         content.title = notification.title
         content.body = notification.body
         content.sound = .default
-        content.categoryIdentifier = notification.isBlocking ? "OPENMAUS_APPROVAL" : "OPENMAUS_UPDATE"
+        content.categoryIdentifier = Self.categoryIdentifier(for: notification)
         content.threadIdentifier = "bot.\(notification.botId)"
-        content.summaryArgument = notification.botName
         content.userInfo = [
             "threadId": notification.threadId,
             "botId": notification.botId,

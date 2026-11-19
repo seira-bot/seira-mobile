@@ -213,7 +213,7 @@ struct ChatListView: View {
     private func emptyState(matches: [ChatSummary]) -> some View {
         if rosterIsEmpty(matches: matches) {
             EmptyStateView(
-                query.isEmpty ? "No bots yet" : "Nothing matches",
+                query.isEmpty ? "No bots" : "Nothing matches",
                 systemImage: query.isEmpty ? "bubble.left.and.bubble.right" : "magnifyingglass",
                 description: Text(
                     query.isEmpty
@@ -284,7 +284,7 @@ struct ChatListView: View {
             HomeTeamRail(
                 members: team,
                 open: { openBot($0) },
-                seeAll: { scrollTo(Self.botsSectionID) }
+                seeAll: session.state.unsectionedBots.isEmpty ? nil : { scrollTo(Self.botsSectionID) }
             )
             .padding(.top, chief == nil ? 0 : 20)
         }
@@ -732,7 +732,10 @@ struct ChatListView: View {
                     Button {
                         query = ""
                     } label: {
-                        Image(systemName: "xmark.circle.fill").foregroundStyle(Color.seiraInk3)
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.seiraInk3)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.plain)
                     .accessibilityLabel("Clear")
@@ -1097,7 +1100,7 @@ struct UpdatesPill: View {
                         .foregroundStyle(updates.isEmpty ? Color.seiraInk3 : Color.seiraInk)
                         .lineLimit(1)
 
-                    Text(subline)
+                    subline
                         .font(.seira(12, relativeTo: .caption))
                         .foregroundStyle(Color.seiraInk3)
                         .lineLimit(1)
@@ -1138,11 +1141,11 @@ struct UpdatesPill: View {
         }
     }
 
-    private var subline: String {
-        guard let first = updates.first else { return "Nothing needs you" }
+    private var subline: Text {
+        guard let first = updates.first else { return Text("Nothing needs you") }
         let rest = updates.count - 1
-        if rest == 0 { return first.line.isEmpty ? " " : first.line }
-        return rest == 1 ? "1 more update" : "\(rest) more updates"
+        if rest == 0 { return Text(verbatim: first.line.isEmpty ? " " : first.line) }
+        return rest == 1 ? Text("1 more update") : Text("\(rest) more updates")
     }
 }
 
@@ -1173,18 +1176,18 @@ struct StatusBanner: View {
             case .live, .unpaired:
                 EmptyView()
             case .connecting:
-                banner("Connecting…", systemImage: "arrow.triangle.2.circlepath", tint: .seiraInk2)
+                banner(Text("Connecting…"), systemImage: "arrow.triangle.2.circlepath", tint: .seiraInk2)
             case let .offline(reason):
-                banner(reason, systemImage: "wifi.slash", tint: .seiraWarningText)
+                banner(Text(verbatim: reason), systemImage: "wifi.slash", tint: .seiraWarningText)
             case .unauthorized:
-                banner("This device was unpaired on the computer.", systemImage: "lock.slash", tint: .seiraDangerText)
+                banner(Text("This device was unpaired on the computer."), systemImage: "lock.slash", tint: .seiraDangerText)
             }
         }
         .seiraAnimation(SeiraMotion.base, value: session.status)
     }
 
-    private func banner(_ text: String, systemImage: String, tint: Color) -> some View {
-        Label(text, systemImage: systemImage)
+    private func banner(_ text: Text, systemImage: String, tint: Color) -> some View {
+        Label { text } icon: { Image(systemName: systemImage) }
             .font(.seira(13, relativeTo: .footnote))
             .foregroundStyle(tint)
             .padding(.horizontal, 12)

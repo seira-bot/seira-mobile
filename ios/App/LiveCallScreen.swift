@@ -109,7 +109,7 @@ private struct LiveCallHeader: View {
                 .foregroundStyle(Color.seiraInk)
         }
         .buttonStyle(SeiraCircleButtonStyle(size: 44, fill: .seiraCallControl))
-        .accessibilityLabel("Back to chat")
+        .accessibilityLabel("Hide call screen")
         .accessibilityIdentifier("live-call-screen-back")
     }
 

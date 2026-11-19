@@ -19,7 +19,7 @@ struct HomeTeamMember: Identifiable, Equatable {
 struct HomeTeamRail: View {
     let members: [HomeTeamMember]
     let open: (Bot) -> Void
-    let seeAll: () -> Void
+    let seeAll: (() -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -32,15 +32,17 @@ struct HomeTeamRail: View {
         HStack(alignment: .firstTextBaseline) {
             HomeSectionTitle(text: Text("Team"))
             Spacer(minLength: 8)
-            Button(action: seeAll) {
-                Text("See all \(members.count)")
-                    .font(.seira(13, relativeTo: .subheadline))
-                    .foregroundStyle(Color.seiraAccentText)
-                    .frame(minHeight: 44)
-                    .contentShape(Rectangle())
+            if let seeAll {
+                Button(action: seeAll) {
+                    Text("See all \(members.count)")
+                        .font(.seira(13, relativeTo: .subheadline))
+                        .foregroundStyle(Color.seiraAccentText)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+                .padding(.trailing, HomeRowMetrics.side)
             }
-            .buttonStyle(.plain)
-            .padding(.trailing, HomeRowMetrics.side)
         }
         .frame(minHeight: 44)
     }

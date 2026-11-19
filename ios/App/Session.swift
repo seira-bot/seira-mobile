@@ -207,7 +207,10 @@ final class Session: ObservableObject {
         }
         NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
             guard let self, let bot = self.state.bot(botId) else { return nil }
-            return await self.avatarData(for: bot)
+            if let path = bot.avatarUrl,
+               let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
+            Task { _ = await self.avatarData(for: bot) }
+            return nil
         }
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
@@ -2797,8 +2800,8 @@ final class Session: ObservableObject {
         guard status == .live, let chat = state.chat(forThread: target.threadId) else { return false }
         let open = state.pendingApprovals.filter { $0.threadId == target.threadId }
         guard open.count == 1, let card = open[0].message.card,
-              card.skillRequest == nil, card.questionRequest == nil else { return false }
-        let accepted: Set<String> = ["approve", "approve all", "allow", "allow once", "yes"]
+              card.presentation == .approval else { return false }
+        let accepted: Set<String> = ["approve", "allow", "allow once", "yes"]
         let matches = card.options.filter {
             accepted.contains($0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
         }

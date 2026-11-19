@@ -15,11 +15,7 @@ struct HomeBottomBar: View {
     var body: some View {
         HStack(spacing: 10) {
             searchPill
-            if hasChief {
-                newChatButton
-            } else {
-                newChatMenu
-            }
+            newChatMenu
         }
     }
 
@@ -48,14 +44,6 @@ struct HomeBottomBar: View {
             .foregroundStyle(Color.seiraOnPrimary)
     }
 
-    private var newChatButton: some View {
-        Button(action: newChat) { newChatIcon }
-            .buttonStyle(SeiraCircleButtonStyle(size: 52, fill: .seiraPrimary))
-            .contextMenu { actions }
-            .accessibilityLabel("New chat")
-            .accessibilityIdentifier("home-new-chat")
-    }
-
     private var newChatMenu: some View {
         Menu { actions } label: {
             newChatIcon
@@ -69,6 +57,9 @@ struct HomeBottomBar: View {
     }
 
     @ViewBuilder private var actions: some View {
+        if hasChief {
+            Button(action: newChat) { Label("New chat", systemImage: "square.and.pencil") }
+        }
         Button(action: newGroup) { Label("New group", systemImage: "person.2") }
         if canAdminister {
             Button(action: newSection) { Label("New section", systemImage: "folder.badge.plus") }

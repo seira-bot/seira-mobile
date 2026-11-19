@@ -18,7 +18,6 @@ struct PairingView: View {
     /// was lost, repeating this same logical request recovers its token.
     @State private var pairRequestId: String?
     @State private var chosen: Connection?
-    @State private var pairedName: String?
     @State private var submission = CompanionPairingSubmissionState()
     @State private var failure: String?
     @State private var showingManualInput = false
@@ -33,8 +32,7 @@ struct PairingView: View {
     private var pairing: Bool { submission.isInFlight }
 
     private var phase: PairViewfinderPhase {
-        if pairedName != nil { return .connected }
-        return chosen != nil ? .found : .scanning
+        chosen != nil ? .found : .scanning
     }
 
     var body: some View {
@@ -69,12 +67,12 @@ struct PairingView: View {
             PairHeader()
             PairViewfinder(
                 phase: phase,
-                isScanning: chosen == nil && pairedName == nil,
+                isScanning: chosen == nil,
                 torch: torch,
                 onPayload: handleScanned
             )
             .padding(.top, 24)
-            PairStatusLine(text: statusText, isPositive: chosen != nil || pairedName != nil)
+            PairStatusLine(text: statusText, isPositive: chosen != nil)
                 .padding(.top, 16)
             details
         }
@@ -89,7 +87,7 @@ struct PairingView: View {
             if let failure {
                 PairErrorBanner(message: failure)
             }
-            if let chosen, pairedName == nil {
+            if let chosen {
                 consentDetails(for: chosen)
             } else if chosen == nil {
                 searchDetails
@@ -109,17 +107,16 @@ struct PairingView: View {
     }
 
     private var statusText: Text {
-        if let pairedName { return Text("Paired with \(pairedName)") }
         if pairing { return Text("Connecting…") }
         if chosen != nil {
-            return scannedCredential != nil ? Text("Code found") : Text("Enter the code from your computer")
+            return scannedCredential != nil ? Text("Code found") : Text("Enter the code shown on your computer")
         }
         return Text("Looking for a code…")
     }
 
     private func handleScanned(_ payload: String) -> Bool {
         guard let url = URL(string: payload), let invite = PairingInvite.parse(url) else {
-            failure = "That isn't a Seira pairing QR code."
+            failure = String(localized: "That isn't a Seira pairing QR code.")
             return false
         }
         accept(invite)
@@ -127,25 +124,11 @@ struct PairingView: View {
     }
 
     @ViewBuilder private var bottomCard: some View {
-        if pairedName != nil {
-            PairBottomCard { connectedCard }
-        } else if let chosen {
+        if let chosen {
             PairBottomCard { chosenCard(for: chosen) }
         } else {
             PairBottomCard { searchCard }
         }
-    }
-
-    @ViewBuilder private var connectedCard: some View {
-        PairComputerRow(
-            symbol: "checkmark",
-            title: Text("You're connected"),
-            subtitle: Text("Your chats and bots are ready on this phone."),
-            fill: .seiraPairSuccessSoft,
-            ink: .seiraSuccess
-        )
-        PairPrimaryButton(title: "Done") { onCancel() }
-        PairTextButton(title: "Pair another computer") { pairAnother() }
     }
 
     @ViewBuilder private var searchCard: some View {
@@ -153,7 +136,7 @@ struct PairingView: View {
             PairComputerRow(
                 symbol: "laptopcomputer",
                 title: Text(verbatim: service.name),
-                subtitle: Text("Same Wi-Fi · found just now")
+                subtitle: Text("Same Wi-Fi")
             )
             PairPrimaryButton(title: "Connect") {
                 Haptics.selection()
@@ -166,7 +149,7 @@ struct PairingView: View {
                 subtitle: Text(discovery.failure ?? "Open Seira on it and stay on the same Wi-Fi.")
             )
         }
-        PairTextButton(title: "Enter a code instead") {
+        PairTextButton(title: "Enter address and code") {
             Haptics.selection()
             withSeiraAnimation(SeiraMotion.base) { showingManualInput.toggle() }
         }
@@ -298,7 +281,7 @@ struct PairingView: View {
             return
         }
         guard let connection = Self.parse(manualAddress) else {
-            failure = "That address doesn't look right. Copy it from Phone settings and try again."
+            failure = String(localized: "That address doesn't look right. Copy it from Phone settings and try again.")
             return
         }
         choiceGeneration += 1
@@ -313,12 +296,6 @@ struct PairingView: View {
         scannedCredential = nil
         pairRequestId = nil
         failure = nil
-    }
-
-    private func pairAnother() {
-        pairedName = nil
-        chooseDifferentComputer()
-        session.beginPairing()
     }
 
     private func consentDetails(for connection: Connection) -> some View {
@@ -384,7 +361,6 @@ struct PairingView: View {
             // the in-flight request has fully settled.
             if succeeded {
                 session.consumePairingInvite()
-                pairedName = connection.name
                 onCancel()
             } else {
                 accept(session.pairingInvite)
@@ -407,7 +383,7 @@ struct PairingView: View {
                 if error is PairingRouteError {
                     failure = error.localizedDescription
                 } else {
-                    failure = "\(error.localizedDescription) Start pairing again on your computer and rescan the new QR code."
+                    failure = String(localized: "\(error.localizedDescription) Start pairing again on your computer and rescan the new QR code.")
                     chosen = nil
                     scannedCredential = nil
                     pairRequestId = nil
@@ -442,7 +418,7 @@ struct PairingView: View {
     /// next to the button that fixes it.
     private func showLinkError(_ message: String?) {
         guard let message else { return }
-        failure = message
+        failure = String(localized: String.LocalizationValue(message))
         session.consumePairingLinkError()
     }
 
@@ -452,7 +428,7 @@ struct PairingView: View {
             ?? false
     }
 
-    private func connectionBadge(for connection: Connection) -> (title: String, systemImage: String) {
+    private func connectionBadge(for connection: Connection) -> (title: LocalizedStringKey, systemImage: String) {
         let kind = connection.activeEndpoint?.kind ?? connection.automaticEndpoints.first?.kind
         if kind == .hosted {
             return ("HTTPS connection", "lock.shield.fill")

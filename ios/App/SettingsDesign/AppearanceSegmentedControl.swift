@@ -24,6 +24,7 @@ struct AppearanceSegmentedControl: View {
                         segmentButton(choice)
                     }
                 }
+                .padding(.horizontal, 4)
             }
         }
         .frame(height: 44)
