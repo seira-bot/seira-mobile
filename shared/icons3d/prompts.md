@@ -49,6 +49,8 @@ Pink means "connected". The broken link in `not-connected` is off-white, so it s
 
 ## App icon candidates
 
+The app icon uses `candidate-1-light`. Run `python3 scripts/export-app-icon.py` to make the iOS, Android and Play Store icons from it.
+
 These prompts use two reference images: the flat Seira mark, and the front view of the 3D character.
 The candidates are opaque full-bleed squares. The OS applies the corner mask.
 
