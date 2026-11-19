@@ -1,0 +1,46 @@
+{
+  "note": "Captions for the framed phone screenshots. tools/frame.py reads this file and the renders in ../raw/. Keep each title short: it must fit on two lines.",
+  "size": [1080, 1920],
+  "shots": [
+    {
+      "id": "01-home",
+      "theme": "light",
+      "raw": { "en-US": "store-home-light.png", "id-ID": "store-home-light.png" },
+      "title": { "en-US": "All your bots in one list", "id-ID": "Semua bot Anda dalam satu daftar" },
+      "sub": { "en-US": "Bots that need you come first.", "id-ID": "Bot yang perlu Anda tampil paling atas." }
+    },
+    {
+      "id": "02-chat",
+      "theme": "light",
+      "raw": { "en-US": "store-chat-table-en-light.png", "id-ID": "store-chat-table-id-light.png" },
+      "title": { "en-US": "Read the work as it comes in", "id-ID": "Baca hasil kerja bot saat masuk" },
+      "sub": { "en-US": "Tables and formatted text, as the reply arrives.", "id-ID": "Tabel dan teks berformat, saat balasan masuk." }
+    },
+    {
+      "id": "03-approval",
+      "theme": "light",
+      "raw": { "en-US": "store-chat-approval-en-light.png", "id-ID": "store-chat-approval-id-light.png" },
+      "title": { "en-US": "Allow or deny before a bot acts", "id-ID": "Setujui atau tolak sebelum bot bertindak" },
+      "sub": { "en-US": "The bot asks you first, then continues.", "id-ID": "Bot bertanya dulu, lalu melanjutkan." }
+    },
+    {
+      "id": "04-pair",
+      "theme": "light",
+      "raw": { "en-US": "store-pair-light.png", "id-ID": "store-pair-light.png" },
+      "title": { "en-US": "Pair with a QR code", "id-ID": "Pasangkan dengan kode QR" },
+      "sub": { "en-US": "Scan the code that Seira shows on your computer.", "id-ID": "Pindai kode yang ditampilkan Seira di komputer." }
+    },
+    {
+      "id": "05-dark",
+      "theme": "dark",
+      "raw": { "en-US": "store-home-dark.png", "id-ID": "store-home-dark.png" },
+      "title": { "en-US": "Light and dark themes", "id-ID": "Tema terang dan gelap" },
+      "sub": { "en-US": "Auto follows your phone setting.", "id-ID": "Mode Auto mengikuti pengaturan ponsel." }
+    }
+  ],
+  "feature_graphic": {
+    "size": [1024, 500],
+    "title": "Seira",
+    "tagline": { "en-US": "Answer your bots from your phone.", "id-ID": "Jawab bot Anda dari ponsel." }
+  }
+}
