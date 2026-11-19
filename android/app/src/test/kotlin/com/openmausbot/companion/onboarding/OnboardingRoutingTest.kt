@@ -7,6 +7,7 @@ import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import com.openmausbot.companion.core.NotificationAuthorizationState
 import com.openmausbot.companion.core.OnboardingPairingState
 import com.openmausbot.companion.core.Session
@@ -95,7 +96,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Connect a computer").assertIsDisplayed()
-        compose.onNodeWithText("Enable notifications").assertIsDisplayed()
+        compose.onNodeWithText("Turn on notifications").performScrollTo().assertIsDisplayed()
         // And nothing that needs a pairing to mean anything.
         compose.onNodeWithText("Unpair this phone").assertDoesNotExist()
         compose.onNodeWithText("Tasks & Routines").assertDoesNotExist()
@@ -117,7 +118,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithText(OnboardingCopy.UNPAIRED_HOME_CONNECT).performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText("Pair with a computer").assertIsDisplayed()
+        compose.onNodeWithText("Connect your computer").assertIsDisplayed()
         assertEquals(emptyList(), scene.asked(), "reaching the QR screen asked for something")
     }
 
@@ -132,7 +133,7 @@ class OnboardingRoutingTest {
         )
         compose.waitForIdle()
 
-        compose.onNodeWithText("Pair with a computer").assertIsDisplayed()
+        compose.onNodeWithText("Connect your computer").assertIsDisplayed()
     }
 
     @Test
@@ -283,7 +284,7 @@ class OnboardingRoutingTest {
         )
         compose.waitUntil(5_000) { scene.session.pairingInvite.value != null }
         compose.waitForIdle()
-        compose.onNodeWithText("Pair with this computer").performClick()
+        compose.onNodeWithText("Pair with this computer").performScrollTo().performClick()
         compose.waitUntil(5_000) { scene.session.connection.value != null }
         compose.waitForIdle()
 
@@ -304,7 +305,7 @@ class OnboardingRoutingTest {
         compose.waitForIdle()
 
         compose.onNodeWithText(OnboardingCopy.UNPAIRED_HOME_TITLE).assertIsDisplayed()
-        compose.onNodeWithText("Pair with a computer").assertDoesNotExist()
+        compose.onNodeWithText("Connect your computer").assertDoesNotExist()
         assertFalse(
             scene.relaunchedOnboarding().notificationPending.value,
             "the unpaired phone still owes an education step for a pairing it no longer has",
@@ -454,7 +455,7 @@ class OnboardingRoutingTest {
         compose.waitUntil(5_000) { scene.session.connection.value == null }
         compose.waitForIdle()
 
-        compose.onNodeWithText("Pair with this computer").assertIsDisplayed()
+        compose.onNodeWithText("Pair with this computer").performScrollTo().assertIsDisplayed()
     }
 
     /**
@@ -471,7 +472,7 @@ class OnboardingRoutingTest {
         scene.session.receivePairingURL("openmausbot://pair?address=127.0.0.1:8810")
         compose.waitForIdle()
 
-        compose.onNodeWithText("Pair with a computer").assertIsDisplayed()
+        compose.onNodeWithText("Connect your computer").assertIsDisplayed()
         compose.onNodeWithText(Session.INVALID_PAIRING_LINK_MESSAGE).assertExists()
         compose.onNodeWithText("Something went wrong").assertDoesNotExist()
     }
