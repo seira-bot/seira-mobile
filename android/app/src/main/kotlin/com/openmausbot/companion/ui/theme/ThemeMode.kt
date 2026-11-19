@@ -38,16 +38,16 @@ class NightModeApplier(
     private val setNightMode: ((Int) -> Unit)?,
     private val sdkInt: Int = Build.VERSION.SDK_INT,
 ) {
-    constructor(manager: UiModeManager?) : this(
-        manager?.let { target -> { code: Int -> target.setApplicationNightMode(code) } },
-    )
-
     fun apply(mode: ThemeMode) {
         if (sdkInt < Build.VERSION_CODES.S) return
         setNightMode?.invoke(nightModeFor(mode))
     }
 
     companion object {
+        fun forSystem(manager: UiModeManager?): NightModeApplier = NightModeApplier(
+            if (manager == null) null else { code: Int -> manager.setApplicationNightMode(code) },
+        )
+
         fun nightModeFor(mode: ThemeMode): Int = when (mode) {
             ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
             ThemeMode.DARK -> UiModeManager.MODE_NIGHT_YES

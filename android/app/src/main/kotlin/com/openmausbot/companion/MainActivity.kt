@@ -180,7 +180,7 @@ class MainActivity : ComponentActivity() {
         val browser = CloudDesktopBrowser(this)
 
         val chatPreferences = ChatPreferences(this)
-        val nightMode = NightModeApplier(getSystemService(UiModeManager::class.java))
+        val nightMode = NightModeApplier.forSystem(getSystemService(UiModeManager::class.java))
         lifecycleScope.launch {
             chatPreferences.themeMode.collect(nightMode::apply)
         }
