@@ -192,9 +192,9 @@ class RosterScreenTest {
         compose.onNodeWithText("Three reviews and one approval. I put them in order.").assertDoesNotExist()
         // A single thread is the bot itself: no "Threads 1" row and no count.
         compose.onNodeWithTag("threads-toggle.${RosterFixture.CHIEF}").assertDoesNotExist()
-        compose.onNodeWithTag("chat-row.${RosterFixture.PINNED}").assert(!hasContentDescription("Chief of Staff"))
+        reveal("chat-row.${RosterFixture.PINNED}").assert(!hasContentDescription("Chief of Staff"))
 
-        chief.performClick()
+        reveal("chat-row.${RosterFixture.CHIEF}").performClick()
         assertEquals(Destination.Chat(ChatTarget.Bot(RosterFixture.CHIEF, "roster-atlas-plan")), navigator.current)
     }
 
@@ -242,7 +242,7 @@ class RosterScreenTest {
         }
         val navigator = mount()
 
-        val chief = compose.onNodeWithTag("chat-row.${RosterFixture.CHIEF}")
+        val chief = reveal("chat-row.${RosterFixture.CHIEF}")
         // TalkBack reaches both without the gesture.
         chief.assert(customActions("New thread", "Manage threads"))
         chief.performTouchInput { longClick() }
@@ -274,7 +274,7 @@ class RosterScreenTest {
     @Test
     fun `Manage threads from the long press opens the bot's thread sheet`() {
         mount()
-        compose.onNodeWithTag("chat-row.${RosterFixture.CHIEF}").performTouchInput { longClick() }
+        reveal("chat-row.${RosterFixture.CHIEF}").performTouchInput { longClick() }
         compose.onNodeWithText("Manage threads").performClick()
         compose.onNodeWithText("Atlas's threads").assertIsDisplayed()
     }
