@@ -193,7 +193,7 @@ class PairingDiscoveryTimingTest {
         var cancelled = 0
         mount(scene) { cancelled += 1 }
 
-        compose.onNodeWithContentDescription("Back").performClick()
+        compose.onNodeWithContentDescription("Back to settings").performClick()
         compose.waitForIdle()
 
         assertEquals(1, cancelled)
@@ -219,12 +219,12 @@ class PairingDiscoveryTimingTest {
         compose.waitForIdle()
         // The link carried the credential, so the step is a confirmation of the
         // computer rather than a code to type.
-        compose.onNodeWithContentDescription("Back").assertIsEnabled()
+        compose.onNodeWithContentDescription("Back to settings").assertIsEnabled()
 
         compose.onNodeWithText("Pair with this computer").performScrollTo().performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithContentDescription("Back").assertIsNotEnabled()
+        compose.onNodeWithContentDescription("Back to settings").assertIsNotEnabled()
         assertEquals(0, cancelled)
 
         gate.complete(Unit)
