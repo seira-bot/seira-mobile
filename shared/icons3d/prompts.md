@@ -39,10 +39,13 @@ A single 3D icon for a mobile app. Style: cute collectible vinyl designer-toy re
 | `privacy` | a rounded protective shield standing upright, with a small padlock on its front; the padlock body is glossy black with a small pink keyhole. |
 | `help` | a chunky lifebuoy ring lying slightly tilted toward the viewer, with four alternating segments: two off-white and two pink, and a thin glossy near-black rope loop around it. |
 | `empty-chats` | two overlapping rounded speech bubbles: a larger off-white bubble in front at the lower left with three small round pink dots on it, and a smaller glossy near-black bubble behind it at the upper right. |
-| `not-connected` | an off-white laptop with a glossy near-black screen and a smaller off-white phone with a glossy near-black screen standing side by side with a clear gap; in the gap floats a chain link that is broken open into two separate rounded pink link pieces. |
+| `not-connected` | a compact group: an off-white laptop with off-white keys and a glossy near-black screen at the back left, and a smaller off-white phone with a glossy near-black screen at the front right, apart from each other. Between them, in front, floats a very large chunky off-white vinyl chain link broken into two separate halves with a wide visible gap in the middle, each half casting a soft shadow. No pink anywhere. Use the reference image for the exact laptop, phone, material, light, camera angle and background. |
 | `offline` | a puffy off-white cloud with one thick rounded pink diagonal slash bar across it from upper left to lower right. |
 | `all-done` | a round off-white badge with a soft scalloped edge like a rosette seal, a thick glossy near-black check mark on its face, and a small four-point pink sparkle floating at its upper right. |
-| `pair` | an off-white laptop with a glossy near-black screen and a smaller off-white phone with a glossy near-black screen standing side by side, joined by one closed rounded pink chain link between them. |
+| `pair` | a compact group that fits a square: an off-white laptop with off-white keys and a glossy near-black screen on the left, and a smaller off-white phone with a glossy near-black screen standing close in front of its right side, slightly overlapping it. One whole closed pink chain link of two interlocked links joins the phone to the laptop. A small round pink badge with a thick off-white check mark floats above the phone. Use the reference image for the exact laptop, phone, material, light, camera angle and background. |
+
+`pair` and `not-connected` use one reference image: an earlier render of the same laptop and phone on green. This keeps the devices the same in both icons. Use the raw image of the other icon as the reference when you remake one of them.
+Pink means "connected". The broken link in `not-connected` is off-white, so it shows on light and dark backgrounds.
 
 ## App icon candidates
 
