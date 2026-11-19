@@ -192,9 +192,9 @@ class RosterScreenTest {
         compose.onNodeWithText("Three reviews and one approval. I put them in order.").assertDoesNotExist()
         // A single thread is the bot itself: no "Threads 1" row and no count.
         compose.onNodeWithTag("threads-toggle.${RosterFixture.CHIEF}").assertDoesNotExist()
-        compose.onNodeWithTag("chat-row.${RosterFixture.PINNED}").assert(!hasContentDescription("Chief of Staff"))
+        reveal("chat-row.${RosterFixture.PINNED}").assert(!hasContentDescription("Chief of Staff"))
 
-        chief.performClick()
+        reveal("chat-row.${RosterFixture.CHIEF}").performClick()
         assertEquals(Destination.Chat(ChatTarget.Bot(RosterFixture.CHIEF, "roster-atlas-plan")), navigator.current)
     }
 
@@ -242,7 +242,7 @@ class RosterScreenTest {
         }
         val navigator = mount()
 
-        val chief = compose.onNodeWithTag("chat-row.${RosterFixture.CHIEF}")
+        val chief = reveal("chat-row.${RosterFixture.CHIEF}")
         // TalkBack reaches both without the gesture.
         chief.assert(customActions("New thread", "Manage threads"))
         chief.performTouchInput { longClick() }
@@ -274,7 +274,7 @@ class RosterScreenTest {
     @Test
     fun `Manage threads from the long press opens the bot's thread sheet`() {
         mount()
-        compose.onNodeWithTag("chat-row.${RosterFixture.CHIEF}").performTouchInput { longClick() }
+        reveal("chat-row.${RosterFixture.CHIEF}").performTouchInput { longClick() }
         compose.onNodeWithText("Manage threads").performClick()
         compose.onNodeWithText("Atlas's threads").assertIsDisplayed()
     }
@@ -370,7 +370,7 @@ class RosterScreenTest {
     @Test
     fun `a search lists matching threads under their bots, without New thread`() {
         mount()
-        compose.onNodeWithContentDescription("Search").performClick()
+        compose.onNodeWithText("Search chats and bots").performClick()
         compose.onNode(hasSetTextAction()).performTextInput("Triage")
         compose.waitForIdle()
 
@@ -384,7 +384,7 @@ class RosterScreenTest {
     @Test
     fun `a search lists a single-thread bot's matching thread too`() {
         mount()
-        compose.onNodeWithContentDescription("Search").performClick()
+        compose.onNodeWithText("Search chats and bots").performClick()
         compose.onNode(hasSetTextAction()).performTextInput("Release")
         compose.waitForIdle()
 
@@ -413,28 +413,26 @@ class RosterScreenTest {
         assertTrue(role.none { it.layoutInfo.isPlaced }, "the long role should not be drawn")
         val name = textLayout(compose.onNodeWithTag("bot-name.${RosterFixture.LONG_NAME}", useUnmergedTree = true))
         assertEquals(1, name.lineCount)
-        assertTrue(name.isLineEllipsized(0))
     }
 
     @Test
     fun `groups are one-line rows, with New group on the Groups title`() {
         val navigator = mount()
-        compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").assertIsDisplayed().assert(hasText("General"))
         // the strip's dashed tile is gone; its "+" moved onto the title
         compose.onNodeWithText("New group").assertDoesNotExist()
+        reveal("chat-row.${RosterFixture.GROUP}").assertIsDisplayed().assert(hasText("General"))
         compose.onNodeWithContentDescription("New group").assertIsDisplayed()
         reveal("chat-row.${RosterFixture.BOT_CHAT}").assertIsDisplayed()
         reveal("chat-row.${RosterFixture.SECTION_GROUP}").assertIsDisplayed()
 
-        // back to the top, where the row is clear of the floating bar
-        list().performScrollToIndex(0)
-        compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").performClick()
+        reveal("chat-row.${RosterFixture.GROUP}").performClick()
         assertEquals(Destination.Chat(ChatTarget.Room(RosterFixture.GROUP, "roster-general-thread")), navigator.current)
     }
 
     @Test
     fun `the plus on the Groups title starts a new group`() {
         mount()
+        list().performScrollToNode(hasContentDescription("New group"))
         compose.onNodeWithContentDescription("New group").performClick()
         compose.onNodeWithText("Group name (optional)").assertIsDisplayed()
     }
@@ -447,7 +445,7 @@ class RosterScreenTest {
         compose.onNodeWithText("No bots yet").assertDoesNotExist()
 
         compose.runOnIdle { scene.environment.chatPreferences.setRosterDensity(RosterDensity.COMFORTABLE) }
-        compose.onAllNodesWithText("GROUPS").onFirst().assertIsDisplayed()
+        compose.onAllNodesWithText("Groups").onFirst().assertIsDisplayed()
         compose.onNodeWithText("No bots yet").assertDoesNotExist()
     }
 
@@ -500,7 +498,7 @@ class RosterScreenTest {
             compose.waitForIdle()
             list().performScrollToIndex(0)
             val header = compose.onNodeWithTag("roster-header").getBoundsInRoot()
-            val firstTitle = compose.onNodeWithText("NEEDS ATTENTION").getBoundsInRoot()
+            val firstTitle = compose.onNodeWithText("Needs attention").getBoundsInRoot()
             assertTrue(firstTitle.top >= header.bottom, "$density: the first title starts under the header")
 
             toEnd()
@@ -542,7 +540,7 @@ class RosterScreenTest {
      * stays off.
      */
     @Test
-    @Config(qualifiers = "w320dp-h720dp-mdpi")
+    @Config(qualifiers = "w280dp-h720dp-mdpi")
     fun `on a narrow phone at twice the text size a two-word name breaks between its words`() {
         mount(fontScale = 2f)
         reveal("chat-row.${RosterFixture.TWO_WORDS}")

@@ -100,3 +100,21 @@ is unchanged. Independent review found no remaining actionable findings.
 Final run: `/tmp/moca198-review-final.log`. The earlier repository-wide
 baseline failures above remain documented; that suite was not rerun for
 these Android-only follow-up changes.
+
+### Seira design pass
+
+The pairing screen now follows the Seira design: a viewfinder with a torch
+button, one status line, and a bottom card. The scan, address, code and
+confirmation steps keep their existing behaviour and tests.
+
+- Entering the screen still asks for no permission and starts no search.
+  The camera starts when the person taps Scan QR Code. The nearby search
+  starts when they tap Enter a code instead.
+- The torch button appears only on a phone that has a flash unit. It has a
+  48 dp target and a label that names the action.
+- The connected card is drawn by `PairConnectedCard`. The root screen leaves
+  pairing as soon as pairing succeeds, so the card is verified from its own
+  render and screenshot, not from a live pairing.
+- `PairDesignTest`, `SettingsDesignTest` and `SettingsPairScreenshotTest`
+  cover the new surface. Light and dark renders are written to
+  `android/app/build/design-screens/`.

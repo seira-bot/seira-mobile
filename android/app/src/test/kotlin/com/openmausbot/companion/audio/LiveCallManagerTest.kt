@@ -975,6 +975,94 @@ class LiveCallManagerTest {
         assertEquals(0, f.transport.closes)
     }
 
+    // ------------------------------------------------------------ background
+
+    @Test
+    fun `a call with a running service goes on when the app stops`() = runTest {
+        val f = Fixture(this, withBackground = true)
+        val owner = TestOwner()
+        owner.registry.addObserver(f.manager)
+        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        f.answered().goLive()
+        assertEquals(1, f.background.starts)
+
+        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_STOP)
+        runCurrent()
+        assertEquals(LiveCallPhase.LIVE, f.manager.state.value.phase)
+        assertTrue(f.api.ends.isEmpty())
+
+        owner.registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+        assertTrue(f.manager.takeBackgroundReturn(), "the call screen opens when the app returns")
+        assertFalse(f.manager.takeBackgroundReturn(), "once only")
+    }
+
+    @Test
+    fun `a call whose service could not start ends when the app stops`() = runTest {
+        val f = Fixture(this, background = FakeBackground(accepts = false), withBackground = true)
+        f.answered().goLive()
+        f.manager.onStop(TestOwner())
+        runCurrent()
+        assertEquals(LiveCallPhase.ENDED, f.manager.state.value.phase)
+        assertEquals(LiveCallRules.CALL_ENDED, f.manager.state.value.notice)
+    }
+
+    @Test
+    fun `a service the system refuses after the app stopped ends the call`() = runTest {
+        val f = Fixture(this, withBackground = true)
+        f.answered().goLive()
+        f.manager.onStop(TestOwner())
+        f.manager.onBackgroundFailed()
+        runCurrent()
+        assertEquals(LiveCallPhase.ENDED, f.manager.state.value.phase)
+    }
+
+    @Test
+    fun `hanging up stops the service`() = runTest {
+        val f = Fixture(this, withBackground = true)
+        f.answered().goLive()
+        f.manager.hangUp()
+        runCurrent()
+        assertEquals(1, f.background.stops)
+    }
+
+    @Test
+    fun `the proximity lock follows the live phase and the speaker`() = runTest {
+        val f = Fixture(this)
+        f.answered()
+        assertEquals(listOf(false to true), f.proximity.updates.takeLast(1))
+        f.goLive()
+        assertEquals(true to true, f.proximity.updates.last())
+        f.manager.setSpeaker(false)
+        runCurrent()
+        assertEquals(true to false, f.proximity.updates.last())
+        f.manager.hangUp()
+        runCurrent()
+        assertEquals(false, f.proximity.updates.last().first)
+    }
+
+    private class FakeBackground(private val accepts: Boolean = true) : LiveCallBackground {
+        var starts = 0
+        var stops = 0
+        override fun start(): Boolean {
+            starts++
+            return accepts
+        }
+
+        override fun stop() {
+            stops++
+        }
+    }
+
+    private class FakeProximity : LiveCallProximity {
+        val updates = mutableListOf<Pair<Boolean, Boolean>>()
+        override fun update(live: Boolean, speaker: Boolean) {
+            updates += live to speaker
+        }
+
+        override fun release() = Unit
+    }
+
     // ------------------------------------------------------------ fixtures
 
     /**
@@ -988,7 +1076,13 @@ class LiveCallManagerTest {
      * the next call gets (so a test can set it up first), and a call after
      * that one gets a fresh transport, which [transport] then names.
      */
-    private class Fixture(scope: TestScope, val preferences: FakePreferences = FakePreferences()) {
+    private class Fixture(
+        scope: TestScope,
+        val preferences: FakePreferences = FakePreferences(),
+        val background: FakeBackground = FakeBackground(),
+        val proximity: FakeProximity = FakeProximity(),
+        withBackground: Boolean = false,
+    ) {
         val api = FakeApi()
         var transport = FakeTransport()
             private set
@@ -1003,6 +1097,8 @@ class LiveCallManagerTest {
             audio = audio,
             preferences = preferences,
             clock = { scope.testScheduler.currentTime },
+            background = if (withBackground) background else LiveCallBackground.None,
+            proximity = proximity,
         )
         private val testScope = scope
 

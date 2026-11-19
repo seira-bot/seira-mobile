@@ -2,32 +2,21 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
 
-import androidx.compose.ui.res.stringResource
-
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -40,12 +29,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.core.CompanionEndpoint
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.PairingInvite
@@ -55,6 +44,8 @@ import com.openmausbot.companion.core.ServerPairingRetryError
 import com.openmausbot.companion.discovery.DiscoveredService
 import com.openmausbot.companion.discovery.DiscoveryState
 import com.openmausbot.companion.discovery.toConnection
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraType
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -122,6 +113,8 @@ fun PairingScreen(onCancel: () -> Unit) {
     // `PairingSecrets` is the one object that can refuse to replace the slot.
     var pairing by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
+    var scanError by remember { mutableStateOf<String?>(null) }
+    var connectedName by remember { mutableStateOf<String?>(null) }
     var showingScanner by remember { mutableStateOf(false) }
     // "Looking…" forever is not an answer. After a few seconds with nothing
     // found, say the thing that is almost always true.
@@ -206,25 +199,6 @@ fun PairingScreen(onCancel: () -> Unit) {
         environment.discovery.discover().collect { value = it }
     }
 
-    if (showingScanner) {
-        QrScannerScreen(
-            onCancel = { showingScanner = false },
-            validate = { payload ->
-                if (PairingInvite.parse(payload) == null) {
-                    invalidQrMessage
-                } else {
-                    // Session decides whether this invite may be accepted at all
-                    // (already paired, credential already burned) and publishes
-                    // it as `pairingInvite` for the confirm step above.
-                    session.receivePairingURL(payload)
-                    showingScanner = false
-                    null
-                }
-            },
-        )
-        return
-    }
-
     fun submit(connection: Connection, credential: String, cameFromScanner: Boolean) {
         val selectedHandle = pending?.handle
         val pairRequestId = secrets.pairRequestId(selectedHandle) ?: return
@@ -241,6 +215,7 @@ fun PairingScreen(onCancel: () -> Unit) {
                 // slot may already belong to a newer invite, and erasing that
                 // one would cost the user a trip back to the computer (§6).
                 secrets.clear(selectedHandle)
+                connectedName = connection.name
             } catch (error: Throwable) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 failure = session.actionError ?: error.message ?: pairingFailedMessage
@@ -280,80 +255,163 @@ fun PairingScreen(onCancel: () -> Unit) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.mobile_pair_with_a_computer_51716e03),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-            )
-            // The way back out, which the first run needs and which iOS puts in
-            // the same place. Refused while a redemption is in flight, because a
-            // credential that may already have reached the computer must not be
-            // abandoned halfway (§6) — the port of `.disabled(!allowsNavigation)`.
-            TextButton(onClick = onCancel, enabled = !pairing) { Text(stringResource(R.string.mobile_not_now_e4571490)) }
-        }
+    val torch = remember { ScannerTorch() }
+    val cameraAccess by environment.camera.access.collectAsState()
+    LaunchedEffect(showingScanner) {
+        if (showingScanner) environment.camera.ensure() else scanError = null
+    }
+    LaunchedEffect(showingScanner, cameraAccess) {
+        if (showingScanner && cameraAccess == CameraAccess.DENIED) showingOtherWays = true
+    }
 
-        val selected = pending
-        if (selected != null) {
-            CodeSection(
-                confirmation = PairingConfirmation.of(selected, secrets),
-                code = code,
-                onCodeChange = { value ->
-                    val normalized = value.uppercase(java.util.Locale.ROOT)
-                        .filter { it in 'A'..'Z' || it in '0'..'9' }.take(12)
-                    code = normalized
-                    secrets.setCode(selected.handle, normalized)
-                },
-                pairing = pairing,
-                onSubmit = { credential ->
-                    haptics.play(HapticCue.SELECT)
-                    submit(selected.connection, credential, selected.fromScan)
-                },
-                onCancel = {
-                    haptics.play(HapticCue.SELECT)
-                    pending = null
-                    code = ""
-                    secrets.clear(selected.handle)
-                    failure = null
-                },
-            )
+    val selected = pending
+    val phase = PairDesign.phase(
+        connected = connectedName != null,
+        pairing = pairing,
+        hasComputer = selected != null,
+    )
+    val scanning = showingScanner && selected == null && connectedName == null
+    val errorText = (failure?.let { localizedMobileCopy(it) }) ?: scanError
+    val statusText = errorText ?: if (phase == PairPhase.CONNECTED) {
+        stringResource(R.string.pair_status_paired_with, connectedName.orEmpty())
+    } else {
+        stringResource(PairDesign.statusRes(phase))
+    }
+    val primaryFound = (discovery as? DiscoveryState.Active)
+        ?.found
+        ?.firstOrNull { it.toConnection() != null }
+
+    fun chooseDiscovered(service: DiscoveredService) {
+        haptics.play(HapticCue.SELECT)
+        failure = null
+        val connection = service.toConnection()
+        if (connection == null) {
+            failure = noAddressMessage
         } else {
-            SetupSection(onScan = {
-                haptics.play(HapticCue.SELECT)
-                failure = null
-                showingScanner = true
-            })
-            OtherWaysSection(
-                expanded = showingOtherWays,
-                onToggle = {
+            openPending(connection, fromScan = false)
+        }
+    }
+
+    PairFrame(
+        phase = phase,
+        statusText = statusText,
+        statusIsError = errorText != null,
+        torch = if (scanning) PairDesign.torch(torch.hasFlash, torch.on) else null,
+        onTorch = torch::toggle,
+        onBack = {
+            if (showingScanner) {
+                showingScanner = false
+            } else {
+                onCancel()
+            }
+        },
+        backEnabled = !pairing,
+        modifier = Modifier.fillMaxSize(),
+        viewfinder = if (scanning) {
+            {
+                QrScannerView(
+                    torch = torch,
+                    validate = { payload ->
+                        if (PairingInvite.parse(payload) == null) {
+                            invalidQrMessage
+                        } else {
+                            // Session decides whether this invite may be accepted at all
+                            // (already paired, credential already burned) and publishes
+                            // it as `pairingInvite` for the confirm step above.
+                            session.receivePairingURL(payload)
+                            showingScanner = false
+                            null
+                        }
+                    },
+                    onValidationError = { scanError = it },
+                )
+            }
+        } else {
+            null
+        },
+        card = {
+            if (connectedName != null) {
+                PairConnectedCard(
+                    onDone = onCancel,
+                    onPairAnother = {
+                        connectedName = null
+                        showingScanner = false
+                    },
+                )
+            } else if (selected != null) {
+                ConfirmationCard(
+                    confirmation = PairingConfirmation.of(selected, secrets),
+                    kind = SettingsDesign.kindLabel(pairingRoutes(selected.connection).firstOrNull()?.kind),
+                    code = code,
+                    onCodeChange = { value ->
+                        val normalized = value.uppercase(java.util.Locale.ROOT)
+                            .filter { it in 'A'..'Z' || it in '0'..'9' }.take(12)
+                        code = normalized
+                        secrets.setCode(selected.handle, normalized)
+                    },
+                    pairing = pairing,
+                    onSubmit = { credential ->
+                        haptics.play(HapticCue.SELECT)
+                        submit(selected.connection, credential, selected.fromScan)
+                    },
+                    onCancel = {
+                        haptics.play(HapticCue.SELECT)
+                        pending = null
+                        code = ""
+                        secrets.clear(selected.handle)
+                        failure = null
+                    },
+                )
+            } else {
+                val toggleOtherWays = {
                     haptics.play(HapticCue.SELECT)
                     showingOtherWays = !showingOtherWays
-                },
-            ) {
+                }
+                if (primaryFound != null) {
+                    PairFoundCard(
+                        name = primaryFound.name,
+                        detail = stringResource(
+                            R.string.pair_found_just_now,
+                            stringResource(R.string.pair_kind_same_wifi),
+                        ),
+                        connecting = false,
+                        onConnect = { chooseDiscovered(primaryFound) },
+                        onEnterCode = toggleOtherWays,
+                    )
+                } else {
+                    if (scanning) {
+                        PairComputerRow(
+                            name = stringResource(R.string.pair_waiting),
+                            detail = stringResource(R.string.pair_waiting_body),
+                        )
+                    }
+                    if (cameraAccess == CameraAccess.DENIED && showingScanner) {
+                        PairPrimaryButton(
+                            stringResource(R.string.mobile_open_settings_134635e9),
+                            environment.openAppSettings,
+                        )
+                    } else if (!showingScanner) {
+                        PairPrimaryButton(
+                            stringResource(R.string.mobile_scan_qr_code_04e3f103),
+                            {
+                                haptics.play(HapticCue.SELECT)
+                                failure = null
+                                showingScanner = true
+                            },
+                        )
+                    }
+                    PairTextButton(stringResource(R.string.pair_enter_code), toggleOtherWays)
+                }
+            }
+        },
+        below = {
+            if (selected == null && connectedName == null && showingOtherWays) {
+                SetupSection()
                 DiscoverySection(
                     discovery = discovery,
                     searchedLongEnough = searchedLongEnough,
-                    onChoose = { service ->
-                        haptics.play(HapticCue.SELECT)
-                        failure = null
-                        val connection = service.toConnection()
-                        if (connection == null) {
-                            failure = noAddressMessage
-                        } else {
-                            openPending(connection, fromScan = false)
-                        }
-                    },
+                    skip = primaryFound,
+                    onChoose = ::chooseDiscovered,
                 )
                 // Next to the list it makes empty, and only once the search it
                 // describes is the thing on screen.
@@ -363,8 +421,8 @@ fun PairingScreen(onCancel: () -> Unit) {
                             R.string.mobile_discovery_permission_hint,
                             permissionSnapshot.missingDiscovery.joinToString(),
                         ),
-                        fontSize = 13.sp,
-                        color = secondaryTint,
+                        style = SeiraType.callout,
+                        color = Seira.colors.ink3,
                     )
                 }
                 ManualSection(
@@ -392,52 +450,8 @@ fun PairingScreen(onCancel: () -> Unit) {
                     },
                 )
             }
-        }
-
-        failure?.let {
-            Text(text = localizedMobileCopy(it), color = MaterialTheme.colorScheme.error, fontSize = 14.sp)
-        }
-    }
-}
-
-/**
- * The QR code is the way in; this is everything else, folded away until asked
- * for. Opening it is a decision with a cost — a local search, and the permission
- * that search needs — so it is a decision the person makes, not one the screen
- * makes for them.
- */
-@Composable
-private fun OtherWaysSection(
-    expanded: Boolean,
-    onToggle: () -> Unit,
-    content: @Composable () -> Unit,
-) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        TextButton(onClick = onToggle, modifier = Modifier.fillMaxWidth()) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = stringResource(R.string.mobile_other_ways_to_connect_d9e8585d),
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Start,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Icon(
-                    imageVector = if (expanded) {
-                        Icons.Filled.KeyboardArrowUp
-                    } else {
-                        Icons.Filled.KeyboardArrowDown
-                    },
-                    contentDescription = null,
-                )
-            }
-        }
-        if (expanded) {
-            Column(verticalArrangement = Arrangement.spacedBy(24.dp)) { content() }
-        }
-    }
+        },
+    )
 }
 
 internal enum class PairingFailureDisposition {
@@ -479,18 +493,10 @@ internal fun pairingRoutes(connection: Connection): List<CompanionEndpoint> {
 }
 
 @Composable
-private fun SetupSection(onScan: () -> Unit) {
-    SectionCard(title = stringResource(R.string.mobile_on_your_computer_9a621537)) {
-        Text(stringResource(R.string.mobile_open_openmausbot_settings_phone_38cfc5bb), fontSize = 15.sp)
-        Text(stringResource(R.string.mobile_choose_set_up_a_phone_8fd474a9), fontSize = 15.sp)
-        Button(onClick = onScan, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.mobile_scan_qr_code_04e3f103))
-        }
-        Text(
-            text = stringResource(R.string.mobile_pair_scanner_hint),
-            fontSize = 13.sp,
-            color = secondaryTint,
-        )
+private fun SetupSection() {
+    PairSection(stringResource(R.string.mobile_on_your_computer_9a621537)) {
+        Text(stringResource(R.string.mobile_open_openmausbot_settings_phone_38cfc5bb), style = SeiraType.body, color = Seira.colors.ink)
+        Text(stringResource(R.string.mobile_choose_set_up_a_phone_8fd474a9), style = SeiraType.body, color = Seira.colors.ink)
     }
 }
 
@@ -498,21 +504,24 @@ private fun SetupSection(onScan: () -> Unit) {
 private fun DiscoverySection(
     discovery: DiscoveryState,
     searchedLongEnough: Boolean,
+    skip: DiscoveredService?,
     onChoose: (DiscoveredService) -> Unit,
 ) {
+    val colors = Seira.colors
     val active = discovery as? DiscoveryState.Active
-    SectionCard(title = stringResource(R.string.mobile_on_this_network_4c9f524a)) {
+    val others = active?.found.orEmpty().filter { it != skip }
+    PairSection(stringResource(R.string.mobile_on_this_network_4c9f524a)) {
         val problem = active?.failure
         when {
-            problem != null -> Text(localizedMobileCopy(problem), fontSize = 13.sp, color = secondaryTint)
+            problem != null -> Text(localizedMobileCopy(problem), style = SeiraType.callout, color = colors.ink3)
 
-            active == null || active.found.isEmpty() -> {
+            skip == null && (active == null || active.found.isEmpty()) -> {
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                    Text(stringResource(R.string.mobile_looking_5e65f10e), color = secondaryTint, fontSize = 15.sp)
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp, color = colors.ink2)
+                    Text(stringResource(R.string.mobile_looking_5e65f10e), color = colors.ink2, style = SeiraType.body)
                 }
                 if (searchedLongEnough) {
                     // NSD is multicast: it does not cross subnets, and guest
@@ -521,14 +530,14 @@ private fun DiscoverySection(
                     // common reason this list stays empty.
                     Text(
                         text = stringResource(R.string.mobile_pair_discovery_empty),
-                        fontSize = 13.sp,
-                        color = secondaryTint,
+                        style = SeiraType.callout,
+                        color = colors.ink3,
                     )
                     // The honest answer when a network refuses to cooperate.
                     Text(
                         text = stringResource(R.string.mobile_pair_tailscale_hint),
-                        fontSize = 13.sp,
-                        color = secondaryTint,
+                        style = SeiraType.callout,
+                        color = colors.ink3,
                     )
                 }
             }
@@ -536,12 +545,15 @@ private fun DiscoverySection(
             else -> Unit
         }
 
-        active?.found?.forEach { service ->
-            TextButton(
-                onClick = { onChoose(service) },
-                modifier = Modifier.fillMaxWidth(),
+        others.forEach { service ->
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .clickable(role = Role.Button) { onChoose(service) },
+                contentAlignment = Alignment.CenterStart,
             ) {
-                Text(service.name, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Start)
+                Text(service.name, style = SeiraType.bodyMedium, color = colors.ink)
             }
         }
     }
@@ -553,7 +565,7 @@ private fun ManualSection(
     onAddressChange: (String) -> Unit,
     onContinue: () -> Unit,
 ) {
-    SectionCard(title = stringResource(R.string.mobile_or_enter_the_address_f74dcf1c)) {
+    PairSection(stringResource(R.string.mobile_or_enter_the_address_f74dcf1c)) {
         OutlinedTextField(
             value = address,
             onValueChange = onAddressChange,
@@ -562,62 +574,58 @@ private fun ManualSection(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri),
             modifier = Modifier.fillMaxWidth(),
         )
-        Button(
+        PairPrimaryButton(
+            text = stringResource(R.string.mobile_continue_2e026239),
             onClick = onContinue,
             enabled = address.isNotBlank(),
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            Text(stringResource(R.string.mobile_continue_2e026239))
-        }
+        )
         Text(
             text = stringResource(R.string.mobile_pair_manual_address_hint),
-            fontSize = 13.sp,
-            color = secondaryTint,
+            style = SeiraType.callout,
+            color = Seira.colors.ink3,
         )
     }
 }
 
 @Composable
-private fun CodeSection(
+private fun ConfirmationCard(
     confirmation: PairingConfirmation,
+    kind: Int?,
     code: String,
     onCodeChange: (String) -> Unit,
     pairing: Boolean,
     onSubmit: (String) -> Unit,
     onCancel: () -> Unit,
 ) {
-    SectionCard(title = stringResource(R.string.mobile_confirm_computer_d778cfbd)) {
+    val colors = Seira.colors
+    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         // Name and address sit above the branch, as they do in `PairingView.swift`:
         // the user is confirming which computer at which address, and that is the
         // same question whether the credential came from a QR code or the six
         // digits are about to be typed.
-        Text(confirmation.name, fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-        Row(modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.mobile_address_d70f93df), color = secondaryTint, fontSize = 15.sp)
+        PairComputerRow(confirmation.name, kind?.let { stringResource(it) })
+        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+            Text(stringResource(R.string.mobile_address_d70f93df), color = colors.ink2, style = SeiraType.body)
             Spacer(Modifier.weight(1f))
-            Text(confirmation.address, fontSize = 15.sp, fontFamily = FontFamily.Monospace)
+            Text(confirmation.address, style = SeiraType.body, fontFamily = FontFamily.Monospace, color = colors.ink)
         }
         if (confirmation.otherAddresses > 0) {
             Text(
                 stringResource(R.string.mobile_pairing_other_addresses, confirmation.otherAddresses),
-                color = secondaryTint,
-                fontSize = 13.sp,
+                color = colors.ink3,
+                style = SeiraType.callout,
             )
         }
-        Text(localizedMobileCopy(confirmation.notice), fontSize = 13.sp, color = secondaryTint)
+        Text(localizedMobileCopy(confirmation.notice), style = SeiraType.callout, color = colors.ink3)
 
         when (val step = confirmation.step) {
-            is PairingConfirmation.Step.Confirm -> Button(
+            is PairingConfirmation.Step.Confirm -> PairPrimaryButton(
+                text = stringResource(
+                    if (pairing) R.string.pair_status_connecting else R.string.mobile_pair_with_this_computer_8420e8b3,
+                ),
                 onClick = { onSubmit(step.credential) },
                 enabled = !pairing,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                if (pairing) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                } else {
-                    Text(stringResource(R.string.mobile_pair_with_this_computer_8420e8b3))
-                }
-            }
+            )
 
             PairingConfirmation.Step.EnterCode -> {
                 OutlinedTextField(
@@ -639,26 +647,17 @@ private fun CodeSection(
                 if (code.length >= 12 && !PairingInvite.isPairingCode(code)) {
                     Text(
                         text = stringResource(R.string.mobile_pairing_code_server_symbols_hint),
-                        fontSize = 13.sp,
-                        color = secondaryTint,
+                        style = SeiraType.callout,
+                        color = colors.ink3,
                         textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
-                Button(
+                PairPrimaryButton(
+                    text = stringResource(R.string.mobile_connect_b65463cb),
                     onClick = { onSubmit(code) },
                     enabled = PairingInvite.isPairingCode(code) && !pairing,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    if (pairing) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Text(stringResource(R.string.mobile_connect_b65463cb))
-                    }
-                }
+                )
             }
 
             // The app was restarted between the scan and the confirmation. The
@@ -668,23 +667,10 @@ private fun CodeSection(
             PairingConfirmation.Step.Rescan -> Unit
         }
 
-        OutlinedButton(onClick = onCancel, enabled = !pairing, modifier = Modifier.fillMaxWidth()) {
-            Text(stringResource(R.string.mobile_choose_a_different_computer_9e2a62ed))
-        }
-    }
-}
-
-@Composable
-private fun SectionCard(title: String, content: @Composable () -> Unit) {
-    Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-        Text(
-            text = title.uppercase(),
-            fontSize = 12.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = secondaryTint,
+        PairTextButton(
+            text = stringResource(R.string.mobile_choose_a_different_computer_9e2a62ed),
+            onClick = onCancel,
+            enabled = !pairing,
         )
-        HorizontalDivider()
-        Spacer(Modifier.height(2.dp))
-        content()
     }
 }

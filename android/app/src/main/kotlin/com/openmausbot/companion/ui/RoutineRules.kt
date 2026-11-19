@@ -242,6 +242,13 @@ object RoutineRules {
     fun intervalTimeoutOnFirstSelection(current: Int?, defaultAlreadyApplied: Boolean): Int? =
         if (defaultAlreadyApplied) current else DEFAULT_INTERVAL_TIMEOUT
 
+    /**
+     * A seed without an id only carries the starting values of a new routine (the
+     * chat sets the bot), so the first interval choice still gets the default
+     * timeout. A saved routine keeps the timeout it has.
+     */
+    fun defaultTimeoutAlreadyApplied(seed: Routine?): Boolean = seed != null && seed.id.isNotEmpty()
+
     fun validTimeout(minutes: Int?): Boolean = minutes == null || minutes in TIMEOUT_RANGE
 
     /** `"%02d:%02d"` — what `DateFormatter("HH:mm")` writes for a wall-clock time. */

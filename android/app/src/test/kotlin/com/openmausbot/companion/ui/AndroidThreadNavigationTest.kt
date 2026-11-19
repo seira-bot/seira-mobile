@@ -8,7 +8,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertContentDescriptionEquals
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
@@ -18,9 +17,9 @@ import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import com.openmausbot.companion.core.Bot
@@ -183,57 +182,34 @@ class AndroidThreadNavigationTest {
 
     @Test
     @Config(qualifiers = "w360dp-h780dp")
-    // Real text measurement: the chip keeps its word only if it measures as fitting.
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `on a narrow phone the header keeps every control clear of the face`() {
-        headerKeepsClearOfTheFace(labelled = false)
-    }
-
-    @Test
-    @Config(qualifiers = "w412dp-h915dp")
-    // Real text measurement: the chip keeps its word only if it measures as fitting.
-    @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `on a wide phone the Threads chip says its name and keeps clear of the face`() {
-        headerKeepsClearOfTheFace(labelled = true)
+    fun `on a narrow phone the header keeps every control clear of the name pill`() {
+        headerKeepsClearOfThePill()
     }
 
     @Test
     @Config(qualifiers = "w412dp-h915dp")
     @GraphicsMode(GraphicsMode.Mode.NATIVE)
-    fun `at a large font size the Threads chip drops its word rather than reach the face`() {
+    fun `at a large font size the header keeps every control clear of the name pill`() {
         org.robolectric.RuntimeEnvironment.setFontScale(1.5f)
-        headerKeepsClearOfTheFace(labelled = false)
+        headerKeepsClearOfThePill()
     }
 
-    /**
-     * The name pill under the face is gone: Threads sits in the top strip beside
-     * the computer, where the face in the middle leaves room for it — with its
-     * word when the phone is wide enough, as a glyph when not.
-     */
-    private fun headerKeepsClearOfTheFace(labelled: Boolean) {
+    /** Back on the left, the call on the right, the name pill between them and touching neither. */
+    private fun headerKeepsClearOfThePill() {
         val destination = Destination.Chat(Chat.BotChat(fixture).target)
         mount {
             ChatScreen(destination, onResolved = {}, onBack = {}, onOpenComputer = {}, onOpenOverview = {})
         }
-        val face = compose.onNodeWithContentDescription("Open ${fixture.name} settings").getBoundsInRoot()
-        val chip = compose.onNodeWithTag(THREADS_CHIP_TAG)
-            .assertContentDescriptionEquals("Threads, First thread")
-            .getBoundsInRoot()
+        val pill = compose.onNodeWithContentDescription("Open ${fixture.name} settings").getBoundsInRoot()
         val controls = listOfNotNull(
             compose.onNodeWithContentDescription("Back").getBoundsInRoot(),
-            chip,
-            compose.onNodeWithContentDescription("Watch ${fixture.name}'s computer").getBoundsInRoot(),
-            compose.onAllNodesWithContentDescription("Call ${fixture.name}").fetchSemanticsNodes()
-                .singleOrNull()?.let { compose.onNodeWithContentDescription("Call ${fixture.name}").getBoundsInRoot() },
+            compose.onAllNodesWithContentDescription("Start live call").fetchSemanticsNodes()
+                .singleOrNull()?.let { compose.onNodeWithContentDescription("Start live call").getBoundsInRoot() },
         )
         for (control in controls) {
-            assertTrue(control.right <= face.left || control.left >= face.right, "$control clear of the face $face")
+            assertTrue(control.right <= pill.left || control.left >= pill.right, "$control clear of the pill $pill")
         }
-        assertTrue(chip.left >= face.right, "Threads is on the right")
-        assertEquals(
-            if (labelled) 1 else 0,
-            compose.onAllNodesWithText("Threads", useUnmergedTree = true).fetchSemanticsNodes().size,
-        )
     }
 
     @Test
@@ -254,7 +230,7 @@ class AndroidThreadNavigationTest {
         compose.waitUntil(5_000) { (navigator.current as? Destination.Chat)?.target?.threadId == "second" }
         compose.onNodeWithContentDescription("Back").performClick()
         compose.onNodeWithText(fixture.name).performClick()
-        compose.onNodeWithTag(THREADS_CHIP_TAG).assertContentDescriptionEquals("Threads, Second thread")
+        assertEquals("second", (navigator.current as? Destination.Chat)?.target?.threadId)
         assertEquals("first", scene.session.state.value.bot(fixture.id)?.threadId)
         assertTrue(requests.none { it.method == "POST" })
     }
@@ -491,10 +467,11 @@ class AndroidThreadNavigationTest {
         .setHeader("Content-Type", "application/json")
         .setBody(body)
 
-    /** The header's Threads chip names the thread you are on and opens the picker. */
+    /** The + sheet's Threads action opens the picker. [on] is the thread this chat shows now. */
     private fun openThreads(on: String) {
-        compose.onNodeWithTag(THREADS_CHIP_TAG)
-            .assertContentDescriptionEquals("Threads, $on")
-            .performClick()
+        compose.onNodeWithContentDescription("More").performClick()
+        compose.onNodeWithText("Threads").performScrollTo().performClick()
+        val other = if (on == "First thread") "Second thread" else "First thread"
+        compose.waitUntil(5_000) { compose.onAllNodesWithText(other).fetchSemanticsNodes().isNotEmpty() }
     }
 }

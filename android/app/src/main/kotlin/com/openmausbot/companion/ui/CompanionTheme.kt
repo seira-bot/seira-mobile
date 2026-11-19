@@ -1,20 +1,20 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDirection
+import com.openmausbot.companion.ui.theme.LocalSeiraColors
+import com.openmausbot.companion.ui.theme.SeiraColors
+import com.openmausbot.companion.ui.theme.SeiraTypography
+import com.openmausbot.companion.ui.theme.ThemeMode
+import com.openmausbot.companion.ui.theme.resolvesDark
 
-/**
- * The app's colours. Deliberately small: the roster and chat draw almost
- * everything from `secondary` opacities the way the SwiftUI screens draw from
- * `Color.secondary`, and the one branded colour is the mascot green the desktop
- * uses for the profile avatar.
- */
 /** CSS's eight-digit form is RRGGBBAA; Compose expects the alpha first. */
 internal fun cssHexToArgb(hex: String): Long {
     require(hex.length == 6 || hex.length == 8) { "Expected RRGGBB or RRGGBBAA: $hex" }
@@ -25,28 +25,47 @@ internal fun cssHexToArgb(hex: String): Long {
     }
 }
 
-private fun String.color(): Color = Color(cssHexToArgb(this))
-
-private fun AppearanceSkin.colorScheme() = colors.let { palette ->
-    if (isDark) {
+private fun SeiraColors.toColorScheme(): ColorScheme {
+    val outline = ink.copy(alpha = 0.28f)
+    return if (isDark) {
         darkColorScheme(
-            primary = palette.accent.color(), onPrimary = palette.accentInk.color(),
-            secondary = palette.accent.color(), onSecondary = palette.accentInk.color(),
-            background = palette.app.color(), onBackground = palette.ink.color(),
-            surface = palette.card.color(), onSurface = palette.ink.color(),
-            surfaceVariant = palette.panel.color(), onSurfaceVariant = palette.secondaryInk.color(),
-            outline = palette.outline.color(), error = palette.error.color(), onError = Color.White,
-            tertiary = palette.success.color(), onTertiary = Color.White,
+            primary = primary, onPrimary = onPrimary,
+            primaryContainer = control, onPrimaryContainer = ink,
+            secondary = accent, onSecondary = Color.White,
+            secondaryContainer = control, onSecondaryContainer = ink,
+            tertiary = success, onTertiary = Color.White,
+            background = app, onBackground = ink,
+            surface = app, onSurface = ink,
+            surfaceVariant = tint, onSurfaceVariant = ink2,
+            surfaceTint = app,
+            inverseSurface = ink, inverseOnSurface = app, inversePrimary = onPrimary,
+            error = danger, onError = Color.White,
+            errorContainer = danger.copy(alpha = 0.16f), onErrorContainer = danger,
+            outline = outline, outlineVariant = hairline,
+            scrim = scrim,
+            surfaceBright = control, surfaceDim = app,
+            surfaceContainerLowest = app, surfaceContainerLow = tint, surfaceContainer = tint,
+            surfaceContainerHigh = control, surfaceContainerHighest = control,
         )
     } else {
         lightColorScheme(
-            primary = palette.accent.color(), onPrimary = palette.accentInk.color(),
-            secondary = palette.accent.color(), onSecondary = palette.accentInk.color(),
-            background = palette.app.color(), onBackground = palette.ink.color(),
-            surface = palette.card.color(), onSurface = palette.ink.color(),
-            surfaceVariant = palette.panel.color(), onSurfaceVariant = palette.secondaryInk.color(),
-            outline = palette.outline.color(), error = palette.error.color(), onError = Color.White,
-            tertiary = palette.success.color(), onTertiary = Color.White,
+            primary = primary, onPrimary = onPrimary,
+            primaryContainer = control, onPrimaryContainer = ink,
+            secondary = accent, onSecondary = Color.White,
+            secondaryContainer = control, onSecondaryContainer = ink,
+            tertiary = success, onTertiary = Color.White,
+            background = app, onBackground = ink,
+            surface = app, onSurface = ink,
+            surfaceVariant = tint, onSurfaceVariant = ink2,
+            surfaceTint = app,
+            inverseSurface = ink, inverseOnSurface = app, inversePrimary = onPrimary,
+            error = danger, onError = Color.White,
+            errorContainer = danger.copy(alpha = 0.12f), onErrorContainer = danger,
+            outline = outline, outlineVariant = hairline,
+            scrim = scrim,
+            surfaceBright = app, surfaceDim = tint,
+            surfaceContainerLowest = app, surfaceContainerLow = tint, surfaceContainer = tint,
+            surfaceContainerHigh = control, surfaceContainerHighest = control,
         )
     }
 }
@@ -105,45 +124,24 @@ private fun AppearanceSkin.colorScheme() = colors.let { palette ->
  * `notifications.NotificationText`, which anchors each notification paragraph
  * that would otherwise take the shade's base direction.
  */
-private fun TextStyle.readingFromContent(): TextStyle =
+internal fun TextStyle.readingFromContent(): TextStyle =
     copy(textDirection = TextDirection.ContentOrLtr)
-
-private val ContentDirectedTypography: Typography = Typography().run {
-    copy(
-        displayLarge = displayLarge.readingFromContent(),
-        displayMedium = displayMedium.readingFromContent(),
-        displaySmall = displaySmall.readingFromContent(),
-        headlineLarge = headlineLarge.readingFromContent(),
-        headlineMedium = headlineMedium.readingFromContent(),
-        headlineSmall = headlineSmall.readingFromContent(),
-        titleLarge = titleLarge.readingFromContent(),
-        titleMedium = titleMedium.readingFromContent(),
-        titleSmall = titleSmall.readingFromContent(),
-        bodyLarge = bodyLarge.readingFromContent(),
-        bodyMedium = bodyMedium.readingFromContent(),
-        bodySmall = bodySmall.readingFromContent(),
-        labelLarge = labelLarge.readingFromContent(),
-        labelMedium = labelMedium.readingFromContent(),
-        labelSmall = labelSmall.readingFromContent(),
-    )
-}
 
 @Composable
 fun CompanionTheme(
-    skin: AppearanceSkin = AppearanceSkin.DEFAULT,
-    /** Kept for existing preview and UI-test call sites during the skin migration. */
+    mode: ThemeMode = ThemeMode.DEFAULT,
+    /** Forces light or dark for previews and UI tests. */
     darkTheme: Boolean? = null,
     content: @Composable () -> Unit,
 ) {
-    MaterialTheme(
-        colorScheme = when (darkTheme) {
-            true -> AppearanceSkin.MIDNIGHT.colorScheme()
-            false -> AppearanceSkin.LINEN.colorScheme()
-            null -> skin.colorScheme()
-        },
-        typography = ContentDirectedTypography,
-        content = content,
-    )
+    val seira = SeiraColors.of(darkTheme ?: mode.resolvesDark())
+    CompositionLocalProvider(LocalSeiraColors provides seira) {
+        MaterialTheme(
+            colorScheme = seira.toColorScheme(),
+            typography = SeiraTypography,
+            content = content,
+        )
+    }
 }
 
 /** SwiftUI's `Color.secondary` — the muted foreground everything quiet uses. */

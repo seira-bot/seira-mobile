@@ -1,29 +1,17 @@
 package com.openmausbot.companion.ui
 
-import com.openmausbot.companion.R
-
-import androidx.compose.ui.res.stringResource
-
 import android.util.Log
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
+import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -33,90 +21,114 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import com.openmausbot.companion.R
 import java.util.concurrent.Executors
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterNotNull
 
 /**
- * QR scanning for the one action where typing is needless friction — the port of
- * `ios/App/PairingScanner.swift`.
+ * The torch of the open camera. It knows nothing until [attach] runs, so a phone
+ * with no flash unit never shows the button.
+ */
+internal class ScannerTorch {
+    var hasFlash by mutableStateOf(false)
+        private set
+    var on by mutableStateOf(false)
+        private set
+
+    private var camera: Camera? = null
+    private var source: LiveData<Int>? = null
+    private val observer = Observer<Int> { on = it == TorchState.ON }
+
+    fun attach(bound: Camera) {
+        detach()
+        camera = bound
+        hasFlash = bound.cameraInfo.hasFlashUnit()
+        source = bound.cameraInfo.torchState.also { it.observeForever(observer) }
+    }
+
+    fun toggle() {
+        camera?.cameraControl?.enableTorch(!on)
+    }
+
+    fun detach() {
+        source?.removeObserver(observer)
+        source = null
+        camera = null
+        hasFlash = false
+        on = false
+    }
+}
+
+/**
+ * QR scanning inside the pairing viewfinder — the port of `ios/App/PairingScanner.swift`.
  *
  * The scanner only recognizes QR codes and never pairs by itself. A valid payload
  * goes back to [PairingScreen], which shows the computer name and address for
  * explicit confirmation: an attacker-controlled deep link or QR may prefill a
  * target, but it cannot silently authorize that target.
  *
- * @param validate returns null to accept and close, or a human-readable message
- *   to show while scanning continues. The one-time credential never lives here.
+ * @param validate returns null to accept, or a human-readable message to show
+ *   while scanning continues. The one-time credential never lives here.
  */
 @Composable
-fun QrScannerScreen(onCancel: () -> Unit, validate: (String) -> String?) {
+internal fun BoxScope.QrScannerView(
+    torch: ScannerTorch,
+    validate: (String) -> String?,
+    onValidationError: (String?) -> Unit,
+) {
     val environment = LocalCompanion.current
     val access by environment.camera.access.collectAsState()
-    var validationError by remember { mutableStateOf<String?>(null) }
     var cameraFailure by remember { mutableStateOf<String?>(null) }
 
-    LaunchedEffect(Unit) { environment.camera.ensure() }
+    LifecycleResumeEffect(Unit) {
+        environment.camera.refresh()
+        onPauseOrDispose {}
+    }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 6.dp)) {
-            TextButton(onClick = onCancel, modifier = Modifier.align(Alignment.CenterStart)) {
-                Text(stringResource(R.string.mobile_cancel_77dfd213))
-            }
-            Text(
-                text = stringResource(R.string.mobile_scan_qr_code_04e3f103),
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.align(Alignment.Center),
-            )
-        }
+    when {
+        cameraFailure != null -> PairViewfinderMessage(
+            title = stringResource(R.string.mobile_scanner_unavailable_cc42e33b),
+            body = cameraFailure!!,
+        )
 
-        when {
-            cameraFailure != null -> EmptyState(
-                title = stringResource(R.string.mobile_scanner_unavailable_cc42e33b),
-                description = cameraFailure!!,
-            )
+        access == CameraAccess.UNKNOWN -> PairViewfinderMessage(
+            title = stringResource(R.string.pair_camera_starting),
+            body = stringResource(R.string.mobile_camera_permission_description),
+        )
 
-            access == CameraAccess.UNKNOWN -> EmptyState(
-                title = stringResource(R.string.mobile_requesting_camera_access_30e104c0),
-                description = stringResource(R.string.mobile_camera_permission_description),
-            )
+        access == CameraAccess.DENIED -> PairViewfinderMessage(
+            title = stringResource(R.string.pair_camera_off_title),
+            body = stringResource(R.string.pair_camera_off_body),
+        )
 
-            access == CameraAccess.DENIED -> EmptyState(
-                title = stringResource(R.string.mobile_camera_access_needed_28a22fc4),
-                description = stringResource(R.string.mobile_camera_permission_denied),
-            ) {
-                Button(onClick = environment.openAppSettings) { Text(stringResource(R.string.mobile_open_settings_134635e9)) }
-            }
-
-            else -> ScannerSurface(
-                validate = validate,
-                validationError = validationError,
-                onValidationError = { validationError = it },
-                onCameraFailure = { cameraFailure = it },
-            )
-        }
+        else -> ScannerSurface(
+            torch = torch,
+            validate = validate,
+            onValidationError = onValidationError,
+            onCameraFailure = { cameraFailure = it },
+        )
     }
 }
 
 @Composable
 private fun ScannerSurface(
+    torch: ScannerTorch,
     validate: (String) -> String?,
-    validationError: String?,
     onValidationError: (String?) -> Unit,
     onCameraFailure: (String) -> Unit,
 ) {
@@ -146,72 +158,56 @@ private fun ScannerSurface(
     DisposableEffect(Unit) {
         onDispose {
             cameraLifecycle.release()
+            torch.detach()
             analysisExecutor.shutdown()
         }
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        AndroidView(
-            modifier = Modifier.fillMaxSize(),
-            factory = { viewContext ->
-                val previewView = PreviewView(viewContext)
-                val providerFuture = ProcessCameraProvider.getInstance(viewContext)
-                providerFuture.addListener(
-                    {
-                        try {
-                            val provider = providerFuture.get()
-                            val started = cameraLifecycle.startAnalyzing(
-                                createAnalyzer = {
-                                    QrCodeAnalyzer { payload ->
-                                        latched.compareAndSet(null, payload)
-                                    }
-                                },
-                                releaseAnalyzer = { analyzer ->
-                                    runCatching { provider.unbindAll() }
-                                    analyzer.close()
-                                },
-                                bind = { analyzer ->
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { viewContext ->
+            val previewView = PreviewView(viewContext)
+            val providerFuture = ProcessCameraProvider.getInstance(viewContext)
+            providerFuture.addListener(
+                {
+                    try {
+                        val provider = providerFuture.get()
+                        val started = cameraLifecycle.startAnalyzing(
+                            createAnalyzer = {
+                                QrCodeAnalyzer { payload ->
+                                    latched.compareAndSet(null, payload)
+                                }
+                            },
+                            releaseAnalyzer = { analyzer ->
+                                runCatching { provider.unbindAll() }
+                                analyzer.close()
+                            },
+                            bind = { analyzer ->
+                                torch.attach(
                                     bindCamera(
                                         provider = provider,
                                         lifecycleOwner = lifecycleOwner,
                                         previewView = previewView,
                                         executor = analysisExecutor,
                                         analyzer = analyzer,
-                                    )
-                                },
-                                onFailure = { error ->
-                                    Log.w("PairingScanner", "could not bind the camera", error)
-                                },
-                            )
-                            if (!started) onCameraFailure(cameraUnavailable)
-                        } catch (error: Exception) {
-                            Log.w("PairingScanner", "camera unavailable", error)
-                            onCameraFailure(cameraUnavailable)
-                        }
-                    },
-                    ContextCompat.getMainExecutor(viewContext),
-                )
-                previewView
-            },
-        )
-
-        Text(
-            text = validationError ?: stringResource(R.string.mobile_point_the_camera_at_the_qr_code_on_77e56351),
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
-            textAlign = TextAlign.Center,
-            color = if (validationError == null) {
-                MaterialTheme.colorScheme.onSurface
-            } else {
-                MaterialTheme.colorScheme.error
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(18.dp))
-                .padding(horizontal = 18.dp, vertical = 14.dp),
-        )
-    }
+                                    ),
+                                )
+                            },
+                            onFailure = { error ->
+                                Log.w("PairingScanner", "could not bind the camera", error)
+                            },
+                        )
+                        if (!started) onCameraFailure(cameraUnavailable)
+                    } catch (error: Exception) {
+                        Log.w("PairingScanner", "camera unavailable", error)
+                        onCameraFailure(cameraUnavailable)
+                    }
+                },
+                ContextCompat.getMainExecutor(viewContext),
+            )
+            previewView
+        },
+    )
 }
 
 /**
@@ -278,7 +274,7 @@ private fun bindCamera(
     previewView: PreviewView,
     executor: java.util.concurrent.Executor,
     analyzer: ImageAnalysis.Analyzer,
-) {
+): Camera {
     val preview = Preview.Builder().build().apply {
         surfaceProvider = previewView.surfaceProvider
     }
@@ -287,7 +283,7 @@ private fun bindCamera(
         .build()
     analysis.setAnalyzer(executor, analyzer)
     provider.unbindAll()
-    provider.bindToLifecycle(
+    return provider.bindToLifecycle(
         lifecycleOwner,
         CameraSelector.DEFAULT_BACK_CAMERA,
         preview,

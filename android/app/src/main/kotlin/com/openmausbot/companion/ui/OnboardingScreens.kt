@@ -2,43 +2,41 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
 
-import androidx.compose.ui.res.stringResource
-
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Send
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.ui.theme.InkPillButton
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraMark
+import com.openmausbot.companion.ui.theme.SeiraType
 
 /**
  * The three first-run surfaces — the behavioural port of
@@ -47,9 +45,7 @@ import androidx.compose.ui.unit.sp
  * What is ported is the **timing and the routing**: the app says what it is
  * before it asks for anything, offers a way to defer that leads somewhere
  * useful, and explains notifications only once a pairing has made approvals and
- * finished work real. The gradient, the hero avatar, the glass inset and the
- * `DisclosureGroup` are not ported — Material is the right idiom here, and the
- * standing policy is that behaviour mirrors iOS while painting goes native.
+ * finished work real. Painting uses the Seira tokens only.
  */
 
 /** The sentences these screens are made of, named so a test can look them up. */
@@ -92,40 +88,36 @@ object OnboardingCopy {
 fun WelcomeScreen(onConnect: () -> Unit, onSkip: () -> Unit) {
     OnboardingLayout(
         actions = {
-            Button(onClick = onConnect, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.mobile_onboarding_welcome_connect))
-            }
-            TextButton(onClick = onSkip, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.mobile_onboarding_not_now))
-            }
+            OnboardingPrimary(stringResource(R.string.mobile_onboarding_welcome_connect), onConnect)
+            OnboardingSecondary(stringResource(R.string.mobile_onboarding_not_now), onSkip)
         },
     ) {
-        OnboardingHero(Icons.AutoMirrored.Filled.Send)
+        OnboardingHero(null)
         Text(
             text = stringResource(R.string.mobile_onboarding_welcome_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = SeiraType.title1,
+            color = Seira.colors.ink,
             textAlign = TextAlign.Center,
         )
         Text(
             text = stringResource(R.string.mobile_onboarding_welcome_subtitle),
-            style = MaterialTheme.typography.bodyLarge,
-            color = secondaryTint,
+            style = SeiraType.body,
+            color = Seira.colors.ink2,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Benefit(
-            icon = Icons.AutoMirrored.Filled.Send,
+            icon = SeiraIcons.PenSquare,
             title = stringResource(R.string.mobile_your_chats_in_your_pocket_91291d76),
             detail = stringResource(R.string.mobile_onboarding_conversations),
         )
         Benefit(
-            icon = Icons.Filled.CheckCircle,
+            icon = SeiraIcons.Check,
             title = stringResource(R.string.mobile_respond_when_a_bot_needs_you_96973325),
             detail = stringResource(R.string.mobile_onboarding_approvals),
         )
         Benefit(
-            icon = Icons.Filled.Lock,
+            icon = SeiraIcons.Shield,
             title = stringResource(R.string.mobile_private_by_design_3aaa9fd1),
             detail = stringResource(R.string.mobile_onboarding_trusted_computer),
         )
@@ -140,7 +132,7 @@ fun WelcomeScreen(onConnect: () -> Unit, onSkip: () -> Unit) {
  */
 @Composable
 fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(Seira.colors.app)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -149,8 +141,8 @@ fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
         ) {
             Text(
                 text = stringResource(R.string.mobile_openmausbot_befe710d),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
+                style = SeiraType.title3,
+                color = Seira.colors.ink,
                 modifier = Modifier.weight(1f).padding(start = 10.dp),
             )
             ChromeButton(
@@ -159,31 +151,28 @@ fun UnpairedHomeScreen(onConnect: () -> Unit, onOpenSettings: () -> Unit) {
                 onClick = onOpenSettings,
             )
         }
-        HorizontalDivider()
         OnboardingLayout(
             actions = {
-                Button(onClick = onConnect, modifier = Modifier.fillMaxWidth()) {
-                    Text(stringResource(R.string.mobile_onboarding_connect_computer))
-                }
+                OnboardingPrimary(stringResource(R.string.mobile_onboarding_connect_computer), onConnect)
             },
         ) {
-            OnboardingHero(Icons.Filled.Phone)
+            OnboardingHero(SeiraIcons.Smartphone)
             Text(
                 text = stringResource(R.string.mobile_onboarding_unpaired_title),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.SemiBold,
+                style = SeiraType.title2,
+                color = Seira.colors.ink,
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = stringResource(R.string.mobile_onboarding_unpaired_body),
-                style = MaterialTheme.typography.bodyLarge,
-                color = secondaryTint,
+                style = SeiraType.body,
+                color = Seira.colors.ink2,
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = stringResource(R.string.mobile_onboarding_unpaired_hint),
-                fontSize = 13.sp,
-                color = secondaryTint,
+                style = SeiraType.callout,
+                color = Seira.colors.ink3,
                 textAlign = TextAlign.Center,
             )
         }
@@ -207,47 +196,44 @@ fun NotificationOnboardingScreen(
 ) {
     OnboardingLayout(
         actions = {
-            Button(
-                onClick = onEnable,
-                enabled = !enabling,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                if (enabling) {
-                    CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
-                } else {
-                    Text(stringResource(R.string.mobile_onboarding_enable_notifications))
+            if (enabling) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 52.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = Seira.colors.ink2,
+                    )
                 }
+            } else {
+                OnboardingPrimary(stringResource(R.string.mobile_onboarding_enable_notifications), onEnable)
             }
-            TextButton(
-                onClick = onSkip,
-                enabled = !enabling,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text(stringResource(R.string.mobile_onboarding_not_now))
-            }
+            OnboardingSecondary(stringResource(R.string.mobile_onboarding_not_now), onSkip, enabled = !enabling)
         },
     ) {
-        OnboardingHero(Icons.Filled.Notifications)
+        OnboardingHero(SeiraIcons.Bell)
         Text(
             text = stringResource(R.string.mobile_onboarding_notifications_title),
-            style = MaterialTheme.typography.headlineMedium,
-            fontWeight = FontWeight.SemiBold,
+            style = SeiraType.title1,
+            color = Seira.colors.ink,
             textAlign = TextAlign.Center,
         )
         Text(
             text = stringResource(R.string.mobile_settings_notifications_footer),
-            style = MaterialTheme.typography.bodyMedium,
-            color = secondaryTint,
+            style = SeiraType.body,
+            color = Seira.colors.ink2,
             textAlign = TextAlign.Center,
         )
         Spacer(Modifier.height(6.dp))
         Benefit(
-            icon = Icons.Filled.CheckCircle,
+            icon = SeiraIcons.Check,
             title = stringResource(R.string.mobile_onboarding_notifications_approvals),
             detail = null,
         )
         Benefit(
-            icon = Icons.AutoMirrored.Filled.Send,
+            icon = SeiraIcons.PenSquare,
             title = stringResource(R.string.mobile_onboarding_notifications_finished),
             detail = null,
         )
@@ -260,7 +246,7 @@ private fun OnboardingLayout(
     actions: @Composable () -> Unit,
     content: @Composable () -> Unit,
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
+    Column(modifier = Modifier.fillMaxSize().background(Seira.colors.app)) {
         Column(
             modifier = Modifier
                 .weight(1f)
@@ -283,26 +269,48 @@ private fun OnboardingLayout(
     }
 }
 
-/**
- * A tinted disc behind one glyph. iOS draws a hero mascot here; Android draws
- * the shape Material draws, which is this.
- */
 @Composable
-private fun OnboardingHero(icon: ImageVector) {
-    Surface(
-        color = MaterialTheme.colorScheme.secondaryContainer,
-        shape = CircleShape,
-        modifier = Modifier.size(104.dp),
+private fun OnboardingPrimary(text: String, onClick: () -> Unit) {
+    InkPillButton(
+        text = text,
+        onClick = onClick,
+        height = 52.dp,
+        modifier = Modifier.fillMaxWidth(),
+    )
+}
+
+@Composable
+private fun OnboardingSecondary(text: String, onClick: () -> Unit, enabled: Boolean = true) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .clip(CircleShape)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
+        contentAlignment = Alignment.Center,
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
+        Text(
+            text = text,
+            style = SeiraType.bodyMedium,
+            color = if (enabled) Seira.colors.ink2 else Seira.colors.ink3,
+        )
+    }
+}
+
+/** The Seira mark, or one glyph, on a tinted disc. */
+@Composable
+private fun OnboardingHero(icon: ImageVector?) {
+    Box(
+        modifier = Modifier.size(104.dp).background(Seira.colors.tint, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (icon == null) {
+            SeiraMark(size = 52.dp)
+        } else {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                tint = Seira.colors.ink,
                 modifier = Modifier.size(44.dp),
             )
         }
@@ -319,20 +327,16 @@ private fun Benefit(icon: ImageVector, title: String, detail: String?) {
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
+            tint = Seira.colors.ink,
             modifier = Modifier.size(24.dp),
         )
         Column(
             modifier = Modifier.weight(1f),
             verticalArrangement = Arrangement.spacedBy(2.dp),
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-            )
+            Text(text = title, style = SeiraType.headline, color = Seira.colors.ink)
             detail?.let {
-                Text(text = it, fontSize = 13.sp, color = secondaryTint)
+                Text(text = it, style = SeiraType.callout, color = Seira.colors.ink3)
             }
         }
     }

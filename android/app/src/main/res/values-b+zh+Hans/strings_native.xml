@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">批准</string>
+    <string name="notification_action_review">查看</string>
+    <string name="notification_action_reply">回复</string>
+    <string name="notification_sender_you">你</string>
+    <string name="notification_approved">已批准</string>
+    <string name="notification_approve_failed">无法批准。请打开聊天查看。</string>
+    <string name="notification_reply_failed">无法发送。请打开聊天重试。</string>
+    <string name="tile_talk_label">通话</string>
+    <string name="shortcut_talk_short">通话</string>
+    <string name="shortcut_talk_long">与你的幕僚长通话</string>
+</resources>

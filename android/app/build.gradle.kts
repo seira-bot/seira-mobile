@@ -234,6 +234,7 @@ dependencies {
     implementation("androidx.security:security-crypto:1.1.0-alpha07")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
     implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.core:core-splashscreen:1.0.1")
     // Share inbound: apply EXIF orientation while downsampling shared photos.
     implementation("androidx.exifinterface:exifinterface:1.3.7")
 
