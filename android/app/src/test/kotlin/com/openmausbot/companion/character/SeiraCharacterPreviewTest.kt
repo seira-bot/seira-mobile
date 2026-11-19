@@ -74,12 +74,12 @@ class SeiraCharacterPreviewTest {
     }
 
     @Test
-    fun `one accessory per slot and three at most`() {
+    fun `the first three are kept, then one per slot`() {
         val assets = SeiraAssets.forContext(context)
         val look = SeiraLook.of(
             assets, "bob", "red", listOf("glasses", "sunglasses", "ribbon", "scarf", "cap"), null, CharacterMood.IDLE,
         )
-        assertEquals(listOf("glasses", "ribbon", "scarf"), look.accessories)
+        assertEquals(listOf("glasses", "ribbon"), look.accessories)
     }
 
     @Test

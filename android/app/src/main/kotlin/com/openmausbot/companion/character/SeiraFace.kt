@@ -33,7 +33,7 @@ private val MOUTH_Y = EYE_TOP + EYE_H + fu(6)
 internal const val SEIRA_DARK_SCREEN = 0xFF0C0F14.toInt()
 internal const val SEIRA_BRAND_PINK = 0xFFFF2A57.toInt()
 internal const val SEIRA_LIGHT_FEATURE = 0xFFF2F2F3.toInt()
-internal const val SEIRA_LIGHT_SCREEN = 0xFFE9ECF0.toInt()
+internal const val SEIRA_LIGHT_SCREEN = 0xFFDCE0E6.toInt()
 
 /** The two colours of the screen face. [lightScreen] turns the glow off and softens the glass shading. */
 internal data class SeiraFaceInk(val screen: Int, val feature: Int, val lightScreen: Boolean)
