@@ -100,6 +100,7 @@ android {
         targetSdk = 37
         versionCode = appVersionCode
         versionName = appVersionName
+        buildConfigField("boolean", "LIVE_CALLS", "true")
     }
 
     signingConfigs {
@@ -136,6 +137,9 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
+            // The Play listing offers no calls, and a microphone foreground
+            // service needs a Play declaration. Release leaves calls out.
+            buildConfigField("boolean", "LIVE_CALLS", "false")
             // Null whenever no signing material was supplied — the unsigned
             // handover build — and the "release" config whenever it was.
             signingConfig = signingConfigs.findByName("release")
@@ -175,6 +179,7 @@ android {
     }
 
     buildFeatures {
+        buildConfig = true
         compose = true
     }
 
