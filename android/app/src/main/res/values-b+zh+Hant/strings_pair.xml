@@ -16,7 +16,6 @@
     <string name="pair_waiting">正在等待你的電腦</string>
     <string name="pair_waiting_body">配對碼會顯示在電腦上的 Seira 中。</string>
     <string name="pair_enter_code">改為輸入配對碼</string>
-    <string name="pair_scan_instead">改為掃描配對碼</string>
     <string name="pair_connected_title">已連線</string>
     <string name="pair_connected_body">你的對話和機器人已在這部手機上就緒。</string>
     <string name="pair_done">完成</string>

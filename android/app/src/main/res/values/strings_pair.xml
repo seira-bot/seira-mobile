@@ -16,7 +16,6 @@
     <string name="pair_waiting">Waiting for your computer</string>
     <string name="pair_waiting_body">The code appears in Seira on your computer.</string>
     <string name="pair_enter_code">Enter a code instead</string>
-    <string name="pair_scan_instead">Scan the code instead</string>
     <string name="pair_connected_title">You\'re connected</string>
     <string name="pair_connected_body">Your chats and bots are ready on this phone.</string>
     <string name="pair_done">Done</string>
