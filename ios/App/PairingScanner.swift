@@ -10,103 +10,47 @@ import SwiftUI
 import UIKit
 import VisionKit
 
-struct PairingScannerSheet: View {
-    @Environment(\.dismiss) private var dismiss
-    @Environment(\.scenePhase) private var scenePhase
+@MainActor
+final class PairingCamera: ObservableObject {
+    enum Access {
+        case unresolved, allowed, denied
+    }
 
-    /// Return nil to accept and close, or a human-readable validation error
-    /// to keep scanning. The one-time credential never lives in this view.
-    let validate: (String) -> LocalizedStringKey?
+    @Published private(set) var access: Access
 
-    @State private var cameraAuthorized = AVCaptureDevice.authorizationStatus(for: .video) == .authorized
-    @State private var permissionResolved = AVCaptureDevice.authorizationStatus(for: .video) != .notDetermined
-    @State private var validationError: LocalizedStringKey?
+    init() {
+        access = Self.currentAccess()
+    }
 
-    var body: some View {
-        NavigationStack {
-            Group {
-                if !permissionResolved {
-                    ProgressView("Requesting camera access…")
-                } else if !cameraAuthorized {
-                    EmptyStateView(
-                        title: String(localized: "Camera access needed"),
-                        systemImage: "camera.fill",
-                        description: Text("Allow camera access to scan the pairing QR code shown by Seira.")
-                    ) {
-                        Button("Open Settings") {
-                            guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
-                            UIApplication.shared.open(url)
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                } else if !DataScannerViewController.isSupported || !DataScannerViewController.isAvailable {
-                    EmptyStateView(
-                        String(localized: "Scanner unavailable"),
-                        systemImage: "qrcode.viewfinder",
-                        description: Text("Use the Camera app to scan the QR code, or enter the address and code manually.")
-                    )
-                } else {
-                    ZStack(alignment: .bottom) {
-                        PairingQRScanner { payload in
-                            if let error = validate(payload) {
-                                validationError = error
-                                return false
-                            }
-                            dismiss()
-                            return true
-                        }
-                        .ignoresSafeArea(edges: .bottom)
+    /// `DataScannerViewController` needs iOS 16 and a supported camera.
+    var scannerReady: Bool {
+        DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+    }
 
-                        VStack(spacing: 8) {
-                            Text(validationError ?? "Point the camera at the QR code on your computer")
-                                .font(.subheadline.weight(.medium))
-                                .multilineTextAlignment(.center)
-                                .foregroundStyle(validationError == nil ? Color.primary : Color.red)
-                        }
-                        .padding(.horizontal, 18)
-                        .padding(.vertical, 14)
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 18))
-                        .padding()
-                    }
-                }
-            }
-            .navigationTitle("Scan QR Code")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") { dismiss() }
-                }
-            }
-            .task { await resolveCameraPermission() }
-            .onValueChange(of: scenePhase) { phase in
-                // If access was granted in Settings, recover immediately when
-                // the user returns instead of requiring the sheet to reopen.
-                if phase == .active {
-                    Task { await resolveCameraPermission() }
-                }
-            }
+    /// If access was granted in Settings, the screen recovers when the person
+    /// returns instead of requiring it to reopen.
+    func resolve() async {
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+        case .authorized:
+            access = .allowed
+        case .notDetermined:
+            access = await AVCaptureDevice.requestAccess(for: .video) ? .allowed : .denied
+        default:
+            access = .denied
         }
     }
 
-    private func resolveCameraPermission() async {
+    private static func currentAccess() -> Access {
         switch AVCaptureDevice.authorizationStatus(for: .video) {
-        case .authorized:
-            cameraAuthorized = true
-            permissionResolved = true
-        case .notDetermined:
-            cameraAuthorized = await AVCaptureDevice.requestAccess(for: .video)
-            permissionResolved = true
-        case .denied, .restricted:
-            cameraAuthorized = false
-            permissionResolved = true
-        @unknown default:
-            cameraAuthorized = false
-            permissionResolved = true
+        case .authorized: return .allowed
+        case .notDetermined: return .unresolved
+        default: return .denied
         }
     }
 }
 
-private struct PairingQRScanner: UIViewControllerRepresentable {
+struct PairingQRScanner: UIViewControllerRepresentable {
+    /// Return true to accept the code and stop reading, false to keep scanning.
     let onPayload: (String) -> Bool
 
     func makeCoordinator() -> Coordinator {
@@ -120,7 +64,7 @@ private struct PairingQRScanner: UIViewControllerRepresentable {
             recognizesMultipleItems: false,
             isHighFrameRateTrackingEnabled: false,
             isPinchToZoomEnabled: true,
-            isGuidanceEnabled: true,
+            isGuidanceEnabled: false,
             isHighlightingEnabled: true
         )
         controller.delegate = context.coordinator
