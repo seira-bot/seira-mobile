@@ -216,6 +216,56 @@ class DecodingTest {
     }
 
     @Test
+    fun everyComputerApprovalLabelAnswersAllow() {
+        val labels = listOf(
+            "Allow", "Allow once", "Always allow", "Approve", "Yes",
+            "Enable", "Update", "Turn on", "Turn off", "Delete", "Change", "Remove",
+            "Remember", "Confirm", "Apply setup", "Delete bot",
+        )
+        for (label in labels) {
+            assertEquals("allow", OptionCard.responseBehavior(label, isPermission = true), label)
+            assertEquals("allow", OptionCard.responseBehavior("  ${label.uppercase()}\n", isPermission = true), label)
+            assertTrue(OptionCard.isApproval(label), label)
+            assertFalse(OptionCard.isRefusal(label), label)
+        }
+    }
+
+    @Test
+    fun aPermissionChoiceThatIsNotAKnownApprovalAnswersDeny() {
+        val labels = listOf(
+            "Deny", "Cancel", "Dismiss", "Skip",
+            "Tolak", "Reject", "No", "Decline", "Block", "Not now",
+            "Proceed", "Abort", "Allow?", "Allow always", "Deny once", "", "   ",
+        )
+        for (label in labels) {
+            assertEquals("deny", OptionCard.responseBehavior(label, isPermission = true), label)
+            assertFalse(OptionCard.isApproval(label), label)
+        }
+    }
+
+    @Test
+    fun aLocalizedApprovalCardAnswersDenyForEveryUnknownLabel() {
+        val card = OptionCard(
+            title = "Persetujuan diperlukan",
+            subtitle = "rm -rf ./build",
+            options = listOf("Izinkan", "Tolak"),
+            requestId = "req-id",
+            tool = "Bash",
+        )
+        assertEquals("deny", card.responseBehavior("Tolak"))
+        assertEquals("deny", card.responseBehavior("Izinkan"), "no explicit allow signal")
+    }
+
+    @Test
+    fun refusalTintCoversCommonRefusalWords() {
+        for (label in listOf("Deny", "Cancel", "Dismiss", "Skip", "No", "Reject", "Decline", "Block", "Not now")) {
+            assertTrue(OptionCard.isRefusal(" ${label.lowercase()} "), label)
+        }
+        assertFalse(OptionCard.isRefusal("Tolak"))
+        assertFalse(OptionCard.isRefusal("Proceed"))
+    }
+
+    @Test
     fun anExpiredProposalIsNotPending() {
         // The shape the computer leaves when a routine, profile or team setup
         // proposal goes stale: no answer, no dismissal, no options. Counting it
@@ -255,6 +305,7 @@ class DecodingTest {
         assertFalse(card.isPermission)
         assertEquals("answer", card.responseBehavior("Anything"))
         assertEquals("answer", OptionCard.responseBehavior("\nDeny\t", isPermission = false))
+        assertEquals("answer", OptionCard.responseBehavior("Tolak", isPermission = false))
         assertFalse(card.shouldRememberPermission("Always allow"))
     }
 

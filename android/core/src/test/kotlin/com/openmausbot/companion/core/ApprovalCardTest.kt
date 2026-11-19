@@ -269,6 +269,21 @@ class ApprovalCardTest {
     }
 
     @Test
+    fun `a stored label reads as allowed only when it is a known approval`() {
+        val card = OptionCard(
+            title = "Approval needed",
+            subtitle = "rm -rf ./build",
+            options = listOf("Proceed", "Tolak", "Allow"),
+            requestId = "p",
+            tool = "Bash",
+            requestType = "permission",
+        )
+        assertFalse(assertNotNull(card.copy(answered = "Proceed").outcome).isPositive, "unknown label")
+        assertFalse(assertNotNull(card.copy(answered = "Tolak").outcome).isPositive, "localized refusal")
+        assertTrue(assertNotNull(card.copy(answered = "Allow").outcome).isPositive)
+    }
+
+    @Test
     fun `a legacy question reads as its answer`() {
         val question = OptionCard(
             title = "Your bot has a question",
