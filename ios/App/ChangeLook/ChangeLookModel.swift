@@ -35,7 +35,7 @@ final class ChangeLookModel: ObservableObject {
     init(original: SeiraLook) {
         self.original = original
         self.look = original
-        self.cast = Self.loadCast()
+        self.cast = ChangeLookModel.loadCast()
     }
 
     var changed: Bool { look != original }
