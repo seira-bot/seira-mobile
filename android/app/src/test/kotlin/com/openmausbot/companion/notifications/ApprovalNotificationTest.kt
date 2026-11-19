@@ -143,7 +143,7 @@ class ApprovalNotificationTest {
             CompanionJson.parseToJsonElement(sent.body.readUtf8()).jsonObject
                 .mapValues { it.value.jsonPrimitive.content },
         )
-        assertEquals(1, dispatcher.answers.size, "no always-allow grant is written")
+        assertEquals(0, dispatcher.answers.size, "no always-allow grant is written")
         assertEquals("Approved", text(posted(approvalFrame(), 1)))
         assertTrue(posted(approvalFrame(), 1).flags and Notification.FLAG_AUTO_CANCEL != 0)
     }
