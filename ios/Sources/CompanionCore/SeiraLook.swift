@@ -4,11 +4,6 @@ public enum SeiraLookSlot: String, CaseIterable, Sendable {
     case face, ears, hair, top, neck
 }
 
-public enum SeiraExtraToggle: Equatable, Sendable {
-    case updated([String])
-    case full
-}
-
 /// The values a Seira look may take. They must match the desktop catalog:
 /// the server reads an id it does not know as the default look.
 public enum SeiraLookCatalog {
@@ -57,19 +52,14 @@ public enum SeiraLookCatalog {
         return result
     }
 
-    /// An id that is on comes off. An id whose slot is taken swaps with the one
-    /// worn there. A new slot while the limit is reached gives `.full`.
-    public static func toggle(_ id: String, in current: [String]) -> SeiraExtraToggle {
+    /// An id that is on comes off. An unknown id changes nothing. Any other id replaces the
+    /// one worn in its slot, joins the end of the list, and the oldest drops past `maxAccessories`.
+    public static func toggle(_ id: String, in current: [String]) -> [String] {
         let worn = accessories(current)
-        if worn.contains(id) { return .updated(worn.filter { $0 != id }) }
-        guard let newSlot = slot(of: id) else { return .updated(worn) }
-        if let index = worn.firstIndex(where: { slot(of: $0) == newSlot }) {
-            var swapped = worn
-            swapped[index] = id
-            return .updated(swapped)
-        }
-        if worn.count >= maxAccessories { return .full }
-        return .updated(worn + [id])
+        if worn.contains(id) { return worn.filter { $0 != id } }
+        guard let newSlot = slot(of: id) else { return worn }
+        let kept = worn.filter { slot(of: $0) != newSlot } + [id]
+        return Array(kept.suffix(maxAccessories))
     }
 
     public static let starterColors: [String] = [
@@ -103,8 +93,11 @@ public enum SeiraLookCatalog {
 
     public static let expressions: [String] = [
         "idle", "happy", "curious", "drowsy", "working",
-        "thinking", "listening", "sleeping", "suspicious", "proud",
+        "thinking", "listening", "sleeping", "suspicious", "proud", "surprised",
     ]
+
+    /// The expressions the Change look sheet offers, in order.
+    public static let faceExpressions: [String] = ["idle", "happy", "surprised", "drowsy", "thinking"]
 }
 
 public struct SeiraLook: Equatable, Hashable, Sendable {

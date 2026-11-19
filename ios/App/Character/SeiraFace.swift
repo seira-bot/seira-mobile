@@ -11,10 +11,6 @@ enum SeiraFaceInk {
     case dark
     case light
 
-    init(faceInk: String?) {
-        self = faceInk == "black" ? .light : .dark
-    }
-
     var feature: String { self == .dark ? "#FF2A57" : "#0C0F14" }
     var screen: String { self == .dark ? "#0C0F14" : "#ECEEF1" }
 }

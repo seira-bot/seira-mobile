@@ -19,6 +19,7 @@ struct HomeTeamMember: Identifiable, Equatable {
 struct HomeTeamRail: View {
     let members: [HomeTeamMember]
     let open: (Bot) -> Void
+    let changeLook: (Bot) -> Void
     let seeAll: (() -> Void)?
 
     var body: some View {
@@ -79,8 +80,14 @@ struct HomeTeamRail: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+        .contextMenu {
+            Button { changeLook(member.bot) } label: {
+                Label("Change look", systemImage: "sparkles")
+            }
+        }
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(Text(verbatim: member.spokenLabel))
         .accessibilityAddTraits(.isButton)
+        .accessibilityAction(named: Text("Change look")) { changeLook(member.bot) }
     }
 }

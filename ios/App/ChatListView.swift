@@ -33,6 +33,7 @@ struct ChatListView: View {
     @State private var creatingThreads = Set<String>()
     @State private var managingThreads: Chat?
     @State private var disclosingLiveCall: Bot?
+    @State private var changingLook: Bot?
     /// The preview lines comfortable rows and search show, folded again only
     /// for a thread that changed. Filled while rendering: it is a cache,
     /// not something any view observes.
@@ -125,6 +126,10 @@ struct ChatListView: View {
                 }
             }
 #endif
+            .sheet(item: $changingLook) { bot in
+                ChangeLookSheet(bot: bot)
+                    .environmentObject(session)
+            }
             .sheet(isPresented: $showingCalendar) {
                 RoutineCalendarView()
                     .environmentObject(session)
@@ -284,6 +289,7 @@ struct ChatListView: View {
             HomeTeamRail(
                 members: team,
                 open: { openBot($0) },
+                changeLook: { changingLook = $0 },
                 seeAll: session.state.unsectionedBots.isEmpty ? nil : { scrollTo(Self.botsSectionID) }
             )
             .padding(.top, chief == nil ? 0 : 20)

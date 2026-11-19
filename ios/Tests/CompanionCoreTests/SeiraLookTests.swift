@@ -131,25 +131,35 @@ final class SeiraLookTests: XCTestCase {
     }
 
     func testToggleTurnsAnAccessoryOn() {
-        XCTAssertEqual(SeiraLookCatalog.toggle("glasses", in: []), .updated(["glasses"]))
+        XCTAssertEqual(SeiraLookCatalog.toggle("glasses", in: []), ["glasses"])
     }
 
     func testToggleTurnsAnAccessoryOff() {
-        XCTAssertEqual(SeiraLookCatalog.toggle("glasses", in: ["glasses", "bowtie"]), .updated(["bowtie"]))
+        XCTAssertEqual(SeiraLookCatalog.toggle("glasses", in: ["glasses", "bowtie"]), ["bowtie"])
     }
 
-    func testToggleSwapsAnAccessoryInATakenSlotAtTheSamePosition() {
+    func testToggleReplacesTheAccessoryInTheSameSlot() {
         let result = SeiraLookCatalog.toggle("sunglasses", in: ["earring", "glasses", "scarf"])
-        XCTAssertEqual(result, .updated(["earring", "sunglasses", "scarf"]))
+        XCTAssertEqual(result, ["earring", "scarf", "sunglasses"])
     }
 
-    func testToggleReportsFullForAFourthSlot() {
-        XCTAssertEqual(SeiraLookCatalog.toggle("cap", in: ["glasses", "earring", "ribbon"]), .full)
+    func testToggleDropsTheOldestOnAFourthSlot() {
+        let result = SeiraLookCatalog.toggle("cap", in: ["glasses", "earring", "ribbon"])
+        XCTAssertEqual(result, ["earring", "ribbon", "cap"])
     }
 
-    func testToggleStillSwapsWhenTheListIsFull() {
-        let result = SeiraLookCatalog.toggle("tiara", in: ["glasses", "earring", "ribbon"])
-        XCTAssertEqual(result, .updated(["glasses", "earring", "tiara"]))
+    func testToggleLeavesTheListForAnUnknownId() {
+        XCTAssertEqual(SeiraLookCatalog.toggle("monocle", in: ["glasses"]), ["glasses"])
+    }
+
+    func testToggleNeverExceedsTheLimitOrRepeatsASlot() {
+        var worn: [String] = []
+        for id in SeiraLookCatalog.accessoryIds + SeiraLookCatalog.accessoryIds.reversed() {
+            worn = SeiraLookCatalog.toggle(id, in: worn)
+            XCTAssertLessThanOrEqual(worn.count, SeiraLookCatalog.maxAccessories)
+            let slots = worn.compactMap { SeiraLookCatalog.slot(of: $0) }
+            XCTAssertEqual(Set(slots).count, slots.count)
+        }
     }
 
     func testColorCatalog() {
