@@ -81,7 +81,7 @@ import kotlinx.coroutines.launch
  * simply absent without one.
  */
 @Composable
-fun SettingsScreen(
+internal fun SettingsScreen(
     onBack: () -> Unit,
     onOpenRoutines: (() -> Unit)? = null,
     onOpenConnectedApps: (() -> Unit)? = null,
