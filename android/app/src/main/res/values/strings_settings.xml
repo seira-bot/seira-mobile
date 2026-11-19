@@ -22,6 +22,6 @@
     <string name="settings_sign_out">Sign out</string>
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_profile_with_computer">Paired with %1$s</string>
-    <string name="settings_state_offline">Can't reach your computer</string>
+    <string name="settings_state_offline">Can\'t reach your computer</string>
     <string name="settings_reconnect">Reconnect</string>
 </resources>
