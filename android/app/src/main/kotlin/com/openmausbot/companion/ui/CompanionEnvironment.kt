@@ -141,6 +141,8 @@ class CompanionEnvironment(
     val alwaysOnEnabled: StateFlow<Boolean>,
     /** Flips the always-on setting and starts/stops the service to match. */
     val onToggleAlwaysOn: () -> Unit,
+    /** Whether the call screen is open, and a call another surface asked a chat to start. */
+    val callUi: LiveCallUi = LiveCallUi(),
 )
 
 val LocalCompanion = staticCompositionLocalOf<CompanionEnvironment> {

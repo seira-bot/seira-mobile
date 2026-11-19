@@ -16,4 +16,11 @@
     <cache-path
         name="file-previews"
         path="file-previews/" />
+    <!--
+      The one photo the camera is writing. The chat empties the directory
+      before each capture and again once the photo is attached.
+    -->
+    <cache-path
+        name="camera-capture"
+        path="camera-capture/" />
 </paths>

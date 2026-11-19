@@ -43,17 +43,43 @@ object NotificationIntents {
     fun contentUri(botId: String, threadId: String): Uri =
         Uri.parse(contentIdentity(botId, threadId))
 
+    const val EXTRA_SHORTCUT_ID = "openmaus.shortcutId"
+
     fun contentIntent(
         packageContext: android.content.Context,
         notification: NotificationFrame,
+    ): Intent = openIntent(
+        packageContext,
+        notification.botId,
+        notification.threadId,
+        notification.kind,
+    )
+
+    fun openIntent(
+        packageContext: android.content.Context,
+        botId: String,
+        threadId: String,
+        kind: String? = null,
     ): Intent = Intent(packageContext, MainActivity::class.java).apply {
         action = ACTION_OPEN
-        data = contentUri(notification.botId, notification.threadId)
+        data = contentUri(botId, threadId)
         flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
-        putExtra(LocalNotificationPoster.EXTRA_THREAD_ID, notification.threadId)
-        putExtra(LocalNotificationPoster.EXTRA_BOT_ID, notification.botId)
-        putExtra(LocalNotificationPoster.EXTRA_KIND, notification.kind)
+        putExtra(LocalNotificationPoster.EXTRA_THREAD_ID, threadId)
+        putExtra(LocalNotificationPoster.EXTRA_BOT_ID, botId)
+        if (kind != null) putExtra(LocalNotificationPoster.EXTRA_KIND, kind)
     }
+
+    fun openPending(
+        packageContext: android.content.Context,
+        botId: String,
+        threadId: String,
+        kind: String? = null,
+    ): android.app.PendingIntent = android.app.PendingIntent.getActivity(
+        packageContext,
+        0,
+        openIntent(packageContext, botId, threadId, kind),
+        android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
+    )
 
     /** Android's URI encoder is available throughout this app's API range. */
     private fun encode(value: String): String = Uri.encode(value)

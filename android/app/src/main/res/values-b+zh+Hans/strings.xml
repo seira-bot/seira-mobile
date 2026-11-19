@@ -421,8 +421,6 @@
     <string name="mobile_routine_run_show_less">收起</string>
     <string name="mobile_routine_run_nothing_recorded">这一轮没有记录任何内容。</string>
     <string name="mobile_settings_appearance">外观</string>
-    <string name="mobile_settings_skin">主题</string>
-    <string name="mobile_settings_choose_skin">选择主题</string>
     <string name="mobile_claude_update_offer">此模型需要较新版本的 Claude Code。我可以帮你更新 Claude。</string>
     <string name="mobile_claude_update_do_it">帮我更新 Claude</string>
     <string name="mobile_claude_update_myself">我自己来</string>

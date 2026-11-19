@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
+import com.openmausbot.companion.ui.theme.glass
 
 import androidx.compose.ui.res.stringResource
 
@@ -20,7 +21,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
@@ -32,30 +32,18 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 /**
- * The one material the floating chrome is made of — where `ios/App/Glass.swift`
- * sits in the port, done the way Android does it.
+ * The one material the floating chrome is made of: the glass token with the
+ * design shadow, in the shape of the control.
  *
- * iOS floats its bars on real glass: Liquid Glass on iOS 26, `.ultraThinMaterial`
- * before that, both of which refract whatever scrolls beneath. Android has no
- * counterpart this app can use. The only backdrop blur the platform offers is
- * `RenderEffect`, which `androidx.compose.ui.graphics.BlurEffect` gates at
- * `SDK_INT >= 31`; this app starts at 26, so five API levels would get no chrome
- * at all. Blurring by hand instead — capturing the backdrop into a layer every
- * frame, over a roster of animated mascots — buys a look at the price of the
- * scroll, which is the wrong trade on a list.
- *
- * So the chrome is not translucent at all. It is what a Material app floats over
- * a list: an opaque `surfaceContainerHigh` tile with a real elevation shadow, in
- * the shape of the control. That reads as a native app rather than a transplanted
- * one, it is legible over any content by construction, it looks the same on API
- * 26 and on 37, and it costs nothing in the draw phase — `shadow` and `background`
- * both cache their outline against size, layout direction and shape.
+ * It does not blur what is behind it. `androidx.compose.ui.graphics.BlurEffect`
+ * gates backdrop blur at `SDK_INT >= 31` and this app starts at 26, so the
+ * glass is a translucent tint that looks the same on every API level.
  */
 
 /** Below this, a control is hard to hit; Android asks for 48 dp either way. */
 internal val MIN_TOUCH_TARGET: Dp = 48.dp
 
-private val CHROME_ELEVATION: Dp = 3.dp
+private val CHROME_ELEVATION: Dp = 10.dp
 
 /** A capsule of chrome — pills and round buttons. */
 @Composable
@@ -64,13 +52,12 @@ internal fun Modifier.chromeCapsule(elevation: Dp = CHROME_ELEVATION): Modifier 
 
 /** A rounded sheet of chrome. */
 @Composable
-internal fun Modifier.chromeSheet(cornerRadius: Dp = 28.dp, elevation: Dp = 6.dp): Modifier =
+internal fun Modifier.chromeSheet(cornerRadius: Dp = 28.dp, elevation: Dp = CHROME_ELEVATION): Modifier =
     chrome(RoundedCornerShape(cornerRadius), elevation)
 
 @Composable
-internal fun Modifier.chrome(shape: Shape, elevation: Dp = CHROME_ELEVATION): Modifier = this
-    .shadow(elevation, shape, clip = false)
-    .background(MaterialTheme.colorScheme.surfaceContainerHigh, shape)
+internal fun Modifier.chrome(shape: Shape, elevation: Dp = CHROME_ELEVATION): Modifier =
+    glass(shape, elevation)
 
 /**
  * A round chrome button with one glyph — the shape of every action in the chrome

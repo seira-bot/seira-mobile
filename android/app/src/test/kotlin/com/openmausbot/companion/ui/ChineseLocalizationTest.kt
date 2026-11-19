@@ -10,6 +10,7 @@ import com.openmausbot.companion.R
 import java.io.File
 import javax.xml.parsers.DocumentBuilderFactory
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -45,17 +46,25 @@ class ChineseLocalizationTest {
     @Test
     fun bothChineseCatalogsKeepResourceNamesAndFormatArguments() {
         val root = File("src/main/res").takeIf(File::isDirectory) ?: File("app/src/main/res")
-        val english = strings(File(root, "values/strings.xml"))
+        val catalogs = File(root, "values").listFiles { file ->
+            file.name.startsWith("strings") && file.name.endsWith(".xml")
+        }.orEmpty().sortedBy(File::getName)
+        assertTrue(catalogs.any { it.name == "strings.xml" }, "no English catalog found in $root")
         val arguments = Regex("%(?:\\d+\\$)?[a-zA-Z]")
-        for (folder in listOf("values-b+zh+Hans", "values-b+zh+Hant")) {
-            val translated = strings(File(root, "$folder/strings.xml"))
-            assertEquals(english.keys, translated.keys, folder)
-            for ((name, value) in english) {
-                assertEquals(
-                    arguments.findAll(value).map { it.value }.sorted().toList(),
-                    arguments.findAll(translated.getValue(name)).map { it.value }.sorted().toList(),
-                    "$folder:$name",
-                )
+        for (catalog in catalogs) {
+            val english = strings(catalog)
+            for (folder in listOf("values-b+zh+Hans", "values-b+zh+Hant")) {
+                val file = File(root, "$folder/${catalog.name}")
+                assertTrue(file.isFile, "$folder is missing ${catalog.name}")
+                val translated = strings(file)
+                assertEquals(english.keys, translated.keys, "$folder/${catalog.name}")
+                for ((name, value) in english) {
+                    assertEquals(
+                        arguments.findAll(value).map { it.value }.sorted().toList(),
+                        arguments.findAll(translated.getValue(name)).map { it.value }.sorted().toList(),
+                        "$folder/${catalog.name}:$name",
+                    )
+                }
             }
         }
     }

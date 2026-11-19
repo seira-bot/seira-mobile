@@ -4,7 +4,19 @@ import com.openmausbot.companion.R
 
 import androidx.compose.ui.res.stringResource
 
+import androidx.activity.BackEventCompat
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.PredictiveBackHandler
+import androidx.compose.animation.core.Animatable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.graphicsLayer
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.rememberReducedMotion
+import com.openmausbot.companion.ui.theme.seiraTween
+import kotlin.coroutines.cancellation.CancellationException
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -81,7 +93,7 @@ fun CompanionRoot(
     val welcomeSeen by onboarding.welcomeSeen.collectAsState()
     val notificationPromptSeen by onboarding.notificationPromptSeen.collectAsState()
     val notificationPending by onboarding.notificationPending.collectAsState()
-    val appearanceSkin by environment.chatPreferences.appearanceSkin.collectAsState()
+    val themeMode by environment.chatPreferences.themeMode.collectAsState()
 
     // Settings, reachable from the unpaired home. iOS puts it in a toolbar
     // `NavigationLink`; there is no navigator in the unpaired world, so this is
@@ -198,11 +210,11 @@ fun CompanionRoot(
         tapCoordinator.onPending(session, target, onPendingTargetConsumed)
     }
 
-    CompanionTheme(skin = appearanceSkin) {
+    CompanionTheme(mode = themeMode) {
         // One place for system insets: the app draws edge to edge, and every
         // screen wants the same answer — keep content clear of the status bar,
         // the gesture bar, and the keyboard.
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     when (route) {
@@ -299,6 +311,7 @@ fun CompanionRoot(
                     }
                 }
             }
+            if (route == OnboardingRoute.CHATS) LiveCallScreenHost()
             // Pairing failures are shown inline on the pairing form, where the
             // action was — a modal on top of it would say the same thing twice.
             if (route != OnboardingRoute.PAIRING) {
@@ -348,6 +361,10 @@ internal fun notificationAuthorization(
         NotificationAuthorizationState.DETERMINED
 }
 
+private const val BACK_PREVIEW_SCALE = 0.92f
+private val BACK_PREVIEW_SHIFT = 24.dp
+private val BACK_PREVIEW_CORNER = 28.dp
+
 @Composable
 private fun PairedScreen(
     resolution: NotificationTapCoordinator.Resolution?,
@@ -364,13 +381,45 @@ private fun PairedScreen(
         onCommit(held, navigator)
     }
 
-    BackHandler(enabled = navigator.canGoBack) { navigator.pop() }
+    val reducedMotion = rememberReducedMotion()
+    val backProgress = remember { Animatable(0f) }
+    var backEdge by remember { mutableIntStateOf(BackEventCompat.EDGE_LEFT) }
+    val backTint = Seira.colors.tint
+    PredictiveBackHandler(enabled = navigator.canGoBack) { events ->
+        try {
+            events.collect { event ->
+                if (!reducedMotion) {
+                    backEdge = event.swipeEdge
+                    backProgress.snapTo(event.progress)
+                }
+            }
+            navigator.pop()
+            backProgress.snapTo(0f)
+        } catch (cancelled: CancellationException) {
+            backProgress.animateTo(0f, seiraTween(SeiraMotion.SHEET, reducedMotion))
+        }
+    }
 
     // The banner follows a call to every screen but its own chat, and pushes
     // whatever is on screen down by its height rather than covering it.
     Column(modifier = Modifier.fillMaxSize()) {
         LiveCallBannerHost(navigator)
-        Box(modifier = Modifier.weight(1f).fillMaxWidth()) {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth()
+                .drawBehind { if (backProgress.value > 0f) drawRect(backTint) }
+                .graphicsLayer {
+                    val progress = backProgress.value
+                    val scale = 1f - (1f - BACK_PREVIEW_SCALE) * progress
+                    scaleX = scale
+                    scaleY = scale
+                    val shift = BACK_PREVIEW_SHIFT.toPx() * progress
+                    translationX = if (backEdge == BackEventCompat.EDGE_LEFT) -shift else shift
+                    shape = RoundedCornerShape(BACK_PREVIEW_CORNER.toPx() * progress)
+                    clip = progress > 0f
+                },
+        ) {
             when (val destination = navigator.current) {
                 Destination.Roster -> RosterScreen(navigator)
                 Destination.Settings -> SettingsScreen(

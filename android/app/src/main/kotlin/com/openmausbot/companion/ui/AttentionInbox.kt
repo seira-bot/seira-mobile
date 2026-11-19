@@ -9,6 +9,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.testTag
+import com.openmausbot.companion.ui.theme.IdentityAvatar
+import java.util.Locale
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -95,40 +99,27 @@ private fun attentionRank(entry: AttentionEntry): Int = when {
 
 /** Selection only: the row jumps; menus and management stay in the sheet. */
 @Composable
-internal fun AttentionRow(entry: AttentionEntry, onOpen: () -> Unit) {
+internal fun AttentionRow(entry: AttentionEntry, bot: Bot, onOpen: () -> Unit) {
+    val waiting = entry.task.activity == "waiting-on-you"
+    val working = entry.task.busy == true || entry.task.activity == "working"
     val status = when {
-        entry.task.activity == "waiting-on-you" -> stringResource(R.string.mobile_waiting_on_you_edab5b72)
-        entry.task.busy == true || entry.task.activity == "working" -> stringResource(R.string.mobile_thread_working)
+        waiting -> stringResource(R.string.mobile_waiting_on_you_edab5b72)
+        working -> stringResource(R.string.mobile_thread_working)
         entry.queued -> stringResource(R.string.mobile_queued_6a599877)
         else -> stringResource(R.string.mobile_unread_07b032b5)
     }
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onOpen)
-            .padding(horizontal = 20.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = entry.task.displayTitle,
-                fontSize = 15.sp,
-                fontWeight = if (entry.task.unread == true) FontWeight.SemiBold else FontWeight.Medium,
-                color = if (entry.task.activity == "waiting-on-you") {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.onSurface
-                },
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-            Text(
-                text = "${entry.botName} · $status",
-                fontSize = 12.sp,
-                color = secondaryTint,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
-        }
-    }
+    val at = entry.task.updatedAt ?: entry.task.createdAt
+    val now = remember(at) { System.currentTimeMillis() }
+    DesignChatRow(
+        title = entry.task.displayTitle,
+        bold = entry.task.unread == true,
+        time = RelativeStamp.list(at, now, locale = Locale.getDefault()),
+        preview = "${entry.botName} \u00b7 $status",
+        waiting = waiting,
+        busy = working,
+        unread = entry.task.unread == true && !working,
+        onClick = onOpen,
+        modifier = Modifier.testTag("attention-row.${entry.id}"),
+        avatar = { IdentityAvatar(bot = bot, size = 48.dp, state = MausState.IDLE, animated = false) },
+    )
 }

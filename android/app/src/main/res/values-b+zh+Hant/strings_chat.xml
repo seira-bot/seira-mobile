@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">工作中</string>
+    <string name="chat_status_waiting">等你確認</string>
+    <string name="chat_status_idle">閒置</string>
+    <string name="chat_call_start">開始即時通話</string>
+    <string name="chat_call_open">開啟即時通話</string>
+    <string name="chat_composer_hint">傳訊息給 %1$s</string>
+    <string name="chat_composer_talk">與 %1$s 通話</string>
+    <string name="chat_composer_dictate">開始聽寫</string>
+    <string name="chat_composer_dictate_stop">停止聽寫</string>
+    <string name="chat_writing">正在撰寫…</string>
+    <string name="chat_sheet_title">加入聊天</string>
+    <string name="chat_sheet_camera">相機</string>
+    <string name="chat_sheet_photos">照片</string>
+    <string name="chat_sheet_files">檔案</string>
+    <string name="chat_sheet_call">即時通話</string>
+    <string name="chat_sheet_call_sub">和 %1$s 當面聊</string>
+    <string name="chat_sheet_schedule">排程</string>
+    <string name="chat_sheet_schedule_sub">稍後執行，或每週執行</string>
+    <string name="chat_sheet_desktop">雲端桌面</string>
+    <string name="chat_sheet_desktop_sub">在螢幕上看 %1$s 工作</string>
+    <string name="chat_needs_ok">需要你確認</string>
+    <string name="chat_from_bot">來自 %1$s</string>
+</resources>

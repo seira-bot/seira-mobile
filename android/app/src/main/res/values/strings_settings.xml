@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">Your computer</string>
+    <string name="settings_appearance_caption">Auto follows your phone setting.</string>
+    <string name="settings_pair_another">Pair another computer</string>
+    <string name="settings_state_same_wifi">Connected · same Wi-Fi</string>
+    <string name="settings_state_tailscale">Connected · Tailscale</string>
+    <string name="settings_state_internet">Connected · over the internet</string>
+    <string name="settings_state_connected">Connected</string>
+    <string name="settings_state_saved">Saved on this phone</string>
+    <string name="settings_connection_details">Connection details</string>
+    <string name="settings_notif_approval_title">Needs your OK</string>
+    <string name="settings_notif_approval_body">When a bot waits for your answer</string>
+    <string name="settings_notif_done_title">Task finished</string>
+    <string name="settings_notif_done_body">When a bot is done with a job</string>
+    <string name="settings_notif_routine_title">Routine problems</string>
+    <string name="settings_notif_routine_body">When a scheduled job fails</string>
+    <string name="settings_notif_turn_on">Turn on notifications</string>
+    <string name="settings_notif_turn_on_body">So your bots can reach you</string>
+    <string name="settings_privacy">Privacy</string>
+    <string name="settings_connected_apps">Connected apps</string>
+    <string name="settings_sign_out">Sign out</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">Can\'t reach your computer</string>
+    <string name="settings_reconnect">Reconnect</string>
+</resources>
