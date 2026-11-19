@@ -14,7 +14,8 @@ struct ActivityRunChip: View {
     let items: [Message]
     /// Where an "Opened thread" chip inside the run goes once unfolded.
     var openThread: ((ThreadRef) -> Void)? = nil
-    @Environment(\.colorScheme) private var colorScheme
+    /// The bot's profile, in a bot chat, for the capsule's avatar.
+    var faceBot: Bot? = nil
     @State private var expanded = false
 
     private var running: Bool { items.contains { $0.tool?.ok == nil } }
@@ -23,14 +24,21 @@ struct ActivityRunChip: View {
         running ? "Running \(items.count) steps" : "Ran \(items.count) steps"
     }
 
-    private var isDark: Bool { colorScheme == .dark }
-    private var chipFill: Color { isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.05) }
-    private var chipStroke: Color { isDark ? Color.white.opacity(0.08) : Color.black.opacity(0.06) }
-    private var summaryColor: Color { isDark ? Color(hex: "#E2E8F0") : Color(hex: "#334155") }
+    private var capsuleText: String {
+        guard !running, let first = items.map(\.at).min(), let last = items.map(\.at).max(),
+              let took = ActivityDuration.text(milliseconds: last - first) else { return summary }
+        return "\(summary) · \(took)"
+    }
+
+    private var speakers: [String] {
+        var seen: [String] = []
+        for name in items.compactMap({ $0.from?.name }) where !seen.contains(name) { seen.append(name) }
+        return seen
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            summaryButton
+            capsule
             if expanded {
                 unfoldedSteps
             }
@@ -38,42 +46,18 @@ struct ActivityRunChip: View {
         .padding(.leading, 2)
     }
 
-    private var summaryButton: some View {
-        Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.75)) { expanded.toggle() }
+    private var capsule: some View {
+        ActivityCapsule(
+            text: capsuleText, names: speakers, faceBot: faceBot, expanded: expanded,
+            label: summary, hint: expanded ? "Hides the steps" : "Shows the steps"
+        ) {
+            withSeiraAnimation(SeiraMotion.base) { expanded.toggle() }
             Haptics.selection()
-        } label: {
-            summaryLabel
         }
-        .buttonStyle(.plain)
-        .accessibilityLabel(summary)
-        .accessibilityHint(expanded ? "Hides the steps" : "Shows the steps")
-    }
-
-    private var summaryLabel: some View {
-        HStack(spacing: 6) {
-            Image(systemName: running ? "ellipsis.circle" : "checkmark.seal.fill")
-                .font(.system(size: 11))
-                .foregroundColor(running ? Color.secondary : Color(hex: "#22C55E"))
-
-            Text(summary)
-                .font(.caption2.weight(.bold))
-                .foregroundColor(summaryColor)
-
-            Image(systemName: "chevron.right")
-                .font(.system(size: 8, weight: .bold))
-                .foregroundColor(Color.secondary)
-                .rotationEffect(.degrees(expanded ? 90 : 0))
-        }
-        .padding(.horizontal, 9)
-        .padding(.vertical, 4.5)
-        .background(chipFill)
-        .clipShape(Capsule())
-        .overlay(Capsule().stroke(chipStroke, lineWidth: 0.5))
     }
 
     private var unfoldedSteps: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        ActivityStepList {
             ForEach(items, id: \.id) { item in
                 ActivityChip(
                     tool: item.tool, threadRef: item.threadRef, openThread: openThread,
@@ -81,6 +65,6 @@ struct ActivityRunChip: View {
                 )
             }
         }
-        .transition(.opacity.combined(with: .move(edge: .top)))
+        .transition(.opacity)
     }
 }
