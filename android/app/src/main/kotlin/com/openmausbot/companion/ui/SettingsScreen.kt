@@ -154,7 +154,6 @@ internal fun SettingsScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(colors.app)
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp),
     ) {
         Column(modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)) {
@@ -173,6 +172,7 @@ internal fun SettingsScreen(
             )
         }
 
+        Column(modifier = Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState())) {
         val bound = connection
         if (bound != null) {
             Spacer(Modifier.height(18.dp))
@@ -459,6 +459,7 @@ internal fun SettingsScreen(
                 style = SeiraType.callout,
                 color = colors.ink3,
             )
+        }
         }
     }
 

@@ -175,17 +175,14 @@ internal fun PairViewfinder(
     val frameScale by animateFloatAsState(
         if (connected) 0.9f else 1f,
         seiraTween(SeiraMotion.SLOW, reduced),
-        label = "pairFrameScale",
     )
     val frameColor by animateColorAsState(
         if (connected) ViewfinderSuccess else Color.White,
         seiraTween(SeiraMotion.BASE, reduced),
-        label = "pairFrameColor",
     )
     val badge by animateFloatAsState(
         if (connected) 1f else 0f,
         seiraTween(SeiraMotion.SLOW, reduced),
-        label = "pairBadge",
     )
     val label = stringResource(R.string.pair_viewfinder)
     Box(

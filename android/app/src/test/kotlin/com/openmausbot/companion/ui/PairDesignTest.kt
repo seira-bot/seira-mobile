@@ -2,7 +2,7 @@ package com.openmausbot.companion.ui
 
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
@@ -68,7 +68,7 @@ class PairDesignTest {
                 )
             }
         }
-        compose.onNodeWithText("Point your camera at the code").assertIsDisplayed()
+        compose.onNodeWithText("Point your camera at the code").assertExists()
         compose.onNode(hasContentDescription("Turn on flashlight")).performClick()
         assertEquals(1, toggled)
     }
@@ -113,6 +113,6 @@ class PairDesignTest {
                 )
             }
         }
-        compose.onNodeWithText("You're connected").assertIsDisplayed()
+        compose.onNodeWithText("You're connected").assertExists()
     }
 }

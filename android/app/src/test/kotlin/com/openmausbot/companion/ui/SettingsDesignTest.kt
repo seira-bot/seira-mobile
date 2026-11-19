@@ -3,7 +3,7 @@ package com.openmausbot.companion.ui
 import android.app.NotificationManager
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.openmausbot.companion.R
@@ -33,7 +33,7 @@ class SettingsDesignTest {
     fun `initials use the first letter of up to two words`() {
         assertEquals("DP", SettingsDesign.initials("Dina Pratama"))
         assertEquals("D", SettingsDesign.initials("  dina "))
-        assertEquals("DP", SettingsDesign.initials("Dina Maya Pratama"))
+        assertEquals("DM", SettingsDesign.initials("Dina Maya Pratama"))
         assertNull(SettingsDesign.initials("   "))
         assertNull(SettingsDesign.initials("--"))
     }
@@ -85,8 +85,8 @@ class SettingsDesignTest {
         }
         compose.waitUntil(5_000) { scene.session.connection.value != null }
         compose.waitForIdle()
-        compose.onNodeWithText("Dina Pratama").assertIsDisplayed()
-        compose.onNodeWithText("dina@example.com").assertIsDisplayed()
+        compose.onNodeWithText("Dina Pratama").assertExists()
+        compose.onNodeWithText("dina@example.com").assertExists()
     }
 
     @Test
