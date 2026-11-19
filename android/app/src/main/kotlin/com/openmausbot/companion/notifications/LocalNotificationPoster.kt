@@ -209,19 +209,23 @@ class LocalNotificationPoster(
         val style = active?.let(NotificationCompat.MessagingStyle::extractMessagingStyleFromNotification)
             ?: NotificationCompat.MessagingStyle(userPerson())
         style.addMessage(text, System.currentTimeMillis(), null as Person?)
-        val builder = if (active != null) {
-            NotificationCompat.Builder.recoverBuilder(appContext, active)
-        } else {
-            outcomeBuilder(
-                NotificationMapping.CHANNEL_DONE,
-                request.botName.ifBlank { appContext.getString(R.string.app_name) },
-                text,
-                request.botId,
-                request.threadId,
-                null,
-            ).setAutoCancel(false)
-        }
-        builder.setStyle(style).setOnlyAlertOnce(true)
+        val builder = NotificationCompat.Builder(appContext, NotificationMapping.CHANNEL_DONE)
+            .setSmallIcon(R.drawable.ic_seira_mark)
+            .setContentTitle(NotificationText.anchored(request.botName.ifBlank { appContext.getString(R.string.app_name) }))
+            .setContentText(NotificationText.anchored(text))
+            .setStyle(style)
+            .setCategory(NotificationCompat.CATEGORY_MESSAGE)
+            .setContentIntent(NotificationIntents.openPending(appContext, request.botId, request.threadId))
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .addAction(
+                NotificationActions.replyAction(
+                    appContext,
+                    appContext.getString(R.string.notification_action_reply),
+                    request,
+                ),
+            )
+        active?.shortcutId?.let { builder.setShortcutId(it).setLocusId(LocusIdCompat(it)) }
         post(request.tag, builder.build())
     }
 
