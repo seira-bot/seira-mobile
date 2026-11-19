@@ -99,13 +99,13 @@ class Icons3dTest {
     @Test
     fun settingsShowsItsRowIcons() {
         compose.setContent { CompanionTheme(darkTheme = false) { Settings(mac) } }
-        compose.assertTags("appearance", "computer", "notifications", "privacy")
+        compose.assertTags("appearance", "computer", "notifications", "voice", "privacy", "help")
     }
 
     @Test
     fun settingsWithoutAComputerOffersPairing() {
         compose.setContent { CompanionTheme(darkTheme = false) { Settings(null) } }
-        compose.assertTags("computer", "pair")
+        compose.assertTags("computer", "pair", "help")
     }
 
     @Test
