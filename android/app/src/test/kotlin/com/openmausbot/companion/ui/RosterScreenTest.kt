@@ -370,7 +370,7 @@ class RosterScreenTest {
     @Test
     fun `a search lists matching threads under their bots, without New thread`() {
         mount()
-        compose.onNodeWithContentDescription("Search").performClick()
+        compose.onNodeWithText("Search chats and bots").performClick()
         compose.onNode(hasSetTextAction()).performTextInput("Triage")
         compose.waitForIdle()
 
@@ -384,7 +384,7 @@ class RosterScreenTest {
     @Test
     fun `a search lists a single-thread bot's matching thread too`() {
         mount()
-        compose.onNodeWithContentDescription("Search").performClick()
+        compose.onNodeWithText("Search chats and bots").performClick()
         compose.onNode(hasSetTextAction()).performTextInput("Release")
         compose.waitForIdle()
 

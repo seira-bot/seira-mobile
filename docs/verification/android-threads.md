@@ -177,3 +177,21 @@ without any task-switch POST or change to the server-selected thread.
   application ID were verified.
 - Fixtures were synthetic and confined to a loopback server. No emulator,
   device installation, pairing or live-provider test was performed.
+
+## Home screen — 2026-11-19
+
+The home list sits under a Home header: a greeting by local hour (morning from
+05:00, afternoon from 12:00, evening from 18:00) with the profile's first name,
+and a profile circle that opens Settings. Below it:
+
+- The Chief of Staff card, with **Talk**, which asks for a call and opens the chat.
+- The Team rail, with **See all N** / **Show less**; a long press offers **New thread** and **Manage threads**.
+- The **Chats** heading, whose menu holds Updates, Calendar and Settings.
+- A bottom bar with the glass search pill and the **New chat** button, which lists every bot and **New group**.
+
+`HomeScreenTest` covers each of these; `HomeScreenshotTest` writes light and
+dark captures to `android/app/build/design-screens`.
+
+```sh
+./gradlew :app:testDebugUnitTest --tests '*HomeScreenTest' --tests '*RosterScreenTest'
+```
