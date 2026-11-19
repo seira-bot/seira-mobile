@@ -86,6 +86,7 @@ class ChangeLookSheetMotionTest {
         open()
         tapClose()
         compose.mainClock.advanceTimeBy(16)
+        compose.onAllNodesWithContentDescription("Close").fetchSemanticsNodes()
         compose.mainClock.advanceTimeBy(100)
         assertEquals(1, dismissed)
     }
