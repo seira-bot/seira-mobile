@@ -62,6 +62,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
@@ -95,6 +96,7 @@ internal fun SettingsScreen(
     onOpenConnectedApps: (() -> Unit)? = null,
     onConnect: (() -> Unit)? = null,
     accounts: AccountInfoSource? = null,
+    callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
 ) {
     val environment = LocalCompanion.current
     val session = environment.session
@@ -421,7 +423,7 @@ internal fun SettingsScreen(
             }
         }
 
-        if (bound != null) {
+        if (bound != null && callsEnabled) {
             SettingsGroupTitle(stringResource(R.string.mobile_settings_voice_calls_section))
             SeiraCard(modifier = Modifier.fillMaxWidth()) {
                 DesignRow(

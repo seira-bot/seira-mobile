@@ -66,6 +66,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.audio.MicrophoneAccess
 import com.openmausbot.companion.core.ActivityDetail
@@ -128,6 +129,7 @@ fun ChatScreen(
     retainsDraft: (chatId: String) -> Boolean = { false },
     /** An "Opened thread" chip pointing at another bot pushes that chat. */
     onOpenChat: (Chat) -> Unit = {},
+    callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
 ) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
@@ -705,7 +707,7 @@ private fun LoadedChat(
     var composerPx by remember { mutableIntStateOf(0) }
     val logTop = if (headerPx > 0) with(density) { headerPx.toDp() } + LOG_TOP_GAP else LOG_TOP_FALLBACK
     val logBottom = if (composerPx > 0) with(density) { composerPx.toDp() } + LOG_BOTTOM_GAP else LOG_BOTTOM_FALLBACK
-    val callAction = ChatCallRules.of(liveCall, state.liveCall, isBotChat = bot != null)
+    val callAction = ChatCallRules.of(liveCall, state.liveCall, isBotChat = bot != null, callsEnabled = callsEnabled)
 
     // The one way a call starts: the header, the composer's ink circle, the
     // sheet, and a request from outside the chat all come through here.
@@ -720,6 +722,7 @@ private fun LoadedChat(
         if (liveCalls.disclosureDue) pendingLiveCall = call else startLiveCall(call)
     }
     fun callOrOpen() {
+        if (!callsEnabled) return
         if (callAction == ChatCallAction.OPEN) environment.callUi.expand() else beginCall()
     }
     val requestedCall by environment.callUi.requestedBotId.collectAsState()

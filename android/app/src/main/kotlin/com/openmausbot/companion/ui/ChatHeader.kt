@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.audio.LiveCallSnapshot
 import com.openmausbot.companion.core.Chat
@@ -90,10 +91,15 @@ internal object ChatCallRules {
      * A call running on this phone opens its screen. A call another device holds
      * has to hang up there first, so the button steps aside.
      */
-    fun of(local: LiveCallSnapshot, server: LiveCallState?, isBotChat: Boolean): ChatCallAction = when {
-        !isBotChat -> ChatCallAction.NONE
+    fun of(
+        local: LiveCallSnapshot,
+        server: LiveCallState?,
+        isBotChat: Boolean,
+        callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    ): ChatCallAction = when {
+        !callsEnabled || !isBotChat -> ChatCallAction.NONE
         local.active -> ChatCallAction.OPEN
-        LiveCallRules.offersCall(local, server) -> ChatCallAction.START
+        LiveCallRules.offersCall(local, server, callsEnabled) -> ChatCallAction.START
         else -> ChatCallAction.NONE
     }
 }

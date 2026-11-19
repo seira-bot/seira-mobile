@@ -71,6 +71,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.character.CarvedAvatar
 import com.openmausbot.companion.core.Bot
@@ -121,7 +122,7 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RosterScreen(navigator: CompanionNavigator) {
+fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildConfig.LIVE_CALLS) {
     val environment = LocalCompanion.current
     val session = environment.session
     val scope = rememberCoroutineScope()
@@ -236,7 +237,7 @@ fun RosterScreen(navigator: CompanionNavigator) {
         // Who needs you leads, then who works; the list's own order breaks ties.
         members.sortedBy { if (it.waiting) 0 else if (it.working) 1 else 2 }
     }
-    val canTalk = LiveCallRules.offersCall(liveCall, state.liveCall)
+    val canTalk = LiveCallRules.offersCall(liveCall, state.liveCall, callsEnabled)
 
     val queuedThreadIds = fleet.queuedThreadIds
     val toggleBot: (String) -> Unit = { botId ->
