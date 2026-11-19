@@ -101,7 +101,7 @@ class ConversationNotificationTest {
         assertEquals(Notification.CATEGORY_MESSAGE, notification.category)
         val published = ShortcutManagerCompat.getDynamicShortcuts(context).single { it.id == shortcutId(session) }
         assertEquals("Scout", published.shortLabel.toString())
-        assertTrue(published.isLongLived)
+        assertTrue(android.content.pm.ShortcutInfo.SHORTCUT_CATEGORY_CONVERSATION in published.categories.orEmpty())
         assertEquals(
             NotificationIntents.ACTION_OPEN,
             published.intent.action,

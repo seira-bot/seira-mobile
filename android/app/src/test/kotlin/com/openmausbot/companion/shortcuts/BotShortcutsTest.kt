@@ -48,7 +48,7 @@ class BotShortcutsTest {
         val published = ShortcutManagerCompat.getDynamicShortcuts(context).single()
         assertEquals(shortcuts.shortcutId("computer-1", "bot-1"), published.id)
         assertEquals("Scout", published.shortLabel.toString())
-        assertTrue(published.isLongLived)
+        assertTrue(android.content.pm.ShortcutInfo.SHORTCUT_CATEGORY_CONVERSATION in published.categories.orEmpty())
         assertEquals(Intent.FLAG_ACTIVITY_SINGLE_TOP, published.intent.flags and Intent.FLAG_ACTIVITY_SINGLE_TOP)
         assertEquals("bot-1", published.intent.getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID))
     }
