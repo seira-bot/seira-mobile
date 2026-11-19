@@ -3,7 +3,6 @@ package com.openmausbot.companion.ui
 import android.app.NotificationManager
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.openmausbot.companion.R
