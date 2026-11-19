@@ -438,15 +438,25 @@ class RosterScreenTest {
     }
 
     @Test
-    fun `No bots yet stays away while there are groups, in both densities`() {
+    fun `No chats yet stays away while there are groups, in both densities`() {
         val fleet = RosterFixture.fleet().let { it.copy(bots = it.bots.map { bot -> bot.copy(hidden = true) }) }
         mount(fleet = fleet)
         compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").assertIsDisplayed()
-        compose.onNodeWithText("No bots yet").assertDoesNotExist()
+        compose.onNodeWithText("No chats yet").assertDoesNotExist()
 
         compose.runOnIdle { scene.environment.chatPreferences.setRosterDensity(RosterDensity.COMFORTABLE) }
         compose.onAllNodesWithText("Groups").onFirst().assertIsDisplayed()
-        compose.onNodeWithText("No bots yet").assertDoesNotExist()
+        compose.onNodeWithText("No chats yet").assertDoesNotExist()
+    }
+
+    @Test
+    fun `an empty home says No chats yet and New chat opens the sheet`() {
+        mount(fleet = Fleet(emptyList(), emptyList()))
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
+        compose.onNodeWithText("Ask Seira anything. Your chats show up here.").assertIsDisplayed()
+
+        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertIsDisplayed().performClick()
+        compose.onNodeWithTag("new-chat-group").assertIsDisplayed()
     }
 
     @Test

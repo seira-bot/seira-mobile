@@ -69,10 +69,12 @@ class Icons3dTest {
 
     @Composable
     private fun Empty() {
-        EmptyState(
-            title = "No bots yet",
-            description = "Bots you create on your computer show up here.",
-            art = Art3d(R.drawable.icon3d_empty_chats, "empty_chats"),
+        RosterEmptyState(
+            empty = RosterEmpty.CHATS,
+            refreshing = false,
+            onNewChat = {},
+            onPairComputer = {},
+            onRefresh = {},
         )
     }
 

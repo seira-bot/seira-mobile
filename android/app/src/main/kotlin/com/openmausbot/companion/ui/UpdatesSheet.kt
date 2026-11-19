@@ -215,12 +215,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
 
             if (sections.isEmpty()) {
                 item(key = "empty") {
-                    EmptyState(
-                        title = UpdatesSummary.EMPTY_TITLE,
-                        description = UpdatesSummary.EMPTY_DESCRIPTION,
-                        art = Art3d(R.drawable.icon3d_all_done, "all_done"),
-                        modifier = Modifier.padding(top = 24.dp),
-                    )
+                    UpdatesEmptyState(onBack = onDismiss, modifier = Modifier.padding(top = 24.dp))
                 }
             }
 

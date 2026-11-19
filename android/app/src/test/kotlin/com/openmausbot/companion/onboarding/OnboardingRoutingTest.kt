@@ -148,7 +148,7 @@ class OnboardingRoutingTest {
         )
         mount(scene)
 
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
         assertEquals(
             emptyList(),
             scene.asked(),
@@ -185,7 +185,7 @@ class OnboardingRoutingTest {
         )
         // And the step is over: it does not come back for the same pairing, in
         // this process or the next one.
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
         assertFalse(
             scene.relaunchedOnboarding().notificationPending.value,
             "the prompt was fired but the marker is still pending",
@@ -206,7 +206,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithText(OnboardingCopy.NOT_NOW).performClick()
         compose.waitForIdle()
 
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
         assertEquals(emptyList(), scene.asked(), "\"Not now\" fired the prompt anyway")
         // And the answer reached disk: a relaunch finds no step still owing.
         // Read through a store that never saw this process, because a marker
@@ -228,7 +228,7 @@ class OnboardingRoutingTest {
         )
         mount(scene)
 
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
         assertEquals(emptyList(), scene.asked())
     }
 
@@ -249,7 +249,7 @@ class OnboardingRoutingTest {
             welcomeSeen = false,
         )
         mount(scene)
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
 
         scene.session.signOut()
         compose.waitUntil(5_000) { scene.session.connection.value == null }
@@ -298,7 +298,7 @@ class OnboardingRoutingTest {
 
         compose.onNodeWithText(OnboardingCopy.NOT_NOW).performClick()
         compose.waitForIdle()
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
 
         scene.session.signOut()
         compose.waitUntil(5_000) { scene.session.connection.value == null }
@@ -378,7 +378,7 @@ class OnboardingRoutingTest {
         )
         mount(scene)
 
-        compose.onNodeWithText("No bots yet").assertIsDisplayed()
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
         compose.onNodeWithText(OnboardingCopy.NOTIFICATIONS_TITLE).assertDoesNotExist()
         assertEquals(emptyList(), scene.asked())
     }
