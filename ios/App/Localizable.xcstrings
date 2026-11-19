@@ -12641,28 +12641,6 @@
         }
       }
     },
-    "Approve": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aprovar"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "批准"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "核准"
-          }
-        }
-      }
-    },
     "Audio": {
       "localizations": {
         "pt-BR": {

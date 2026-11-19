@@ -8,7 +8,6 @@ import CompanionCore
 /// userInfo without changing the rest of the app.
 final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationCoordinator()
-    static let approveActionIdentifier = "APPROVE"
     static let reviewActionIdentifier = "REVIEW"
 
     private let center = UNUserNotificationCenter.current()
@@ -16,14 +15,6 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     /// Set by `Session`; kept as an id-only value so the notification layer
     /// does not know about SwiftUI navigation or mutable fleet state.
     var responseHandler: ((NotificationTarget) -> Void)?
-    /// Set by `Session`. Returns true when it answered the approval itself.
-    /// It gets the request id and connection id that the notification carries.
-    @MainActor var approveHandler: (@MainActor (NotificationTarget, String, String) async -> Bool)?
-    /// Set by `Session`. Returns the `requestId` and `connectionId` of the one
-    /// open approval card in the frame's thread, or nil.
-    /// Security invariant: an Approve action answers only the request that was
-    /// open when the alert was posted. Without a binding the alert offers Review only.
-    @MainActor var approvalBinding: (@MainActor (NotificationFrame) -> [String: String]?)?
     /// Set by `Session`. Returns the avatar image of the bot with this id.
     @MainActor var avatarProvider: (@MainActor (String) async -> Data?)?
 
@@ -33,26 +24,17 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         center.setNotificationCategories(Self.categories)
     }
 
+    /// Security invariant: an alert offers no Approve action. The notification
+    /// frame does not name the request, so the app cannot prove which card an
+    /// alert is about. A person answers in the chat.
     private static var categories: Set<UNNotificationCategory> {
-        let approve = UNNotificationAction(
-            identifier: approveActionIdentifier,
-            title: String(localized: "Approve"),
-            options: [.authenticationRequired, .foreground]
-        )
         let review = UNNotificationAction(
             identifier: reviewActionIdentifier,
             title: String(localized: "Review"),
             options: [.foreground]
         )
-        let approval = UNNotificationCategory(
+        let blocking = UNNotificationCategory(
             identifier: "OPENMAUS_APPROVAL",
-            actions: [approve, review],
-            intentIdentifiers: [],
-            hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
-            options: []
-        )
-        let question = UNNotificationCategory(
-            identifier: "OPENMAUS_QUESTION",
             actions: [review],
             intentIdentifiers: [],
             hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
@@ -65,15 +47,7 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
             hiddenPreviewsBodyPlaceholder: "",
             options: []
         )
-        return [approval, question, update]
-    }
-
-    private static func categoryIdentifier(for notification: NotificationFrame, bound: Bool) -> String {
-        switch notification.kind {
-        case "approval": return bound ? "OPENMAUS_APPROVAL" : "OPENMAUS_QUESTION"
-        case "question": return "OPENMAUS_QUESTION"
-        default: return "OPENMAUS_UPDATE"
-        }
+        return [blocking, update]
     }
 
     func authorizationStatus() async -> UNAuthorizationStatus {
@@ -88,12 +62,9 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         guard isEnabled(for: notification) else { return }
         Task { [weak self] in
             guard let self else { return }
-            let binder = await self.approvalBinding
-            var binding: [String: String]?
-            if notification.kind == "approval" { binding = await binder?(notification) }
             let provider = await self.avatarProvider
             let avatar = await provider?(notification.botId)
-            self.post(notification, sequence: sequence, avatar: avatar, binding: binding)
+            self.post(notification, sequence: sequence, avatar: avatar)
         }
     }
 
@@ -102,19 +73,18 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         return UserDefaults.standard.object(forKey: key) as? Bool ?? true
     }
 
-    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?, binding: [String: String]?) {
+    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?) {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
         content.sound = .default
-        content.categoryIdentifier = Self.categoryIdentifier(for: notification, bound: binding != nil)
+        content.categoryIdentifier = notification.isBlocking ? "OPENMAUS_APPROVAL" : "OPENMAUS_UPDATE"
         content.threadIdentifier = "bot.\(notification.botId)"
         content.userInfo = [
             "threadId": notification.threadId,
             "botId": notification.botId,
             "kind": notification.kind,
         ]
-        for (key, value) in binding ?? [:] { content.userInfo[key] = value }
         if notification.isBlocking { content.interruptionLevel = .timeSensitive }
 
         // A replay after a short disconnect must reconcile a missed alert,
@@ -191,20 +161,7 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
             guard let key = pair.key as? String, let value = pair.value as? String else { return }
             result[key] = value
         }
-        guard let target = NotificationTarget(payload: strings) else {
-            completionHandler()
-            return
-        }
-        guard response.actionIdentifier == Self.approveActionIdentifier,
-              let requestId = strings["requestId"], let connectionId = strings["connectionId"] else {
-            responseHandler?(target)
-            completionHandler()
-            return
-        }
-        Task { @MainActor [weak self] in
-            let answered = await self?.approveHandler?(target, requestId, connectionId) ?? false
-            if !answered { self?.responseHandler?(target) }
-            completionHandler()
-        }
+        if let target = NotificationTarget(payload: strings) { responseHandler?(target) }
+        completionHandler()
     }
 }
