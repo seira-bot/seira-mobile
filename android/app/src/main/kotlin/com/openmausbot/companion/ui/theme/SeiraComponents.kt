@@ -8,10 +8,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +19,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -41,6 +38,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.graphics.PathFillType
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -349,25 +349,25 @@ fun SegmentedControl(
         label = "segmentThumb",
     )
     val inset = 4.dp
-    BoxWithConstraints(
+    val direction = if (LocalLayoutDirection.current == LayoutDirection.Rtl) -1f else 1f
+    Box(
         modifier = modifier
             .fillMaxWidth()
             .heightIn(min = TouchTarget)
-            .height(IntrinsicSize.Min)
             .clip(RoundedCornerShape(16.dp))
             .background(colors.seg, RoundedCornerShape(16.dp))
             .selectableGroup(),
     ) {
-        val segment = (maxWidth - inset * 2) / options.size
-        Box(
-            modifier = Modifier
-                .offset(x = inset + segment * position)
-                .padding(vertical = inset)
-                .width(segment)
-                .fillMaxHeight()
-                .shadow(1.dp, RoundedCornerShape(12.dp), clip = false)
-                .background(colors.thumb, RoundedCornerShape(12.dp)),
-        )
+        Box(Modifier.matchParentSize().padding(inset)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(1f / options.size)
+                    .fillMaxHeight()
+                    .graphicsLayer { translationX = size.width * position * direction }
+                    .shadow(1.dp, RoundedCornerShape(12.dp), clip = false)
+                    .background(colors.thumb, RoundedCornerShape(12.dp)),
+            )
+        }
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = inset).fillMaxHeight()) {
             options.forEachIndexed { index, (label, icon) ->
                 val selected = index == selectedIndex
