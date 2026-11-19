@@ -270,7 +270,7 @@ cannot replace a Play-installed copy. Both are universal (four ABIs, about
 - An arm64 API 37 (Android 17) emulator: pairing at `10.0.2.2:8820` failed
   with "Couldn't reach this computer…" after Don't allow, and succeeded through
   the sidecar once local-network access was granted with `pm grant`; Checks A
-  and B as they read then, including Try again.
+  and B as they read then, including Home ending the call and Try again.
 - An arm64 API 35 (Android 15) emulator: paired through the sidecar with the
   Nearby devices prompt declined; Checks A and B as they read then, plus the
   denied microphone, the banner's own Hang up, and a call left alone ending
