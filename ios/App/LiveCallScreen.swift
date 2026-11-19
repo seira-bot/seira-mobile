@@ -276,11 +276,13 @@ private struct LiveCallVoiceBars: View {
     }
 
     private func bars(height: (Int) -> CGFloat) -> some View {
-        HStack(spacing: 3) {
-            ForEach(0..<Self.heights.count, id: \.self) { index in
+        // Read the heights now: the ForEach closure escapes, and `height` does not.
+        let values = Self.heights.indices.map(height)
+        return HStack(spacing: 3) {
+            ForEach(values.indices, id: \.self) { index in
                 Capsule()
                     .fill(Color.seiraInk2)
-                    .frame(width: 3, height: height(index))
+                    .frame(width: 3, height: values[index])
             }
         }
         .frame(height: 16)

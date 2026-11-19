@@ -69,6 +69,12 @@ jobs:
           cd ios
           xcodegen generate
 
+      - name: Keep compiling after the first error
+        # One run then shows the errors of all files, not only the first batch.
+        run: |
+          defaults write com.apple.dt.Xcode IDEBuildingContinueBuildingAfterErrors -bool YES
+          defaults write com.apple.dt.xcodebuild IDEBuildingContinueBuildingAfterErrors -bool YES
+
       - name: Build the app, the extensions and the UI test bundle
         # One arm64 slice for the simulator, and no code signing. The scheme
         # builds the widget and share extensions as app dependencies.
