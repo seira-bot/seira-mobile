@@ -202,8 +202,11 @@ final class Session: ObservableObject {
         NotificationCoordinator.shared.responseHandler = { [weak self] target in
             Task { @MainActor in await self?.openNotification(target) }
         }
-        NotificationCoordinator.shared.approveHandler = { [weak self] target in
-            await self?.approveFromNotification(target) ?? false
+        NotificationCoordinator.shared.approveHandler = { [weak self] target, requestId, connectionId in
+            await self?.approveFromNotification(target, requestId: requestId, connectionId: connectionId) ?? false
+        }
+        NotificationCoordinator.shared.approvalBinding = { [weak self] frame in
+            self?.approvalBinding(for: frame)
         }
         NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
             guard let self, let bot = self.state.bot(botId) else { return nil }
@@ -2789,17 +2792,31 @@ final class Session: ObservableObject {
 
     func consumeNotificationChat() { notificationChat = nil }
 
-    /// The Approve button of an approval notification. It answers only when
-    /// the thread has one open card with one clear "yes" option. It returns
+    /// The request an approval notification may answer: the thread's only
+    /// open approval card on the current connection. Nil in every other case.
+    func approvalBinding(for frame: NotificationFrame) -> [String: String]? {
+        guard let connectionId = connection?.id else { return nil }
+        let open = state.pendingApprovals.filter { $0.threadId == frame.threadId }
+        guard open.count == 1, let card = open[0].message.card,
+              card.presentation == .approval, let requestId = card.requestId else { return nil }
+        return ["requestId": requestId, "connectionId": connectionId]
+    }
+
+    /// The Approve button of an approval notification. It answers only the
+    /// request the notification was posted for, on the same connection, when
+    /// that card is still open and has one clear "yes" option. It returns
     /// false in every other case, and the caller opens the chat instead.
-    func approveFromNotification(_ target: NotificationTarget) async -> Bool {
+    func approveFromNotification(_ target: NotificationTarget, requestId: String, connectionId: String) async -> Bool {
         let deadline = Date().addingTimeInterval(10)
         while status != .live, !Task.isCancelled, Date() < deadline {
             try? await Task.sleep(nanoseconds: 200_000_000)
         }
-        guard status == .live, let chat = state.chat(forThread: target.threadId) else { return false }
-        let open = state.pendingApprovals.filter { $0.threadId == target.threadId }
-        guard open.count == 1, let card = open[0].message.card,
+        guard status == .live, connection?.id == connectionId,
+              let chat = state.chat(forThread: target.threadId) else { return false }
+        guard let open = state.pendingApprovals.first(where: {
+                  $0.threadId == target.threadId && $0.message.card?.requestId == requestId
+              }),
+              let card = open.message.card,
               card.presentation == .approval else { return false }
         let accepted: Set<String> = ["approve", "allow", "allow once", "yes"]
         let matches = card.options.filter {
