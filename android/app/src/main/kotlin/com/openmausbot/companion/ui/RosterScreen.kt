@@ -927,26 +927,30 @@ private fun ChatRow(
         }
         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
-                Text(
-                    text = chat.name,
-                    style = SeiraType.headline.copy(fontWeight = if (chat.unread) FontWeight.SemiBold else FontWeight.Medium),
-                    color = colors.ink,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f, fill = false),
-                )
-                if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_crown),
-                        contentDescription = localizedMobileCopy("Chief of Staff"),
-                        tint = colors.accent,
-                        modifier = Modifier
-                            .size(14.dp)
-                            .align(Alignment.CenterVertically)
-                            .testTag("chief-badge"),
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = chat.name,
+                        style = SeiraType.headline.copy(fontWeight = if (chat.unread) FontWeight.SemiBold else FontWeight.Medium),
+                        color = colors.ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
+                    if ((chat as? Chat.BotChat)?.bot?.chiefOfStaff == true) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_crown),
+                            contentDescription = localizedMobileCopy("Chief of Staff"),
+                            tint = colors.accent,
+                            modifier = Modifier
+                                .size(14.dp)
+                                .testTag("chief-badge"),
+                        )
+                    }
                 }
-                Spacer(Modifier.weight(1f))
                 Text(
                     text = RelativeStamp.list(summary.lastActivity, now, locale = Locale.getDefault()),
                     style = SeiraType.caption.copy(fontFeatureSettings = "tnum"),
