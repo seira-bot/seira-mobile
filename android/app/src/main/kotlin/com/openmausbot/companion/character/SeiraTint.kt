@@ -1,5 +1,6 @@
-package com.openmausbot.companion.ui
+package com.openmausbot.companion.character
 
+import com.openmausbot.companion.ui.MausPalette
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.roundToInt
