@@ -1,7 +1,7 @@
 // GENERATED FILE. Do not edit by hand.
 // Source: packages/phone-protocol/src/carved-bodies.ts and src/assets/seira-accessory/placement.json in seira-bot/seira.
 // Command: SEIRA_REPO=<seira clone> node scripts/gen-seira-bodies-kotlin.mjs
-package com.openmausbot.companion.ui
+package com.openmausbot.companion.character
 
 internal class SeiraPoint(val x: Float, val y: Float)
 
