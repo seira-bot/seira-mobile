@@ -118,6 +118,9 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
 
         <!--
@@ -247,6 +250,29 @@
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
+
+        <!--
+          Approve and Reply buttons of a notification. Not exported: only the
+          PendingIntents this app hands to the notification shade reach it.
+        -->
+        <receiver
+            android:name=".notifications.NotificationActionReceiver"
+            android:exported="false" />
+
+        <!--
+          Quick Settings tile that starts a call with the chief of staff. The
+          system binds it, so the bind permission is the only guard it needs.
+        -->
+        <service
+            android:name=".tile.TalkTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile_talk"
+            android:label="@string/tile_talk_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <!--
           Share sheet hand-off for exported transcripts. Not exported, no

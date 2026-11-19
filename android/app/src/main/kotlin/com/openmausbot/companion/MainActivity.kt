@@ -28,7 +28,11 @@ import com.openmausbot.companion.ui.theme.resolvesDark
 import kotlinx.coroutines.launch
 import com.openmausbot.companion.dictation.SpeechDictation
 import com.openmausbot.companion.lifecycle.AlwaysOnConnectionService
+import com.openmausbot.companion.notifications.NotificationIntents
 import com.openmausbot.companion.notifications.notificationTarget
+import com.openmausbot.companion.tile.TalkIntents
+import com.openmausbot.companion.tile.TalkRequestHandler
+import com.openmausbot.companion.ui.LiveCallUi
 import com.openmausbot.companion.browser.CloudDesktopBrowser
 import com.openmausbot.companion.sharing.TranscriptSharing
 import com.openmausbot.companion.storage.ChatPreferences
@@ -60,6 +64,8 @@ class MainActivity : ComponentActivity() {
 
     /** Notification tap → `(botId, threadId)`; delivered to the UI once. */
     private lateinit var notificationNavigation: PendingThreadNavigation
+
+    internal val callUi = LiveCallUi()
 
     private lateinit var camera: CameraPermissionController
     private lateinit var mic: MicPermissionController
@@ -200,6 +206,7 @@ class MainActivity : ComponentActivity() {
             liveCalls = app.liveCalls,
             dictation = dictation,
             chatDrafts = chatDrafts,
+            callUi = callUi,
             requestPermissions = { permissions -> permissionRequests.request(permissions) },
             openAppSettings = ::openAppSettings,
             shareTranscript = sharing::share,
@@ -209,7 +216,7 @@ class MainActivity : ComponentActivity() {
             onToggleAlwaysOn = ::toggleAlwaysOn,
         )
 
-        handleIntent(intent)
+        handleIntent(intent, talk = savedInstanceState == null)
 
         setContent {
             val pendingTarget by notificationNavigation.pending.collectAsState()
@@ -239,7 +246,7 @@ class MainActivity : ComponentActivity() {
         setIntent(intent)
         // A tap that arrives while the app is already up is always a new request,
         // even for a target that was opened from a notification before.
-        handleIntent(intent, fresh = true)
+        handleIntent(intent, fresh = true, talk = true)
     }
 
     override fun onResume() {
@@ -260,7 +267,7 @@ class MainActivity : ComponentActivity() {
     }
 
     /**
-     * Deliberately reads only the notification extras.
+     * Deliberately reads only the notification extras and the Talk action.
      *
      * Pairing deep links belong to [PairingLinkActivity] and never reach here:
      * this Activity is the root of the main task, so the system keeps and may
@@ -268,13 +275,17 @@ class MainActivity : ComponentActivity() {
      * anywhere the process does not. Ignoring `intent.data` outright also means
      * another app cannot hand this exported Activity a crafted pairing URL.
      */
-    private fun handleIntent(intent: Intent?, fresh: Boolean = false) {
+    private fun handleIntent(intent: Intent?, fresh: Boolean = false, talk: Boolean = false) {
         if (intent == null) return
 
         // The extras deliberately stay on the Intent: PendingThreadNavigation
         // remembers what has already been opened, so a rotation before the
         // composition consumed it still navigates, and one after it does not.
         notificationNavigation.offer(intent.notificationTarget(), fresh = fresh)
+        intent.getStringExtra(NotificationIntents.EXTRA_SHORTCUT_ID)?.let(app.shortcuts::reportUsed)
+        if (talk && intent.action == TalkIntents.ACTION_TALK) {
+            TalkRequestHandler(app.session, callUi, notificationNavigation, lifecycleScope).handle()
+        }
     }
 
     /**
