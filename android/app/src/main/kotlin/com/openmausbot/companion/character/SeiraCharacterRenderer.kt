@@ -22,7 +22,7 @@ private const val BOX_X1 = 1.9f
 private const val BOX_Y0 = -2.05f
 private const val BOX_Y1 = 2.0f
 private const val GROUND = 1.82f
-private const val BODY_PIVOT_Y = 1.25f
+private const val FRAME_PIVOT_Y = 1.25f
 private const val NEAR_VIEW_YAW = 20f
 private const val DEG = (Math.PI / 180.0).toFloat()
 
@@ -177,9 +177,9 @@ internal class SeiraCharacterRenderer(private val assets: SeiraAssets) {
     private fun bodyTransform(c: Canvas) {
         c.translate(originX, originY)
         c.scale(unit, unit)
-        c.translate(0f, BODY_PIVOT_Y)
+        c.translate(0f, FRAME_PIVOT_Y)
         c.rotate(sway)
-        c.translate(0f, -BODY_PIVOT_Y)
+        c.translate(0f, -FRAME_PIVOT_Y)
     }
 
     private fun headTransform(c: Canvas) {
