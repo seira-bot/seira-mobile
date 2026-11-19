@@ -2,6 +2,7 @@ package com.openmausbot.companion.ui.theme
 
 import android.app.UiModeManager
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 
@@ -45,8 +46,13 @@ class NightModeApplier(
 
     companion object {
         fun forSystem(manager: UiModeManager?): NightModeApplier = NightModeApplier(
-            if (manager == null) null else { code: Int -> manager.setApplicationNightMode(code) },
+            if (manager == null) null else { code: Int ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) setOnS(manager, code)
+            },
         )
+
+        @RequiresApi(Build.VERSION_CODES.S)
+        private fun setOnS(manager: UiModeManager, code: Int) = manager.setApplicationNightMode(code)
 
         fun nightModeFor(mode: ThemeMode): Int = when (mode) {
             ThemeMode.LIGHT -> UiModeManager.MODE_NIGHT_NO
