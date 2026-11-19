@@ -1,5 +1,6 @@
 package com.openmausbot.companion.tile
 
+import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.os.Build
@@ -44,6 +45,7 @@ open class TalkTileService : TileService() {
 
     internal open fun unlock(action: Runnable) = unlockAndRun(action)
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     internal open fun startTalk(intent: Intent) {
         if (Build.VERSION.SDK_INT >= 34) {
             startActivityAndCollapse(
