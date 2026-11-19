@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
@@ -24,6 +25,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.Bot
@@ -130,9 +132,10 @@ class HomeScreenTest {
     fun `the hero shows the Chief of Staff and opens the chat`() {
         val navigator = mount()
         compose.onNodeWithTag("home-hero").assertIsDisplayed()
+        compose.onNodeWithTag("home-hero-open")
             .assert(hasText("Atlas"))
             .assert(hasText("Chief of Staff"))
-        compose.onNodeWithTag("home-hero-open").performClick()
+            .performClick()
         assertEquals(RosterFixture.CHIEF, ((navigator.current as Destination.Chat).target as ChatTarget.Bot).botId)
     }
 
@@ -213,6 +216,8 @@ class HomeScreenTest {
         mount()
         compose.onNodeWithText("Search chats and bots").performClick()
         compose.onNodeWithText("Cancel").assertIsDisplayed()
+        compose.onNode(hasSetTextAction()).performTextInput("Triage")
+        compose.waitForIdle()
         compose.onNodeWithTag("home-hero").assertDoesNotExist()
         compose.onNodeWithText("Cancel").performClick()
         compose.onNodeWithText("Search chats and bots").assertIsDisplayed()

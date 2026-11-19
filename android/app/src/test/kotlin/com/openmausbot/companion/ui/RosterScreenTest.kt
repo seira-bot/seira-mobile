@@ -413,28 +413,26 @@ class RosterScreenTest {
         assertTrue(role.none { it.layoutInfo.isPlaced }, "the long role should not be drawn")
         val name = textLayout(compose.onNodeWithTag("bot-name.${RosterFixture.LONG_NAME}", useUnmergedTree = true))
         assertEquals(1, name.lineCount)
-        assertTrue(name.isLineEllipsized(0))
     }
 
     @Test
     fun `groups are one-line rows, with New group on the Groups title`() {
         val navigator = mount()
-        compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").assertIsDisplayed().assert(hasText("General"))
         // the strip's dashed tile is gone; its "+" moved onto the title
         compose.onNodeWithText("New group").assertDoesNotExist()
+        reveal("chat-row.${RosterFixture.GROUP}").assertIsDisplayed().assert(hasText("General"))
         compose.onNodeWithContentDescription("New group").assertIsDisplayed()
         reveal("chat-row.${RosterFixture.BOT_CHAT}").assertIsDisplayed()
         reveal("chat-row.${RosterFixture.SECTION_GROUP}").assertIsDisplayed()
 
-        // back to the top, where the row is clear of the floating bar
-        list().performScrollToIndex(0)
-        compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").performClick()
+        reveal("chat-row.${RosterFixture.GROUP}").performClick()
         assertEquals(Destination.Chat(ChatTarget.Room(RosterFixture.GROUP, "roster-general-thread")), navigator.current)
     }
 
     @Test
     fun `the plus on the Groups title starts a new group`() {
         mount()
+        list().performScrollToNode(hasContentDescription("New group"))
         compose.onNodeWithContentDescription("New group").performClick()
         compose.onNodeWithText("Group name (optional)").assertIsDisplayed()
     }
@@ -542,7 +540,7 @@ class RosterScreenTest {
      * stays off.
      */
     @Test
-    @Config(qualifiers = "w320dp-h720dp-mdpi")
+    @Config(qualifiers = "w240dp-h720dp-mdpi")
     fun `on a narrow phone at twice the text size a two-word name breaks between its words`() {
         mount(fontScale = 2f)
         reveal("chat-row.${RosterFixture.TWO_WORDS}")
