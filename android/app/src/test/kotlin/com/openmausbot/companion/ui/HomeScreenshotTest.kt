@@ -6,12 +6,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performSemanticsAction
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.RosterDensity
@@ -109,7 +111,10 @@ class HomeScreenshotTest {
                 }
                 // The comfortable rows start under Needs attention: bring them up.
                 if (density == RosterDensity.COMFORTABLE) {
-                    compose.onNodeWithTag("roster-list").performScrollToNode(hasTestTag("chat-row.${RosterFixture.CHIEF}"))
+                    val list = compose.onNodeWithTag("roster-list")
+                    list.performScrollToNode(hasTestTag("chat-row.${RosterFixture.CHIEF}"))
+                    compose.waitForIdle()
+                    list.performSemanticsAction(SemanticsActions.ScrollBy) { it(0f, 1_700f) }
                 }
             },
         ) { Home() }
