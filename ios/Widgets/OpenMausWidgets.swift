@@ -14,8 +14,12 @@ struct OpenMausWidgets: WidgetBundle {
         NeedsYouWidget()
         UpdatesDigestWidget()
         WorkingMonitorWidget()
+        TalkWidget()
         if #available(iOS 17.0, *) {
             BotWidget()
+        }
+        if #available(iOS 18.0, *) {
+            TalkControl()
         }
     }
 }

@@ -54,7 +54,13 @@ struct CompanionApp: App {
                     widgetSync.attach(to: session)
                     liveCall.attach(to: session)
                 }
-                .onOpenURL { session.receiveURL($0) }
+                .onOpenURL { url in
+                    if let route = AppRouter.route(for: url) {
+                        AppRouter.shared.pending = route
+                    } else {
+                        session.receiveURL(url)
+                    }
+                }
                 .onValueChange(of: scenePhase) { phase in
                     // Only a true background hangs up (CompanionCore's rule):
                     // Control Center and the mic prompt pass through .inactive.
@@ -83,6 +89,8 @@ struct CompanionApp: App {
 
 struct RootView: View {
     @EnvironmentObject private var session: Session
+    @EnvironmentObject private var liveCall: LiveCallController
+    @ObservedObject private var router = AppRouter.shared
     @AppStorage("companion.onboarding.welcomeSeen") private var hasSeenWelcome = false
     @AppStorage("companion.onboarding.notificationsSeen") private var hasSeenNotificationPrompt = false
     @AppStorage(CompanionOnboardingPreferences.pendingNotificationOnboardingKey)
@@ -157,6 +165,9 @@ struct RootView: View {
             session.beginPairing()
         }
         .onAppear { reconcileNotificationOnboarding() }
+        .onValueChange(of: router.pending, initial: true) { _ in handlePendingRoute() }
+        .onValueChange(of: session.status) { _ in handlePendingRoute() }
+        .onValueChange(of: session.connection?.id) { _ in handlePendingRoute() }
         .onValueChange(of: session.notificationAuthorizationResolved) { _ in
             reconcileNotificationOnboarding()
         }
@@ -221,6 +232,43 @@ struct RootView: View {
     private func startPairing() {
         hasSeenWelcome = true
         session.beginPairing()
+    }
+
+    /// A route waits until the chat list is ready: the computer is paired and
+    /// its stream has delivered the bots. An app that is not paired drops it.
+    private func handlePendingRoute() {
+        guard let pending = router.pending else { return }
+        guard session.connection != nil else {
+            router.pending = nil
+            return
+        }
+        switch session.status {
+        case .connecting, .offline:
+            return
+        case .live:
+            break
+        case .unpaired, .unauthorized:
+            router.pending = nil
+            return
+        }
+        run(pending)
+        router.pending = nil
+    }
+
+    private func run(_ route: AppRoute) {
+        let store = session.state
+        guard let chief = store.unsectionedChief ?? store.sidebarSections.flatMap(\.chiefs).first else { return }
+        switch route {
+        case .newChat:
+            session.openChat(threadId: chief.threadId)
+        case .talk:
+            if LiveCallDisclosure().isDue {
+                session.openChat(threadId: chief.threadId)
+            } else if !liveCall.machine.isActive {
+                liveCall.start(bot: chief)
+                liveCall.presentScreen()
+            }
+        }
     }
 }
 
