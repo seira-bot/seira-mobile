@@ -353,9 +353,16 @@ class ApprovalChoicesTest {
     }
 
     @Test
-    fun `otherwise the first option that is not the refusal`() {
+    fun `otherwise the first known approval`() {
         assertEquals("Approve", ApprovalChoices.allowChoice(listOf("Approve", "Deny")))
         assertEquals("Yes", ApprovalChoices.allowChoice(listOf("Deny", "Yes", "Maybe")))
+        assertEquals("Confirm", ApprovalChoices.allowChoice(listOf("Maybe", "Confirm", "Cancel")))
+    }
+
+    @Test
+    fun `an option that would answer deny is never the allow choice`() {
+        assertNull(ApprovalChoices.allowChoice(listOf("Tolak", "Proceed")))
+        assertNull(ApprovalChoices.allowChoice(listOf("Reject", "No", "Decline", "Block")))
     }
 
     @Test
@@ -372,7 +379,7 @@ class ApprovalChoicesTest {
         for (deny in listOf("Deny", "DENY", " deny ", "\nDeNy\t", "\r\ndeny")) {
             assertTrue(ApprovalChoices.isRefusal(deny), deny)
         }
-        assertFalse(ApprovalChoices.isRefusal("Decline"))
+        assertTrue(ApprovalChoices.isRefusal("Decline"))
         assertFalse(ApprovalChoices.isRefusal("Deny once"))
     }
 
@@ -427,7 +434,7 @@ class ApprovalChoicesTest {
 
     @Test
     fun `a card that offered no way to say yes hides the standing grant`() {
-        for (options in listOf(listOf("Deny"), listOf(" deny "), emptyList())) {
+        for (options in listOf(listOf("Deny"), listOf(" deny "), listOf("Proceed", "Tolak"), emptyList())) {
             val card = card(allowKey = "shell:ls").copy(options = options)
             assertNull(ApprovalChoices.alwaysAllowChoice(card), "options $options")
             assertFalse(ApprovalChoices.showsAlwaysAllow(card, Chat.BotChat(bot())), "options $options")

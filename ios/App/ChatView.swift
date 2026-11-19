@@ -2963,14 +2963,17 @@ struct CardView: View {
     /// choice it can reject, so the bot stays stopped with nothing on screen
     /// to explain it. The conventional label wins when it is present, which
     /// keeps the ordinary permission card behaving exactly as before.
+    ///
+    /// Security invariant: only a label `OptionCard.responseBehavior` sends
+    /// as "allow", so a grant is never written beside a "deny".
     private var allowChoice: String? {
         guard let options = message.card?.options else { return nil }
         return options.first { $0.caseInsensitiveCompare("Allow") == .orderedSame }
-            ?? options.first { !Self.isRefusal($0) }
+            ?? options.first { OptionCard.isApproval($0) }
     }
 
-    /// One definition of "the refusal", shared by the button tint and the
-    /// choice above so the two cannot drift apart.
+    /// The quieter button tint only. The wire answer comes from
+    /// `OptionCard.isApproval`.
     private static func isRefusal(_ option: String) -> Bool { OptionCard.isRefusal(option) }
 
     private var tint: Color { MausPalette.color(context.color) }

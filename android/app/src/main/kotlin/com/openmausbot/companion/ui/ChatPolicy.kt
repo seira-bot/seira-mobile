@@ -386,33 +386,28 @@ enum class OptionEmphasis {
 object ApprovalChoices {
     const val ALLOW = "Allow"
 
-    /**
-     * One definition of "the refusal", shared by the button tint, the choice the
-     * standing grant answers with, and the behavior `Session.answer` puts on the
-     * wire — so a card that pads its labels cannot be tinted as one thing and
-     * answered as another. `OptionCard.isRefusal` is that definition
-     * (`ios/App/UpdatesSheet.swift`'s `CardStyle` and `ios/App/ChatView.swift`
-     * both delegate to it for exactly this reason).
-     */
+    /** The quieter tint only. The wire answer comes from `OptionCard.isApproval`. */
     fun isRefusal(option: String): Boolean = OptionCard.isRefusal(option)
 
     fun emphasis(option: String): OptionEmphasis =
         if (isRefusal(option)) OptionEmphasis.SECONDARY else OptionEmphasis.PRIMARY
 
+    /**
+     * Security invariant: the standing grant answers only with a label that
+     * `OptionCard.responseBehavior` sends as "allow", so a grant is never
+     * written beside a "deny".
+     */
     fun allowChoice(options: List<String>): String? =
         options.firstOrNull { it.equals(ALLOW, ignoreCase = true) }
-            ?: options.firstOrNull { !isRefusal(it) }
+            ?: options.firstOrNull { OptionCard.isApproval(it) }
 
     /**
      * What "Always allow this tool" answers with once the grant is written, or
      * null when the card offered nothing that means "go ahead" — in which case
-     * the button is not shown, as `ios/App/ChatView.swift` does not show it.
+     * the button is not shown.
      *
      * One of the card's own options, never a string invented here, for a
-     * permission card as much as for a question: a permission answer is
-     * classified by `OptionCard.responseBehavior`, under which every offered
-     * option but the refusal already means allow, so a fabricated label would
-     * only be a label the harness never named.
+     * permission card as much as for a question.
      */
     fun alwaysAllowChoice(card: OptionCard): String? =
         if (!card.isPending || card.allowKey == null) null else allowChoice(card.options)
