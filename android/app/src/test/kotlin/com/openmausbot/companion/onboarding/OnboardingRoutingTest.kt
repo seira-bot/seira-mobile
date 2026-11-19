@@ -96,7 +96,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithContentDescription("Settings").performClick()
         compose.waitForIdle()
         compose.onNodeWithText("Connect a computer").assertIsDisplayed()
-        compose.onNodeWithText("Enable notifications").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Turn on notifications").performScrollTo().assertIsDisplayed()
         // And nothing that needs a pairing to mean anything.
         compose.onNodeWithText("Unpair this phone").assertDoesNotExist()
         compose.onNodeWithText("Tasks & Routines").assertDoesNotExist()
