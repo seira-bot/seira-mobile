@@ -3,7 +3,8 @@ name: iOS
 # Swift package tests and a simulator build for every pull request that
 # changes the iOS app. The UI tests cost many macOS minutes, so they run
 # only when a person starts this workflow by hand with `ui_tests` set.
-# A hand start needs this file on the default branch.
+# The Actions tab shows "Run workflow" only when this file is on the default
+# branch. Before that, use: gh workflow run ios.yml --ref <branch> -f ui_tests=true
 on:
   pull_request:
     paths:
@@ -47,7 +48,7 @@ jobs:
       - name: Show the Xcode version
         run: xcodebuild -version
 
-      - name: No #available branch in a View extension
+      - name: "No #available branch in a View extension"
         # This shape makes IRGen run without end. See ios/App/BackDeployCompat.swift.
         run: bash scripts/check-ios-view-shims.sh
 
