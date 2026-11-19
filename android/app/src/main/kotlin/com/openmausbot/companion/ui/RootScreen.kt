@@ -525,6 +525,7 @@ fun EmptyState(
         Text(
             text = localizedMobileCopy(title),
             style = MaterialTheme.typography.titleMedium,
+            color = Seira.colors.ink,
             textAlign = TextAlign.Center,
         )
         Text(
