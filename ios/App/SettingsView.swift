@@ -78,7 +78,7 @@ struct SettingsView: View {
 
     private var appearanceSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Appearance", icon3D: "Icons3D/appearance")
+            SettingsSectionHeader(title: "Appearance")
             AppearanceSegmentedControl()
                 .padding(6)
                 .seiraCard(radius: 22)
@@ -88,7 +88,7 @@ struct SettingsView: View {
 
     private var computerSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Your computer", icon3D: "Icons3D/computer")
+            SettingsSectionHeader(title: "Your computer")
             SettingsCard { computerRows }
         }
     }
@@ -141,7 +141,7 @@ struct SettingsView: View {
 
     private var notificationsSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Notifications", icon3D: "Icons3D/notifications")
+            SettingsSectionHeader(title: "Notifications")
             SettingsCard {
                 notificationStatusRow
                 SettingsDivider()
@@ -288,7 +288,7 @@ struct SettingsView: View {
 
     private var voiceSection: some View {
         VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Voice and calls", icon3D: "Icons3D/voice")
+            SettingsSectionHeader(title: "Voice and calls")
             SettingsCard {
                 SettingsToggleRow(
                     symbol: "captions.bubble",
