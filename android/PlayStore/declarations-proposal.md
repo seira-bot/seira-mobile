@@ -9,10 +9,12 @@ Pemilik rilis memberi izin di chat untuk mengisi dan menyimpan form ini.
 Dasar jawaban:
 
 - Build rilis: versionCode `10002`, versionName `1.0.2`. Library Play sudah
-  memuat dua bundle yang tidak dirilis. Bundle `10000` (`19feb05`) diunggah
-  pada 2026-11-19. Bundle `10001` adalah build uji dari branch wire id, masih
-  dengan mode always-on, dan diunggah pada 2026-11-20. Play tidak menerima
-  kedua versionCode itu lagi.
+  memuat dua bundle. Bundle `10000` (`19feb05`) diunggah pada 2026-11-19.
+  Bundle `10001` (1.0.1) dibangun dari `main` dengan PR #16 pada 2026-11-20.
+  Bundle itu tanpa mode always-on, tetapi memakai wire id lama. Draft rilis
+  Production "1.0.1" memuat bundle `10001` sejak 2026-11-20. Desktop 0.1.182
+  memakai wire id baru, jadi rilis final memakai PR #11 dan versionCode
+  `10002`. Play tidak menerima versionCode `10000` dan `10001` lagi.
 - Penandatanganan: Play App Signing aktif dengan kunci dari Google. Upload key
   yang terdaftar memakai sertifikat SHA-256 `FD:4C:55:…:5F:33:C1:FD`. Play
   menerima bundle 10000 dan 10001 dengan kunci itu (cek 2026-11-20).
@@ -144,8 +146,7 @@ Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, la
 ## Langkah yang tersisa sebelum Send for review
 
 1. Bangun `.aab` 1.0.2 (versionCode 10002) dari `main` setelah wire id Seira
-   masuk. Ganti bundle 10000 di draft rilis Production dengan bundle ini.
-   Hapus juga unggahan `seira-1.0.1.aab` yang gagal dari draft.
+   masuk. Ganti bundle 10001 di draft rilis Production dengan bundle ini.
 2. Simpan halaman review rilis. Rilis muncul di Publishing overview setelah
    langkah ini.
 3. Ganti placeholder di App access dengan alamat server uji.
