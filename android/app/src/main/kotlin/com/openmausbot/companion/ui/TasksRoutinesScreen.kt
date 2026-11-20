@@ -661,7 +661,7 @@ private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String
         RoutineSchedule.Kind.UNKNOWN -> stringResource(R.string.mobile_routine_newer_schedule)
     }
     val location = when (routine.runLocation) {
-        com.openmausbot.companion.core.RoutineRunLocation.MAUS ->
+        com.openmausbot.companion.core.RoutineRunLocation.SEIRA ->
             stringResource(R.string.mobile_this_computer_4ccce6f4)
         com.openmausbot.companion.core.RoutineRunLocation.CLOUD ->
             stringResource(R.string.mobile_cloud_vm_26ca291f)

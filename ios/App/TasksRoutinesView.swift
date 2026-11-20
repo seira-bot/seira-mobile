@@ -222,7 +222,7 @@ struct RoutineEditorView: View {
         _name = State(initialValue: routine?.name ?? "")
         _prompt = State(initialValue: routine?.prompt ?? "")
         _botId = State(initialValue: routine?.botId ?? "")
-        _runOn = State(initialValue: routine?.runLocation ?? .maus)
+        _runOn = State(initialValue: routine?.runLocation ?? .seira)
         _runAvailability = State(initialValue: nil)
         _availabilityLoaded = State(initialValue: false)
         _kind = State(initialValue: routine?.schedule.type ?? .daily)
@@ -258,7 +258,7 @@ struct RoutineEditorView: View {
                 Section {
                     Picker("Run location", selection: $runOn) {
                         Label("This computer", systemImage: "laptopcomputer")
-                            .tag(RoutineRunLocation.maus)
+                            .tag(RoutineRunLocation.seira)
                         Label("Cloud VM", systemImage: "cloud")
                             .tag(RoutineRunLocation.cloud)
                             .rowSelectionDisabled(!cloudSelectable)
@@ -274,7 +274,7 @@ struct RoutineEditorView: View {
                 } header: {
                     Text("Where does it run?")
                 } footer: {
-                    if runOn == .maus {
+                    if runOn == .seira {
                         Text("Uses this agent's selected model and computer setting on the paired computer.")
                     } else if runAvailability?.cloudReady(engine: botEngine) == true {
                         Text("Runs on this bot's own model, which uses the bot's cloud computer. The cloud computer wakes for each run; keep Seira running so its scheduler can start the job.")
@@ -496,7 +496,7 @@ struct RoutineEditorView: View {
 private extension RoutineRunLocation {
     var label: String {
         switch self {
-        case .maus: "This computer"
+        case .seira: "This computer"
         case .cloud: "Cloud VM"
         }
     }

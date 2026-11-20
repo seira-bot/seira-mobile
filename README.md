@@ -12,8 +12,9 @@ copy of them.
 The code comes from the companion apps as they were on 2026-10-06, with
 their full history. App names, store IDs and icons are Seira. Internal code
 names (Swift and Kotlin types, packages, the Android `namespace`, the
-XcodeGen project) and protocol identifiers (the pairing URL scheme, the mDNS service name and
-the well-known path) keep their old names until the server changes.
+XcodeGen project) keep their old names. Protocol identifiers (the pairing
+URL scheme, the mDNS service name and the well-known path) use the Seira
+names of desktop 0.1.182 and later.
 
 ## Layout
 

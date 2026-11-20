@@ -432,7 +432,7 @@ fun PairingScreen(onCancel: () -> Unit) {
                         haptics.play(HapticCue.SELECT)
                         failure = null
                         // The whole link a server or the desktop printed
-                        // (https://host/pair#code=…, openmausbot://pair?…) names
+                        // (https://host/pair#code=…, seira://pair?…) names
                         // both the address and the credential, so it takes the
                         // scanner's road: Session vets it and the confirmation
                         // opens. The field is emptied because it is saved

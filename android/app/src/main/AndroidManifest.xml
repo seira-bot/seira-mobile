@@ -55,7 +55,7 @@
         android:required="false" />
     <!--
       Android 13+ NSD / Wi-Fi peer discovery. neverForLocation: we only browse
-      for _openmausbot._tcp, never derive physical location from the scan.
+      for _seira._tcp, never derive physical location from the scan.
       Without this (and the multicast permission), NsdManager returns an empty
       list silently — the same footgun as missing NSLocalNetworkUsageDescription
       on iOS (briefing §19).
@@ -146,7 +146,7 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:host="pair"
-                    android:scheme="openmausbot" />
+                    android:scheme="seira" />
             </intent-filter>
         </activity>
         <!--

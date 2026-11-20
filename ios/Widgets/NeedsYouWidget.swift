@@ -70,7 +70,7 @@ private struct NeedsYouView: View {
             }
         }
         // A widget with no ask on it taps into nothing; with one, it
-        // opens that chat — the same openmausbot://chat link the app
+        // opens that chat — the same seira://chat link the app
         // routes from notifications.
         .widgetURL(asks.first.flatMap { WidgetChatLink.url(threadId: $0.chat.threadId) })
     }

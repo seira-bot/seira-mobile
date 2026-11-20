@@ -1470,7 +1470,7 @@ public struct RoutineInput: Encodable, Sendable {
     public var clearTimeout: Bool
 
     public init(
-        name: String, prompt: String, botId: String, runOn: String = "maus",
+        name: String, prompt: String, botId: String, runOn: String = "seira",
         enabled: Bool? = nil, schedule: RoutineSchedule, durationMinutes: Int = 30,
         timeoutMinutes: Int? = nil, clearTimeout: Bool = false
     ) {
@@ -1504,7 +1504,7 @@ public struct RoutineInput: Encodable, Sendable {
 }
 
 public enum RoutineRunLocation: String, CaseIterable, Codable, Hashable, Sendable {
-    case maus
+    case seira
     case cloud
 }
 
@@ -1538,13 +1538,13 @@ public struct RoutineRunAvailability: Equatable, Sendable {
     }
 
     public func canSelect(_ location: RoutineRunLocation, preserving current: RoutineRunLocation, engine instanceId: String?) -> Bool {
-        location == .maus || cloudReady(engine: instanceId) || current == .cloud
+        location == .seira || cloudReady(engine: instanceId) || current == .cloud
     }
 }
 
 public extension Routine {
     var runLocation: RoutineRunLocation {
-        RoutineRunLocation(rawValue: runOn) ?? .maus
+        RoutineRunLocation(rawValue: runOn) ?? .seira
     }
 
     /// Mirrors the desktop `canToggleRoutine` policy. A one-time routine has
@@ -1750,7 +1750,7 @@ public struct ServerSession: Codable, Hashable, Sendable {
     public var isAdmin: Bool { scopes.contains("admin") }
 }
 
-/// `GET /.well-known/openmausbot/environment`, served without a session.
+/// `GET /.well-known/seira/environment`, served without a session.
 public struct ServerEnvironment: Codable, Hashable, Sendable {
     public var environmentId: String
     public var label: String

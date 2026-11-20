@@ -86,7 +86,7 @@ class DecodingTest {
     fun routineTimeoutIsOptionalForOlderDesktopPayloads() {
         val base = """{
             "id":"routine-1","name":"Brief","prompt":"Summarize","botId":"bot-1",
-            "runOn":"maus","enabled":true,
+            "runOn":"seira","enabled":true,
             "schedule":{"type":"daily","time":"09:00","weekdays":[1]},
             "durationMinutes":30,"createdAt":1,"updatedAt":2
         }""".trimIndent()

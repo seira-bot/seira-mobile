@@ -29,13 +29,13 @@ class RoutineCalendarTest {
         nextRunAt: Double? = null,
         createdAt: Double = ms(wednesday.minusDays(30), 0),
     ): Routine = CompanionJson.decodeFromString(
-        """{"id":"$id","name":"$id name","prompt":"p","botId":"b1","runOn":"maus","enabled":$enabled,
+        """{"id":"$id","name":"$id name","prompt":"p","botId":"b1","runOn":"seira","enabled":$enabled,
             "schedule":$schedule,"durationMinutes":30,"nextRunAt":${nextRunAt ?: "null"},"createdAt":$createdAt,"updatedAt":$createdAt}""",
     )
 
     private fun run(id: String, routine: String, at: Double, status: String = "completed"): RoutineRun =
         CompanionJson.decodeFromString(
-            """{"id":"$id","routineId":"$routine","routineName":"$routine name","botId":"b1","runOn":"maus",
+            """{"id":"$id","routineId":"$routine","routineName":"$routine name","botId":"b1","runOn":"seira",
                 "scheduledFor":$at,"status":"$status","manual":false,"createdAt":$at}""",
         )
 

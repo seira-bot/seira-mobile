@@ -118,13 +118,13 @@ class SessionP2Test {
 
     private fun routineJson(): String = """{
         "id":"routine-1","name":"Brief","prompt":"Summarize","botId":"bot-1",
-        "runOn":"maus","enabled":true,"schedule":{"type":"once","at":2000000},
+        "runOn":"seira","enabled":true,"schedule":{"type":"once","at":2000000},
         "durationMinutes":30,"nextRunAt":2000000,"createdAt":1,"updatedAt":2
     }""".trimIndent()
 
     private fun routineRunJson(): String = """{
         "id":"run-1","routineId":"routine-1","routineName":"Brief","botId":"bot-1",
-        "runOn":"maus","scheduledFor":2000000,"status":"completed","manual":true,
+        "runOn":"seira","scheduledFor":2000000,"status":"completed","manual":true,
         "triggerSource":"manual","threadId":"task-1","createdAt":2000000
     }""".trimIndent()
 }

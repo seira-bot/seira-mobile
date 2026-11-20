@@ -67,7 +67,7 @@ class ClientTest {
             )
         }
 
-        val token = "omb_pair_" + "a".repeat(43)
+        val token = "seira_pair_" + "a".repeat(43)
         server.enqueue(json(fixtureText("pair-response")))
         CompanionClient.pair(connection, token, "Ada's phone")
         val body = stringBody(server.takeRequest().body.readUtf8())

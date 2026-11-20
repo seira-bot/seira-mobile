@@ -345,7 +345,7 @@ class Session(
     }
 
     /**
-     * `GET /.well-known/openmausbot/environment` on a server about to be paired — the port of
+     * `GET /.well-known/seira/environment` on a server about to be paired — the port of
      * `confirmServer(at:)` in `ios/App/Session.swift`.
      *
      * Nothing there means this address is not a server. Anything else is passed on with its own
@@ -2496,7 +2496,7 @@ class Session(
 
         /** High-entropy QR token — distinct from a retryable six-digit code. */
         fun isQrCredential(credential: String): Boolean =
-            credential.startsWith("omb_pair_") ||
+            credential.startsWith("seira_pair_") ||
                 !(credential.length == 6 && credential.all { it in '0'..'9' })
     }
 }

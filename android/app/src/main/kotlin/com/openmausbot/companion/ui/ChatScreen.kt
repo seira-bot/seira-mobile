@@ -1262,7 +1262,7 @@ private fun LoadedChat(
                 name = "",
                 prompt = "",
                 botId = bot.id,
-                runOn = RoutineRunLocation.MAUS.wireValue,
+                runOn = RoutineRunLocation.SEIRA.wireValue,
                 enabled = true,
                 schedule = RoutineSchedule(RoutineSchedule.Kind.DAILY),
                 durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES,

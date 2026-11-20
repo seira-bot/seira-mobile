@@ -23,10 +23,10 @@ class ServerSessionPairingTest {
             assertEquals("headless mini", saved.name)
             assertEquals("env-fixture", saved.serverEnvironmentId)
             assertEquals(listOf("client"), saved.serverScopes)
-            assertEquals("omb_sess_fixture", fixture.tokens.values[saved.id])
+            assertEquals("seira_sess_fixture", fixture.tokens.values[saved.id])
             val serialized = CompanionJson.encodeToString(saved)
             assertFalse(serialized.contains("ABCDEFGHJKLM"))
-            assertFalse(serialized.contains("omb_sess_fixture"))
+            assertFalse(serialized.contains("seira_sess_fixture"))
             assertEquals(saved, CompanionJson.decodeFromString<Connection>(serialized))
             val post = fixture.requests.single { it.url.encodedPath == "/api/auth/pair" }
             assertNull(post.header("Authorization"))
@@ -35,7 +35,7 @@ class ServerSessionPairingTest {
             assertEquals("Pixel", body["label"]?.jsonPrimitive?.content)
             assertEquals("attempt-1234", body["attemptId"]?.jsonPrimitive?.content)
             assertNull(body["cookie"])
-            assertEquals("/.well-known/openmausbot/environment", fixture.requests.first().url.encodedPath)
+            assertEquals("/.well-known/seira/environment", fixture.requests.first().url.encodedPath)
             assertTrue(fixture.requests.none { it.url.encodedPath == "/api/pair" })
         }
     }
@@ -166,7 +166,7 @@ class ServerSessionPairingTest {
             val client = CompanionClient(saved, "saved-bearer", f.http)
             assertFailsWith<APIError.Status> { client.fleet() }
             assertEquals(1, f.requests.size)
-            assertEquals("/.well-known/openmausbot/environment", f.requests.single().url.encodedPath)
+            assertEquals("/.well-known/seira/environment", f.requests.single().url.encodedPath)
             assertNull(f.requests.single().header("Authorization"))
         }
     }
@@ -183,7 +183,7 @@ class ServerSessionPairingTest {
             assertEquals(active.id, f.session.connection.value?.id)
             assertEquals(1, f.requests.size)
             assertNull(f.requests.single().header("Authorization"))
-            assertEquals("/.well-known/openmausbot/environment", f.requests.single().url.encodedPath)
+            assertEquals("/.well-known/seira/environment", f.requests.single().url.encodedPath)
         }
     }
 
@@ -192,7 +192,7 @@ class ServerSessionPairingTest {
         val saved = assertNotNull(Connection.parse("https://mini.example")).copy(serverEnvironmentId = "env-fixture")
         Fixture { request -> if (request.url.encodedPath == "/api/bots") 200 to "{\"bots\":[],\"groups\":[]}" else null }.use { f ->
             CompanionClient(saved, "saved-bearer", f.http).fleet()
-            assertEquals(listOf("/.well-known/openmausbot/environment", "/api/bots"), f.requests.map { it.url.encodedPath })
+            assertEquals(listOf("/.well-known/seira/environment", "/api/bots"), f.requests.map { it.url.encodedPath })
             assertNull(f.requests.first().header("Authorization"))
             assertEquals("Bearer saved-bearer", f.requests.last().header("Authorization"))
         }
@@ -227,13 +227,13 @@ class ServerSessionPairingTest {
         val requests = CopyOnWriteArrayList<Request>()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val store = Store(saved, extraSaved)
-        val tokens = Tokens().apply { listOfNotNull(saved, extraSaved).forEach { values[it.id] = "omb_sess_fixture" } }
+        val tokens = Tokens().apply { listOfNotNull(saved, extraSaved).forEach { values[it.id] = "seira_sess_fixture" } }
         @Volatile var streamStarts = 0
         val http = OkHttpClient.Builder().addInterceptor { chain ->
             val request = chain.request()
             requests += request
             val (status, body) = response(request) ?: if (request.url.encodedPath == "/api/auth/pair") {
-                200 to """{"token":"omb_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"headless mini"}}"""
+                200 to """{"token":"seira_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"headless mini"}}"""
             } else {
                 200 to """{"environmentId":"env-fixture","label":"headless mini"}"""
             }

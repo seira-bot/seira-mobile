@@ -82,18 +82,18 @@ Three terminals on the host computer, from the repository root:
 node --experimental-strip-types server/testing/fake-openai-live.ts 0
 
 # 2. The fixture, pointed at the fake (prints http://127.0.0.1:PORT and its logPath)
-OMB_OPENAI_LIVE_URL=http://127.0.0.1:FAKE_PORT OMB_OPENAI_LIVE_KEY=sk-fake \
-  node --experimental-strip-types scripts/control-omb.ts launch
+SEIRA_OPENAI_LIVE_URL=http://127.0.0.1:FAKE_PORT SEIRA_OPENAI_LIVE_KEY=sk-fake \
+  node --experimental-strip-types scripts/control-seira.ts launch
 
 # 3. A sidecar for that fixture, on ports your everyday Seira does not use
-OMB_PORT=PORT OMB_WEBHOOK_PORT=$((PORT + 1)) OMB_COMPANION_PORT=8820 OMB_CONTROL_PORT=8821 \
-  OMB_COMPANION_NAME="Verification fixture" OMB_COMPANION_DIR="$(mktemp -d)" \
+SEIRA_PORT=PORT SEIRA_WEBHOOK_PORT=$((PORT + 1)) SEIRA_COMPANION_PORT=8820 SEIRA_CONTROL_PORT=8821 \
+  SEIRA_COMPANION_NAME="Verification fixture" SEIRA_COMPANION_DIR="$(mktemp -d)" \
   node --experimental-strip-types companion/src/index.ts
 curl -s -X POST http://127.0.0.1:8821/pairing      # → { …, code, token }
 ```
 
 The sidecar advertises itself on the local network while it runs;
-`OMB_COMPANION_NAME` keeps it apart from the real computer in the phone's
+`SEIRA_COMPANION_NAME` keeps it apart from the real computer in the phone's
 lists. The fake's SDP answer is built from the phone's offer, so the phone
 accepts it; its one ICE candidate is a loopback address nobody listens on, so
 no audio ever flows and the call's data channel never opens.

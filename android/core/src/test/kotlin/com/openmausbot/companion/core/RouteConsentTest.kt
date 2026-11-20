@@ -38,7 +38,7 @@ class RouteConsentTest {
 
     /** The Oct 3 QR: "Pair on this Wi-Fi" on a Windows PC whose WSL adapter enumerated first. */
     private fun windowsQr(): PairingInvite = requireNotNull(PairingInvite.parse(URI(
-        "openmausbot://pair?address=172.19.96.1%3A8810&token=$TOKEN&name=Miguel%27s+computer" +
+        "seira://pair?address=172.19.96.1%3A8810&token=$TOKEN&name=Miguel%27s+computer" +
             "&hosts=172.19.96.1,192.168.1.34,miguel.local,miguel.tail1234.ts.net" +
             "&endpoints=${encoded(listOf(wsl, wifi, bonjour))}",
     )))
@@ -239,13 +239,13 @@ class RouteConsentTest {
     @Test
     fun everyParsedPairingInviteCarriesANonNullPolicy() {
         val hostedInvite = requireNotNull(
-            PairingInvite.parse(URI("openmausbot://pair?address=https%3A%2F%2Fmac.example&code=123456")),
+            PairingInvite.parse(URI("seira://pair?address=https%3A%2F%2Fmac.example&code=123456")),
         )
         val tailnetInvite = requireNotNull(
-            PairingInvite.parse(URI("openmausbot://pair?address=mac.tail1234.ts.net%3A8810&code=123456")),
+            PairingInvite.parse(URI("seira://pair?address=mac.tail1234.ts.net%3A8810&code=123456")),
         )
         val localInvite = requireNotNull(
-            PairingInvite.parse(URI("openmausbot://pair?address=192.168.1.42%3A8810&code=123456")),
+            PairingInvite.parse(URI("seira://pair?address=192.168.1.42%3A8810&code=123456")),
         )
 
         assertEquals(setOf(CompanionEndpointKind.HOSTED), hostedInvite.connection.allowedRouteKinds)
@@ -296,7 +296,7 @@ class RouteConsentTest {
     fun aProtectedQrNeverWalksTheLocalAddressesItCarries() {
         val routes = listOf(hosted, wsl, wifi)
         val connection = requireNotNull(PairingInvite.parse(URI(
-            "openmausbot://pair?address=mac.companion.example%3A443&token=$TOKEN&endpoints=${encoded(routes)}",
+            "seira://pair?address=mac.companion.example%3A443&token=$TOKEN&endpoints=${encoded(routes)}",
         ))).connection
 
         assertEquals(emptySet(), connection.allowedLocalRouteURLs)
@@ -433,6 +433,6 @@ class RouteConsentTest {
     )
 
     private companion object {
-        const val TOKEN = "omb_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const val TOKEN = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
     }
 }

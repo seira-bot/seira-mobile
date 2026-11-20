@@ -1245,7 +1245,7 @@ data class Routine(
 ) {
     val runLocation: RoutineRunLocation
         get() = RoutineRunLocation.entries.firstOrNull { it.wireValue == runOn }
-            ?: RoutineRunLocation.MAUS
+            ?: RoutineRunLocation.SEIRA
 
     fun canToggle(atMillis: Double = System.currentTimeMillis().toDouble()): Boolean = when (schedule.type) {
         RoutineSchedule.Kind.DAILY -> true
@@ -1286,7 +1286,7 @@ data class RoutineInput(
     val name: String,
     val prompt: String,
     val botId: String,
-    val runOn: String = "maus",
+    val runOn: String = "seira",
     val enabled: Boolean? = null,
     val schedule: RoutineSchedule,
     /** Still required by older paired desktops; it is not the execution timeout. */
@@ -1299,8 +1299,8 @@ data class RoutineInput(
 
 @Serializable
 enum class RoutineRunLocation(val wireValue: String) {
-    @SerialName("maus")
-    MAUS("maus"),
+    @SerialName("seira")
+    SEIRA("seira"),
 
     @SerialName("cloud")
     CLOUD("cloud"),
@@ -1330,7 +1330,7 @@ data class RoutineRunAvailability(
     fun cloudReady(engine: String?): Boolean = cloudConfigured && engine != null && engine in cloudEngines
 
     fun canSelect(location: RoutineRunLocation, preserving: RoutineRunLocation, engine: String?): Boolean =
-        location == RoutineRunLocation.MAUS || cloudReady(engine) || preserving == RoutineRunLocation.CLOUD
+        location == RoutineRunLocation.SEIRA || cloudReady(engine) || preserving == RoutineRunLocation.CLOUD
 }
 
 @Serializable

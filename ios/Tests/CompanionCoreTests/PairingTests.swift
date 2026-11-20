@@ -504,13 +504,13 @@ final class PairingTests: XCTestCase {
         XCTAssertTrue(PairingRequestStub.captured().allSatisfy { $0.url?.host == "192.168.1.42" })
     }
 
-    private static let credential = "omb_pair_" + String(repeating: "a", count: 43)
+    private static let credential = "seira_pair_" + String(repeating: "a", count: 43)
     /// "Pair on this Wi-Fi" on a Windows PC whose WSL and Hyper-V adapters enumerated first,
     /// written the way desktops before Oct 2026 wrote it ("+" for a space).
     private static let windowsQR = URL(string:
-        "openmausbot://pair?address=172.19.96.1%3A8810&token=\(credential)&name=Miguel%27s+computer" +
+        "seira://pair?address=172.19.96.1%3A8810&token=\(credential)&name=Miguel%27s+computer" +
         "&hosts=172.19.96.1,172.27.208.1,192.168.1.34")!
-    private static let health = Data(#"{"app":"openmausbot","pid":42,"static":true}"#.utf8)
+    private static let health = Data(#"{"app":"seira","pid":42,"static":true}"#.utf8)
     private static let paired = Data(
         #"{"token":"omb_device","device":{"id":"d","name":"iPhone","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"#.utf8
     )

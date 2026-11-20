@@ -119,7 +119,7 @@ class ConnectionTest {
         assertEquals(9910, connection?.port)
 
         val invite = PairingInvite.parse(
-            URI("openmausbot://pair?address=192.168.1.3%25en0%3A9910&code=004209"),
+            URI("seira://pair?address=192.168.1.3%25en0%3A9910&code=004209"),
         )
         assertEquals("192.168.1.3", invite?.connection?.host)
         assertEquals(9910, invite?.connection?.port)
@@ -213,9 +213,9 @@ class ConnectionTest {
 
     @Test
     fun parsesADesktopPairingInvite() {
-        val token = "omb_pair_" + "a".repeat(43)
+        val token = "seira_pair_" + "a".repeat(43)
         val invite = PairingInvite.parse(
-            URI("openmausbot://pair?address=macbook.tail1234.ts.net%3A8810&token=$token&code=004209&name=Milind%27s%20Mac"),
+            URI("seira://pair?address=macbook.tail1234.ts.net%3A8810&token=$token&code=004209&name=Milind%27s%20Mac"),
         )!!
         assertEquals("macbook.tail1234.ts.net", invite.connection.host)
         assertEquals(8810, invite.connection.port)
@@ -229,25 +229,25 @@ class ConnectionTest {
     @Test
     fun aPlusInAPairingInviteIsASpaceAndAnEncodedPlusIsAPlus() {
         val invite = PairingInvite.parse(
-            URI("openmausbot://pair?address=mac.local&code=004209&name=Miguel%27s+computer"),
+            URI("seira://pair?address=mac.local&code=004209&name=Miguel%27s+computer"),
         )
         assertEquals("Miguel's computer", invite?.connection?.name)
         val plus = PairingInvite.parse(
-            URI("openmausbot://pair?address=mac.local&code=004209&name=C%2B%2B+box"),
+            URI("seira://pair?address=mac.local&code=004209&name=C%2B%2B+box"),
         )
         assertEquals("C++ box", plus?.connection?.name)
     }
 
     @Test
     fun parsesAnOlderCodeOnlyPairingInvite() {
-        val invite = PairingInvite.parse(URI("openmausbot://pair?address=mac.local&code=004209"))
+        val invite = PairingInvite.parse(URI("seira://pair?address=mac.local&code=004209"))
         assertEquals("004209", invite?.credential)
     }
 
     @Test
     fun pairingInviteKeepsOnlyFallbackHostsAllowedByItsSelectedRoute() {
         val invite = PairingInvite.parse(URI(
-            "openmausbot://pair?address=macbook.tail1234.ts.net%3A8810&code=004209" +
+            "seira://pair?address=macbook.tail1234.ts.net%3A8810&code=004209" +
                 "&hosts=macbook.tail1234.ts.net,192.168.1.42,openmausbot-aa.local",
         ))!!
         assertEquals(
@@ -267,9 +267,9 @@ class ConnectionTest {
               {"url":"https://mac.example","kind":"hosted","priority":999}
             ]
         """.trimIndent()
-        val token = "omb_pair_" + "a".repeat(43)
+        val token = "seira_pair_" + "a".repeat(43)
         val invite = assertNotNull(PairingInvite.parse(URI(
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${base64Url(routes)}",
+            "seira://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${base64Url(routes)}",
         )))
 
         assertEquals("https://mac.example", invite.connection.baseUrl.toString())
@@ -283,7 +283,7 @@ class ConnectionTest {
 
     @Test
     fun presentButInvalidTypedEndpointsRejectTheWholeInvite() {
-        val token = "omb_pair_" + "a".repeat(43)
+        val token = "seira_pair_" + "a".repeat(43)
         val invalidRoutes = listOf(
             """[{"url":"http://public.example","kind":"hosted","priority":0}]""",
             """[{"url":"https://public.example","kind":"future-transport","priority":0}]""",
@@ -296,30 +296,30 @@ class ConnectionTest {
         )
         invalidRoutes.forEach { routes ->
             val invite = PairingInvite.parse(URI(
-                "openmausbot://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${base64Url(routes)}",
+                "seira://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${base64Url(routes)}",
             ))
             assertNull(invite, routes)
         }
         assertNull(PairingInvite.parse(URI(
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=$token&endpoints=not-json",
+            "seira://pair?address=192.168.1.42%3A8810&token=$token&endpoints=not-json",
         )))
         assertNull(PairingInvite.parse(URI(
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=$token&endpoints=",
+            "seira://pair?address=192.168.1.42%3A8810&token=$token&endpoints=",
         )))
         assertNull(PairingInvite.parse(URI(
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${"a".repeat(8_193)}",
+            "seira://pair?address=192.168.1.42%3A8810&token=$token&endpoints=${"a".repeat(8_193)}",
         )))
     }
 
     @Test
     fun dropsUnusableFallbackHostsWithoutRefusingTheInvite() {
         val invite = PairingInvite.parse(URI(
-            "openmausbot://pair?address=mac.local&code=004209&hosts=%20192.168.1.42%20,,bad%2Fslash,has%20space",
+            "seira://pair?address=mac.local&code=004209&hosts=%20192.168.1.42%20,,bad%2Fslash,has%20space",
         ))!!
         // The usable one is trimmed and kept: a desktop QR consents to every local address it carries.
         assertEquals(listOf("192.168.1.42"), invite.connection.hosts)
         val empty = PairingInvite.parse(
-            URI("openmausbot://pair?address=mac.local&code=004209&hosts=bad%2Fslash"),
+            URI("seira://pair?address=mac.local&code=004209&hosts=bad%2Fslash"),
         )
         assertNull(empty?.connection?.hosts)
     }
@@ -565,11 +565,11 @@ class ConnectionTest {
     fun rejectsUntrustedOrMalformedPairingInvites() {
         listOf(
             "https://example.com/pair?address=mac.local&code=123456",
-            "openmausbot://pair?address=mac.local&code=12345",
-            "openmausbot://pair?address=mac.local&token=weak",
-            "openmausbot://pair?address=mac.local&token=weak&code=123456",
-            "openmausbot://pair?address=host%2Fpath&code=123456",
-            "openmausbot://pair?address=one.local&address=two.local&code=123456",
+            "seira://pair?address=mac.local&code=12345",
+            "seira://pair?address=mac.local&token=weak",
+            "seira://pair?address=mac.local&token=weak&code=123456",
+            "seira://pair?address=host%2Fpath&code=123456",
+            "seira://pair?address=one.local&address=two.local&code=123456",
         ).forEach { assertNull(PairingInvite.parse(URI(it)), it) }
     }
 

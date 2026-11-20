@@ -129,7 +129,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithText(OnboardingCopy.WELCOME_TITLE).assertIsDisplayed()
 
         scene.session.receivePairingURL(
-            "openmausbot://pair?address=127.0.0.1:8810&code=123456",
+            "seira://pair?address=127.0.0.1:8810&code=123456",
         )
         compose.waitForIdle()
 
@@ -280,7 +280,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithText(OnboardingCopy.WELCOME_TITLE).assertIsDisplayed()
 
         scene.session.receivePairingURL(
-            "openmausbot://pair?address=127.0.0.1:8810&code=123456",
+            "seira://pair?address=127.0.0.1:8810&code=123456",
         )
         compose.waitUntil(5_000) { scene.session.pairingInvite.value != null }
         compose.waitForIdle()
@@ -418,7 +418,7 @@ class OnboardingRoutingTest {
         compose.onNodeWithText("This phone was unpaired").assertIsDisplayed()
 
         scene.session.receivePairingURL(
-            "openmausbot://pair?address=127.0.0.1:8810&code=123456",
+            "seira://pair?address=127.0.0.1:8810&code=123456",
         )
         compose.waitForIdle()
 
@@ -446,7 +446,7 @@ class OnboardingRoutingTest {
             scene.session.status.value is Session.Status.Unauthorized
         }
         scene.session.receivePairingURL(
-            "openmausbot://pair?address=127.0.0.1:8810&code=123456",
+            "seira://pair?address=127.0.0.1:8810&code=123456",
         )
         compose.waitForIdle()
         compose.onNodeWithText("This phone was unpaired").assertIsDisplayed()
@@ -469,7 +469,7 @@ class OnboardingRoutingTest {
         mount(scene)
         compose.onNodeWithText(OnboardingCopy.UNPAIRED_HOME_TITLE).assertIsDisplayed()
 
-        scene.session.receivePairingURL("openmausbot://pair?address=127.0.0.1:8810")
+        scene.session.receivePairingURL("seira://pair?address=127.0.0.1:8810")
         compose.waitForIdle()
 
         compose.onNodeWithText("Connect your computer").assertIsDisplayed()

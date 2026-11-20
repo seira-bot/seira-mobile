@@ -524,7 +524,7 @@ class PairingClientTest {
         val routes = java.util.Base64.getUrlEncoder().withoutPadding()
             .encodeToString(CompanionJson.encodeToString(endpoints.toList()).toByteArray())
         val first = endpoints.first()
-        return "openmausbot://pair?address=${first.host}%3A${first.port}&token=$CREDENTIAL" +
+        return "seira://pair?address=${first.host}%3A${first.port}&token=$CREDENTIAL" +
             "&name=Miguel%27s+computer&hosts=${endpoints.joinToString(",") { it.host }}&endpoints=$routes"
     }
 
@@ -540,8 +540,8 @@ class PairingClientTest {
     }
 
     private companion object {
-        const val CREDENTIAL = "omb_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        const val HEALTH = """{"app":"openmausbot","pid":42,"static":true}"""
+        const val CREDENTIAL = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const val HEALTH = """{"app":"seira","pid":42,"static":true}"""
         const val PAIRED =
             """{"token":"omb_device","device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"""
     }

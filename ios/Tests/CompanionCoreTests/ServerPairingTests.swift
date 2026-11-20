@@ -2,7 +2,7 @@ import Foundation
 import XCTest
 @testable import CompanionCore
 
-/// Pairing with a server directly (`openmausbot serve`, the Docker stack):
+/// Pairing with a server directly (`seira serve`, the Docker stack):
 /// the `https://host/pair#code=…` link, `POST /api/auth/pair`, and the
 /// connection that comes out of it.
 private final class ServerRequestStub: URLProtocol {
@@ -109,13 +109,13 @@ final class ServerPairingTests: XCTestCase {
             XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: bad))), bad)
         }
         // the companion's own invites still parse
-        XCTAssertNotNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=192.168.1.9:8810&code=123456"))))
+        XCTAssertNotNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=192.168.1.9:8810&code=123456"))))
     }
 
     func testServerCodesAreDistinguishedFromCompanionCredentialsByShape() {
         XCTAssertEqual(PairingInvite.normalizedServerCode(" abcd-efgh-jklm "), "ABCDEFGHJKLM")
         XCTAssertNil(PairingInvite.normalizedServerCode("123456"))
-        XCTAssertNil(PairingInvite.normalizedServerCode("omb_pair_" + String(repeating: "a", count: 43)))
+        XCTAssertNil(PairingInvite.normalizedServerCode("seira_pair_" + String(repeating: "a", count: 43)))
         XCTAssertNil(PairingInvite.normalizedServerCode("ABCDEFGHJKL"))
     }
 
@@ -130,7 +130,7 @@ final class ServerPairingTests: XCTestCase {
             attemptId: "attempt-1",
             session: session
         )
-        XCTAssertEqual(paired.token, "omb_sess_Zk3vJq8mN2xR7tL9wP4yH6bC1dF5gA0sE8uK2iO7")
+        XCTAssertEqual(paired.token, "seira_sess_Zk3vJq8mN2xR7tL9wP4yH6bC1dF5gA0sE8uK2iO7")
         XCTAssertEqual(paired.session.scopes, ["client"])
         XCTAssertFalse(paired.session.isAdmin)
         XCTAssertEqual(paired.environment.environmentId, "env_7f3a9c")
@@ -166,7 +166,7 @@ final class ServerPairingTests: XCTestCase {
         let connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
         let environment = try await CompanionClient(connection: connection, token: nil, session: session).environment()
         XCTAssertEqual(environment, ServerEnvironment(environmentId: "env_7f3a9c", label: "cab mini", platform: "linux", version: "0.1.55"))
-        XCTAssertEqual(ServerRequestStub.captured().first?.url?.path, "/.well-known/openmausbot/environment")
+        XCTAssertEqual(ServerRequestStub.captured().first?.url?.path, "/.well-known/seira/environment")
     }
 
     func testConnectionsSavedBeforeServerPairingStillDecodeAsCompanionOnes() throws {
@@ -247,7 +247,7 @@ final class ServerPairingTests: XCTestCase {
 
         // the pair response is where the scopes come from
         let admin = try JSONDecoder().decode(ServerPairResponse.self, from: Data(#"""
-        {"token":"omb_sess_x","session":{"id":"s","label":"iPhone","scopes":["admin","client"],"createdAt":1,"expiresAt":2},
+        {"token":"seira_sess_x","session":{"id":"s","label":"iPhone","scopes":["admin","client"],"createdAt":1,"expiresAt":2},
          "environment":{"environmentId":"env","label":"mini","platform":"darwin","version":"0.1.66",
                         "capabilities":{"remoteSessions":true,"selfUpdate":"desktop-managed"}}}
         """#.utf8))
@@ -260,7 +260,7 @@ final class ServerPairingTests: XCTestCase {
         var connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
         connection.serverEnvironmentId = "env_7f3a9c"
         connection.serverScopes = ["client"]
-        let client = CompanionClient(connection: connection, token: "omb_sess_Zk3v", session: session)
+        let client = CompanionClient(connection: connection, token: "seira_sess_Zk3v", session: session)
         do {
             for try await _ in try client.events(since: "abc12345:7", streamingSession: session) {}
             XCTFail("a revoked session must surface as unauthorized, not as an empty stream")
@@ -268,7 +268,7 @@ final class ServerPairingTests: XCTestCase {
             XCTAssertTrue(error.isUnauthorized)
         }
         let request = try XCTUnwrap(ServerRequestStub.captured().first)
-        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer omb_sess_Zk3v")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer seira_sess_Zk3v")
         XCTAssertEqual(request.value(forHTTPHeaderField: "Accept"), "text/event-stream")
         let components = try XCTUnwrap(URLComponents(url: XCTUnwrap(request.url), resolvingAgainstBaseURL: false))
         XCTAssertEqual(components.host, "c-7f3a9c.openmausbot.com")
