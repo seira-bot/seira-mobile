@@ -1,8 +1,8 @@
 // Finding computers on the network, so nobody types an IP address.
 //
 // The other half of `server/mdns.ts`: the harness advertises
-// `_seira._tcp` while its companion listener is up, and this browses
-// for it. NWBrowser is first-party and does the mDNS work; all that is left
+// `_openmausbot._tcp` or `_seira._tcp` while its companion listener is up,
+// and this browses for both. NWBrowser is first-party and does the mDNS work; all that is left
 // is resolving each result to a host and port.
 //
 // Requires NSLocalNetworkUsageDescription and NSBonjourServices in the app's
@@ -31,7 +31,8 @@ final class Discovery: ObservableObject {
     /// showing an empty list forever.
     @Published private(set) var failure: LocalizedStringKey?
 
-    private var browser: NWBrowser?
+    private var browsers: [NWBrowser] = []
+    private var foundByType: [String: [Found]] = [:]
     private var retryTask: Task<Void, Never>?
     private var retryCount = 0
     private var generation = 0
@@ -45,14 +46,19 @@ final class Discovery: ObservableObject {
     }
 
     private func startBrowser() {
-        guard shouldBrowse, browser == nil else { return }
+        guard shouldBrowse, browsers.isEmpty else { return }
         retryTask = nil
         generation += 1
-        let currentGeneration = generation
+        foundByType = [:]
+        browsers = DesktopWireIDs.mdnsServiceTypes.map { makeBrowser(type: $0, generation: generation) }
+        browsers.forEach { $0.start(queue: .main) }
+    }
+
+    private func makeBrowser(type: String, generation currentGeneration: Int) -> NWBrowser {
         let parameters = NWParameters()
         parameters.includePeerToPeer = false
         let browser = NWBrowser(
-            for: .bonjour(type: "_seira._tcp", domain: nil),
+            for: .bonjour(type: type, domain: nil),
             using: parameters
         )
 
@@ -82,12 +88,23 @@ final class Discovery: ObservableObject {
                 guard case let .service(name, _, _, _) = result.endpoint else { return nil }
                 return Found(name: name, endpoint: result.endpoint)
             }
-            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
-            Task { @MainActor in self?.found = found }
+            Task { @MainActor in
+                guard let self, self.generation == currentGeneration else { return }
+                self.foundByType[type] = found
+                self.found = Self.merged(self.foundByType)
+            }
         }
 
-        self.browser = browser
-        browser.start(queue: .main)
+        return browser
+    }
+
+    /// A computer that announces both service types shows once.
+    private static func merged(_ foundByType: [String: [Found]]) -> [Found] {
+        var seen = Set<String>()
+        return DesktopWireIDs.mdnsServiceTypes
+            .flatMap { foundByType[$0] ?? [] }
+            .filter { seen.insert($0.name).inserted }
+            .sorted { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
     }
 
     func stop() {
@@ -95,8 +112,8 @@ final class Discovery: ObservableObject {
         retryTask?.cancel()
         retryTask = nil
         generation += 1
-        browser?.cancel()
-        browser = nil
+        browsers.forEach { $0.cancel() }
+        browsers = []
         browsing = false
     }
 
@@ -105,9 +122,11 @@ final class Discovery: ObservableObject {
     /// browser is the only useful recovery; keep it bounded so a persistent
     /// local-network problem does not turn into a retry loop.
     private func handleFailure(_ error: NWError) {
-        browser?.cancel()
-        browser = nil
+        generation += 1
+        browsers.forEach { $0.cancel() }
+        browsers = []
         browsing = false
+        foundByType = [:]
         found = []
 
         guard Self.isDefunct(error), retryCount < 3, shouldBrowse else {

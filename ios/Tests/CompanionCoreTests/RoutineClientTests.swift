@@ -43,7 +43,7 @@ private final class RoutineRequestStub: URLProtocol {
     {
       "routine": {
         "id":"routine-1","name":"Pulse","prompt":"Check status","botId":"bot-1",
-        "runOn":"seira","enabled":true,
+        "runOn":"maus","enabled":true,
         "schedule":{"type":"interval","everyMinutes":5,"anchorAt":1788384600000},
         "durationMinutes":30,"timeoutMinutes":30,
         "nextRunAt":1788384900000,"createdAt":1,"updatedAt":1
@@ -77,6 +77,19 @@ final class RoutineClientTests: XCTestCase {
         super.tearDown()
     }
 
+    func testARoutineRunOnMausOrSeiraRunsOnThisComputer() throws {
+        for runOn in ["maus", "seira"] {
+            let json = #"""
+            {"id":"routine-1","name":"Pulse","prompt":"Check status","botId":"bot-1",
+             "runOn":"\#(runOn)","enabled":true,
+             "schedule":{"type":"interval","everyMinutes":5,"anchorAt":1788384600000},
+             "durationMinutes":30,"createdAt":1,"updatedAt":1}
+            """#
+            let routine = try JSONDecoder().decode(Routine.self, from: Data(json.utf8))
+            XCTAssertEqual(routine.runLocation, .maus, runOn)
+        }
+    }
+
     func testCreatesAnIntervalRoutineWithItsAnchorAndSafetyTimeout() async throws {
         let anchor = Date(timeIntervalSince1970: 1_788_384_600)
         let created = try await client.createRoutine(RoutineInput(
@@ -102,6 +115,7 @@ final class RoutineClientTests: XCTestCase {
         XCTAssertNil(schedule["at"])
         XCTAssertNil(schedule["time"])
         XCTAssertNil(schedule["weekdays"])
+        XCTAssertEqual(body["runOn"] as? String, "maus")
         XCTAssertEqual(body["durationMinutes"] as? Int, 30)
         XCTAssertEqual(body["timeoutMinutes"] as? Int, 30)
         XCTAssertEqual(created.timeoutMinutes, 30)

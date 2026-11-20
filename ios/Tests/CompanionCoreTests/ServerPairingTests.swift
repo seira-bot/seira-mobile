@@ -166,7 +166,47 @@ final class ServerPairingTests: XCTestCase {
         let connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
         let environment = try await CompanionClient(connection: connection, token: nil, session: session).environment()
         XCTAssertEqual(environment, ServerEnvironment(environmentId: "env_7f3a9c", label: "cab mini", platform: "linux", version: "0.1.55"))
-        XCTAssertEqual(ServerRequestStub.captured().first?.url?.path, "/.well-known/seira/environment")
+        XCTAssertEqual(ServerRequestStub.captured().first?.url?.path, "/.well-known/openmausbot/environment")
+    }
+
+    func testTheDescriptorFallsBackToTheSeiraPathOn404() async throws {
+        let body = try fixture("environment")
+        ServerRequestStub.reset { request in
+            request.url?.path == "/.well-known/openmausbot/environment" ? (404, Data("{}".utf8)) : (200, body)
+        }
+        let connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
+        let environment = try await CompanionClient(connection: connection, token: nil, session: session).environment()
+        XCTAssertEqual(environment.environmentId, "env_7f3a9c")
+        XCTAssertEqual(
+            ServerRequestStub.captured().compactMap { $0.url?.path },
+            ["/.well-known/openmausbot/environment", "/.well-known/seira/environment"]
+        )
+    }
+
+    func testTheDescriptorDoesNotFallBackOn500() async throws {
+        ServerRequestStub.reset { _ in (500, Data("{}".utf8)) }
+        let connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
+        do {
+            _ = try await CompanionClient(connection: connection, token: nil, session: session).environment()
+            XCTFail("expected a refusal")
+        } catch let error as APIError {
+            guard case let .status(code, _) = error else { return XCTFail("\(error)") }
+            XCTAssertEqual(code, 500)
+        }
+        XCTAssertEqual(ServerRequestStub.captured().compactMap { $0.url?.path }, ["/.well-known/openmausbot/environment"])
+    }
+
+    func testTheDescriptorThrowsThe404WhenBothPathsAnswer404() async throws {
+        ServerRequestStub.reset { _ in (404, Data("{}".utf8)) }
+        let connection = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
+        do {
+            _ = try await CompanionClient(connection: connection, token: nil, session: session).environment()
+            XCTFail("expected a refusal")
+        } catch let error as APIError {
+            guard case let .status(code, _) = error else { return XCTFail("\(error)") }
+            XCTAssertEqual(code, 404)
+        }
+        XCTAssertEqual(ServerRequestStub.captured().count, 2)
     }
 
     func testConnectionsSavedBeforeServerPairingStillDecodeAsCompanionOnes() throws {

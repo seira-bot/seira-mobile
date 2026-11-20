@@ -343,10 +343,20 @@ class CompanionClient(
     suspend fun environment(): ServerEnvironment {
         connection.requireServerTransport()
         val publicClient = CompanionClient(connection, null, actionClient)
-        return publicClient.send(
-            publicClient.makeRequest("GET", "/.well-known/seira/environment"),
-            publicClient.actionClient.newBuilder().followRedirects(false).followSslRedirects(false).build(),
-        )
+        val noRedirects = publicClient.actionClient.newBuilder()
+            .followRedirects(false)
+            .followSslRedirects(false)
+            .build()
+        var notFound: APIError.Status? = null
+        for (path in DesktopWireIds.ENVIRONMENT_PATHS) {
+            try {
+                return publicClient.send(publicClient.makeRequest("GET", path), noRedirects)
+            } catch (error: APIError.Status) {
+                if (error.code != 404) throw error
+                notFound = error
+            }
+        }
+        throw notFound!!
     }
 
     suspend fun health(): JsonObject = send(makeRequest("GET", "/api/health"))
@@ -1589,7 +1599,7 @@ class CompanionClient(
                     companion.makeRequest("GET", "/api/health"),
                     probeClient,
                 )
-                if (identity.app == "seira") {
+                if (identity.app in DesktopWireIds.SERVER_APP_IDS) {
                     null
                 } else {
                     APIError.Transport("Something other than Seira answers at ${connection.displayAddress}.")

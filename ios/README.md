@@ -108,7 +108,7 @@ ios/
   App/                           SwiftUI, and everything that needs a device
     CompanionApp.swift           entry; owns when the stream lives and dies
     Session.swift                connection, lifecycle, actions
-    Discovery.swift              NWBrowser for _seira._tcp
+    Discovery.swift              NWBrowser for _openmausbot._tcp and _seira._tcp
     Keychain.swift               the device token
     Character/                    the Seira character: carved head, moving character, moods
     PairingView.swift            QR handoff, discovery, address and code fallback

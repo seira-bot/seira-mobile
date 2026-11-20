@@ -15,7 +15,7 @@ import org.w3c.dom.Element
  * The §6 guarantee for a pairing deep link lives in the manifest, so that is
  * where it is checked.
  *
- * A URL carrying `seira_pair_…` must never reach an Activity whose launching Intent
+ * A URL carrying `omb_pair_…` or `seira_pair_…` must never reach an Activity whose launching Intent
  * the system keeps: the ActivityManager hands that Intent back when it restarts
  * the Activity after a process kill, and under the default `persistRootOnly` it
  * writes a *root* Activity's Intent to task state that survives a reboot. Either
@@ -63,14 +63,14 @@ class PairingLinkManifestTest {
         for (index in 0 until filters.length) {
             val filter = filters.item(index) as Element
             val data = filter.getElementsByTagName("data")
+            val schemes = mutableSetOf<String>()
+            val hosts = mutableSetOf<String>()
             for (dataIndex in 0 until data.length) {
                 val element = data.item(dataIndex) as Element
-                if (element.getAttributeNS(android, "scheme") == PairingLink.SCHEME &&
-                    element.getAttributeNS(android, "host") == PairingLink.HOST
-                ) {
-                    return true
-                }
+                element.getAttributeNS(android, "scheme").takeIf { it.isNotEmpty() }?.let(schemes::add)
+                element.getAttributeNS(android, "host").takeIf { it.isNotEmpty() }?.let(hosts::add)
             }
+            if (schemes == PairingLink.SCHEMES && hosts == setOf(PairingLink.HOST)) return true
         }
         return false
     }
@@ -79,7 +79,7 @@ class PairingLinkManifestTest {
     fun `the pairing deep link is handled only by the trampoline`() {
         assertTrue(
             activity(".PairingLinkActivity").hasPairingFilter(),
-            "PairingLinkActivity must own the seira://pair filter",
+            "PairingLinkActivity must own one filter for openmausbot://pair and seira://pair",
         )
         assertFalse(
             activity(".MainActivity").hasPairingFilter(),
@@ -188,9 +188,12 @@ class ShareReceiveManifestTest {
 class PairingLinkTest {
     @Test
     fun `only the pairing scheme and host are an invite`() {
+        assertTrue(PairingLink.isInvite("openmausbot", "pair"))
+        assertTrue(PairingLink.isInvite("OpenMausBot", "PAIR"))
         assertTrue(PairingLink.isInvite("seira", "pair"))
         assertTrue(PairingLink.isInvite("Seira", "PAIR"))
         assertFalse(PairingLink.isInvite("https", "pair"))
+        assertFalse(PairingLink.isInvite("openmausbot", "join"))
         assertFalse(PairingLink.isInvite("seira", "join"))
         assertFalse(PairingLink.isInvite(null, null))
     }
