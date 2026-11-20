@@ -83,6 +83,13 @@ class Icons3dTest {
         }
     }
 
+    private fun ComposeContentTestRule.assertNoTags(vararg names: String) {
+        waitForIdle()
+        names.forEach {
+            assertTrue(onAllNodesWithTag("icon3d.$it", useUnmergedTree = true).fetchSemanticsNodes().isEmpty(), "unexpected icon3d.$it")
+        }
+    }
+
     private fun publish(name: String, mode: ThemeMode, content: @Composable () -> Unit) {
         val file = compose.captureDesign(name, mode) { content() }
         assertTrue(file.length() > 0)
@@ -97,15 +104,15 @@ class Icons3dTest {
     }
 
     @Test
-    fun settingsShowsItsRowIcons() {
+    fun settingsShowsNoIcon3d() {
         compose.setContent { CompanionTheme(darkTheme = false) { Settings(mac) } }
-        compose.assertTags("appearance", "computer", "notifications", "voice", "privacy", "help")
+        compose.assertNoTags("appearance", "computer", "notifications", "voice", "privacy", "help")
     }
 
     @Test
-    fun settingsWithoutAComputerOffersPairing() {
+    fun settingsWithoutAComputerShowsNoIcon3d() {
         compose.setContent { CompanionTheme(darkTheme = false) { Settings(null) } }
-        compose.assertTags("computer", "pair", "help")
+        compose.assertNoTags("computer", "pair", "help")
     }
 
     @Test
