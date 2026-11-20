@@ -448,10 +448,12 @@ public struct PairingRouteError: Error, LocalizedError, Equatable, Sendable {
         } else {
             // Same Wi-Fi first; then the firewall, because a phone already on that
             // Wi-Fi is most often stopped by Windows Firewall on a network Windows
-            // calls Public; then Remote access, which connects outward.
+            // calls Public, or by ufw or firewalld dropping inbound connections on
+            // Linux; then Remote access, which connects outward.
             advice = "Your phone couldn’t reach \(computer) on this network. Put the phone on the same Wi-Fi " +
                 "as the computer. If it already is, the computer’s firewall may be blocking " +
-                "Seira: on a Windows PC, set its network to Private. Or open Settings → " +
+                "Seira: on a Windows PC, set its network to Private; on Linux, run the firewall " +
+                "command that Seira shows on the computer. Or open Settings → " +
                 "Remote access on the computer and sign in so the phone can connect from anywhere."
         }
         return attemptedHosts.isEmpty
