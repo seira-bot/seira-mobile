@@ -210,7 +210,7 @@ fun TaskSheet(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    ChatAvatar(chat = current, size = 48.dp, state = MausState.IDLE, animated = false)
+                    ChatAvatar(chat = current, size = 48.dp, state = CharacterMood.IDLE, animated = false)
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(current.name, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
                         Text(localizedMobileCopy(TaskRules.subtitle(current)), fontSize = 14.sp, color = secondaryTint)

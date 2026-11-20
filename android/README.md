@@ -76,6 +76,11 @@ signed build writes `app-release.apk` instead.
 The APK is already zip-aligned by the Android Gradle Plugin, and `apksigner`
 preserves that alignment. **Do not run `zipalign` or `jarsigner`.**
 
+Release builds leave out live calls. The `LIVE_CALLS` build flag is `false` in
+`release` and `true` in every other build type. The release manifest removes the
+call service, the Talk tile, the Talk shortcut and the microphone foreground
+service permission, and the call buttons and settings do not show.
+
 ## Signing it
 
 The signing key belongs to the maintainer and never enters this repository.

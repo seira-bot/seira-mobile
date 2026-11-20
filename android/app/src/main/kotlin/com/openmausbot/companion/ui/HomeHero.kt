@@ -46,7 +46,7 @@ internal fun HomeHero(
     status: String,
     busy: Boolean,
     waiting: Boolean,
-    face: MausState,
+    face: CharacterMood,
     canTalk: Boolean,
     onOpen: () -> Unit,
     onTalk: () -> Unit,
@@ -84,7 +84,8 @@ internal fun HomeHero(
                     size = 56.dp,
                     ring = if (busy) AvatarRing.Working else AvatarRing.None,
                     state = face,
-                    animated = false,
+                    animated = true,
+                    sway = true,
                 )
             }
             Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {

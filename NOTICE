@@ -29,6 +29,10 @@ Copyright 2024 The Geist Project Authors
 (https://github.com/vercel/geist-font), used under the SIL Open Font License
 1.1. The license text is in android/app/src/main/assets/licenses/geist-ofl.txt.
 
+The Android app bundles Seira character pictures and ports of drawing code from
+Seira desktop (https://github.com/seira-bot/seira), Copyright 2026 Rama Aditya,
+licensed under the Apache License, Version 2.0.
+
 The iOS app bundles the character kit, the carved avatar pictures and the accessory
 stickers of the Seira desktop project, and ports its character renderer code, used
 under the Apache License 2.0.

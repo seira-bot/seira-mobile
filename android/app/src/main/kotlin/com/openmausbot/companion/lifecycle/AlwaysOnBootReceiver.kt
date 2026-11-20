@@ -3,6 +3,7 @@ package com.openmausbot.companion.lifecycle
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.storage.AlwaysOnPreferences
 
 /**
@@ -13,6 +14,7 @@ import com.openmausbot.companion.storage.AlwaysOnPreferences
  */
 class AlwaysOnBootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        if (!BuildConfig.ALWAYS_ON) return
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
         if (AlwaysOnPreferences(context).enabled.value) {
             AlwaysOnConnectionService.start(context)

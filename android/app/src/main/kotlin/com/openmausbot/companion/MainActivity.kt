@@ -283,7 +283,7 @@ class MainActivity : ComponentActivity() {
         // composition consumed it still navigates, and one after it does not.
         notificationNavigation.offer(intent.notificationTarget(), fresh = fresh)
         intent.getStringExtra(NotificationIntents.EXTRA_SHORTCUT_ID)?.let(app.shortcuts::reportUsed)
-        if (talk && intent.action == TalkIntents.ACTION_TALK) {
+        if (BuildConfig.LIVE_CALLS && talk && intent.action == TalkIntents.ACTION_TALK) {
             TalkRequestHandler(app.session, callUi, notificationNavigation, lifecycleScope).handle()
         }
     }
@@ -323,6 +323,7 @@ class MainActivity : ComponentActivity() {
      * screen, so nothing here needs to await a result.
      */
     private fun toggleAlwaysOn() {
+        if (!BuildConfig.ALWAYS_ON) return
         val enabling = !app.alwaysOn.enabled.value
         if (enabling && notifications.access.value != NotificationAccess.GRANTED) {
             // A background connection whose notifications can't post is a

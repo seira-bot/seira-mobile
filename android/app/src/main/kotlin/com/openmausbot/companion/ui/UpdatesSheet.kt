@@ -48,7 +48,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.character.CarvedAvatar
 import com.openmausbot.companion.core.Chat
+import com.openmausbot.companion.core.SeiraLook
 import kotlinx.coroutines.launch
 
 /**
@@ -64,7 +66,7 @@ import kotlinx.coroutines.launch
 @Composable
 internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier: Modifier = Modifier) {
     val first = updates.firstOrNull()
-    val stack = remember(updates) { updates.take(UpdatesSummary.MASCOTS).map { it.chat.color } }
+    val stack = remember(updates) { updates.take(UpdatesSummary.MASCOTS).map { it.chat.look() } }
     Row(
         modifier = modifier
             .chromeCapsule()
@@ -76,7 +78,7 @@ internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier:
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (first != null) {
-            MascotStack(colors = stack)
+            MascotStack(looks = stack)
         }
 
         Column(
@@ -91,7 +93,7 @@ internal fun UpdatesBar(updates: List<ChatUpdate>, onOpen: () -> Unit, modifier:
                     Icon(
                         imageVector = Icons.Filled.Notifications,
                         contentDescription = null,
-                        tint = Color(MausPalette.argb(first.chat.color)),
+                        tint = Color(BotPalette.argb(first.chat.color)),
                         modifier = Modifier.size(13.dp),
                     )
                 }
@@ -158,17 +160,17 @@ private fun localizedUpdateLine(line: String): String {
 
 private val QUEUED_MESSAGES = Regex("^(\\d+) messages queued$")
 
-/** Up to three mascots overlapping, the way a group of faces reads at a glance. */
+/** Up to three avatars overlapping, the way a group of faces reads at a glance. */
 @Composable
-internal fun MascotStack(colors: List<String>, size: Dp = 28.dp, overlap: Dp = 12.dp) {
+internal fun MascotStack(looks: List<SeiraLook>, size: Dp = 28.dp, overlap: Dp = 12.dp) {
     Row(horizontalArrangement = Arrangement.spacedBy(-overlap)) {
-        colors.forEach { color ->
+        looks.forEach { look ->
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.surface, CircleShape)
                     .padding(2.dp),
             ) {
-                MausAvatar(color = color, size = size, state = MausState.IDLE, animated = false)
+                CarvedAvatar(look = look, size = size)
             }
         }
     }
@@ -193,7 +195,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
     // One pass over the fleet rather than one per row: resolving a face walks the
     // chat's visible transcript.
     val faces = remember(state, updates) {
-        updates.associate { it.id to MausState.forChat(it.chat, state) }
+        updates.associate { it.id to CharacterMood.forChat(it.chat, state) }
     }
 
     ModalBottomSheet(onDismissRequest = onDismiss) {
@@ -216,6 +218,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                     EmptyState(
                         title = UpdatesSummary.EMPTY_TITLE,
                         description = UpdatesSummary.EMPTY_DESCRIPTION,
+                        art = Art3d(R.drawable.icon3d_all_done, "all_done"),
                         modifier = Modifier.padding(top = 24.dp),
                     )
                 }
@@ -231,7 +234,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                         // Needs you wears the colour of the chat that heads it;
                         // the other two stay quiet.
                         color = if (kind == UpdateKind.NEEDS_YOU) {
-                            Color(MausPalette.argb(items.first().chat.color))
+                            Color(BotPalette.argb(items.first().chat.color))
                         } else {
                             secondaryTint
                         },
@@ -241,7 +244,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                 items(items, key = { it.id }) { update ->
                     UpdateRow(
                         update = update,
-                        face = faces[update.id] ?: MausState.IDLE,
+                        face = faces[update.id] ?: CharacterMood.IDLE,
                         onOpen = { onOpen(update.chat) },
                     )
                 }
@@ -251,7 +254,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
 }
 
 @Composable
-private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
+private fun UpdateRow(update: ChatUpdate, face: CharacterMood, onOpen: () -> Unit) {
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
     val haptics = rememberHaptics()
@@ -347,7 +350,7 @@ private fun UpdateRow(update: ChatUpdate, face: MausState, onOpen: () -> Unit) {
                 Box(
                     Modifier
                         .size(10.dp)
-                        .background(Color(MausPalette.argb(update.chat.color)), CircleShape),
+                        .background(Color(BotPalette.argb(update.chat.color)), CircleShape),
                 )
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,

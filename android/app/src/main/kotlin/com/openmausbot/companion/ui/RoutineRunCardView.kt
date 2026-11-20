@@ -68,7 +68,7 @@ internal fun RoutineRunCardView(message: Message, openRun: (() -> Unit)?) {
     }
     val tint = when (run.tone) {
         RoutineRunTone.ERROR -> MaterialTheme.colorScheme.error
-        RoutineRunTone.ATTENTION -> Color(MausPalette.argb("orange"))
+        RoutineRunTone.ATTENTION -> Color(BotPalette.argb("orange"))
         RoutineRunTone.ACTIVE -> MaterialTheme.colorScheme.primary
         RoutineRunTone.NEUTRAL -> secondaryTint
     }

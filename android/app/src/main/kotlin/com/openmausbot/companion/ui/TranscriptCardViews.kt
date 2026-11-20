@@ -88,9 +88,9 @@ import kotlinx.coroutines.launch
 private const val CARD_CLIP_LABEL = "Seira card"
 
 /** Added and removed, in the app's own palette rather than Tailwind's. */
-private val DiffAdded = Color(MausPalette.argb("green"))
-private val DiffRemoved = Color(MausPalette.argb("red"))
-private val DiffHunk = Color(MausPalette.argb("cyan"))
+private val DiffAdded = Color(BotPalette.argb("green"))
+private val DiffRemoved = Color(BotPalette.argb("red"))
+private val DiffHunk = Color(BotPalette.argb("cyan"))
 
 /**
  * A patch, with its head visible and all of it on the clipboard.

@@ -2,15 +2,19 @@ package com.openmausbot.companion.ui
 
 import android.graphics.Bitmap
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.RectangleShape
@@ -25,29 +29,28 @@ import com.openmausbot.companion.avatar.AvatarImageRules
 import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Chat
+import com.openmausbot.companion.core.Room
+import com.openmausbot.companion.core.SeiraLook
+import com.openmausbot.companion.character.CarvedAvatar
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.identityPlate
 
 /**
- * An agent's identity image, or its mascot — the port of
- * `ios/App/BotAvatarView.swift`.
+ * An agent's identity image, or its carved Seira avatar.
  *
  * The image is an app-owned attachment on the paired computer, fetched with this
  * phone's bearer token, so it never goes through a URL-loading composable that
- * could not attach one. Every way that can fail — no URL, the mascot crop, a
- * fetch that did not answer, bytes that would not decode — lands on the same
- * deterministic mascot, because an agent's identity must never become an empty
- * placeholder.
+ * could not attach one. Every way that can fail lands on the carved avatar,
+ * because an agent's identity must never become an empty placeholder.
  */
 @Composable
 internal fun BotAvatar(
     bot: Bot,
     size: Dp,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
-    /**
-     * Left null where the name is already beside the face — the row would
-     * otherwise be read out twice, which is why [MausAvatar] clears its own
-     * semantics. Set it where the face stands alone.
-     */
+    sway: Boolean = false,
+    /** Left null where the name is already beside the face. Set it where the face stands alone. */
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -55,9 +58,6 @@ internal fun BotAvatar(
     val path = bot.avatarUrl
     val store = LocalCompanion.current.avatars
 
-    // `BotAvatarView` keys its fetch on the attachment and the crop together, and
-    // clears the rendered image whenever either changes. Keying the state itself
-    // means a recycled row never paints the previous agent's face for a frame.
     val identity = remember(path, crop) { BotAvatarRules.identity(path, crop) }
     var image by remember(identity) { mutableStateOf<Bitmap?>(null) }
     var failed by remember(identity) { mutableStateOf(false) }
@@ -72,9 +72,6 @@ internal fun BotAvatar(
         image = decoded
     }
 
-    // `BotAvatarView` puts its accessibility outside the image/mascot branch, so
-    // the agent is announced whichever one draws — a missing attachment or a
-    // failed fetch must not also cost the avatar its name.
     val named = if (contentDescription == null) {
         modifier
     } else {
@@ -86,30 +83,28 @@ internal fun BotAvatar(
         val bitmap = remember(painted) { painted.asImageBitmap() }
         Image(
             bitmap = bitmap,
-            // Named by [named] above; naming it here as well reads it twice.
             contentDescription = null,
-            // `.resizable().scaledToFill().frame(size).clipShape(mask)`.
             contentScale = ContentScale.Crop,
             modifier = named.size(size).clip(BotAvatarRules.shape(crop, size)),
         )
     } else {
-        MausAvatar(
-            color = bot.color,
-            bodyId = bot.mascotBody,
+        CarvedAvatar(
+            look = SeiraLook.from(bot),
             size = size,
-            state = state,
+            mood = state,
             animated = animated,
+            sway = sway,
             modifier = named,
         )
     }
 }
 
-/** `ChatAvatarView`: a room has no identity image, only the blue mascot. */
+/** A bot's own avatar, or for a room the first two member bots stacked. */
 @Composable
 internal fun ChatAvatar(
     chat: Chat,
     size: Dp,
-    state: MausState = MausState.IDLE,
+    state: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = true,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
@@ -123,14 +118,36 @@ internal fun ChatAvatar(
             contentDescription = contentDescription,
             modifier = modifier,
         )
-        is Chat.RoomChat -> MausAvatar(
-            color = "blue",
-            size = size,
-            state = state,
-            animated = animated,
-            modifier = modifier,
-        )
+        is Chat.RoomChat -> RoomAvatar(room = chat.room, size = size, modifier = modifier)
     }
+}
+
+/** The member bots of [room] as a stacked pair. A room with no member bots shows the Seira avatar. */
+@Composable
+internal fun RoomAvatar(room: Room, size: Dp, modifier: Modifier = Modifier) {
+    val state by LocalCompanion.current.session.state.collectAsState()
+    val members = remember(state, room.memberIds) { RosterLayout.memberBots(state, room) }
+    Box(modifier = modifier) {
+        RoomFaces(members = members, size = size)
+    }
+}
+
+/** The Seira avatar on its identity plate. */
+@Composable
+internal fun SeiraRoomAvatar(size: Dp, modifier: Modifier = Modifier) {
+    val plate = identityPlate(SeiraLook.SEIRA.color, Seira.colors.isDark)
+    Box(
+        modifier = modifier.size(size).clip(CircleShape).background(plate, CircleShape),
+        contentAlignment = Alignment.Center,
+    ) {
+        CarvedAvatar(look = SeiraLook.SEIRA, size = size)
+    }
+}
+
+/** The look a chat wears: a bot's own, and the Seira look for a room. */
+internal fun Chat.look(): SeiraLook = when (this) {
+    is Chat.BotChat -> SeiraLook.from(bot)
+    is Chat.RoomChat -> SeiraLook.SEIRA
 }
 
 internal object BotAvatarRules {

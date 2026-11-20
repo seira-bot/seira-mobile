@@ -1,8 +1,8 @@
 # Seira Google Play release preparation
 
 Use this guide with the [release checklist](CHECKLIST.md). It records repository
-inputs and checks to perform for each release; it does not supply approved Play
-Console declarations or establish that a release is ready to publish.
+inputs and checks to perform for each release. It does not establish that a
+release is ready to publish.
 
 ## Release identity and build
 
@@ -44,48 +44,81 @@ results together. A successful build alone does not verify app workflows.
 
 ## Listing copy and assets
 
-Suggested short description, subject to verification on the release build:
+The listing files are drafts for the release owner to review. They are not an
+approved upload set.
 
-> Chat with AI bots on your paired computer from your phone.
-
-Describe the Seira desktop dependency and the setup needed for each
-supported connection method. Write the full description and release notes from
-features verified in the selected release. Android call mode and on-device voice
-key setup are not established by this preparation work; do not advertise them
-based on unmerged work in #739 or #1531. Composer dictation is a separate feature.
-
-These files are candidates for review, not an approved upload set:
-
-| Asset | Repository file | Review needed |
+| Item | Repository file | Review needed |
 | --- | --- | --- |
-| Icon, 512×512 | [play-icon-512.png](assets/play-icon-512.png) | Match the release launcher icon. |
-| Feature graphic, 1024×500 | [feature-graphic-1024x500.png](assets/feature-graphic-1024x500.png) | Check Seira branding and supported feature claims. |
-| Threads, 1080×2400 | [01-threads.png](assets/screenshots/01-threads.png) | Compare with the selected release. |
-| Chat, 1080×2400 | [02-chat.png](assets/screenshots/02-chat.png) | Compare with the selected release. |
-| Call, 1080×2400 | [03-call.png](assets/screenshots/03-call.png) | **Unapproved and unusable for submission until the actual release supports and verifies this feature.** |
-| Pairing, 1080×2400 | [04-pairing.png](assets/screenshots/04-pairing.png) | Compare with the selected release. |
-| Updates, 1080×2400 | [05-updates.png](assets/screenshots/05-updates.png) | Compare with the selected release. |
+| Copy, English (United States), default | [listing/en-US.md](listing/en-US.md) | Check each claim against the release build. The file maps each claim to the app. |
+| Copy, Indonesian | [listing/id-ID.md](listing/id-ID.md) | Same claims as en-US. It states that the app screens are in English. |
+| Phone screenshots, 1080×1920 (9:16) | [frames/en-US/](frames/en-US/), [frames/id-ID/](frames/id-ID/) | Six images per language. Compare with the release build. |
+| Feature graphic, 1024×500 | [graphics/feature-graphic-en-US.png](graphics/feature-graphic-en-US.png), [graphics/feature-graphic-id-ID.png](graphics/feature-graphic-id-ID.png) | Check Seira branding. |
+| Icon, 512×512 | [assets/play-icon-512.png](assets/play-icon-512.png) | Use the icon that matches the release launcher icon. |
+| Declarations | [declarations-proposal.md](declarations-proposal.md) | Answers saved in Play Console for release 1.0.0, and the open steps. Check them again when the release build changes. |
 
-The icon and feature graphic have editable sources in
-[play-icon.html](assets/play-icon.html),
-[feature-graphic.html](assets/feature-graphic.html), and
-[app-icon-source.svg](assets/app-icon-source.svg). Review rendered outputs after
-changing sources. Check current Console asset requirements before submission.
+Run `node android/PlayStore/tools/check-listing.mjs` from the repository root.
+It checks the Console length limits and words that the copy must not use.
 
-For new screenshots, follow the [verification guide](../../docs/verification/README.md)
-and [Android fixture instructions](../../docs/verification/android-threads.md).
-Use a disposable emulator and isolated fixture with synthetic content. The
-preview variant supports scanner/manual pairing and intentionally excludes
-system pairing links and share entrypoints; retain those boundaries. Record the
-capture commit and build variant, and verify every selected image reflects the
-release. Test any claimed device or tablet support before including it.
+Do not advertise Android call mode or on-device voice key setup. This
+preparation work does not establish them (#739, #1531). Composer dictation is a
+separate feature. The old screenshots, including the call screen, are removed.
+
+The release build leaves out live calls and the always-on background
+connection (`LIVE_CALLS` and `ALWAYS_ON` are false, and
+`src/release/AndroidManifest.xml` removes their services and permissions). The
+release has no foreground service, so the Console foreground service form does
+not apply. Do not advertise notifications while the app is closed.
+
+### Screenshots
+
+Each screenshot is a real render of the app with synthetic data, in a frame
+with a short caption. The frame never draws or changes app UI.
+
+The renders need the Seira character work: the 3D character heads
+(`claude/android-character`) and the Change look sheet
+(`claude/android-character-sheet`). Screenshot 2 and the listing line about
+each bot's look show that sheet. Do not submit them unless the release build
+has both.
+
+1. Render the app screens and the cast portraits. `StoreScreenshotTest` and
+   `CastPortraitTest` on branch `claude/play-store-screens-3d` (built on the
+   redesign from PR #3, now in `main`, and the character work) render them with Robolectric at
+   411×731 dp (9:16). From `android/`, run
+   `./gradlew :app:testDebugUnitTest --tests '*StoreScreenshotTest' --tests '*CastPortraitTest'`.
+2. Copy `android/app/build/design-screens/store-*.png` to [raw/](raw/). Copy
+   the portraits that [frames/captions.json](frames/captions.json) names to
+   [raw/cast/](raw/cast/).
+3. Edit captions and mascot placement in
+   [frames/captions.json](frames/captions.json) if needed.
+4. From the repository root, run `python3 android/PlayStore/tools/frame.py`.
+   It rebuilds every framed screenshot and both feature graphics, and checks
+   size, color mode, and file size. It needs Pillow.
+
+Where each part of an image comes from:
+
+| Part | Source |
+| --- | --- |
+| Phone screen | The app render in `raw/` |
+| Mascots | The app's own character renderer (`CastPortraitTest`), so they match the avatars in the app |
+| Background | Generated decoration in [graphics/source/bg/](graphics/source/bg/): confetti, stars, and color only, no UI and no text |
+| Caption | [frames/captions.json](frames/captions.json), drawn by `frame.py` |
+
+The render test hides every call entry point (the Home Talk pill, the chat call
+button, and the composer talk button). Check each image again when the UI changes.
+
+`raw/` also holds tablet renders (1920×1080 and 2560×1440) and extra Change look
+renders. They are not framed and not in the upload set.
+
+The frame font is Geist, under the SIL Open Font License
+([tools/fonts/OFL.txt](tools/fonts/OFL.txt)).
 
 ## Manual Console and privacy review
 
 The release owner must complete current Console forms using the shipped app,
 its dependencies, and the deployed services. Review all applicable declarations,
 including data safety, permissions, content rating, audience, ads, and app access.
-This guide prescribes no answers or age groups.
+[declarations-proposal.md](declarations-proposal.md) records the answers that
+are saved in Play Console for release 1.0.0, with their sources and open steps.
 
 Account for each supported connection, provider, and hosting configuration:
 
@@ -97,8 +130,9 @@ Account for each supported connection, provider, and hosting configuration:
   that processing alongside messages, attachments, credentials, identifiers,
   optional hosted sign-in, and any other enabled data flows.
 - Review the release's merged manifest and dependencies against the source
-  [manifest](../app/src/main/AndroidManifest.xml). Explain the actual permission
-  use, including QR pairing, dictation, notifications, and background connection.
+  [manifest](../app/src/main/AndroidManifest.xml) and the
+  [release manifest](../app/src/release/AndroidManifest.xml). Explain the actual
+  permission use, including QR pairing, dictation, and notifications.
 
 Manually confirm the privacy policy URL, disclosures, retention and deletion
 processes, support contacts, and any signup/account requirements. A URL alone

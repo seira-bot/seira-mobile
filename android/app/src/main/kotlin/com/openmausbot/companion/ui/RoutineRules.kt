@@ -92,7 +92,7 @@ object RoutineRules {
     const val CHECKING_CLOUD: String = "Checking Cloud VM availability…"
     const val CLOUD_STATUS_UNAVAILABLE: String = "Cloud VM status is unavailable"
 
-    const val MAUS_FOOTER: String =
+    const val PAIRED_COMPUTER_FOOTER: String =
         "Uses this agent's selected model and computer setting on the paired computer."
     const val CLOUD_READY_FOOTER: String =
         "Runs on this bot's own model, which uses the bot's cloud computer. The cloud " +
@@ -211,7 +211,7 @@ object RoutineRules {
         availability: RoutineRunAvailability?,
         engine: String?,
     ): String = when {
-        runOn == RoutineRunLocation.MAUS -> MAUS_FOOTER
+        runOn == RoutineRunLocation.MAUS -> PAIRED_COMPUTER_FOOTER
         availability?.cloudReady(engine) == true -> CLOUD_READY_FOOTER
         else -> CLOUD_BLOCKED_FOOTER
     }

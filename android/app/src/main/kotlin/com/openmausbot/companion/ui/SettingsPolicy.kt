@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
  * lock it out (§13). This is a status page with an unpair button.
  */
 object SettingsPolicy {
+    const val HELP_FAQ_URL = "https://seira.bot/#faq"
+    const val PRIVACY_POLICY_URL = "https://seira.bot/privacy"
+    const val HELP_REPORT_URL = "https://github.com/seira-bot/seira/issues"
+
     const val NOTIFICATIONS_FOOTER =
         "Approvals and finished work appear while Seira is connected, including " +
             "frames replayed after a short background pause. Closed-app push needs a " +
