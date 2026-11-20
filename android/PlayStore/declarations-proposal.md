@@ -106,13 +106,14 @@ server" tersimpan di Console pada 2026-11-20:
 - Username: alamat halaman pairing di server uji.
 - Password: passphrase halaman pairing. Pemilik rilis menempelnya sendiri.
 - Kotak "full access" dicentang.
-- Instruksi: 487 karakter (batas Console 500).
+- Instruksi: kurang dari 500 karakter (batas Console). Console masih memuat
+  "Tap Allow once." dari 1.0.1. Ganti ke "Tap Allow." saat kirim 1.0.2.
 
 ```text
 Seira connects to a Seira server. A review server is ready.
 1. Open the page in the Username field in a browser. Enter the Password as the passphrase. It shows a QR code and a code like ABCD-EFGH-JKLM.
 2. In the app tap Scan QR Code. Or tap Enter a code instead, enter [SERVER ADDRESS], tap Continue, enter the code, tap Connect.
-3. Open Demo Assistant. Send: Create a file named note.txt with the text hello. Tap Allow once.
+3. Open Demo Assistant. Send: Create a file named note.txt with the text hello. Tap Allow.
 Each code works once. Tap Get a new code for another.
 ```
 
@@ -174,16 +175,19 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
 
 ## Langkah sesudah pengiriman 1.0.1
 
-1. Pantau keputusan Google untuk 1.0.1. Google menyebut kebanyakan review
-   selesai dalam 7 hari.
-2. Sesudah Google menyetujui 1.0.1, upgrade server uji ke desktop 0.1.182.
-3. Sesudah desktop 0.1.182 rilis, merge PR #11. Bangun `.aab` 1.0.2
+1. Selesai 2026-11-20: Google menyetujui 1.0.1. App tayang di Play.
+2. Selesai 2026-11-20: uji 1.0.1 terhadap server uji lulus. Kartu izin memakai
+   tombol "Allow" dan "Deny".
+3. Upgrade server uji ke desktop 0.1.182 sesudah versi itu rilis.
+4. Sesudah desktop 0.1.182 rilis, merge PR #11. Bangun `.aab` 1.0.2
    (versionCode 10002) dari `main` dan cek tanda tangan, versi, dan hash.
-4. Uji 1.0.2 di emulator dengan fixture terpisah, termasuk kartu izin
-   "Allow once".
-5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
-   nama "1.0.2", isi "Catatan rilis update 1.0.2", lalu kirim untuk review.
-6. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
+   Build ini juga membawa karakter Seira 3D di layar sambutan dan Settings
+   (PR #22).
+5. Uji 1.0.2 di emulator terhadap server uji 0.1.182, termasuk kartu izin.
+6. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
+   nama "1.0.2", isi "Catatan rilis update 1.0.2". Ganti langkah 3 App access
+   ke "Tap Allow.". Lalu kirim untuk review.
+7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
 debug symbols belum diunggah.
