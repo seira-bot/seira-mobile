@@ -16,6 +16,10 @@ public struct NotificationFrame: Codable, Hashable, Sendable {
     public var threadId: String
     public var title: String
     public var body: String
+    /// The request this alert waits on: the pending card's `requestId` for
+    /// `approval` and `question`. Absent for other kinds, for an alert with
+    /// no card, and from a computer that predates the field.
+    public var requestId: String?
 
     /// A bot blocked on you, as opposed to one reporting in.
     public var isBlocking: Bool { kind == "approval" || kind == "question" }

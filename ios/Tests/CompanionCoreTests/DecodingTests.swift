@@ -843,6 +843,33 @@ final class DecodingTests: XCTestCase {
         XCTAssertEqual(frame.frame.threadId, "t1")
     }
 
+    func testNotifyFrameDecodesItsRequestId() throws {
+        let json = """
+        {"kind":"notify","seq":13,"notification":{
+          "kind":"approval","botId":"b1","botName":"Scout","threadId":"t1",
+          "title":"Scout needs approval","body":"rm -rf ./build","requestId":"req-7"}}
+        """
+        let frame = try JSONDecoder().decode(StreamFrame.self, from: Data(json.utf8))
+        guard case let .notify(notification) = frame.frame else {
+            return XCTFail("expected .notify")
+        }
+        XCTAssertEqual(notification.requestId, "req-7")
+    }
+
+    func testNotifyFrameWithoutARequestIdStillDecodes() throws {
+        let json = """
+        {"kind":"notify","seq":14,"notification":{
+          "kind":"done","botId":"b1","botName":"Scout","threadId":"t1",
+          "title":"Scout finished","body":"pushed"}}
+        """
+        let frame = try JSONDecoder().decode(StreamFrame.self, from: Data(json.utf8))
+        guard case let .notify(notification) = frame.frame else {
+            return XCTFail("expected .notify")
+        }
+        XCTAssertNil(notification.requestId)
+        XCTAssertEqual(notification.title, "Scout finished")
+    }
+
     // MARK: - A newer computer than the phone
 
     // The harness gains message kinds when it ships; the phone gains them
