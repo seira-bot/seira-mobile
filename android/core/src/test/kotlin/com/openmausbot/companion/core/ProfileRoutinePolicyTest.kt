@@ -40,19 +40,19 @@ class ProfileRoutinePolicyTest {
 
         val ready = RoutineRunAvailability(configured, available)
         assertTrue(ready.cloudReady("claude"))
-        assertTrue(ready.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.SEIRA, engine = "claude"))
+        assertTrue(ready.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.MAUS, engine = "claude"))
         // The routine runs on its own bot's engine, like on the desktop and
         // the server: another bot's engine does not count.
         assertFalse(ready.cloudReady("codex"))
-        assertFalse(ready.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.SEIRA, engine = "codex"))
+        assertFalse(ready.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.MAUS, engine = "codex"))
 
         val offline = RoutineRunAvailability(configured, unavailable)
-        assertFalse(offline.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.SEIRA, engine = "claude"))
+        assertFalse(offline.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.MAUS, engine = "claude"))
         assertTrue(
             offline.canSelect(RoutineRunLocation.CLOUD, preserving = RoutineRunLocation.CLOUD, engine = "claude"),
             "an existing cloud routine must not silently move",
         )
-        assertTrue(offline.canSelect(RoutineRunLocation.SEIRA, preserving = RoutineRunLocation.CLOUD, engine = "claude"))
+        assertTrue(offline.canSelect(RoutineRunLocation.MAUS, preserving = RoutineRunLocation.CLOUD, engine = "claude"))
     }
 
     @Test
@@ -139,7 +139,7 @@ class ProfileRoutinePolicyTest {
         name = "Brief",
         prompt = "Summarize",
         botId = "bot-1",
-        runOn = "seira",
+        runOn = "maus",
         enabled = false,
         schedule = schedule,
         durationMinutes = 30,

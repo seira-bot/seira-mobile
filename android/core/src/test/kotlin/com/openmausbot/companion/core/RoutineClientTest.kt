@@ -121,7 +121,7 @@ class RoutineClientTest {
         )
         assertEquals(exactName, create.getValue("name").jsonPrimitive.content)
         assertEquals(exactPrompt, create.getValue("prompt").jsonPrimitive.content)
-        assertEquals("seira", create.getValue("runOn").jsonPrimitive.content)
+        assertEquals("maus", create.getValue("runOn").jsonPrimitive.content)
         assertEquals(5, create.getValue("durationMinutes").jsonPrimitive.content.toInt())
         assertFalse("timeoutMinutes" in create)
         assertEquals(
@@ -214,7 +214,7 @@ class RoutineClientTest {
         "name":"Brief",
         "prompt":"Summarize",
         "botId":"bot-1",
-        "runOn":"seira",
+        "runOn":"maus",
         "enabled":true,
         "schedule":{"type":"once","at":2000000},
         "durationMinutes":30,
@@ -230,7 +230,7 @@ class RoutineClientTest {
         "prompt":"Summarize",
         "durationMinutes":30,
         "botId":"bot-1",
-        "runOn":"seira",
+        "runOn":"maus",
         "scheduledFor":2000000,
         "status":"completed",
         "manual":true,

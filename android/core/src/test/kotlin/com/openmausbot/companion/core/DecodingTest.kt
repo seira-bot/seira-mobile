@@ -83,10 +83,37 @@ class DecodingTest {
     }
 
     @Test
+    fun aRoutineRunOnMausOrSeiraRunsOnThisComputer() {
+        for (runOn in listOf("maus", "seira")) {
+            val routine = CompanionJson.decodeFromString<Routine>(
+                """{
+                    "id":"routine-1","name":"Brief","prompt":"Summarize","botId":"bot-1",
+                    "runOn":"$runOn","enabled":true,
+                    "schedule":{"type":"daily","time":"09:00","weekdays":[1]},
+                    "durationMinutes":30,"createdAt":1,"updatedAt":2
+                }""".trimIndent(),
+            )
+            assertEquals(RoutineRunLocation.MAUS, routine.runLocation, "runOn $runOn")
+        }
+    }
+
+    @Test
+    fun aNewRoutineInputAsksForThisComputerWithTheOldWireValue() {
+        val input = RoutineInput(
+            name = "Brief",
+            prompt = "Summarize",
+            botId = "bot-1",
+            schedule = RoutineSchedule(type = RoutineSchedule.Kind.DAILY, time = "09:00", weekdays = listOf(1)),
+        )
+        assertEquals("maus", input.runOn)
+        assertEquals("maus", RoutineRunLocation.MAUS.wireValue)
+    }
+
+    @Test
     fun routineTimeoutIsOptionalForOlderDesktopPayloads() {
         val base = """{
             "id":"routine-1","name":"Brief","prompt":"Summarize","botId":"bot-1",
-            "runOn":"seira","enabled":true,
+            "runOn":"maus","enabled":true,
             "schedule":{"type":"daily","time":"09:00","weekdays":[1]},
             "durationMinutes":30,"createdAt":1,"updatedAt":2
         }""".trimIndent()

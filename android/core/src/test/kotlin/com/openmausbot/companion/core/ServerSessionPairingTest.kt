@@ -35,7 +35,7 @@ class ServerSessionPairingTest {
             assertEquals("Pixel", body["label"]?.jsonPrimitive?.content)
             assertEquals("attempt-1234", body["attemptId"]?.jsonPrimitive?.content)
             assertNull(body["cookie"])
-            assertEquals("/.well-known/seira/environment", fixture.requests.first().url.encodedPath)
+            assertEquals("/.well-known/openmausbot/environment", fixture.requests.first().url.encodedPath)
             assertTrue(fixture.requests.none { it.url.encodedPath == "/api/pair" })
         }
     }
@@ -50,7 +50,43 @@ class ServerSessionPairingTest {
             )
             assertNull(f.store.saved)
             assertTrue(f.tokens.values.isEmpty())
-            assertEquals(1, f.requests.size)
+            assertEquals(2, f.requests.size)
+        }
+    }
+
+    @Test
+    fun environmentAsksTheOpenMausBotPathFirstThenFallsBackToSeiraOn404() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { request ->
+            if (request.url.encodedPath == "/.well-known/openmausbot/environment") 404 to "{}" else null
+        }.use { f ->
+            val environment = CompanionClient(connection, null, f.http).environment()
+            assertEquals("env-fixture", environment.environmentId)
+            assertEquals(
+                listOf("/.well-known/openmausbot/environment", "/.well-known/seira/environment"),
+                f.requests.map { it.url.encodedPath },
+            )
+            assertTrue(f.requests.all { it.header("Authorization") == null })
+        }
+    }
+
+    @Test
+    fun environmentDoesNotFallBackWhenTheFirstPathAnswers500() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { 500 to "{}" }.use { f ->
+            val error = assertFailsWith<APIError.Status> { CompanionClient(connection, null, f.http).environment() }
+            assertEquals(500, error.code)
+            assertEquals(listOf("/.well-known/openmausbot/environment"), f.requests.map { it.url.encodedPath })
+        }
+    }
+
+    @Test
+    fun environmentThrowsTheLast404WhenBothPathsAnswer404() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { 404 to "{}" }.use { f ->
+            val error = assertFailsWith<APIError.Status> { CompanionClient(connection, null, f.http).environment() }
+            assertEquals(404, error.code)
+            assertEquals(2, f.requests.size)
         }
     }
 
@@ -166,7 +202,7 @@ class ServerSessionPairingTest {
             val client = CompanionClient(saved, "saved-bearer", f.http)
             assertFailsWith<APIError.Status> { client.fleet() }
             assertEquals(1, f.requests.size)
-            assertEquals("/.well-known/seira/environment", f.requests.single().url.encodedPath)
+            assertEquals("/.well-known/openmausbot/environment", f.requests.single().url.encodedPath)
             assertNull(f.requests.single().header("Authorization"))
         }
     }
@@ -183,7 +219,7 @@ class ServerSessionPairingTest {
             assertEquals(active.id, f.session.connection.value?.id)
             assertEquals(1, f.requests.size)
             assertNull(f.requests.single().header("Authorization"))
-            assertEquals("/.well-known/seira/environment", f.requests.single().url.encodedPath)
+            assertEquals("/.well-known/openmausbot/environment", f.requests.single().url.encodedPath)
         }
     }
 
@@ -192,7 +228,7 @@ class ServerSessionPairingTest {
         val saved = assertNotNull(Connection.parse("https://mini.example")).copy(serverEnvironmentId = "env-fixture")
         Fixture { request -> if (request.url.encodedPath == "/api/bots") 200 to "{\"bots\":[],\"groups\":[]}" else null }.use { f ->
             CompanionClient(saved, "saved-bearer", f.http).fleet()
-            assertEquals(listOf("/.well-known/seira/environment", "/api/bots"), f.requests.map { it.url.encodedPath })
+            assertEquals(listOf("/.well-known/openmausbot/environment", "/api/bots"), f.requests.map { it.url.encodedPath })
             assertNull(f.requests.first().header("Authorization"))
             assertEquals("Bearer saved-bearer", f.requests.last().header("Authorization"))
         }

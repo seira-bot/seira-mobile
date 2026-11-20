@@ -65,6 +65,30 @@ final class ConnectionTests: XCTestCase {
         XCTAssertNil(Connection.parse("host name"))
     }
 
+    func testParsesADesktopPairingInviteWithEitherSchemeAndItsOwnTokenPrefix() throws {
+        let old = "omb_pair_" + String(repeating: "a", count: 43)
+        let seira = "seira_pair_" + String(repeating: "a", count: 43)
+        XCTAssertEqual(old.utf8.count, 52)
+        XCTAssertEqual(seira.utf8.count, 54)
+        let oldLink = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=\(old)"))
+        let upperLink = try XCTUnwrap(URL(string: "OpenMausBot://PAIR?address=mac.local&token=\(old)"))
+        let seiraLink = try XCTUnwrap(URL(string: "seira://pair?address=mac.local&token=\(seira)"))
+        XCTAssertEqual(PairingInvite.parse(oldLink)?.credential, old)
+        XCTAssertEqual(PairingInvite.parse(upperLink)?.credential, old)
+        XCTAssertEqual(PairingInvite.parse(seiraLink)?.credential, seira)
+    }
+
+    func testRefusesATokenWhosePrefixDoesNotMatchItsLength() throws {
+        let shortSeira = "omb_pair_" + String(repeating: "a", count: 45)
+        let longOld = "seira_pair_" + String(repeating: "a", count: 41)
+        let unknown = "other_pair_" + String(repeating: "a", count: 43)
+        for token in [shortSeira, longOld, unknown] {
+            let url = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=\(token)"))
+            XCTAssertNil(PairingInvite.parse(url), token)
+        }
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "mausbot://pair?address=mac.local&code=004209"))))
+    }
+
     func testParsesADesktopPairingInvite() throws {
         let token = "seira_pair_" + String(repeating: "a", count: 43)
         let secretKey = "BIPBQ12_dWnF1DZLsTZO3Vg0NGjds5-jp9h3jhjr2To7bJelczS0LM82rfXV68PmSJhz2ePosj3fL974XckCpDU"

@@ -240,7 +240,8 @@ public struct PairingInvite: Equatable, Sendable {
 
     public static func parse(_ url: URL) -> PairingInvite? {
         if let server = parseServerLink(url) { return server }
-        guard url.scheme?.lowercased() == "seira",
+        guard let scheme = url.scheme?.lowercased(),
+              DesktopWireIDs.pairingSchemes.contains(scheme),
               url.host?.lowercased() == "pair",
               let components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         else { return nil }
@@ -423,9 +424,9 @@ public struct PairingInvite: Equatable, Sendable {
 
     private static func credential(from values: [String: String]) -> String? {
         if let token = values["token"] {
-            guard token.hasPrefix("seira_pair_"),
-                  token.utf8.count == 54,
-                  token.dropFirst("seira_pair_".count).utf8.allSatisfy({
+            guard let prefix = DesktopWireIDs.pairingTokenPrefixes.first(where: { token.hasPrefix($0) }),
+                  token.utf8.count == prefix.utf8.count + 43,
+                  token.dropFirst(prefix.count).utf8.allSatisfy({
                       (48...57).contains($0) || (65...90).contains($0) ||
                       (97...122).contains($0) || $0 == 45 || $0 == 95
                   })
@@ -839,7 +840,15 @@ public struct CompanionClient: Sendable {
     /// The server's public descriptor: reachable before pairing, and the way
     /// to notice that the address now belongs to a different server.
     public func environment() async throws -> ServerEnvironment {
-        try await send(makeRequest("GET", "/.well-known/seira/environment"), as: ServerEnvironment.self)
+        var lastNotFound: Error?
+        for path in DesktopWireIDs.environmentPaths {
+            do {
+                return try await send(makeRequest("GET", path), as: ServerEnvironment.self)
+            } catch APIError.status(code: 404, message: let message) {
+                lastNotFound = APIError.status(code: 404, message: message)
+            }
+        }
+        throw lastNotFound ?? APIError.status(code: 404, message: nil)
     }
 
     /// End this session on the server (server-paired connections only).
@@ -950,7 +959,9 @@ public struct CompanionClient: Sendable {
             guard !Task.isCancelled,
                   let http = response as? HTTPURLResponse,
                   (200...299).contains(http.statusCode),
-                  try JSONDecoder().decode(HealthIdentity.self, from: data).app == "seira"
+                  DesktopWireIDs.serverAppIDs.contains(
+                      try JSONDecoder().decode(HealthIdentity.self, from: data).app
+                  )
             else { return false }
             return true
         } catch {

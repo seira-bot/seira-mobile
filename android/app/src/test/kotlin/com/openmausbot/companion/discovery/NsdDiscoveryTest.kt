@@ -437,6 +437,66 @@ class DiscoveryRetryTest {
     }
 
     @Test
+    fun thePhoneBrowsesTheOpenMausBotAndTheSeiraServiceTypes() {
+        assertEquals(listOf("_openmausbot._tcp.", "_seira._tcp."), NsdDiscovery.SERVICE_TYPES)
+        assertEquals("_openmausbot._tcp.", NsdDiscovery.SERVICE_TYPE)
+    }
+
+    @Test
+    fun aComputerFoundByBothBrowsesShowsOnce() {
+        val merged = mergeDiscoveryStates(
+            listOf(
+                DiscoveryState.Active(
+                    browsing = true,
+                    found = listOf(DiscoveredService("Studio", "192.168.1.42", 8810)),
+                ),
+                DiscoveryState.Active(
+                    browsing = true,
+                    found = listOf(
+                        DiscoveredService("Studio", "192.168.1.42", 8810),
+                        DiscoveredService("attic", "192.168.1.43", 8810),
+                    ),
+                ),
+            ),
+        )
+        val active = assertIs<DiscoveryState.Active>(merged)
+        assertEquals(listOf("attic", "Studio"), active.found.map { it.name })
+        assertTrue(active.browsing)
+        assertNull(active.failure)
+        assertFalse(active.emptyWhileBrowsing)
+    }
+
+    @Test
+    fun oneBrowseThatWorksHidesTheFailureOfTheOther() {
+        val merged = assertIs<DiscoveryState.Active>(
+            mergeDiscoveryStates(
+                listOf(
+                    DiscoveryState.Active(browsing = true, found = emptyList()),
+                    DiscoveryState.Active(browsing = false, found = emptyList(), failure = DiscoveryRetry.RETRYING),
+                ),
+            ),
+        )
+        assertTrue(merged.browsing)
+        assertNull(merged.failure)
+        assertTrue(merged.emptyWhileBrowsing)
+    }
+
+    @Test
+    fun whenNoBrowseWorksTheFirstFailureShows() {
+        val merged = assertIs<DiscoveryState.Active>(
+            mergeDiscoveryStates(
+                listOf(
+                    DiscoveryState.Active(browsing = false, found = emptyList(), failure = "first"),
+                    DiscoveryState.Active(browsing = false, found = emptyList(), failure = "second"),
+                ),
+            ),
+        )
+        assertFalse(merged.browsing)
+        assertEquals("first", merged.failure)
+        assertFalse(merged.emptyWhileBrowsing)
+    }
+
+    @Test
     fun theBackoffIsIncremental() {
         // iOS: retryCount * 350ms.
         assertEquals(350L, DiscoveryRetry.delayFor(1))

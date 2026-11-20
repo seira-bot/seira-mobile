@@ -98,7 +98,8 @@ Verify from a second terminal that the socket is real and refuses strangers:
 ```sh
 curl -s http://192.168.x.x:8810/api/bots            # expect 401 + "pair this device…"
 curl -s http://127.0.0.1:8811/state | jq            # addresses, pairing, devices, discovery
-dns-sd -B _seira._tcp                         # macOS: should list the service
+dns-sd -B _openmausbot._tcp                         # macOS: should list the service
+dns-sd -B _seira._tcp                               # macOS: a later desktop may use this type
 ```
 
 ### If discovery says it is not advertising

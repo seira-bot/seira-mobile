@@ -42,17 +42,17 @@ final class ProfileRoutinePolicyTests: XCTestCase {
 
         let ready = RoutineRunAvailability(config: configured, instances: available)
         XCTAssertTrue(ready.cloudReady(engine: "claude"))
-        XCTAssertTrue(ready.canSelect(.cloud, preserving: .seira, engine: "claude"))
+        XCTAssertTrue(ready.canSelect(.cloud, preserving: .maus, engine: "claude"))
         // The routine runs on its own bot's engine, like on the desktop and
         // the server: another bot's engine does not count.
         XCTAssertFalse(ready.cloudReady(engine: "codex"))
-        XCTAssertFalse(ready.canSelect(.cloud, preserving: .seira, engine: "codex"))
+        XCTAssertFalse(ready.canSelect(.cloud, preserving: .maus, engine: "codex"))
         XCTAssertFalse(ready.cloudReady(engine: nil), "no bot chosen yet")
 
         let offline = RoutineRunAvailability(config: configured, instances: unavailable)
-        XCTAssertFalse(offline.canSelect(.cloud, preserving: .seira, engine: "claude"))
+        XCTAssertFalse(offline.canSelect(.cloud, preserving: .maus, engine: "claude"))
         XCTAssertTrue(offline.canSelect(.cloud, preserving: .cloud, engine: "claude"), "an existing cloud routine must not silently move")
-        XCTAssertTrue(offline.canSelect(.seira, preserving: .cloud, engine: "claude"))
+        XCTAssertTrue(offline.canSelect(.maus, preserving: .cloud, engine: "claude"))
     }
 
     func testAgentVoiceWorksWithoutANonexistentWorkspaceDefault() throws {
@@ -152,7 +152,7 @@ final class ProfileRoutinePolicyTests: XCTestCase {
             name: "Brief",
             prompt: "Summarize",
             botId: "bot-1",
-            runOn: "seira",
+            runOn: "maus",
             enabled: false,
             schedule: schedule,
             durationMinutes: 30,

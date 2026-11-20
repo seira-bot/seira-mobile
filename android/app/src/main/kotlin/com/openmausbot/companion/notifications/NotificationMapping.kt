@@ -25,10 +25,10 @@ object NotificationMapping {
         else -> CHANNEL_DONE
     }
 
-    /** Matches iOS: `seira.{threadId}.{seq}` (title fallback when seq is null). */
+    /** Matches iOS: `openmaus.{threadId}.{seq}` (title fallback when seq is null). */
     fun dedupeId(notification: NotificationFrame, sequence: Int?): String {
         val suffix = sequence?.toString() ?: notification.title
-        return "seira.${notification.threadId}.$suffix"
+        return "openmaus.${notification.threadId}.$suffix"
     }
 
     fun isHighImportance(notification: NotificationFrame): Boolean = notification.isBlocking

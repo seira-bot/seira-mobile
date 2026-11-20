@@ -38,6 +38,13 @@ import okhttp3.mockwebserver.MockWebServer
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionTest {
     @Test
+    fun bothDesktopTokenPrefixesAreQrCredentials() {
+        assertTrue(Session.isQrCredential("omb_pair_" + "a".repeat(43)))
+        assertTrue(Session.isQrCredential("seira_pair_" + "a".repeat(43)))
+        assertFalse(Session.isQrCredential("123456"))
+    }
+
+    @Test
     fun restoreWithMissingConnectionStaysUnpaired() = runTest {
         val session = session()
         session.awaitRestored()

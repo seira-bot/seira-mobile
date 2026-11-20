@@ -440,6 +440,25 @@ final class PairingTests: XCTestCase {
         XCTAssertTrue(PairingRequestStub.captured().allSatisfy { $0.url?.path == "/api/health" })
     }
 
+    func testAcceptsBothAppIdsFromTheHealthProbe() async throws {
+        for app in ["openmausbot", "seira"] {
+            PairingRequestStub.reset { request in
+                if request.url?.path == "/api/health" {
+                    return .response(200, Data(#"{"app":"\#(app)","pid":42,"static":true}"#.utf8))
+                }
+                return .response(201, Self.paired)
+            }
+            let connection = Connection(name: "Mac", host: "192.168.1.42", port: 8810)
+            _ = try await CompanionClient.pairFirstReachable(
+                connection: connection,
+                credential: Self.credential,
+                deviceName: "iPhone",
+                session: session
+            )
+            XCTAssertTrue(PairingRequestStub.captured().contains { $0.url?.path == "/api/pair" }, app)
+        }
+    }
+
     func testRejectsAServiceThatDoesNotIdentifyAsOpenMausBot() async throws {
         PairingRequestStub.reset { _ in .response(200, Data(#"{"app":"something-else"}"#.utf8)) }
         let connection = Connection(name: "Mac", host: "192.168.1.42", port: 8810)

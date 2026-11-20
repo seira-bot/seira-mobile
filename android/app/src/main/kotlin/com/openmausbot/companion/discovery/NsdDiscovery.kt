@@ -7,6 +7,7 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import androidx.annotation.RequiresApi
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.DesktopWireIds
 import java.net.InetAddress
 import java.util.Collections
 import java.util.concurrent.ConcurrentHashMap
@@ -17,6 +18,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 data class DiscoveredService(
@@ -158,6 +160,7 @@ internal fun browseDiscoveryFlow(
     // Per-collection: acquire here, not at Flow construction.
     val multicastLock = acquireMulticastLock()
     val resolved = ConcurrentHashMap<String, DiscoveredService>()
+    val serviceLabel = serviceType.trim('.').substringBefore("._")
     var browsing = false
     var failure: String? = null
     var lockReleased = false
@@ -223,7 +226,7 @@ internal fun browseDiscoveryFlow(
         }
 
         override fun onServiceFound(service: NsdServiceInfo) {
-            if (service.serviceType != serviceType && !service.serviceType.contains("seira")) {
+            if (service.serviceType != serviceType && !service.serviceType.contains(serviceLabel)) {
                 return
             }
             attemptResolve(service, attemptsSoFar = 1)
@@ -299,6 +302,26 @@ internal fun browseDiscoveryFlow(
         releaseLockOnce()
     }
 }.distinctUntilChanged()
+
+/**
+ * One list for several browses. A computer that announces more than one service type
+ * shows once, under the first browse that found it.
+ */
+internal fun mergeDiscoveryStates(states: List<DiscoveryState>): DiscoveryState {
+    val active = states.filterIsInstance<DiscoveryState.Active>()
+    if (active.isEmpty()) return DiscoveryState.Idle
+    val browsing = active.any { it.browsing }
+    val found = active.flatMap { it.found }
+        .distinctBy { it.name }
+        .sortedBy { it.name.lowercase() }
+    val failure = if (browsing) null else active.firstNotNullOfOrNull { it.failure }
+    return DiscoveryState.Active(
+        browsing = browsing,
+        found = found,
+        failure = failure,
+        emptyWhileBrowsing = browsing && found.isEmpty(),
+    )
+}
 
 /**
  * The API 34 side of a resolve, with the platform as two lambdas so its release
@@ -411,23 +434,16 @@ interface CompanionDiscovery {
 }
 
 /**
- * NsdManager wrapper for `_seira._tcp`, exposed as a Flow of [DiscoveryState].
+ * NsdManager wrapper for [SERVICE_TYPES], exposed as one Flow of [DiscoveryState].
  */
 class NsdDiscovery(
     context: Context,
-    private val serviceType: String = SERVICE_TYPE,
+    private val serviceTypes: List<String> = SERVICE_TYPES,
 ) : CompanionDiscovery {
     private val appContext = context.applicationContext
     private val nsdManager = appContext.getSystemService(NsdManager::class.java)
     private val wifiManager = appContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
     private val resolveExecutor: Executor = Executors.newSingleThreadExecutor()
-    private val resolver = if (Build.VERSION.SDK_INT >= 34) {
-        ServiceInfoResolver(
-            unregister = { callback -> nsdManager?.unregisterServiceInfoCallback(callback) },
-        )
-    } else {
-        null
-    }
 
     override fun discover(): Flow<DiscoveryState> {
         if (nsdManager == null) {
@@ -446,22 +462,35 @@ class NsdDiscovery(
         // Android 13 below T extension 7 — without it browse silently returns
         // nothing even when NEARBY_WIFI_DEVICES is granted. Acquire only when
         // the cold Flow is collected so close→reopen gets a fresh held lock.
-        return browseDiscoveryFlow(
-            serviceType = serviceType,
-            acquireMulticastLock = ::acquireMulticastLock,
-            startBrowse = { listener ->
-                nsdManager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, listener)
-            },
-            stopBrowse = { listener ->
-                nsdManager.stopServiceDiscovery(listener)
-            },
-            resolveService = { service, onResolved -> resolve(service, onResolved) },
-            stopResolves = {
-                if (Build.VERSION.SDK_INT >= 34) resolver?.stopAll()
-            },
-            hostAddress = ::hostAddress,
-            failureMessage = ::failureMessage,
-        )
+        val browses = serviceTypes.map { serviceType ->
+            // Each browse owns its resolves, so a browse that fails does not stop the
+            // resolves of the other one.
+            val resolver = if (Build.VERSION.SDK_INT >= 34) {
+                ServiceInfoResolver(
+                    unregister = { callback -> nsdManager.unregisterServiceInfoCallback(callback) },
+                )
+            } else {
+                null
+            }
+            browseDiscoveryFlow(
+                serviceType = serviceType,
+                acquireMulticastLock = ::acquireMulticastLock,
+                startBrowse = { listener ->
+                    nsdManager.discoverServices(serviceType, NsdManager.PROTOCOL_DNS_SD, listener)
+                },
+                stopBrowse = { listener ->
+                    nsdManager.stopServiceDiscovery(listener)
+                },
+                resolveService = { service, onResolved -> resolve(resolver, service, onResolved) },
+                stopResolves = {
+                    if (Build.VERSION.SDK_INT >= 34) resolver?.stopAll()
+                },
+                hostAddress = ::hostAddress,
+                failureMessage = ::failureMessage,
+            )
+        }
+        return combine(browses) { states -> mergeDiscoveryStates(states.toList()) }
+            .distinctUntilChanged()
     }
 
     private fun acquireMulticastLock(): MulticastLockHandle? =
@@ -479,7 +508,11 @@ class NsdDiscovery(
      * with nothing to release; API 34 goes through [ServiceInfoResolver], which
      * holds the registrations `awaitClose` hands back.
      */
-    private fun resolve(service: NsdServiceInfo, onResolved: (NsdServiceInfo?) -> Unit) {
+    private fun resolve(
+        resolver: ServiceInfoResolver?,
+        service: NsdServiceInfo,
+        onResolved: (NsdServiceInfo?) -> Unit,
+    ) {
         val manager = nsdManager ?: return onResolved(null)
         if (Build.VERSION.SDK_INT >= 34) {
             resolver?.resolve(
@@ -529,7 +562,8 @@ class NsdDiscovery(
     }
 
     companion object {
-        const val SERVICE_TYPE = "_seira._tcp."
+        val SERVICE_TYPES: List<String> = DesktopWireIds.MDNS_SERVICE_TYPES.map { "$it." }
+        val SERVICE_TYPE: String = SERVICE_TYPES.first()
         const val MULTICAST_LOCK_TAG = "openmausbot-nsd"
     }
 }
