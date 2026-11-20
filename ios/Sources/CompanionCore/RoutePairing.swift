@@ -168,19 +168,22 @@ extension CompanionClient {
     ) async -> RouteFailureReason? {
         do {
             let client = CompanionClient(connection: connection, token: nil, session: session)
-            var request = try client.makeRequest("GET", "/.well-known/seira/environment")
-            request.timeoutInterval = timeout
-            let (data, response) = try await session.data(for: request)
-            guard let http = response as? HTTPURLResponse else { return .other }
-            if http.statusCode == 404 { return .notSeira }
-            if ConnectionAdvice.shouldTryAnotherRoute(after: APIError.status(code: http.statusCode, message: nil)) {
-                return .gateway(http.statusCode)
+            for path in DesktopWireIDs.environmentPaths {
+                var request = try client.makeRequest("GET", path)
+                request.timeoutInterval = timeout
+                let (data, response) = try await session.data(for: request)
+                guard let http = response as? HTTPURLResponse else { return .other }
+                if http.statusCode == 404 { continue }
+                if ConnectionAdvice.shouldTryAnotherRoute(after: APIError.status(code: http.statusCode, message: nil)) {
+                    return .gateway(http.statusCode)
+                }
+                if (200...299).contains(http.statusCode),
+                   (try? JSONDecoder().decode(ServerEnvironment.self, from: data)) == nil {
+                    return .notSeira
+                }
+                return nil
             }
-            if (200...299).contains(http.statusCode),
-               (try? JSONDecoder().decode(ServerEnvironment.self, from: data)) == nil {
-                return .notSeira
-            }
-            return nil
+            return .notSeira
         } catch {
             return RouteFailureReason(error)
         }

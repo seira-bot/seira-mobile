@@ -180,6 +180,23 @@ final class ServerRoutesTests: XCTestCase {
         XCTAssertEqual(outcome.response.environment.environmentId, "env_7f3a9c")
     }
 
+    func testADesktopThatKnowsOnlyTheOldDescriptorPathStillPairs() async throws {
+        let body = try pairBody()
+        let env = environment
+        RouteStub.reset { request in
+            switch request.url?.path {
+            case "/.well-known/openmausbot/environment": return .reply(200, env)
+            case "/api/auth/pair": return .reply(200, body)
+            default: return .reply(404, Data())
+            }
+        }
+        let connection = try invite(routes: [(tailnet, 0), (tunnel, 1)], primary: tailnet)
+        let outcome = try await CompanionClient.pairWithServerFirstReachable(
+            connection: connection, code: code, label: "phone", session: session
+        )
+        XCTAssertEqual(outcome.connection.activeEndpoint?.url, "https://\(tailnet)")
+    }
+
     func testTheRouteWithTheLowestPriorityWinsWhenBothAnswer() async throws {
         let body = try pairBody()
         let env = environment
