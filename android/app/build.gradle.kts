@@ -101,6 +101,7 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
         buildConfigField("boolean", "LIVE_CALLS", "true")
+        buildConfigField("boolean", "ALWAYS_ON", "true")
     }
 
     signingConfigs {
@@ -139,7 +140,10 @@ android {
         release {
             // The Play listing offers no calls, and a microphone foreground
             // service needs a Play declaration. Release leaves calls out.
+            // Always-on stays out too: no listing claim, and its foreground
+            // service needs its own declaration.
             buildConfigField("boolean", "LIVE_CALLS", "false")
+            buildConfigField("boolean", "ALWAYS_ON", "false")
             // Null whenever no signing material was supplied — the unsigned
             // handover build — and the "release" config whenever it was.
             signingConfig = signingConfigs.findByName("release")

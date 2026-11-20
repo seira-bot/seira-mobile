@@ -34,7 +34,7 @@ class SettingsVoiceHelpTest {
 
     private val mac = Connection(id = "c1", name = "Dina's MacBook", host = "192.168.1.20", port = 8810)
 
-    private fun mount(connection: Connection?, callsEnabled: Boolean = true): WiringScene {
+    private fun mount(connection: Connection?, callsEnabled: Boolean = true, alwaysOnAvailable: Boolean = true): WiringScene {
         val scene = WiringScene(connection = connection)
         compose.setContent {
             CompositionLocalProvider(LocalCompanion provides scene.environment) {
@@ -43,6 +43,7 @@ class SettingsVoiceHelpTest {
                         onBack = {},
                         onOpenConnectedApps = {},
                         callsEnabled = callsEnabled,
+                        alwaysOnAvailable = alwaysOnAvailable,
                         accounts = AccountInfoSource {
                             AccountInfo(Profile(name = "Dina Pratama", email = "dina@example.com"), connectedApps = 3)
                         },
@@ -93,6 +94,20 @@ class SettingsVoiceHelpTest {
         mount(mac, callsEnabled = false)
         compose.onAllNodesWithText("Voice and calls").assertCountEquals(0)
         compose.onAllNodesWithText("Live captions").assertCountEquals(0)
+        compose.onNodeWithText("Help").performScrollTo()
+    }
+
+    @Test
+    fun `a build with always-on shows the background connection row`() {
+        mount(mac, alwaysOnAvailable = true)
+        compose.onNodeWithText("Always on").performScrollTo().assertExists()
+    }
+
+    @Test
+    fun `a build without always-on hides the background connection row`() {
+        mount(mac, alwaysOnAvailable = false)
+        compose.onAllNodesWithText("Always on").assertCountEquals(0)
+        compose.onAllNodesWithText("Background connection").assertCountEquals(0)
         compose.onNodeWithText("Help").performScrollTo()
     }
 

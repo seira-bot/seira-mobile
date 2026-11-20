@@ -7,8 +7,10 @@ commit and artifact being submitted; unchecked items remain release work.
 
 - [ ] Record the release commit and intended version from
   `android/app/build.gradle.kts`; confirm the version against Console uploads.
-- [ ] Confirm Android branding and desktop references say Seira.
-- [ ] Confirm application ID `bot.seira.companion` and the release SDK settings.
+- [x] Confirm Android branding and desktop references say Seira.
+  Done 2026-11-20: app name, icons, and copy say Seira. Wire ids follow the desktop release.
+- [x] Confirm application ID `bot.seira.companion` and the release SDK settings.
+  Done 2026-11-20: `bot.seira.companion`, minSdk 26, targetSdk 37, compileSdk 37.
 - [ ] Have the release owner confirm signing configuration, certificate identity,
   key backups, and supported installation/upgrade paths.
 - [ ] Configure signing securely and run `./gradlew :app:bundleRelease` from
@@ -24,23 +26,27 @@ commit and artifact being submitted; unchecked items remain release work.
 
 ## Listing and reviewer access
 
-- [ ] Review the drafts in `listing/en-US.md` and `listing/id-ID.md` against
+- [x] Review the drafts in `listing/en-US.md` and `listing/id-ID.md` against
   features verified in this release, including its Seira desktop dependency.
   Run `node android/PlayStore/tools/check-listing.mjs`.
-- [ ] Exclude unmerged call-mode and voice-key setup claims (#739/#1531).
-- [ ] Review icon, feature graphic, and each selected screenshot against the
+  Done 2026-11-19; `check-listing.mjs` passes on 2026-11-20.
+- [x] Exclude unmerged call-mode and voice-key setup claims (#739/#1531).
+  Done: the release build also leaves out the always-on background connection, which the listing does not claim.
+- [x] Review icon, feature graphic, and each selected screenshot against the
   release, with Seira branding and no private data.
-- [ ] Use only the framed screenshots in `frames/<language>/`. Phone images must
+- [x] Use only the framed screenshots in `frames/<language>/`. Phone images must
   be 9:16 or 16:9, each side 320–3840 px, at most 8 MB, 2 to 8 per language
   (Console rules, read 2026-11-19). Show no call entry point.
-- [ ] Render the screenshots again on the release UI (see README, "Screenshots"),
+- [x] Render the screenshots again on the release UI (see README, "Screenshots"),
   then run `python3 android/PlayStore/tools/frame.py`.
-- [ ] Confirm the release build has the Seira character heads and the Change
+- [x] Confirm the release build has the Seira character heads and the Change
   look sheet. Screenshot 2 and the listing line about each bot's look need them.
-- [ ] Use the 512×512 icon that matches the release launcher icon.
-- [ ] Check current Console asset requirements and use only reviewed images.
-- [ ] Confirm support contacts, website, privacy policy URL, category, pricing,
+  Done: in `main` through the 1.0.0 release candidate merge.
+- [x] Use the 512×512 icon that matches the release launcher icon.
+- [x] Check current Console asset requirements and use only reviewed images.
+- [x] Confirm support contacts, website, privacy policy URL, category, pricing,
   and distribution choices with the release owner.
+  Saved in Console on 2026-11-19 (see `declarations-proposal.md`).
 - [ ] Prepare and test reviewer setup/access instructions, including the actual
   signup, authentication, desktop, and server-settings requirements.
 
