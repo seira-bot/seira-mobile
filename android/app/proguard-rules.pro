@@ -2,8 +2,8 @@
 # kotlinx.serialization (companion serializers), OkHttp, coroutines, Tink
 # (protobuf fields), and ML Kit barcode (protobuf fields and JNI names).
 
-# Google Play retraces crash reports with the mapping file only when the
-# file and line attributes stay in the dex.
+# Without LineNumberTable, R8 removes the line information, and a stack trace
+# that Google Play retraces with mapping.txt has no line numbers.
 -keepattributes SourceFile,LineNumberTable
 -renamesourcefileattribute SourceFile
 
