@@ -8,8 +8,5 @@
 -renamesourcefileattribute SourceFile
 
 # libwebrtc 150.7871.01 ships no R8 rules. Its native code finds these
-# classes and members by name over JNI. The release build has no live calls,
-# so R8 removes WebRTC completely; this rule applies only when a build
-# reaches PeerConnectionFactory.
--if class org.webrtc.PeerConnectionFactory
+# classes and members by name over JNI.
 -keep class org.webrtc.** { *; }
