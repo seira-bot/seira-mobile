@@ -65,6 +65,8 @@ targets:
       - path: App
       - path: AppShared
       - path: Shared
+      - path: SeiraKit
+        type: folder
     dependencies:
       - package: CompanionCore
         product: CompanionCore
@@ -88,6 +90,9 @@ targets:
         keychain-access-groups:
           - $(AppIdentifierPrefix)bot.seira.app
           - $(AppIdentifierPrefix)group.bot.seira.shared
+        # Communication Notifications capability: the bot shows as the sender,
+        # with its avatar. Enable it on the App ID in the developer portal.
+        com.apple.developer.usernotifications.communication: true
     info:
       path: App/Info.plist
       properties:
@@ -108,6 +113,8 @@ targets:
           - CFBundleURLName: bot.seira.companion.pairing
             CFBundleURLSchemes:
               - seira
+        NSUserActivityTypes:
+          - INSendMessageIntent
         # REQUIRED, and easy to lose. Without a launch screen iOS runs the
         # app in compatibility scaling: letterboxed inside black bars, with
         # everything drawn oversized, on every modern iPhone. An empty
@@ -133,14 +140,18 @@ targets:
           Seira finds your computer on this network so your bots can
           reach you here.
         NSCameraUsageDescription: >-
-          Seira uses the camera only to scan a pairing QR code shown on
-          your computer.
+          Seira uses the camera to scan the pairing code on your computer
+          and to take photos you send to a bot.
         NSMicrophoneUsageDescription: >-
           Seira listens while you dictate a message to a bot or talk
           to it on a Live call.
         NSSpeechRecognitionUsageDescription: >-
           Seira converts your speech into text so you can send it
           to a bot. Recognition runs on this phone when it can.
+        UIAppFonts:
+          - Geist-Regular.ttf
+          - Geist-Medium.ttf
+          - Geist-SemiBold.ttf
         NSBonjourServices:
           - _seira._tcp
         # The companion listener is plain HTTP on a local address. ATS has
@@ -252,15 +263,14 @@ targets:
       # answer intent resolves tokens through the same shared connection
       # store the Share extension uses.
       - path: AppShared
-      - path: App/MausAvatar.swift
-      - path: App/MausFaceData.swift
-      # MascotState resolves the face for the post-answer refresh a widget
-      # performs; it is self-contained above Core, so it rides along.
-      - path: App/MascotState.swift
+      # The character kit and the code that draws it. Widgets and Live
+      # Activities draw the carved avatar from these, and the post-answer
+      # refresh resolves each chat's mood with `CharacterMood`.
+      - path: App/Character
+      - path: SeiraKit
+        type: folder
     dependencies:
-      # MausAvatar draws whichever body a bot wears, and the body catalog and
-      # its path parser live in CompanionCore. The extension shares the
-      # drawing with the app, so it has to share the catalog too.
+      # The look catalog and the models live in CompanionCore.
       - package: CompanionCore
         product: CompanionCore
     settings:

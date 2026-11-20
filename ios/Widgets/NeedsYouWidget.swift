@@ -78,11 +78,7 @@ private struct NeedsYouView: View {
     private func smallRow(_ row: WidgetSnapshot.Row) -> some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
-                MausFaceStill(
-                    color: row.chat.color,
-                    state: MausState(rawValue: row.face) ?? .idle,
-                    size: 30
-                )
+                SeiraPlateHead(chat: row.chat, face: row.face, size: 30)
                 Text(row.chat.name)
                     .font(.system(size: 14, weight: .semibold))
                     .lineLimit(1)
@@ -110,11 +106,7 @@ private struct NeedsYouView: View {
             }
             ForEach(asks.prefix(3), id: \.chat) { row in
                 HStack(spacing: 8) {
-                    MausFaceStill(
-                        color: row.chat.color,
-                        state: MausState(rawValue: row.face) ?? .idle,
-                        size: 26
-                    )
+                    SeiraPlateHead(chat: row.chat, face: row.face, size: 26)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(row.chat.name)
                             .font(.system(size: 13, weight: .semibold))
@@ -209,7 +201,7 @@ struct AnswerPills: View {
                                 Capsule().fill(
                                     OptionCard.isRefusal(option)
                                         ? Color.secondary.opacity(0.2)
-                                        : MausPalette.color(row.chat.color)
+                                        : SeiraPalette.color(row.chat.color)
                                 )
                             )
                     }
