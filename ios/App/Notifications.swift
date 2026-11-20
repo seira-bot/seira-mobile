@@ -1,5 +1,6 @@
 import Foundation
 import Intents
+import UIKit
 import UserNotifications
 import CompanionCore
 
@@ -9,6 +10,11 @@ import CompanionCore
 final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate {
     static let shared = NotificationCoordinator()
     static let reviewActionIdentifier = "REVIEW"
+    static let approveActionIdentifier = "APPROVE"
+    static let denyActionIdentifier = "DENY"
+    private static let approvalCategory = "OPENMAUS_APPROVAL"
+    private static let answerableApprovalCategory = "SEIRA_APPROVAL_ANSWER"
+    private static let updateCategory = "OPENMAUS_UPDATE"
 
     private let center = UNUserNotificationCenter.current()
     private var lastBadgeCount: Int?
@@ -17,6 +23,9 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     var responseHandler: ((NotificationTarget) -> Void)?
     /// Set by `Session`. Returns the avatar image of the bot with this id.
     @MainActor var avatarProvider: (@MainActor (String) async -> Data?)?
+    /// Set by `Session`. Answers the request an alert names, or says that the
+    /// person has to review it in the chat.
+    @MainActor var answerHandler: (@MainActor (AlertAnswerTarget, AlertChoice) async -> AlertAnswerOutcome)?
 
     private override init() {
         super.init()
@@ -24,30 +33,49 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         center.setNotificationCategories(Self.categories)
     }
 
-    /// Security invariant: an alert offers no Approve action. The notification
-    /// frame does not name the request, so the app cannot prove which card an
-    /// alert is about. A person answers in the chat.
+    /// Security invariant: an alert answers a card only when the alert names
+    /// that exact request. Approve and Deny exist only on the answerable
+    /// category, which `post` picks for an `approval` that carries a request
+    /// id. Every other alert offers Review, which opens the chat. Both answers
+    /// need an unlocked device.
     private static var categories: Set<UNNotificationCategory> {
         let review = UNNotificationAction(
             identifier: reviewActionIdentifier,
             title: String(localized: "Review"),
             options: [.foreground]
         )
+        let approve = UNNotificationAction(
+            identifier: approveActionIdentifier,
+            title: String(localized: "Approve"),
+            options: [.authenticationRequired]
+        )
+        let deny = UNNotificationAction(
+            identifier: denyActionIdentifier,
+            title: String(localized: "Deny"),
+            options: [.authenticationRequired, .destructive]
+        )
         let blocking = UNNotificationCategory(
-            identifier: "OPENMAUS_APPROVAL",
+            identifier: approvalCategory,
             actions: [review],
             intentIdentifiers: [],
             hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
             options: []
         )
+        let answerable = UNNotificationCategory(
+            identifier: answerableApprovalCategory,
+            actions: [approve, deny, review],
+            intentIdentifiers: [],
+            hiddenPreviewsBodyPlaceholder: String(localized: "Needs your OK"),
+            options: []
+        )
         let update = UNNotificationCategory(
-            identifier: "OPENMAUS_UPDATE",
+            identifier: updateCategory,
             actions: [],
             intentIdentifiers: [],
             hiddenPreviewsBodyPlaceholder: "",
             options: []
         )
-        return [blocking, update]
+        return [blocking, answerable, update]
     }
 
     func authorizationStatus() async -> UNAuthorizationStatus {
@@ -58,13 +86,15 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         (try? await center.requestAuthorization(options: [.alert, .badge, .sound])) == true
     }
 
-    func deliver(_ notification: NotificationFrame, sequence: Int?) {
+    /// `connectionId` is the computer the frame arrived from. An answer from
+    /// the alert goes back to that computer and no other.
+    func deliver(_ notification: NotificationFrame, sequence: Int?, connectionId: String?) {
         guard isEnabled(for: notification) else { return }
         Task { [weak self] in
             guard let self else { return }
             let provider = await self.avatarProvider
             let avatar = await provider?(notification.botId)
-            self.post(notification, sequence: sequence, avatar: avatar)
+            self.post(notification, sequence: sequence, avatar: avatar, connectionId: connectionId)
         }
     }
 
@@ -73,18 +103,22 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         return UserDefaults.standard.object(forKey: key) as? Bool ?? true
     }
 
-    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?) {
+    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?, connectionId: String?) {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
         content.sound = .default
-        content.categoryIdentifier = notification.isBlocking ? "OPENMAUS_APPROVAL" : "OPENMAUS_UPDATE"
+        let answerTarget = AlertAnswerTarget(notification: notification, connectionId: connectionId)
+        content.categoryIdentifier = answerTarget != nil
+            ? Self.answerableApprovalCategory
+            : notification.isBlocking ? Self.approvalCategory : Self.updateCategory
         content.threadIdentifier = "bot.\(notification.botId)"
-        content.userInfo = [
+        let userInfo: [String: String] = answerTarget?.payload ?? [
             "threadId": notification.threadId,
             "botId": notification.botId,
             "kind": notification.kind,
         ]
+        content.userInfo = userInfo
         if notification.isBlocking { content.interruptionLevel = .timeSensitive }
 
         // A replay after a short disconnect must reconcile a missed alert,
@@ -157,11 +191,62 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        let strings = response.notification.request.content.userInfo.reduce(into: [String: String]()) { result, pair in
+        let content = response.notification.request.content
+        let strings = content.userInfo.reduce(into: [String: String]()) { result, pair in
             guard let key = pair.key as? String, let value = pair.value as? String else { return }
             result[key] = value
         }
-        if let target = NotificationTarget(payload: strings) { responseHandler?(target) }
-        completionHandler()
+        let choice: AlertChoice
+        switch response.actionIdentifier {
+        case Self.approveActionIdentifier: choice = .approve
+        case Self.denyActionIdentifier: choice = .deny
+        default:
+            if let target = NotificationTarget(payload: strings) { responseHandler?(target) }
+            completionHandler()
+            return
+        }
+        // The system holds the app awake until this handler returns, so the
+        // answer must finish first.
+        Task { @MainActor [weak self] in
+            await self?.answer(choice, payload: strings, title: content.title)
+            completionHandler()
+        }
+    }
+
+    /// Answer from the alert, or hand the request to the person in the chat.
+    @MainActor
+    private func answer(_ choice: AlertChoice, payload: [String: String], title: String) async {
+        guard let target = AlertAnswerTarget(payload: payload) else {
+            if let chat = NotificationTarget(payload: payload) {
+                sendToReview(chat, title: title, requestId: nil)
+            }
+            return
+        }
+        let outcome = await answerHandler?(target, choice) ?? .needsReview
+        guard outcome == .needsReview, let chat = target.notificationTarget else { return }
+        sendToReview(chat, title: title, requestId: target.requestId)
+    }
+
+    /// With the app in front, open the chat. Otherwise a new alert opens it
+    /// on a tap, because an action without `.foreground` cannot open it.
+    @MainActor
+    private func sendToReview(_ target: NotificationTarget, title: String, requestId: String?) {
+        if UIApplication.shared.applicationState == .active {
+            responseHandler?(target)
+            return
+        }
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = String(localized: "Open Seira to review this.")
+        content.sound = .default
+        content.categoryIdentifier = Self.updateCategory
+        content.threadIdentifier = "bot.\(target.botId)"
+        content.userInfo = ["threadId": target.threadId, "botId": target.botId]
+        content.interruptionLevel = .timeSensitive
+        center.add(UNNotificationRequest(
+            identifier: "openmaus.review.\(target.threadId).\(requestId ?? title)",
+            content: content,
+            trigger: nil
+        ))
     }
 }

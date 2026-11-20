@@ -202,6 +202,9 @@ final class Session: ObservableObject {
         NotificationCoordinator.shared.responseHandler = { [weak self] target in
             Task { @MainActor in await self?.openNotification(target) }
         }
+        NotificationCoordinator.shared.answerHandler = { [weak self] target, choice in
+            await self?.answerFromAlert(target, choice: choice) ?? .needsReview
+        }
         NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
             guard let self, let bot = self.state.bot(botId) else { return nil }
             if let path = bot.avatarUrl,
@@ -1121,7 +1124,11 @@ final class Session: ObservableObject {
                 activityUpdates.send(event.threadId)
             }
             if case let .notify(notification) = frame.frame {
-                NotificationCoordinator.shared.deliver(notification, sequence: frame.seq)
+                NotificationCoordinator.shared.deliver(
+                    notification,
+                    sequence: frame.seq,
+                    connectionId: client?.connection.id
+                )
             }
         }
         NotificationCoordinator.shared.setBadge(state.unreadCount)
@@ -1847,6 +1854,38 @@ final class Session: ObservableObject {
             } else {
                 try await $0.respond(threadId: threadId, requestId: requestId, behavior: "answer", message: choice)
             }
+        }
+    }
+
+    /// Answer the request an alert names, from the alert itself. iOS may have
+    /// launched the app only to run this action, so reach the computer first.
+    /// The answer goes out only when the alert's request is the pending card
+    /// of its thread on this connection. The computer still has the last word:
+    /// a request that settled elsewhere comes back as `unavailable`.
+    func answerFromAlert(_ target: AlertAnswerTarget, choice: AlertChoice) async -> AlertAnswerOutcome {
+        if client == nil, restorePending { restore() }
+        guard client != nil else { return .needsReview }
+        if streamTask == nil { status = .connecting }
+        connect()
+        let deadline = Date().addingTimeInterval(12)
+        while status == .connecting, Date() < deadline {
+            try? await Task.sleep(nanoseconds: 150_000_000)
+        }
+        guard status == .live, let client,
+              state.alertAnswerDecision(for: target, activeConnectionId: client.connection.id) == .answer
+        else { return .needsReview }
+        do {
+            let outcome = try await client.respond(
+                threadId: target.threadId,
+                requestId: target.requestId,
+                behavior: choice.behavior
+            )
+            return outcome == "unavailable" ? .needsReview : .answered
+        } catch let error as APIError where error.isUnauthorized {
+            status = .unauthorized
+            return .needsReview
+        } catch {
+            return .needsReview
         }
     }
 
