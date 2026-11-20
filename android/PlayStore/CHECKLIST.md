@@ -5,22 +5,29 @@ commit and artifact being submitted; unchecked items remain release work.
 
 ## Build and verification
 
-- [ ] Record the release commit and intended version from
+- [x] Record the release commit and intended version from
   `android/app/build.gradle.kts`; confirm the version against Console uploads.
+  Done 2026-11-20: 1.0.1 (10001), built from `main` with PR #16. Console shows 10001 (1.0.1).
 - [x] Confirm Android branding and desktop references say Seira.
   Done 2026-11-20: app name, icons, and copy say Seira. Wire ids follow the desktop release.
 - [x] Confirm application ID `bot.seira.companion` and the release SDK settings.
   Done 2026-11-20: `bot.seira.companion`, minSdk 26, targetSdk 37, compileSdk 37.
-- [ ] Have the release owner confirm signing configuration, certificate identity,
+- [x] Have the release owner confirm signing configuration, certificate identity,
   key backups, and supported installation/upgrade paths.
-- [ ] Configure signing securely and run `./gradlew :app:bundleRelease` from
+  Done 2026-11-20: Play App Signing is on. Upload key `FD:4C:…:C1:FD`, backed up on two
+  release-owner machines (mode 600). Upgrades go through Play only.
+- [x] Configure signing securely and run `./gradlew :app:bundleRelease` from
   `android/` with JDK 17 and the Android SDK configured.
-- [ ] Verify the signature of
+  Done 2026-11-20 for 10001. A 10002 test build from PR #11 also passed.
+- [x] Verify the signature of
   `android/app/build/outputs/bundle/release/app-release.aab`; record its hash,
   version, and certificate identity.
+  Done 2026-11-20: 10001, sha256 `f334454d…ba36f6457e50c47`, upload key `FD:4C:…:C1:FD`.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
+  Partial 2026-11-20: a 1.0.2 test build passed typed-code and link pairing against an
+  isolated fixture. Gap: the "Allow once" approval card did not run. Repeat on 10002.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
 
@@ -47,8 +54,9 @@ commit and artifact being submitted; unchecked items remain release work.
 - [x] Confirm support contacts, website, privacy policy URL, category, pricing,
   and distribution choices with the release owner.
   Saved in Console on 2026-11-19 (see `declarations-proposal.md`).
-- [ ] Prepare and test reviewer setup/access instructions, including the actual
+- [x] Prepare and test reviewer setup/access instructions, including the actual
   signup, authentication, desktop, and server-settings requirements.
+  Done 2026-11-20: App access saved with a tested review server (see `declarations-proposal.md`).
 
 ## Declarations and submission
 
@@ -57,20 +65,28 @@ commit and artifact being submitted; unchecked items remain release work.
   rule does not apply (checked 2026-11-19). The account owner must declare
   trader status before February 2027.
   Done 2026-11-20: the app dashboard asks only for the release review and the send step.
-- [ ] Compare the saved answers in `declarations-proposal.md` with the release
+- [x] Compare the saved answers in `declarations-proposal.md` with the release
   build. Complete its "Langkah yang tersisa" list.
+  Done 2026-11-20: Console showed no permission or FGS error for 10001. The list now holds the 1.0.2 steps.
 - [x] Complete content, age-rating, target-audience, ads, permission, and other
   applicable forms from the shipped behavior; this checklist supplies no answers.
   Done: saved on 2026-11-19. The release build has no foreground service, so no permission form applies.
-- [ ] Review data flows across local connections, hosted access, model providers,
+- [x] Review data flows across local connections, hosted access, model providers,
   speech recognition, attachments, identifiers, and enabled services before
   answering collection, sharing, retention, or deletion questions.
-- [ ] Account for supported cleartext LAN HTTP when assessing transit encryption.
-- [ ] Verify the privacy policy and any stated deletion process; confirm they
+  Done 2026-11-19: Data safety in `declarations-proposal.md`.
+- [x] Account for supported cleartext LAN HTTP when assessing transit encryption.
+  Done 2026-11-19: "encrypted in transit" is answered No.
+- [x] Verify the privacy policy and any stated deletion process; confirm they
   match the release's actual behavior and deployed services.
-- [ ] Compare Console-detected package/version and signing details with the
+  Done 2026-11-19: `https://seira.bot/privacy` has the "Seira phone apps" section.
+- [x] Compare Console-detected package/version and signing details with the
   recorded artifact, then resolve validation messages and required testing.
-- [ ] Have the release owner select countries, track, rollout scope, and timing
+  Done 2026-11-20: Console shows `bot.seira.companion` 10001 (1.0.1). The required Wi-Fi
+  feature message was ignored by the release owner; PR #19 fixes it in 1.0.2.
+- [x] Have the release owner select countries, track, rollout scope, and timing
   and review the complete submission before publishing.
+  Done 2026-11-20: Production, 178 countries, 100% rollout, sent for review on the owner's go.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
+  Preserved 2026-11-20 in `declarations-proposal.md`. Review monitoring is open.
