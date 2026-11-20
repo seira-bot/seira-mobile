@@ -18,17 +18,20 @@ commit and artifact being submitted; unchecked items remain release work.
   release-owner machines (mode 600). Upgrades go through Play only.
 - [x] Configure signing securely and run `./gradlew :app:bundleRelease` from
   `android/` with JDK 17 and the Android SDK configured.
-  Done 2026-11-20 for 10001. A test build from PR #11 (now 1.0.3) also passed.
+  Done 2026-11-20 for 10001 and 10002. A test build from PR #11 (now 1.0.3) also passed.
 - [x] Verify the signature of
   `android/app/build/outputs/bundle/release/app-release.aab`; record its hash,
   version, and certificate identity.
   Done 2026-11-20: 10001, sha256 `f334454d…ba36f6457e50c47`, upload key `FD:4C:…:C1:FD`.
+  Done 2026-11-20: 10002, sha256 `35966bc1…a98bc1dc888a1e20c9ecce69415bf4f`, same upload key.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
   Partial 2026-11-20: a PR #11 test build passed typed-code and link pairing against an
   isolated fixture. The 1.0.1 build passed pairing, the approval card ("Allow" and
-  "Deny"), and a bot reply against the review server. Repeat on 10002.
+  "Deny"), and a bot reply against the review server. The signed 10002 build
+  started on an emulator and showed the 3D character without a crash. Pairing
+  on 10002 is not tested again.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
   Partial 2026-11-20: the upgrade from 1.0.1 to a PR #11 test build did not
@@ -93,4 +96,4 @@ commit and artifact being submitted; unchecked items remain release work.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
-  2026-11-20. Monitor the 1.0.2 review.
+  2026-11-20. 1.0.2 (10002) was sent for review on 2026-11-20. Monitor that review.
