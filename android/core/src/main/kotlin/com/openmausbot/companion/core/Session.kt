@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
@@ -79,6 +80,12 @@ class Session(
     },
     /** Test seam for the handoff between a completed transfer and its caller. */
     private val afterAttachmentDownload: suspend () -> Unit = {},
+    private val networkMonitor: NetworkMonitor = NetworkMonitor.Unknown,
+    /**
+     * Picks the route a stream starts on: the first, in stored order, that answers. Null keeps
+     * the stored order, which is what a session without a network to probe wants.
+     */
+    private val routeChoiceFn: (suspend (Connection) -> RouteChoice)? = null,
 ) {
     sealed interface Status {
         data object Unpaired : Status
@@ -118,6 +125,10 @@ class Session(
 
     private val _restoreState = MutableStateFlow<RestoreState>(RestoreState.Pending)
     val restoreState: StateFlow<RestoreState> = _restoreState.asStateFlow()
+
+    private val _routeAdvice = MutableStateFlow<TailscaleAdvice?>(null)
+    /** Set while no route of the computer answers and the cause may be Tailscale. */
+    val routeAdvice: StateFlow<TailscaleAdvice?> = _routeAdvice.asStateFlow()
 
     private val _actionError = MutableStateFlow<String?>(null)
     var actionError: String?
@@ -174,6 +185,13 @@ class Session(
     private val inviteLock = Any()
     private var pairingInFlight = false
     private var deferredInvite: PairingInvite? = null
+
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    private val networkWatch = scope.launch {
+        networkMonitor.changes.debounce(NETWORK_CHANGE_DEBOUNCE_MILLIS).collect {
+            gate.withLock { restartStreamLocked() }
+        }
+    }
 
     init {
         // No Exception other than cancellation leaves this launch: it is a root
@@ -313,23 +331,23 @@ class Session(
     ): Pair<Connection, String> {
         val serverCode = PairingInvite.normalizedServerCode(credential)
         if (serverCode != null) {
-            // Identity first, on the public descriptor: a wrong address then fails as an
-            // address problem rather than a code problem, and the code is never sent.
-            val descriptor = confirmServer(invited)
-            val paired = try {
-                CompanionClient.pairWithServer(invited, serverCode, deviceName, requestId, httpClient)
+            val outcome = try {
+                CompanionClient.pairWithServerFirstReachable(
+                    invited, serverCode, deviceName, requestId, httpClient, networkMonitor::vpnActive,
+                )
             } catch (error: java.io.IOException) {
+                if (error is ServerAddressError) throw error
                 if (error is APIError.Status && error.code < 500 && error.code != 429) throw error
                 throw ServerPairingRetryError(error)
             }
-            check(paired.environment.environmentId == descriptor.environmentId) {
+            check(outcome.response.environment.environmentId == outcome.environment.environmentId) {
                 "The server changed while pairing. Scan a new code and try again."
             }
-            return invited.copy(
-                name = paired.environment.label.ifEmpty { invited.name },
-                serverEnvironmentId = paired.environment.environmentId,
-                serverScopes = paired.session.scopes,
-            ) to paired.token
+            return outcome.connection.copy(
+                name = outcome.response.environment.label.ifEmpty { invited.name },
+                serverEnvironmentId = outcome.response.environment.environmentId,
+                serverScopes = outcome.response.session.scopes,
+            ) to outcome.response.token
         }
         val outcome = pairFn(invited, credential, deviceName, requestId)
         val paired = outcome.response
@@ -342,26 +360,6 @@ class Session(
         stored = stored.applyingPairingAdvertisement(paired.hosts, paired.endpoints)
         stored = winner?.let(stored::promoting) ?: stored.promoting(stored.host)
         return stored to paired.token
-    }
-
-    /**
-     * `GET /.well-known/seira/environment` on a server about to be paired — the port of
-     * `confirmServer(at:)` in `ios/App/Session.swift`.
-     *
-     * Nothing there means this address is not a server. Anything else is passed on with its own
-     * reason: folding it into "could not finish connecting" made a wrong port, a refused
-     * connection, a name that does not resolve and a QR pointing at localhost all read the same.
-     * Either way the code never left the phone, which is what [ServerAddressError] tells the
-     * caller.
-     */
-    private suspend fun confirmServer(connection: Connection): ServerEnvironment = try {
-        CompanionClient(connection, null, httpClient).environment()
-    } catch (error: java.io.IOException) {
-        throw if (error is APIError.Status && error.code == 404) {
-            ServerAddressError.notAServer(connection.displayAddress, error)
-        } else {
-            ServerAddressError.unreachable(connection.displayAddress, connection.host, error)
-        }
     }
 
     suspend fun pair(
@@ -681,7 +679,11 @@ class Session(
                 if (client == null && _restoreState.value is RestoreState.Pending) {
                     restoreLocked()
                 }
-                if (client == null || streamJob != null) return@withLock
+                if (client == null) return@withLock
+                if (streamJob != null) {
+                    if (routeChoiceFn != null && _status.value is Status.Offline) restartStreamLocked()
+                    return@withLock
+                }
                 reconnectDelaySeconds = 0
                 streamGeneration += 1
                 val generation = streamGeneration
@@ -693,18 +695,54 @@ class Session(
                 // and the finished job would then be published behind it, after
                 // which connect() — which only tests `streamJob != null` — never
                 // reopens the stream. Holding the lock makes that `finally` wait.
-                streamJob = scope.launch {
-                    try {
-                        runStream(generation)
-                    } finally {
-                        gate.withLock {
-                            if (streamGeneration == generation) {
-                                streamJob = null
-                            }
-                        }
-                    }
+                streamJob = launchStream(generation)
+            }
+        }
+    }
+
+    private fun launchStream(generation: Int): Job = scope.launch {
+        try {
+            chooseReachableRoute(generation)
+            runStream(generation)
+        } finally {
+            gate.withLock {
+                if (streamGeneration == generation) {
+                    streamJob = null
                 }
             }
+        }
+    }
+
+    /**
+     * Start the stream on the first stored route that answers, and remember it for the next
+     * launch. When none answers the stream still starts on the stored order, and [routeAdvice]
+     * says why when that may be Tailscale.
+     */
+    private suspend fun chooseReachableRoute(generation: Int) {
+        val choose = routeChoiceFn ?: return
+        val connection = _connection.value ?: return
+        if (connection.orderedEndpoints.size < 2) return
+        val choice = try {
+            choose(connection)
+        } catch (cancellation: CancellationException) {
+            throw cancellation
+        } catch (_: Exception) {
+            return
+        }
+        val winner = choice.endpoint
+        if (winner == null) {
+            _routeAdvice.value = ConnectionAdvice.tailscaleAdvice(choice.failures, networkMonitor.vpnActive())
+            return
+        }
+        _routeAdvice.value = null
+        gate.withLock {
+            if (streamGeneration != generation) return
+            val current = _connection.value ?: return
+            if (current.id != connection.id) return
+            val activeToken = token ?: return
+            rotation = CandidateRotation(liveRoutes(current, winner))
+            client = clientFactory(current.dialing(winner), activeToken)
+            if (current.activeEndpoint?.url != winner.url) persistActiveConnectionLocked(current.promoting(winner))
         }
     }
 
@@ -799,7 +837,9 @@ class Session(
         // it credential-safely: a connection already on a protected route never
         // reaches for a local one. Surviving a failover is not a promotion — the
         // computer still decides which protected route leads.
-        rotation = CandidateRotation(saved.orderedEndpoints)
+        rotation = CandidateRotation(
+            if (saved.pairedWithServer) liveRoutes(saved, saved.activeEndpoint) else saved.orderedEndpoints,
+        )
         val first = rotation.currentEndpoint?.let(saved::dialing) ?: saved
         client = clientFactory(first, storedToken)
         _restoreState.value = RestoreState.Ready
@@ -834,18 +874,7 @@ class Session(
             streamGeneration += 1
             val generation = streamGeneration
             _status.value = Status.Connecting
-            val job = scope.launch {
-                try {
-                    runStream(generation)
-                } finally {
-                    gate.withLock {
-                        if (streamGeneration == generation) {
-                            streamJob = null
-                        }
-                    }
-                }
-            }
-            streamJob = job
+            streamJob = launchStream(generation)
         }
         withTimeoutOrNull(10_000) {
             while (_status.value is Status.Connecting && currentCoroutineContext().isActive) {
@@ -891,18 +920,7 @@ class Session(
         val generation = streamGeneration
         // Launch without holding the mutex across runStream — the job handle is
         // published immediately so a concurrent connect() sees it.
-        val job = scope.launch {
-            try {
-                runStream(generation)
-            } finally {
-                gate.withLock {
-                    if (streamGeneration == generation) {
-                        streamJob = null
-                    }
-                }
-            }
-        }
-        streamJob = job
+        streamJob = launchStream(generation)
     }
 
     /** Called when the app leaves the screen — deliberate disconnect so the cursor is known. */
@@ -952,6 +970,7 @@ class Session(
                                 _state.update { it.resetCursor(hello.cursor) }
                             }
                             _status.value = Status.Live
+                            _routeAdvice.value = null
                             promoteWorkingRoute()
                             refreshConnectionMetadata(activeClient)
                         } else {
@@ -983,7 +1002,8 @@ class Session(
                     _status.value = Status.Unauthorized
                     return
                 }
-                _status.value = Status.Offline(failureMessage(error))
+                val message = failureMessage(error)
+                _status.value = Status.Offline(_routeAdvice.value?.text ?: message)
             }
 
             if (!currentCoroutineContext().isActive) return
@@ -1154,7 +1174,6 @@ class Session(
      * would be decorative.
      */
     private fun refreshConnectionMetadata(source: CompanionClient) {
-        if (source.connection.pairedWithServer) return
         val connectionId = _connection.value?.id ?: return
         val workingEndpoint = rotation.currentEndpoint ?: source.connection.activeEndpoint
         endpointRefreshJob?.cancel()
@@ -2493,6 +2512,7 @@ class Session(
 
         /** Empty resumes in a row before the stream starts over without a cursor. */
         internal const val EMPTY_RESUMES_BEFORE_FRESH_START = 2
+        private const val NETWORK_CHANGE_DEBOUNCE_MILLIS = 1_000L
 
         /** High-entropy QR token — distinct from a retryable six-digit code. */
         fun isQrCredential(credential: String): Boolean =

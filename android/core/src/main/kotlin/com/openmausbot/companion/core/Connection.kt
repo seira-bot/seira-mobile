@@ -10,6 +10,8 @@ import java.util.Base64
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
 data class Connection(
@@ -487,9 +489,39 @@ data class PairingInvite(val connection: Connection, val credential: String) {
                 if (values.put(name, value) != null) return null
             }
             val code = normalizedServerCode(values["code"] ?: return null) ?: return null
-            val connection = Connection.parse("${url.scheme}://${url.rawAuthority}") ?: return null
+            var connection = Connection.parse("${url.scheme}://${url.rawAuthority}") ?: return null
             if (!connection.serverTransportAllowed) return null
+            val listed = values["endpoints"]?.let(::decodeServerEndpoints).orEmpty()
+            val primary = connection.activeEndpoint
+            if (primary != null && listed.isNotEmpty()) {
+                val listedPrimary = listed.firstOrNull { it.url == primary.url } ?: primary
+                val routes = (listOf(listedPrimary) + listed.filterNot { it.url == primary.url })
+                    .withIndex()
+                    .sortedWith(compareBy<IndexedValue<CompanionEndpoint>> { it.value.priority }.thenBy { it.index })
+                    .map { it.value }
+                    .take(MAX_ENDPOINTS)
+                connection = connection.copy(endpoints = routes, activeEndpoint = listedPrimary)
+            }
             return PairingInvite(connection.establishingRoutePolicyFromInvite(), code)
+        }
+
+        /**
+         * The routes of a server link. Unlike [decodeEndpoints], one bad entry only drops that
+         * entry: the server link stays usable on the routes that read.
+         */
+        private fun decodeServerEndpoints(encoded: String): List<CompanionEndpoint> {
+            if (encoded.isEmpty() || encoded.toByteArray(StandardCharsets.UTF_8).size > 8_192) return emptyList()
+            if (encoded.any { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' && it != '=' }) {
+                return emptyList()
+            }
+            val decoded = runCatching { Base64.getUrlDecoder().decode(encoded) }.getOrNull() ?: return emptyList()
+            val array = runCatching {
+                CompanionJson.parseToJsonElement(decoded.toString(StandardCharsets.UTF_8)) as? JsonArray
+            }.getOrNull() ?: return emptyList()
+            return array.mapNotNull { element ->
+                val endpoint = runCatching { CompanionJson.decodeFromJsonElement<CompanionEndpoint>(element) }.getOrNull()
+                endpoint?.takeIf { it.kind == CompanionEndpointKind.HOSTED && it.isSecure }
+            }.distinctBy { it.url }
         }
 
         private fun credential(values: Map<String, String>): String? {

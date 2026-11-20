@@ -3,6 +3,7 @@ package com.openmausbot.companion.core
 import java.io.IOException
 import java.net.ConnectException
 import java.net.SocketTimeoutException
+import java.net.URI
 import java.net.UnknownHostException
 import java.security.cert.CertificateException
 import javax.net.ssl.SSLException
@@ -86,6 +87,30 @@ class CandidateRotation(endpoints: List<CompanionEndpoint>) {
                 CompanionEndpoint.direct(host, CompanionEndpoint.DEFAULT_COMPANION_PORT, priority = position)
             },
         )
+    }
+}
+
+/** [offersTailscale] asks the screen to show a button that opens the Tailscale app. */
+data class TailscaleAdvice(val text: String, val offersTailscale: Boolean)
+
+/** An error whose message may be followed by a button that opens the Tailscale app. */
+interface OffersTailscale {
+    val offersTailscale: Boolean
+}
+
+/** What the phone knows about its own network, and when that changes. */
+interface NetworkMonitor {
+    /** Whether the active network runs over a VPN; null when the phone cannot say. */
+    fun vpnActive(): Boolean?
+
+    /** Emits each time the default network changes. */
+    val changes: kotlinx.coroutines.flow.Flow<Unit>
+
+    companion object {
+        val Unknown = object : NetworkMonitor {
+            override fun vpnActive(): Boolean? = null
+            override val changes: kotlinx.coroutines.flow.Flow<Unit> = kotlinx.coroutines.flow.emptyFlow()
+        }
     }
 }
 
@@ -250,18 +275,61 @@ object ConnectionAdvice {
      * before Tailscale's own resolver can. A socket the system refused outright (EPERM, EACCES)
      * is the phone's local-network permission, not the computer.
      */
-    fun pairingAdvice(error: Throwable, host: String): String? {
+    fun pairingAdvice(error: Throwable, host: String, computerName: String? = null): String? {
         val chain = generateSequence(error) { it.cause }.toList()
         val detail = chain.joinToString(" ") { it.message.orEmpty() }.lowercase()
         if (LOCAL_NETWORK_REFUSALS.any { it in detail }) return LOCAL_NETWORK_ADVICE
         val unresolved = chain.any { it is UnknownHostException } ||
             "unable to resolve host" in detail || "unknown host" in detail
         if (unresolved && CompanionEndpoint.inferredDirectKind(host) == CompanionEndpointKind.TAILNET) {
-            return "“$host” didn't resolve. Make sure Tailscale is connected on this phone, and set " +
-                "Private DNS (Settings → Network & internet) to Off or Automatic — a named Private DNS " +
-                "provider can't resolve Tailscale names."
+            return tailnetUnreachable(computerName, host)
         }
         return null
+    }
+
+    /**
+     * What to tell the person when every route of a computer failed and at least one of them is
+     * a Tailscale name, or null when the generic advice reads better. [vpnActive] is whether the
+     * phone's active network runs over a VPN; null means the phone could not say, and the
+     * generic advice stays.
+     */
+    fun tailscaleAdvice(
+        failures: Map<String, Throwable>,
+        vpnActive: Boolean?,
+        computerName: String? = null,
+    ): TailscaleAdvice? {
+        if (vpnActive == null || failures.isEmpty()) return null
+        val hostOf = { route: String -> runCatching { URI(route).host.orEmpty() }.getOrDefault("") }
+        val tailnet = failures.filterKeys { isTailnetHost(hostOf(it)) }
+        if (tailnet.isEmpty()) return null
+        val repairable = failures.values.all { error ->
+            val chain = generateSequence(error) { it.cause }.toList()
+            val detail = chain.joinToString(" ") { it.message.orEmpty() }.lowercase()
+            LOCAL_NETWORK_REFUSALS.none { it in detail } && classify(error) != ConnectionFailure.OTHER &&
+                statusCode(error) == null
+        }
+        if (!repairable) return null
+        val internetFailed = failures.keys.any { !isTailnetHost(hostOf(it)) }
+        val internetLine = if (internetFailed) {
+            " The internet address did not answer either. Check that the computer is on."
+        } else {
+            ""
+        }
+        if (!vpnActive) return TailscaleAdvice(TAILSCALE_OFF + internetLine, offersTailscale = true)
+        val host = hostOf(tailnet.keys.first())
+        return TailscaleAdvice(tailnetUnreachable(computerName, host) + internetLine, offersTailscale = false)
+    }
+
+    private fun isTailnetHost(host: String): Boolean =
+        CompanionEndpoint.inferredDirectKind(host) == CompanionEndpointKind.TAILNET
+
+    const val TAILSCALE_OFF = "Tailscale is off on this phone. Turn it on, then try again."
+
+    private fun tailnetUnreachable(computerName: String?, host: String): String {
+        val name = computerName?.trim()?.takeIf { it.isNotEmpty() } ?: host
+        return "This phone can't reach “$name”. Open Tailscale on this phone and sign in with the " +
+            "same account as the computer. If Private DNS shows a provider name, set it to Off or " +
+            "Automatic (Settings → Network & internet)."
     }
 
     /** How a socket the phone itself refused reads, across the JVM and Android's libcore. */

@@ -89,6 +89,7 @@
       report none — dictation would never start on modern devices.
     -->
     <queries>
+        <package android:name="com.tailscale.ipn" />
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
