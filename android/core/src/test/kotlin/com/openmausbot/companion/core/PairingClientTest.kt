@@ -53,8 +53,7 @@ class PairingClientTest {
         assertEquals(listOf("http://mac.tail1234.ts.net:8810"), error.attemptedRoutes)
         assertEquals(
             "Your phone couldn't reach Mac over Tailscale. Turn on Tailscale on this phone, " +
-                "signed in to the same tailnet as the computer, then try again.\n" +
-                "Tried: http://mac.tail1234.ts.net:8810",
+                "signed in to the same tailnet as the computer, then try again.",
             error.message,
         )
         assertEquals(listOf("mac.tail1234.ts.net"), stub.requests.map { it.url.host })
@@ -109,8 +108,7 @@ class PairingClientTest {
                 "same Wi-Fi as the computer. If it already is, the computer's firewall may be " +
                 "blocking Seira: on a Windows PC, set its network to Private. Or open " +
                 "Settings → Remote access on the computer and sign in so the phone can connect " +
-                "from anywhere.\n" +
-                "Tried: http://172.19.96.1:8810, http://192.168.1.34:8810",
+                "from anywhere.",
             error.message,
         )
     }
@@ -118,13 +116,12 @@ class PairingClientTest {
     @Test
     fun whenAnHttpsRouteWasTriedTooTheErrorSaysWakeTheComputer() {
         assertEquals(
-            "Couldn't reach Mac. Make sure the computer is awake with Seira open, then try again.\n" +
-                "Tried: https://mac.companion.example, http://192.168.1.42:8810",
+            "Couldn't reach Mac. Make sure the computer is awake with Seira open, then try again.",
             PairingRouteError(listOf("https://mac.companion.example", "http://192.168.1.42:8810"), computerName = "Mac").message,
         )
         assertEquals(
             "Couldn't reach this computer. Make sure the computer is awake with Seira open, " +
-                "then try again.\nTried: https://mac.companion.example",
+                "then try again.",
             PairingRouteError(listOf("https://mac.companion.example"), computerName = " ").message,
         )
     }
@@ -310,10 +307,9 @@ class PairingClientTest {
         )
         // The route's own cause is the next step; the generic Tailscale line would only repeat it.
         assertEquals(
-            "Couldn't reach Mac. “mac.tail1234.ts.net” didn't resolve. Make " +
-                "sure Tailscale is connected on this phone, and set Private DNS (Settings → Network & " +
-                "internet) to Off or Automatic — a named Private DNS provider can't resolve Tailscale names.\n" +
-                "Tried: $route",
+            "This phone can't reach “Mac”. Open Tailscale on this phone and sign in with the same " +
+                "account as the computer. If Private DNS shows a provider name, set it to Off or " +
+                "Automatic (Settings → Network & internet).",
             error.message,
         )
         assertTrue(stub.pairRequests.isEmpty())

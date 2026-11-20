@@ -34,6 +34,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -75,6 +76,7 @@ import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.character.CarvedAvatar
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.network.TailscaleLauncher
 import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.Profile
@@ -1121,15 +1123,23 @@ fun StatusBanner() {
             stringResource(R.string.mobile_phone_unpaired_banner) to MaterialTheme.colorScheme.error
     }
     val (text, tint) = banner ?: return
-    Text(
-        text = text,
-        fontSize = 13.sp,
-        color = tint,
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 4.dp)
-            .background(secondaryTint.copy(alpha = 0.12f), CircleShape)
-            .padding(horizontal = 12.dp, vertical = 6.dp),
-    )
+    val advice by session.routeAdvice.collectAsState()
+    val appContext = androidx.compose.ui.platform.LocalContext.current
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+        Text(
+            text = text,
+            fontSize = 13.sp,
+            color = tint,
+            modifier = Modifier
+                .background(secondaryTint.copy(alpha = 0.12f), CircleShape)
+                .padding(horizontal = 12.dp, vertical = 6.dp),
+        )
+        if (status is Session.Status.Offline && advice?.offersTailscale == true) {
+            TextButton(onClick = { TailscaleLauncher.open(appContext) }) {
+                Text(stringResource(R.string.pair_open_tailscale), fontSize = 13.sp)
+            }
+        }
+    }
 }
 
 @Composable

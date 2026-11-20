@@ -23,4 +23,5 @@
     <string name="pair_camera_off_body">允许使用相机即可扫描配对码，也可以输入配对码或地址。</string>
     <string name="pair_camera_starting">正在启动相机…</string>
     <string name="pair_back">返回设置</string>
+    <string name="pair_open_tailscale">打开 Tailscale</string>
 </resources>

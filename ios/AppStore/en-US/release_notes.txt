@@ -1,8 +1,11 @@
 Welcome to Seira 1.0.
 
 • Pair securely with your Seira computer
+• Pairing tries every address you allowed at once: same Wi-Fi, Tailscale and the internet address
+• The app moves to an address that works when your network changes
+• If Tailscale is off on this phone, the app tells you
+• The app sends your sign-in only over secure addresses, or over a Tailscale or local address that you chose
 • Fill a requested API key from Apple Passwords or another AutoFill provider and send it encrypted over Secure phone access or Tailscale
-• Default QR pairing now stays on hosted HTTPS; Tailscale and local routes remain explicit choices
 • Chat with bots and rooms
 • Answer approvals and questions
 • Search, manage tasks, edit versions, react, and share transcripts
