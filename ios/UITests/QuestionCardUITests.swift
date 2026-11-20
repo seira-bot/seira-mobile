@@ -90,8 +90,6 @@ final class QuestionCardUITests: XCTestCase {
         if !input.exists || input.placeholderValue != "Answer \(bot)…" {
             let row = app.buttons["chat-row.preview-\(bot.lowercased())"].firstMatch
             XCTAssertTrue(app.revealOnRoster(row), "\(bot) on the roster, clear of the bottom bar")
-            // A waiting question raises the island over the top of the
-            // roster for its first seconds; the bottom of the row stays clear.
             for _ in 0..<3 where !input.exists {
                 row.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.88)).tap()
                 _ = input.waitForExistence(timeout: 3)
