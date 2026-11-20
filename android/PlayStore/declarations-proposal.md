@@ -3,9 +3,10 @@
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 "1.0.1" (versionCode 10001) tayang pada 2026-11-20. Update 1.0.2
 (versionCode 10002) membawa karakter Seira 3D dan memakai wire id lama.
-Update 1.0.2 dikirim untuk review pada 2026-11-20.
-Update 1.0.3 (versionCode 10003) dengan wire id baru menyusul sesudah desktop
-0.1.182 rilis.
+Google menyetujui 1.0.2. Rilis "1.0.2" tayang di Play pada 2026-11-20: 178
+negara, rollout 100%.
+Update 1.0.3 (versionCode 10003) memuat wire id baru (PR #11) dan perbaikan
+rute koneksi (PR #27). 1.0.3 menyusul sesudah desktop 0.1.182 rilis.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -208,11 +209,16 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
    tampil, tanpa crash. Pairing dan kartu izin tidak diuji ulang di 10002.
 5. Selesai 2026-11-20: rilis Production "1.0.2" dibuat dengan 10002 dan
    "Catatan rilis update 1.0.2". App access langkah 3 sudah "Tap Allow.".
-   Rilis dikirim untuk review.
-6. Sesudah desktop 0.1.182 rilis dan Google menyetujui 1.0.2: upgrade server
-   uji ke 0.1.182, merge PR #11, bangun 10003, uji, lalu kirim 1.0.3 dengan
-   "Catatan rilis update 1.0.3".
+   Rilis dikirim untuk review. Google menyetujui 1.0.2 pada 2026-11-20.
+   Console: "Available on Google Play", versionCode 10002, 178 negara.
+6. Sesudah desktop 0.1.182 rilis: upgrade server uji ke 0.1.182, merge PR #11
+   lalu PR #27, bangun 10003, uji, lalu kirim 1.0.3 dengan "Catatan rilis
+   update 1.0.3". Pemilik rilis memberi izin untuk merge dan kirim.
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
+8. Console (2026-11-20, dashboard rilis 1.0.2): "DEX code optimization is
+   below our threshold". Kategori Obfuscation 0%. Batas perbaikan: Februari
+   2027. Penyebab: build rilis memakai `isMinifyEnabled = false`. Perbaikan:
+   nyalakan R8 dengan keep rule yang sudah diuji pada pairing dan sesi nyata.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
 debug symbols belum diunggah.
