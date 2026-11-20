@@ -213,7 +213,8 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
    Console: "Available on Google Play", versionCode 10002, 178 negara.
 6. Sesudah desktop 0.1.182 rilis: upgrade server uji ke 0.1.182, merge PR #11
    lalu PR #27, bangun 10003, uji, lalu kirim 1.0.3 dengan "Catatan rilis
-   update 1.0.3". Pemilik rilis memberi izin untuk merge dan kirim.
+   update 1.0.3". Merge PR #11 dan PR #27, dan kirim 1.0.3 untuk review,
+   hanya sesudah pemilik rilis memberi izin.
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 8. Console (2026-11-20, dashboard rilis 1.0.2): "DEX code optimization is
    below our threshold". Kategori Obfuscation 0%. Batas perbaikan: Februari
