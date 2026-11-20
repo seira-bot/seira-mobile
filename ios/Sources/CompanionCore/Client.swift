@@ -355,8 +355,45 @@ public struct PairingInvite: Equatable, Sendable {
         var origin = components
         origin.path = ""
         origin.fragment = nil
-        guard let originString = origin.string, let connection = Connection.parse(originString) else { return nil }
+        guard let originString = origin.string, var connection = Connection.parse(originString) else { return nil }
+        if let encoded = values["endpoints"],
+           let primary = connection.activeEndpoint,
+           let routes = decodeServerRoutes(encoded, primary: primary) {
+            connection.endpoints = routes
+        }
         return PairingInvite(connection: connection, credential: code)
+    }
+
+    /// The https routes of a server link, best first. Each invalid entry is
+    /// dropped and the link stays usable; a value that does not decode at all
+    /// is ignored. The primary host always joins the list, at priority 0 when
+    /// the link left it out.
+    static func decodeServerRoutes(_ encoded: String, primary: CompanionEndpoint) -> [CompanionEndpoint]? {
+        guard !encoded.isEmpty,
+              encoded.utf8.count <= 8_192,
+              encoded.utf8.allSatisfy({
+                  (48...57).contains($0) || (65...90).contains($0) ||
+                  (97...122).contains($0) || $0 == 45 || $0 == 95
+              })
+        else { return nil }
+
+        var base64 = encoded.replacingOccurrences(of: "-", with: "+")
+            .replacingOccurrences(of: "_", with: "/")
+        base64 += String(repeating: "=", count: (4 - base64.count % 4) % 4)
+        guard let data = Data(base64Encoded: base64),
+              let decoded = try? JSONDecoder().decode([Lossy<CompanionEndpoint>].self, from: data)
+        else { return nil }
+
+        let listed = decoded.compactMap(\.value).filter(\.isSecure).prefix(8)
+        let primaryListed = listed.contains { $0.routeKey == primary.routeKey }
+        let ordered = ((primaryListed ? [] : [primary]) + listed).enumerated().sorted {
+            $0.element.priority == $1.element.priority
+                ? $0.offset < $1.offset
+                : $0.element.priority < $1.element.priority
+        }.map(\.element)
+        var seen = Set<String>()
+        let unique = ordered.filter { seen.insert($0.routeKey).inserted }
+        return unique.count > 1 ? Array(unique.prefix(8)) : nil
     }
 
     /// The 32 symbols a server draws pairing codes from: digits and capitals
@@ -429,10 +466,18 @@ public struct PairingOutcome: Sendable {
 public struct PairingRouteError: Error, LocalizedError, Equatable, Sendable {
     public let attemptedHosts: [String]
     public let computerName: String?
+    /// Why each route failed, keyed by the route's URL. A route that was not
+    /// probed to the end has no entry.
+    public let failures: [String: RouteFailureReason]
 
-    public init(attemptedHosts: [String], computerName: String? = nil) {
+    public init(
+        attemptedHosts: [String],
+        computerName: String? = nil,
+        failures: [String: RouteFailureReason] = [:]
+    ) {
         self.attemptedHosts = attemptedHosts
         self.computerName = computerName
+        self.failures = failures
     }
 
     public var errorDescription: String? {
@@ -779,6 +824,7 @@ public struct CompanionClient: Sendable {
         code: String,
         label: String,
         attemptId: String = UUID().uuidString,
+        timeout: TimeInterval = 8,
         session: URLSession = .shared
     ) async throws -> ServerPairResponse {
         let client = CompanionClient(connection: connection, token: nil, session: session)
@@ -787,7 +833,7 @@ public struct CompanionClient: Sendable {
             "/api/auth/pair",
             body: ["code": code, "label": label, "attemptId": attemptId]
         )
-        request.timeoutInterval = 8
+        request.timeoutInterval = timeout
         return try await client.send(request, as: ServerPairResponse.self)
     }
 

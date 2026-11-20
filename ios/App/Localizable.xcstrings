@@ -16094,6 +16094,28 @@
           }
         }
       }
+    },
+    "Get Tailscale": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obter o Tailscale"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "获取 Tailscale"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "取得 Tailscale"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

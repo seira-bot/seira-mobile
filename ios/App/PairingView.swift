@@ -20,6 +20,7 @@ struct PairingView: View {
     @State private var chosen: Connection?
     @State private var submission = CompanionPairingSubmissionState()
     @State private var failure: String?
+    @State private var failureLink: (message: String, url: URL)?
     @State private var showingManualInput = false
     @State private var choiceGeneration = 0
 
@@ -85,7 +86,10 @@ struct PairingView: View {
     @ViewBuilder private var details: some View {
         VStack(spacing: 16) {
             if let failure {
-                PairErrorBanner(message: failure)
+                PairErrorBanner(
+                    message: failure,
+                    linkURL: failureLink?.message == failure ? failureLink?.url : nil
+                )
             }
             if let chosen {
                 consentDetails(for: chosen)
@@ -379,21 +383,19 @@ struct PairingView: View {
             pairRequestId = nil
             succeeded = true
         } catch {
-            if cameFromScanner {
-                if error is PairingRouteError {
-                    failure = error.localizedDescription
-                } else {
-                    failure = String(localized: "\(error.localizedDescription) Start pairing again on your computer and rescan the new QR code.")
-                    chosen = nil
-                    scannedCredential = nil
-                    pairRequestId = nil
-                }
+            if let routeError = error as? PairingRouteError {
+                let advice = routeError.advice()
+                failure = advice.message
+                failureLink = advice.tailscaleLink.map { (advice.message, $0) }
+            } else if cameFromScanner {
+                failure = String(localized: "\(error.localizedDescription) Start pairing again on your computer and rescan the new QR code.")
+                chosen = nil
+                scannedCredential = nil
+                pairRequestId = nil
             } else {
                 failure = error.localizedDescription
-                if !(error is PairingRouteError) {
-                    code = ""
-                    pairRequestId = nil
-                }
+                code = ""
+                pairRequestId = nil
             }
         }
     }
