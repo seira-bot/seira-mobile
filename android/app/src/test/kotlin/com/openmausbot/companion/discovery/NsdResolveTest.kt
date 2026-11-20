@@ -31,10 +31,40 @@ import org.robolectric.annotation.Config
 @OptIn(ExperimentalCoroutinesApi::class)
 class NsdResolveTest {
 
-    private fun service(name: String) = NsdServiceInfo().apply {
+    private fun service(name: String, type: String = NsdDiscovery.SERVICE_TYPE) = NsdServiceInfo().apply {
         serviceName = name
-        serviceType = NsdDiscovery.SERVICE_TYPE
+        serviceType = type
         port = 8810
+    }
+
+    @Test
+    fun `the seira browse offers a seira computer and skips other types`() = runTest {
+        val seiraType = NsdDiscovery.SERVICE_TYPES.last()
+        var captured: NsdManager.DiscoveryListener? = null
+        val states = mutableListOf<DiscoveryState>()
+
+        val collectJob = launch {
+            browseDiscoveryFlow(
+                serviceType = seiraType,
+                acquireMulticastLock = { null },
+                startBrowse = { listener -> captured = listener },
+                stopBrowse = { },
+                resolveService = { info, onResolved -> onResolved(info) },
+                hostAddress = { "192.168.1.42" },
+                failureMessage = { "unused" },
+            ).collect { states += it }
+        }
+        runCurrent()
+        captured!!.onDiscoveryStarted(seiraType)
+        captured!!.onServiceFound(service("Studio", type = "_seira._tcp"))
+        captured!!.onServiceFound(service("Printer", type = "_ipp._tcp."))
+        runCurrent()
+
+        val found = assertIs<DiscoveryState.Active>(states.last()).found
+        assertEquals(listOf("Studio"), found.map { it.name })
+
+        collectJob.cancel()
+        advanceUntilIdle()
     }
 
     @Test

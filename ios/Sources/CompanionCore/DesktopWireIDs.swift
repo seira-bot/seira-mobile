@@ -10,4 +10,5 @@ public enum DesktopWireIDs {
         "/.well-known/openmausbot/environment",
         "/.well-known/seira/environment",
     ]
+    public static let mdnsServiceTypes = ["_openmausbot._tcp", "_seira._tcp"]
 }

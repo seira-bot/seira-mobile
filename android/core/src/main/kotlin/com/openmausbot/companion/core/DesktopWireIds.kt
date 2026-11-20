@@ -12,4 +12,5 @@ object DesktopWireIds {
         "/.well-known/openmausbot/environment",
         "/.well-known/seira/environment",
     )
+    val MDNS_SERVICE_TYPES: List<String> = listOf("_openmausbot._tcp", "_seira._tcp")
 }
