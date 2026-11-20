@@ -746,7 +746,7 @@ struct ChatView: View {
                 }
             }
             if islandVisible {
-                ChatAvatarView(chat: current, size: faceSize, state: MausState.forChat(current, in: session.state), animated: MausState.forChat(current, in: session.state).showsActivity || islandExpanded, comets: islandExpanded)
+                ChatAvatarView(chat: current, size: faceSize, state: CharacterMood.forChat(current, in: session.state), members: session.state.members(of: current))
                     .offset(x: (headerFaceX - width / 2) * (1 - facePhase), y: faceCentre - faceSize / 2)
                     .allowsHitTesting(false)
             }
@@ -1028,16 +1028,19 @@ struct ChatView: View {
         if CameraPicker.isAvailable {
             tiles.append(AddToChatTile(
                 id: "camera", systemImage: "camera", title: "Camera",
-                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason,
+                icon3D: "Icons3D/camera"
             ) { showingCamera = true })
         }
         tiles.append(AddToChatTile(
             id: "photos", systemImage: "photo.on.rectangle", title: "Photos",
-            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason,
+            icon3D: "Icons3D/photos"
         ) { photos?.run() })
         tiles.append(AddToChatTile(
             id: "files", systemImage: "paperclip", title: "Files",
-            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason
+            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason,
+            icon3D: "Icons3D/files"
         ) { files?.run() })
         return tiles
     }
@@ -1047,7 +1050,8 @@ struct ChatView: View {
         if let bot = currentBot, canStartLiveCall {
             rows.append(AddToChatAction(
                 id: "live-call", systemImage: "waveform", title: "Live call",
-                subtitle: "Talk it through with \(bot.name)"
+                subtitle: "Talk it through with \(bot.name)",
+                icon3D: "Icons3D/live-call"
             ) { beginLiveCall() })
         }
         if let computer = actions.first(where: { $0.id == "computer" }) { rows.append(computer) }
@@ -1094,7 +1098,8 @@ struct ChatView: View {
             ) { showingProfile = true })
             out.append(AddToChatAction(
                 id: "computer", systemImage: "display", title: "Cloud desktop",
-                subtitle: "Watch \(bot.name) work on screen"
+                subtitle: "Watch \(bot.name) work on screen",
+                icon3D: "Icons3D/cloud-desktop"
             ) { showingComputer = true })
         }
         if case let .room(room) = current, room.dm != true {
@@ -1692,7 +1697,7 @@ struct ChatView: View {
                     : CommandSkillHUDView.defaultCommands.filter {
                         $0.id != "computer" && (current.supportsTasks || $0.id != "tasks")
                     },
-                accentColor: MausPalette.color(current.color)
+                accentColor: SeiraPalette.color(current.color)
             ) { command in
                 switch command.id {
                 case "computer":
@@ -1707,7 +1712,7 @@ struct ChatView: View {
             .transition(.move(edge: .bottom).combined(with: .opacity))
         } else if text.wrappedValue.isEmpty && attachments.isEmpty && !current.busy
                     && !pendingApproval && !storedChips.isEmpty {
-            PredictiveActionChipsView(chips: storedChips, accentColor: MausPalette.color(current.color)) { chip in
+            PredictiveActionChipsView(chips: storedChips, accentColor: SeiraPalette.color(current.color)) { chip in
                 submit(chip.prompt)
             }
             .transition(.opacity)
@@ -2204,7 +2209,7 @@ struct MessageRow: View, Equatable {
             // A turn that failed because Claude Code is too old for the
             // model: offer to run the updater for the engine this thread uses.
             if message.tool?.claudeUpdate == true, let instanceId = context.claudeInstanceId {
-                ClaudeUpdateCard(instanceId: instanceId, tint: MausPalette.color(context.color), actions: actions)
+                ClaudeUpdateCard(instanceId: instanceId, tint: SeiraPalette.color(context.color), actions: actions)
             }
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {
@@ -2227,7 +2232,7 @@ struct MessageRow: View, Equatable {
                 RoutineRunCardView(
                     card: card,
                     at: message.date,
-                    tint: MausPalette.color(context.color),
+                    tint: SeiraPalette.color(context.color),
                     openRun: routineRun.map { ref in { actions.openThread(ref) } }
                 )
             } else if let text = message.text, !text.isEmpty {
@@ -2316,7 +2321,7 @@ struct TextBubble: View {
     private var parts: some View {
         VStack(alignment: .leading, spacing: 4) {
             ForEach(message.voiceNotes) { note in
-                VoiceNoteBubble(note: note, tint: MausPalette.color(context.color), actions: actions)
+                VoiceNoteBubble(note: note, tint: SeiraPalette.color(context.color), actions: actions)
             }
             ForEach(message.generatedImages, id: \.path) { attachment in
                 TranscriptAttachmentView(
@@ -2507,7 +2512,7 @@ struct CredentialRequestCardView: View {
         let requestKey: String?
     }
 
-    private var tint: Color { MausPalette.color(message.from?.color ?? context.color) }
+    private var tint: Color { SeiraPalette.color(message.from?.color ?? context.color) }
     private var requester: String { message.from?.name ?? context.name }
     private var label: String { visible(secret.label) ?? "API credential" }
     private var accessibilityStatus: Text {
@@ -3434,7 +3439,7 @@ struct StreamingBubble: View {
             AgentThoughtChamberView(
                 reasoning: reasoning,
                 botName: "Bot",
-                mascotColor: MausPalette.color(color),
+                mascotColor: SeiraPalette.color(color),
                 isStreaming: true
             )
             .equatable()

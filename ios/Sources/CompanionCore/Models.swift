@@ -574,6 +574,10 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     /// Which body from the mascot body catalog this bot wears. Absent (an
     /// older harness included) means the shipped `cursor` silhouette.
     public var mascotBody: String?
+    /// `white` or `black` ink for the character's screen. Absent means white.
+    public var mascotFaceColor: String?
+    /// Accessory ids the look wears. Absent (an older harness included) means none.
+    public var mascotAccessories: [String]?
     public var tasks: [BotTask]?
     public var projects: [BotProject]?
     public var messages: [Message]?

@@ -35,7 +35,9 @@ struct HomeChiefCard: View {
                 bot: bot,
                 size: 56,
                 ring: status == .working ? .working : .none,
-                ringGap: .seiraTint
+                ringGap: .seiraTint,
+                mood: status == .working ? .working : .idle,
+                motion: .sway
             )
             VStack(alignment: .leading, spacing: 4) {
                 nameLine

@@ -181,11 +181,7 @@ struct WorkingMonitorView: View {
     private func rowView(_ row: WidgetSnapshot.Row) -> some View {
         rowLink(row) {
             HStack(spacing: 8) {
-                MausFaceStill(
-                    color: row.chat.color,
-                    state: MausState(rawValue: row.face) ?? .idle,
-                    size: 22
-                )
+                SeiraPlateHead(chat: row.chat, face: row.face, size: 22)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(row.chat.name)
                         .font(.system(size: 12, weight: .semibold))
