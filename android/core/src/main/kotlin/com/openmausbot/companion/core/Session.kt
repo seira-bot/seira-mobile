@@ -186,12 +186,14 @@ class Session(
     private var pairingInFlight = false
     private var deferredInvite: PairingInvite? = null
 
-    init {
-        scope.launch {
-            networkMonitor.changes.debounce(NETWORK_CHANGE_DEBOUNCE_MILLIS).collect {
-                gate.withLock { restartStreamLocked() }
-            }
+    @OptIn(kotlinx.coroutines.FlowPreview::class)
+    private val networkWatch = scope.launch {
+        networkMonitor.changes.debounce(NETWORK_CHANGE_DEBOUNCE_MILLIS).collect {
+            gate.withLock { restartStreamLocked() }
         }
+    }
+
+    init {
         // No Exception other than cancellation leaves this launch: it is a root
         // coroutine with no caller to catch for it, so [restoreLocked] reports a
         // failed read instead of throwing it. An Error still propagates, on

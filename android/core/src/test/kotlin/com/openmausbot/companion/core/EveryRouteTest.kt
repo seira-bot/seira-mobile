@@ -401,15 +401,7 @@ class EveryRouteTest {
     ) : AutoCloseable {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val streamHosts = CopyOnWriteArrayList<String>()
-        val store = object : ConnectionStore {
-            var saved: Connection? = saved
-            override suspend fun loadRegistry() = ConnectionRegistryRestore(
-                ConnectionRegistry(listOfNotNull(this.saved), this.saved?.id), migratedLegacyConnection = false,
-            )
-            override suspend fun load() = saved
-            override suspend fun save(connection: Connection) { this.saved = connection }
-            override suspend fun clear() { saved = null }
-        }
+        val store = MemoryStore(saved)
         private val tokens = object : TokenStore {
             override suspend fun save(connectionId: String, token: String) {}
             override suspend fun read(connectionId: String): TokenStore.ReadResult = TokenStore.ReadResult.Found("seira_sess_fixture")
@@ -439,6 +431,15 @@ class EveryRouteTest {
             session.disconnect()
             scope.cancel()
         }
+    }
+
+    private class MemoryStore(var saved: Connection?) : ConnectionStore {
+        override suspend fun loadRegistry() = ConnectionRegistryRestore(
+            ConnectionRegistry(listOfNotNull(saved), saved?.id), migratedLegacyConnection = false,
+        )
+        override suspend fun load() = saved
+        override suspend fun save(connection: Connection) { saved = connection }
+        override suspend fun clear() { saved = null }
     }
 
     private companion object {
