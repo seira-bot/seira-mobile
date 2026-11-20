@@ -112,6 +112,7 @@ targets:
         CFBundleURLTypes:
           - CFBundleURLName: bot.seira.companion.pairing
             CFBundleURLSchemes:
+              - openmausbot
               - seira
         NSUserActivityTypes:
           - INSendMessageIntent
@@ -153,7 +154,7 @@ targets:
           - Geist-Medium.ttf
           - Geist-SemiBold.ttf
         NSBonjourServices:
-          - _seira._tcp
+          - _openmausbot._tcp
         # The companion listener is plain HTTP on a local address. ATS has
         # to be told, and this is the narrowest way to say it: local
         # networking only, not a blanket exception.

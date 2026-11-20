@@ -266,13 +266,13 @@ class RoutineRulesTest {
         val ready = RoutineRunAvailability(cloudConfigured = true, cloudEngines = setOf("claude"))
         val noAgent = RoutineRunAvailability(cloudConfigured = true, cloudEngines = emptySet())
 
-        assertTrue(RoutineRules.cloudSelectable(ready, RoutineRunLocation.SEIRA, "claude"))
-        assertFalse(RoutineRules.cloudSelectable(noAgent, RoutineRunLocation.SEIRA, "claude"))
+        assertTrue(RoutineRules.cloudSelectable(ready, RoutineRunLocation.MAUS, "claude"))
+        assertFalse(RoutineRules.cloudSelectable(noAgent, RoutineRunLocation.MAUS, "claude"))
         assertFalse(
-            RoutineRules.cloudSelectable(ready, RoutineRunLocation.SEIRA, "router"),
+            RoutineRules.cloudSelectable(ready, RoutineRunLocation.MAUS, "router"),
             "another engine that can use a computer does not make this bot's engine able to",
         )
-        assertFalse(RoutineRules.cloudSelectable(ready, RoutineRunLocation.SEIRA, null), "no bot chosen yet")
+        assertFalse(RoutineRules.cloudSelectable(ready, RoutineRunLocation.MAUS, null), "no bot chosen yet")
     }
 
     @Test
@@ -284,7 +284,7 @@ class RoutineRulesTest {
             RoutineRules.cloudSelectable(null, RoutineRunLocation.CLOUD, "claude"),
             "status not loaded yet must not move an existing cloud routine",
         )
-        assertFalse(RoutineRules.cloudSelectable(null, RoutineRunLocation.SEIRA, "claude"))
+        assertFalse(RoutineRules.cloudSelectable(null, RoutineRunLocation.MAUS, "claude"))
     }
 
     @Test
@@ -294,7 +294,7 @@ class RoutineRulesTest {
 
         assertEquals(
             RoutineRules.PAIRED_COMPUTER_FOOTER,
-            RoutineRules.locationFooter(RoutineRunLocation.SEIRA, blocked, "claude"),
+            RoutineRules.locationFooter(RoutineRunLocation.MAUS, blocked, "claude"),
         )
         assertEquals(
             RoutineRules.CLOUD_READY_FOOTER,
@@ -418,7 +418,7 @@ class RoutineRulesTest {
             name = "Nightly",
             prompt = "Do the thing",
             botId = "bot-1",
-            runOn = RoutineRunLocation.SEIRA,
+            runOn = RoutineRunLocation.MAUS,
             enabled = null,
             schedule = RoutineSchedule.daily("09:00", listOf(1)),
             durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES,
@@ -750,7 +750,7 @@ class RoutineRulesTest {
                 name = "Nightly",
                 prompt = "Do the thing",
                 botId = "bot-1",
-                runOn = RoutineRunLocation.SEIRA,
+                runOn = RoutineRunLocation.MAUS,
                 enabled = true,
                 schedule = schedule,
                 durationMinutes = 30,
@@ -834,7 +834,7 @@ class RoutineRulesTest {
     @Test
     fun `a new routine started from the chat still gets the 30 minute interval timeout`() {
         val draft = Routine(
-            id = "", name = "", prompt = "", botId = "bot-1", runOn = RoutineRunLocation.SEIRA.wireValue,
+            id = "", name = "", prompt = "", botId = "bot-1", runOn = RoutineRunLocation.MAUS.wireValue,
             enabled = true, schedule = RoutineSchedule(RoutineSchedule.Kind.DAILY),
             durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES, createdAt = 0.0, updatedAt = 0.0,
         )
@@ -889,7 +889,7 @@ class RoutineRulesTest {
                 name = "Nightly",
                 prompt = "Do the thing",
                 botId = "bot-1",
-                runOn = RoutineRunLocation.SEIRA,
+                runOn = RoutineRunLocation.MAUS,
                 enabled = null,
                 schedule = RoutineSchedule.daily("09:00", listOf(1)),
                 durationMinutes = RoutineRules.LEGACY_DURATION_MINUTES,
@@ -922,7 +922,7 @@ class RoutineRulesTest {
     private fun routine(
         id: String = "routine-1",
         enabled: Boolean = true,
-        runOn: String = "seira",
+        runOn: String = "maus",
         nextRunAt: Double? = null,
         schedule: RoutineSchedule = RoutineSchedule.daily("09:00", listOf(1)),
     ) = Routine(
@@ -944,7 +944,7 @@ class RoutineRulesTest {
         routineId = "routine-1",
         routineName = "Nightly",
         botId = "bot-1",
-        runOn = "seira",
+        runOn = "maus",
         scheduledFor = scheduledFor,
         status = "completed",
         manual = false,

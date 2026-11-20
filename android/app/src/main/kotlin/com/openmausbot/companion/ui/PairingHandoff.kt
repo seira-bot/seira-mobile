@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.core.DesktopWireIds
+
 /**
  * What counts as a pairing deep link.
  *
@@ -7,11 +9,11 @@ package com.openmausbot.companion.ui
  * keeps the credential-carrying URL out of any Intent the system remembers.
  */
 internal object PairingLink {
-    const val SCHEME = "seira"
+    val SCHEMES: Set<String> = DesktopWireIds.PAIRING_SCHEMES
     const val HOST = "pair"
 
     fun isInvite(scheme: String?, host: String?): Boolean =
-        scheme.equals(SCHEME, ignoreCase = true) && host.equals(HOST, ignoreCase = true)
+        scheme?.lowercase() in SCHEMES && host.equals(HOST, ignoreCase = true)
 }
 
 /**

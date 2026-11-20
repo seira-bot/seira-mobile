@@ -2496,7 +2496,7 @@ class Session(
 
         /** High-entropy QR token — distinct from a retryable six-digit code. */
         fun isQrCredential(credential: String): Boolean =
-            credential.startsWith("seira_pair_") ||
+            DesktopWireIds.PAIRING_TOKEN_PREFIXES.any { credential.startsWith(it) } ||
                 !(credential.length == 6 && credential.all { it in '0'..'9' })
     }
 }

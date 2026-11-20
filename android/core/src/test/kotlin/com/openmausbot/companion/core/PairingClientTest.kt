@@ -343,6 +343,24 @@ class PairingClientTest {
     }
 
     @Test
+    fun theHealthProbeAcceptsTheOpenMausBotAndTheSeiraAppIds() = runBlocking {
+        for (app in listOf("openmausbot", "seira")) {
+            val stub = PairingStub { request ->
+                if (request.url.encodedPath == "/api/health") {
+                    StubAction.reply(200, """{"app":"$app","pid":42,"static":true}""")
+                } else {
+                    StubAction.reply(201, PAIRED)
+                }
+            }
+            val connection = Connection(name = "Mac", host = "192.168.1.42", port = 8810)
+
+            CompanionClient.pairFirstReachable(connection, CREDENTIAL, "Pixel", client = stub.client)
+
+            assertEquals(1, stub.pairRequests.size, "app id $app must pair")
+        }
+    }
+
+    @Test
     fun rejectsServiceWithWrongIdentityWithoutPairing() = runBlocking {
         val stub = PairingStub { StubAction.reply(200, """{"app":"something-else"}""") }
         val connection = Connection(name = "Mac", host = "192.168.1.42", port = 8810)

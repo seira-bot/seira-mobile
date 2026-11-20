@@ -397,7 +397,7 @@ data class PairingInvite(val connection: Connection, val credential: String) {
             if (url.scheme.equals("https", true) || url.scheme.equals("http", true)) {
                 return parseServerLink(url)
             }
-            if (!url.scheme.equals("seira", ignoreCase = true) ||
+            if (url.scheme?.lowercase() !in DesktopWireIds.PAIRING_SCHEMES ||
                 !url.host.equals("pair", ignoreCase = true)
             ) {
                 return null
@@ -450,7 +450,7 @@ data class PairingInvite(val connection: Connection, val credential: String) {
         fun parse(url: String): PairingInvite? = runCatching { URI(url) }.getOrNull()?.let(::parse)
 
         /**
-         * Whether [url] is meant as a pairing link — `seira://pair…` —
+         * Whether [url] is meant as a pairing link — `openmausbot://pair…` or `seira://pair…` —
          * whether or not the rest of it reads. Decided on the text rather than a
          * parsed [URI]: a link a chat app mangled may not parse at all, and it is
          * still someone trying to pair, which a link this app does not know is
@@ -458,8 +458,10 @@ data class PairingInvite(val connection: Connection, val credential: String) {
          */
         fun isPairLink(url: String): Boolean {
             val text = url.trim()
-            val prefix = "seira://pair"
-            if (!text.startsWith(prefix, ignoreCase = true)) return false
+            val prefix = DesktopWireIds.PAIRING_SCHEMES
+                .map { "$it://pair" }
+                .firstOrNull { text.startsWith(it, ignoreCase = true) }
+                ?: return false
             return text.length == prefix.length || text[prefix.length] in "?#/"
         }
 
@@ -492,8 +494,10 @@ data class PairingInvite(val connection: Connection, val credential: String) {
 
         private fun credential(values: Map<String, String>): String? {
             values["token"]?.let { token ->
-                val suffix = token.removePrefix("seira_pair_")
-                if (!token.startsWith("seira_pair_") || token.toByteArray().size != 54 || suffix.length != 43) {
+                val prefix = DesktopWireIds.PAIRING_TOKEN_PREFIXES.firstOrNull { token.startsWith(it) }
+                    ?: return null
+                val suffix = token.removePrefix(prefix)
+                if (token.toByteArray().size != prefix.length + 43 || suffix.length != 43) {
                     return null
                 }
                 if (suffix.all { it.isLetterOrDigit() && it.code < 128 || it == '-' || it == '_' }) return token

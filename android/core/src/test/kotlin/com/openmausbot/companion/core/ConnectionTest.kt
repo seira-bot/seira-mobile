@@ -212,6 +212,44 @@ class ConnectionTest {
     }
 
     @Test
+    fun parsesADesktopPairingInviteWithEitherSchemeAndItsOwnTokenPrefix() {
+        val old = "omb_pair_" + "a".repeat(43)
+        val seira = "seira_pair_" + "a".repeat(43)
+        assertEquals(52, old.toByteArray().size)
+        assertEquals(54, seira.toByteArray().size)
+        assertEquals(old, PairingInvite.parse(URI("openmausbot://pair?address=mac.local&token=$old"))?.credential)
+        assertEquals(old, PairingInvite.parse(URI("OpenMausBot://PAIR?address=mac.local&token=$old"))?.credential)
+        assertEquals(seira, PairingInvite.parse(URI("seira://pair?address=mac.local&token=$seira"))?.credential)
+    }
+
+    @Test
+    fun refusesATokenWhosePrefixDoesNotMatchItsLength() {
+        val shortSeira = "omb_pair_" + "a".repeat(45)
+        val longOld = "seira_pair_" + "a".repeat(41)
+        assertEquals(54, shortSeira.toByteArray().size)
+        assertEquals(52, longOld.toByteArray().size)
+        assertNull(PairingInvite.parse(URI("openmausbot://pair?address=mac.local&token=$shortSeira")))
+        assertNull(PairingInvite.parse(URI("seira://pair?address=mac.local&token=$longOld")))
+        assertNull(PairingInvite.parse(URI("openmausbot://pair?address=mac.local&token=other_pair_" + "a".repeat(43))))
+    }
+
+    @Test
+    fun anUnknownSchemeIsNotAPairingInvite() {
+        assertNull(PairingInvite.parse(URI("mausbot://pair?address=mac.local&code=004209")))
+    }
+
+    @Test
+    fun recognisesBothSchemesAsPairLinks() {
+        assertTrue(PairingInvite.isPairLink("openmausbot://pair?address=mac.local&code=004209"))
+        assertTrue(PairingInvite.isPairLink("OPENMAUSBOT://PAIR"))
+        assertTrue(PairingInvite.isPairLink(" seira://pair#x "))
+        assertTrue(PairingInvite.isPairLink("SEIRA://pair/"))
+        assertFalse(PairingInvite.isPairLink("openmausbot://pairing"))
+        assertFalse(PairingInvite.isPairLink("seira://pairing"))
+        assertFalse(PairingInvite.isPairLink("mausbot://pair"))
+    }
+
+    @Test
     fun parsesADesktopPairingInvite() {
         val token = "seira_pair_" + "a".repeat(43)
         val invite = PairingInvite.parse(

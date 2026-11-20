@@ -203,7 +203,7 @@ class ProfileRoutineWireTest {
                 name = "  " + "n".repeat(120),
                 prompt = " Do the thing ",
                 botId = "bot-1",
-                runOn = RoutineRunLocation.SEIRA,
+                runOn = RoutineRunLocation.MAUS,
                 enabled = null,
                 schedule = schedule,
                 durationMinutes = 45,
@@ -230,7 +230,7 @@ class ProfileRoutineWireTest {
         )
         assertEquals(80, sent.getValue("name").jsonPrimitive.content.length)
         assertEquals("Do the thing", sent.getValue("prompt").jsonPrimitive.content)
-        assertEquals("seira", sent.getValue("runOn").jsonPrimitive.content)
+        assertEquals("maus", sent.getValue("runOn").jsonPrimitive.content)
         assertEquals(45, sent.getValue("durationMinutes").jsonPrimitive.int)
         assertEquals(JsonNull, sent.getValue("timeoutMinutes"))
 
@@ -254,7 +254,7 @@ class ProfileRoutineWireTest {
                 name = "Frequent check",
                 prompt = "Check for updates",
                 botId = "bot-1",
-                runOn = RoutineRunLocation.SEIRA,
+                runOn = RoutineRunLocation.MAUS,
                 enabled = null,
                 schedule = RoutineRules.schedule(
                     kind = RoutineSchedule.Kind.INTERVAL,
@@ -292,7 +292,7 @@ class ProfileRoutineWireTest {
                 name = "Nightly",
                 prompt = "  " + "p".repeat(30_000) + "  ",
                 botId = "bot-1",
-                runOn = RoutineRunLocation.SEIRA,
+                runOn = RoutineRunLocation.MAUS,
                 enabled = null,
                 schedule = RoutineSchedule.daily("09:00", listOf(1)),
                 durationMinutes = 30,
@@ -361,7 +361,7 @@ class ProfileRoutineWireTest {
         put("name", CompanionJson.encodeToJsonElement("Nightly"))
         put("prompt", CompanionJson.encodeToJsonElement("Do the thing"))
         put("botId", CompanionJson.encodeToJsonElement("bot-1"))
-        put("runOn", CompanionJson.encodeToJsonElement("seira"))
+        put("runOn", CompanionJson.encodeToJsonElement("maus"))
         put("enabled", CompanionJson.encodeToJsonElement(true))
         put("schedule", CompanionJson.encodeToJsonElement(RoutineSchedule.daily("09:00", listOf(1))))
         put("durationMinutes", CompanionJson.encodeToJsonElement(30))

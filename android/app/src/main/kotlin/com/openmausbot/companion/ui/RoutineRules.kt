@@ -111,7 +111,7 @@ object RoutineRules {
         runs.sortedByDescending { it.scheduledFor }.take(RECEIPT_LIMIT)
 
     fun locationLabel(location: RoutineRunLocation): String = when (location) {
-        RoutineRunLocation.SEIRA -> "This computer"
+        RoutineRunLocation.MAUS -> "This computer"
         RoutineRunLocation.CLOUD -> "Cloud VM"
     }
 
@@ -211,7 +211,7 @@ object RoutineRules {
         availability: RoutineRunAvailability?,
         engine: String?,
     ): String = when {
-        runOn == RoutineRunLocation.SEIRA -> PAIRED_COMPUTER_FOOTER
+        runOn == RoutineRunLocation.MAUS -> PAIRED_COMPUTER_FOOTER
         availability?.cloudReady(engine) == true -> CLOUD_READY_FOOTER
         else -> CLOUD_BLOCKED_FOOTER
     }

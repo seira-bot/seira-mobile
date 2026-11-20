@@ -117,7 +117,7 @@ internal fun RoutineEditorSheet(
         mutableStateOf(AgentChoice(seed?.botId ?: ""))
     }
     var runOn by rememberSaveable(stateSaver = RunLocationSaver) {
-        mutableStateOf(seed?.runLocation ?: RoutineRunLocation.SEIRA)
+        mutableStateOf(seed?.runLocation ?: RoutineRunLocation.MAUS)
     }
     var kind by rememberSaveable(stateSaver = ScheduleKindSaver) {
         mutableStateOf(seed?.schedule?.type ?: RoutineSchedule.Kind.DAILY)
@@ -298,11 +298,11 @@ internal fun RoutineEditorSheet(
                 footer = RoutineRules.locationFooter(runOn, availability, botEngine),
             ) {
                 RadioRow(
-                    label = RoutineRules.locationLabel(RoutineRunLocation.SEIRA),
+                    label = RoutineRules.locationLabel(RoutineRunLocation.MAUS),
                     painter = R.drawable.ic_display,
-                    selected = runOn == RoutineRunLocation.SEIRA,
+                    selected = runOn == RoutineRunLocation.MAUS,
                     enabled = true,
-                    onSelect = { runOn = RoutineRunLocation.SEIRA },
+                    onSelect = { runOn = RoutineRunLocation.MAUS },
                 )
                 RadioRow(
                     label = RoutineRules.locationLabel(RoutineRunLocation.CLOUD),
@@ -912,7 +912,7 @@ private val RunLocationSaver = listSaver<RoutineRunLocation, String>(
     save = { listOf(it.wireValue) },
     restore = {
         RoutineRunLocation.entries.firstOrNull { entry -> entry.wireValue == it.first() }
-            ?: RoutineRunLocation.SEIRA
+            ?: RoutineRunLocation.MAUS
     },
 )
 

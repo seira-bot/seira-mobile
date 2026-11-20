@@ -1,4 +1,4 @@
-// The seira:// scheme's vocabulary. Pairing was its only word;
+// The vocabulary of the openmausbot:// and seira:// schemes. Pairing was its only word;
 // these tests pin it exactly as ConnectionTests shaped it, beside the
 // chat route home-screen widgets will emit.
 import XCTest
@@ -30,6 +30,23 @@ final class DeepLinkTests: XCTestCase {
 
         let plus = try XCTUnwrap(URL(string: "seira://pair?address=mac.local&code=004209&name=C%2B%2B+box"))
         XCTAssertEqual(PairingInvite.parse(plus)?.connection.name, "C++ box")
+    }
+
+    func testParsesAPairingInviteWrittenWithTheOpenMausBotScheme() throws {
+        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let url = try XCTUnwrap(URL(string: "openmausbot://pair?address=macbook.tail1234.ts.net%3A8810&token=\(token)"))
+        guard case let .pairing(invite) = CompanionDeepLink.parse(url) else {
+            return XCTFail("expected a pairing link")
+        }
+        XCTAssertEqual(invite.credential, token)
+        XCTAssertEqual(CompanionDeepLink.parse(try XCTUnwrap(URL(string: "OPENMAUSBOT://PAIR?code=12"))), .invalidPairing)
+    }
+
+    func testAChatLinkWorksWithEitherScheme() throws {
+        for scheme in ["openmausbot", "seira"] {
+            let url = try XCTUnwrap(URL(string: "\(scheme)://chat/t-9f2c"))
+            XCTAssertEqual(CompanionDeepLink.parse(url), .chat(threadId: "t-9f2c"), scheme)
+        }
     }
 
     func testParsesAServerPairLink() throws {

@@ -30,8 +30,8 @@ class NotificationMappingTest {
     @Test
     fun dedupeIdMatchesIosContract() {
         val notification = frame("approval", threadId = "thread-9", title = "Allow?")
-        assertEquals("seira.thread-9.42", NotificationMapping.dedupeId(notification, 42))
-        assertEquals("seira.thread-9.Allow?", NotificationMapping.dedupeId(notification, null))
+        assertEquals("openmaus.thread-9.42", NotificationMapping.dedupeId(notification, 42))
+        assertEquals("openmaus.thread-9.Allow?", NotificationMapping.dedupeId(notification, null))
     }
 
     private fun frame(
