@@ -296,9 +296,14 @@ class EveryRouteTest {
             "https://$tailnetName" to UnknownHostException("no such host"),
             "https://$tunnelName" to IOException("Failed to connect"),
         )
-        Harness(saved, routeChoice = { RouteChoice(null, failures) }, vpn = false).use { h ->
+        Harness(saved, routeChoice = { RouteChoice(null, failures) }, vpn = false, streamError = java.net.ConnectException("refused")).use { h ->
             h.session.connect()
             withTimeout(5_000) { while (h.session.routeAdvice.value == null) delay(20) }
+            withTimeout(5_000) { while (h.session.status.value !is Session.Status.Offline) delay(20) }
+            assertEquals(
+                ConnectionAdvice.TAILSCALE_OFF + " The internet address did not answer either. Check that the computer is on.",
+                (h.session.status.value as Session.Status.Offline).message,
+            )
             val advice = assertNotNull(h.session.routeAdvice.value)
             assertTrue(advice.offersTailscale)
             assertTrue(advice.text.startsWith("Tailscale is off on this phone."), advice.text)
@@ -397,6 +402,7 @@ class EveryRouteTest {
         routeChoice: (suspend (Connection) -> RouteChoice)? = null,
         metadata: suspend (CompanionClient) -> CompanionConnectionMetadata = { throw APIError.Status(404) },
         vpn: Boolean? = null,
+        streamError: Throwable? = null,
         changes: kotlinx.coroutines.flow.Flow<Unit> = kotlinx.coroutines.flow.emptyFlow(),
     ) : AutoCloseable {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -413,6 +419,7 @@ class EveryRouteTest {
             eventsFn = { client, _, _ ->
                 streamHosts += client.connection.host
                 flow {
+                    streamError?.let { throw it }
                     emit(StreamFrame(Frame.Hello(cursor = "s:1", resumed = true), seq = 1))
                     awaitCancellation()
                 }
