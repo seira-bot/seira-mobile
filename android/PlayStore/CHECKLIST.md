@@ -18,7 +18,7 @@ commit and artifact being submitted; unchecked items remain release work.
   release-owner machines (mode 600). Upgrades go through Play only.
 - [x] Configure signing securely and run `./gradlew :app:bundleRelease` from
   `android/` with JDK 17 and the Android SDK configured.
-  Done 2026-11-20 for 10001. A 10002 test build from PR #11 also passed.
+  Done 2026-11-20 for 10001. A test build from PR #11 (now 1.0.3) also passed.
 - [x] Verify the signature of
   `android/app/build/outputs/bundle/release/app-release.aab`; record its hash,
   version, and certificate identity.
@@ -26,12 +26,12 @@ commit and artifact being submitted; unchecked items remain release work.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
-  Partial 2026-11-20: a 1.0.2 test build passed typed-code and link pairing against an
+  Partial 2026-11-20: a PR #11 test build passed typed-code and link pairing against an
   isolated fixture. The 1.0.1 build passed pairing, the approval card ("Allow" and
   "Deny"), and a bot reply against the review server. Repeat on 10002.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
-  Partial 2026-11-20: the upgrade from 1.0.1 to a 1.0.2 test build did not
+  Partial 2026-11-20: the upgrade from 1.0.1 to a PR #11 test build did not
   crash. Repeat with the signed 10002 build.
 
 ## Listing and reviewer access
