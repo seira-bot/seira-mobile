@@ -3,8 +3,9 @@
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 "1.0.1" (versionCode 10001) tayang pada 2026-11-20. Update 1.0.2
 (versionCode 10002) membawa karakter Seira 3D dan memakai wire id lama.
-Update 1.0.3 (versionCode 10003) dengan wire id baru menyusul sesudah desktop
-0.1.182 rilis.
+Update 1.0.3 (versionCode 10003) membawa PR #11 (wire id lama dan wire id
+Seira) dan PR #27 (pairing mencoba semua alamat). Update ini menyusul sesudah
+Google menyetujui 1.0.2.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -20,8 +21,9 @@ Dasar jawaban:
 - Update 1.0.2: versionCode `10002`, dari `main` sesudah PR #19, #22, dan
   #24. Update ini memakai wire id lama, jadi bisa pairing dengan desktop
   0.1.181 dan server uji 0.1.180. Pemilik rilis memilih ini pada 2026-11-20.
-- Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 merge. Update
-  ini memakai wire id desktop 0.1.182.
+- Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 dan PR #27
+  merge. Update ini membaca wire id lama dan wire id Seira, dan mengirim wire
+  id lama. Jadi update ini bisa pairing dengan desktop 0.1.181 dan 0.1.182.
   Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
   versionCode `10000` dan `10001` lagi.
 - Bundle `10001` mewajibkan fitur `android.hardware.wifi`. Publishing overview
@@ -176,10 +178,12 @@ Isi teks ini saat rilis 1.0.3 dibuat di Console:
 
 ```text
 <en-US>
-This update works with Seira 0.1.182 or later on your computer. Update Seira on your computer too. If your phone does not connect, pair it again.
+Pairing now tries every address of your computer at once: same Wi-Fi, Tailscale and the internet address. The app moves to an address that works when your network changes. If Tailscale is off on this phone, the app tells you and opens Tailscale.
+This version also works with Seira 0.1.182 and later on your computer.
 </en-US>
 <id>
-Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui juga Seira di komputer Anda. Kalau ponsel tidak tersambung, pasangkan lagi.
+Pairing sekarang mencoba semua alamat komputer sekaligus: Wi-Fi yang sama, Tailscale, dan alamat internet. Aplikasi pindah ke alamat yang jalan saat jaringan berubah. Kalau Tailscale di HP mati, aplikasi memberi tahu dan membuka Tailscale.
+Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
 </id>
 ```
 
@@ -203,9 +207,10 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
 5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
    nama "1.0.2", isi "Catatan rilis update 1.0.2". Ganti langkah 3 App access
    ke "Tap Allow.". Lalu kirim untuk review.
-6. Sesudah desktop 0.1.182 rilis dan Google menyetujui 1.0.2: upgrade server
-   uji ke 0.1.182, merge PR #11, bangun 10003, uji, lalu kirim 1.0.3 dengan
-   "Catatan rilis update 1.0.3".
+6. Sesudah Google menyetujui 1.0.2: pemilik rilis merge PR #11, lalu PR #27.
+   Bangun 10003 dari `main`. Uji pairing terhadap server uji dengan wire id
+   lama dan terhadap 0.1.182. Lalu kirim 1.0.3 dengan "Catatan rilis update
+   1.0.3".
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
