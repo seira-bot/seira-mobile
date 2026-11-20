@@ -6,7 +6,8 @@ Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 Google menyetujui 1.0.2. Rilis "1.0.2" tayang di Play pada 2026-11-20: 178
 negara, rollout 100%.
 Update 1.0.3 (versionCode 10003) membawa PR #11 (wire id lama dan wire id
-Seira) dan PR #27 (pairing mencoba semua alamat).
+Seira) dan PR #27 (pairing mencoba semua alamat). Rilis "1.0.3" dikirim untuk
+review pada 2026-11-21.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -29,6 +30,9 @@ Dasar jawaban:
 - Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 dan PR #27
   merge. Update ini membaca wire id lama dan wire id Seira, dan mengirim wire
   id lama. Jadi update ini bisa pairing dengan desktop 0.1.181 dan 0.1.182.
+  Bundle dibangun dari `ae435d9`. Sha256 bundle
+  `c20c1c431fe21945fa81aaaa8c324a311342380fd07b4b0b9b050bb224c53fc1`, upload
+  key `FD:4C:…:C1:FD`. Fitur wajib hanya `android.hardware.faketouch`.
   Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
   versionCode `10000` dan `10001` lagi.
 - Bundle `10001` mewajibkan fitur `android.hardware.wifi`. Publishing overview
@@ -132,8 +136,10 @@ Each code works once. Tap Get a new code for another.
 Alamat server dan passphrase ada hanya di Console. Jangan tulis keduanya di
 repo. Server uji harus tetap menyala selama review, punya bot "Demo
 Assistant", dan tidak menyimpan data pribadi. Server uji tetap memakai wire
-id lama selama review 1.0.2. Upgrade server ke 0.1.182 sesudah Google
-menyetujui 1.0.2, dan sebelum review 1.0.3.
+id lama selama review 1.0.2. Server uji naik ke 0.1.182 pada 2026-11-21,
+sebelum review 1.0.3. Uji pairing dengan kode lulus sesudah upgrade. Link QR
+server tetap memakai `openmausbot://pair` (FR-216). App 1.0.3 menerima link
+ini.
 
 ## Izin dan deklarasi terkait
 
@@ -214,11 +220,13 @@ Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
    "Catatan rilis update 1.0.2". App access langkah 3 sudah "Tap Allow.".
    Rilis dikirim untuk review. Google menyetujui 1.0.2 pada 2026-11-20.
    Console: "Available on Google Play", versionCode 10002, 178 negara.
-6. Sesudah Google menyetujui 1.0.2: merge PR #11, lalu PR #27. Bangun 10003
-   dari `main`. Uji pairing terhadap server uji dengan wire id lama dan
-   terhadap 0.1.182. Lalu kirim 1.0.3 dengan "Catatan rilis update 1.0.3".
-   Merge dan kirim review butuh izin pemilik rilis. Pemilik rilis memberi izin
-   di chat pada 2026-11-20: "lanjut sampai rilis 1.0.3".
+6. Selesai 2026-11-21: PR #27 dan PR #11 merge ke `main` (`ae435d9`).
+   Bundle 10003 dibangun dari `main`. Pairing kode, link, dan chat lulus
+   terhadap fixture desktop 0.1.182. Pairing kode dan chat lulus terhadap
+   fixture 0.1.181. Server uji naik ke 0.1.182. Rilis Production "1.0.3"
+   dibuat dengan "Catatan rilis update 1.0.3", 178 negara, rollout 100%.
+   Rilis dikirim untuk review. Pemilik rilis memberi izin di chat pada
+   2026-11-20: "lanjut sampai rilis 1.0.3".
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 8. Console (2026-11-20, dashboard rilis 1.0.2): "DEX code optimization is
    below our threshold". Kategori Obfuscation 0%. Batas perbaikan: Februari
