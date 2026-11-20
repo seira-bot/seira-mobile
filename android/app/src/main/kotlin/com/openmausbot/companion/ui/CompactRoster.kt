@@ -160,7 +160,7 @@ internal fun CompactBotEntry(
     bot: Bot,
     /** When the bot's current thread last moved, from the roster summary. */
     lastActivity: Double,
-    face: MausState,
+    face: CharacterMood,
     /** An unanswered approval or question sits in one of its threads. */
     hasPendingCard: Boolean,
     query: String,
@@ -228,7 +228,7 @@ private fun CompactBotLine(
     bot: Bot,
     row: RosterBotRow,
     lastActivity: Double,
-    face: MausState,
+    face: CharacterMood,
     listed: Boolean,
     searching: Boolean,
     /** A thread is being made from this row's menu or TalkBack action: the spinner says so. */
@@ -801,12 +801,12 @@ internal fun RoomFaces(members: List<Bot>, size: Dp) {
     Box(modifier = Modifier.size(size)) {
         val firstMember = members.getOrNull(0)
         if (firstMember == null) {
-            MausAvatar(color = ROOM_COLOR, size = size, state = MausState.HAPPY, animated = false)
+            SeiraRoomAvatar(size = size)
         } else {
             IdentityAvatar(
                 bot = firstMember,
                 size = first,
-                state = MausState.HAPPY,
+                state = CharacterMood.HAPPY,
                 animated = false,
                 modifier = Modifier.align(Alignment.TopStart),
             )
@@ -819,7 +819,7 @@ internal fun RoomFaces(members: List<Bot>, size: Dp) {
                     .background(colors.app, CircleShape)
                     .padding(ring),
             ) {
-                IdentityAvatar(bot = secondMember, size = second, state = MausState.HAPPY, animated = false)
+                IdentityAvatar(bot = secondMember, size = second, state = CharacterMood.HAPPY, animated = false)
             }
         }
     }

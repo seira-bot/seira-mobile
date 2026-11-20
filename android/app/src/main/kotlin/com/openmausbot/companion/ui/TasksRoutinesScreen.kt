@@ -359,7 +359,7 @@ private fun RoutineRow(
             BotAvatar(
                 bot = bot,
                 size = 42.dp,
-                state = if (routine.enabled) MausState.IDLE else MausState.SLEEPING,
+                state = if (routine.enabled) CharacterMood.IDLE else CharacterMood.SLEEPING,
                 animated = false,
             )
         } else {
@@ -592,7 +592,7 @@ internal fun runStatusTint(status: RoutineRules.RunStatus): Color = when (status
 }
 
 /** What "this stopped and is waiting for you" is painted with. */
-internal val attentionTint: Color = Color(MausPalette.argb("orange"))
+internal val attentionTint: Color = Color(BotPalette.argb("orange"))
 
 @Composable
 internal fun SectionHeading(text: String) {

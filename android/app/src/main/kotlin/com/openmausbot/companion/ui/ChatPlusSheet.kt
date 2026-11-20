@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -70,7 +71,9 @@ internal object ChatSheetLayout {
 
 private val SHEET_RADIUS = 34.dp
 private val SHEET_INSET = 8.dp
-private val TILE_HEIGHT = 88.dp
+private val TILE_HEIGHT = 108.dp
+private val ICON_TILE = 64.dp
+private val ICON_SIZE = 44.dp
 private val TILE_RADIUS = 20.dp
 private val ROW_HEIGHT = 56.dp
 private val CARD_RADIUS = 22.dp
@@ -189,7 +192,7 @@ private fun ActionTile(action: ChatAction, modifier: Modifier, onClick: () -> Un
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
     ) {
-        Icon(chatActionIcon(action.id), contentDescription = null, tint = colors.ink.copy(alpha = alpha), modifier = Modifier.size(22.dp))
+        ActionGlyph(action.id, colors.ink.copy(alpha = alpha), alpha)
         Text(
             text = chatActionTitle(action.id),
             style = SeiraType.callout.copy(fontWeight = FontWeight.Medium),
@@ -204,6 +207,7 @@ private fun ActionTile(action: ChatAction, modifier: Modifier, onClick: () -> Un
 private fun ActionCard(actions: List<ChatAction>, chat: Chat, onAction: (ChatActionId) -> Unit) {
     val colors = Seira.colors
     val shape = RoundedCornerShape(CARD_RADIUS)
+    val art = actions.any { chatActionArt(it.id) != null }
     Column(modifier = Modifier.fillMaxWidth().clip(shape).background(cardColor(), shape).padding(vertical = 4.dp)) {
         actions.forEach { action ->
             val tint = if (action.destructive) colors.danger else colors.ink
@@ -213,11 +217,11 @@ private fun ActionCard(actions: List<ChatAction>, chat: Chat, onAction: (ChatAct
                     .fillMaxWidth()
                     .heightIn(min = ROW_HEIGHT)
                     .clickable(enabled = action.enabled, role = Role.Button) { onAction(action.id) }
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(horizontal = if (art) 12.dp else 16.dp, vertical = if (art) 2.dp else 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(if (art) 8.dp else 14.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(chatActionIcon(action.id), contentDescription = null, tint = tint.copy(alpha = alpha), modifier = Modifier.size(22.dp))
+                ActionGlyph(action.id, tint.copy(alpha = alpha), alpha)
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = chatActionTitle(action.id),
@@ -235,6 +239,29 @@ private fun ActionCard(actions: List<ChatAction>, chat: Chat, onAction: (ChatAct
             }
         }
     }
+}
+
+/** The six attach and live actions get a 3D icon in a 64 dp tile. The rest keep a flat glyph. */
+@Composable
+private fun ActionGlyph(id: ChatActionId, tint: androidx.compose.ui.graphics.Color, alpha: Float) {
+    val art = chatActionArt(id)
+    if (art == null) {
+        Icon(chatActionIcon(id), contentDescription = null, tint = tint, modifier = Modifier.size(22.dp))
+    } else {
+        Box(modifier = Modifier.size(ICON_TILE), contentAlignment = Alignment.Center) {
+            Icon3d(art.first, ICON_SIZE, art.second, Modifier.alpha(alpha))
+        }
+    }
+}
+
+private fun chatActionArt(id: ChatActionId): Pair<Int, String>? = when (id) {
+    ChatActionId.CAMERA -> R.drawable.icon3d_camera to "camera"
+    ChatActionId.PHOTOS -> R.drawable.icon3d_photos to "photos"
+    ChatActionId.FILES -> R.drawable.icon3d_files to "files"
+    ChatActionId.LIVE_CALL -> R.drawable.icon3d_live_call to "live_call"
+    ChatActionId.SCHEDULE -> R.drawable.icon3d_schedule to "schedule"
+    ChatActionId.WATCH_COMPUTER -> R.drawable.icon3d_cloud_desktop to "cloud_desktop"
+    else -> null
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.audio.LiveCallPhase
 import com.openmausbot.companion.audio.LiveCallSnapshot
 import com.openmausbot.companion.core.LiveCallState
@@ -188,8 +189,11 @@ object LiveCallRules {
      * computer reports a call running from any device: a start would only be
      * refused as busy, and that device has to hang up first.
      */
-    fun offersCall(local: LiveCallSnapshot, server: LiveCallState?): Boolean =
-        !local.active && server?.isRunning != true
+    fun offersCall(
+        local: LiveCallSnapshot,
+        server: LiveCallState?,
+        callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    ): Boolean = callsEnabled && !local.active && server?.isRunning != true
 
     /**
      * Which bar a chat shows. This phone's call wins; otherwise a running call

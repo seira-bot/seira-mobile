@@ -176,6 +176,19 @@ final class ApprovalCardTests: XCTestCase {
         XCTAssertEqual(routine.outcome, .chose("Cancel", positive: false))
     }
 
+    func testAStoredLabelReadsAsAllowedOnlyWhenItIsAKnownApproval() {
+        var card = OptionCard(title: "Approval needed", subtitle: "rm -rf ./build", options: ["Proceed", "Tolak", "Allow"])
+        card.requestId = "p"
+        card.tool = "Bash"
+        card.requestType = "permission"
+        card.answered = "Proceed"
+        XCTAssertEqual(card.outcome?.isPositive, false, "unknown label")
+        card.answered = "Tolak"
+        XCTAssertEqual(card.outcome?.isPositive, false, "localized refusal")
+        card.answered = "Allow"
+        XCTAssertEqual(card.outcome?.isPositive, true)
+    }
+
     func testASkillCardStaysStandardEvenThoughItHasATool() {
         var skill = OptionCard(title: "Enable skill?", subtitle: "Release notes", options: ["Enable", "Deny"])
         skill.tool = "propose_skill"

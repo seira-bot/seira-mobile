@@ -148,7 +148,7 @@ class OpenMausApp : Application() {
         // pressure and the user (or a notification tap) reopened it. A device
         // reboot is covered separately by AlwaysOnBootReceiver, which can run
         // before anything ever constructs this Application's Activity.
-        if (alwaysOn.enabled.value) {
+        if (BuildConfig.ALWAYS_ON && alwaysOn.enabled.value) {
             AlwaysOnConnectionService.start(this)
         }
     }

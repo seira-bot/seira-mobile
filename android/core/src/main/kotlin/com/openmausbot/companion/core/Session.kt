@@ -2144,6 +2144,20 @@ class Session(
         }
     }
 
+    suspend fun updateLook(botId: String, patch: BotLookPatch): Bot? {
+        val activeClient = client ?: return null
+        if (patch.isEmpty) return _state.value.bot(botId)
+        return try {
+            val updated = activeClient.updateLook(botId, patch)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            updated
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            null
+        }
+    }
+
     /**
      * The model catalog lives on the paired computer because availability
      * depends on which engines are installed and signed in there.

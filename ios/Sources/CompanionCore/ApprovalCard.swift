@@ -244,7 +244,7 @@ extension OptionCard {
             positive = false
         } else if let option = options.first(where: { $0.caseInsensitiveCompare(answered) == .orderedSame }) {
             // An older store kept the button's own text.
-            positive = !Self.isRefusal(option)
+            positive = Self.isApproval(option)
         } else {
             return .other(answered)
         }
@@ -252,7 +252,7 @@ extension OptionCard {
         if presentation == .standard {
             // A proposal reads as the option it was settled with.
             let chosen = positive
-                ? options.first { !Self.isRefusal($0) }
+                ? options.first { Self.isApproval($0) }
                 : options.first { Self.isRefusal($0) }
             let plain = positive ? "Allow" : "Deny"
             if let chosen, chosen.caseInsensitiveCompare(plain) != .orderedSame {

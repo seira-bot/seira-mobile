@@ -65,15 +65,15 @@ class SeiraTokensTest {
 
     @Test
     fun `the plate mixes the identity colour into a neutral base`() {
-        assertEquals(MausPalette.mix(0xFFF1F1F4.toInt(), MausPalette.argb("red"), 0.26), identityPlateArgb("red", false))
-        assertEquals(MausPalette.mix(0xFF1C1C21.toInt(), MausPalette.argb("red"), 0.34), identityPlateArgb("red", true))
+        assertEquals(BotPalette.mix(0xFFF1F1F4.toInt(), BotPalette.argb("red"), 0.26), identityPlateArgb("red", false))
+        assertEquals(BotPalette.mix(0xFF1C1C21.toInt(), BotPalette.argb("red"), 0.34), identityPlateArgb("red", true))
         assertEquals(Color(identityPlateArgb("blue", true)), identityPlate("blue", true))
     }
 
     @Test
     fun `an unknown identity colour falls back to the grey`() {
         assertEquals(
-            MausPalette.mix(0xFFF1F1F4.toInt(), MausPalette.FALLBACK, 0.26),
+            BotPalette.mix(0xFFF1F1F4.toInt(), BotPalette.FALLBACK, 0.26),
             identityPlateArgb(null, false),
         )
         assertEquals(identityPlateArgb(null, true), identityPlateArgb("not-a-colour", true))

@@ -235,6 +235,15 @@ class LiveCallManagerTest {
     }
 
     @Test
+    fun `a build without calls never starts one`() = runTest {
+        val f = Fixture(this, callsEnabled = false)
+        f.manager.start("b1", "t1", "Ada", grant)
+        runCurrent()
+        assertEquals(0, f.api.starts.size)
+        assertEquals(LiveCallPhase.IDLE, f.manager.state.value.phase)
+    }
+
+    @Test
     fun `retry starts again on the same chat`() = runTest {
         val f = Fixture(this)
         f.api.answer = { throw APIError.Status(502, "OpenAI refused the call (HTTP 500).") }
@@ -1082,6 +1091,7 @@ class LiveCallManagerTest {
         val background: FakeBackground = FakeBackground(),
         val proximity: FakeProximity = FakeProximity(),
         withBackground: Boolean = false,
+        callsEnabled: Boolean = true,
     ) {
         val api = FakeApi()
         var transport = FakeTransport()
@@ -1099,6 +1109,7 @@ class LiveCallManagerTest {
             clock = { scope.testScheduler.currentTime },
             background = if (withBackground) background else LiveCallBackground.None,
             proximity = proximity,
+            callsEnabled = callsEnabled,
         )
         private val testScope = scope
 

@@ -1,0 +1,349 @@
+{
+  "note": "Captions and layout for the framed phone screenshots. tools/frame.py reads this file, the renders in ../raw/, the cast portraits in ../raw/cast/, and the backgrounds in ../graphics/source/bg/. The phone moves to one side (phone_dx), and the mascots stand on the free side so they do not hide the app. Mascot x and y are the center on a 1080x1920 canvas, and x is for a phone on the right: a shot with \"side\": \"left\" mirrors x. z < 0 puts a mascot behind the phone. Keep each title short: it must fit on two lines.",
+  "size": [
+    1080,
+    1920
+  ],
+  "shots": [
+    {
+      "id": "01-home",
+      "theme": "light",
+      "side": "right",
+      "bg": "bg-01",
+      "fallback": [
+        "#FF4F7B",
+        "#7A2CF0"
+      ],
+      "tilt": -2.5,
+      "raw": {
+        "en-US": "store-home-light.png",
+        "id-ID": "store-home-light.png"
+      },
+      "title": {
+        "en-US": "All your bots in one list",
+        "id-ID": "Semua bot Anda dalam satu daftar"
+      },
+      "sub": {
+        "en-US": "Bots that need you come first.",
+        "id-ID": "Bot yang perlu Anda tampil paling atas."
+      },
+      "mascots": [
+        {
+          "id": "bix",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "pippa",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "seira",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    },
+    {
+      "id": "02-look",
+      "theme": "light",
+      "side": "left",
+      "bg": "bg-02",
+      "fallback": [
+        "#F2189A",
+        "#FF8A1F"
+      ],
+      "tilt": 2.5,
+      "raw": {
+        "en-US": "store-look-characters-light.png",
+        "id-ID": "store-look-characters-light.png"
+      },
+      "title": {
+        "en-US": "Give each bot its own look",
+        "id-ID": "Beri setiap bot tampilannya sendiri"
+      },
+      "sub": {
+        "en-US": "Pick a character, hair, color, and extras.",
+        "id-ID": "Pilih karakter, rambut, warna, dan aksesori."
+      },
+      "mascots": [
+        {
+          "id": "felix",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "milo",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "maren",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    },
+    {
+      "id": "03-chat",
+      "theme": "light",
+      "side": "right",
+      "bg": "bg-03",
+      "fallback": [
+        "#11E6E6",
+        "#1550E8"
+      ],
+      "tilt": -2.5,
+      "raw": {
+        "en-US": "store-chat-table-en-light.png",
+        "id-ID": "store-chat-table-id-light.png"
+      },
+      "title": {
+        "en-US": "Read the work as it comes in",
+        "id-ID": "Baca hasil kerja bot saat masuk"
+      },
+      "sub": {
+        "en-US": "Tables and formatted text, as the reply arrives.",
+        "id-ID": "Tabel dan teks berformat, saat balasan masuk."
+      },
+      "mascots": [
+        {
+          "id": "pippa",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "theo",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "lumi",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    },
+    {
+      "id": "04-approval",
+      "theme": "light",
+      "side": "left",
+      "bg": "bg-04",
+      "fallback": [
+        "#FF8A1F",
+        "#F0145A"
+      ],
+      "tilt": 2.5,
+      "raw": {
+        "en-US": "store-chat-approval-en-light.png",
+        "id-ID": "store-chat-approval-id-light.png"
+      },
+      "title": {
+        "en-US": "Allow or deny before a bot acts",
+        "id-ID": "Setujui atau tolak sebelum bot bertindak"
+      },
+      "sub": {
+        "en-US": "The bot asks you first, then continues.",
+        "id-ID": "Bot bertanya dulu, lalu melanjutkan."
+      },
+      "mascots": [
+        {
+          "id": "bix",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "iris",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "rhea",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    },
+    {
+      "id": "05-pair",
+      "theme": "light",
+      "side": "right",
+      "bg": "bg-05",
+      "fallback": [
+        "#B05CFF",
+        "#2A1FB8"
+      ],
+      "tilt": -2.5,
+      "raw": {
+        "en-US": "store-pair-light.png",
+        "id-ID": "store-pair-light.png"
+      },
+      "title": {
+        "en-US": "Pair with a QR code",
+        "id-ID": "Pasangkan dengan kode QR"
+      },
+      "sub": {
+        "en-US": "Scan the code that Seira shows on your computer.",
+        "id-ID": "Pindai kode yang ditampilkan Seira di komputer."
+      },
+      "mascots": [
+        {
+          "id": "rocco",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "milo",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "mira",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    },
+    {
+      "id": "06-dark",
+      "theme": "dark",
+      "side": "left",
+      "bg": "bg-06",
+      "fallback": [
+        "#0E1030",
+        "#05050C"
+      ],
+      "tilt": 2.5,
+      "raw": {
+        "en-US": "store-home-dark.png",
+        "id-ID": "store-home-dark.png"
+      },
+      "title": {
+        "en-US": "Light and dark themes",
+        "id-ID": "Tema terang dan gelap"
+      },
+      "sub": {
+        "en-US": "Auto follows your phone setting.",
+        "id-ID": "Mode Auto mengikuti pengaturan ponsel."
+      },
+      "mascots": [
+        {
+          "id": "felix",
+          "size": 180,
+          "x": 1010,
+          "y": 760,
+          "angle": 12,
+          "z": -1
+        },
+        {
+          "id": "theo",
+          "size": 220,
+          "x": 140,
+          "y": 1010,
+          "angle": -8
+        },
+        {
+          "id": "kiri",
+          "size": 310,
+          "x": 150,
+          "y": 1600,
+          "angle": 6
+        }
+      ]
+    }
+  ],
+  "feature_graphic": {
+    "size": [
+      1024,
+      500
+    ],
+    "bg": "bg-feature",
+    "fallback": [
+      "#FF2E8A",
+      "#7A2CF0"
+    ],
+    "title": "Seira",
+    "tagline": {
+      "en-US": "Answer your bots from your phone.",
+      "id-ID": "Jawab bot Anda dari ponsel."
+    },
+    "mascots": [
+      {
+        "id": "pippa",
+        "size": 135,
+        "x": 590,
+        "y": 215,
+        "angle": -12,
+        "z": 0
+      },
+      {
+        "id": "lumi",
+        "size": 135,
+        "x": 950,
+        "y": 215,
+        "angle": 12,
+        "z": 0
+      },
+      {
+        "id": "maren",
+        "size": 170,
+        "x": 680,
+        "y": 262,
+        "angle": -6,
+        "z": 1
+      },
+      {
+        "id": "rocco",
+        "size": 170,
+        "x": 862,
+        "y": 262,
+        "angle": 6,
+        "z": 1
+      },
+      {
+        "id": "seira",
+        "size": 215,
+        "x": 771,
+        "y": 290,
+        "angle": 0,
+        "z": 2
+      }
+    ]
+  }
+}

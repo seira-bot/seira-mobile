@@ -5,6 +5,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE" />
+    <!--
+      The Wi-Fi permissions above imply a required android.hardware.wifi feature.
+      Wi-Fi is optional: a typed HTTPS address works on mobile data, and only the
+      NSD list needs Wi-Fi. Without this line, Play hides the app from devices
+      that report no Wi-Fi.
+    -->
+    <uses-feature
+        android:name="android.hardware.wifi"
+        android:required="false" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!--
       Opt-in "always on" background connection (Settings toggle, default off).

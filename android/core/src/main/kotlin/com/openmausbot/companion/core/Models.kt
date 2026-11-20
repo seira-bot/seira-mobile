@@ -123,15 +123,36 @@ data class OptionCard(
         isPermission && allowKey != null && choice.trim().equals("Always allow", ignoreCase = true)
 
     companion object {
+        /**
+         * Security invariant: a permission answer is "allow" only for a label in [APPROVALS].
+         * The wire contract (`OptionCardData.options` in seira-bot/seira) carries labels only,
+         * and a provider may supply its own, so an unknown or localized label answers "deny".
+         */
         fun responseBehavior(choice: String, isPermission: Boolean): String = when {
             !isPermission -> "answer"
-            isRefusal(choice) -> "deny"
-            else -> "allow"
+            isApproval(choice) -> "allow"
+            else -> "deny"
         }
 
-        /** "Skip" is the team-memory card's refusal; as allow it would remember what was skipped. */
-        fun isRefusal(choice: String): Boolean = choice.trim().lowercase() in
-            setOf("deny", "cancel", "dismiss", "skip")
+        /** The positive labels of the computer's permission cards (seira-bot/seira v0.1.179) and earlier provider wording. */
+        private val APPROVALS = setOf(
+            "allow", "allow once", "always allow", "approve", "yes",
+            "enable", "update", "turn on", "turn off", "delete", "change", "remove",
+            "remember", "confirm", "apply setup", "delete bot",
+        )
+
+        private val REFUSALS = setOf(
+            "deny", "cancel", "dismiss", "skip", "no", "reject", "decline", "block", "not now",
+        )
+
+        fun isApproval(choice: String): Boolean = choice.trim().lowercase() in APPROVALS
+
+        /**
+         * Only the quieter button tint and the settled-card wording use this. The wire answer
+         * comes from [isApproval]: a label in neither set is still answered "deny".
+         * "Skip" is the team-memory card's refusal.
+         */
+        fun isRefusal(choice: String): Boolean = choice.trim().lowercase() in REFUSALS
     }
 }
 
@@ -448,10 +469,12 @@ data class Bot(
     val voice: String? = null,
     val mascotExpression: String? = null,
     /**
-     * Which body from the mascot body catalog this bot wears. Absent (an older
-     * harness included) means the shipped `cursor` silhouette.
+     * Which hair style from the Seira look catalog this bot wears. An absent,
+     * unknown or retired id draws the default "seira" hair.
      */
     val mascotBody: String? = null,
+    val mascotFaceColor: String? = null,
+    val mascotAccessories: List<String>? = null,
     val tasks: List<BotTask>? = null,
     val messages: List<Message>? = null,
     val activeLeafId: String? = null,

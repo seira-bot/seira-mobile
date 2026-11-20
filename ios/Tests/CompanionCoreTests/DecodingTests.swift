@@ -602,11 +602,54 @@ final class DecodingTests: XCTestCase {
         XCTAssertEqual(card.responseBehavior(for: "Dismiss"), "deny")
     }
 
+    func testEveryComputerApprovalLabelAnswersAllow() {
+        let labels = [
+            "Allow", "Allow once", "Always allow", "Approve", "Yes",
+            "Enable", "Update", "Turn on", "Turn off", "Delete", "Change", "Remove",
+            "Remember", "Confirm", "Apply setup", "Delete bot",
+        ]
+        for label in labels {
+            XCTAssertEqual(OptionCard.responseBehavior(for: label, isPermission: true), "allow", label)
+            XCTAssertEqual(OptionCard.responseBehavior(for: "  \(label.uppercased())\n", isPermission: true), "allow", label)
+            XCTAssertTrue(OptionCard.isApproval(label), label)
+            XCTAssertFalse(OptionCard.isRefusal(label), label)
+        }
+    }
+
+    func testAPermissionChoiceThatIsNotAKnownApprovalAnswersDeny() {
+        let labels = [
+            "Deny", "Cancel", "Dismiss", "Skip",
+            "Tolak", "Reject", "No", "Decline", "Block", "Not now",
+            "Proceed", "Abort", "Allow?", "Allow always", "Deny once", "", "   ",
+        ]
+        for label in labels {
+            XCTAssertEqual(OptionCard.responseBehavior(for: label, isPermission: true), "deny", label)
+            XCTAssertFalse(OptionCard.isApproval(label), label)
+        }
+    }
+
+    func testALocalizedApprovalCardAnswersDenyForEveryUnknownLabel() {
+        var card = OptionCard(title: "Persetujuan diperlukan", subtitle: "rm -rf ./build", options: ["Izinkan", "Tolak"])
+        card.requestId = "req-id"
+        card.tool = "Bash"
+        XCTAssertEqual(card.responseBehavior(for: "Tolak"), "deny")
+        XCTAssertEqual(card.responseBehavior(for: "Izinkan"), "deny", "no explicit allow signal")
+    }
+
+    func testRefusalTintCoversCommonRefusalWords() {
+        for label in ["Deny", "Cancel", "Dismiss", "Skip", "No", "Reject", "Decline", "Block", "Not now"] {
+            XCTAssertTrue(OptionCard.isRefusal(" \(label.lowercased()) "), label)
+        }
+        XCTAssertFalse(OptionCard.isRefusal("Tolak"))
+        XCTAssertFalse(OptionCard.isRefusal("Proceed"))
+    }
+
     func testAQuestionSendsItsChoiceAsAnAnswer() throws {
         let message = try decode(Message.self, "options-card")
         let card = try XCTUnwrap(message.card)
         XCTAssertFalse(card.isPermission)
         XCTAssertEqual(card.responseBehavior(for: "Anything"), "answer")
+        XCTAssertEqual(OptionCard.responseBehavior(for: "Tolak", isPermission: false), "answer")
         XCTAssertFalse(card.shouldRememberPermission(for: "Always allow"))
     }
 

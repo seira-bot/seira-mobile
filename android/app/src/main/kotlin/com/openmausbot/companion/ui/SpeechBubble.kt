@@ -194,7 +194,7 @@ private const val QUARTER = 90f
  */
 object BubbleColor {
     /** What you said. The mascot palette's blue, not the system's. */
-    val mine: Color = Color(MausPalette.argb("blue"))
+    val mine: Color = Color(BotPalette.argb("blue"))
     val mineText: Color = Color.White
 
     private val theirsDark = Color(0xFF262629)

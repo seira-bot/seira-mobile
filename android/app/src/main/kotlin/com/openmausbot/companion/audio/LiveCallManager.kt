@@ -3,6 +3,7 @@ package com.openmausbot.companion.audio
 import android.content.Context
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.core.LiveCallStart
 import com.openmausbot.companion.core.LiveCallState
 import com.openmausbot.companion.core.LiveCallStatus
@@ -63,6 +64,8 @@ class LiveCallManager internal constructor(
     private val background: LiveCallBackground = LiveCallBackground.None,
     /** Turns the screen off at the ear. */
     private val proximity: LiveCallProximity = LiveCallProximity.None,
+    /** False in builds that leave calls out: [start] then does nothing. */
+    private val callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
 ) : DefaultLifecycleObserver, LiveCallService.Host {
 
     constructor(context: Context, session: Session, scope: CoroutineScope) : this(
@@ -145,7 +148,7 @@ class LiveCallManager internal constructor(
 
     /** Start a call on [threadId]. Ignored while one is starting, running or hanging up. */
     fun start(botId: String, threadId: String, botName: String, microphone: MicrophoneAccess) {
-        if (_state.value.active) return
+        if (!callsEnabled || _state.value.active) return
         val attempt = ++attempts
         _state.value = LiveCallSnapshot(
             phase = LiveCallPhase.STARTING,
