@@ -38,6 +38,7 @@ struct AgentProfileView: View {
     @StateObject private var player = VoiceNotePlayer()
     @State private var previewTask: Task<Void, Never>?
     @State private var baseline: ProfileFormSnapshot
+    @State private var showingChangeLook = false
 
     init(bot: Bot) {
         self.bot = bot
@@ -158,6 +159,10 @@ struct AgentProfileView: View {
                 player.pause()
                 VoiceNoteCenter.shared.release(player)
             }
+            .sheet(isPresented: $showingChangeLook) {
+                ChangeLookSheet(bot: current)
+                    .environmentObject(session)
+            }
         }
     }
 
@@ -235,10 +240,12 @@ struct AgentProfileView: View {
         Section {
             HStack {
                 Spacer()
-                BotAvatarView(bot: current, size: 112, state: .happy, animated: true)
+                BotAvatarView(bot: current, size: 112, state: .happy)
                 Spacer()
             }
             .listRowBackground(Color.clear)
+
+            Button("Change look", systemImage: "sparkles") { showingChangeLook = true }
 
             Picker("Shape", selection: $crop) {
                 ForEach(AvatarCrop.allCases, id: \.self) { shape in

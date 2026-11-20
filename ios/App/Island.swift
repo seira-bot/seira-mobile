@@ -3,9 +3,8 @@
 // alive inside it — and shrinks back into the island when it is done.
 //
 // Apps cannot draw inside the real island, so this is the same trick X
-// uses: a black rounded square that grows out of the island. The mascot
-// engine does the rest — it already morphs every state and expression,
-// which is what makes the square worth growing.
+// uses: a black rounded square that grows out of the island. The Seira
+// character inside blinks while the ask is new.
 import SwiftUI
 import CompanionCore
 
@@ -74,12 +73,21 @@ struct NeedsYouIsland: View {
     @State private var shown: ChatUpdate?
     @State private var dismissedCardIds = Set<String>()
     @State private var answering = false
-    // The comet face is the costliest draw in the app. It earns a beat of
-    // motion when the island appears; an approval left unattended overnight
-    // must not keep a 30fps orbit running until morning.
+    // The face blinks for a beat when the island appears; an approval left
+    // unattended overnight must not keep a 30fps drawing running until morning.
     @State private var attentionLive = true
 
     private var expanded: Bool { shown != nil }
+
+    @ViewBuilder
+    private func islandFace(_ chat: Chat) -> some View {
+        let mood = CharacterMood.forChat(chat, in: session.state)
+        if case let .bot(bot) = chat {
+            BotCharacterView(bot: bot, size: 120, mood: mood, motion: attentionLive ? .blink : .still)
+        } else {
+            ChatAvatarView(chat: chat, size: 120, state: mood, members: session.state.members(of: chat))
+        }
+    }
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -95,7 +103,7 @@ struct NeedsYouIsland: View {
                         // The hardware island covers the first 37pt of the
                         // square; the face sits clear of it, centred.
                         Button { open(shown.chat) } label: {
-                            ChatAvatarView(chat: shown.chat, size: 120, state: MausState.forChat(shown.chat, in: session.state), animated: attentionLive, comets: attentionLive)
+                            islandFace(shown.chat)
                         }
                         .buttonStyle(.plain)
                         .task(id: shown.chat.conversationID) {
@@ -108,7 +116,7 @@ struct NeedsYouIsland: View {
                         VStack(spacing: 4) {
                             Label("\(shown.chat.name) needs you", systemImage: "hand.raised.fill")
                                 .font(.system(size: 13, weight: .semibold))
-                                .foregroundStyle(MausPalette.color(shown.chat.color))
+                                .foregroundStyle(SeiraPalette.color(shown.chat.color))
                             Text(shown.line.isEmpty ? (shown.card?.title ?? "") : shown.line)
                                 .font(.system(size: 15))
                                 .foregroundStyle(.white)
@@ -129,7 +137,7 @@ struct NeedsYouIsland: View {
                                             .foregroundStyle(.white)
                                             .frame(maxWidth: .infinity)
                                             .frame(height: 40)
-                                            .background(Capsule().fill(MausPalette.color(shown.chat.color)))
+                                            .background(Capsule().fill(SeiraPalette.color(shown.chat.color)))
                                     }
                                     .buttonStyle(.plain)
                                 } else {
@@ -150,7 +158,7 @@ struct NeedsYouIsland: View {
                                                     .frame(maxWidth: .infinity)
                                                     .frame(height: 40)
                                                     .background(
-                                                        Capsule().fill(CardStyle.isRefusal(option) ? Color.white.opacity(0.16) : MausPalette.color(shown.chat.color))
+                                                        Capsule().fill(CardStyle.isRefusal(option) ? Color.white.opacity(0.16) : SeiraPalette.color(shown.chat.color))
                                                     )
                                             }
                                             .buttonStyle(.plain)

@@ -10,14 +10,14 @@ struct BotThreadRow: View {
     /// it, so the row derives it here rather than parsing activity.
     var queued = false
 
-    private var runtime: (title: String, icon: String, color: Color)? {
+    private var runtime: (title: LocalizedStringKey, icon: String, color: Color)? {
         // Ordered as the desktop orders its row: the person first, then a
         // teammate wait as a quiet clock (never a spinner), then work.
-        if task.activity == "waiting-on-you" { return ("Waiting on you", "hand.raised.fill", .orange) }
-        if task.isWaitingOnTeammate { return ("Waiting on teammate", "clock", .secondary) }
-        if task.isWorking { return ("Working", "arrow.triangle.2.circlepath", .accentColor) }
+        if task.activity == "waiting-on-you" { return ("Waiting on you", "hand.raised.fill", .seiraWarningText) }
+        if task.isWaitingOnTeammate { return ("Waiting on teammate", "clock", .seiraInk3) }
+        if task.isWorking { return ("Working", "arrow.triangle.2.circlepath", .seiraSuccess) }
         // The queued flag is client state the harness reports out-of-band.
-        if task.activity == "queued" || queued { return ("Queued", "clock", .secondary) }
+        if task.activity == "queued" || queued { return ("Queued", "clock", .seiraInk3) }
         return nil
     }
 
@@ -31,8 +31,8 @@ struct BotThreadRow: View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 5) {
                 Text(verbatim: task.displayTitle)
-                    .font(.body.weight(task.unread == true ? .semibold : .regular))
-                    .foregroundStyle(dimmed ? Color.secondary : Color.primary)
+                    .font(.seira(15, task.unread == true ? .semibold : .regular, relativeTo: .body))
+                    .foregroundStyle(dimmed ? Color.seiraInk3 : Color.seiraInk)
                     .lineLimit(2)
 
                 if runtime != nil || task.unread == true {
@@ -43,10 +43,10 @@ struct BotThreadRow: View {
                         }
                         if task.unread == true {
                             Label("Unread", systemImage: "circle.fill")
-                                .foregroundStyle(Color.accentColor)
+                                .foregroundStyle(Color.seiraAccentText)
                         }
                     }
-                    .font(.caption.weight(.medium))
+                    .font(.seira(12, .medium, relativeTo: .caption))
                 }
 
                 HStack(spacing: 5) {
@@ -63,15 +63,15 @@ struct BotThreadRow: View {
                         Text(verbatim: byline)
                     }
                 }
-                .font(.caption)
-                .foregroundStyle(Color.secondary)
+                .font(.seira(12, relativeTo: .caption))
+                .foregroundStyle(Color.seiraInk3)
                 .lineLimit(1)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
 
             if selected {
                 Image(systemName: "checkmark.circle.fill")
-                    .foregroundStyle(Color.accentColor)
+                    .foregroundStyle(Color.seiraInk)
                     .accessibilityHidden(true)
             }
         }

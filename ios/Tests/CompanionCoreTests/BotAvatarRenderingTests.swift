@@ -4,11 +4,11 @@ import XCTest
 
 /// The avatar's two-way decision, and the crop a generated picture lands on.
 ///
-/// `BotAvatarView` is a `Canvas` and a `.task`, neither of which a unit test
+/// `BotAvatarView` draws a view and runs a `.task`, neither of which a unit test
 /// can assert on — so the decision it makes lives here instead, the way the
 /// desktop's `resolveBotAvatarOutcome` does (`src/components/Avatar.test.ts`).
 /// The rule under test is the spec's: a missing, stale or undecodable
-/// attachment falls back to the gradient mascot, never to an empty body.
+/// attachment falls back to the character, never to an empty body.
 final class BotAvatarRenderingTests: XCTestCase {
     private func outcome(
         _ crop: AvatarCrop, hasUrl: Bool = true, decoded: Bool = true, failed: Bool = false
@@ -17,9 +17,9 @@ final class BotAvatarRenderingTests: XCTestCase {
             crop: crop, hasUrl: hasUrl, imageDecoded: decoded, failed: failed)
     }
 
-    func testMascotAlwaysDrawsTheGradientBody() {
-        XCTAssertEqual(outcome(.mascot), .gradientMascot)
-        XCTAssertEqual(outcome(.mascot, hasUrl: false), .gradientMascot)
+    func testMascotAlwaysDrawsTheCharacter() {
+        XCTAssertEqual(outcome(.mascot), .character)
+        XCTAssertEqual(outcome(.mascot, hasUrl: false), .character)
     }
 
     func testFlatCropsWearTheImageItself() {
@@ -29,22 +29,22 @@ final class BotAvatarRenderingTests: XCTestCase {
     }
 
     /// The whole point of the fallback: every crop with no usable picture
-    /// lands on the gradient mascot, whether the attachment is absent, still
+    /// lands on the character, whether the attachment is absent, still
     /// in flight, or came back undecodable.
-    func testEveryCropFallsBackToTheGradientMascotWithoutAPicture() {
+    func testEveryCropFallsBackToTheCharacterWithoutAPicture() {
         for crop in AvatarCrop.allCases {
-            XCTAssertEqual(outcome(crop, hasUrl: false), .gradientMascot, "\(crop) with no url")
-            XCTAssertEqual(outcome(crop, decoded: false), .gradientMascot, "\(crop) still loading")
+            XCTAssertEqual(outcome(crop, hasUrl: false), .character, "\(crop) with no url")
+            XCTAssertEqual(outcome(crop, decoded: false), .character, "\(crop) still loading")
             XCTAssertEqual(
-                outcome(crop, decoded: false, failed: true), .gradientMascot, "\(crop) failed")
+                outcome(crop, decoded: false, failed: true), .character, "\(crop) failed")
         }
     }
 
-    /// A decode that succeeded and then a failure flag: still the mascot.
+    /// A decode that succeeded and then a failure flag: still the character.
     /// `failed` is the explicit signal and must win on its own.
     func testAFailedFetchNeverDrawsTheImage() {
-        XCTAssertEqual(outcome(.rounded, failed: true), .gradientMascot)
-        XCTAssertEqual(outcome(.circle, failed: true), .gradientMascot)
+        XCTAssertEqual(outcome(.rounded, failed: true), .character)
+        XCTAssertEqual(outcome(.circle, failed: true), .character)
     }
 
     // MARK: - The crop a generated picture lands on

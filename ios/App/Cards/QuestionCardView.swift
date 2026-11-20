@@ -35,8 +35,6 @@ struct QuestionCardView: View {
     @State private var sent: String?
     @FocusState private var otherFocused: Bool
 
-    private var tint: Color { MausPalette.color(context.color) }
-
     private var card: OptionCard? { message.card }
     private var questions: [AskQuestion] { card?.questions ?? [] }
 
@@ -61,25 +59,26 @@ struct QuestionCardView: View {
 
     var body: some View {
         if let card, !questions.isEmpty {
-            VStack(alignment: .leading, spacing: 10) {
+            VStack(alignment: .leading, spacing: 12) {
                 header(card)
                 if card.questionRequest?.origin == "output" {
                     Text("Agent-composed question")
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.secondary)
+                        .font(.seira(12, .regular, relativeTo: .caption))
+                        .foregroundStyle(Color.seiraInk3)
                 }
                 if questions.count > 1 { tabs }
                 if let current {
                     Text(current.question)
-                        .font(.system(size: 15))
-                        .foregroundStyle(Color.primary)
+                        .font(.seira(15))
+                        .lineSpacing(4)
+                        .foregroundStyle(Color.seiraInk)
                         .textSelection(.enabled)
                         .fixedSize(horizontal: false, vertical: true)
                     if !settled {
                         if current.allowsMultiple {
                             Text("Choose all that apply")
-                                .font(.system(size: 12))
-                                .foregroundStyle(Color.secondary)
+                                .font(.seira(12, .regular, relativeTo: .caption))
+                                .foregroundStyle(Color.seiraInk3)
                         }
                         choices(current)
                     }
@@ -92,14 +91,8 @@ struct QuestionCardView: View {
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(settled ? Color.secondary.opacity(0.13) : tint.opacity(0.12))
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .strokeBorder(settled ? .clear : tint, lineWidth: 1.5)
-            }
+            .seiraCard(radius: 22)
+            .feedback(.success, trigger: settled)
         }
     }
 
@@ -107,13 +100,13 @@ struct QuestionCardView: View {
     private func header(_ card: OptionCard) -> some View {
         HStack(alignment: .firstTextBaseline) {
             Label("\(context.name) has a question", systemImage: "questionmark.bubble.fill")
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(settled ? Color.secondary : tint)
+                .font(.seira(13, .semibold, relativeTo: .subheadline))
+                .foregroundStyle(settled ? Color.seiraInk3 : Color.seiraInk)
             Spacer(minLength: 8)
             if questions.count > 1, !settled {
                 Text("\(answeredCount) of \(questions.count)")
-                    .font(.system(size: 12).monospacedDigit())
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(12, .regular, relativeTo: .caption).monospacedDigit())
+                    .foregroundStyle(Color.seiraInk3)
             }
         }
     }
@@ -132,14 +125,14 @@ struct QuestionCardView: View {
                                     .font(.system(size: 10, weight: .bold))
                             }
                             Text(question.tabLabel(position: position + 1))
-                                .font(.system(size: 13, weight: position == index ? .semibold : .regular))
+                                .font(.seira(13, position == index ? .semibold : .regular, relativeTo: .subheadline))
                         }
                         .padding(.horizontal, 10)
                         .padding(.vertical, 5)
                         .background(
-                            Capsule().fill(position == index ? Color.secondary.opacity(0.22) : Color.clear)
+                            Capsule().fill(position == index ? Color.seiraControl : Color.clear)
                         )
-                        .foregroundStyle(position == index ? Color.primary : Color.secondary)
+                        .foregroundStyle(position == index ? Color.seiraInk : Color.seiraInk3)
                     }
                     .buttonStyle(.plain)
                     .disabled(settled)
@@ -152,7 +145,7 @@ struct QuestionCardView: View {
     private func choices(_ question: AskQuestion) -> some View {
         if question.answersInWords {
             TextField("Type your answer", text: binding(forCustom: index), axis: .vertical)
-                .font(.system(size: 15))
+                .font(.seira(15))
                 .lineLimit(1...4)
                 .focused($otherFocused)
                 .textFieldStyle(.plain)
@@ -160,7 +153,7 @@ struct QuestionCardView: View {
                 .padding(.horizontal, 12)
                 .padding(.vertical, 10)
                 .background(
-                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.secondary.opacity(0.10))
+                    RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.seiraApp)
                 )
         } else {
             optionList(question)
@@ -171,7 +164,7 @@ struct QuestionCardView: View {
     private func optionList(_ question: AskQuestion) -> some View {
         VStack(spacing: 0) {
             ForEach(Array(question.options.enumerated()), id: \.offset) { position, option in
-                if position > 0 { Divider().opacity(0.4) }
+                if position > 0 { Color.seiraChatHairline.frame(height: 1) }
                 row(
                     label: option.label,
                     detail: option.detail,
@@ -179,7 +172,7 @@ struct QuestionCardView: View {
                     multi: question.allowsMultiple
                 ) { choose(option.label, in: question) }
             }
-            if !question.options.isEmpty { Divider().opacity(0.4) }
+            if !question.options.isEmpty { Color.seiraChatHairline.frame(height: 1) }
             row(
                 label: String(localized: "Other"),
                 detail: nil,
@@ -187,9 +180,9 @@ struct QuestionCardView: View {
                 multi: question.allowsMultiple
             ) { toggleOther(question) }
             if other.contains(index) {
-                Divider().opacity(0.4)
+                Color.seiraChatHairline.frame(height: 1)
                 TextField("Type your own answer", text: binding(forCustom: index), axis: .vertical)
-                    .font(.system(size: 15))
+                    .font(.seira(15))
                     .lineLimit(1...4)
                     .focused($otherFocused)
                     .textFieldStyle(.plain)
@@ -198,7 +191,7 @@ struct QuestionCardView: View {
             }
         }
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.secondary.opacity(0.10))
+            RoundedRectangle(cornerRadius: 14, style: .continuous).fill(Color.seiraApp)
         )
     }
 
@@ -217,16 +210,16 @@ struct QuestionCardView: View {
             HStack(alignment: .top, spacing: 10) {
                 Image(systemName: marker(checked: checked, multi: multi))
                     .font(.system(size: 17))
-                    .foregroundStyle(checked ? tint : Color.secondary)
+                    .foregroundStyle(checked ? Color.seiraInk : Color.seiraInk3)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(label)
-                        .font(.system(size: 15, weight: .medium))
-                        .foregroundStyle(Color.primary)
+                        .font(.seira(15, .medium))
+                        .foregroundStyle(Color.seiraInk)
                         .fixedSize(horizontal: false, vertical: true)
                     if let detail, !detail.isEmpty {
                         Text(detail)
-                            .font(.system(size: 13))
-                            .foregroundStyle(Color.secondary)
+                            .font(.seira(13, .regular, relativeTo: .subheadline))
+                            .foregroundStyle(Color.seiraInk3)
                             .fixedSize(horizontal: false, vertical: true)
                     }
                 }
@@ -252,13 +245,10 @@ struct QuestionCardView: View {
             send()
         } label: {
             Text(questions.count > 1 ? "Submit answers" : "Submit answer")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
-                .background(Capsule().fill(complete ? tint : Color.secondary.opacity(0.35)))
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SeiraPrimaryButtonStyle(height: 44))
+        .opacity(complete ? 1 : 0.4)
         .disabled(!complete || answering)
         .padding(.top, 2)
     }
@@ -268,13 +258,17 @@ struct QuestionCardView: View {
         let answer = card.answeredText ?? sent
         Label {
             Text(answer.map(AskQuestionAnswer.withoutPreamble) ?? String(localized: "Answered"))
-                .font(.system(size: 14))
+                .font(.seira(15, .medium))
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         } icon: {
             Image(systemName: "checkmark.circle")
         }
-        .foregroundStyle(Color.secondary)
+        .foregroundStyle(Color.seiraSuccess)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(Color.seiraSuccessSoft, in: RoundedRectangle(cornerRadius: 22, style: .continuous))
     }
 
     private func binding(forCustom position: Int) -> Binding<String> {

@@ -64,15 +64,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
+import com.openmausbot.companion.character.SeiraCharacter
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Profile
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraCard
-import com.openmausbot.companion.ui.theme.SeiraMark
 import com.openmausbot.companion.ui.theme.SeiraMotion
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraTween
@@ -97,6 +98,7 @@ internal fun SettingsScreen(
     onConnect: (() -> Unit)? = null,
     accounts: AccountInfoSource? = null,
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    alwaysOnAvailable: Boolean = BuildConfig.ALWAYS_ON,
 ) {
     val environment = LocalCompanion.current
     val session = environment.session
@@ -447,15 +449,17 @@ internal fun SettingsScreen(
             }
         }
 
-        SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
-        SeiraCard(modifier = Modifier.fillMaxWidth()) {
-            SwitchRow(
-                title = stringResource(R.string.mobile_settings_always_on),
-                subtitle = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_background_on_description else R.string.mobile_settings_background_off_description),
-                icon = SeiraIcons.Phone,
-                checked = alwaysOnEnabled,
-                onToggle = environment.onToggleAlwaysOn,
-            )
+        if (alwaysOnAvailable) {
+            SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                SwitchRow(
+                    title = stringResource(R.string.mobile_settings_always_on),
+                    subtitle = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_background_on_description else R.string.mobile_settings_background_off_description),
+                    icon = SeiraIcons.Phone,
+                    checked = alwaysOnEnabled,
+                    onToggle = environment.onToggleAlwaysOn,
+                )
+            }
         }
 
         SettingsGroupTitle(stringResource(R.string.mobile_settings_chat_section))
@@ -528,6 +532,13 @@ internal fun SettingsScreen(
                 onClick = { openLink(context, SettingsPolicy.HELP_REPORT_URL) },
                 trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
             )
+            SettingsHairline(60.dp)
+            DesignRow(
+                title = stringResource(R.string.mobile_settings_privacy_policy),
+                icon = SeiraIcons.Shield,
+                onClick = { openLink(context, SettingsPolicy.PRIVACY_POLICY_URL) },
+                trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+            )
         }
 
         if (bound != null) {
@@ -560,7 +571,7 @@ internal fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            SeiraMark(28.dp, color = colors.ink3)
+            SeiraCharacter(look = SeiraLook.of(hair = "seira", color = "chrome"), size = 44.dp, animated = false)
             Text(
                 if (version.isBlank()) stringResource(R.string.mobile_openmausbot_befe710d) else stringResource(R.string.settings_version_footer, version),
                 style = SeiraType.callout,

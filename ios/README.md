@@ -110,7 +110,7 @@ ios/
     Session.swift                connection, lifecycle, actions
     Discovery.swift              NWBrowser for _seira._tcp
     Keychain.swift               the device token
-    MausAvatar.swift             the mascot face, in the desktop's palette
+    Character/                    the Seira character: carved head, moving character, moods
     PairingView.swift            QR handoff, discovery, address and code fallback
     PairingScanner.swift         native QR camera, permission and recovery UI
     Glass.swift                  the one material the chrome is made of (Liquid Glass on 26+)
@@ -252,12 +252,12 @@ companion.
 - **No optimistic state.** Actions call the harness and let the event stream
   deliver the result. A phone that draws its own version of what just happened
   is a phone that disagrees with the laptop.
-- **Messaging-app shape, not settings-list shape.** Mascot faces at roster size,
+- **Messaging-app shape, not settings-list shape.** Seira heads at roster size,
   the bot's role beside its name (quiet text in compact, a chip in
   comfortable), timestamps that say "Yesterday"
   rather than a date, and a gap-based separator in the transcript instead of a
-  stamp on every message. The palette in `MausAvatar.swift` is copied verbatim
-  from `src/lib/mascot.ts`: a bot the user knows as "the orange one" should be
+  stamp on every message. The palette in `SeiraLookCatalog` matches
+  the desktop catalog: a bot the user knows as "the orange one" should be
   the same orange on both screens.
 - **Return sends, Shift+Return breaks the line**, via `.onKeyPress`. Returning
   `.ignored` for the shifted case hands the keypress back to the text field,

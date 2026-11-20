@@ -1,4 +1,4 @@
-// The compact home list: one line per bot and per group.
+// The compact home list: one row per bot and per group, without the last message.
 //
 // The phone's version of the desktop sidebar's compact density: name, role
 // and status on one line, a crown after a Chief of Staff's name, and a
@@ -11,27 +11,8 @@ import CompanionCore
 /// Rhythm shared by bot rows, group rows and the thread lines beneath a
 /// bot, so a thread starts exactly where its bot's name does.
 enum CompactRosterMetrics {
-    /// Before the unread-dot gutter: with the gutter, faces start on the
-    /// section titles' 20pt edge.
-    static let leading: CGFloat = 4
-    static let dotGutter: CGFloat = 16
-    static let faceSpacing: CGFloat = 10
-    static let trailing: CGFloat = 16
-    /// The face, before Dynamic Type scales it.
-    static let face: CGFloat = 26
-    /// Scaled faces stop growing here, so the largest text sizes spend
-    /// their width on names rather than on pictures.
-    static let maxFace: CGFloat = 40
-    /// Above and below a row's content on one line; see `RowPadding`.
-    static let rowPadding: CGFloat = 4
-    /// What sits beneath a name at the accessibility sizes: a bot's time
-    /// and role, a group's time. Well below the name's body and the
-    /// one-line row's subheadline, so the name reads first.
-    static let stackedDetail: Font = .footnote
-
-    static func nameInset(face: CGFloat) -> CGFloat {
-        leading + dotGutter + face + faceSpacing
-    }
+    static let nameInset = HomeRowMetrics.nameInset
+    static let trailing = HomeRowMetrics.side
 }
 
 /// One bot on one line, with its threads beneath it when opened.
@@ -45,8 +26,8 @@ enum CompactRosterMetrics {
 struct CompactBotEntry: View, Equatable {
     /// The bot as the state holds it now.
     let bot: Bot
-    /// Its face (`MausState.forChat`), worked out by the list.
-    let face: MausState
+    /// Its face (`CharacterMood.forChat`), worked out by the list.
+    let face: CharacterMood
     /// When the bot's current thread last moved, from the roster summary.
     let lastActivity: Double
     /// The day the list drew on (`RosterDay.today`). The stamps say "9:15 AM",
@@ -91,13 +72,10 @@ struct CompactBotEntry: View, Equatable {
             && lhs.session === rhs.session
     }
 
-    @Environment(\.dynamicTypeSize) private var typeSize
-    @ScaledMetric(relativeTo: .body) private var scaledFace = CompactRosterMetrics.face
     /// Wakes the list when a timed snooze ends, so the count and the list
     /// fold that thread back in without waiting for a snapshot.
     @State private var snoozeTick = 0
-
-    private var faceSize: CGFloat { min(scaledFace, CompactRosterMetrics.maxFace) }
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var searching: Bool {
         !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
@@ -128,103 +106,57 @@ struct CompactBotEntry: View, Equatable {
 
     private func rowLine(_ bot: Bot, _ row: CompactBotRow) -> some View {
         HStack(spacing: 0) {
-            Button(action: openRow) {
-                HStack(spacing: 0) {
-                    UnreadDot(visible: row.showsUnreadDot, color: bot.color)
-                    BotAvatarView(bot: bot, size: faceSize, state: face, animated: false)
-                    .accessibilityHidden(true)
-                    .padding(.trailing, CompactRosterMetrics.faceSpacing)
-
-                    // the spinner also stands for a thread being made
-                    let spinnerLabel: LocalizedStringKey = row.status == .working ? "Working" : "Creating…"
-                    if typeSize.isAccessibilitySize {
-                        // One line cannot hold a name and a time at these
-                        // sizes: the name gets the whole width, whole words
-                        // intact, and the time and role move beneath it,
-                        // a size smaller so the name reads first.
-                        VStack(alignment: .leading, spacing: 2) {
-                            name(bot, row)
-                            let line = row.secondLine(stamp: RelativeStamp.list(lastActivity), role: bot.title)
-                            if !line.isEmpty {
-                                SecondLine(line: line, color: bot.color, spinnerLabel: spinnerLabel)
-                            }
-                        }
-                        Spacer(minLength: 0)
-                    } else {
-                        nameAndRole(bot, row)
-                        Spacer(minLength: 8)
-                        RowStatus(
-                            waiting: row.showsWaiting, working: row.showsSpinner,
-                            stamp: row.showsTime ? RelativeStamp.list(lastActivity) : "",
-                            color: bot.color, spinnerLabel: spinnerLabel
-                        )
+            Button(action: openRow) { rowContent(bot, row) }
+                .buttonStyle(HomeRowButtonStyle())
+                .contextMenu {
+                    // A single-thread bot shows no thread list to end in "New
+                    // thread", so the home list offers it here — for every bot.
+                    Button { createThread(for: bot) } label: {
+                        Label("New thread", systemImage: "square.and.pencil")
+                    }
+                    .disabled(creating)
+                    Button { manage(.bot(bot)) } label: {
+                        Label("Manage threads", systemImage: "list.bullet")
                     }
                 }
-                .padding(.leading, CompactRosterMetrics.leading)
-                .padding(.trailing, row.showsThreadControl ? 0 : CompactRosterMetrics.trailing)
-                .modifier(RowPadding())
-                .frame(minHeight: 44)
-                .contentShape(Rectangle())
-            }
-            .buttonStyle(.plain)
-            .contextMenu {
-                // A single-thread bot shows no thread list to end in "New
-                // thread", so the home list offers it here — for every bot.
-                Button { createThread(for: bot) } label: {
-                    Label("New thread", systemImage: "square.and.pencil")
-                }
-                .disabled(creating)
-                Button { manage(.bot(bot)) } label: {
-                    Label("Manage threads", systemImage: "list.bullet")
-                }
-            }
-            .accessibilityIdentifier("chat-row.\(bot.id)")
+                .accessibilityIdentifier("chat-row.\(bot.id)")
 
             if row.showsThreadControl {
                 threadControl(bot, count: row.threadCount)
                     // the control's own padding lands its glyph on the
-                    // 16pt edge that times in other rows end on
+                    // 20pt edge that times in other rows end on
                     .padding(.trailing, CompactRosterMetrics.trailing - 10)
             }
         }
     }
 
-    /// Name first: the role takes what is left and truncates, and when too
-    /// little is left for a word of it the role steps aside rather than
-    /// showing a sliver. At the accessibility text sizes the name wraps
-    /// rather than clips.
-    private func nameAndRole(_ bot: Bot, _ row: CompactBotRow) -> some View {
-        ViewThatFits(in: .horizontal) {
-            HStack(spacing: 6) {
-                // Laid out first, so the role takes only what the name
-                // leaves rather than an equal share of the line.
-                name(bot, row)
-                    .layoutPriority(1)
-                if !bot.title.isEmpty {
-                    Text(verbatim: bot.title)
-                        .font(.subheadline)
-                        .foregroundStyle(Color.secondary)
-                        .lineLimit(1)
-                        // Measured at its minimum, so this line is chosen
-                        // whenever the name fits with room for a word of role.
-                        .frame(minWidth: 40, idealWidth: 40, maxWidth: .infinity, alignment: .leading)
-                }
-            }
-            name(bot, row)
+    private func rowContent(_ bot: Bot, _ row: CompactBotRow) -> some View {
+        // the spinner also stands for a thread being made
+        let spinnerLabel: LocalizedStringKey = row.status == .working ? "Working" : "Creating…"
+        let detail = row.showsWaiting ? String(localized: "Waiting on you") : bot.title
+        return HStack(spacing: HomeRowMetrics.gap) {
+            SeiraAvatar(
+                bot: bot,
+                size: HomeRowMetrics.avatar,
+                ring: row.status == .working ? .working : .none,
+                waiting: row.showsWaiting
+            )
+            .accessibilityHidden(true)
+            HomeRowLabels(
+                title: bot.name,
+                showsCrown: row.showsChiefBadge,
+                unread: row.showsUnreadDot,
+                stamp: row.showsTime ? RelativeStamp.list(lastActivity) : "",
+                detail: detail,
+                detailWaiting: row.showsWaiting,
+                working: row.showsSpinner,
+                spinnerLabel: spinnerLabel
+            )
         }
-    }
-
-    private func name(_ bot: Bot, _ row: CompactBotRow) -> some View {
-        HStack(spacing: 6) {
-            Text(verbatim: bot.name)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(Color.primary)
-                .lineLimit(typeSize.isAccessibilitySize ? 3 : 1)
-                .fixedSize(horizontal: false, vertical: true)
-            if row.showsChiefBadge {
-                ChiefBadge()
-            }
-        }
+        .padding(.leading, HomeRowMetrics.side)
+        .padding(.trailing, row.showsThreadControl ? 0 : HomeRowMetrics.side)
+        .frame(minHeight: HomeRowMetrics.minHeight)
+        .contentShape(Rectangle())
     }
 
     /// "› N": the bot's threads, opened in place.
@@ -232,17 +164,17 @@ struct CompactBotEntry: View, Equatable {
         let listed = searching || expanded
         return Button {
             Haptics.selection()
-            withAnimation(.snappy(duration: 0.2)) { toggleExpanded() }
+            withSeiraAnimation(SeiraMotion.base) { toggleExpanded() }
         } label: {
             HStack(spacing: 3) {
                 Image(systemName: "chevron.right")
-                    .font(.caption.weight(.semibold))
-                    .rotationEffect(.degrees(listed ? 90 : 0))
+                    .font(.system(size: 12, weight: .semibold))
+                    .rotationEffect(.degrees(listed && !reduceMotion ? 90 : 0))
                 Text("\(count)")
-                    .font(.subheadline.weight(.medium))
+                    .font(.seira(13, .medium, relativeTo: .subheadline))
                     .monospacedDigit()
             }
-            .foregroundStyle(Color.secondary)
+            .foregroundStyle(Color.seiraInk3)
             .padding(.horizontal, 10)
             .frame(minWidth: 44, minHeight: 44)
             .contentShape(Rectangle())
@@ -281,7 +213,7 @@ struct CompactBotEntry: View, Equatable {
                 newThreadLine(bot)
             }
         }
-        .padding(.leading, CompactRosterMetrics.nameInset(face: faceSize))
+        .padding(.leading, CompactRosterMetrics.nameInset)
         .padding(.trailing, CompactRosterMetrics.trailing)
         .padding(.bottom, 4)
     }
@@ -302,12 +234,12 @@ struct CompactBotEntry: View, Equatable {
                 Text(verbatim: folder.name)
                     .lineLimit(1)
                 Image(systemName: "chevron.right")
-                    .font(.caption2.weight(.semibold))
-                    .rotationEffect(.degrees(open ? 90 : 0))
+                    .font(.system(size: 11, weight: .semibold))
+                    .rotationEffect(.degrees(open && !reduceMotion ? 90 : 0))
                 Spacer(minLength: 0)
             }
-            .font(.footnote.weight(.medium))
-            .foregroundStyle(Color.secondary)
+            .font(.seira(13, .medium, relativeTo: .subheadline))
+            .foregroundStyle(Color.seiraInk3)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
@@ -322,8 +254,8 @@ struct CompactBotEntry: View, Equatable {
     /// folder they need a label of their own — the desktop's "Threads".
     private func unfiledLabel(_ bot: Bot) -> some View {
         Text("Threads")
-            .font(.footnote.weight(.medium))
-            .foregroundStyle(Color.secondary)
+            .font(.seira(13, .medium, relativeTo: .subheadline))
+            .foregroundStyle(Color.seiraInk3)
             .padding(.top, 10)
             .padding(.bottom, 2)
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -355,15 +287,15 @@ struct CompactBotEntry: View, Equatable {
         Button { createThread(for: bot) } label: {
             HStack(spacing: 6) {
                 Image(systemName: "plus")
-                    .font(.footnote.weight(.semibold))
+                    .font(.system(size: 12, weight: .semibold))
                 Text("New thread")
                 if creating {
                     ProgressView().controlSize(.small)
                 }
                 Spacer(minLength: 0)
             }
-            .font(.subheadline.weight(.medium))
-            .foregroundStyle(Color.accentColor)
+            .font(.seira(15, .medium, relativeTo: .subheadline))
+            .foregroundStyle(Color.seiraAccentText)
             .frame(minHeight: 44)
             .contentShape(Rectangle())
         }
@@ -450,12 +382,12 @@ struct CompactThreadLine: View {
     private var title: some View {
         HStack(spacing: 6) {
             Text(verbatim: task.displayTitle)
-                .font(.subheadline.weight(task.unread == true ? .semibold : .regular))
-                .foregroundStyle(dimmed ? Color.secondary : Color.primary)
+                .font(.seira(15, task.unread == true ? .semibold : .regular, relativeTo: .subheadline))
+                .foregroundStyle(dimmed ? Color.seiraInk3 : Color.seiraInk)
             if task.pinned == true {
                 Image(systemName: "pin.fill")
-                    .font(.caption2)
-                    .foregroundStyle(Color.secondary)
+                    .font(.system(size: 11))
+                    .foregroundStyle(Color.seiraInk3)
             }
         }
     }
@@ -465,18 +397,18 @@ struct CompactThreadLine: View {
         HStack(spacing: 6) {
             if task.unread == true {
                 Circle()
-                    .fill(Color.accentColor)
-                    .frame(width: 7, height: 7)
+                    .fill(Color.seiraAccent)
+                    .frame(width: 8, height: 8)
             }
             switch mark {
             case .waitingOnYou:
                 Image(systemName: "hand.raised.fill")
-                    .font(.caption)
-                    .foregroundStyle(Color.orange)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.seiraWarning)
             case .waitingOnTeammate, .queued:
                 Image(systemName: "clock")
-                    .font(.caption)
-                    .foregroundStyle(Color.secondary)
+                    .font(.system(size: 12))
+                    .foregroundStyle(Color.seiraInk3)
             case .working, nil:
                 EmptyView()
             }
@@ -485,8 +417,9 @@ struct CompactThreadLine: View {
                 ProgressView().controlSize(.small)
             } else if !stamp.isEmpty {
                 Text(verbatim: stamp)
-                    .font(.footnote)
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(12, relativeTo: .caption))
+                    .monospacedDigit()
+                    .foregroundStyle(Color.seiraInk3)
             }
         }
         .fixedSize()
@@ -502,7 +435,7 @@ struct CompactThreadLine: View {
     }
 }
 
-/// A group on one line: two of its members' faces, overlapping, then its name.
+/// A group in the list: two of its members' faces, stacked, then its name.
 ///
 /// Shown `.equatable()`, so a group whose room and members have not moved
 /// does not redraw its two faces on every publish.
@@ -517,173 +450,28 @@ struct CompactRoomRow: View, Equatable {
     /// An unanswered approval or question sits in the group's thread.
     var waiting = false
 
-    /// Everything the row draws (the scaled sizes follow the environment).
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.room == rhs.room && lhs.members == rhs.members && lhs.lastActivity == rhs.lastActivity
             && lhs.today == rhs.today && lhs.waiting == rhs.waiting
     }
 
-    @ScaledMetric(relativeTo: .body) private var scaledFace = CompactRosterMetrics.face
-    @Environment(\.dynamicTypeSize) private var typeSize
-
-    private var face: CGFloat { min(scaledFace, CompactRosterMetrics.maxFace) }
     private var busy: Bool { room.busyBotId != nil }
 
     var body: some View {
-        HStack(spacing: 0) {
-            UnreadDot(visible: room.unread && !busy, color: "blue")
-            RoomFaces(members: members, size: face)
-                .accessibilityHidden(true)
-                .padding(.trailing, CompactRosterMetrics.faceSpacing)
-            let name = Text(verbatim: room.name)
-                .font(.body.weight(.semibold))
-                .foregroundStyle(Color.primary)
-            let status = RowStatus(
-                waiting: waiting, working: busy,
+        HStack(spacing: HomeRowMetrics.gap) {
+            HomeRoomFaces(members: members)
+            HomeRowLabels(
+                title: room.name,
+                unread: room.unread && !busy,
                 stamp: busy ? "" : RelativeStamp.list(lastActivity),
-                color: "blue",
-                stampFont: typeSize.isAccessibilitySize ? CompactRosterMetrics.stackedDetail : .subheadline
+                detail: waiting ? String(localized: "Waiting on you") : Chat.room(room).subtitle,
+                detailWaiting: waiting,
+                working: busy && !waiting
             )
-            if typeSize.isAccessibilitySize {
-                // as on a bot's row: the whole width for the name, and the
-                // time a size smaller beneath it
-                VStack(alignment: .leading, spacing: 2) {
-                    name
-                        .lineLimit(3)
-                        .fixedSize(horizontal: false, vertical: true)
-                    status
-                }
-                Spacer(minLength: 0)
-            } else {
-                name.lineLimit(1)
-                Spacer(minLength: 8)
-                status
-            }
         }
-        .padding(.leading, CompactRosterMetrics.leading)
-        .padding(.trailing, CompactRosterMetrics.trailing)
-        .modifier(RowPadding())
-        .frame(minHeight: 44)
+        .padding(.horizontal, HomeRowMetrics.side)
+        .frame(minHeight: HomeRowMetrics.minHeight)
         .contentShape(Rectangle())
-    }
-}
-
-/// A row's air above and below. On one line it is 4pt, and the 44pt row
-/// height does the rest; once a row stacks its name over its time, at the
-/// accessibility sizes, it grows with the text, so one row's time does not
-/// run into the next row's name.
-private struct RowPadding: ViewModifier {
-    @Environment(\.dynamicTypeSize) private var typeSize
-    @ScaledMetric(relativeTo: .body) private var stacked = CompactRosterMetrics.rowPadding
-
-    func body(content: Content) -> some View {
-        content.padding(.vertical, typeSize.isAccessibilitySize ? stacked : CompactRosterMetrics.rowPadding)
-    }
-}
-
-/// Beneath a bot's name at the accessibility sizes: the hand or the spinner,
-/// then the time and the role as one quiet line that gives way at its end.
-private struct SecondLine: View {
-    let line: CompactSecondLine
-    let color: String
-    let spinnerLabel: LocalizedStringKey
-
-    var body: some View {
-        HStack(spacing: 6) {
-            if line.showsWaiting || line.showsSpinner {
-                RowStatus(
-                    waiting: line.showsWaiting, working: line.showsSpinner, stamp: "",
-                    color: color, spinnerLabel: spinnerLabel
-                )
-            }
-            if !line.words.isEmpty {
-                Text(verbatim: line.text)
-                    .font(CompactRosterMetrics.stackedDetail)
-                    .foregroundStyle(Color.secondary)
-                    .lineLimit(1)
-                    .accessibilityLabel(Text(verbatim: line.spokenText))
-            }
-        }
-    }
-}
-
-/// Two members' faces in one face's square: the first up and left, the
-/// second down and right on a ring of the list's background.
-private struct RoomFaces: View {
-    let members: [Bot]
-    let size: CGFloat
-
-    var body: some View {
-        ZStack {
-            if let first = members.first {
-                BotAvatarView(bot: first, size: size * 0.74, state: .happy, animated: false)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
-            } else {
-                MausAvatar(color: "blue", size: size, state: .happy, animated: false)
-            }
-            if members.count > 1 {
-                BotAvatarView(bot: members[1], size: size * 0.62, state: .happy, animated: false)
-                    .padding(1.5)
-                    .background(Circle().fill(Color(uiColor: .systemBackground)))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomTrailing)
-                    .offset(x: 3, y: 3)
-            }
-        }
-        .frame(width: size, height: size)
-    }
-}
-
-/// The unread dot, in its own gutter at the row's leading edge, as on the
-/// comfortable rows.
-private struct UnreadDot: View {
-    let visible: Bool
-    let color: String
-
-    var body: some View {
-        ZStack {
-            if visible {
-                Circle()
-                    .fill(MausPalette.color(color))
-                    .frame(width: 8, height: 8)
-                    .accessibilityLabel("Unread")
-            }
-        }
-        .frame(width: CompactRosterMetrics.dotGutter)
-    }
-}
-
-/// The trailing marks: a hand in the chat's colour while it waits on the
-/// person, and a spinner in place of the time while it works.
-private struct RowStatus: View {
-    let waiting: Bool
-    let working: Bool
-    let stamp: String
-    let color: String
-    /// What VoiceOver calls the spinner.
-    var spinnerLabel: LocalizedStringKey = "Working"
-    /// The time's size: subheadline beside the name on one line, smaller
-    /// beneath it.
-    var stampFont: Font = .subheadline
-
-    var body: some View {
-        HStack(spacing: 6) {
-            if waiting {
-                Image(systemName: "hand.raised.fill")
-                    .font(.footnote)
-                    .foregroundStyle(MausPalette.color(color))
-                    .accessibilityLabel("Waiting on you")
-            }
-            if working {
-                ProgressView()
-                    .controlSize(.small)
-                    .accessibilityLabel(spinnerLabel)
-            } else if !stamp.isEmpty {
-                Text(verbatim: stamp)
-                    .font(stampFont)
-                    .foregroundStyle(Color.secondary)
-            }
-        }
-        .fixedSize()
     }
 }
 
@@ -697,7 +485,7 @@ struct ChiefBadge: View {
     var body: some View {
         Image(systemName: "crown.fill")
             .font(.system(size: size))
-            .foregroundStyle(Color.accentColor)
+            .foregroundStyle(Color.seiraInk2)
             .accessibilityLabel("Chief of Staff")
             .accessibilityIdentifier("chief-badge")
     }

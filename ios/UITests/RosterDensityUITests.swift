@@ -6,10 +6,18 @@ import XCTest
 /// and the preview has no API client, so nothing can be sent anywhere.
 final class RosterDensityUITests: XCTestCase {
     @MainActor
+    private func reveal(_ element: XCUIElement, in app: XCUIApplication, timeout: TimeInterval = 10) -> Bool {
+        if element.waitForExistence(timeout: timeout) { return true }
+        let list = app.scrollViews["roster-list"]
+        for _ in 0..<8 where !element.exists { list.swipeUp(velocity: .slow) }
+        return element.waitForExistence(timeout: 2)
+    }
+
+    @MainActor
     func testCompactIsTheDefault() {
         let app = launchRoster(density: nil)
         let pepper = app.buttons["threads-toggle.roster-pepper"]
-        XCTAssertTrue(pepper.waitForExistence(timeout: 10))
+        XCTAssertTrue(reveal(pepper, in: app))
         XCTAssertEqual(pepper.value as? String, "Collapsed, 3 threads")
         // One line per bot: no last-message preview under the name.
         XCTAssertTrue(app.buttons["chat-row.roster-atlas"].exists)
@@ -28,7 +36,7 @@ final class RosterDensityUITests: XCTestCase {
     func testSingleThreadBotHasNoThreadsRowAndStillStartsAThread() {
         let app = launchRoster(density: nil)
         let atlas = app.buttons["chat-row.roster-atlas"]
-        XCTAssertTrue(atlas.waitForExistence(timeout: 10))
+        XCTAssertTrue(reveal(atlas, in: app))
         XCTAssertFalse(app.buttons["threads-toggle.roster-atlas"].exists)
         XCTAssertFalse(app.buttons["threads-toggle.roster-scout"].exists)
         XCTAssertFalse(app.buttons["thread.roster-atlas-plan"].exists)
@@ -54,7 +62,7 @@ final class RosterDensityUITests: XCTestCase {
     func testMultiThreadBotListsItsThreadsUnderItsName() {
         let app = launchRoster(density: nil)
         let toggle = app.buttons["threads-toggle.roster-pepper"]
-        XCTAssertTrue(toggle.waitForExistence(timeout: 10))
+        XCTAssertTrue(reveal(toggle, in: app))
         XCTAssertFalse(app.buttons["thread.roster-pepper-gmail"].exists)
         // Pepper starts near the floating bar; bring it up so its threads
         // open on screen.
@@ -109,12 +117,12 @@ final class RosterDensityUITests: XCTestCase {
     @MainActor
     func testSettingSwitchesBackToComfortableAndIsRemembered() {
         let app = launchRoster(density: nil)
-        XCTAssertTrue(app.buttons["threads-toggle.roster-pepper"].waitForExistence(timeout: 10))
+        XCTAssertTrue(reveal(app.buttons["threads-toggle.roster-pepper"], in: app))
 
         chooseDensity("Comfortable", in: app)
         // Comfortable is the original look: a Threads row under every bot,
         // the last message under each name, and groups as tiles.
-        XCTAssertTrue(app.buttons["threads-toggle.roster-atlas"].waitForExistence(timeout: 5))
+        XCTAssertTrue(reveal(app.buttons["threads-toggle.roster-atlas"], in: app))
         XCTAssertTrue(contains("Three reviews and one approval", in: app))
         XCTAssertFalse(app.buttons["new-group"].exists)
         recordScreenshot("Comfortable roster after the switch", in: app)
@@ -123,10 +131,10 @@ final class RosterDensityUITests: XCTestCase {
         app.terminate()
         app.launchArguments = Self.baseArguments
         app.launch()
-        XCTAssertTrue(app.buttons["threads-toggle.roster-atlas"].waitForExistence(timeout: 10))
+        XCTAssertTrue(reveal(app.buttons["threads-toggle.roster-atlas"], in: app))
 
         chooseDensity("Compact", in: app)
-        XCTAssertTrue(app.buttons["threads-toggle.roster-pepper"].waitForExistence(timeout: 5))
+        XCTAssertTrue(reveal(app.buttons["threads-toggle.roster-pepper"], in: app))
         assertMissing(app.buttons["threads-toggle.roster-atlas"])
     }
 

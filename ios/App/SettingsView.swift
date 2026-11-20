@@ -7,10 +7,14 @@ import UIKit
 struct SettingsView: View {
     @EnvironmentObject private var session: Session
     @State private var enablingNotifications = false
+    @State private var confirmingSignOut = false
     @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
     @AppStorage(PrefKey.islandIntro) private var islandIntro = IslandIntro.oncePerBot.rawValue
     @AppStorage(PrefKey.language) private var language = AppLanguage.system.rawValue
     @AppStorage(PrefKey.rosterDensity) private var rosterDensity = RosterDensity.default.rawValue
+    @AppStorage(PrefKey.notifyApprovals) private var notifyApprovals = true
+    @AppStorage(PrefKey.notifyUpdates) private var notifyUpdates = true
+    @AppStorage(PrefKey.liveCaptions) private var liveCaptions = true
     private let onConnect: (() -> Void)?
 
     init(onConnect: (() -> Void)? = nil) {
@@ -18,162 +22,351 @@ struct SettingsView: View {
     }
 
     var body: some View {
-        Form {
-            Section("Computer") {
-                if let connection = session.connection {
-                    NavigationLink {
-                        ConnectedComputersView()
-                    } label: {
-                        ComputerSettingsRow(
-                            name: Text(verbatim: connection.name),
-                            status: computerStatusText,
-                            connected: session.status == .live
-                        )
-                    }
-                } else {
-                    Button {
-                        onConnect?()
-                    } label: {
-                        ComputerSettingsRow(
-                            name: Text("Connect a computer"),
-                            status: Text("Not connected"),
-                            connected: false
-                        )
-                    }
-                    .disabled(onConnect == nil)
+        ScrollView {
+            VStack(spacing: 0) {
+                title
+                appearanceSection
+                computerSection
+                notificationsSection
+                chatSection
+                Group {
+                    densitySection
+                    languageSection
+                    voiceSection
+                    workspaceSection
+                    signOutButton
+                    SettingsFooter()
                 }
             }
-
-            Section {
-                if notificationsAreEnabled {
-                    notificationRow
-                        .accessibilityHint(notificationAccessibilityHint)
-                } else {
-                    Button {
-                        enablingNotifications = true
-                        Task {
-                            await session.enableNotifications()
-                            enablingNotifications = false
-                        }
-                    } label: {
-                        notificationRow
-                    }
-                    .disabled(enablingNotifications)
-                    .accessibilityHint(notificationAccessibilityHint)
-                }
-            } footer: {
-                Text("Alerts arrive while Seira is open or was recently in the background. Closed-app delivery is not available yet.")
+            .padding(.horizontal, 16)
+        }
+        .background(Color.seiraApp.ignoresSafeArea())
+        .navigationTitle("")
+        .navigationBarTitleDisplayMode(.inline)
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) { SettingsBackButton() }
+        }
+        .toolbarBackground(Color.seiraApp, for: .navigationBar)
+        .background(SwipeBackBridge())
+        .task { await session.refreshNotificationAuthorization() }
+        .confirmationDialog(
+            "Remove this connection?",
+            isPresented: $confirmingSignOut,
+            titleVisibility: .visible
+        ) {
+            Button("Remove from this device", role: .destructive) {
+                session.signOut()
             }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This removes the connection from this device only. It does not revoke this device on your Mac. To remove Mac-side access, open Seira → Settings → Phone and remove it there.")
+        }
+    }
 
-            Section {
-                Picker(selection: $activityDetail) {
-                    ForEach(ActivityDetail.allCases, id: \.rawValue) { level in
-                        Text(LocalizedStringKey(level.label)).tag(level.rawValue)
-                    }
-                } label: {
-                    Label {
-                        Text("Activity")
-                    } icon: {
-                        SettingsIcon(symbol: "wrench.and.screwdriver.fill", color: .purple)
-                    }
+    private var title: some View {
+        Text("Settings")
+            .font(.seira(28, .semibold, relativeTo: .largeTitle))
+            .tracking(-0.56)
+            .foregroundStyle(Color.seiraInk)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.top, 14)
+            .padding(.horizontal, 4)
+            .padding(.bottom, 20)
+            .accessibilityAddTraits(.isHeader)
+    }
+
+    private var appearanceSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Appearance", icon3D: "Icons3D/appearance")
+            AppearanceSegmentedControl()
+                .padding(6)
+                .seiraCard(radius: 22)
+            SettingsCaption(text: Text("Auto follows your phone setting."))
+        }
+    }
+
+    private var computerSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Your computer", icon3D: "Icons3D/computer")
+            SettingsCard { computerRows }
+        }
+    }
+
+    @ViewBuilder private var computerRows: some View {
+        if let connection = session.connection {
+            NavigationLink {
+                ConnectedComputersView()
+            } label: {
+                computerLabel(
+                    name: Text(verbatim: connection.name),
+                    status: computerStatusText,
+                    connected: session.status == .live
+                )
+            }
+            .buttonStyle(SettingsRowButtonStyle())
+            SettingsDivider()
+            Button {
+                Haptics.selection()
+                session.beginPairing()
+            } label: {
+                SettingsLinkLabel(symbol: "qrcode", title: "Pair another computer")
+            }
+            .buttonStyle(SettingsRowButtonStyle())
+        } else {
+            Button {
+                onConnect?()
+            } label: {
+                computerLabel(
+                    name: Text("Connect a computer"),
+                    status: Text("Not connected"),
+                    connected: false
+                )
+            }
+            .buttonStyle(SettingsRowButtonStyle())
+            .disabled(onConnect == nil)
+        }
+    }
+
+    private func computerLabel(name: Text, status: Text, connected: Bool) -> some View {
+        HStack(spacing: 8) {
+            ComputerSettingsRow(name: name, status: status, connected: connected)
+            SettingsChevron()
+        }
+        .padding(.horizontal, 16)
+        .padding(.vertical, 10)
+        .frame(minHeight: 64)
+        .contentShape(Rectangle())
+    }
+
+    private var notificationsSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Notifications", icon3D: "Icons3D/notifications")
+            SettingsCard {
+                notificationStatusRow
+                SettingsDivider()
+                notificationToggles
+            }
+            notificationCaptions
+        }
+    }
+
+    private var notificationToggles: some View {
+        VStack(spacing: 0) {
+            SettingsToggleRow(
+                symbol: "checkmark.circle",
+                title: "Needs your OK",
+                subtitle: "When a bot waits for your answer",
+                isOn: $notifyApprovals
+            )
+            SettingsDivider()
+            SettingsToggleRow(
+                symbol: "bell",
+                title: "Task finished",
+                subtitle: "When a bot is done with a job",
+                isOn: $notifyUpdates
+            )
+        }
+        .disabled(!notificationsAreEnabled)
+        .opacity(notificationsAreEnabled ? 1 : 0.5)
+    }
+
+    @ViewBuilder private var notificationCaptions: some View {
+        if !notificationsAreEnabled {
+            SettingsCaption(text: Text("Turn on notifications to choose which alerts you get."))
+        }
+        SettingsCaption(text: Text("Seira alerts you while the app is open or was used a short time ago."))
+    }
+
+    @ViewBuilder private var notificationStatusRow: some View {
+        if notificationsAreEnabled {
+            notificationRow
+                .accessibilityHint(notificationAccessibilityHint)
+        } else {
+            Button {
+                enablingNotifications = true
+                Task {
+                    await session.enableNotifications()
+                    enablingNotifications = false
                 }
+            } label: {
+                notificationRow
+            }
+            .buttonStyle(SettingsRowButtonStyle())
+            .disabled(enablingNotifications)
+            .accessibilityHint(notificationAccessibilityHint)
+        }
+    }
 
-                Picker(selection: $islandIntro) {
-                    ForEach(IslandIntro.allCases, id: \.rawValue) { option in
-                        Text(LocalizedStringKey(option.label)).tag(option.rawValue)
-                    }
-                } label: {
-                    Label {
-                        Text("Bot intro animation")
-                    } icon: {
-                        SettingsIcon(symbol: "sparkles", color: .pink)
-                    }
-                }
-
+    private var chatSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Chat")
+            SettingsCard {
+                activityRow
+                SettingsDivider()
+                introRow
+                SettingsDivider()
                 NavigationLink {
                     QuickRepliesEditor()
                 } label: {
-                    Label {
-                        Text("Quick Replies")
-                    } icon: {
-                        SettingsIcon(symbol: "bolt.fill", color: .yellow)
-                    }
+                    SettingsLinkLabel(symbol: "bolt", title: "Quick replies")
                 }
-            } header: {
-                Text("Chat")
-            } footer: {
-                Text(LocalizedStringKey(ActivityDetail(rawValue: activityDetail)?.caption ?? ""))
+                .buttonStyle(SettingsRowButtonStyle())
             }
+            SettingsCaption(text: Text(LocalizedStringKey(currentActivity.caption)))
+        }
+    }
 
-            Section {
-                // Bound through the resolved value, so a stored value this
-                // build cannot read still shows the density actually in use.
-                Picker(selection: Binding(
-                    get: { RosterDensity(stored: rosterDensity) },
-                    set: { rosterDensity = $0.rawValue }
-                )) {
-                    ForEach(RosterDensity.allCases, id: \.self) { density in
-                        Text(LocalizedStringKey(density.label)).tag(density)
-                    }
-                } label: {
-                    Label {
-                        Text("List density")
-                    } icon: {
-                        SettingsIcon(symbol: "list.bullet", color: .indigo)
+    private var activityRow: some View {
+        SettingsMenuRow(
+            symbol: "wrench.and.screwdriver",
+            title: "Activity",
+            value: Text(LocalizedStringKey(currentActivity.label))
+        ) {
+            Picker("Activity", selection: $activityDetail) {
+                ForEach(ActivityDetail.allCases, id: \.rawValue) { level in
+                    Text(LocalizedStringKey(level.label)).tag(level.rawValue)
+                }
+            }
+        }
+    }
+
+    private var introRow: some View {
+        SettingsMenuRow(
+            symbol: "sparkles",
+            title: "Bot intro animation",
+            value: Text(LocalizedStringKey(currentIntro.label))
+        ) {
+            Picker("Bot intro animation", selection: $islandIntro) {
+                ForEach(IslandIntro.allCases, id: \.rawValue) { option in
+                    Text(LocalizedStringKey(option.label)).tag(option.rawValue)
+                }
+            }
+        }
+    }
+
+    private var densitySection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Lists")
+            SettingsCard {
+                SettingsMenuRow(
+                    symbol: "list.bullet",
+                    title: "List density",
+                    value: Text(LocalizedStringKey(currentDensity.label))
+                ) {
+                    Picker("List density", selection: densityBinding) {
+                        ForEach(RosterDensity.allCases, id: \.self) { density in
+                            Text(LocalizedStringKey(density.label)).tag(density)
+                        }
                     }
                 }
                 .accessibilityIdentifier("list-density")
-            } footer: {
-                Text(LocalizedStringKey(RosterDensity(stored: rosterDensity).caption))
             }
+            SettingsCaption(text: Text(LocalizedStringKey(currentDensity.caption)))
+        }
+    }
 
-            Section {
-                Picker(selection: $language) {
-                    ForEach(AppLanguage.allCases) { option in
-                        Text(option.label).tag(option.rawValue)
-                    }
-                } label: {
-                    Label {
-                        Text("Language")
-                    } icon: {
-                        SettingsIcon(symbol: "globe", color: .teal)
+    private var languageSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Language")
+            SettingsCard {
+                SettingsMenuRow(
+                    symbol: "globe",
+                    title: "Language",
+                    value: Text(currentLanguage.label)
+                ) {
+                    Picker("Language", selection: $language) {
+                        ForEach(AppLanguage.allCases) { option in
+                            Text(option.label).tag(option.rawValue)
+                        }
                     }
                 }
-            } footer: {
-                Text("Changes the language inside Seira. Buttons drawn by iOS itself follow the phone's language, which you can set for this app in iOS Settings.")
             }
+            SettingsCaption(text: Text("Changes the language inside Seira. Buttons drawn by iOS itself follow the phone's language, which you can set for this app in iOS Settings."))
+        }
+    }
 
-            if session.connection != nil {
-                Section("Workspace") {
+    private var voiceSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Voice and calls", icon3D: "Icons3D/voice")
+            SettingsCard {
+                SettingsToggleRow(
+                    symbol: "captions.bubble",
+                    title: "Live captions",
+                    subtitle: "Show the words during a call",
+                    isOn: $liveCaptions
+                )
+            }
+        }
+    }
+
+    @ViewBuilder private var workspaceSection: some View {
+        if session.connection != nil {
+            VStack(spacing: 0) {
+                SettingsSectionHeader(title: "Workspace")
+                SettingsCard {
                     NavigationLink {
                         TasksRoutinesView()
                     } label: {
-                        Label {
-                            Text("Threads & Routines")
-                        } icon: {
-                            SettingsIcon(symbol: "calendar.badge.clock", color: .orange)
-                        }
+                        SettingsLinkLabel(symbol: "calendar.badge.clock", title: "Threads & Routines")
                     }
+                    .buttonStyle(SettingsRowButtonStyle())
 
                     // Connecting apps needs the admin scope; a chat-only
                     // server session leaves it to the owner, in the server's UI.
                     if session.canAdminister {
+                        SettingsDivider()
                         NavigationLink {
                             ConnectedAppsView()
                         } label: {
-                            Label {
-                                Text("Connected Apps")
-                            } icon: {
-                                SettingsIcon(symbol: "link", color: .blue)
-                            }
+                            SettingsLinkLabel(symbol: "link", title: "Connected apps")
                         }
+                        .buttonStyle(SettingsRowButtonStyle())
                     }
                 }
             }
         }
-        .navigationTitle("Settings")
-        .navigationBarTitleDisplayMode(.inline)
-        .task { await session.refreshNotificationAuthorization() }
+    }
+
+    @ViewBuilder private var signOutButton: some View {
+        if session.connection != nil {
+            Button {
+                confirmingSignOut = true
+            } label: {
+                Text("Sign out")
+                    .font(.seira(16, .medium))
+                    .foregroundStyle(Color.seiraDangerText)
+                    .frame(maxWidth: .infinity, minHeight: 56)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(SettingsRowButtonStyle())
+            .seiraCard(radius: 22)
+            .clipShape(RoundedRectangle(cornerRadius: 22, style: .continuous))
+            .padding(.top, 28)
+        }
+    }
+
+    private var currentActivity: ActivityDetail {
+        ActivityDetail(rawValue: activityDetail) ?? .phoneDefault
+    }
+
+    private var currentIntro: IslandIntro {
+        IslandIntro(rawValue: islandIntro) ?? .oncePerBot
+    }
+
+    private var currentDensity: RosterDensity { RosterDensity(stored: rosterDensity) }
+
+    private var currentLanguage: AppLanguage {
+        AppLanguage(rawValue: language) ?? .system
+    }
+
+    // Bound through the resolved value, so a stored value this build cannot
+    // read still shows the density actually in use.
+    private var densityBinding: Binding<RosterDensity> {
+        Binding(
+            get: { RosterDensity(stored: rosterDensity) },
+            set: { rosterDensity = $0.rawValue }
+        )
     }
 
     private var notificationsAreEnabled: Bool {
@@ -190,18 +383,28 @@ struct SettingsView: View {
     }
 
     private var notificationRow: some View {
-        HStack(spacing: 12) {
-            SettingsIcon(symbol: "bell.fill", color: .red)
+        HStack(spacing: 14) {
+            SettingsRowIcon(symbol: "bell.badge")
             Text("Notifications")
-                .foregroundStyle(.primary)
-            Spacer()
-            if enablingNotifications {
-                ProgressView()
-                    .controlSize(.small)
-            } else {
-                Text(LocalizedStringKey(session.notificationStatusText))
-                    .foregroundStyle(.secondary)
-            }
+                .font(.seira(16, .medium))
+                .foregroundStyle(Color.seiraInk)
+                .frame(maxWidth: .infinity, alignment: .leading)
+            notificationTrailing
+        }
+        .padding(.horizontal, 16)
+        .frame(minHeight: 56)
+        .contentShape(Rectangle())
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder private var notificationTrailing: some View {
+        if enablingNotifications {
+            ProgressView()
+                .controlSize(.small)
+        } else {
+            Text(LocalizedStringKey(session.notificationStatusText))
+                .font(.seira(15))
+                .foregroundStyle(Color.seiraInk2)
         }
     }
 
@@ -218,48 +421,27 @@ private struct ComputerSettingsRow: View {
     let status: Text
     let connected: Bool
 
-    var body: some View {
-        HStack(spacing: 12) {
-            ZStack {
-                RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(MausPalette.color("blue").opacity(0.14))
-                    .frame(width: 38, height: 38)
-                Image(systemName: "laptopcomputer")
-                    .foregroundStyle(MausPalette.color("blue"))
-            }
-            .accessibilityHidden(true)
+    private var dotColor: Color { connected ? .seiraSuccess : .seiraInk3 }
 
-            VStack(alignment: .leading, spacing: 3) {
+    var body: some View {
+        HStack(spacing: 14) {
+            SettingsRowIcon(symbol: "laptopcomputer")
+            VStack(alignment: .leading, spacing: 2) {
                 name
-                    .foregroundStyle(.primary)
+                    .font(.seira(16, .medium))
+                    .foregroundStyle(Color.seiraInk)
                     .lineLimit(1)
-                HStack(spacing: 5) {
-                    Circle()
-                        .fill(connected ? Color.green : Color.secondary)
-                        .frame(width: 7, height: 7)
+                HStack(spacing: 6) {
+                    StatusDot(color: dotColor)
                     status
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
+                        .font(.seira(13, .regular, relativeTo: .subheadline))
+                        .foregroundStyle(Color.seiraInk2)
                         .lineLimit(1)
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
-    }
-}
-
-private struct SettingsIcon: View {
-    let symbol: String
-    let color: Color
-
-    var body: some View {
-        Image(systemName: symbol)
-            .font(.system(size: 15, weight: .semibold))
-            .foregroundStyle(.white)
-            .frame(width: 28, height: 28)
-            .background(color, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
-            .accessibilityHidden(true)
     }
 }
 
@@ -293,6 +475,7 @@ struct ConnectedComputersView: View {
                         )
                     }
                 }
+                .listRowBackground(Color.seiraTint)
             }
 
             if !otherComputers.isEmpty {
@@ -306,16 +489,17 @@ struct ConnectedComputersView: View {
                                 ProfileAvatar(name: computer.name, size: 38)
                                 VStack(alignment: .leading, spacing: 3) {
                                     Text(computer.name)
-                                        .foregroundStyle(.primary)
+                                        .font(.seira(16, .medium))
+                                        .foregroundStyle(Color.seiraInk)
                                         .lineLimit(1)
                                     Text("Tap to switch")
-                                        .font(.footnote)
-                                        .foregroundStyle(.secondary)
+                                        .font(.seira(13, .regular, relativeTo: .subheadline))
+                                        .foregroundStyle(Color.seiraInk2)
                                 }
                                 Spacer()
                                 Text("Use")
-                                    .font(.subheadline.weight(.semibold))
-                                    .foregroundStyle(MausPalette.color("blue"))
+                                    .font(.seira(15, .semibold, relativeTo: .subheadline))
+                                    .foregroundStyle(Color.seiraInk)
                             }
                             .contentShape(Rectangle())
                         }
@@ -328,6 +512,7 @@ struct ConnectedComputersView: View {
                         .accessibilityHint("Switches Seira to this computer")
                     }
                 }
+                .listRowBackground(Color.seiraTint)
             }
 
             Section {
@@ -340,7 +525,9 @@ struct ConnectedComputersView: View {
             } footer: {
                 Text("Each computer is paired separately. Only the selected computer is active at a time.")
             }
+            .listRowBackground(Color.seiraTint)
         }
+        .settingsListChrome()
         .navigationTitle("Computers")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
@@ -381,19 +568,21 @@ struct ConnectionSecurityView: View {
                         ProfileAvatar(name: connection.name, size: 46)
                         VStack(alignment: .leading, spacing: 4) {
                             Text(connection.name)
-                                .font(.headline)
+                                .font(.seira(17, .semibold, relativeTo: .headline))
+                                .foregroundStyle(Color.seiraInk)
                             Label {
                                 session.status.settingsText
                             } icon: {
                                 Image(systemName: session.status == .live ? "checkmark.circle.fill" : "circle.dotted")
                             }
-                                .font(.subheadline)
-                                .foregroundStyle(session.status == .live ? Color.green : Color.secondary)
+                                .font(.seira(14, .regular, relativeTo: .subheadline))
+                                .foregroundStyle(statusTint)
                         }
                     }
                     .padding(.vertical, 4)
                     .accessibilityElement(children: .combine)
                 }
+                .listRowBackground(Color.seiraTint)
 
                 Section {
                     DisclosureGroup("Connection details") {
@@ -409,7 +598,7 @@ struct ConnectionSecurityView: View {
                                 }
                             }
                             .font(.footnote.monospaced())
-                            .foregroundStyle(.secondary)
+                            .foregroundStyle(Color.seiraInk2)
 
                             HStack(spacing: 16) {
                                 Button(showingFullAddress ? "Hide full address" : "Show full address") {
@@ -434,11 +623,12 @@ struct ConnectionSecurityView: View {
                         editingAddress = true
                     }
                 }
+                .listRowBackground(Color.seiraTint)
 
                 Section("Troubleshooting") {
                     troubleshootingText
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .font(.seira(14, .regular, relativeTo: .subheadline))
+                        .foregroundStyle(Color.seiraInk2)
 
                     Button {
                         refreshing = true
@@ -457,16 +647,19 @@ struct ConnectionSecurityView: View {
                     }
                     .disabled(refreshing)
                 }
+                .listRowBackground(Color.seiraTint)
 
                 Section {
                     Button("Remove connection from this device", role: .destructive) {
                         confirmingSignOut = true
                     }
                 }
+                .listRowBackground(Color.seiraTint)
             } else {
-                EmptyStateView("No computer connected", systemImage: "laptopcomputer.slash")
+                SeiraEmptyState(icon: "Icons3D/not-connected", title: "No computer connected")
             }
         }
+        .settingsListChrome()
         .navigationTitle("Connection & Security")
         .navigationBarTitleDisplayMode(.inline)
         .alert("Edit address", isPresented: $editingAddress) {
@@ -475,7 +668,7 @@ struct ConnectionSecurityView: View {
                 .autocorrectionDisabled()
             Button("Save") {
                 if !session.updateAddress(addressText) {
-                    session.actionError = "That address doesn't look right. Copy it from Phone settings and try again."
+                    session.actionError = String(localized: "That address doesn't look right. Copy it from Phone settings and try again.")
                 }
             }
             Button("Cancel", role: .cancel) {}
@@ -496,6 +689,8 @@ struct ConnectionSecurityView: View {
             Text("This removes the connection from this device only. It does not revoke this device on your Mac. To remove Mac-side access, open Seira → Settings → Phone and remove it there.")
         }
     }
+
+    private var statusTint: Color { session.status == .live ? .seiraSuccess : .seiraInk2 }
 
     /// Our copy, except for `.offline`, whose text the computer itself sent and
     /// which is shown exactly as it arrived.

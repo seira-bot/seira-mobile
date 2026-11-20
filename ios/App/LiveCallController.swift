@@ -27,6 +27,9 @@ final class LiveCallController: ObservableObject {
 
     @Published private(set) var machine = LiveCallMachine()
     @Published private(set) var isMuted = false
+    /// Whether the full-screen call view is wanted. The root cover shows it
+    /// while a call exists; it goes back to false when the machine is idle.
+    @Published var isScreenPresented = false
     /// The clock and the caption line: they change every second, and many
     /// times a second while the voice talks. Every chat, the roster and the
     /// settings sheet follow this controller; only the bar's title and
@@ -133,6 +136,13 @@ final class LiveCallController: ObservableObject {
     func dismiss() { dispatch(.dismiss) }
     func leaveForeground() { dispatch(.leaveForeground) }
 
+    func presentScreen() {
+        guard machine.isActive else { return }
+        isScreenPresented = true
+    }
+
+    func dismissScreen() { isScreenPresented = false }
+
     func toggleMute() {
         isMuted.toggle()
         media?.setMuted(isMuted)
@@ -146,6 +156,7 @@ final class LiveCallController: ObservableObject {
         let effects = machine.handle(event)
         log.info("live call: \(String(describing: event), privacy: .public) -> \(String(describing: self.machine.phase), privacy: .public)")
         for effect in effects { run(effect) }
+        if machine.isIdle { isScreenPresented = false }
     }
 
     private func run(_ effect: LiveCallMachine.Effect) {
