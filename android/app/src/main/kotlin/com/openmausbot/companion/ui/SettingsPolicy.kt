@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
  */
 object SettingsPolicy {
     const val HELP_FAQ_URL = "https://seira.bot/#faq"
+    const val PRIVACY_POLICY_URL = "https://seira.bot/privacy"
     const val HELP_REPORT_URL = "https://github.com/seira-bot/seira/issues"
 
     const val NOTIFICATIONS_FOOTER =

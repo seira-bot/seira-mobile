@@ -122,4 +122,8 @@ class SettingsVoiceHelpTest {
     @Test
     fun `report a problem opens the issue list`() =
         assertOpens("Report a problem", SettingsPolicy.HELP_REPORT_URL)
+
+    @Test
+    fun `privacy policy opens the policy page`() =
+        assertOpens("Privacy policy", SettingsPolicy.PRIVACY_POLICY_URL)
 }
