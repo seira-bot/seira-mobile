@@ -38,7 +38,9 @@ import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.core.CompanionEndpoint
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.PairingInvite
+import com.openmausbot.companion.core.OffersTailscale
 import com.openmausbot.companion.core.PairingRouteError
+import com.openmausbot.companion.network.TailscaleLauncher
 import com.openmausbot.companion.core.ServerAddressError
 import com.openmausbot.companion.core.ServerPairingRetryError
 import com.openmausbot.companion.discovery.DiscoveredService
@@ -113,6 +115,7 @@ fun PairingScreen(onCancel: () -> Unit) {
     // `PairingSecrets` is the one object that can refuse to replace the slot.
     var pairing by remember { mutableStateOf(false) }
     var failure by remember { mutableStateOf<String?>(null) }
+    var tailscaleFailure by remember { mutableStateOf<String?>(null) }
     var scanError by remember { mutableStateOf<String?>(null) }
     var connectedName by remember { mutableStateOf<String?>(null) }
     var showingScanner by remember { mutableStateOf(false) }
@@ -124,6 +127,7 @@ fun PairingScreen(onCancel: () -> Unit) {
     var showingOtherWays by rememberSaveable { mutableStateOf(false) }
 
     val permissionSnapshot by environment.permissions.snapshot.collectAsState()
+    val appContext = androidx.compose.ui.platform.LocalContext.current
 
     LaunchedEffect(showingOtherWays) {
         searchedLongEnough = false
@@ -219,6 +223,7 @@ fun PairingScreen(onCancel: () -> Unit) {
             } catch (error: Throwable) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
                 failure = session.actionError ?: error.message ?: pairingFailedMessage
+                tailscaleFailure = failure.takeIf { (error as? OffersTailscale)?.offersTailscale == true }
                 session.actionError = null
                 when (pairingFailureDisposition(error, cameFromScanner)) {
                     PairingFailureDisposition.RETAIN_ATTEMPT -> {
@@ -405,6 +410,9 @@ fun PairingScreen(onCancel: () -> Unit) {
             }
         },
         below = {
+            if (failure != null && failure == tailscaleFailure) {
+                PairTextButton(stringResource(R.string.pair_open_tailscale), { TailscaleLauncher.open(appContext) })
+            }
             if (selected == null && connectedName == null && showingOtherWays) {
                 SetupSection()
                 DiscoverySection(
@@ -478,7 +486,7 @@ internal fun pairingFailureDisposition(
  * The routes pairing with [connection] may dial: inside the consent boundary
  * the invite carries — or the one `Session.pair` sets for a typed or discovered
  * computer — exactly the ones `pairFirstReachable` probes
- * ([Connection.pairingEndpoints]). A server pairing dials the first of them.
+ * ([Connection.pairingEndpoints]), for a server pairing as well.
  */
 internal fun pairingRoutes(connection: Connection): List<CompanionEndpoint> {
     val invited = if (connection.allowedRouteKinds == null) {
