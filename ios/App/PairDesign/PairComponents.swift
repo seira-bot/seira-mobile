@@ -146,20 +146,27 @@ struct PairTextButton: View {
 
 struct PairErrorBanner: View {
     let message: String
+    var linkURL: URL?
 
     var body: some View {
-        Label {
-            Text(message)
-                .fixedSize(horizontal: false, vertical: true)
-        } icon: {
-            Image(systemName: "exclamationmark.triangle.fill")
+        VStack(alignment: .leading, spacing: 10) {
+            Label {
+                Text(message)
+                    .fixedSize(horizontal: false, vertical: true)
+            } icon: {
+                Image(systemName: "exclamationmark.triangle.fill")
+            }
+            if let linkURL {
+                Link("Get Tailscale", destination: linkURL)
+                    .font(.seira(14, .semibold, relativeTo: .subheadline))
+            }
         }
         .font(.seira(14, .regular, relativeTo: .subheadline))
         .foregroundStyle(Color.seiraDangerText)
         .padding(14)
         .frame(maxWidth: .infinity, alignment: .leading)
         .seiraCard(radius: 18)
-        .accessibilityElement(children: .combine)
+        .accessibilityElement(children: linkURL == nil ? .combine : .contain)
     }
 }
 

@@ -465,10 +465,18 @@ public struct PairingOutcome: Sendable {
 public struct PairingRouteError: Error, LocalizedError, Equatable, Sendable {
     public let attemptedHosts: [String]
     public let computerName: String?
+    /// Why each route failed, keyed by the route's URL. A route that was not
+    /// probed to the end has no entry.
+    public let failures: [String: RouteFailureReason]
 
-    public init(attemptedHosts: [String], computerName: String? = nil) {
+    public init(
+        attemptedHosts: [String],
+        computerName: String? = nil,
+        failures: [String: RouteFailureReason] = [:]
+    ) {
         self.attemptedHosts = attemptedHosts
         self.computerName = computerName
+        self.failures = failures
     }
 
     public var errorDescription: String? {
@@ -815,6 +823,7 @@ public struct CompanionClient: Sendable {
         code: String,
         label: String,
         attemptId: String = UUID().uuidString,
+        timeout: TimeInterval = 8,
         session: URLSession = .shared
     ) async throws -> ServerPairResponse {
         let client = CompanionClient(connection: connection, token: nil, session: session)
@@ -823,7 +832,7 @@ public struct CompanionClient: Sendable {
             "/api/auth/pair",
             body: ["code": code, "label": label, "attemptId": attemptId]
         )
-        request.timeoutInterval = 8
+        request.timeoutInterval = timeout
         return try await client.send(request, as: ServerPairResponse.self)
     }
 
