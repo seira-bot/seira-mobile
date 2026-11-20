@@ -417,10 +417,7 @@ fun PairingScreen(onCancel: () -> Unit) {
                 // describes is the thing on screen.
                 if (permissionSnapshot.discoveryNeedsRequest) {
                     Text(
-                        text = stringResource(
-                            R.string.mobile_discovery_permission_hint,
-                            permissionSnapshot.missingDiscovery.joinToString(),
-                        ),
+                        text = stringResource(R.string.mobile_discovery_permission_hint),
                         style = SeiraType.callout,
                         color = Seira.colors.ink3,
                     )

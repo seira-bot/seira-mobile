@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -32,10 +33,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.character.SeiraCharacter
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.ui.theme.InkPillButton
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
-import com.openmausbot.companion.ui.theme.SeiraMark
 import com.openmausbot.companion.ui.theme.SeiraType
 
 /**
@@ -297,15 +299,15 @@ private fun OnboardingSecondary(text: String, onClick: () -> Unit, enabled: Bool
     }
 }
 
-/** The Seira mark, or one glyph, on a tinted disc. */
+/** The Seira character, or one glyph, on a tinted disc. */
 @Composable
 private fun OnboardingHero(icon: ImageVector?) {
     Box(
-        modifier = Modifier.size(104.dp).background(Seira.colors.tint, CircleShape),
+        modifier = Modifier.size(120.dp).clip(CircleShape).background(Seira.colors.tint, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         if (icon == null) {
-            SeiraMark(size = 52.dp)
+            SeiraCharacter(look = SeiraLook.of(hair = "seira", color = "chrome"), size = 150.dp, animated = false, modifier = Modifier.wrapContentSize(Alignment.Center, unbounded = true))
         } else {
             Icon(
                 imageVector = icon,
