@@ -86,8 +86,9 @@ extension PairingRouteError {
         var message: String
         var link: URL?
         if vpn.isVPNActive() {
-            message = "\u{201C}\(tailnetHost)\u{201D} didn't resolve. If that's a Tailscale name, " +
-                "this phone may not be on the tailnet. This phone may be signed in to a different tailnet."
+            let name = computerName?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            message = "This phone can't reach \u{201C}\(name.isEmpty ? tailnetHost : name)\u{201D}. " +
+                "Open Tailscale on this phone and sign in with the same account as the computer."
         } else {
             message = "Tailscale is off on this phone. Turn it on, then try again."
             link = RouteAdvice.tailscaleStore

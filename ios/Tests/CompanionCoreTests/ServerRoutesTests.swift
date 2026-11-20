@@ -344,10 +344,12 @@ final class ServerRoutesTests: XCTestCase {
         XCTAssertEqual(advice.tailscaleLink?.absoluteString, "https://apps.apple.com/app/tailscale/id1470499037")
     }
 
-    func testAVPNThatIsOnKeepsTheResolveHintAndNamesAnotherTailnet() {
+    func testAVPNThatIsOnAsksForTheSameTailscaleAccount() {
         let advice = failed([tailnet]).advice(vpn: FakeVPN(active: true))
-        XCTAssertTrue(advice.message.contains("didn't resolve"))
-        XCTAssertTrue(advice.message.contains("This phone may be signed in to a different tailnet."))
+        XCTAssertEqual(
+            advice.message,
+            "This phone can't reach \u{201C}cab mini\u{201D}. Open Tailscale on this phone and sign in with the same account as the computer."
+        )
         XCTAssertNil(advice.tailscaleLink)
     }
 
