@@ -3,6 +3,7 @@
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 "1.0.1" (versionCode 10001) tayang pada 2026-11-20. Update 1.0.2
 (versionCode 10002) membawa karakter Seira 3D dan memakai wire id lama.
+Update 1.0.2 dikirim untuk review pada 2026-11-20.
 Update 1.0.3 (versionCode 10003) dengan wire id baru menyusul sesudah desktop
 0.1.182 rilis.
 
@@ -20,6 +21,10 @@ Dasar jawaban:
 - Update 1.0.2: versionCode `10002`, dari `main` sesudah PR #19, #22, dan
   #24. Update ini memakai wire id lama, jadi bisa pairing dengan desktop
   0.1.181 dan server uji 0.1.180. Pemilik rilis memilih ini pada 2026-11-20.
+  Sha256 bundle
+  `35966bc1eeff7876459ea052952612412a98bc1dc888a1e20c9ecce69415bf4f`, upload
+  key `FD:4C:…:C1:FD`. Desktop 0.1.182 tetap menerima wire id lama (FR-216),
+  jadi 1.0.2 juga bisa pairing dengan 0.1.182.
 - Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 merge. Update
   ini memakai wire id desktop 0.1.182.
   Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
@@ -111,8 +116,8 @@ server" tersimpan di Console pada 2026-11-20:
 - Username: alamat halaman pairing di server uji.
 - Password: passphrase halaman pairing. Pemilik rilis menempelnya sendiri.
 - Kotak "full access" dicentang.
-- Instruksi: kurang dari 500 karakter (batas Console). Console masih memuat
-  "Tap Allow once." dari 1.0.1. Ganti ke "Tap Allow." saat kirim 1.0.2.
+- Instruksi: kurang dari 500 karakter (batas Console). Console memuat teks
+  di bawah, dengan "Tap Allow.", sejak rilis 1.0.2 (2026-11-20).
 
 ```text
 Seira connects to a Seira server. A review server is ready.
@@ -196,13 +201,14 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
 1. Selesai 2026-11-20: Google menyetujui 1.0.1. App tayang di Play.
 2. Selesai 2026-11-20: uji 1.0.1 terhadap server uji lulus. Kartu izin memakai
    tombol "Allow" dan "Deny".
-3. Bangun `.aab` 1.0.2 (versionCode 10002) dari `main` dan cek tanda
-   tangan, versi, dan hash. Build ini membawa karakter Seira 3D (PR #22) dan
-   fitur Wi-Fi opsional (PR #19).
-4. Uji 1.0.2 di emulator terhadap server uji 0.1.180, termasuk kartu izin.
-5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
-   nama "1.0.2", isi "Catatan rilis update 1.0.2". Ganti langkah 3 App access
-   ke "Tap Allow.". Lalu kirim untuk review.
+3. Selesai 2026-11-20: `.aab` 1.0.2 (versionCode 10002) dibangun dari `main`.
+   Tanda tangan, versi, dan hash cocok. Build ini membawa karakter Seira 3D
+   (PR #22) dan fitur Wi-Fi opsional (PR #19).
+4. Sebagian 2026-11-20: build rilis 10002 jalan di emulator. Karakter 3D
+   tampil, tanpa crash. Pairing dan kartu izin tidak diuji ulang di 10002.
+5. Selesai 2026-11-20: rilis Production "1.0.2" dibuat dengan 10002 dan
+   "Catatan rilis update 1.0.2". App access langkah 3 sudah "Tap Allow.".
+   Rilis dikirim untuk review.
 6. Sesudah desktop 0.1.182 rilis dan Google menyetujui 1.0.2: upgrade server
    uji ke 0.1.182, merge PR #11, bangun 10003, uji, lalu kirim 1.0.3 dengan
    "Catatan rilis update 1.0.3".
