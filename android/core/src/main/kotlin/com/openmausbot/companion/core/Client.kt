@@ -4,6 +4,7 @@ import java.io.IOException
 import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.NetworkInterface
+import java.net.SocketTimeoutException
 import java.net.URI
 import java.net.UnknownHostException
 import java.util.UUID
@@ -11,6 +12,8 @@ import java.util.concurrent.TimeUnit
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -41,6 +44,16 @@ import okhttp3.Response
 
 internal data class ConnectionEndpoint(val baseUrl: HttpUrl, val dns: Dns)
 
+/** A server pairing: the route that redeemed the code, the identity it showed, and the result. */
+data class ServerPairingOutcome(
+    val connection: Connection,
+    val environment: ServerEnvironment,
+    val response: ServerPairResponse,
+)
+
+/** The first route that answered, or null; and why each route before it did not. */
+data class RouteChoice(val endpoint: CompanionEndpoint?, val failures: Map<String, Throwable>)
+
 /** The durable pairing result together with the route that actually redeemed it. */
 data class PairingOutcome(
     val response: PairResponse,
@@ -65,20 +78,31 @@ class PairingRouteError(
      */
     val routeFailures: Map<String, Throwable> = emptyMap(),
     computerName: String? = null,
-) : IOException(pairingRouteMessage(attemptedRoutes, routeFailures, computerName))
+    vpnActive: Boolean? = null,
+) : IOException(pairingRouteMessage(attemptedRoutes, routeFailures, computerName, vpnActive)), OffersTailscale {
+    override val offersTailscale: Boolean =
+        ConnectionAdvice.tailscaleAdvice(routeFailures, vpnActive)?.offersTailscale == true
+}
+
+private fun leadIn(computer: String, text: String): String =
+    if (text.startsWith("This phone can't reach")) text else "Couldn't reach $computer. $text"
 
 private fun pairingRouteMessage(
     routes: List<String>,
     failures: Map<String, Throwable>,
     computerName: String?,
+    vpnActive: Boolean?,
 ): String {
     val computer = computerName?.trim()?.takeIf { it.isNotEmpty() } ?: "this computer"
+    ConnectionAdvice.tailscaleAdvice(failures, vpnActive, computerName)?.let { advice ->
+        return leadIn(computer, advice.text)
+    }
     val hosts = routes.map { route -> runCatching { URI(route).host.orEmpty() }.getOrDefault("") }
     val causes = routes.zip(hosts).mapNotNull { (route, host) ->
-        failures[route]?.let { ConnectionAdvice.pairingAdvice(it, host) }
+        failures[route]?.let { ConnectionAdvice.pairingAdvice(it, host, computerName) }
     }.distinct()
     val advice = when {
-        causes.isNotEmpty() -> "Couldn't reach $computer. ${causes.joinToString(" ")}"
+        causes.isNotEmpty() -> leadIn(computer, causes.joinToString(" "))
         routes.any { it.startsWith("https://", ignoreCase = true) } ->
             "Couldn't reach $computer. Make sure the computer is awake with Seira open, then try again."
         hosts.isNotEmpty() && hosts.all { it.lowercase().trimEnd('.').endsWith(".ts.net") } ->
@@ -93,7 +117,7 @@ private fun pairingRouteMessage(
                 "Seira: on a Windows PC, set its network to Private. Or open Settings → " +
                 "Remote access on the computer and sign in so the phone can connect from anywhere."
     }
-    return if (routes.isEmpty()) advice else "$advice\nTried: ${routes.joinToString()}"
+    return advice
 }
 
 /** Keep the same code and request id after an uncertain redemption or rate-limit refusal. */
@@ -112,8 +136,39 @@ class ServerAddressError private constructor(
     cause: IOException,
     /** The address answered and is not a server: the code typed for it is no use, as on iOS. */
     val notAServer: Boolean,
-) : IOException(message, cause) {
+    override val offersTailscale: Boolean = false,
+) : IOException(message, cause), OffersTailscale {
     companion object {
+        /** Every route of the server failed. One route reads as before; several read as one computer. */
+        fun unreachableEverywhere(
+            routes: List<String>,
+            failures: Map<String, IOException>,
+            computerName: String?,
+            vpnActive: Boolean?,
+        ): ServerAddressError {
+            val first = routes.firstOrNull()
+            val firstCause = first?.let(failures::get) ?: IOException("no answer")
+            val host = first?.let { runCatching { URI(it).host.orEmpty() }.getOrDefault("") }.orEmpty()
+            val tailscale = ConnectionAdvice.tailscaleAdvice(failures, vpnActive)
+            if (tailscale != null) {
+                val computer = computerName?.trim()?.takeIf { it.isNotEmpty() } ?: "this computer"
+                return ServerAddressError(
+                    "Couldn't reach $computer. ${tailscale.text}",
+                    firstCause,
+                    notAServer = false,
+                    offersTailscale = tailscale.offersTailscale,
+                )
+            }
+            if (routes.size <= 1) return unreachable(first.orEmpty(), host, firstCause)
+            val advice = ConnectionAdvice.pairingAdvice(firstCause, host)?.let { " $it" }.orEmpty()
+            val computer = computerName?.trim()?.takeIf { it.isNotEmpty() } ?: "this computer"
+            return ServerAddressError(
+                "Couldn't reach $computer. Make sure the computer is awake with Seira open, then try again.$advice",
+                firstCause,
+                notAServer = false,
+            )
+        }
+
         /** Nothing at the descriptor: something answers at [address], and it is not a server. */
         fun notAServer(address: String, cause: IOException) = ServerAddressError(
             "$address isn't a Seira server. Check the address and try again.",
@@ -290,10 +345,20 @@ class CompanionClient(
     suspend fun environment(): ServerEnvironment {
         connection.requireServerTransport()
         val publicClient = CompanionClient(connection, null, actionClient)
-        return publicClient.send(
-            publicClient.makeRequest("GET", "/.well-known/openmausbot/environment"),
-            publicClient.actionClient.newBuilder().followRedirects(false).followSslRedirects(false).build(),
-        )
+        val noRedirects = publicClient.actionClient.newBuilder()
+            .followRedirects(false)
+            .followSslRedirects(false)
+            .build()
+        var notFound: APIError.Status? = null
+        for (path in DesktopWireIds.ENVIRONMENT_PATHS) {
+            try {
+                return publicClient.send(publicClient.makeRequest("GET", path), noRedirects)
+            } catch (error: APIError.Status) {
+                if (error.code != 404) throw error
+                notFound = error
+            }
+        }
+        throw notFound!!
     }
 
     suspend fun health(): JsonObject = send(makeRequest("GET", "/api/health"))
@@ -1268,6 +1333,132 @@ class CompanionClient(
             ), pairClient)
         }
 
+        /**
+         * Identify the server on every route its link carries, then redeem the code on the first
+         * route, in advertised order, that answered as this server. The code goes out only after
+         * a route identified itself. A transport failure or a gateway status moves on to the next
+         * answered route with the same attempt id; any other answer is final.
+         */
+        suspend fun pairWithServerFirstReachable(
+            connection: Connection,
+            code: String,
+            label: String,
+            attemptId: String,
+            client: OkHttpClient = OkHttpClient(),
+            vpnActive: () -> Boolean? = { null },
+        ): ServerPairingOutcome {
+            connection.requireServerTransport()
+            val candidates = connection.pairingEndpoints
+                .map { it.url to connection.dialing(it) }
+                .filter { it.second.serverTransportAllowed }
+            if (candidates.isEmpty()) throw APIError.BadUrl
+            val routes = candidates.map { it.first }
+            val failures = linkedMapOf<String, IOException>()
+            var lastPairError: IOException? = null
+            val unreachable = {
+                if (failures.size == routes.size && failures.values.all { it is APIError.Status && it.code == 404 }) {
+                    ServerAddressError.notAServer(connection.displayAddress, failures.values.first())
+                } else {
+                    ServerAddressError.unreachableEverywhere(routes, failures, connection.name, vpnActive())
+                }
+            }
+            try {
+                return withTimeout(SERVER_PAIRING_DEADLINE_SECONDS * 1_000) {
+                    coroutineScope {
+                        val probes = candidates.map { (_, candidate) ->
+                            async { probeServerRoute(candidate, client) }
+                        }
+                        try {
+                            for ((index, probe) in probes.withIndex()) {
+                                val (route, candidate) = candidates[index]
+                                val probed = probe.await()
+                                val environment = probed.getOrNull()
+                                if (environment == null) {
+                                    val error = probed.exceptionOrNull()
+                                    failures[route] = error as? IOException ?: IOException(error?.message, error)
+                                    continue
+                                }
+                                try {
+                                    val response = pairWithServer(candidate, code, label, attemptId, client)
+                                    return@coroutineScope ServerPairingOutcome(candidate, environment, response)
+                                } catch (error: CancellationException) {
+                                    throw error
+                                } catch (error: IOException) {
+                                    if (error is APIError.Status && !ConnectionAdvice.shouldRetryPairingOnAnotherRoute(error)) {
+                                        throw error
+                                    }
+                                    lastPairError = error
+                                    failures[route] = error
+                                }
+                            }
+                            throw lastPairError ?: unreachable()
+                        } finally {
+                            probes.forEach { it.cancel() }
+                        }
+                    }
+                }
+            } catch (error: TimeoutCancellationException) {
+                lastPairError?.let { throw it }
+                routes.filterNot(failures::containsKey).forEach { failures[it] = SocketTimeoutException("timed out") }
+                throw unreachable()
+            }
+        }
+
+        /** The public descriptor of [connection]'s route, or why it did not answer within the probe limit. */
+        private suspend fun probeServerRoute(connection: Connection, client: OkHttpClient): Result<ServerEnvironment> =
+            try {
+                Result.success(
+                    withTimeout(PROBE_TIMEOUT_SECONDS * 1_000) {
+                        CompanionClient(connection, null, client).environment()
+                    },
+                )
+            } catch (error: TimeoutCancellationException) {
+                Result.failure(SocketTimeoutException("timed out"))
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                Result.failure(error)
+            }
+
+        /**
+         * Probe every route of [connection] together and return the first one, in stored order,
+         * that answered as the computer this phone is paired with; why the others did not.
+         */
+        suspend fun firstReachableRoute(
+            connection: Connection,
+            client: OkHttpClient = OkHttpClient(),
+        ): RouteChoice = coroutineScope {
+            val candidates = connection.orderedEndpoints.map { it to connection.dialing(it) }
+            val failures = linkedMapOf<String, Throwable>()
+            val probes = candidates.map { (_, candidate) ->
+                async { probeRoute(candidate, client) }
+            }
+            try {
+                for ((index, probe) in probes.withIndex()) {
+                    val failure = probe.await()
+                    if (failure == null) return@coroutineScope RouteChoice(candidates[index].first, failures)
+                    failures[candidates[index].first.url] = failure
+                }
+                RouteChoice(null, failures)
+            } finally {
+                probes.forEach { it.cancel() }
+            }
+        }
+
+        private suspend fun probeRoute(connection: Connection, client: OkHttpClient): Throwable? {
+            val expected = connection.serverEnvironmentId ?: return probeFailure(connection, client)
+            return probeServerRoute(connection, client).fold(
+                onSuccess = { environment ->
+                    if (environment.environmentId == expected) {
+                        null
+                    } else {
+                        APIError.Status(401, "This address belongs to a different server. Pair again to continue.")
+                    }
+                },
+                onFailure = { it },
+            )
+        }
+
         suspend fun pair(
             connection: Connection,
             credential: String,
@@ -1410,7 +1601,7 @@ class CompanionClient(
                     companion.makeRequest("GET", "/api/health"),
                     probeClient,
                 )
-                if (identity.app == "openmausbot") {
+                if (identity.app in DesktopWireIds.SERVER_APP_IDS) {
                     null
                 } else {
                     APIError.Transport("Something other than Seira answers at ${connection.displayAddress}.")
@@ -1430,6 +1621,7 @@ class CompanionClient(
         }
 
         private const val PROBE_TIMEOUT_SECONDS = 4L
+        private const val SERVER_PAIRING_DEADLINE_SECONDS = 15L
         private const val PAIR_TIMEOUT_SECONDS = 8L
     }
 }

@@ -3,9 +3,10 @@
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 "1.0.1" (versionCode 10001) tayang pada 2026-11-20. Update 1.0.2
 (versionCode 10002) membawa karakter Seira 3D dan memakai wire id lama.
-Update 1.0.2 dikirim untuk review pada 2026-11-20.
-Update 1.0.3 (versionCode 10003) dengan wire id baru menyusul sesudah desktop
-0.1.182 rilis.
+Google menyetujui 1.0.2. Rilis "1.0.2" tayang di Play pada 2026-11-20: 178
+negara, rollout 100%.
+Update 1.0.3 (versionCode 10003) membawa PR #11 (wire id lama dan wire id
+Seira) dan PR #27 (pairing mencoba semua alamat).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -25,8 +26,9 @@ Dasar jawaban:
   `35966bc1eeff7876459ea052952612412a98bc1dc888a1e20c9ecce69415bf4f`, upload
   key `FD:4C:…:C1:FD`. Desktop 0.1.182 tetap menerima wire id lama (FR-216),
   jadi 1.0.2 juga bisa pairing dengan 0.1.182.
-- Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 merge. Update
-  ini memakai wire id desktop 0.1.182.
+- Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 dan PR #27
+  merge. Update ini membaca wire id lama dan wire id Seira, dan mengirim wire
+  id lama. Jadi update ini bisa pairing dengan desktop 0.1.181 dan 0.1.182.
   Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
   versionCode `10000` dan `10001` lagi.
 - Bundle `10001` mewajibkan fitur `android.hardware.wifi`. Publishing overview
@@ -181,10 +183,12 @@ Isi teks ini saat rilis 1.0.3 dibuat di Console:
 
 ```text
 <en-US>
-This update works with Seira 0.1.182 or later on your computer. Update Seira on your computer too. If your phone does not connect, pair it again.
+Pairing now tries every address you allowed at once: same Wi-Fi, Tailscale and the internet address. The app moves to an address that works when your network changes. If Tailscale is off on this phone, the app tells you and opens Tailscale.
+This version also works with Seira 0.1.182 and later on your computer.
 </en-US>
 <id>
-Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui juga Seira di komputer Anda. Kalau ponsel tidak tersambung, pasangkan lagi.
+Pairing sekarang mencoba semua alamat yang kamu izinkan sekaligus: Wi-Fi yang sama, Tailscale, dan alamat internet. Aplikasi pindah ke alamat yang jalan saat jaringan berubah. Kalau Tailscale di HP mati, aplikasi memberi tahu dan membuka Tailscale.
+Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
 </id>
 ```
 
@@ -208,11 +212,18 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
    tampil, tanpa crash. Pairing dan kartu izin tidak diuji ulang di 10002.
 5. Selesai 2026-11-20: rilis Production "1.0.2" dibuat dengan 10002 dan
    "Catatan rilis update 1.0.2". App access langkah 3 sudah "Tap Allow.".
-   Rilis dikirim untuk review.
-6. Sesudah desktop 0.1.182 rilis dan Google menyetujui 1.0.2: upgrade server
-   uji ke 0.1.182, merge PR #11, bangun 10003, uji, lalu kirim 1.0.3 dengan
-   "Catatan rilis update 1.0.3".
+   Rilis dikirim untuk review. Google menyetujui 1.0.2 pada 2026-11-20.
+   Console: "Available on Google Play", versionCode 10002, 178 negara.
+6. Sesudah Google menyetujui 1.0.2: merge PR #11, lalu PR #27. Bangun 10003
+   dari `main`. Uji pairing terhadap server uji dengan wire id lama dan
+   terhadap 0.1.182. Lalu kirim 1.0.3 dengan "Catatan rilis update 1.0.3".
+   Merge dan kirim review butuh izin pemilik rilis. Pemilik rilis memberi izin
+   di chat pada 2026-11-20: "lanjut sampai rilis 1.0.3".
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
+8. Console (2026-11-20, dashboard rilis 1.0.2): "DEX code optimization is
+   below our threshold". Kategori Obfuscation 0%. Batas perbaikan: Februari
+   2027. Penyebab: build rilis memakai `isMinifyEnabled = false`. Perbaikan:
+   nyalakan R8 dengan keep rule yang sudah diuji pada pairing dan sesi nyata.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
 debug symbols belum diunggah.

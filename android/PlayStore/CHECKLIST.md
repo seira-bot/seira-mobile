@@ -96,4 +96,7 @@ commit and artifact being submitted; unchecked items remain release work.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
-  2026-11-20. 1.0.2 (10002) was sent for review on 2026-11-20. Monitor that review.
+  2026-11-20. Google approved 1.0.2 (10002) on 2026-11-20: available on Google
+  Play, 178 countries, 100% rollout. Monitor release health.
+  Console warning on 1.0.2: DEX code optimization is below the threshold
+  (Obfuscation 0%). Fix by February 2027: turn on R8 with tested keep rules.

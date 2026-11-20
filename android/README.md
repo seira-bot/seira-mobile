@@ -41,7 +41,7 @@ key, so no release signing material is needed. It installs beside the released
 app with separate pairing, preferences and messages; it does not update that app.
 
 Open Preview and pair using its QR scanner or manual address form. Preview does
-not register the release's `openmausbot://` pairing links or system share targets.
+not register the release's `openmausbot://` and `seira://` pairing links or system share targets.
 Its file-sharing provider uses the preview application ID too.
 
 Debug keys can differ between machines. Android requires the same key to

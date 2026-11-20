@@ -10,6 +10,8 @@ import java.util.Base64
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.decodeFromJsonElement
 
 @Serializable
 data class Connection(
@@ -397,7 +399,7 @@ data class PairingInvite(val connection: Connection, val credential: String) {
             if (url.scheme.equals("https", true) || url.scheme.equals("http", true)) {
                 return parseServerLink(url)
             }
-            if (!url.scheme.equals("openmausbot", ignoreCase = true) ||
+            if (url.scheme?.lowercase() !in DesktopWireIds.PAIRING_SCHEMES ||
                 !url.host.equals("pair", ignoreCase = true)
             ) {
                 return null
@@ -450,7 +452,7 @@ data class PairingInvite(val connection: Connection, val credential: String) {
         fun parse(url: String): PairingInvite? = runCatching { URI(url) }.getOrNull()?.let(::parse)
 
         /**
-         * Whether [url] is meant as a pairing link — `openmausbot://pair…` —
+         * Whether [url] is meant as a pairing link — `openmausbot://pair…` or `seira://pair…` —
          * whether or not the rest of it reads. Decided on the text rather than a
          * parsed [URI]: a link a chat app mangled may not parse at all, and it is
          * still someone trying to pair, which a link this app does not know is
@@ -458,8 +460,10 @@ data class PairingInvite(val connection: Connection, val credential: String) {
          */
         fun isPairLink(url: String): Boolean {
             val text = url.trim()
-            val prefix = "openmausbot://pair"
-            if (!text.startsWith(prefix, ignoreCase = true)) return false
+            val prefix = DesktopWireIds.PAIRING_SCHEMES
+                .map { "$it://pair" }
+                .firstOrNull { text.startsWith(it, ignoreCase = true) }
+                ?: return false
             return text.length == prefix.length || text[prefix.length] in "?#/"
         }
 
@@ -485,15 +489,47 @@ data class PairingInvite(val connection: Connection, val credential: String) {
                 if (values.put(name, value) != null) return null
             }
             val code = normalizedServerCode(values["code"] ?: return null) ?: return null
-            val connection = Connection.parse("${url.scheme}://${url.rawAuthority}") ?: return null
+            var connection = Connection.parse("${url.scheme}://${url.rawAuthority}") ?: return null
             if (!connection.serverTransportAllowed) return null
+            val listed = values["endpoints"]?.let(::decodeServerEndpoints).orEmpty()
+            val primary = connection.activeEndpoint
+            if (primary != null && listed.isNotEmpty()) {
+                val listedPrimary = listed.firstOrNull { it.url == primary.url } ?: primary
+                val routes = (listOf(listedPrimary) + listed.filterNot { it.url == primary.url })
+                    .withIndex()
+                    .sortedWith(compareBy<IndexedValue<CompanionEndpoint>> { it.value.priority }.thenBy { it.index })
+                    .map { it.value }
+                    .take(MAX_ENDPOINTS)
+                connection = connection.copy(endpoints = routes, activeEndpoint = listedPrimary)
+            }
             return PairingInvite(connection.establishingRoutePolicyFromInvite(), code)
+        }
+
+        /**
+         * The routes of a server link. Unlike [decodeEndpoints], one bad entry only drops that
+         * entry: the server link stays usable on the routes that read.
+         */
+        private fun decodeServerEndpoints(encoded: String): List<CompanionEndpoint> {
+            if (encoded.isEmpty() || encoded.toByteArray(StandardCharsets.UTF_8).size > 8_192) return emptyList()
+            if (encoded.any { it !in 'A'..'Z' && it !in 'a'..'z' && it !in '0'..'9' && it != '-' && it != '_' && it != '=' }) {
+                return emptyList()
+            }
+            val decoded = runCatching { Base64.getUrlDecoder().decode(encoded) }.getOrNull() ?: return emptyList()
+            val array = runCatching {
+                CompanionJson.parseToJsonElement(decoded.toString(StandardCharsets.UTF_8)) as? JsonArray
+            }.getOrNull() ?: return emptyList()
+            return array.mapNotNull { element ->
+                val endpoint = runCatching { CompanionJson.decodeFromJsonElement<CompanionEndpoint>(element) }.getOrNull()
+                endpoint?.takeIf { it.kind == CompanionEndpointKind.HOSTED && it.isSecure }
+            }.distinctBy { it.url }
         }
 
         private fun credential(values: Map<String, String>): String? {
             values["token"]?.let { token ->
-                val suffix = token.removePrefix("omb_pair_")
-                if (!token.startsWith("omb_pair_") || token.toByteArray().size != 52 || suffix.length != 43) {
+                val prefix = DesktopWireIds.PAIRING_TOKEN_PREFIXES.firstOrNull { token.startsWith(it) }
+                    ?: return null
+                val suffix = token.removePrefix(prefix)
+                if (token.toByteArray().size != prefix.length + 43 || suffix.length != 43) {
                     return null
                 }
                 if (suffix.all { it.isLetterOrDigit() && it.code < 128 || it == '-' || it == '_' }) return token

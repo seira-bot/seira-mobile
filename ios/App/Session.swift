@@ -656,7 +656,7 @@ final class Session: ObservableObject {
         return BrowserLiveClient(connection: route, token: token)
     }
 
-    /// `GET /.well-known/openmausbot/environment` on a server about to be
+    /// `GET /.well-known/seira/environment` on a server about to be
     /// paired. Nothing there means this address is not a server; the message
     /// names the address, since that is what the person can fix. Any other
     /// answer — unreachable, a gateway error — is passed through as it is.
@@ -674,7 +674,7 @@ final class Session: ObservableObject {
     func receiveURL(_ url: URL) {
         guard let link = CompanionDeepLink.parse(url) else {
             // A link this app does not know — the desktop's own
-            // openmausbot://thread/… or openmausbot://cloud among them. Not
+            // seira://thread/… or seira://cloud among them. Not
             // the person's mistake, and not a pairing, so nothing to say.
             log.notice("ignored link \(url.scheme ?? "", privacy: .public)://\(url.host ?? "", privacy: .public)")
             return
