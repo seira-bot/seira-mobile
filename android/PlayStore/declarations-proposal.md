@@ -1,8 +1,10 @@
 # Jawaban deklarasi Play Console
 
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
-"1.0.1" (versionCode 10001) dikirim untuk review Google pada 2026-11-20.
-Update 1.0.2 (versionCode 10002) menyusul sesudah desktop 0.1.182 rilis.
+"1.0.1" (versionCode 10001) tayang pada 2026-11-20. Update 1.0.2
+(versionCode 10002) membawa karakter Seira 3D dan memakai wire id lama.
+Update 1.0.3 (versionCode 10003) dengan wire id baru menyusul sesudah desktop
+0.1.182 rilis.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -15,8 +17,11 @@ Dasar jawaban:
   tanpa mode always-on dan memakai wire id lama (`openmausbot://pair`). Bundle
   ini hanya bisa pairing dengan desktop 0.1.181 atau lebih lama. Pemilik rilis
   memilih mengirim 1.0.1 lebih dulu (2026-11-20).
-- Update: versionCode `10002`, versionName `1.0.2`, dari `main` sesudah PR #11
-  merge. Update ini memakai wire id desktop 0.1.182 dan membawa PR #19.
+- Update 1.0.2: versionCode `10002`, dari `main` sesudah PR #19, #22, dan
+  #24. Update ini memakai wire id lama, jadi bisa pairing dengan desktop
+  0.1.181 dan server uji 0.1.180. Pemilik rilis memilih ini pada 2026-11-20.
+- Update 1.0.3: versionCode `10003`, dari `main` sesudah PR #11 merge. Update
+  ini memakai wire id desktop 0.1.182.
   Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
   versionCode `10000` dan `10001` lagi.
 - Bundle `10001` mewajibkan fitur `android.hardware.wifi`. Publishing overview
@@ -119,9 +124,9 @@ Each code works once. Tap Get a new code for another.
 
 Alamat server dan passphrase ada hanya di Console. Jangan tulis keduanya di
 repo. Server uji harus tetap menyala selama review, punya bot "Demo
-Assistant", dan tidak menyimpan data pribadi. Server uji memakai wire id lama
-sampai Google menyetujui 1.0.1. Upgrade server ke 0.1.182 sesudah itu, dan
-sebelum review 1.0.2.
+Assistant", dan tidak menyimpan data pribadi. Server uji tetap memakai wire
+id lama selama review 1.0.2. Upgrade server ke 0.1.182 sesudah Google
+menyetujui 1.0.2, dan sebelum review 1.0.3.
 
 ## Izin dan deklarasi terkait
 
@@ -158,10 +163,23 @@ Isi teks ini saat rilis 1.0.2 dibuat di Console:
 
 ```text
 <en-US>
-This update works with Seira 0.1.182 or later on your computer. Update Seira on your computer too. If your phone does not connect, pair it again. The app now also installs on devices without Wi-Fi.
+The welcome screen and Settings now show the 3D Seira character. The app now also installs on devices without Wi-Fi. Clearer help when Seira looks for your computer on Wi-Fi.
 </en-US>
 <id>
-Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui juga Seira di komputer Anda. Kalau ponsel tidak tersambung, pasangkan lagi. App kini juga bisa dipasang di perangkat tanpa Wi-Fi.
+Layar sambutan dan Settings kini menampilkan karakter Seira 3D. App kini juga bisa dipasang di perangkat tanpa Wi-Fi. Petunjuk lebih jelas saat Seira mencari komputer Anda di Wi-Fi.
+</id>
+```
+
+### Catatan rilis update 1.0.3
+
+Isi teks ini saat rilis 1.0.3 dibuat di Console:
+
+```text
+<en-US>
+This update works with Seira 0.1.182 or later on your computer. Update Seira on your computer too. If your phone does not connect, pair it again.
+</en-US>
+<id>
+Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui juga Seira di komputer Anda. Kalau ponsel tidak tersambung, pasangkan lagi.
 </id>
 ```
 
@@ -173,20 +191,21 @@ Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui ju
   rollout hanya untuk update.
 - Managed publishing mati. Rilis tayang sendiri saat Google menyetujuinya.
 
-## Langkah sesudah pengiriman 1.0.1
+## Langkah sesudah 1.0.1 tayang
 
 1. Selesai 2026-11-20: Google menyetujui 1.0.1. App tayang di Play.
 2. Selesai 2026-11-20: uji 1.0.1 terhadap server uji lulus. Kartu izin memakai
    tombol "Allow" dan "Deny".
-3. Upgrade server uji ke desktop 0.1.182 sesudah versi itu rilis.
-4. Sesudah desktop 0.1.182 rilis, merge PR #11. Bangun `.aab` 1.0.2
-   (versionCode 10002) dari `main` dan cek tanda tangan, versi, dan hash.
-   Build ini juga membawa karakter Seira 3D di layar sambutan dan Settings
-   (PR #22).
-5. Uji 1.0.2 di emulator terhadap server uji 0.1.182, termasuk kartu izin.
-6. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
+3. Bangun `.aab` 1.0.2 (versionCode 10002) dari `main` dan cek tanda
+   tangan, versi, dan hash. Build ini membawa karakter Seira 3D (PR #22) dan
+   fitur Wi-Fi opsional (PR #19).
+4. Uji 1.0.2 di emulator terhadap server uji 0.1.180, termasuk kartu izin.
+5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
    nama "1.0.2", isi "Catatan rilis update 1.0.2". Ganti langkah 3 App access
    ke "Tap Allow.". Lalu kirim untuk review.
+6. Sesudah desktop 0.1.182 rilis dan Google menyetujui 1.0.2: upgrade server
+   uji ke 0.1.182, merge PR #11, bangun 10003, uji, lalu kirim 1.0.3 dengan
+   "Catatan rilis update 1.0.3".
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
