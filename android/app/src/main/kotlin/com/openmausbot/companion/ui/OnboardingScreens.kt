@@ -32,10 +32,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.character.SeiraCharacter
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.ui.theme.InkPillButton
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
-import com.openmausbot.companion.ui.theme.SeiraMark
 import com.openmausbot.companion.ui.theme.SeiraType
 
 /**
@@ -297,15 +298,15 @@ private fun OnboardingSecondary(text: String, onClick: () -> Unit, enabled: Bool
     }
 }
 
-/** The Seira mark, or one glyph, on a tinted disc. */
+/** The Seira character, or one glyph, on a tinted disc. */
 @Composable
 private fun OnboardingHero(icon: ImageVector?) {
     Box(
-        modifier = Modifier.size(104.dp).background(Seira.colors.tint, CircleShape),
+        modifier = Modifier.size(120.dp).background(Seira.colors.tint, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         if (icon == null) {
-            SeiraMark(size = 52.dp)
+            SeiraCharacter(look = SeiraLook.SEIRA, size = 108.dp, animated = false)
         } else {
             Icon(
                 imageVector = icon,

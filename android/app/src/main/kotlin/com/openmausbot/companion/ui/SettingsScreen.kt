@@ -64,15 +64,16 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
+import com.openmausbot.companion.character.SeiraCharacter
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Profile
+import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraCard
-import com.openmausbot.companion.ui.theme.SeiraMark
 import com.openmausbot.companion.ui.theme.SeiraMotion
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraTween
@@ -570,7 +571,7 @@ internal fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            SeiraMark(28.dp, color = colors.ink3)
+            SeiraCharacter(look = SeiraLook.SEIRA, size = 36.dp, animated = false)
             Text(
                 if (version.isBlank()) stringResource(R.string.mobile_openmausbot_befe710d) else stringResource(R.string.settings_version_footer, version),
                 style = SeiraType.callout,
