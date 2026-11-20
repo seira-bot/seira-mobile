@@ -1,16 +1,21 @@
 # Jawaban deklarasi Play Console
 
 Status: jawaban tersimpan di Play Console pada 2026-11-19. Diperbarui
-2026-11-20 untuk rilis 1.0.1. Belum ada yang dikirim untuk review.
+2026-11-20 untuk rilis 1.0.2. Belum ada yang dikirim untuk review.
 
 Pemilik rilis memberi izin di chat untuk mengisi dan menyimpan form ini.
 "Send app for review" tetap butuh izin pemilik rilis.
 
 Dasar jawaban:
 
-- Build rilis: versionCode `10001`, versionName `1.0.1`. Bundle `10000`
-  (`19feb05`) sudah diunggah ke draft pada 2026-11-19, jadi Play tidak
-  menerima versionCode itu lagi.
+- Build rilis: versionCode `10002`, versionName `1.0.2`. Library Play sudah
+  memuat dua bundle yang tidak dirilis. Bundle `10000` (`19feb05`) diunggah
+  pada 2026-11-19. Bundle `10001` adalah build uji dari branch wire id, masih
+  dengan mode always-on, dan diunggah pada 2026-11-20. Play tidak menerima
+  kedua versionCode itu lagi.
+- Penandatanganan: Play App Signing aktif dengan kunci dari Google. Upload key
+  yang terdaftar memakai sertifikat SHA-256 `FD:4C:55:…:5F:33:C1:FD`. Play
+  menerima bundle 10000 dan 10001 dengan kunci itu (cek 2026-11-20).
 - Build rilis tidak membawa mode panggilan. `src/release/AndroidManifest.xml`
   membuang `LiveCallService`, `TalkTileService`, dan
   `FOREGROUND_SERVICE_MICROPHONE`.
@@ -109,7 +114,7 @@ tidak menyimpan data pribadi.
 | `POST_NOTIFICATIONS` | Tidak ada form | Memberi tahu saat bot butuh jawaban |
 | `NEARBY_WIFI_DEVICES` (`neverForLocation`), `ACCESS_LOCAL_NETWORK` | Tidak ada form | Menemukan komputer di Wi-Fi yang sama |
 
-Build rilis 1.0.1 tidak punya foreground service. Form "Foreground service
+Build rilis tidak punya foreground service. Form "Foreground service
 permissions" dan videonya tidak perlu. `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`
 dan `RECEIVE_BOOT_COMPLETED` juga tidak ada di build rilis. Build debug tetap
 punya mode always-on.
@@ -117,7 +122,8 @@ punya mode always-on.
 ## Catatan rilis
 
 Teks ada di `listing/en-US.md` dan `listing/id-ID.md`, bagian "Release notes".
-Format Console:
+Draft di Console masih memuat teks lama dari 2026-11-19. Ganti dengan teks di
+bawah saat bundle diganti. Format Console:
 
 ```text
 <en-US>
@@ -128,10 +134,18 @@ Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, la
 </id>
 ```
 
+## Negara dan rollout
+
+- Negara: 178 negara dan wilayah, termasuk "rest of world". Tersimpan di
+  draft Production.
+- Rollout: rilis Production pertama berjalan 100%. Play memberi staged
+  rollout hanya untuk update.
+
 ## Langkah yang tersisa sebelum Send for review
 
-1. Bangun `.aab` 1.0.1 (versionCode 10001) dari `main` setelah wire id Seira
+1. Bangun `.aab` 1.0.2 (versionCode 10002) dari `main` setelah wire id Seira
    masuk. Ganti bundle 10000 di draft rilis Production dengan bundle ini.
+   Hapus juga unggahan `seira-1.0.1.aab` yang gagal dari draft.
 2. Simpan halaman review rilis. Rilis muncul di Publishing overview setelah
    langkah ini.
 3. Ganti placeholder di App access dengan alamat server uji.
