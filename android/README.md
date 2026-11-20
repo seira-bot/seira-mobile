@@ -19,7 +19,7 @@ cd android
 ./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug
 ```
 
-CI also builds the preview APK described below (`.github/workflows/ci.yml`).
+CI runs the same three tasks (`.github/workflows/android.yml`).
 Gradle caches aggressively — a suspiciously fast `BUILD SUCCESSFUL` usually means nothing ran.
 Prefix `cleanTest` when a test count matters:
 
@@ -44,12 +44,9 @@ Open Preview and pair using its QR scanner or manual address form. Preview does
 not register the release's `openmausbot://` and `seira://` pairing links or system share targets.
 Its file-sharing provider uses the preview application ID too.
 
-Pull-request CI runs the core and debug UI unit tests, builds both APK variants,
-and uploads `android-threads-preview-<tested-commit>-<attempt>` for 14 days. Download
-and extract that run's artifact to get the same installable preview APK. Debug
-keys can differ between local builds and CI runners; Android requires the same
-key to update an existing preview installation. A fresh installation after
-removing a differently signed preview loses only that preview's local data.
+Debug keys can differ between machines. Android requires the same key to
+update an existing preview installation. A fresh installation after removing a
+differently signed preview loses only that preview's local data.
 
 Verify conversation changes against an isolated fixture as described in
 [`docs/verification/README.md`](../docs/verification/README.md), using a disposable
