@@ -63,6 +63,12 @@ Do not advertise Android call mode or on-device voice key setup. This
 preparation work does not establish them (#739, #1531). Composer dictation is a
 separate feature. The old screenshots, including the call screen, are removed.
 
+The release build leaves out live calls and the always-on background
+connection (`LIVE_CALLS` and `ALWAYS_ON` are false, and
+`src/release/AndroidManifest.xml` removes their services and permissions). The
+release has no foreground service, so the Console foreground service form does
+not apply. Do not advertise notifications while the app is closed.
+
 ### Screenshots
 
 Each screenshot is a real render of the app with synthetic data, in a frame
@@ -124,8 +130,9 @@ Account for each supported connection, provider, and hosting configuration:
   that processing alongside messages, attachments, credentials, identifiers,
   optional hosted sign-in, and any other enabled data flows.
 - Review the release's merged manifest and dependencies against the source
-  [manifest](../app/src/main/AndroidManifest.xml). Explain the actual permission
-  use, including QR pairing, dictation, notifications, and background connection.
+  [manifest](../app/src/main/AndroidManifest.xml) and the
+  [release manifest](../app/src/release/AndroidManifest.xml). Explain the actual
+  permission use, including QR pairing, dictation, and notifications.
 
 Manually confirm the privacy policy URL, disclosures, retention and deletion
 processes, support contacts, and any signup/account requirements. A URL alone

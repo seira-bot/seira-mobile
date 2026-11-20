@@ -104,30 +104,37 @@ tidak menyimpan data pribadi.
 
 | Izin atau komponen | Form di Console | Status |
 |---|---|---|
-| `FOREGROUND_SERVICE_CONNECTED_DEVICE` (`AlwaysOnConnectionService`) | Foreground service permissions: tugas, deskripsi, dan link video | **Terbuka.** Console meminta link video untuk setiap pilihan tugas. |
-| `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS` | Tidak ada form. Reviewer menilai terhadap kebijakan izin terbatas. | Risiko penolakan. Izin ini hanya untuk mode always-on yang pengguna nyalakan sendiri. |
 | `CAMERA` | Tidak ada form | Memindai kode QR pairing dan memotret lampiran |
 | `RECORD_AUDIO` | Tidak ada form | Dikte |
 | `POST_NOTIFICATIONS` | Tidak ada form | Memberi tahu saat bot butuh jawaban |
 | `NEARBY_WIFI_DEVICES` (`neverForLocation`), `ACCESS_LOCAL_NETWORK` | Tidak ada form | Menemukan komputer di Wi-Fi yang sama |
-| `RECEIVE_BOOT_COMPLETED` | Tidak ada form | Menyalakan lagi koneksi always-on setelah ponsel restart, hanya kalau setting itu aktif |
 
-Usulan untuk form foreground service `connectedDevice`:
+Build rilis 1.0.1 tidak punya foreground service. Form "Foreground service
+permissions" dan videonya tidak perlu. `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`
+dan `RECEIVE_BOOT_COMPLETED` juga tidak ada di build rilis. Build debug tetap
+punya mode always-on.
 
-- Tugas: "Continuous data transfer to an external device". Kalau tidak cocok,
-  pilih "Other" dan pakai deskripsi di bawah.
-- Deskripsi: "Keeps the connection to the user's paired computer open while the
-  user turns on the always-on setting, so the phone shows a bot's question when
-  it arrives."
-- Video: nyalakan setting always-on, tunjukkan notifikasi yang tetap tampil,
-  lalu tunjukkan pertanyaan bot yang masuk saat app di latar belakang.
+## Catatan rilis
+
+Teks ada di `listing/en-US.md` dan `listing/id-ID.md`, bagian "Release notes".
+Format Console:
+
+```text
+<en-US>
+First release of Seira for Android. Pair your phone with Seira on your computer, then read and answer your bots from your phone.
+</en-US>
+<id>
+Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, lalu baca dan jawab bot Anda dari ponsel.
+</id>
+```
 
 ## Langkah yang tersisa sebelum Send for review
 
-1. Rekam video foreground service, unggah, lalu simpan form `connectedDevice`.
-2. Buka halaman review rilis Production "1.0.0", lalu pilih Save. Rilis baru
-   muncul di Publishing overview setelah langkah ini.
-3. Siapkan server uji dan halaman pairing. Ganti placeholder di App access.
+1. Bangun `.aab` 1.0.1 (versionCode 10001) dari `main` setelah wire id Seira
+   masuk. Ganti bundle 10000 di draft rilis Production dengan bundle ini.
+2. Simpan halaman review rilis. Rilis muncul di Publishing overview setelah
+   langkah ini.
+3. Ganti placeholder di App access dengan alamat server uji.
 4. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 5. Pemilik rilis meninjau Publishing overview dan memilih "Send app for review".
 
