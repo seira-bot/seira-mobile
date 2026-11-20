@@ -99,6 +99,8 @@ commit and artifact being submitted; unchecked items remain release work.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
   2026-11-20. Google approved 1.0.2 (10002) on 2026-11-20: available on Google
   Play, 178 countries, 100% rollout. Monitor release health.
-  Release "1.0.3" (10003) was sent for review on 2026-11-21: 178 countries, 100% rollout.
+  Google approved 1.0.3 (10003) on 2026-11-21: available on Google Play, 178
+  countries, 100% rollout.
   Console warning on 1.0.2: DEX code optimization is below the threshold
   (Obfuscation 0%). Fix by February 2027: turn on R8 with tested keep rules.
+  PR #33 turned on R8 on `main` (`92d1a82`) on 2026-11-21. 1.0.3 does not have it.

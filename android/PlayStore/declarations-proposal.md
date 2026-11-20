@@ -6,8 +6,8 @@ Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
 Google menyetujui 1.0.2. Rilis "1.0.2" tayang di Play pada 2026-11-20: 178
 negara, rollout 100%.
 Update 1.0.3 (versionCode 10003) membawa PR #11 (wire id lama dan wire id
-Seira) dan PR #27 (pairing mencoba semua alamat). Rilis "1.0.3" dikirim untuk
-review pada 2026-11-21.
+Seira) dan PR #27 (pairing mencoba semua alamat). Google menyetujui 1.0.3.
+Rilis "1.0.3" tayang di Play pada 2026-11-21: 178 negara, rollout 100%.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -225,13 +225,18 @@ Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
    terhadap fixture desktop 0.1.182. Pairing kode dan chat lulus terhadap
    fixture 0.1.181. Server uji naik ke 0.1.182. Rilis Production "1.0.3"
    dibuat dengan "Catatan rilis update 1.0.3", 178 negara, rollout 100%.
-   Rilis dikirim untuk review. Pemilik rilis memberi izin di chat pada
+   Rilis dikirim untuk review pada 2026-11-21 00:53 WIB. Google menyetujui
+   1.0.3. Console: "Available on Google Play", "Released on Nov 21 1:16 AM".
+   Pemilik rilis memberi izin di chat pada
    2026-11-20: "lanjut sampai rilis 1.0.3".
 7. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 8. Console (2026-11-20, dashboard rilis 1.0.2): "DEX code optimization is
    below our threshold". Kategori Obfuscation 0%. Batas perbaikan: Februari
    2027. Penyebab: build rilis memakai `isMinifyEnabled = false`. Perbaikan:
    nyalakan R8 dengan keep rule yang sudah diuji pada pairing dan sesi nyata.
+   PR #33 merge ke `main` (`92d1a82`) pada 2026-11-21: R8 aktif. 1.0.3 tidak
+   memuat R8, jadi peringatan ini hilang paling cepat di rilis berikutnya.
+   Unggah file mapping bersama bundle rilis itu.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
 debug symbols belum diunggah.
