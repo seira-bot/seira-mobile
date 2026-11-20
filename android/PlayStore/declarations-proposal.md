@@ -1,20 +1,28 @@
 # Jawaban deklarasi Play Console
 
-Status: jawaban tersimpan di Play Console pada 2026-11-19. Diperbarui
-2026-11-20 untuk rilis 1.0.2. Belum ada yang dikirim untuk review.
+Status: jawaban tersimpan di Play Console pada 2026-11-19. Rilis Production
+"1.0.1" (versionCode 10001) dikirim untuk review Google pada 2026-11-20.
+Update 1.0.2 (versionCode 10002) menyusul sesudah desktop 0.1.182 rilis.
 
-Pemilik rilis memberi izin di chat untuk mengisi dan menyimpan form ini.
-"Send app for review" tetap butuh izin pemilik rilis.
+Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
+rilis untuk review.
 
 Dasar jawaban:
 
-- Build rilis: versionCode `10002`, versionName `1.0.2`. Library Play sudah
-  memuat dua bundle. Bundle `10000` (`19feb05`) diunggah pada 2026-11-19.
-  Bundle `10001` (1.0.1) dibangun dari `main` dengan PR #16 pada 2026-11-20.
-  Bundle itu tanpa mode always-on, tetapi memakai wire id lama. Draft rilis
-  Production "1.0.1" memuat bundle `10001` sejak 2026-11-20. Desktop 0.1.182
-  memakai wire id baru, jadi rilis final memakai PR #11 dan versionCode
-  `10002`. Play tidak menerima versionCode `10000` dan `10001` lagi.
+- Rilis pertama: versionCode `10001`, versionName `1.0.1`, sha256 bundle
+  `f334454dd3beeeab0261b67c786ebdd9b8874de5ab44a7ba6ba36f6457e50c47`.
+  Bundle ini dibangun dari `main` dengan PR #16 pada 2026-11-20. Bundle ini
+  tanpa mode always-on dan memakai wire id lama (`openmausbot://pair`). Bundle
+  ini hanya bisa pairing dengan desktop 0.1.181 atau lebih lama. Pemilik rilis
+  memilih mengirim 1.0.1 lebih dulu (2026-11-20).
+- Update: versionCode `10002`, versionName `1.0.2`, dari `main` sesudah PR #11
+  merge. Update ini memakai wire id desktop 0.1.182 dan membawa PR #19.
+  Bundle `10000` (`19feb05`) juga ada di library Play. Play tidak menerima
+  versionCode `10000` dan `10001` lagi.
+- Bundle `10001` mewajibkan fitur `android.hardware.wifi`. Publishing overview
+  menandai ini: Play tidak menampilkan app untuk perangkat tanpa Wi-Fi.
+  Pemilik rilis memilih tetap mengirim. PR #19 membuat fitur ini opsional
+  mulai 1.0.2.
 - Penandatanganan: Play App Signing aktif dengan kunci dari Google. Upload key
   yang terdaftar memakai sertifikat SHA-256 `FD:4C:55:…:5F:33:C1:FD`. Play
   menerima bundle 10000 dan 10001 dengan kunci itu (cek 2026-11-20).
@@ -92,20 +100,27 @@ Jumlah tipe per kategori dicek di Console pada 2026-11-19 (langkah 3, "Data type
 
 ## App access
 
-Jawaban: **All or some functionality is restricted**.
-Instruksi untuk reviewer yang tersimpan di Console:
+Jawaban: **All or some functionality is restricted**. Entri "Reviewer test
+server" tersimpan di Console pada 2026-11-20:
+
+- Username: alamat halaman pairing di server uji.
+- Password: passphrase halaman pairing. Pemilik rilis menempelnya sendiri.
+- Kotak "full access" dicentang.
+- Instruksi: 487 karakter (batas Console 500).
 
 ```text
-Seira pairs with a computer or server that runs Seira. We keep a test server online for review.
-1. Open [PAIRING PAGE URL] in a browser. It shows a new QR code and 6-digit code each time it loads.
-2. In the app, scan the QR code. Or tap "Enter a code instead", type the address [SERVER ADDRESS], then the 6-digit code.
-3. Confirm the pairing.
-4. Open a bot chat and send a message. Answer a bot question on the Home screen.
+Seira connects to a Seira server. A review server is ready.
+1. Open the page in the Username field in a browser. Enter the Password as the passphrase. It shows a QR code and a code like ABCD-EFGH-JKLM.
+2. In the app tap Scan QR Code. Or tap Enter a code instead, enter [SERVER ADDRESS], tap Continue, enter the code, tap Connect.
+3. Open Demo Assistant. Send: Create a file named note.txt with the text hello. Tap Allow once.
+Each code works once. Tap Get a new code for another.
 ```
 
-Ganti `[PAIRING PAGE URL]` dan `[SERVER ADDRESS]` setelah server uji siap.
-Server uji harus tetap menyala selama review, punya minimal satu bot, dan
-tidak menyimpan data pribadi.
+Alamat server dan passphrase ada hanya di Console. Jangan tulis keduanya di
+repo. Server uji harus tetap menyala selama review, punya bot "Demo
+Assistant", dan tidak menyimpan data pribadi. Server uji memakai wire id lama
+sampai Google menyetujui 1.0.1. Upgrade server ke 0.1.182 sesudah itu, dan
+sebelum review 1.0.2.
 
 ## Izin dan deklarasi terkait
 
@@ -124,8 +139,8 @@ punya mode always-on.
 ## Catatan rilis
 
 Teks ada di `listing/en-US.md` dan `listing/id-ID.md`, bagian "Release notes".
-Draft di Console masih memuat teks lama dari 2026-11-19. Ganti dengan teks di
-bawah saat bundle diganti. Format Console:
+Teks di bawah tersimpan di Console pada 2026-11-20 dan terkirim dengan rilis
+1.0.1. Format Console:
 
 ```text
 <en-US>
@@ -138,20 +153,24 @@ Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, la
 
 ## Negara dan rollout
 
-- Negara: 178 negara dan wilayah, termasuk "rest of world". Tersimpan di
-  draft Production.
+- Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan
+  rilis 1.0.1.
 - Rollout: rilis Production pertama berjalan 100%. Play memberi staged
   rollout hanya untuk update.
+- Managed publishing mati. Rilis tayang sendiri saat Google menyetujuinya.
 
-## Langkah yang tersisa sebelum Send for review
+## Langkah sesudah pengiriman 1.0.1
 
-1. Bangun `.aab` 1.0.2 (versionCode 10002) dari `main` setelah wire id Seira
-   masuk. Ganti bundle 10001 di draft rilis Production dengan bundle ini.
-2. Simpan halaman review rilis. Rilis muncul di Publishing overview setelah
-   langkah ini.
-3. Ganti placeholder di App access dengan alamat server uji.
-4. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
-5. Pemilik rilis meninjau Publishing overview dan memilih "Send app for review".
+1. Pantau keputusan Google untuk 1.0.1. Google menyebut kebanyakan review
+   selesai dalam 7 hari.
+2. Sesudah Google menyetujui 1.0.1, upgrade server uji ke desktop 0.1.182.
+3. Sesudah desktop 0.1.182 rilis, merge PR #11. Bangun `.aab` 1.0.2
+   (versionCode 10002) dari `main` dan cek tanda tangan, versi, dan hash.
+4. Uji 1.0.2 di emulator dengan fixture terpisah, termasuk kartu izin
+   "Allow once".
+5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
+   nama "1.0.2", isi catatan rilis update, lalu kirim untuk review.
+6. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
 debug symbols belum diunggah.
