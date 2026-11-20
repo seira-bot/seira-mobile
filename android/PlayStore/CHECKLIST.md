@@ -52,14 +52,16 @@ commit and artifact being submitted; unchecked items remain release work.
 
 ## Declarations and submission
 
-- [ ] Review current Console requirements for the account and release track.
+- [x] Review current Console requirements for the account and release track.
   The account is an Organization account, so the 12-tester, 14-day closed test
   rule does not apply (checked 2026-11-19). The account owner must declare
   trader status before February 2027.
+  Done 2026-11-20: the app dashboard asks only for the release review and the send step.
 - [ ] Compare the saved answers in `declarations-proposal.md` with the release
   build. Complete its "Langkah yang tersisa" list.
-- [ ] Complete content, age-rating, target-audience, ads, permission, and other
+- [x] Complete content, age-rating, target-audience, ads, permission, and other
   applicable forms from the shipped behavior; this checklist supplies no answers.
+  Done: saved on 2026-11-19. The release build has no foreground service, so no permission form applies.
 - [ ] Review data flows across local connections, hosted access, model providers,
   speech recognition, attachments, identifiers, and enabled services before
   answering collection, sharing, retention, or deletion questions.
