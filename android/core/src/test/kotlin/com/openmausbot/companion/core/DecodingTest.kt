@@ -498,6 +498,36 @@ class DecodingTest {
     }
 
     @Test
+    fun decodesTheRequestIdOfANotifyFrame() {
+        val stream = CompanionJson.decodeFromString<StreamFrame>(
+            """{"kind":"notify","seq":13,"notification":{"kind":"approval","botId":"b1","botName":"Scout","threadId":"t1","title":"Scout needs approval","body":"git push","requestId":"req-7"}}""",
+        )
+        assertEquals("req-7", (stream.frame as Frame.Notify).notification.requestId)
+        val again = CompanionJson.decodeFromString<StreamFrame>(
+            CompanionJson.encodeToString(StreamFrame.serializer(), stream),
+        )
+        assertEquals(stream, again)
+    }
+
+    @Test
+    fun decodesANotifyFrameWithoutARequestId() {
+        val stream = CompanionJson.decodeFromString<StreamFrame>(
+            """{"kind":"notify","seq":12,"notification":{"kind":"done","botId":"b1","botName":"Scout","threadId":"t1","title":"Scout finished","body":"pushed"}}""",
+        )
+        assertNull((stream.frame as Frame.Notify).notification.requestId)
+        assertFalse("requestId" in CompanionJson.encodeToString(StreamFrame.serializer(), stream))
+    }
+
+    @Test
+    fun decodesTheRequestIdOfAFeedEntry() {
+        val entry = CompanionJson.decodeFromString<NotificationFrame>(
+            """{"id":"n1","at":1,"read":false,"kind":"secret","botId":"b1","botName":"Scout","threadId":"t1","title":"Scout needs a key","body":"GitHub token","requestId":"msg-4"}""",
+        )
+        assertEquals("msg-4", entry.requestId)
+        assertEquals("t1", entry.threadId)
+    }
+
+    @Test
     fun unknownMessageKindDecodesAndKeepsItsText() {
         val message = CompanionJson.decodeFromString<Message>(
             """{"id":"m1","role":"bot","kind":"webhook","at":1,"text":"Stripe fired"}""",
