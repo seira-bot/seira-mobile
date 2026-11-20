@@ -531,6 +531,13 @@ internal fun SettingsScreen(
                 onClick = { openLink(context, SettingsPolicy.HELP_REPORT_URL) },
                 trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
             )
+            SettingsHairline(60.dp)
+            DesignRow(
+                title = stringResource(R.string.mobile_settings_privacy_policy),
+                icon = SeiraIcons.Shield,
+                onClick = { openLink(context, SettingsPolicy.PRIVACY_POLICY_URL) },
+                trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+            )
         }
 
         if (bound != null) {
