@@ -6,7 +6,9 @@ import androidx.activity.ComponentActivity
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.assertIsOn
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.onAllNodes
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertCountEquals
@@ -53,15 +55,20 @@ class SettingsVoiceHelpTest {
         return scene
     }
 
-    private fun hasIcon(name: String) =
-        compose.onAllNodesWithTag("icon3d.$name", useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty()
+    private fun assertNoIcon3d() =
+        compose.onAllNodes(
+            SemanticsMatcher("has an icon3d tag") { node ->
+                node.config.getOrNull(SemanticsProperties.TestTag)?.startsWith("icon3d.") == true
+            },
+            useUnmergedTree = true,
+        ).assertCountEquals(0)
 
     @Test
     fun `a paired phone shows voice and calls with a voice row`() {
         mount(mac)
         compose.onNodeWithText("Voice and calls").performScrollTo()
         compose.onNodeWithText("Voice").performScrollTo()
-        assertTrue(hasIcon("voice"))
+        assertNoIcon3d()
     }
 
     @Test
@@ -93,8 +100,7 @@ class SettingsVoiceHelpTest {
         compose.onAllNodesWithText("Voice and calls").assertCountEquals(0)
         compose.onAllNodesWithText("Live captions").assertCountEquals(0)
         compose.onNodeWithText("Help").performScrollTo()
-        assertTrue(hasIcon("help"))
-        assertTrue(!hasIcon("voice"))
+        assertNoIcon3d()
     }
 
     private fun assertOpens(label: String, url: String) {
