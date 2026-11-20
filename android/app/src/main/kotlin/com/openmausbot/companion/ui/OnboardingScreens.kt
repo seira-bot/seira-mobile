@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
@@ -302,11 +303,11 @@ private fun OnboardingSecondary(text: String, onClick: () -> Unit, enabled: Bool
 @Composable
 private fun OnboardingHero(icon: ImageVector?) {
     Box(
-        modifier = Modifier.size(120.dp).background(Seira.colors.tint, CircleShape),
+        modifier = Modifier.size(120.dp).clip(CircleShape).background(Seira.colors.tint, CircleShape),
         contentAlignment = Alignment.Center,
     ) {
         if (icon == null) {
-            SeiraCharacter(look = SeiraLook.SEIRA, size = 108.dp, animated = false)
+            SeiraCharacter(look = SeiraLook.of(hair = "seira", color = "chrome"), size = 150.dp, animated = false, modifier = Modifier.wrapContentSize(Alignment.Center, unbounded = true))
         } else {
             Icon(
                 imageVector = icon,

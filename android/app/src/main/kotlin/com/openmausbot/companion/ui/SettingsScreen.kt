@@ -571,7 +571,7 @@ internal fun SettingsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            SeiraCharacter(look = SeiraLook.SEIRA, size = 36.dp, animated = false)
+            SeiraCharacter(look = SeiraLook.of(hair = "seira", color = "chrome"), size = 44.dp, animated = false)
             Text(
                 if (version.isBlank()) stringResource(R.string.mobile_openmausbot_befe710d) else stringResource(R.string.settings_version_footer, version),
                 style = SeiraType.callout,
