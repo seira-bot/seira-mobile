@@ -189,7 +189,7 @@ class PairingLinkTest {
     @Test
     fun `only the pairing scheme and host are an invite`() {
         assertTrue(PairingLink.isInvite("seira", "pair"))
-        assertTrue(PairingLink.isInvite("OpenMausBot", "PAIR"))
+        assertTrue(PairingLink.isInvite("Seira", "PAIR"))
         assertFalse(PairingLink.isInvite("https", "pair"))
         assertFalse(PairingLink.isInvite("seira", "join"))
         assertFalse(PairingLink.isInvite(null, null))
