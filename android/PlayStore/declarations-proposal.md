@@ -151,6 +151,19 @@ Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, la
 </id>
 ```
 
+### Catatan rilis update 1.0.2
+
+Isi teks ini saat rilis 1.0.2 dibuat di Console:
+
+```text
+<en-US>
+This update works with Seira 0.1.182 or later on your computer. Update Seira on your computer too. If your phone does not connect, pair it again. The app now also installs on devices without Wi-Fi.
+</en-US>
+<id>
+Update ini bekerja dengan Seira 0.1.182 atau lebih baru di komputer. Perbarui juga Seira di komputer Anda. Kalau ponsel tidak tersambung, pasangkan lagi. App kini juga bisa dipasang di perangkat tanpa Wi-Fi.
+</id>
+```
+
 ## Negara dan rollout
 
 - Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan
@@ -169,7 +182,7 @@ Rilis pertama Seira untuk Android. Pasangkan ponsel dengan Seira di komputer, la
 4. Uji 1.0.2 di emulator dengan fixture terpisah, termasuk kartu izin
    "Allow once".
 5. Di Console, pilih "Create new release" di Production. Unggah 10002, beri
-   nama "1.0.2", isi catatan rilis update, lalu kirim untuk review.
+   nama "1.0.2", isi "Catatan rilis update 1.0.2", lalu kirim untuk review.
 6. Pemilik akun mendeklarasikan status trader sebelum Februari 2027.
 
 Peringatan opsional di halaman rilis: file deobfuscation (mapping) dan native
