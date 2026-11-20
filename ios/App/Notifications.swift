@@ -35,9 +35,9 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
 
     /// Security invariant: an alert answers a card only when the alert names
     /// that exact request. Approve and Deny exist only on the answerable
-    /// category, which `post` picks for an `approval` that carries a request
-    /// id. Every other alert offers Review, which opens the chat. Both answers
-    /// need an unlocked device.
+    /// category, which `post` picks when `Session` proved the match. Every
+    /// other alert offers Review, which opens the chat. Both answers need an
+    /// unlocked device, and the match is checked again when one is tapped.
     private static var categories: Set<UNNotificationCategory> {
         let review = UNNotificationAction(
             identifier: reviewActionIdentifier,
@@ -86,15 +86,16 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         (try? await center.requestAuthorization(options: [.alert, .badge, .sound])) == true
     }
 
-    /// `connectionId` is the computer the frame arrived from. An answer from
-    /// the alert goes back to that computer and no other.
-    func deliver(_ notification: NotificationFrame, sequence: Int?, connectionId: String?) {
+    /// `answerTarget` is set only when the app has proved that the alert names
+    /// a pending card it may answer. It carries the computer the frame
+    /// arrived from, so an answer goes back to that computer and no other.
+    func deliver(_ notification: NotificationFrame, sequence: Int?, answerTarget: AlertAnswerTarget?) {
         guard isEnabled(for: notification) else { return }
         Task { [weak self] in
             guard let self else { return }
             let provider = await self.avatarProvider
             let avatar = await provider?(notification.botId)
-            self.post(notification, sequence: sequence, avatar: avatar, connectionId: connectionId)
+            self.post(notification, sequence: sequence, avatar: avatar, answerTarget: answerTarget)
         }
     }
 
@@ -103,12 +104,11 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
         return UserDefaults.standard.object(forKey: key) as? Bool ?? true
     }
 
-    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?, connectionId: String?) {
+    private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?, answerTarget: AlertAnswerTarget?) {
         let content = UNMutableNotificationContent()
         content.title = notification.title
         content.body = notification.body
         content.sound = .default
-        let answerTarget = AlertAnswerTarget(notification: notification, connectionId: connectionId)
         content.categoryIdentifier = answerTarget != nil
             ? Self.answerableApprovalCategory
             : notification.isBlocking ? Self.approvalCategory : Self.updateCategory

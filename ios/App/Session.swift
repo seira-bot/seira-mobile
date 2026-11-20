@@ -1124,11 +1124,13 @@ final class Session: ObservableObject {
                 activityUpdates.send(event.threadId)
             }
             if case let .notify(notification) = frame.frame {
-                NotificationCoordinator.shared.deliver(
-                    notification,
-                    sequence: frame.seq,
-                    connectionId: client?.connection.id
-                )
+                let connectionId = client?.connection.id
+                var answerTarget: AlertAnswerTarget?
+                if let target = AlertAnswerTarget(notification: notification, connectionId: connectionId),
+                   state.alertAnswerDecision(for: target, activeConnectionId: connectionId) == .answer {
+                    answerTarget = target
+                }
+                NotificationCoordinator.shared.deliver(notification, sequence: frame.seq, answerTarget: answerTarget)
             }
         }
         NotificationCoordinator.shared.setBadge(state.unreadCount)
