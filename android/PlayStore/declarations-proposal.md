@@ -178,11 +178,11 @@ Isi teks ini saat rilis 1.0.3 dibuat di Console:
 
 ```text
 <en-US>
-Pairing now tries every address of your computer at once: same Wi-Fi, Tailscale and the internet address. The app moves to an address that works when your network changes. If Tailscale is off on this phone, the app tells you and opens Tailscale.
+Pairing now tries every address you allowed at once: same Wi-Fi, Tailscale and the internet address. The app moves to an address that works when your network changes. If Tailscale is off on this phone, the app tells you and opens Tailscale.
 This version also works with Seira 0.1.182 and later on your computer.
 </en-US>
 <id>
-Pairing sekarang mencoba semua alamat komputer sekaligus: Wi-Fi yang sama, Tailscale, dan alamat internet. Aplikasi pindah ke alamat yang jalan saat jaringan berubah. Kalau Tailscale di HP mati, aplikasi memberi tahu dan membuka Tailscale.
+Pairing sekarang mencoba semua alamat yang kamu izinkan sekaligus: Wi-Fi yang sama, Tailscale, dan alamat internet. Aplikasi pindah ke alamat yang jalan saat jaringan berubah. Kalau Tailscale di HP mati, aplikasi memberi tahu dan membuka Tailscale.
 Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
 </id>
 ```
