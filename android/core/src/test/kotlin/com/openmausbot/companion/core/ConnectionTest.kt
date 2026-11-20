@@ -352,15 +352,15 @@ class ConnectionTest {
     @Test
     fun pairResponseWithAndWithoutHostsDecodes() {
         val older = CompanionJson.decodeFromString<PairResponse>(
-            """{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}""",
+            """{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}""",
         )
         assertNull(older.hosts)
         val newer = CompanionJson.decodeFromString<PairResponse>(
-            """{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}""",
+            """{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}""",
         )
         assertEquals(listOf("a.ts.net", "192.168.1.42"), newer.hosts)
         val typed = CompanionJson.decodeFromString<PairResponse>(
-            """{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}""",
+            """{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}""",
         )
         assertEquals("https://mac.example", typed.endpoints?.first()?.url)
         assertEquals(CompanionEndpointKind.HOSTED, typed.endpoints?.first()?.kind)

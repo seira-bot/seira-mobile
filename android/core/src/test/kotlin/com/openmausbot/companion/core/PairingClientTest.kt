@@ -266,7 +266,7 @@ class PairingClientTest {
             stub.client,
         )
 
-        assertEquals("omb_device", outcome.response.token)
+        assertEquals("seira_device", outcome.response.token)
         assertEquals(listOf(requestId, requestId), stub.pairRequests.map { it.stringBody("pairRequestId") })
     }
 
@@ -406,7 +406,7 @@ class PairingClientTest {
         )
 
         assertEquals("192.168.1.42", outcome.connection.host)
-        assertEquals("omb_device", outcome.response.token)
+        assertEquals("seira_device", outcome.response.token)
         assertTrue(stub.requests.all { it.url.host == "192.168.1.42" })
         assertEquals("004209", stub.pairRequests.single().stringBody("code"))
     }
@@ -421,7 +421,7 @@ class PairingClientTest {
             200,
         )
         val pairedWithHostedFirst = """{
-            "token":"omb_device",
+            "token":"seira_device",
             "device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},
             "serverName":"Mac",
             "endpoints":[
@@ -543,7 +543,7 @@ class PairingClientTest {
         const val CREDENTIAL = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         const val HEALTH = """{"app":"seira","pid":42,"static":true}"""
         const val PAIRED =
-            """{"token":"omb_device","device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"""
+            """{"token":"seira_device","device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"""
     }
 }
 

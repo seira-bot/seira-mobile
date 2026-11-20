@@ -90,7 +90,7 @@ final class DeepLinkTests: XCTestCase {
             URL(string: "seira://pair?address=macbook.local%3A8810"), // no credential
             URL(string: "seira://pair?address=macbook.local%3A8810&token=seira_pair_short"), // a truncated token
             URL(string: "seira://pair?token=seira_pair_" + String(repeating: "a", count: 43)), // no address
-            URL(string: "OPENMAUSBOT://PAIR?code=12"), // any case
+            URL(string: "SEIRA://PAIR?code=12"), // any case
         ].compactMap { $0 }
         XCTAssertEqual(broken.count, 5)
         for url in broken {

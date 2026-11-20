@@ -351,7 +351,7 @@ class DecodingTest {
     @Test
     fun decodesThePairResponse() {
         val paired = decodeFixture<PairResponse>("pair-response")
-        assertTrue(paired.token.startsWith("omb_"))
+        assertTrue(paired.token.startsWith("seira_"))
         assertEquals("Ada's iPhone", paired.device.name)
         assertTrue(paired.serverName.isNotEmpty())
     }
@@ -361,7 +361,7 @@ class DecodingTest {
         val paired = CompanionJson.decodeFromString<PairResponse>(
             """
             {
-              "token":"omb_device",
+              "token":"seira_device",
               "device":{"id":"d1","name":"Ada's Pixel","createdAt":1,"lastSeenAt":1},
               "serverName":"Ada's Mac",
               "hosts":["192.168.1.42"],
@@ -374,7 +374,7 @@ class DecodingTest {
             """.trimIndent(),
         )
 
-        assertEquals("omb_device", paired.token)
+        assertEquals("seira_device", paired.token)
         assertEquals(listOf("192.168.1.42"), paired.hosts)
         assertEquals(
             listOf(CompanionEndpointKind.HOSTED, CompanionEndpointKind.LAN),
@@ -385,10 +385,10 @@ class DecodingTest {
     @Test
     fun nonArrayAdvisoryEndpointsAreExplicitlyDiscardedWithoutLosingTheToken() {
         val paired = CompanionJson.decodeFromString<PairResponse>(
-            """{"token":"omb_device","device":{"id":"d1","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"],"endpoints":{"url":"https://mac.example"}}""",
+            """{"token":"seira_device","device":{"id":"d1","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"],"endpoints":{"url":"https://mac.example"}}""",
         )
 
-        assertEquals("omb_device", paired.token)
+        assertEquals("seira_device", paired.token)
         assertEquals(listOf("192.168.1.42"), paired.hosts)
         assertEquals(emptyList(), paired.endpoints)
     }

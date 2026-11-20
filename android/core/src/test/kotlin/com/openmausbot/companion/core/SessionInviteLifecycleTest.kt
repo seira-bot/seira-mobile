@@ -345,8 +345,8 @@ class SessionInviteLifecycleTest {
             "seira://pair",
             "seira://pair?address=192.168.1.2:8810", // no credential
             "seira://pair?address=192.168.1.2:8810&token=seira_pair_short", // truncated
-            "seira://pair?address=192.168.1.2:8810&token=omb pair", // not even a URI
-            "OPENMAUSBOT://PAIR?code=12",
+            "seira://pair?address=192.168.1.2:8810&token=seira pair", // not even a URI
+            "SEIRA://PAIR?code=12",
         )
         for (url in broken) {
             val session = session()

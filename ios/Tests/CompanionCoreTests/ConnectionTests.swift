@@ -295,13 +295,13 @@ final class ConnectionTests: XCTestCase {
     }
 
     func testAPairResponseWithAndWithoutHostsDecodes() throws {
-        let older = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}"#.utf8)
+        let older = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}"#.utf8)
         XCTAssertNil(try JSONDecoder().decode(PairResponse.self, from: older).hosts)
 
-        let newer = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}"#.utf8)
+        let newer = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}"#.utf8)
         XCTAssertEqual(try JSONDecoder().decode(PairResponse.self, from: newer).hosts, ["a.ts.net", "192.168.1.42"])
 
-        let typed = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}"#.utf8)
+        let typed = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}"#.utf8)
         let response = try JSONDecoder().decode(PairResponse.self, from: typed)
         XCTAssertEqual(response.endpoints?.first?.url, "https://mac.example")
         XCTAssertEqual(response.endpoints?.first?.kind, .hosted)

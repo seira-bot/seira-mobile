@@ -586,7 +586,7 @@ class PortP104IntegratedTest {
 
         const val CONNECTION_ID = "p1-04-connection"
         const val DEVICE_ID = "p1-04-device"
-        const val DEVICE_TOKEN = "omb_device_p1_04_secret"
+        const val DEVICE_TOKEN = "seira_device_p1_04_secret"
         const val QR_CREDENTIAL = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         const val REQUEST_ID = "5a8e9d25-ef9c-40a2-a8b6-e8a3fd723102"
 

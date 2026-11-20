@@ -56,7 +56,7 @@ class ClientTest {
     fun pairingUsesTheRightCredentialFieldAndNoAuthorization() = runBlocking {
         server.enqueue(json(fixtureText("pair-response")))
         val older = CompanionClient.pair(connection, "004209", "Ada's phone")
-        assertTrue(older.token.startsWith("omb_"))
+        assertTrue(older.token.startsWith("seira_"))
         server.takeRequest().let { request ->
             assertEquals("POST", request.method)
             assertEquals("/api/pair", request.path)

@@ -404,7 +404,7 @@ final class PairingTests: XCTestCase {
             session: session
         )
 
-        XCTAssertEqual(outcome.response.token, "omb_device")
+        XCTAssertEqual(outcome.response.token, "seira_device")
         let pairRequests = PairingRequestStub.captured().filter { $0.url?.path == "/api/pair" }
         XCTAssertEqual(pairRequests.count, 2)
         let ids = try pairRequests.map { request in
@@ -500,7 +500,7 @@ final class PairingTests: XCTestCase {
         )
 
         XCTAssertEqual(outcome.connection.host, "192.168.1.42")
-        XCTAssertEqual(outcome.response.token, "omb_device")
+        XCTAssertEqual(outcome.response.token, "seira_device")
         XCTAssertTrue(PairingRequestStub.captured().allSatisfy { $0.url?.host == "192.168.1.42" })
     }
 
@@ -512,7 +512,7 @@ final class PairingTests: XCTestCase {
         "&hosts=172.19.96.1,172.27.208.1,192.168.1.34")!
     private static let health = Data(#"{"app":"seira","pid":42,"static":true}"#.utf8)
     private static let paired = Data(
-        #"{"token":"omb_device","device":{"id":"d","name":"iPhone","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"#.utf8
+        #"{"token":"seira_device","device":{"id":"d","name":"iPhone","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"#.utf8
     )
 }
 
