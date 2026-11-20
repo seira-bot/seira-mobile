@@ -84,6 +84,9 @@ class PairingRouteError(
         ConnectionAdvice.tailscaleAdvice(routeFailures, vpnActive)?.offersTailscale == true
 }
 
+private fun leadIn(computer: String, text: String): String =
+    if (text.startsWith("This phone can't reach")) text else "Couldn't reach $computer. $text"
+
 private fun pairingRouteMessage(
     routes: List<String>,
     failures: Map<String, Throwable>,
@@ -91,16 +94,15 @@ private fun pairingRouteMessage(
     vpnActive: Boolean?,
 ): String {
     val computer = computerName?.trim()?.takeIf { it.isNotEmpty() } ?: "this computer"
-    ConnectionAdvice.tailscaleAdvice(failures, vpnActive)?.let { advice ->
-        val tried = if (routes.isEmpty()) "" else "\nTried: ${routes.joinToString()}"
-        return "Couldn't reach $computer. ${advice.text}$tried"
+    ConnectionAdvice.tailscaleAdvice(failures, vpnActive, computerName)?.let { advice ->
+        return leadIn(computer, advice.text)
     }
     val hosts = routes.map { route -> runCatching { URI(route).host.orEmpty() }.getOrDefault("") }
     val causes = routes.zip(hosts).mapNotNull { (route, host) ->
-        failures[route]?.let { ConnectionAdvice.pairingAdvice(it, host) }
+        failures[route]?.let { ConnectionAdvice.pairingAdvice(it, host, computerName) }
     }.distinct()
     val advice = when {
-        causes.isNotEmpty() -> "Couldn't reach $computer. ${causes.joinToString(" ")}"
+        causes.isNotEmpty() -> leadIn(computer, causes.joinToString(" "))
         routes.any { it.startsWith("https://", ignoreCase = true) } ->
             "Couldn't reach $computer. Make sure the computer is awake with Seira open, then try again."
         hosts.isNotEmpty() && hosts.all { it.lowercase().trimEnd('.').endsWith(".ts.net") } ->
@@ -115,7 +117,7 @@ private fun pairingRouteMessage(
                 "Seira: on a Windows PC, set its network to Private. Or open Settings → " +
                 "Remote access on the computer and sign in so the phone can connect from anywhere."
     }
-    return if (routes.isEmpty()) advice else "$advice\nTried: ${routes.joinToString()}"
+    return advice
 }
 
 /** Keep the same code and request id after an uncertain redemption or rate-limit refusal. */

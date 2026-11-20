@@ -210,8 +210,14 @@ class EveryRouteTest {
         assertTrue(off.offersTailscale)
 
         val on = assertNotNull(ConnectionAdvice.tailscaleAdvice(failures, vpnActive = true))
-        assertTrue("Private DNS" in on.text, on.text)
-        assertTrue(on.text.endsWith("This phone may be signed in to a different tailnet."), on.text)
+        assertEquals(
+            "This phone can't reach “$tailnetName”. Open Tailscale on this phone and sign in with the " +
+                "same account as the computer. If Private DNS shows a provider name, set it to Off or " +
+                "Automatic (Settings → Network & internet).",
+            on.text,
+        )
+        val named = assertNotNull(ConnectionAdvice.tailscaleAdvice(failures, vpnActive = true, computerName = "Mac"))
+        assertTrue(named.text.startsWith("This phone can't reach “Mac”."), named.text)
         assertFalse(on.offersTailscale)
 
         val noTailnet = mapOf<String, Throwable>("https://$tunnelName" to IOException("Failed to connect"))
