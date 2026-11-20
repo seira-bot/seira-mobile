@@ -1,18 +1,24 @@
 # Jawaban deklarasi Play Console
 
-Status: jawaban tersimpan di Play Console pada 2026-11-19.
-Belum ada yang dikirim untuk review.
+Status: jawaban tersimpan di Play Console pada 2026-11-19. Diperbarui
+2026-11-20 untuk rilis 1.0.1. Belum ada yang dikirim untuk review.
 
 Pemilik rilis memberi izin di chat untuk mengisi dan menyimpan form ini.
 "Send app for review" tetap butuh izin pemilik rilis.
 
 Dasar jawaban:
 
-- Build rilis: `main` pada `19feb05` (PR #9, "Android 1.0.0 release
-  candidate"), versionCode `10000`, versionName `1.0.0`.
+- Build rilis: versionCode `10001`, versionName `1.0.1`. Bundle `10000`
+  (`19feb05`) sudah diunggah ke draft pada 2026-11-19, jadi Play tidak
+  menerima versionCode itu lagi.
 - Build rilis tidak membawa mode panggilan. `src/release/AndroidManifest.xml`
   membuang `LiveCallService`, `TalkTileService`, dan
   `FOREGROUND_SERVICE_MICROPHONE`.
+- Build rilis tidak membawa mode "always on". `src/release/AndroidManifest.xml`
+  membuang `AlwaysOnConnectionService`, `AlwaysOnBootReceiver`,
+  `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`,
+  `RECEIVE_BOOT_COMPLETED`, dan `REQUEST_IGNORE_BATTERY_OPTIMIZATIONS`.
+  Build rilis tidak punya foreground service.
 - Aturan Play dibaca pada 2026-11-19: Data safety (`answer/10787469`), AI-Generated
   Content (`answer/14094294`), dan data disclosure ML Kit
   (`developers.google.com/ml-kit/android-data-disclosure`).
@@ -24,7 +30,7 @@ Periksa ulang semua jawaban kalau build rilis, dependensi, atau layanan berubah.
 
 | # | Keputusan | Jawaban |
 |---|-----------|---------|
-| D-1 | Mode panggilan di build rilis | Dibuang dari build rilis (PR #9). Hanya foreground service `connectedDevice` yang tersisa. |
+| D-1 | Mode panggilan di build rilis | Dibuang dari build rilis (PR #9). |
 | D-2 | Server hosted yang menerima data dari app | Tidak ada. App hanya mengirim data ke komputer milik pengguna. |
 | D-3 | URL kebijakan privasi | `https://seira.bot/privacy` |
 | D-4 | Cara meminta penghapusan data | Kebijakan privasi, bagian "Delete your data": lepas pasangan di app, hapus app, dan hapus data di komputer sendiri. |

@@ -323,6 +323,7 @@ class MainActivity : ComponentActivity() {
      * screen, so nothing here needs to await a result.
      */
     private fun toggleAlwaysOn() {
+        if (!BuildConfig.ALWAYS_ON) return
         val enabling = !app.alwaysOn.enabled.value
         if (enabling && notifications.access.value != NotificationAccess.GRANTED) {
             // A background connection whose notifications can't post is a

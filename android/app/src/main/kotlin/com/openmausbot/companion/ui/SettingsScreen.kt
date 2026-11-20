@@ -97,6 +97,7 @@ internal fun SettingsScreen(
     onConnect: (() -> Unit)? = null,
     accounts: AccountInfoSource? = null,
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    alwaysOnAvailable: Boolean = BuildConfig.ALWAYS_ON,
 ) {
     val environment = LocalCompanion.current
     val session = environment.session
@@ -447,15 +448,17 @@ internal fun SettingsScreen(
             }
         }
 
-        SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
-        SeiraCard(modifier = Modifier.fillMaxWidth()) {
-            SwitchRow(
-                title = stringResource(R.string.mobile_settings_always_on),
-                subtitle = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_background_on_description else R.string.mobile_settings_background_off_description),
-                icon = SeiraIcons.Phone,
-                checked = alwaysOnEnabled,
-                onToggle = environment.onToggleAlwaysOn,
-            )
+        if (alwaysOnAvailable) {
+            SettingsGroupTitle(stringResource(R.string.mobile_settings_background_connection))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                SwitchRow(
+                    title = stringResource(R.string.mobile_settings_always_on),
+                    subtitle = stringResource(if (alwaysOnEnabled) R.string.mobile_settings_background_on_description else R.string.mobile_settings_background_off_description),
+                    icon = SeiraIcons.Phone,
+                    checked = alwaysOnEnabled,
+                    onToggle = environment.onToggleAlwaysOn,
+                )
+            }
         }
 
         SettingsGroupTitle(stringResource(R.string.mobile_settings_chat_section))
