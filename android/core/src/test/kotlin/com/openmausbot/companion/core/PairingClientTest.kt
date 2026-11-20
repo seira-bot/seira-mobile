@@ -53,8 +53,7 @@ class PairingClientTest {
         assertEquals(listOf("http://mac.tail1234.ts.net:8810"), error.attemptedRoutes)
         assertEquals(
             "Your phone couldn't reach Mac over Tailscale. Turn on Tailscale on this phone, " +
-                "signed in to the same tailnet as the computer, then try again.\n" +
-                "Tried: http://mac.tail1234.ts.net:8810",
+                "signed in to the same tailnet as the computer, then try again.",
             error.message,
         )
         assertEquals(listOf("mac.tail1234.ts.net"), stub.requests.map { it.url.host })
@@ -109,8 +108,7 @@ class PairingClientTest {
                 "same Wi-Fi as the computer. If it already is, the computer's firewall may be " +
                 "blocking Seira: on a Windows PC, set its network to Private. Or open " +
                 "Settings → Remote access on the computer and sign in so the phone can connect " +
-                "from anywhere.\n" +
-                "Tried: http://172.19.96.1:8810, http://192.168.1.34:8810",
+                "from anywhere.",
             error.message,
         )
     }
@@ -118,13 +116,12 @@ class PairingClientTest {
     @Test
     fun whenAnHttpsRouteWasTriedTooTheErrorSaysWakeTheComputer() {
         assertEquals(
-            "Couldn't reach Mac. Make sure the computer is awake with Seira open, then try again.\n" +
-                "Tried: https://mac.companion.example, http://192.168.1.42:8810",
+            "Couldn't reach Mac. Make sure the computer is awake with Seira open, then try again.",
             PairingRouteError(listOf("https://mac.companion.example", "http://192.168.1.42:8810"), computerName = "Mac").message,
         )
         assertEquals(
             "Couldn't reach this computer. Make sure the computer is awake with Seira open, " +
-                "then try again.\nTried: https://mac.companion.example",
+                "then try again.",
             PairingRouteError(listOf("https://mac.companion.example"), computerName = " ").message,
         )
     }
@@ -266,7 +263,7 @@ class PairingClientTest {
             stub.client,
         )
 
-        assertEquals("omb_device", outcome.response.token)
+        assertEquals("seira_device", outcome.response.token)
         assertEquals(listOf(requestId, requestId), stub.pairRequests.map { it.stringBody("pairRequestId") })
     }
 
@@ -310,10 +307,9 @@ class PairingClientTest {
         )
         // The route's own cause is the next step; the generic Tailscale line would only repeat it.
         assertEquals(
-            "Couldn't reach Mac. “mac.tail1234.ts.net” didn't resolve. Make " +
-                "sure Tailscale is connected on this phone, and set Private DNS (Settings → Network & " +
-                "internet) to Off or Automatic — a named Private DNS provider can't resolve Tailscale names.\n" +
-                "Tried: $route",
+            "This phone can't reach “Mac”. Open Tailscale on this phone and sign in with the same " +
+                "account as the computer. If Private DNS shows a provider name, set it to Off or " +
+                "Automatic (Settings → Network & internet).",
             error.message,
         )
         assertTrue(stub.pairRequests.isEmpty())
@@ -340,6 +336,24 @@ class PairingClientTest {
         assertFalse("Tailscale" in message, "a LAN address has nothing to do with Tailscale")
         assertFalse("same Wi-Fi" in message, "one next step: the permission, not the network")
         assertTrue(stub.pairRequests.isEmpty())
+    }
+
+    @Test
+    fun theHealthProbeAcceptsTheOpenMausBotAndTheSeiraAppIds() = runBlocking {
+        for (app in listOf("openmausbot", "seira")) {
+            val stub = PairingStub { request ->
+                if (request.url.encodedPath == "/api/health") {
+                    StubAction.reply(200, """{"app":"$app","pid":42,"static":true}""")
+                } else {
+                    StubAction.reply(201, PAIRED)
+                }
+            }
+            val connection = Connection(name = "Mac", host = "192.168.1.42", port = 8810)
+
+            CompanionClient.pairFirstReachable(connection, CREDENTIAL, "Pixel", client = stub.client)
+
+            assertEquals(1, stub.pairRequests.size, "app id $app must pair")
+        }
     }
 
     @Test
@@ -406,7 +420,7 @@ class PairingClientTest {
         )
 
         assertEquals("192.168.1.42", outcome.connection.host)
-        assertEquals("omb_device", outcome.response.token)
+        assertEquals("seira_device", outcome.response.token)
         assertTrue(stub.requests.all { it.url.host == "192.168.1.42" })
         assertEquals("004209", stub.pairRequests.single().stringBody("code"))
     }
@@ -421,7 +435,7 @@ class PairingClientTest {
             200,
         )
         val pairedWithHostedFirst = """{
-            "token":"omb_device",
+            "token":"seira_device",
             "device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},
             "serverName":"Mac",
             "endpoints":[
@@ -524,7 +538,7 @@ class PairingClientTest {
         val routes = java.util.Base64.getUrlEncoder().withoutPadding()
             .encodeToString(CompanionJson.encodeToString(endpoints.toList()).toByteArray())
         val first = endpoints.first()
-        return "openmausbot://pair?address=${first.host}%3A${first.port}&token=$CREDENTIAL" +
+        return "seira://pair?address=${first.host}%3A${first.port}&token=$CREDENTIAL" +
             "&name=Miguel%27s+computer&hosts=${endpoints.joinToString(",") { it.host }}&endpoints=$routes"
     }
 
@@ -540,10 +554,10 @@ class PairingClientTest {
     }
 
     private companion object {
-        const val CREDENTIAL = "omb_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-        const val HEALTH = """{"app":"openmausbot","pid":42,"static":true}"""
+        const val CREDENTIAL = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const val HEALTH = """{"app":"seira","pid":42,"static":true}"""
         const val PAIRED =
-            """{"token":"omb_device","device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"""
+            """{"token":"seira_device","device":{"id":"d","name":"Pixel","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["192.168.1.42"]}"""
     }
 }
 

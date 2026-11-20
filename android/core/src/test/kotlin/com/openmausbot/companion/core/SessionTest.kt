@@ -38,6 +38,13 @@ import okhttp3.mockwebserver.MockWebServer
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionTest {
     @Test
+    fun bothDesktopTokenPrefixesAreQrCredentials() {
+        assertTrue(Session.isQrCredential("omb_pair_" + "a".repeat(43)))
+        assertTrue(Session.isQrCredential("seira_pair_" + "a".repeat(43)))
+        assertFalse(Session.isQrCredential("123456"))
+    }
+
+    @Test
     fun restoreWithMissingConnectionStaysUnpaired() = runTest {
         val session = session()
         session.awaitRestored()
@@ -128,14 +135,14 @@ class SessionTest {
 
         session.pair(
             Connection(name = "invite", host = "192.168.1.2", port = 8810),
-            "omb_pair_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM",
+            "seira_pair_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM",
         )
         advanceUntilIdle()
 
-        assertEquals("omb_pair_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM", pairedCredential)
+        assertEquals("seira_pair_abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLM", pairedCredential)
         assertEquals("device-token-abc", tokens.saved[connections.saved!!.id])
         assertEquals("Ada's Mac", connections.saved!!.name)
-        assertTrue(tokens.saved.values.none { it.startsWith("omb_pair_") })
+        assertTrue(tokens.saved.values.none { it.startsWith("seira_pair_") })
     }
 
     @Test
@@ -226,7 +233,7 @@ class SessionTest {
         val routes = java.util.Base64.getUrlEncoder().withoutPadding()
             .encodeToString(CompanionJson.encodeToString(listOf(wsl, wifi)).toByteArray())
         val invite = assertNotNull(PairingInvite.parse(
-            "openmausbot://pair?address=172.19.96.1%3A8810&token=omb_pair_${"a".repeat(43)}" +
+            "seira://pair?address=172.19.96.1%3A8810&token=seira_pair_${"a".repeat(43)}" +
                 "&name=Miguel%27s+computer&hosts=172.19.96.1,192.168.1.34&endpoints=$routes",
         ))
         val session = session(
@@ -272,7 +279,7 @@ class SessionTest {
         val routes = java.util.Base64.getUrlEncoder().withoutPadding()
             .encodeToString(CompanionJson.encodeToString(listOf(tailnet, hosted)).toByteArray())
         val invite = assertNotNull(PairingInvite.parse(
-            "openmausbot://pair?address=mac.tail1234.ts.net%3A8810&token=omb_pair_${"a".repeat(43)}&endpoints=$routes",
+            "seira://pair?address=mac.tail1234.ts.net%3A8810&token=seira_pair_${"a".repeat(43)}&endpoints=$routes",
         ))
         val session = session(
             connectionStore = connections,
@@ -1084,7 +1091,7 @@ class SessionTest {
             events = { _, _ -> emptyFlow() },
         )
         session.awaitRestored()
-        session.receivePairingURL("openmausbot://pair?address=10.0.0.1:8810&code=123456")
+        session.receivePairingURL("seira://pair?address=10.0.0.1:8810&code=123456")
         assertNotNull(session.pairingInvite.value)
         assertTrue(session.pairingRequested.value)
     }
@@ -1189,7 +1196,7 @@ class SessionTest {
         )
         // Deep link arrives while restore is still suspended.
         session.receivePairingURL(
-            "openmausbot://pair?address=10.0.0.1:8810&token=omb_pair_" + "a".repeat(43),
+            "seira://pair?address=10.0.0.1:8810&token=seira_pair_" + "a".repeat(43),
         )
         runCurrent()
         assertNull(session.pairingInvite.value)
@@ -1203,7 +1210,7 @@ class SessionTest {
 
     @Test
     fun routeFailureKeepsQrInviteAndReusesTheSameLogicalRequest() = runTest {
-        val qr = "omb_pair_" + "b".repeat(43)
+        val qr = "seira_pair_" + "b".repeat(43)
         val requestId = "4c825d5b-cf40-4db7-aac5-2455f805a8ec"
         var attempts = 0
         val requestIds = mutableListOf<String>()
@@ -1224,7 +1231,7 @@ class SessionTest {
             events = { _, _ -> emptyFlow() },
         )
         session.awaitRestored()
-        session.receivePairingURL("openmausbot://pair?address=192.168.1.2:8810&token=$qr&code=123456")
+        session.receivePairingURL("seira://pair?address=192.168.1.2:8810&token=$qr&code=123456")
         assertEquals(qr, session.pairingInvite.value?.credential)
 
         assertFailsWith<PairingRouteError> {
@@ -1242,7 +1249,7 @@ class SessionTest {
 
     @Test
     fun authoritativeQrRejectionBurnsInviteAndRejectsReplay() = runTest {
-        val qr = "omb_pair_" + "e".repeat(43)
+        val qr = "seira_pair_" + "e".repeat(43)
         var attempts = 0
         val session = session(
             pairOutcomeFn = { _, _, _, _ ->
@@ -1252,7 +1259,7 @@ class SessionTest {
             events = { _, _ -> emptyFlow() },
         )
         session.awaitRestored()
-        session.receivePairingURL("openmausbot://pair?address=192.168.1.2:8810&token=$qr")
+        session.receivePairingURL("seira://pair?address=192.168.1.2:8810&token=$qr")
 
         assertFailsWith<APIError.Status> {
             session.pair(session.pairingInvite.value!!, "request-id-authoritative")
@@ -1265,7 +1272,7 @@ class SessionTest {
         }
         assertEquals(1, attempts)
 
-        session.receivePairingURL("openmausbot://pair?address=192.168.1.2:8810&token=$qr&code=123456")
+        session.receivePairingURL("seira://pair?address=192.168.1.2:8810&token=$qr&code=123456")
         assertNull(session.pairingInvite.value)
         assertTrue(session.actionError!!.contains("already used") || session.actionError!!.contains("rescan"))
     }
@@ -1359,7 +1366,7 @@ class SessionTest {
 
     @Test
     fun qrBurnedWhenSaveFailsAfterSuccessfulRedeem() = runTest {
-        val qr = "omb_pair_" + "c".repeat(43)
+        val qr = "seira_pair_" + "c".repeat(43)
         var attempts = 0
         val tokens = object : TokenStore by FakeTokenStore() {
             override suspend fun save(connectionId: String, token: String) {
@@ -1395,7 +1402,7 @@ class SessionTest {
 
     @Test
     fun cancelledQrAttemptCanResumeWithTheSameLogicalRequest() = runTest {
-        val qr = "omb_pair_" + "d".repeat(43)
+        val qr = "seira_pair_" + "d".repeat(43)
         val requestId = "d350b2ac-7f92-4f30-bf80-21e040c1494b"
         var attempts = 0
         val requestIds = mutableListOf<String>()

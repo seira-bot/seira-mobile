@@ -33,15 +33,15 @@ import kotlinx.coroutines.yield
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class SessionInviteLifecycleTest {
-    private val first = "omb_pair_" + "1".repeat(43)
-    private val second = "omb_pair_" + "2".repeat(43)
+    private val first = "seira_pair_" + "1".repeat(43)
+    private val second = "seira_pair_" + "2".repeat(43)
 
     private fun link(credential: String, host: String) =
-        "openmausbot://pair?address=$host:8810&token=$credential"
+        "seira://pair?address=$host:8810&token=$credential"
 
     /** A six-digit invite: retryable, and never burned by a redemption. */
     private fun codeLink(code: String, host: String) =
-        "openmausbot://pair?address=$host:8810&code=$code"
+        "seira://pair?address=$host:8810&code=$code"
 
     private fun paired(connection: Connection) = PairingOutcome(
         PairResponse(
@@ -342,11 +342,11 @@ class SessionInviteLifecycleTest {
     @Test
     fun aPairLinkThatDoesNotReadOpensThePairingFormAndSaysSoThere() = runTest {
         val broken = listOf(
-            "openmausbot://pair",
-            "openmausbot://pair?address=192.168.1.2:8810", // no credential
-            "openmausbot://pair?address=192.168.1.2:8810&token=omb_pair_short", // truncated
-            "openmausbot://pair?address=192.168.1.2:8810&token=omb pair", // not even a URI
-            "OPENMAUSBOT://PAIR?code=12",
+            "seira://pair",
+            "seira://pair?address=192.168.1.2:8810", // no credential
+            "seira://pair?address=192.168.1.2:8810&token=seira_pair_short", // truncated
+            "seira://pair?address=192.168.1.2:8810&token=seira pair", // not even a URI
+            "SEIRA://PAIR?code=12",
         )
         for (url in broken) {
             val session = session()
@@ -365,9 +365,9 @@ class SessionInviteLifecycleTest {
         // The desktop's own links among them: a thread reference out of chat
         // markdown, Cloud's "Open in the app".
         val unknown = listOf(
-            "openmausbot://thread/t-9f2c?bot=b-1",
-            "openmausbot://cloud",
-            "openmausbot://pairing",
+            "seira://thread/t-9f2c?bot=b-1",
+            "seira://cloud",
+            "seira://pairing",
             "https://example.com/about",
         )
         for (url in unknown) {

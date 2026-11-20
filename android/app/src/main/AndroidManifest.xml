@@ -64,7 +64,7 @@
         android:required="false" />
     <!--
       Android 13+ NSD / Wi-Fi peer discovery. neverForLocation: we only browse
-      for _openmausbot._tcp, never derive physical location from the scan.
+      for _openmausbot._tcp and _seira._tcp, never derive physical location from the scan.
       Without this (and the multicast permission), NsdManager returns an empty
       list silently — the same footgun as missing NSLocalNetworkUsageDescription
       on iOS (briefing §19).
@@ -89,6 +89,7 @@
       report none — dictation would never start on modern devices.
     -->
     <queries>
+        <package android:name="com.tailscale.ipn" />
         <intent>
             <action android:name="android.speech.RecognitionService" />
         </intent>
@@ -153,9 +154,9 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <data
-                    android:host="pair"
-                    android:scheme="openmausbot" />
+                <data android:scheme="openmausbot" />
+                <data android:scheme="seira" />
+                <data android:host="pair" />
             </intent-filter>
         </activity>
         <!--

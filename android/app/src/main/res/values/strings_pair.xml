@@ -23,4 +23,5 @@
     <string name="pair_camera_off_body">Allow the camera to scan the code. You can also enter a code or an address.</string>
     <string name="pair_camera_starting">Starting the camera…</string>
     <string name="pair_back">Back to settings</string>
+    <string name="pair_open_tailscale">Open Tailscale</string>
 </resources>

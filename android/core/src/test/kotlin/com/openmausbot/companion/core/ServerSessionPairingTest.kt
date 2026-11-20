@@ -23,10 +23,10 @@ class ServerSessionPairingTest {
             assertEquals("headless mini", saved.name)
             assertEquals("env-fixture", saved.serverEnvironmentId)
             assertEquals(listOf("client"), saved.serverScopes)
-            assertEquals("omb_sess_fixture", fixture.tokens.values[saved.id])
+            assertEquals("seira_sess_fixture", fixture.tokens.values[saved.id])
             val serialized = CompanionJson.encodeToString(saved)
             assertFalse(serialized.contains("ABCDEFGHJKLM"))
-            assertFalse(serialized.contains("omb_sess_fixture"))
+            assertFalse(serialized.contains("seira_sess_fixture"))
             assertEquals(saved, CompanionJson.decodeFromString<Connection>(serialized))
             val post = fixture.requests.single { it.url.encodedPath == "/api/auth/pair" }
             assertNull(post.header("Authorization"))
@@ -50,7 +50,43 @@ class ServerSessionPairingTest {
             )
             assertNull(f.store.saved)
             assertTrue(f.tokens.values.isEmpty())
-            assertEquals(1, f.requests.size)
+            assertEquals(2, f.requests.size)
+        }
+    }
+
+    @Test
+    fun environmentAsksTheOpenMausBotPathFirstThenFallsBackToSeiraOn404() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { request ->
+            if (request.url.encodedPath == "/.well-known/openmausbot/environment") 404 to "{}" else null
+        }.use { f ->
+            val environment = CompanionClient(connection, null, f.http).environment()
+            assertEquals("env-fixture", environment.environmentId)
+            assertEquals(
+                listOf("/.well-known/openmausbot/environment", "/.well-known/seira/environment"),
+                f.requests.map { it.url.encodedPath },
+            )
+            assertTrue(f.requests.all { it.header("Authorization") == null })
+        }
+    }
+
+    @Test
+    fun environmentDoesNotFallBackWhenTheFirstPathAnswers500() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { 500 to "{}" }.use { f ->
+            val error = assertFailsWith<APIError.Status> { CompanionClient(connection, null, f.http).environment() }
+            assertEquals(500, error.code)
+            assertEquals(listOf("/.well-known/openmausbot/environment"), f.requests.map { it.url.encodedPath })
+        }
+    }
+
+    @Test
+    fun environmentThrowsTheLast404WhenBothPathsAnswer404() = runBlocking<Unit> {
+        val connection = assertNotNull(Connection.parse("https://mini.example"))
+        Fixture { 404 to "{}" }.use { f ->
+            val error = assertFailsWith<APIError.Status> { CompanionClient(connection, null, f.http).environment() }
+            assertEquals(404, error.code)
+            assertEquals(2, f.requests.size)
         }
     }
 
@@ -227,13 +263,13 @@ class ServerSessionPairingTest {
         val requests = CopyOnWriteArrayList<Request>()
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
         val store = Store(saved, extraSaved)
-        val tokens = Tokens().apply { listOfNotNull(saved, extraSaved).forEach { values[it.id] = "omb_sess_fixture" } }
+        val tokens = Tokens().apply { listOfNotNull(saved, extraSaved).forEach { values[it.id] = "seira_sess_fixture" } }
         @Volatile var streamStarts = 0
         val http = OkHttpClient.Builder().addInterceptor { chain ->
             val request = chain.request()
             requests += request
             val (status, body) = response(request) ?: if (request.url.encodedPath == "/api/auth/pair") {
-                200 to """{"token":"omb_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"headless mini"}}"""
+                200 to """{"token":"seira_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"headless mini"}}"""
             } else {
                 200 to """{"environmentId":"env-fixture","label":"headless mini"}"""
             }

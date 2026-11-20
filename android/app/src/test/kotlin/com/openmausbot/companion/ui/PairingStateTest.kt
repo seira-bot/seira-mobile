@@ -68,7 +68,7 @@ class PairingStateTest {
         hosts = listOf("192.168.1.42", "kes.tail1234.ts.net"),
     )
 
-    private val credential = "omb_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
+    private val credential = "seira_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
 
     /** `Saver.save` is a member extension: both receivers have to be implicit. */
     private fun saved(pending: PendingPairing?): String? =
@@ -87,7 +87,7 @@ class PairingStateTest {
         val encoded = saved(pending)
         assertTrue(encoded != null && encoded.isNotEmpty())
         assertFalse(encoded!!.contains(credential), "the credential reached saved state: $encoded")
-        assertFalse(encoded.contains("omb_pair_"), "a credential prefix reached saved state: $encoded")
+        assertFalse(encoded.contains("seira_pair_"), "a credential prefix reached saved state: $encoded")
         assertFalse(encoded.contains("123456"), "the six-digit code reached saved state: $encoded")
         assertFalse(encoded.contains(requestId), "the pair request id reached saved state: $encoded")
     }
@@ -204,7 +204,7 @@ class PairingStateTest {
 }
 
 class PairingSecretStoreTest {
-    private val credential = "omb_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
+    private val credential = "seira_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
 
     @Test
     fun `a handle only answers in the store that minted it`() {
@@ -218,9 +218,9 @@ class PairingSecretStoreTest {
     fun `a stale handle gets nothing`() {
         val secrets = PairingSecretStore()
         val first = secrets.openIdle(credential)
-        val second = secrets.openIdle("omb_pair_second")
+        val second = secrets.openIdle("seira_pair_second")
         assertNull(secrets.credential(first))
-        assertEquals("omb_pair_second", secrets.credential(second))
+        assertEquals("seira_pair_second", secrets.credential(second))
     }
 
     @Test
@@ -264,11 +264,11 @@ class PairingSecretStoreTest {
         // credential the user had just scanned and never redeemed (§6).
         val secrets = PairingSecretStore()
         val finishing = secrets.openIdle(credential)
-        val newer = secrets.openIdle("omb_pair_second")
+        val newer = secrets.openIdle("seira_pair_second")
 
         secrets.clear(finishing)
 
-        assertEquals("omb_pair_second", secrets.credential(newer))
+        assertEquals("seira_pair_second", secrets.credential(newer))
         assertTrue(secrets.owns(newer))
     }
 
@@ -295,7 +295,7 @@ class PairingSecretStoreTest {
         assertTrue(secrets.isRedeeming())
 
         assertNull(
-            secrets.open("omb_pair_arriving_during_the_commit"),
+            secrets.open("seira_pair_arriving_during_the_commit"),
             "a deep link opened a credential slot while the first one was being redeemed",
         )
         // And the attempt still has the credential it is redeeming.
@@ -312,7 +312,7 @@ class PairingSecretStoreTest {
         val active = secrets.openIdle(credential)
         assertTrue(secrets.beginAttempt(active))
 
-        assertNull(secrets.open("omb_pair_a_completely_different_credential"))
+        assertNull(secrets.open("seira_pair_a_completely_different_credential"))
         assertNull(secrets.open(), "a typed computer got a slot during the commit")
     }
 
@@ -332,15 +332,15 @@ class PairingSecretStoreTest {
         secrets.endAttempt(active)
 
         assertFalse(secrets.isRedeeming())
-        val next = assertNotNull(secrets.open("omb_pair_second"), "retry and deep links never resumed")
-        assertEquals("omb_pair_second", secrets.credential(next))
+        val next = assertNotNull(secrets.open("seira_pair_second"), "retry and deep links never resumed")
+        assertEquals("seira_pair_second", secrets.credential(next))
     }
 
     @Test
     fun `only the attempt that owns the slot can claim or release it`() {
         val secrets = PairingSecretStore()
         val stale = secrets.openIdle(credential)
-        val current = secrets.openIdle("omb_pair_second")
+        val current = secrets.openIdle("seira_pair_second")
 
         assertFalse(secrets.beginAttempt(stale), "a stale handle claimed the current slot")
         assertFalse(secrets.beginAttempt(null))
@@ -365,7 +365,7 @@ class PairingSecretStoreTest {
         secrets.clear(abandoned)
 
         assertFalse(secrets.isRedeeming())
-        assertNotNull(secrets.open("omb_pair_second"))
+        assertNotNull(secrets.open("seira_pair_second"))
     }
 
     @Test
@@ -407,8 +407,8 @@ class PairingSecretStoreTest {
 class PairingInviteTransactionTest {
     private val active = Connection(id = "a", name = "Computer A", host = "192.168.1.42", port = 8810)
     private val other = Connection(id = "b", name = "Computer B", host = "192.168.1.99", port = 8810)
-    private val activeCredential = "omb_pair_" + "a".repeat(43)
-    private val arriving = "omb_pair_" + "b".repeat(43)
+    private val activeCredential = "seira_pair_" + "a".repeat(43)
+    private val arriving = "seira_pair_" + "b".repeat(43)
 
     /** A slot mid-redemption: what the screen looks like while Connect is spinning. */
     private fun redeeming(): Pair<PairingSecretStore, PendingPairing> {
@@ -526,7 +526,7 @@ class PairingInviteTransactionTest {
         assertEquals(0, consumed)
         assertFalse(secrets.isRedeeming())
         // Released for real: the next invitation opens a slot again.
-        assertNotNull(secrets.open("omb_pair_later"))
+        assertNotNull(secrets.open("seira_pair_later"))
     }
 
     @Test
@@ -622,7 +622,7 @@ class PairingConfirmationTest {
         port = 8810,
     )
 
-    private val credential = "omb_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
+    private val credential = "seira_pair_ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefg"
 
     private fun scanned(secrets: PairingSecretStore) =
         secrets.openingIdle(connection, fromScan = true, credential = credential)
@@ -703,7 +703,7 @@ class PairingConfirmationTest {
     fun `a desktop QR says how many more of the computer's addresses it will try`() {
         val secrets = PairingSecretStore()
         val invite = requireNotNull(PairingInvite.parse(
-            "openmausbot://pair?address=172.19.96.1%3A8810&token=$credential" +
+            "seira://pair?address=172.19.96.1%3A8810&token=$credential" +
                 "&name=Miguel%27s+computer&hosts=172.19.96.1,192.168.1.34,miguel.local",
         ))
         val confirmation = PairingConfirmation.of(
@@ -722,7 +722,7 @@ class PairingConfirmationTest {
     @Test
     fun `the routes asked about before pairing are the ones the pairing walk dials`() {
         val invite = requireNotNull(PairingInvite.parse(
-            "openmausbot://pair?address=172.19.96.1%3A8810&token=$credential" +
+            "seira://pair?address=172.19.96.1%3A8810&token=$credential" +
                 "&hosts=172.19.96.1,192.168.1.34,miguel.local",
         ))
 
@@ -796,10 +796,10 @@ class PairingConfirmationTest {
 
     @Test
     fun `a QR or deep link without an address never becomes a pending pairing`() {
-        assertNull(PairingInvite.parse("openmausbot://pair?token=$credential"))
+        assertNull(PairingInvite.parse("seira://pair?token=$credential"))
         // The control: with one, the invite carries a host and a port.
         val invite = PairingInvite.parse(
-            "openmausbot://pair?address=192.168.1.42:8810&name=Kesley%27s%20Ubuntu&token=$credential",
+            "seira://pair?address=192.168.1.42:8810&name=Kesley%27s%20Ubuntu&token=$credential",
         )
         assertEquals("192.168.1.42", invite?.connection?.host)
         assertEquals(8810, invite?.connection?.port)

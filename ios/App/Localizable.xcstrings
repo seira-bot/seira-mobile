@@ -10253,24 +10253,24 @@
         }
       }
     },
-    "This phone was paired with chat-only access. Pair it again with Full access (openmausbot pair, without --client) to see and control the Local VM.": {
+    "This phone was paired with chat-only access. Pair it again with Full access (seira pair, without --client) to see and control the Local VM.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Este celular foi pareado com acesso somente ao chat. Pareie-o de novo com acesso total (openmausbot pair, sem --client) para ver e controlar a VM local."
+            "value": "Este celular foi pareado com acesso somente ao chat. Pareie-o de novo com acesso total (seira pair, sem --client) para ver e controlar a VM local."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "此手机配对时仅获得聊天权限。请以「完全访问」重新配对（openmausbot pair，不加 --client），即可查看并控制本地虚拟机。"
+            "value": "此手机配对时仅获得聊天权限。请以「完全访问」重新配对（seira pair，不加 --client），即可查看并控制本地虚拟机。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "此手機配對時僅取得聊天權限。請以「完整存取權」重新配對（openmausbot pair，不加 --client），即可檢視並控制本機 VM。"
+            "value": "此手機配對時僅取得聊天權限。請以「完整存取權」重新配對（seira pair，不加 --client），即可檢視並控制本機 VM。"
           }
         }
       }

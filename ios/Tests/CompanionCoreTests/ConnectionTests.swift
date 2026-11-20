@@ -65,10 +65,34 @@ final class ConnectionTests: XCTestCase {
         XCTAssertNil(Connection.parse("host name"))
     }
 
+    func testParsesADesktopPairingInviteWithEitherSchemeAndItsOwnTokenPrefix() throws {
+        let old = "omb_pair_" + String(repeating: "a", count: 43)
+        let seira = "seira_pair_" + String(repeating: "a", count: 43)
+        XCTAssertEqual(old.utf8.count, 52)
+        XCTAssertEqual(seira.utf8.count, 54)
+        let oldLink = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=\(old)"))
+        let upperLink = try XCTUnwrap(URL(string: "OpenMausBot://PAIR?address=mac.local&token=\(old)"))
+        let seiraLink = try XCTUnwrap(URL(string: "seira://pair?address=mac.local&token=\(seira)"))
+        XCTAssertEqual(PairingInvite.parse(oldLink)?.credential, old)
+        XCTAssertEqual(PairingInvite.parse(upperLink)?.credential, old)
+        XCTAssertEqual(PairingInvite.parse(seiraLink)?.credential, seira)
+    }
+
+    func testRefusesATokenWhosePrefixDoesNotMatchItsLength() throws {
+        let shortSeira = "omb_pair_" + String(repeating: "a", count: 45)
+        let longOld = "seira_pair_" + String(repeating: "a", count: 41)
+        let unknown = "other_pair_" + String(repeating: "a", count: 43)
+        for token in [shortSeira, longOld, unknown] {
+            let url = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=\(token)"))
+            XCTAssertNil(PairingInvite.parse(url), token)
+        }
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "mausbot://pair?address=mac.local&code=004209"))))
+    }
+
     func testParsesADesktopPairingInvite() throws {
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         let secretKey = "BIPBQ12_dWnF1DZLsTZO3Vg0NGjds5-jp9h3jhjr2To7bJelczS0LM82rfXV68PmSJhz2ePosj3fL974XckCpDU"
-        let url = try XCTUnwrap(URL(string: "openmausbot://pair?address=macbook.tail1234.ts.net%3A8810&token=\(token)&code=004209&name=Milind%27s%20Mac&secretKey=\(secretKey)"))
+        let url = try XCTUnwrap(URL(string: "seira://pair?address=macbook.tail1234.ts.net%3A8810&token=\(token)&code=004209&name=Milind%27s%20Mac&secretKey=\(secretKey)"))
         let invite = try XCTUnwrap(PairingInvite.parse(url))
         XCTAssertEqual(invite.connection.host, "macbook.tail1234.ts.net")
         XCTAssertEqual(invite.connection.port, 8810)
@@ -78,15 +102,15 @@ final class ConnectionTests: XCTestCase {
     }
 
     func testRejectsAPresentButInvalidSecureEntryKey() throws {
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         let invalid = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=mac.local&token=\(token)&secretKey=not-a-p256-key"))
+            "seira://pair?address=mac.local&token=\(token)&secretKey=not-a-p256-key"))
         XCTAssertNil(PairingInvite.parse(invalid))
     }
 
     func testPairingConsentShowsNormalizedOriginInsteadOfTrustingQRName() throws {
         let url = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=https%3A%2F%2FOTHER.Example%3A9443%2F" +
+            "seira://pair?address=https%3A%2F%2FOTHER.Example%3A9443%2F" +
             "&code=004209&name=Milind%27s%20Mac"))
         let invite = try XCTUnwrap(PairingInvite.parse(url))
 
@@ -107,7 +131,7 @@ final class ConnectionTests: XCTestCase {
     }
 
     func testParsesAnOlderCodeOnlyPairingInvite() throws {
-        let url = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&code=004209"))
+        let url = try XCTUnwrap(URL(string: "seira://pair?address=mac.local&code=004209"))
         let invite = try XCTUnwrap(PairingInvite.parse(url))
         XCTAssertEqual(invite.credential, "004209")
         XCTAssertEqual(invite.connection.allowedRouteKinds, [.bonjour, .hosted])
@@ -116,7 +140,7 @@ final class ConnectionTests: XCTestCase {
 
     func testLegacyTailnetInviteDropsUnselectedLocalFallbackKinds() throws {
         let url = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=macbook.tail1234.ts.net%3A8810&code=004209" +
+            "seira://pair?address=macbook.tail1234.ts.net%3A8810&code=004209" +
             "&hosts=macbook.tail1234.ts.net,192.168.1.42,openmausbot-aa.local"))
         let invite = try XCTUnwrap(PairingInvite.parse(url))
         XCTAssertEqual(invite.connection.hosts, ["macbook.tail1234.ts.net"])
@@ -131,9 +155,9 @@ final class ConnectionTests: XCTestCase {
             ["url": "http://mac.tail1234.ts.net:8810", "kind": "tailnet", "priority": 100] as [String: Any],
         ]
         let encoded = try Self.base64URL(JSONSerialization.data(withJSONObject: routes))
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         let url = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=\(encoded)"))
+            "seira://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=\(encoded)"))
 
         let invite = try XCTUnwrap(PairingInvite.parse(url))
 
@@ -146,7 +170,7 @@ final class ConnectionTests: XCTestCase {
     }
 
     func testRejectsMalformedOrDowngradedTypedEndpoints() throws {
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         for routes in [
             [["url": "http://public.example", "kind": "hosted", "priority": 0]],
             [["url": "https://user:secret@public.example", "kind": "hosted", "priority": 0]],
@@ -154,11 +178,11 @@ final class ConnectionTests: XCTestCase {
         ] {
             let encoded = try Self.base64URL(JSONSerialization.data(withJSONObject: routes))
             let url = try XCTUnwrap(URL(string:
-                "openmausbot://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=\(encoded)"))
+                "seira://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=\(encoded)"))
             XCTAssertNil(PairingInvite.parse(url))
         }
         let invalidBase64 = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=not-json"))
+            "seira://pair?address=192.168.1.42%3A8810&token=\(token)&endpoints=not-json"))
         XCTAssertNil(PairingInvite.parse(invalidBase64))
     }
 
@@ -167,12 +191,12 @@ final class ConnectionTests: XCTestCase {
         // its turn comes, so it is filtered rather than fatal. A desktop QR
         // consents to every local address it carries.
         let url = try XCTUnwrap(URL(string:
-            "openmausbot://pair?address=mac.local&code=004209&hosts=%20mac.local%20,other.local,,bad%2Fslash,has%20space"))
+            "seira://pair?address=mac.local&code=004209&hosts=%20mac.local%20,other.local,,bad%2Fslash,has%20space"))
         let invite = try XCTUnwrap(PairingInvite.parse(url))
         XCTAssertEqual(invite.connection.hosts, ["mac.local", "other.local"])
 
         // and an invite with no usable candidate keeps the single address
-        let empty = try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&code=004209&hosts=bad%2Fslash"))
+        let empty = try XCTUnwrap(URL(string: "seira://pair?address=mac.local&code=004209&hosts=bad%2Fslash"))
         XCTAssertNil(PairingInvite.parse(empty)?.connection.hosts)
     }
 
@@ -208,9 +232,9 @@ final class ConnectionTests: XCTestCase {
             ["url": Self.wifi, "kind": "lan", "priority": 200] as [String: Any],
         ]
         let encoded = try Self.base64URL(JSONSerialization.data(withJSONObject: routes))
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         let invite = try XCTUnwrap(PairingInvite.parse(XCTUnwrap(URL(string:
-            "openmausbot://pair?address=mac.companion.example%3A443&token=\(token)&endpoints=\(encoded)"))))
+            "seira://pair?address=mac.companion.example%3A443&token=\(token)&endpoints=\(encoded)"))))
 
         XCTAssertEqual(invite.connection.allowedLocalRouteURLs, [])
         XCTAssertEqual(invite.connection.pairingEndpoints.map(\.url), ["https://mac.companion.example"])
@@ -238,9 +262,9 @@ final class ConnectionTests: XCTestCase {
             ["url": "https://mac.companion.example", "kind": "hosted", "priority": 100] as [String: Any],
         ]
         let encoded = try Self.base64URL(JSONSerialization.data(withJSONObject: routes))
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         let invite = try XCTUnwrap(PairingInvite.parse(XCTUnwrap(URL(string:
-            "openmausbot://pair?address=mac.tail1234.ts.net%3A8810&token=\(token)&endpoints=\(encoded)")))).connection
+            "seira://pair?address=mac.tail1234.ts.net%3A8810&token=\(token)&endpoints=\(encoded)")))).connection
         let hosted = try XCTUnwrap(CompanionEndpoint(url: "https://mac.companion.example", kind: .hosted, priority: 100))
         var paired = invite.dialing(hosted)
         paired.pinRouteConsent(afterPairingThrough: hosted, invite: invite)
@@ -261,9 +285,9 @@ final class ConnectionTests: XCTestCase {
             ["url": bonjour, "kind": "bonjour", "priority": 200] as [String: Any],
         ]
         let encoded = try base64URL(JSONSerialization.data(withJSONObject: routes))
-        let token = "omb_pair_" + String(repeating: "a", count: 43)
+        let token = "seira_pair_" + String(repeating: "a", count: 43)
         return try XCTUnwrap(PairingInvite.parse(XCTUnwrap(URL(string:
-            "openmausbot://pair?address=172.19.96.1%3A8810&token=\(token)&name=Miguel%27s+computer" +
+            "seira://pair?address=172.19.96.1%3A8810&token=\(token)&name=Miguel%27s+computer" +
             "&hosts=172.19.96.1,192.168.1.34,miguel.local,miguel.tail1234.ts.net&endpoints=\(encoded)"))))
     }
 
@@ -295,13 +319,13 @@ final class ConnectionTests: XCTestCase {
     }
 
     func testAPairResponseWithAndWithoutHostsDecodes() throws {
-        let older = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}"#.utf8)
+        let older = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac"}"#.utf8)
         XCTAssertNil(try JSONDecoder().decode(PairResponse.self, from: older).hosts)
 
-        let newer = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}"#.utf8)
+        let newer = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","hosts":["a.ts.net","192.168.1.42"]}"#.utf8)
         XCTAssertEqual(try JSONDecoder().decode(PairResponse.self, from: newer).hosts, ["a.ts.net", "192.168.1.42"])
 
-        let typed = Data(#"{"token":"omb_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}"#.utf8)
+        let typed = Data(#"{"token":"seira_x","device":{"id":"d","name":"p","createdAt":1,"lastSeenAt":1},"serverName":"Mac","endpoints":[{"url":"https://mac.example","kind":"hosted","priority":0}]}"#.utf8)
         let response = try JSONDecoder().decode(PairResponse.self, from: typed)
         XCTAssertEqual(response.endpoints?.first?.url, "https://mac.example")
         XCTAssertEqual(response.endpoints?.first?.kind, .hosted)
@@ -309,11 +333,11 @@ final class ConnectionTests: XCTestCase {
 
     func testRejectsAnUntrustedOrMalformedPairingInvite() throws {
         XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "https://example.com/pair?address=mac.local&code=123456"))))
-        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&code=12345"))))
-        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=weak"))))
-        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=mac.local&token=weak&code=123456"))))
-        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=host%2Fpath&code=123456"))))
-        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "openmausbot://pair?address=one.local&address=two.local&code=123456"))))
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=mac.local&code=12345"))))
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=mac.local&token=weak"))))
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=mac.local&token=weak&code=123456"))))
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=host%2Fpath&code=123456"))))
+        XCTAssertNil(PairingInvite.parse(try XCTUnwrap(URL(string: "seira://pair?address=one.local&address=two.local&code=123456"))))
     }
 
     func testAcceptsOnlyAnHTTPSCloudDesktopSession() throws {
