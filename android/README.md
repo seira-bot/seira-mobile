@@ -159,19 +159,21 @@ nobody chose. There is no second number to remember to bump.
 Play orders uploads by `versionCode` alone and refuses one it has already
 accepted, so the code has to rise whenever the name does.
 
-## Why R8 is off
+## R8 in the release build
 
-`isMinifyEnabled = false` is a decision, not an oversight, and
-`app/build.gradle.kts` carries the full reasoning.
+The release build runs R8: it shrinks, optimizes and obfuscates the code, and
+it removes unused resources. Debug and preview builds do not run R8.
 
-The short version: `:core` has 66 `@Serializable` classes, and
-kotlinx.serialization reaches their generated serializers reflectively, by name,
-at the moment a frame is decoded. R8 sees no call site for those companions and
-strips or renames them. The result builds, installs and opens — then fails the
-first time the phone talks to the computer, in release only, as a
-`SerializationException` with a stack trace made of one-letter class names.
+- Keep rules: `app/proguard-rules.pro`. The libraries bring their own rules
+  for kotlinx.serialization, OkHttp, coroutines, Tink and ML Kit.
+- Mapping file: `app/build/outputs/mapping/release/mapping.txt`. Keep the
+  file from each release build. Google Play needs it to turn obfuscated
+  crash stack traces back into class names and line numbers.
+- After an upload, open the version in Play Console (App bundle explorer,
+  Downloads) and check that it has a ReTrace mapping file. If it has none,
+  upload `mapping.txt` there.
 
-Turning it on means writing keep rules *and testing them* against a real pairing
-and a real session, because no unit test reaches that failure mode and a
-minified APK that launches proves nothing. Until someone does that work, `false`
-is the tested state, and roughly 34 MB is its price.
+A unit test cannot find a missing keep rule. The failure shows only in a
+minified build, and often only when the phone talks to the computer. Before
+you change the rules or add a library that uses reflection or JNI, follow
+[`docs/verification/android-release-r8.md`](../docs/verification/android-release-r8.md).
