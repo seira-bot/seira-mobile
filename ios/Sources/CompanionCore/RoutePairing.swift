@@ -14,7 +14,7 @@ public enum RouteFailureReason: Equatable, Sendable {
     case notSeira
     case other
 
-    init(_ error: Error) {
+    public init(_ error: Error) {
         if let urlError = error as? URLError {
             switch urlError.code {
             case .cannotFindHost, .dnsLookupFailed: self = .unresolved
