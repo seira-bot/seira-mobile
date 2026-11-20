@@ -27,9 +27,12 @@ commit and artifact being submitted; unchecked items remain release work.
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
   Partial 2026-11-20: a 1.0.2 test build passed typed-code and link pairing against an
-  isolated fixture. Gap: the "Allow once" approval card did not run. Repeat on 10002.
+  isolated fixture. The 1.0.1 build passed pairing, the approval card ("Allow" and
+  "Deny"), and a bot reply against the review server. Repeat on 10002.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
+  Partial 2026-11-20: the upgrade from 1.0.1 to a 1.0.2 test build did not
+  crash. Repeat with the signed 10002 build.
 
 ## Listing and reviewer access
 
@@ -89,4 +92,5 @@ commit and artifact being submitted; unchecked items remain release work.
   Done 2026-11-20: Production, 178 countries, 100% rollout, sent for review on the owner's go.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
-  Preserved 2026-11-20 in `declarations-proposal.md`. Review monitoring is open.
+  Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
+  2026-11-20. Monitor the 1.0.2 review.
