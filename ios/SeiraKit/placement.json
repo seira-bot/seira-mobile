@@ -1,0 +1,955 @@
+{
+  "styles": {
+    "seira": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          0.6
+        ],
+        "earL": [
+          27.5,
+          103.7
+        ],
+        "earR": [
+          212.5,
+          103.7
+        ],
+        "templeL": [
+          32.1,
+          80.5
+        ],
+        "templeR": [
+          207.9,
+          80.5
+        ],
+        "mouth": [
+          120,
+          137.9
+        ],
+        "cheekL": [
+          62.6,
+          126.8
+        ],
+        "cheekR": [
+          177.4,
+          126.8
+        ],
+        "neck": [
+          120,
+          199
+        ]
+      }
+    },
+    "seira-long": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          0.6
+        ],
+        "earL": [
+          27.5,
+          103.3
+        ],
+        "earR": [
+          212.5,
+          103.3
+        ],
+        "templeL": [
+          32.1,
+          80.2
+        ],
+        "templeR": [
+          207.9,
+          80.2
+        ],
+        "mouth": [
+          120,
+          137.6
+        ],
+        "cheekL": [
+          62.6,
+          126.5
+        ],
+        "cheekR": [
+          177.4,
+          126.5
+        ],
+        "neck": [
+          120,
+          198.7
+        ]
+      }
+    },
+    "bob": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          14.2
+        ],
+        "earL": [
+          27.5,
+          116.9
+        ],
+        "earR": [
+          212.5,
+          116.9
+        ],
+        "templeL": [
+          32.1,
+          93.8
+        ],
+        "templeR": [
+          207.9,
+          93.8
+        ],
+        "mouth": [
+          120,
+          151.2
+        ],
+        "cheekL": [
+          62.6,
+          140.1
+        ],
+        "cheekR": [
+          177.4,
+          140.1
+        ],
+        "neck": [
+          120,
+          212.2
+        ]
+      }
+    },
+    "twin-tails": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          0.6
+        ],
+        "earL": [
+          27.5,
+          103.7
+        ],
+        "earR": [
+          212.5,
+          103.7
+        ],
+        "templeL": [
+          32.1,
+          80.5
+        ],
+        "templeR": [
+          207.9,
+          80.5
+        ],
+        "mouth": [
+          120,
+          137.9
+        ],
+        "cheekL": [
+          62.6,
+          126.8
+        ],
+        "cheekR": [
+          177.4,
+          126.8
+        ],
+        "neck": [
+          120,
+          199
+        ]
+      }
+    },
+    "ponytail": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          29.3
+        ],
+        "earL": [
+          27.5,
+          136.7
+        ],
+        "earR": [
+          212.5,
+          136.7
+        ],
+        "templeL": [
+          32.1,
+          113.5
+        ],
+        "templeR": [
+          207.9,
+          113.5
+        ],
+        "mouth": [
+          120,
+          170.9
+        ],
+        "cheekL": [
+          62.6,
+          159.8
+        ],
+        "cheekR": [
+          177.4,
+          159.8
+        ],
+        "neck": [
+          120,
+          232
+        ]
+      }
+    },
+    "long-straight": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          1.2
+        ],
+        "earL": [
+          27.5,
+          103.3
+        ],
+        "earR": [
+          212.5,
+          103.3
+        ],
+        "templeL": [
+          32.1,
+          80.2
+        ],
+        "templeR": [
+          207.9,
+          80.2
+        ],
+        "mouth": [
+          120,
+          137.6
+        ],
+        "cheekL": [
+          62.6,
+          126.5
+        ],
+        "cheekR": [
+          177.4,
+          126.5
+        ],
+        "neck": [
+          120,
+          198.7
+        ]
+      }
+    },
+    "bun": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          2.2
+        ],
+        "earL": [
+          27.5,
+          148.4
+        ],
+        "earR": [
+          212.5,
+          148.4
+        ],
+        "templeL": [
+          32.1,
+          125.2
+        ],
+        "templeR": [
+          207.9,
+          125.2
+        ],
+        "mouth": [
+          120,
+          182.6
+        ],
+        "cheekL": [
+          62.6,
+          171.5
+        ],
+        "cheekR": [
+          177.4,
+          171.5
+        ],
+        "neck": [
+          120,
+          243.7
+        ]
+      }
+    },
+    "long-wavy": {
+      "r": 92.19,
+      "anchors": {
+        "top": [
+          119.8,
+          1.5
+        ],
+        "earL": [
+          27.7,
+          102.9
+        ],
+        "earR": [
+          212,
+          102.9
+        ],
+        "templeL": [
+          32.3,
+          79.9
+        ],
+        "templeR": [
+          207.4,
+          79.9
+        ],
+        "mouth": [
+          119.8,
+          137.1
+        ],
+        "cheekL": [
+          62.7,
+          126
+        ],
+        "cheekR": [
+          177,
+          126
+        ],
+        "neck": [
+          119.8,
+          197.9
+        ]
+      }
+    },
+    "short-neat": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          28.1
+        ],
+        "earL": [
+          27.5,
+          124.9
+        ],
+        "earR": [
+          212.5,
+          124.9
+        ],
+        "templeL": [
+          32.1,
+          101.8
+        ],
+        "templeR": [
+          207.9,
+          101.8
+        ],
+        "mouth": [
+          120,
+          159.2
+        ],
+        "cheekL": [
+          62.6,
+          148.1
+        ],
+        "cheekR": [
+          177.4,
+          148.1
+        ],
+        "neck": [
+          120,
+          220.3
+        ]
+      }
+    },
+    "center-part": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          24.1
+        ],
+        "earL": [
+          27.5,
+          126.5
+        ],
+        "earR": [
+          212.5,
+          126.5
+        ],
+        "templeL": [
+          32.1,
+          103.3
+        ],
+        "templeR": [
+          207.9,
+          103.3
+        ],
+        "mouth": [
+          120,
+          160.7
+        ],
+        "cheekL": [
+          62.6,
+          149.6
+        ],
+        "cheekR": [
+          177.4,
+          149.6
+        ],
+        "neck": [
+          120,
+          221.8
+        ]
+      }
+    },
+    "spiky": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          4.6
+        ],
+        "earL": [
+          27.5,
+          148.1
+        ],
+        "earR": [
+          212.5,
+          148.1
+        ],
+        "templeL": [
+          32.1,
+          124.9
+        ],
+        "templeR": [
+          207.9,
+          124.9
+        ],
+        "mouth": [
+          120,
+          182.3
+        ],
+        "cheekL": [
+          62.6,
+          171.2
+        ],
+        "cheekR": [
+          177.4,
+          171.2
+        ],
+        "neck": [
+          120,
+          243.4
+        ]
+      }
+    },
+    "slick-back": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          13.3
+        ],
+        "earL": [
+          27.5,
+          138.5
+        ],
+        "earR": [
+          212.5,
+          138.5
+        ],
+        "templeL": [
+          32.1,
+          115.4
+        ],
+        "templeR": [
+          207.9,
+          115.4
+        ],
+        "mouth": [
+          120,
+          172.8
+        ],
+        "cheekL": [
+          62.6,
+          161.6
+        ],
+        "cheekR": [
+          177.4,
+          161.6
+        ],
+        "neck": [
+          120,
+          233.8
+        ]
+      }
+    },
+    "long-tied": {
+      "r": 85.92,
+      "anchors": {
+        "top": [
+          120,
+          1.1
+        ],
+        "earL": [
+          34.1,
+          94.8
+        ],
+        "earR": [
+          205.9,
+          94.8
+        ],
+        "templeL": [
+          38.4,
+          73.3
+        ],
+        "templeR": [
+          201.6,
+          73.3
+        ],
+        "mouth": [
+          120,
+          126.6
+        ],
+        "cheekL": [
+          66.7,
+          116.3
+        ],
+        "cheekR": [
+          173.3,
+          116.3
+        ],
+        "neck": [
+          120,
+          183.3
+        ]
+      }
+    },
+    "long-loose": {
+      "r": 92.43,
+      "anchors": {
+        "top": [
+          120.2,
+          0.9
+        ],
+        "earL": [
+          27.7,
+          103.8
+        ],
+        "earR": [
+          212.6,
+          103.8
+        ],
+        "templeL": [
+          32.3,
+          80.7
+        ],
+        "templeR": [
+          208,
+          80.7
+        ],
+        "mouth": [
+          120.2,
+          138
+        ],
+        "cheekL": [
+          62.8,
+          126.9
+        ],
+        "cheekR": [
+          177.5,
+          126.9
+        ],
+        "neck": [
+          120.2,
+          199
+        ]
+      }
+    },
+    "buzz": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          21.6
+        ],
+        "earL": [
+          27.5,
+          130.5
+        ],
+        "earR": [
+          212.5,
+          130.5
+        ],
+        "templeL": [
+          32.1,
+          107.4
+        ],
+        "templeR": [
+          207.9,
+          107.4
+        ],
+        "mouth": [
+          120,
+          164.7
+        ],
+        "cheekL": [
+          62.6,
+          153.6
+        ],
+        "cheekR": [
+          177.4,
+          153.6
+        ],
+        "neck": [
+          120,
+          225.8
+        ]
+      }
+    },
+    "messy": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          14.8
+        ],
+        "earL": [
+          27.5,
+          137.6
+        ],
+        "earR": [
+          212.5,
+          137.6
+        ],
+        "templeL": [
+          32.1,
+          114.4
+        ],
+        "templeR": [
+          207.9,
+          114.4
+        ],
+        "mouth": [
+          120,
+          171.8
+        ],
+        "cheekL": [
+          62.6,
+          160.7
+        ],
+        "cheekR": [
+          177.4,
+          160.7
+        ],
+        "neck": [
+          120,
+          232.9
+        ]
+      }
+    },
+    "none": {
+      "r": 92.54,
+      "anchors": {
+        "top": [
+          120,
+          26.5
+        ],
+        "earL": [
+          27.5,
+          124.6
+        ],
+        "earR": [
+          212.5,
+          124.6
+        ],
+        "templeL": [
+          32.1,
+          101.5
+        ],
+        "templeR": [
+          207.9,
+          101.5
+        ],
+        "mouth": [
+          120,
+          158.9
+        ],
+        "cheekL": [
+          62.6,
+          147.8
+        ],
+        "cheekR": [
+          177.4,
+          147.8
+        ],
+        "neck": [
+          120,
+          219.9
+        ]
+      }
+    }
+  },
+  "accessories": {
+    "earring": {
+      "anchor": "earR",
+      "file": "earring.webp",
+      "label": "Earring",
+      "pivot": [
+        40,
+        10
+      ],
+      "size": [
+        81,
+        239
+      ],
+      "slot": "ear",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 0.22
+    },
+    "glasses": {
+      "anchor": "eyes",
+      "file": "glasses.webp",
+      "label": "Glasses",
+      "pivot": [
+        217,
+        95
+      ],
+      "size": [
+        441,
+        192
+      ],
+      "slot": "face",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 1.75
+    },
+    "sunglasses": {
+      "anchor": "eyes",
+      "file": "sunglasses.webp",
+      "label": "Sunglasses",
+      "pivot": [
+        227,
+        100
+      ],
+      "size": [
+        461,
+        199
+      ],
+      "slot": "face",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 1.75
+    },
+    "headphones": {
+      "anchor": "top",
+      "file": "headphones.webp",
+      "label": "Headphones",
+      "pivot": [
+        194,
+        29
+      ],
+      "size": [
+        389,
+        337
+      ],
+      "slot": "ear",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 2.3
+    },
+    "ribbon": {
+      "anchor": "top",
+      "file": "ribbon.webp",
+      "label": "Ribbon",
+      "pivot": [
+        190,
+        108
+      ],
+      "size": [
+        381,
+        287
+      ],
+      "slot": "hair",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 0.9
+    },
+    "hairpin": {
+      "anchor": "templeR",
+      "file": "hairpin.webp",
+      "label": "Hairpin",
+      "pivot": [
+        154,
+        62
+      ],
+      "size": [
+        308,
+        123
+      ],
+      "slot": "hair",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 0.4
+    },
+    "tiara": {
+      "anchor": "top",
+      "file": "tiara.webp",
+      "label": "Tiara",
+      "pivot": [
+        211,
+        198
+      ],
+      "size": [
+        422,
+        308
+      ],
+      "slot": "hair",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 1.1
+    },
+    "cap": {
+      "anchor": "top",
+      "file": "cap.webp",
+      "label": "Cap",
+      "pivot": [
+        208,
+        39
+      ],
+      "size": [
+        418,
+        330
+      ],
+      "slot": "top",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 2.1
+    },
+    "antenna": {
+      "anchor": "top",
+      "file": "antenna.webp",
+      "label": "Antenna",
+      "pivot": [
+        74,
+        400
+      ],
+      "size": [
+        150,
+        411
+      ],
+      "slot": "top",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 0.35
+    },
+    "scarf": {
+      "anchor": "neck",
+      "file": "scarf.webp",
+      "label": "Scarf",
+      "pivot": [
+        255,
+        148
+      ],
+      "size": [
+        512,
+        282
+      ],
+      "slot": "neck",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 1.9
+    },
+    "bowtie": {
+      "anchor": "neck",
+      "file": "bowtie.webp",
+      "label": "Bow tie",
+      "pivot": [
+        168,
+        92
+      ],
+      "size": [
+        338,
+        185
+      ],
+      "slot": "neck",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 0.8
+    },
+    "headset-mic": {
+      "anchor": "top",
+      "file": "headset-mic.webp",
+      "label": "Headset with microphone",
+      "pivot": [
+        228,
+        20
+      ],
+      "size": [
+        458,
+        398
+      ],
+      "slot": "ear",
+      "views": [
+        "front",
+        "yaw20",
+        "up",
+        "down"
+      ],
+      "width": 2.3
+    }
+  }
+}

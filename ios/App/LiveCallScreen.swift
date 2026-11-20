@@ -142,6 +142,7 @@ private struct LiveCallStage: View {
                 LiveCallRings(
                     side: ringSide(for: geo.size.height),
                     muted: status == .muted,
+                    speaking: feed.botIsSpeaking(in: status),
                     botId: target.botId,
                     name: target.botName
                 )
@@ -173,6 +174,7 @@ private struct LiveCallStage: View {
 private struct LiveCallRings: View {
     let side: CGFloat
     let muted: Bool
+    let speaking: Bool
     let botId: String
     let name: String
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -192,7 +194,7 @@ private struct LiveCallRings: View {
             Circle()
                 .fill(Color.seiraRing1)
                 .padding(side * 0.2)
-            LiveCallAvatar(botId: botId, name: name, size: side * 156 / 300)
+            LiveCallAvatar(botId: botId, name: name, size: side * 156 / 300, speaking: speaking)
         }
         .frame(width: side, height: side)
         .accessibilityHidden(true)
@@ -203,11 +205,17 @@ private struct LiveCallAvatar: View {
     let botId: String
     let name: String
     let size: CGFloat
+    /// Nil on the ended screen, where the character holds still.
+    var speaking: Bool?
     @EnvironmentObject private var session: Session
 
     var body: some View {
         if let bot = session.state.bot(botId) {
-            SeiraAvatar(bot: bot, size: size, ringGap: .seiraCallApp)
+            if let speaking {
+                LiveCallCharacter(bot: bot, size: size, speaking: speaking)
+            } else {
+                SeiraAvatar(bot: bot, size: size, ringGap: .seiraCallApp)
+            }
         } else {
             SeiraInitials(text: initials, size: size, style: .tint)
         }
@@ -216,6 +224,33 @@ private struct LiveCallAvatar: View {
     private var initials: String {
         let letters = name.split(separator: " ").prefix(2).compactMap(\.first)
         return String(letters).uppercased()
+    }
+}
+
+/// The bot on the call: it sways, blinks, and its mouth follows the same
+/// pulse as the voice bars while the bot speaks.
+private struct LiveCallCharacter: View {
+    let bot: Bot
+    let size: CGFloat
+    let speaking: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    var body: some View {
+        TimelineView(.animation(paused: !speaking || reduceMotion)) { context in
+            BotCharacterView(
+                bot: bot, size: size, mood: .idle, motion: .sway,
+                talkLevel: speaking ? level(at: context.date) : 0)
+        }
+    }
+
+    private func level(at date: Date) -> Double {
+        0.45 + 0.55 * abs(sin(date.timeIntervalSinceReferenceDate * 5))
+    }
+}
+
+extension LiveCallFeed {
+    fileprivate func botIsSpeaking(in status: LiveCallStatus) -> Bool {
+        status == .talking && !captions.line.isEmpty && captions.speaker == .voice
     }
 }
 
@@ -238,7 +273,7 @@ private struct LiveCallStatusRow: View {
     }
 
     private var speaking: Bool {
-        status == .talking && !feed.captions.line.isEmpty && feed.captions.speaker == .voice
+        feed.botIsSpeaking(in: status)
     }
 
     @ViewBuilder private var text: some View {

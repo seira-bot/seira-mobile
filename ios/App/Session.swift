@@ -207,8 +207,10 @@ final class Session: ObservableObject {
         }
         NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
             guard let self, let bot = self.state.bot(botId) else { return nil }
-            if let path = bot.avatarUrl,
-               let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
+            guard let path = bot.avatarUrl, (bot.avatarCrop ?? .mascot) != .mascot else {
+                return SeiraPlate.plateImage(look: SeiraLook(bot: bot), size: 128, scale: 2)?.pngData()
+            }
+            if let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
             Task { _ = await self.avatarData(for: bot) }
             return nil
         }
@@ -2379,6 +2381,21 @@ final class Session: ObservableObject {
         } catch {
             if !Task.isCancelled { actionError = error.localizedDescription }
             return nil
+        }
+    }
+
+    /// Sends only the look fields that differ from `original`. Gives true when nothing needed sending.
+    /// A failure is not put in `actionError`: the Change look sheet shows it in place.
+    func saveLook(_ look: SeiraLook, from original: SeiraLook, for bot: Bot) async -> Bool {
+        let patch = BotLookPatch(from: original, to: look)
+        if patch.isEmpty { return true }
+        guard let client else { return false }
+        do {
+            let updated = try await client.updateLook(botId: bot.id, patch: patch)
+            state.apply(.bot(updated))
+            return true
+        } catch {
+            return false
         }
     }
 

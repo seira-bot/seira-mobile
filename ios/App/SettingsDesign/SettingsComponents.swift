@@ -2,16 +2,27 @@ import SwiftUI
 
 struct SettingsSectionHeader: View {
     let title: LocalizedStringKey
+    var icon3D: String? = nil
 
     var body: some View {
-        Text(title)
-            .font(.seira(13, .medium, relativeTo: .subheadline))
-            .foregroundStyle(Color.seiraInk3)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.top, 28)
-            .padding(.horizontal, 4)
-            .padding(.bottom, 8)
-            .accessibilityAddTraits(.isHeader)
+        HStack(spacing: 8) {
+            if let icon = icon3D {
+                Image(icon)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 30, height: 30)
+                    .accessibilityHidden(true)
+            }
+            Text(title)
+                .font(.seira(13, .medium, relativeTo: .subheadline))
+                .foregroundStyle(Color.seiraInk3)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.top, 28)
+        .padding(.horizontal, 4)
+        .padding(.bottom, 8)
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(.isHeader)
     }
 }
 

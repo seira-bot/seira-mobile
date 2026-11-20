@@ -93,7 +93,7 @@ final class LiveActivityCoordinator {
             guard case let .bot(bot) = update.chat else { continue }
             wantedIds.insert(bot.id)
             if since[bot.id]?.kind != update.kind { since[bot.id] = (update.kind, now) }
-            let face = MausState.forBot(bot, last: state.lastVisibleMessage(forThread: bot.threadId))
+            let face = CharacterMood.forBot(bot, last: state.lastVisibleMessage(forThread: bot.threadId))
             let content = BotActivityAttributes.ContentState(
                 update: update, face: face.rawValue, since: since[bot.id]?.at ?? now
             )
@@ -140,7 +140,11 @@ final class LiveActivityCoordinator {
             Task { await existing.update(.init(state: content, staleDate: nil), alertConfiguration: newAsk ? alert : nil) }
             return
         }
-        let attributes = BotActivityAttributes(botId: bot.id, threadId: bot.threadId, name: bot.name, color: bot.color)
+        let attributes = BotActivityAttributes(
+            botId: bot.id, threadId: bot.threadId, name: bot.name, color: bot.color,
+            mascotBody: bot.mascotBody, mascotFaceColor: bot.mascotFaceColor,
+            mascotAccessories: bot.mascotAccessories
+        )
         let created = try? BotActivity.request(attributes: attributes, content: .init(state: content, staleDate: nil), pushType: nil)
         // a fresh activity cannot alert on request; one immediate alerting update does it
         if let alert, let created {

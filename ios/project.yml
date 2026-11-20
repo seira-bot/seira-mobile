@@ -65,6 +65,8 @@ targets:
       - path: App
       - path: AppShared
       - path: Shared
+      - path: SeiraKit
+        type: folder
     dependencies:
       - package: CompanionCore
         product: CompanionCore
@@ -264,15 +266,14 @@ targets:
       # answer intent resolves tokens through the same shared connection
       # store the Share extension uses.
       - path: AppShared
-      - path: App/MausAvatar.swift
-      - path: App/MausFaceData.swift
-      # MascotState resolves the face for the post-answer refresh a widget
-      # performs; it is self-contained above Core, so it rides along.
-      - path: App/MascotState.swift
+      # The character kit and the code that draws it. Widgets and Live
+      # Activities draw the carved avatar from these, and the post-answer
+      # refresh resolves each chat's mood with `CharacterMood`.
+      - path: App/Character
+      - path: SeiraKit
+        type: folder
     dependencies:
-      # MausAvatar draws whichever body a bot wears, and the body catalog and
-      # its path parser live in CompanionCore. The extension shares the
-      # drawing with the app, so it has to share the catalog too.
+      # The look catalog and the models live in CompanionCore.
       - package: CompanionCore
         product: CompanionCore
     settings:

@@ -21,7 +21,8 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     /// Set by `Session`; kept as an id-only value so the notification layer
     /// does not know about SwiftUI navigation or mutable fleet state.
     var responseHandler: ((NotificationTarget) -> Void)?
-    /// Set by `Session`. Returns the avatar image of the bot with this id.
+    /// Set by `Session`. Returns the avatar image of the bot with this id:
+    /// its photo, or the Seira character on its plate.
     @MainActor var avatarProvider: (@MainActor (String) async -> Data?)?
     /// Set by `Session`. Answers the request an alert names, or says that the
     /// person has to review it in the chat.

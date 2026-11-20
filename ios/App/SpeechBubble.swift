@@ -88,8 +88,8 @@ struct SpeechBubble: Shape {
 /// The two bubble fills. Solid rather than translucent on purpose: the tail
 /// is part of the same fill, and a see-through bubble shows the seam.
 enum BubbleColor {
-    /// What you said. The mascot palette's blue, not the system's.
-    static let mine = MausPalette.color("blue")
+    /// What you said. The palette's blue, not the system's.
+    static let mine = SeiraPalette.color("blue")
     static let mineText = Color.white
 
     /// What a bot said. Near-black on dark, a soft grey on light.
