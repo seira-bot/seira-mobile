@@ -25,6 +25,8 @@ struct CompanionApp: App {
     var body: some Scene {
         WindowGroup {
             RootView()
+                .liveCallScreen()
+                .appliesAppearance()
                 .environmentObject(session)
                 .environmentObject(liveCall)
                 .environment(\.avatarLoader, AvatarLoader(session: session))
@@ -53,7 +55,13 @@ struct CompanionApp: App {
                     widgetSync.attach(to: session)
                     liveCall.attach(to: session)
                 }
-                .onOpenURL { session.receiveURL($0) }
+                .onOpenURL { url in
+                    if let route = AppRouter.route(for: url) {
+                        AppRouter.shared.pending = route
+                    } else {
+                        session.receiveURL(url)
+                    }
+                }
                 .onValueChange(of: scenePhase) { phase in
                     // Only a true background hangs up (CompanionCore's rule):
                     // Control Center and the mic prompt pass through .inactive.
@@ -82,6 +90,9 @@ struct CompanionApp: App {
 
 struct RootView: View {
     @EnvironmentObject private var session: Session
+    @EnvironmentObject private var liveCall: LiveCallController
+    @ObservedObject private var router = AppRouter.shared
+    @State private var talkConfirmation: Bot?
     @AppStorage("companion.onboarding.welcomeSeen") private var hasSeenWelcome = false
     @AppStorage("companion.onboarding.notificationsSeen") private var hasSeenNotificationPrompt = false
     @AppStorage(CompanionOnboardingPreferences.pendingNotificationOnboardingKey)
@@ -156,6 +167,10 @@ struct RootView: View {
             session.beginPairing()
         }
         .onAppear { reconcileNotificationOnboarding() }
+        .modifier(TalkConfirmation(bot: $talkConfirmation, start: startTalk))
+        .onValueChange(of: router.pending, initial: true) { _ in handlePendingRoute() }
+        .onValueChange(of: session.status) { _ in handlePendingRoute() }
+        .onValueChange(of: session.connection?.id) { _ in handlePendingRoute() }
         .onValueChange(of: session.notificationAuthorizationResolved) { _ in
             reconcileNotificationOnboarding()
         }
@@ -220,6 +235,54 @@ struct RootView: View {
     private func startPairing() {
         hasSeenWelcome = true
         session.beginPairing()
+    }
+
+    /// A route waits until the chat list is ready: the computer is paired and
+    /// its stream has delivered the bots. An app that is not paired drops it.
+    private func handlePendingRoute() {
+        guard let pending = router.pending else { return }
+        guard session.connection != nil else {
+            router.pending = nil
+            return
+        }
+        switch session.status {
+        case .connecting, .offline:
+            return
+        case .live:
+            break
+        case .unpaired, .unauthorized:
+            router.pending = nil
+            return
+        }
+        run(pending)
+        router.pending = nil
+    }
+
+    private func run(_ route: AppRoute) {
+        let store = session.state
+        guard let chief = store.unsectionedChief ?? store.sidebarSections.flatMap(\.chiefs).first else { return }
+        switch route {
+        case .newChat:
+            Task {
+                if let created = await session.createRosterThread(for: chief) {
+                    session.openChat(threadId: created.threadId)
+                }
+            }
+        case .talk(let confirmed):
+            if liveCall.machine.isActive {
+                liveCall.presentScreen()
+            } else if confirmed, !LiveCallDisclosure().isDue {
+                startTalk(chief)
+            } else {
+                talkConfirmation = chief
+            }
+        }
+    }
+
+    private func startTalk(_ bot: Bot) {
+        guard !liveCall.machine.isActive else { return }
+        liveCall.start(bot: bot)
+        liveCall.presentScreen()
     }
 }
 

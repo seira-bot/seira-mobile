@@ -24,10 +24,13 @@ final class ResponsivenessUITests: XCTestCase {
     @MainActor
     func testShortChatTypingAndThreadSwitchingDuringBusyFleet() {
         let app = launchBusyFleet()
-        let threads = app.buttons["threads-toggle.preview-pepper"]
-        XCTAssertTrue(threads.waitForExistence(timeout: 10))
-        threads.tap()
-        app.buttons["thread.preview-gmail"].tap()
+        // Home lists each working thread under "Needs attention" at the
+        // top. Gmail streams, so its row is there; Pepper's own row comes
+        // after more than twenty of those rows, below the screen.
+        let gmail = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Triage Gmail, Pepper")).firstMatch
+        XCTAssertTrue(app.revealOnRoster(gmail))
+        gmail.tap()
+        selectThread("preview-gmail", title: "Triage Gmail", in: app)
 
         let progress = app.staticTexts["busy-fleet-progress"]
         let redraws = app.staticTexts["transcript-row-redraws"]

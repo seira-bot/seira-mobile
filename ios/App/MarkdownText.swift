@@ -57,19 +57,22 @@ struct MarkdownText: View {
     private final class TableKey: NSObject {
         let table: MarkdownTable
         let boldText: Bool
-        init(_ table: MarkdownTable, boldText: Bool) {
+        let sizeCategory: String
+        init(_ table: MarkdownTable, boldText: Bool, sizeCategory: String) {
             self.table = table
             self.boldText = boldText
+            self.sizeCategory = sizeCategory
         }
         override var hash: Int {
             var hasher = Hasher()
             hasher.combine(table)
             hasher.combine(boldText)
+            hasher.combine(sizeCategory)
             return hasher.finalize()
         }
         override func isEqual(_ object: Any?) -> Bool {
             guard let other = object as? TableKey else { return false }
-            return boldText == other.boldText && table == other.table
+            return boldText == other.boldText && sizeCategory == other.sizeCategory && table == other.table
         }
     }
     private static let widthCache: NSCache<TableKey, CachedWidths> = {
@@ -95,6 +98,17 @@ struct MarkdownText: View {
     /// bubbles pass `message-<id>-scroll`. Streaming and file preview pass nil.
     var scrollIdentifier: String? = nil
     var openLink: ((URL) -> OpenURLAction.Result)?
+    private var caretVisible = true
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    private static let caretImage: Image = {
+        let size = CGSize(width: 8, height: 17)
+        let drawn = UIGraphicsImageRenderer(size: size).image { _ in
+            UIColor.black.setFill()
+            UIBezierPath(roundedRect: CGRect(origin: .zero, size: size), cornerRadius: 2).fill()
+        }
+        return Image(uiImage: drawn.withRenderingMode(.alwaysTemplate)).renderingMode(.template)
+    }()
 
     init(
         source: String,
@@ -109,6 +123,22 @@ struct MarkdownText: View {
     }
 
     var body: some View {
+        if caret && !reduceMotion {
+            TimelineView(.periodic(from: .now, by: 0.5)) { context in
+                blinking(at: context.date)
+            }
+        } else {
+            blocksView
+        }
+    }
+
+    private func blinking(at date: Date) -> some View {
+        var shown = self
+        shown.caretVisible = Int(date.timeIntervalSinceReferenceDate / 0.5) % 2 == 0
+        return shown.blocksView
+    }
+
+    @ViewBuilder private var blocksView: some View {
         // The caret marks the live bubble, whose text grows every batch: its
         // settled blocks are parsed once and only the open tail again.
         let blocks = Markdown.blocks(source, streaming: caret)
@@ -132,14 +162,15 @@ struct MarkdownText: View {
         switch block {
         case let .paragraph(text):
             inline(text, tail: tail)
-                .font(.system(size: 17))
+                .font(.seira(15))
+                .lineSpacing(4)
                 .fixedSize(horizontal: false, vertical: true)
 
         case let .heading(level, text):
             // Three sizes, not six. A chat bubble is not a document, and an
             // h4 that looks exactly like body text is a heading that failed.
             inline(text, tail: tail)
-                .font(.system(size: level <= 1 ? 21 : level == 2 ? 19 : 17, weight: .semibold))
+                .font(.seira(level <= 1 ? 19 : level == 2 ? 17 : 15, .semibold, relativeTo: .headline))
                 .fixedSize(horizontal: false, vertical: true)
                 .padding(.top, 2)
 
@@ -158,11 +189,12 @@ struct MarkdownText: View {
         case let .quote(text):
             HStack(alignment: .top, spacing: 8) {
                 RoundedRectangle(cornerRadius: 1.5)
-                    .fill(Color.secondary.opacity(0.4))
+                    .fill(Color.seiraChatHairline)
                     .frame(width: 3)
                 inline(text, tail: tail)
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(15))
+                    .lineSpacing(4)
+                    .foregroundStyle(Color.seiraInk2)
             }
             .fixedSize(horizontal: false, vertical: true)
 
@@ -171,7 +203,7 @@ struct MarkdownText: View {
                 if let language, !language.isEmpty {
                     Text(language)
                         .font(.system(size: 11, weight: .medium, design: .monospaced))
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(Color.seiraInk3)
                 }
                 // Horizontal scroll rather than wrapping: wrapped code is
                 // harder to read than code you have to push sideways, and
@@ -186,11 +218,11 @@ struct MarkdownText: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 10, style: .continuous)
-                    .fill(Color.secondary.opacity(0.14))
+                    .fill(Color.seiraTint)
             )
 
         case .rule:
-            Divider().padding(.vertical, 2)
+            Color.seiraChatHairline.frame(height: 1).padding(.vertical, 2)
         }
     }
 
@@ -202,15 +234,15 @@ struct MarkdownText: View {
         return HStack(alignment: .firstTextBaseline, spacing: 6) {
             if let number {
                 Text("\(number).")
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(15))
+                    .foregroundStyle(Color.seiraInk2)
                     .frame(minWidth: 16, alignment: .trailing)
             }
             HStack(alignment: .firstTextBaseline, spacing: 6) {
                 Image(systemName: checked ? "checkmark.square.fill" : "square")
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.secondary)
-                inline(attributed, tail: tail).font(.system(size: 17))
+                    .font(.system(size: 15))
+                    .foregroundStyle(Color.seiraInk2)
+                inline(attributed, tail: tail).font(.seira(15)).lineSpacing(4)
             }
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(label)
@@ -224,42 +256,22 @@ struct MarkdownText: View {
     private func tableView(_ table: MarkdownTable, tail: Bool, scrollIdentifier: String?) -> some View {
         let widths = columnWidths(table, live: tail)
         return ScrollView(.horizontal, showsIndicators: false) {
-            Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 6) {
-                GridRow {
-                    ForEach(Array(table.headers.enumerated()), id: \.offset) { index, header in
-                        cell(
-                            header,
-                            width: widths[index],
-                            alignment: table.alignments[index],
-                            weight: .semibold,
-                            tail: tail && table.rows.isEmpty && index == table.headers.count - 1,
-                            live: tail,
-                            identifier: scrollIdentifier.map { "\($0)-cell-0-\(index)" }
-                        )
-                    }
-                }
-                if !table.headers.isEmpty {
-                    Divider().gridCellColumns(table.headers.count)
-                }
+            Grid(alignment: .leading, horizontalSpacing: 0, verticalSpacing: 0) {
+                headerRow(table, widths: widths, tail: tail, scrollIdentifier: scrollIdentifier)
                 ForEach(Array(table.rows.enumerated()), id: \.offset) { rowIndex, row in
-                    GridRow {
-                        ForEach(Array(row.enumerated()), id: \.offset) { index, value in
-                            let isLast = rowIndex == table.rows.count - 1 && index == row.count - 1
-                            cell(
-                                value,
-                                width: widths[index],
-                                alignment: table.alignments[index],
-                                weight: .regular,
-                                tail: tail && isLast,
-                                live: tail,
-                                identifier: scrollIdentifier.map { "\($0)-cell-\(rowIndex + 1)-\(index)" }
-                            )
-                        }
-                    }
+                    Color.seiraChatHairline.frame(height: 1).gridCellColumns(max(table.headers.count, 1))
+                    bodyRow(
+                        row, rowIndex: rowIndex, table: table, widths: widths,
+                        tail: tail, scrollIdentifier: scrollIdentifier
+                    )
                 }
             }
-            .padding(.vertical, 4)
         }
+        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 18, style: .continuous)
+                .strokeBorder(Color.seiraChatHairline, lineWidth: 1)
+        )
         .background(alignment: .topLeading) {
             if let scrollIdentifier {
                 Color.white.opacity(0.001)
@@ -269,25 +281,70 @@ struct MarkdownText: View {
         }
     }
 
+    private func headerRow(
+        _ table: MarkdownTable, widths: [CGFloat], tail: Bool, scrollIdentifier: String?
+    ) -> some View {
+        GridRow {
+            ForEach(Array(table.headers.enumerated()), id: \.offset) { index, header in
+                cell(
+                    header,
+                    width: widths[index],
+                    alignment: table.alignments[index],
+                    isHeader: true,
+                    tail: tail && table.rows.isEmpty && index == table.headers.count - 1,
+                    live: tail,
+                    identifier: scrollIdentifier.map { "\($0)-cell-0-\(index)" }
+                )
+            }
+        }
+    }
+
+    private func bodyRow(
+        _ row: [String], rowIndex: Int, table: MarkdownTable, widths: [CGFloat],
+        tail: Bool, scrollIdentifier: String?
+    ) -> some View {
+        GridRow {
+            ForEach(Array(row.enumerated()), id: \.offset) { index, value in
+                let isLast = rowIndex == table.rows.count - 1 && index == row.count - 1
+                cell(
+                    value,
+                    width: widths[index],
+                    alignment: table.alignments[index],
+                    isHeader: false,
+                    tail: tail && isLast,
+                    live: tail,
+                    identifier: scrollIdentifier.map { "\($0)-cell-\(rowIndex + 1)-\(index)" }
+                )
+            }
+        }
+    }
+
     private func cell(
         _ text: String,
         width: CGFloat,
         alignment: MarkdownTableAlignment,
-        weight: Font.Weight,
+        isHeader: Bool,
         tail: Bool,
         live: Bool,
         identifier: String?
     ) -> some View {
         // One inline render serves both the drawn words and the spoken ones.
         let attributed = attributedInline(text, live: live)
+        let font: Font = isHeader
+            ? .seira(12, .medium, relativeTo: .caption)
+            : .seira(13, .regular, relativeTo: .footnote)
         return Color.clear
             .frame(width: tail ? width + caretWidth : width, height: 22)
             .overlay(alignment: frameAlignment(alignment)) {
                 inline(attributed, tail: tail)
-                    .font(.system(size: 15, weight: weight))
+                    .font(font)
+                    .monospacedDigit()
+                    .foregroundStyle(isHeader ? Color.seiraInk3 : Color.seiraInk)
                     .lineLimit(1)
                     .accessibilityHidden(true)
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
             .accessibilityElement(children: .ignore)
             .accessibilityLabel(String(attributed.characters))
             .modifier(OptionalIdentifier(identifier: identifier))
@@ -302,7 +359,10 @@ struct MarkdownText: View {
     }
 
     private func columnWidths(_ table: MarkdownTable, live: Bool) -> [CGFloat] {
-        let key = TableKey(table, boldText: UIAccessibility.isBoldTextEnabled)
+        let key = TableKey(
+            table, boldText: UIAccessibility.isBoldTextEnabled,
+            sizeCategory: UIApplication.shared.preferredContentSizeCategory.rawValue
+        )
         let cache = live ? Self.liveWidthCache : Self.widthCache
         if let cached = cache.object(forKey: key) { return cached.widths }
         let widths = measuredColumnWidths(table, live: live)
@@ -314,19 +374,19 @@ struct MarkdownText: View {
     /// that are actually drawn. A code span is also measured in monospace,
     /// which is wider than the proportional font.
     private func measuredColumnWidths(_ table: MarkdownTable, live: Bool) -> [CGFloat] {
-        let headerFont = UIFont.systemFont(ofSize: 15, weight: .semibold)
-        let bodyFont = UIFont.systemFont(ofSize: 15, weight: .regular)
+        let headerFont = ChatFont.ui(12, medium: true, style: .caption1)
+        let bodyFont = ChatFont.ui(13, style: .footnote)
         return table.headers.indices.map { index in
             var widest = textWidth(table.headers[index], font: headerFont, live: live)
             for row in table.rows where index < row.count {
                 widest = max(widest, textWidth(row[index], font: bodyFont, live: live))
             }
-            return max(widest + 8, 24)
+            return max(widest + 10, 24)
         }
     }
 
     private var caretWidth: CGFloat {
-        textWidth("\u{2007}▍", font: UIFont.systemFont(ofSize: 15), live: false)
+        textWidth("\u{2007}", font: ChatFont.ui(13, style: .footnote), live: false) + 8
     }
 
     private func textWidth(_ text: String, font: UIFont, live: Bool) -> CGFloat {
@@ -342,10 +402,10 @@ struct MarkdownText: View {
     private func marker(_ symbol: String, indent: Int, text: String, tail: Bool) -> some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text(symbol)
-                .font(.system(size: 17))
-                .foregroundStyle(Color.secondary)
+                .font(.seira(15))
+                .foregroundStyle(Color.seiraInk2)
                 .frame(minWidth: 16, alignment: .trailing)
-            inline(text, tail: tail).font(.system(size: 17))
+            inline(text, tail: tail).font(.seira(15)).lineSpacing(4)
         }
         .padding(.leading, CGFloat(indent) * 14)
         .fixedSize(horizontal: false, vertical: true)
@@ -388,10 +448,12 @@ struct MarkdownText: View {
         return attributed
     }
 
-    /// A figure space then a block, so the caret sits off the last glyph
+    /// A figure space then the caret, so it sits off the last glyph
     /// rather than touching it. Empty when not streaming — an empty `Text`
     /// concatenated in costs nothing and keeps the callers branch-free.
     private func caretText(_ tail: Bool) -> Text {
-        tail ? Text("\u{2007}▍").foregroundColor(Color.secondary) : Text("")
+        guard tail else { return Text("") }
+        let ink = caretVisible ? Color.seiraInk.opacity(0.7) : Color.clear
+        return Text("\u{2007}") + Text(Self.caretImage).baselineOffset(-3).foregroundColor(ink)
     }
 }

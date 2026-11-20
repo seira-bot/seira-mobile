@@ -11,28 +11,23 @@ struct AssistantTurnChip: View {
     var revealedMessageId: String? = nil
     @State private var expanded = false
 
+    private var speakers: [String] {
+        var seen: [String] = []
+        for name in turn.messages.compactMap({ $0.from?.name }) where !seen.contains(name) { seen.append(name) }
+        return seen
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Button {
-                withAnimation { expanded.toggle() }
+            ActivityCapsule(
+                text: turn.label, names: speakers, faceBot: context.faceBot, expanded: expanded,
+                label: turn.label,
+                hint: expanded ? "Hides intermediate replies" : "Shows intermediate replies",
+                identifier: "assistant-turn.\(turn.turnId)"
+            ) {
+                withSeiraAnimation(SeiraMotion.base) { expanded.toggle() }
                 Haptics.selection()
-            } label: {
-                HStack(spacing: 6) {
-                    Image(systemName: "checkmark")
-                    Text(turn.label)
-                    Image(systemName: "chevron.right")
-                        .rotationEffect(.degrees(expanded ? 90 : 0))
-                }
-                .font(.caption.weight(.medium))
-                .foregroundStyle(.secondary)
-                .padding(.horizontal, 9)
-                .padding(.vertical, 6)
-                .background(Color.secondary.opacity(0.08), in: Capsule())
             }
-            .buttonStyle(.plain)
-            .accessibilityLabel(turn.label)
-            .accessibilityHint(expanded ? "Hides intermediate replies" : "Shows intermediate replies")
-            .accessibilityIdentifier("assistant-turn.\(turn.turnId)")
 
             if expanded {
                 ForEach(Array(turn.messages.enumerated()), id: \.element.id) { index, message in

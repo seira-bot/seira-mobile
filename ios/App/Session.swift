@@ -202,6 +202,13 @@ final class Session: ObservableObject {
         NotificationCoordinator.shared.responseHandler = { [weak self] target in
             Task { @MainActor in await self?.openNotification(target) }
         }
+        NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
+            guard let self, let bot = self.state.bot(botId) else { return nil }
+            if let path = bot.avatarUrl,
+               let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
+            Task { _ = await self.avatarData(for: bot) }
+            return nil
+        }
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
         if (arguments.contains("-store-preview") || arguments.contains("-computer-switcher-preview")),

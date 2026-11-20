@@ -2,8 +2,8 @@
 // chat stays in view while you talk. Three shapes:
 //
 // - LiveCallBar: this phone's call on this chat — bot, "Live with Ada ·
-//   m:ss", one caption line, settings, mute, hang up; or why it stopped,
-//   with Try again.
+//   m:ss", one caption line, settings, expand, mute, hang up; or why it
+//   stopped, with Try again.
 // - RemoteLiveCallBar: a call on this chat that another device holds. The
 //   Mac's word only (state.liveCall): "Live with Ada · m:ss", where the call
 //   is on a second line, and a hang up that asks the Mac.
@@ -16,6 +16,7 @@ struct LiveCallBar: View {
     let botName: String
     @EnvironmentObject private var liveCall: LiveCallController
     @State private var showingSettings = false
+    @State private var hangUpTaps = 0
 
     var body: some View {
         Group {
@@ -61,88 +62,119 @@ struct LiveCallBar: View {
         return false
     }
 
-    /// Which buttons a row carries: none while hanging up, only the red
-    /// hang-up while calling, settings, mute and hang-up once live.
+    /// Which buttons a row carries: none while hanging up, expand and the
+    /// red hang-up while calling, settings, expand, mute and hang-up once live.
     private enum Controls { case none, hangUpOnly, full }
 
     /// `title` carries its own accessibility id: "live-call-title" (and
     /// "live-call-clock" while live).
     private func row(title: some View, captions: Bool, controls: Controls) -> some View {
-        VStack(alignment: .leading, spacing: 4) {
-            HStack(spacing: 8) {
-                Image(systemName: "phone.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.green)
-                title
-                    .font(.system(size: 14, weight: .semibold))
-                    .lineLimit(1)
-                Spacer(minLength: 4)
-                if controls == .full {
-                    Button { showingSettings = true } label: {
-                        Image(systemName: "gearshape.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(Color.primary)
-                            .frame(width: 32, height: 32)
-                            .background(Circle().fill(Color.secondary.opacity(0.12)))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Live call settings")
-                    .accessibilityIdentifier("live-call-settings")
-
-                    Button { liveCall.toggleMute() } label: {
-                        Image(systemName: liveCall.isMuted ? "mic.slash.fill" : "mic.fill")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundStyle(liveCall.isMuted ? LiveCallColor.red : Color.primary)
-                            .frame(width: 32, height: 32)
-                            .background(Circle().fill(liveCall.isMuted ? LiveCallColor.mutedBackground : Color.secondary.opacity(0.12)))
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel(liveCall.isMuted ? "Unmute" : "Mute")
-                    .accessibilityIdentifier("live-call-mute")
-                }
-                if controls != .none {
-                    Button { liveCall.hangUp() } label: {
-                        HangUpLabel()
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Hang up")
-                    .accessibilityIdentifier("live-call-hangup")
-                }
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 0) {
+                titleArea(title)
+                if controls != .none { controlButtons(controls) }
             }
             if captions {
                 LiveCallCaptionLine(feed: liveCall.feed)
+                    .padding(.bottom, 8)
             }
         }
         .sheet(isPresented: $showingSettings) { LiveCallSettingsSheet() }
-        .modifier(BarChrome(tint: LiveCallColor.tint))
+        .modifier(BarChrome())
+    }
+
+    private func titleArea(_ title: some View) -> some View {
+        HStack(spacing: 8) {
+            StatusDot(color: .seiraLiveDot)
+            title
+                .font(.seira(14, .semibold, relativeTo: .subheadline))
+                .foregroundStyle(Color.seiraInk)
+                .lineLimit(1)
+            Spacer(minLength: 4)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture { liveCall.presentScreen() }
+    }
+
+    private func controlButtons(_ controls: Controls) -> some View {
+        HStack(spacing: 0) {
+            if controls == .full { settingsButton }
+            expandButton
+            if controls == .full { muteButton }
+            hangUpButton
+        }
+    }
+
+    private var settingsButton: some View {
+        Button { showingSettings = true } label: {
+            BarIcon(symbol: "gearshape.fill", ink: .seiraInk)
+        }
+        .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: .seiraControl))
+        .accessibilityLabel("Live call settings")
+        .accessibilityIdentifier("live-call-settings")
+    }
+
+    private var expandButton: some View {
+        Button { liveCall.presentScreen() } label: {
+            BarIcon(symbol: "arrow.up.left.and.arrow.down.right", ink: .seiraInk)
+        }
+        .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: .seiraControl))
+        .accessibilityLabel("Open call screen")
+        .accessibilityIdentifier("live-call-expand")
+    }
+
+    private var muteButton: some View {
+        let muted = liveCall.isMuted
+        let fill: Color = muted ? .seiraInverse : .seiraControl
+        let ink: Color = muted ? .seiraOnInverse : .seiraInk
+        return Button { liveCall.toggleMute() } label: {
+            BarIcon(symbol: muted ? "mic.slash.fill" : "mic.fill", ink: ink)
+        }
+        .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: fill))
+        .feedback(.selection, trigger: muted)
+        .accessibilityLabel(muted ? "Unmute" : "Mute")
+        .accessibilityIdentifier("live-call-mute")
+    }
+
+    private var hangUpButton: some View {
+        Button {
+            hangUpTaps += 1
+            liveCall.hangUp()
+        } label: {
+            BarIcon(symbol: "phone.down.fill", ink: .white)
+        }
+        .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: .seiraDangerFill))
+        .feedback(.warning, trigger: hangUpTaps)
+        .accessibilityLabel("Hang up")
+        .accessibilityIdentifier("live-call-hangup")
     }
 
     private func stoppedRow(_ notice: LiveCallNotice) -> some View {
         HStack(spacing: 8) {
             Image(systemName: "phone.down")
                 .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.secondary)
+                .foregroundStyle(Color.seiraInk3)
             notice.text
-                .font(.system(size: 13))
+                .font(.seira(13, .regular, relativeTo: .footnote))
+                .foregroundStyle(Color.seiraInk2)
                 .lineLimit(2)
                 .accessibilityIdentifier("live-call-title")
             Spacer(minLength: 4)
             if notice.canRetry {
-                Button("Try again") { liveCall.retry() }
-                    .font(.system(size: 13, weight: .semibold))
-                    .tint(LiveCallColor.action)
-                    .accessibilityIdentifier("live-call-retry")
+                Button { liveCall.retry() } label: {
+                    Text("Try again").font(.seira(13, .semibold, relativeTo: .footnote))
+                }
+                .buttonStyle(SeiraControlButtonStyle())
+                .accessibilityIdentifier("live-call-retry")
             }
             Button { liveCall.dismiss() } label: {
-                Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .semibold))
-                    .frame(width: 28, height: 28)
+                BarIcon(symbol: "xmark", ink: .seiraInk)
             }
-            .buttonStyle(.plain)
+            .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: .seiraControl))
             .accessibilityLabel("Dismiss")
             .accessibilityIdentifier("live-call-dismiss")
         }
-        .modifier(BarChrome(tint: nil))
+        .modifier(BarChrome())
     }
 }
 
@@ -189,16 +221,16 @@ private struct LiveCallNameAndClock: View {
     }
 }
 
-/// The last words said, the person's in grey. It follows the feed, so each
-/// word redraws this line only.
+/// The last words said, the person's in a quieter ink. It follows the feed,
+/// so each word redraws this line only.
 private struct LiveCallCaptionLine: View {
     @ObservedObject var feed: LiveCallFeed
 
     var body: some View {
         if !feed.captions.line.isEmpty {
             Text(verbatim: feed.captions.line)
-                .font(.system(size: 13))
-                .foregroundStyle(feed.captions.speaker == .user ? LiveCallColor.ownWords : Color.primary)
+                .font(.seira(13, .regular, relativeTo: .footnote))
+                .foregroundStyle(feed.captions.speaker == .user ? Color.seiraInk3 : Color.seiraInk2)
                 .lineLimit(1)
                 .accessibilityIdentifier("live-call-caption")
         }
@@ -220,13 +252,12 @@ struct RemoteLiveCallBar: View {
     /// One hang-up at a time: a second tap while the first is on its way
     /// would only earn a 404 for a call the first one ended.
     @State private var hangingUp = false
+    @State private var hangUpTaps = 0
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
+        VStack(alignment: .leading, spacing: 0) {
             HStack(spacing: 8) {
-                Image(systemName: "phone.fill")
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(Color.green)
+                StatusDot(color: .seiraLiveDot)
                 // The clock runs on the timeline, not on a timer held by this
                 // view: the chat re-renders the bar as frames land, and a timer
                 // re-created with each render may never get to fire.
@@ -236,32 +267,40 @@ struct RemoteLiveCallBar: View {
                         clock: LiveCallClock.text(LiveCallClock.elapsed(since: call.startedAt, now: context.date)),
                         id: "live-call-remote"
                     )
-                    .font(.system(size: 14, weight: .semibold))
+                    .font(.seira(14, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk)
                     .lineLimit(1)
                 }
                 Spacer(minLength: 4)
-                Button {
-                    hangingUp = true
-                    Task {
-                        await session.hangUpRemoteLiveCall(callId: call.callId)
-                        hangingUp = false
-                    }
-                } label: {
-                    HangUpLabel()
-                }
-                .buttonStyle(.plain)
-                .disabled(hangingUp)
-                .accessibilityLabel("Hang up")
-                .accessibilityIdentifier("live-call-remote-hangup")
+                hangUpButton
             }
             LiveCallNotice.fromDevice(call.client)
-                .font(.system(size: 13))
-                .foregroundStyle(LiveCallColor.detail)
+                .font(.seira(13, .regular, relativeTo: .footnote))
+                .foregroundStyle(Color.seiraInk3)
                 .lineLimit(1)
+                .padding(.bottom, 8)
                 .accessibilityIdentifier("live-call-remote-device")
         }
-        .modifier(BarChrome(tint: LiveCallColor.tint))
+        .modifier(BarChrome())
         .accessibilityIdentifier("live-call-remote-bar")
+    }
+
+    private var hangUpButton: some View {
+        Button {
+            hangingUp = true
+            hangUpTaps += 1
+            Task {
+                await session.hangUpRemoteLiveCall(callId: call.callId)
+                hangingUp = false
+            }
+        } label: {
+            BarIcon(symbol: "phone.down.fill", ink: .white)
+        }
+        .buttonStyle(SeiraCircleButtonStyle(size: 36, fill: .seiraDangerFill))
+        .disabled(hangingUp)
+        .feedback(.warning, trigger: hangUpTaps)
+        .accessibilityLabel("Hang up")
+        .accessibilityIdentifier("live-call-remote-hangup")
     }
 }
 
@@ -284,39 +323,31 @@ struct LiveCallBanner: View {
 
 /// The banner's words and clock. It follows the feed, so the clock redraws
 /// this label only, not the roster or the chat around it.
-///
-/// The words are primary text on a light green tint, with only the phone in
-/// green: black on pale green in light mode, white on dark green in dark
-/// mode, both well past WCAG AA. Green words on the fully green glass they
-/// had before measured about 1.4:1.
 private struct LiveCallBannerLabel: View {
     let botName: String
     @ObservedObject var feed: LiveCallFeed
 
     var body: some View {
-        Label {
+        HStack(spacing: 8) {
+            StatusDot(color: .seiraLiveDot)
             Text("On a call with \(botName) · \(LiveCallClock.text(feed.elapsedSeconds))")
-                .foregroundStyle(Color.primary)
-        } icon: {
-            Image(systemName: "phone.fill")
-                .foregroundStyle(Color.green)
+                .font(.seira(13, .semibold, relativeTo: .footnote))
+                .foregroundStyle(Color.seiraInk)
         }
-        .font(.footnote.weight(.semibold))
-        .padding(.horizontal, 12)
-        .padding(.vertical, 6)
-        .glassCapsule(tint: LiveCallColor.tint)
+        .padding(.horizontal, 14)
+        .padding(.vertical, 8)
+        .background(Color.seiraTint, in: Capsule())
     }
 }
 
-/// The glass the bars sit on, the same width as the composer.
+/// The card the bars sit on, the same width as the composer.
 private struct BarChrome: ViewModifier {
-    let tint: Color?
-
     func body(content: Content) -> some View {
         content
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
-            .glassSheet(cornerRadius: 22, tint: tint)
+            .padding(.leading, 14)
+            .padding(.trailing, 6)
+            .padding(.vertical, 6)
+            .seiraCard(radius: 22, fill: .seiraTint)
             .padding(.horizontal, 12)
             .padding(.top, 6)
             .frame(maxWidth: CompanionLayout.chatWidth)
@@ -326,45 +357,15 @@ private struct BarChrome: ViewModifier {
     }
 }
 
-/// The round red hang-up, on either bar.
-private struct HangUpLabel: View {
+/// The glyph inside a round bar button.
+private struct BarIcon: View {
+    let symbol: String
+    let ink: Color
+
     var body: some View {
-        Image(systemName: "phone.down.fill")
+        Image(systemName: symbol)
             .font(.system(size: 14, weight: .semibold))
-            .foregroundStyle(Color.white)
-            .frame(width: 32, height: 32)
-            .background(Circle().fill(LiveCallColor.red))
-    }
-}
-
-/// The call's colours, for the light green tint under the bars and the
-/// banner. On the full green they had before, white words read at 1.95:1 in
-/// dark mode and the hang-up red came out salmon. On the light tint the words
-/// are primary text, black on pale green or white on dark green, and the
-/// colours below keep the rest past WCAG AA in both modes.
-private enum LiveCallColor {
-    static let tint = Color.green.opacity(0.2)
-    /// Hang up, and a muted microphone: the system red in dark mode; in
-    /// light mode a deeper red (#D70015), as the system red is too pale on
-    /// the pale green for its button to stand out.
-    static let red = adaptive(light: UIColor(red: 0.843, green: 0, blue: 0.082, alpha: 1), dark: .systemRed)
-    /// Try again, on a stopped call's plain glass: the system blue in dark
-    /// mode; in light mode a deeper blue (#0040DD), as the system blue reads
-    /// at 3.5:1 there.
-    static let action = adaptive(light: UIColor(red: 0, green: 0.251, blue: 0.867, alpha: 1), dark: .systemBlue)
-    /// The person's own words on the caption line: grey, yet dark (or light)
-    /// enough for small text on either tint, which `.secondary` is not.
-    static let ownWords = Color.primary.opacity(0.7)
-    /// Where a remote call is, under its name and clock: the same grey.
-    static let detail = ownWords
-    /// Behind a muted microphone: the page's own colour, white or black, so
-    /// the red slash stands out in both modes.
-    static let mutedBackground = Color(uiColor: .systemBackground)
-
-    private static func adaptive(light: UIColor, dark: UIColor) -> Color {
-        Color(uiColor: UIColor { traits in
-            (traits.userInterfaceStyle == .dark ? dark : light).resolvedColor(with: traits)
-        })
+            .foregroundStyle(ink)
     }
 }
 

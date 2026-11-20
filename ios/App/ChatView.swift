@@ -52,6 +52,7 @@ struct ChatView: View {
     @State private var shareFile: ShareFile?
     @State private var showingPhotoPicker = false
     @State private var showingFileImporter = false
+    @State private var showingCamera = false
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var attachments: [PendingMessageAttachment] = []
     private struct ComposerSnapshot {
@@ -380,6 +381,16 @@ struct ChatView: View {
             allowsMultipleSelection: true,
             onCompletion: importFiles
         )
+        .fullScreenCover(isPresented: $showingCamera) {
+            CameraPicker(
+                onPhoto: { data in
+                    showingCamera = false
+                    Task { await importCameraPhoto(data) }
+                },
+                onCancel: { showingCamera = false }
+            )
+            .ignoresSafeArea()
+        }
         .fullScreenCover(item: $filePreview) { preview in
             FilePreviewView(item: preview) {
                 filePreview = nil
@@ -423,13 +434,26 @@ struct ChatView: View {
         // The blur is only the top strip — back, computer — the way
         // a system bar is; the transcript starts on that line and
         // scrolls under the face and name, which float over it.
+        .overlay(alignment: .top) {
+            SeiraFade(edge: .top, height: 120, color: .seiraApp).ignoresSafeArea(edges: .top)
+        }
         .safeAreaInset(edge: .top, spacing: 0) { headerBar }
-        .overlay(alignment: .top) { headerFace }
-        .overlay(alignment: .top) { floatingFace }
+        .overlay(alignment: .top) {
+            GeometryReader { floatingFace(width: $0.size.width) }
+                .allowsHitTesting(false)
+        }
         // Reading scrollback — one tap back to the end, streaming or
         // not, the same pill the desktop chat offers.
         .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).maxY } action: { bottom in
+            // The call bar or a taller composer took room from the bottom.
+            // The end stays where it was on screen, now under that room,
+            // so a reader who was at the end goes back to it.
+            let shrank = viewportBottom > 0 && bottom < viewportBottom - 0.5
+            let wasAtEnd = !readerDetached && scrollReading.endGap <= Self.followSlack
             viewportBottom = bottom
+            if shrank, wasAtEnd {
+                proxy.scrollTo(Self.transcriptEndId, anchor: .bottom)
+            }
         }
         .overlay(alignment: .bottom) { jumpToLatestPill(proxy) }
         .task { await playIslandIntro() }
@@ -572,7 +596,9 @@ struct ChatView: View {
                 transportProtected: session.phoneCredentialTransportIsProtected,
                 status: session.status,
                 resetGeneration: session.credentialEntryResetGeneration
-            )
+            ),
+            faceBot: bot?.avatarFace,
+            isChief: bot?.chiefOfStaff == true
         )
     }
 
@@ -601,6 +627,7 @@ struct ChatView: View {
             stamp: startsANewStretch(at: index, in: transcript) ? row.head.date : nil,
             today: shared.today,
             endsRun: endsRun(at: index, in: transcript),
+            startsRun: startsRun(at: index, in: transcript),
             versions: versions,
             isPendingEdit: shared.pendingEditId == row.id,
             routineRun: routineRun,
@@ -703,13 +730,14 @@ struct ChatView: View {
     /// One face, in one layer, measured from the screen's top
     /// edge: it sits in the island while that is open and
     /// glides into its header slot when the island lets go.
-    private var floatingFace: some View {
+    private func floatingFace(width: CGFloat) -> some View {
         let topInset = IslandGeometry.topInset
         let islandSide: CGFloat = 220
         // centred in the part of the square the hardware island does not cover
         let islandFaceCentre = IslandGeometry.top + IslandGeometry.size.height + (islandSide - IslandGeometry.size.height) / 2
         let headerFaceCentre = topInset + 26
-        let faceSize = 60 + 72 * facePhase
+        let headerFaceX: CGFloat = 12 + 44 + 8 + 6 + 16
+        let faceSize = 32 + 100 * facePhase
         let faceCentre = headerFaceCentre + (islandFaceCentre - headerFaceCentre) * facePhase
         return ZStack(alignment: .top) {
             if islandVisible {
@@ -717,9 +745,11 @@ struct ChatView: View {
                     Color.clear
                 }
             }
-            ChatAvatarView(chat: current, size: faceSize, state: MausState.forChat(current, in: session.state), animated: MausState.forChat(current, in: session.state).showsActivity || islandExpanded, comets: islandExpanded)
-                .offset(y: faceCentre - faceSize / 2)
-                .allowsHitTesting(false)
+            if islandVisible {
+                ChatAvatarView(chat: current, size: faceSize, state: MausState.forChat(current, in: session.state), animated: MausState.forChat(current, in: session.state).showsActivity || islandExpanded, comets: islandExpanded)
+                    .offset(x: (headerFaceX - width / 2) * (1 - facePhase), y: faceCentre - faceSize / 2)
+                    .allowsHitTesting(false)
+            }
         }
         .frame(maxWidth: .infinity, alignment: .top)
         .ignoresSafeArea(edges: .top)
@@ -935,219 +965,118 @@ struct ChatView: View {
 
     // MARK: - Header
 
-    /// Back on the left with the rest-of-app unread count, then the Live
-    /// call button; threads and the bot's computer on the right — a blurred
-    /// strip to the top edge.
+    /// Back, the bot pill, then threads, the bot's computer and the Live
+    /// call button, floating over a fade from the app colour.
     private var headerBar: some View {
-        HStack(alignment: .top) {
-            Button { dismiss() } label: {
-                HStack(spacing: 4) {
-                    Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .semibold))
-                    if unreadElsewhere > 0 {
-                        Text("\(unreadElsewhere)")
-                            .font(.system(size: 13, weight: .semibold))
-                            .padding(.horizontal, 7)
-                            .frame(minWidth: 22, minHeight: 22)
-                            .background(Capsule().fill(Color.secondary.opacity(0.22)))
-                    }
-                }
-                .foregroundStyle(Color.primary)
-                .padding(.leading, 12)
-                .padding(.trailing, unreadElsewhere > 0 ? 8 : 12)
-                // At least as wide as it is tall: a circle alone, a pill
-                // once the unread count joins it.
-                .frame(minWidth: 44, minHeight: 44)
-                .contentShape(Capsule())
-            }
-            .buttonStyle(.plain)
-            .glassCapsule()
-            .accessibilityLabel("Back")
-
-            // Beside Back rather than the computer: the bot's face sits in
-            // the middle of this strip, and one more round button on the
-            // right pushes the Threads pill under it. Here, hiding it during
-            // a call moves nothing else.
-            if case let .bot(bot) = current, canStartLiveCall {
-                GlassButton(systemImage: "phone", size: 44, weight: .medium) {
-                    Haptics.selection()
-                    if LiveCallDisclosure().isDue {
-                        disclosingLiveCall = bot
-                    } else {
-                        startLiveCall(bot)
-                    }
-                }
-                .accessibilityLabel("Start a Live call with \(current.name)")
-                .accessibilityIdentifier("live-call-start")
-            }
-
-            Spacer(minLength: 4)
-
-            HStack(spacing: 8) {
-                if current.supportsTasks {
-                    Button {
-                        showingTasks = true
-                    } label: {
-                        Label("Threads", systemImage: "square.stack")
-                            .font(.system(size: 14, weight: .medium))
-                            .foregroundStyle(Color.primary)
-                            .padding(.horizontal, 12)
-                            .frame(height: 44)
-                            .contentShape(Capsule())
-                    }
-                    .buttonStyle(.plain)
-                    .glassCapsule()
-                    // The thread you are on, now that the pill under the
-                    // face that named it is gone.
-                    .accessibilityValue(Text(verbatim: current.threadTitle))
-                    .accessibilityIdentifier("header-threads")
-                }
-                if case .bot = current {
-                    GlassButton(systemImage: "display", size: 44, weight: .medium) {
-                        showingComputer = true
-                    }
-                    .accessibilityLabel("Watch \(current.name)'s computer")
-                } else {
-                    Color.clear.frame(width: 44, height: 44)
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
-        .padding(.bottom, 8)
-        .frame(maxWidth: CompanionLayout.headerWidth)
-        .frame(maxWidth: .infinity)
-        .background(
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .mask(
-                    VStack(spacing: 0) {
-                        Color.black
-                        LinearGradient(colors: [.black, .clear], startPoint: .top, endPoint: .bottom)
-                            .frame(height: 20)
-                    }
-                )
-                .padding(.bottom, -20)
-                .ignoresSafeArea(edges: .top)
-                .allowsHitTesting(false)
+        ChatHeaderBar(
+            chat: current,
+            faceBot: currentBot,
+            unread: unreadElsewhere,
+            hidesFace: islandVisible,
+            showsCall: currentBot != nil && canStartLiveCall,
+            onBack: { dismiss() },
+            onProfile: { showingProfile = true },
+            onCall: { beginLiveCall() },
+            onThreads: { showingTasks = true },
+            onComputer: { showingComputer = true }
         )
     }
 
-    /// The seat for the bot's face, floating over the transcript between the
-    /// two buttons. The thread it is on is the Threads button's to say.
-    private var headerFace: some View {
-        // Always here, following the island's face while that one is
-        // the source: when the island lets go, this one flies home.
-        // The face itself is drawn by the island layer above so there is
-        // still only one animated avatar. This transparent seat becomes
-        // its independent profile button once the opening transition has
-        // settled.
-        Group {
-            if case .bot = current {
-                Button { showingProfile = true } label: {
-                    Color.clear
-                        .frame(width: 60, height: 60)
-                        .contentShape(Circle())
-                }
-                .buttonStyle(.plain)
-                .allowsHitTesting(!islandVisible)
-                .accessibilityHidden(islandVisible)
-                .accessibilityLabel("Open \(current.name) settings")
-                .accessibilityHint("Changes this bot's model, profile, notifications, and voice")
-            } else if case let .room(room) = current {
-                // A room's face says whose room this is: the header has no
-                // other place for its name and members.
-                Color.clear
-                    .frame(width: 60, height: 60)
-                    .accessibilityElement()
-                    .accessibilityLabel("\(room.name), \(room.memberIds.count) bots")
-                    .accessibilityIdentifier("header-room")
-            }
+    private var currentBot: Bot? {
+        if case let .bot(bot) = current { return bot }
+        return nil
+    }
+
+    /// The one start path for the header, the composer and the sheet.
+    private func beginLiveCall() {
+        guard let bot = currentBot else { return }
+        Haptics.selection()
+        if LiveCallDisclosure().isDue {
+            disclosingLiveCall = bot
+        } else {
+            startLiveCall(bot)
         }
-        .padding(.top, -4)
     }
 
     // MARK: - The + sheet
 
-    /// What the composer's + opens: a glass sheet of the things you can do
-    /// here, each with a line saying what it does. Rises above the composer;
-    /// tapping anywhere else, or the × the + became, puts it away.
+    /// What the composer's + opens: the "Add to chat" sheet. Every action
+    /// the old list had is still here, split into tiles, quick rows and the rest.
     @ViewBuilder
     private var plusSheet: some View {
         if showingPlus {
-            ZStack(alignment: .bottom) {
-                Color.black.opacity(0.35)
-                    .ignoresSafeArea()
-                    .onTapGesture { withAnimation(.snappy(duration: 0.28)) { showingPlus = false } }
-
-                VStack(spacing: 0) {
-                    ForEach(plusActions) { action in
-                        Button {
-                            withAnimation(.snappy(duration: 0.28)) { showingPlus = false }
-                            action.run()
-                        } label: {
-                            HStack(spacing: 16) {
-                                Image(systemName: action.systemImage)
-                                    .font(.system(size: 20, weight: .medium))
-                                    .foregroundStyle(action.destructive ? Color.red : Color.primary)
-                                    .frame(width: 44, height: 44)
-                                    .background(Circle().fill(Color.primary.opacity(0.10)))
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(action.title)
-                                        .font(.system(size: 19, weight: .medium))
-                                        .foregroundStyle(action.destructive ? Color.red : Color.primary)
-                                    Text(action.subtitle)
-                                        .font(.system(size: 13))
-                                        .foregroundStyle(Color.secondary)
-                                }
-                                Spacer(minLength: 0)
-                            }
-                            .padding(.horizontal, 18)
-                            .frame(height: 64)
-                            .contentShape(Rectangle())
-                        }
-                        .buttonStyle(.plain)
-                        .disabled(action.disabled)
-                        .opacity(action.disabled ? 0.45 : 1)
-                    }
-                }
-                .padding(.vertical, 10)
-                .frame(maxWidth: CompanionLayout.chatWidth, alignment: .leading)
-                .glassSheet(cornerRadius: 30)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 70)
-                .frame(maxWidth: .infinity)
-                .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-            .transition(.opacity)
+            let actions = plusActions
+            AddToChatSheet(
+                tiles: addTiles(from: actions),
+                featured: featuredActions(from: actions),
+                more: actions.filter { !Self.sheetLeadingIds.contains($0.id) },
+                onClose: closePlus
+            )
         }
     }
 
-    private struct PlusAction: Identifiable {
-        let id: String
-        let systemImage: String
-        let title: LocalizedStringKey
-        let subtitle: LocalizedStringKey
-        var destructive = false
-        var disabled = false
-        let run: () -> Void
+    private static let sheetLeadingIds: Set<String> = ["photos", "files", "computer"]
+
+    private func closePlus() {
+        withSeiraAnimation(SeiraMotion.sheet) { showingPlus = false }
     }
 
-    private var plusActions: [PlusAction] {
-        let canAddAttachment = attachments.count < AttachmentPolicy.maximumItems
-            && !preparingAttachments && !sendingMessage
-        var out: [PlusAction] = [
-            PlusAction(
+    private func addTiles(from actions: [AddToChatAction]) -> [AddToChatTile] {
+        let photos = actions.first { $0.id == "photos" }
+        let files = actions.first { $0.id == "files" }
+        var tiles: [AddToChatTile] = []
+        if CameraPicker.isAvailable {
+            tiles.append(AddToChatTile(
+                id: "camera", systemImage: "camera", title: "Camera",
+                disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+            ) { showingCamera = true })
+        }
+        tiles.append(AddToChatTile(
+            id: "photos", systemImage: "photo.on.rectangle", title: "Photos",
+            disabled: photos?.disabled ?? false, disabledReason: photos?.disabledReason
+        ) { photos?.run() })
+        tiles.append(AddToChatTile(
+            id: "files", systemImage: "paperclip", title: "Files",
+            disabled: files?.disabled ?? false, disabledReason: files?.disabledReason
+        ) { files?.run() })
+        return tiles
+    }
+
+    private func featuredActions(from actions: [AddToChatAction]) -> [AddToChatAction] {
+        var rows: [AddToChatAction] = []
+        if let bot = currentBot, canStartLiveCall {
+            rows.append(AddToChatAction(
+                id: "live-call", systemImage: "waveform", title: "Live call",
+                subtitle: "Talk it through with \(bot.name)"
+            ) { beginLiveCall() })
+        }
+        if let computer = actions.first(where: { $0.id == "computer" }) { rows.append(computer) }
+        return rows
+    }
+
+    private var plusActions: [AddToChatAction] {
+        let atLimit = attachments.count >= AttachmentPolicy.maximumItems
+        let canAddAttachment = !atLimit && !preparingAttachments && !sendingMessage
+        let limitReason: LocalizedStringKey? = atLimit
+            ? "You can add up to \(AttachmentPolicy.maximumItems) items to one message."
+            : nil
+        let roomThreadReason: LocalizedStringKey = current.busy
+            ? "Wait until the bots finish this turn."
+            : "Answer the open question first."
+        var out: [AddToChatAction] = [
+            AddToChatAction(
                 id: "photos", systemImage: "photo.on.rectangle", title: "Photo Library",
-                subtitle: "Add a photo to this message", disabled: !canAddAttachment
+                subtitle: "Add a photo to this message", disabled: !canAddAttachment,
+                disabledReason: limitReason
             ) { showingPhotoPicker = true },
-            PlusAction(
+            AddToChatAction(
                 id: "files", systemImage: "paperclip", title: "Choose File",
-                subtitle: "Add a document from Files", disabled: !canAddAttachment
+                subtitle: "Add a document from Files", disabled: !canAddAttachment,
+                disabledReason: limitReason
             ) { showingFileImporter = true },
         ]
         if case let .bot(bot) = current {
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "task", systemImage: "plus.square.on.square", title: "New thread",
                 subtitle: "Start a fresh thread with \(bot.name)"
             ) { Task {
@@ -1155,31 +1084,32 @@ struct ChatView: View {
                     selectedThreadId = created.threadId
                 }
             } })
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "tasks", systemImage: "square.stack", title: "Threads",
                 subtitle: "Switch, rename or remove one"
             ) { showingTasks = true })
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "settings", systemImage: "gearshape", title: "Bot settings",
                 subtitle: "Model, profile, voice and notifications"
             ) { showingProfile = true })
-            out.append(PlusAction(
-                id: "computer", systemImage: "display", title: "Watch computer",
-                subtitle: "Live view of what \(bot.name) is doing"
+            out.append(AddToChatAction(
+                id: "computer", systemImage: "display", title: "Cloud desktop",
+                subtitle: "Watch \(bot.name) work on screen"
             ) { showingComputer = true })
         }
         if case let .room(room) = current, room.dm != true {
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "task", systemImage: "plus.square.on.square", title: "New thread",
                 subtitle: "Start a fresh conversation in \(room.name)",
-                disabled: current.busy || hasPendingApproval
+                disabled: current.busy || hasPendingApproval,
+                disabledReason: roomThreadReason
             ) { Task { await session.createTask(for: room, title: nil) } })
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "tasks", systemImage: "square.stack", title: "Threads",
                 subtitle: "Switch, rename or remove one"
             ) { showingTasks = true })
         }
-        out.append(PlusAction(
+        out.append(AddToChatAction(
             id: "share", systemImage: "doc.plaintext", title: "Share transcript",
             subtitle: "This thread as Markdown"
         ) {
@@ -1189,7 +1119,7 @@ struct ChatView: View {
                 }
             }
         })
-        out.append(PlusAction(
+        out.append(AddToChatAction(
             id: "share-json", systemImage: "curlybraces", title: "Share as JSON",
             subtitle: "Structured transcript data"
         ) {
@@ -1200,7 +1130,7 @@ struct ChatView: View {
             }
         })
         if current.busy, case let .bot(bot) = current {
-            out.append(PlusAction(
+            out.append(AddToChatAction(
                 id: "stop", systemImage: "stop.fill", title: "Interrupt",
                 subtitle: "Stop the current turn", destructive: true
             ) { Task { await session.interrupt(bot: bot) } })
@@ -1225,6 +1155,15 @@ struct ChatView: View {
         if this.senderName != next.senderName { return true }
         // a card or a tool chip between two texts breaks the run visually
         return next.kind != .text
+    }
+
+    private func startsRun(at index: Int, in rows: [TranscriptRow]) -> Bool {
+        guard index > 0 else { return true }
+        let this = rows[index]
+        guard let previous = rows[..<index].last(where: { row in
+            if case .message = row { return true } else { return false }
+        }), previous.kind == .text else { return true }
+        return previous.role != this.role || previous.senderName != this.senderName
     }
 
     private func canSend(_ typed: String) -> Bool {
@@ -1263,11 +1202,11 @@ struct ChatView: View {
     }
 
     private var composerPrompt: String {
-        if sendingMessage { return "Sending…" }
-        if dictation.isListening { return "Listening…" }
+        if sendingMessage { return String(localized: "Sending…") }
+        if dictation.isListening { return String(localized: "Listening…") }
         if let asker = composerQuestion?.asker { return String(localized: "Answer \(asker)…") }
-        if current.busy { return engineCanSteer ? "Sends into this turn" : "Sends after this turn" }
-        return "Ask \(current.name)"
+        if current.busy { return engineCanSteer ? String(localized: "Sends into this turn") : String(localized: "Sends after this turn") }
+        return String(localized: "Message \(current.name)")
     }
 
     private func steerQueued(pendingApproval: Bool) -> (() -> Void)? {
@@ -1411,6 +1350,29 @@ struct ChatView: View {
             }
             if threadId == importingThread { attachments.append(contentsOf: imported) }
             else { threadDrafts[importingThread, default: ComposerSnapshot()].attachments.append(contentsOf: imported) }
+            Haptics.selection()
+        } catch {
+            if threadId == importingThread { attachmentError = error.localizedDescription }
+            else { threadDrafts[importingThread]?.error = error.localizedDescription }
+        }
+    }
+
+    private func importCameraPhoto(_ jpeg: Data) async {
+        guard !preparingAttachments, !sendingMessage else { return }
+        let importingThread = threadId
+        let existingAttachments = attachments
+        guard existingAttachments.count < AttachmentPolicy.maximumItems else {
+            attachmentError = "Send up to \(AttachmentPolicy.maximumItems) items at a time."
+            return
+        }
+        attachmentError = nil
+        let candidate = PendingMessageAttachment(
+            id: UUID(), data: jpeg, name: "Photo.jpg", mime: "image/jpeg", kind: .image
+        )
+        do {
+            try AttachmentPolicy.validate(existingAttachments + [candidate])
+            if threadId == importingThread { attachments.append(candidate) }
+            else { threadDrafts[importingThread, default: ComposerSnapshot()].attachments.append(candidate) }
             Haptics.selection()
         } catch {
             if threadId == importingThread { attachmentError = error.localizedDescription }
@@ -1648,9 +1610,13 @@ struct ChatView: View {
         }
         .padding(.horizontal, 12)
         .padding(.top, 6)
-        .padding(.bottom, 8)
+        .padding(.bottom, composerFocused ? 8 : 28)
         .frame(maxWidth: CompanionLayout.chatWidth)
         .frame(maxWidth: .infinity)
+        .background(alignment: .bottom) {
+            SeiraFade(edge: .bottom, height: 120, color: .seiraApp)
+                .ignoresSafeArea(edges: .bottom)
+        }
     }
 
     /// Progress and errors above the field: preparing or sending, a file
@@ -1766,50 +1732,65 @@ struct ChatView: View {
     }
 
     private func composerBar(_ text: Binding<String>) -> some View {
-        GlassGroup(spacing: 10) {
-            HStack(alignment: .bottom, spacing: 10) {
-                plusButton
-
-                HStack(alignment: .bottom, spacing: 6) {
-                    commandButton
-                    composerField(text)
-
-                    // Stop sits in the bar while the turn runs, as it does
-                    // on the desktop. The Interrupt action under + was the
-                    // only way before, and rooms had none at all.
-                    if current.canStop {
-                        stopButton
-                    }
-
-                    dictationButton
-                    sendButton(canSend: canSend(text.wrappedValue))
-                }
-                .frame(minHeight: 44)
-                // A capsule at one line (44pt tall, 22pt corners) that
-                // keeps those 22pt corners as the draft grows, the way
-                // Messages does. A true Capsule would round to half the
-                // height, and a five-line draft became a giant pill.
-                .glassSheet(cornerRadius: 22)
-            }
+        let typed = canSend(text.wrappedValue)
+        return HStack(alignment: .bottom, spacing: 4) {
+            plusButton
+            commandButton
+            composerField(text)
+            // Stop sits in the bar while the turn runs, as it does on the
+            // desktop. The Interrupt action under + was the only way
+            // before, and rooms had none at all.
+            if current.canStop { stopButton }
+            dictationButton
+            trailingButton(canSend: typed)
         }
+        .padding(4)
+        .frame(minHeight: 52)
+        .background(Color.seiraComposer, in: RoundedRectangle(cornerRadius: 28, style: .continuous))
+        .shadow(color: Color.black.opacity(0.10), radius: 18, y: 4)
+    }
+
+    @ViewBuilder private func trailingButton(canSend: Bool) -> some View {
+        if canSend {
+            sendButton(canSend: true)
+        } else if !current.canStop, currentBot != nil, canStartLiveCall {
+            composerLiveCallButton
+        }
+    }
+
+    private var composerLiveCallButton: some View {
+        Button { beginLiveCall() } label: {
+            Image(systemName: "waveform")
+                .font(.system(size: 16, weight: .medium))
+                .foregroundStyle(Color.seiraOnPrimary)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.seiraPrimary))
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("Start a Live call")
+        .accessibilityIdentifier("composer-live-call")
     }
 
     private var plusButton: some View {
         Button {
             dictation.stop()
             composerFocused = false
-            withAnimation(.snappy(duration: 0.28)) { showingPlus.toggle() }
+            withSeiraAnimation(SeiraMotion.sheet) { showingPlus.toggle() }
         } label: {
             Image(systemName: "plus")
-                .font(.system(size: 20, weight: .medium))
-                .foregroundStyle(showingPlus ? Color(uiColor: .systemBackground) : Color.primary)
-                .rotationEffect(.degrees(showingPlus ? 45 : 0))
+                .font(.system(size: 18, weight: .medium))
+                .foregroundStyle(Color.seiraInk)
+                .rotationEffect(.degrees(showingPlus && !reduceMotion ? 45 : 0))
+                .animation(reduceMotion ? nil : Animation.seira(0.24), value: showingPlus)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.seiraControl))
                 .frame(width: 44, height: 44)
-                .background(Circle().fill(showingPlus ? Color.primary : Color.clear))
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .glassCapsule()
+        .feedback(.selection, trigger: showingPlus)
         .disabled(preparingAttachments || sendingMessage)
         .accessibilityLabel(showingPlus ? "Close" : "More")
     }
@@ -1824,14 +1805,15 @@ struct ChatView: View {
         } label: {
             Image(systemName: "command")
                 .font(.system(size: 13, weight: .bold))
-                .foregroundStyle(showCommandHUD ? Color.primary : Color.secondary)
-                .frame(width: 30, height: 32)
+                .foregroundStyle(showCommandHUD ? Color.seiraInk : Color.seiraInk3)
+                .frame(width: 30, height: 44)
+                .padding(.horizontal, 7)
+                .contentShape(Rectangle())
+                .padding(.horizontal, -7)
         }
         .buttonStyle(.plain)
         .disabled(preparingAttachments || sendingMessage)
         .accessibilityLabel("Slash commands")
-        .padding(.leading, 6)
-        .padding(.bottom, 6)
     }
 
     private func composerField(_ text: Binding<String>) -> some View {
@@ -1841,8 +1823,9 @@ struct ChatView: View {
             axis: .vertical
         )
             .lineLimit(1...5)
-            .font(.system(size: 17))
-            .padding(.vertical, 11)
+            .font(.seira(15))
+            .foregroundStyle(Color.seiraInk)
+            .padding(.vertical, 10)
             .focused($composerFocused)
             .accessibilityIdentifier("message-input")
             // Partial transcripts rebuild from a frozen base;
@@ -1870,13 +1853,14 @@ struct ChatView: View {
             Task { await session.interrupt(current) }
         } label: {
             Image(systemName: "stop.fill")
-                .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(Color.primary)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(Color.secondary.opacity(0.12)))
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(Color.seiraInk)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.seiraControl))
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
-        .padding(.bottom, 6)
         .accessibilityLabel("Stop the current turn")
         .accessibilityIdentifier("composer-stop")
         .transition(.scale.combined(with: .opacity))
@@ -1884,38 +1868,35 @@ struct ChatView: View {
 
     private var dictationButton: some View {
         let listening = dictation.isListening
-        let fill: Color = listening ? Color.red.opacity(0.2) : Color.secondary.opacity(0.12)
+        let tint: Color = listening ? Color.seiraDangerText : Color.seiraInk2
         return Button {
             composerFocused = false
             dictation.toggle(capturing: draft)
         } label: {
             Image(systemName: listening ? "mic.fill" : "mic")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(listening ? Color.red : Color.primary)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(fill))
+                .font(.system(size: 17, weight: .regular))
+                .foregroundStyle(tint)
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
                 .pulseCompat(isActive: listening)
         }
         .buttonStyle(.plain)
         .disabled(preparingAttachments || sendingMessage || liveCall.machine.isActive)
-        .padding(.bottom, 6)
         .accessibilityLabel(listening ? "Stop dictation" : "Start dictation")
     }
 
     private func sendButton(canSend: Bool) -> some View {
-        let fill: Color = canSend ? BubbleColor.mine : Color.secondary.opacity(0.18)
-        return Button { submit() } label: {
+        Button { submit() } label: {
             Image(systemName: "arrow.up")
-                .font(.system(size: 15, weight: .bold))
-                .foregroundStyle(canSend ? Color.white : Color.secondary)
-                .frame(width: 32, height: 32)
-                .background(Circle().fill(fill))
+                .font(.system(size: 16, weight: .semibold))
+                .foregroundStyle(Color.seiraOnPrimary)
+                .frame(width: 40, height: 40)
+                .background(Circle().fill(Color.seiraPrimary))
+                .frame(width: 44, height: 44)
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .disabled(!canSend)
-        .padding(.trailing, 6)
-        .padding(.bottom, 6)
-        .animation(.easeOut(duration: 0.15), value: canSend)
         .accessibilityLabel(composerQuestion != nil
             ? "Submit answer"
             : current.busy
@@ -2267,7 +2248,7 @@ struct MessageRow: View, Equatable {
     }
 
     private func bubble(_ presentation: MessagePresentation) -> TextBubble {
-        TextBubble(message: message, presentation: presentation, context: context, tailed: endsRun, actions: actions)
+        TextBubble(message: message, presentation: presentation, context: context, actions: actions)
     }
 
     private func reactionGroups(_ reactions: [Reaction]) -> [(emoji: String, count: Int, mine: Bool)] {
@@ -2304,63 +2285,57 @@ struct TextBubble: View {
     /// message by `MessageRow`.
     let presentation: MessagePresentation
     let context: TranscriptRowContext
-    var tailed = true
     let actions: TranscriptActions
 
+    private var mine: Bool { message.role == .user }
+
+    private var bubbleFill: Color {
+        presentation.webhook == nil ? Color.seiraBubble : BubbleColor.mine
+    }
+
     var body: some View {
-        let mine = message.role == .user
-        let customCard = presentation.patch != nil
-        // rooms attribute each line to the member who said it
-        let speaker = message.from
-        // No face beside the bubble: the bot's face is in the header, and in
-        // a room the name line says who spoke. The bubble sits at the edge.
         HStack(alignment: .bottom, spacing: 0) {
             if mine { Spacer(minLength: 56) }
+            column
+            if !mine { Spacer(minLength: 24) }
+        }
+    }
 
-            VStack(alignment: .leading, spacing: 4) {
-                if let speaker, !mine {
-                    Text(speaker.name)
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(MausPalette.color(speaker.color))
-                }
-                ForEach(message.voiceNotes) { note in
-                    VoiceNoteBubble(note: note, tint: MausPalette.color(context.color), actions: actions)
-                }
-                ForEach(message.generatedImages, id: \.path) { attachment in
-                    TranscriptAttachmentView(
-                        attachment: attachment, messageId: message.id, actions: actions,
-                        foreground: mine ? BubbleColor.mineText : .primary
-                    )
-                }
-                // Documents, audio and video a bot sent with attach_file. The
-                // card opens the full-screen viewer, which plays video.
-                ForEach(message.attachedFiles, id: \.path) { attachment in
-                    TranscriptAttachmentView(
-                        attachment: attachment, messageId: message.id, actions: actions,
-                        foreground: mine ? BubbleColor.mineText : .primary
-                    )
-                }
-                words(mine: mine)
-                if mine, message.steered == true {
-                    Text("sent mid-turn")
-                        .font(.system(size: 11))
-                        .foregroundStyle(BubbleColor.mineText.opacity(0.72))
-                }
+    @ViewBuilder private var column: some View {
+        if mine && presentation.patch == nil {
+            parts
+                .padding(.horizontal, 14)
+                .padding(.vertical, 10)
+                .background(UnevenRoundedShape().fill(bubbleFill))
+                .frame(maxWidth: 280, alignment: .trailing)
+        } else {
+            parts
+        }
+    }
+
+    private var parts: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ForEach(message.voiceNotes) { note in
+                VoiceNoteBubble(note: note, tint: MausPalette.color(context.color), actions: actions)
             }
-            .padding(.horizontal, customCard ? 0 : 15)
-            .padding(.vertical, customCard ? 0 : 11)
-            .background(
-                Group {
-                    if !customCard {
-                        SpeechBubble(tail: tailed ? (mine ? .trailing : .leading) : .none)
-                            .fill(mine ? BubbleColor.mine : BubbleColor.theirs)
-                    }
-                }
-            )
-            // leave room for the tail below, so the next row does not sit on it
-            .padding(.bottom, !customCard && tailed ? SpeechBubble.tailDrop() : 0)
-
-            if !mine { Spacer(minLength: 44) }
+            ForEach(message.generatedImages, id: \.path) { attachment in
+                TranscriptAttachmentView(
+                    attachment: attachment, messageId: message.id, actions: actions,
+                    foreground: Color.seiraInk
+                )
+            }
+            ForEach(message.attachedFiles, id: \.path) { attachment in
+                TranscriptAttachmentView(
+                    attachment: attachment, messageId: message.id, actions: actions,
+                    foreground: Color.seiraInk
+                )
+            }
+            words(mine: mine)
+            if mine, message.steered == true {
+                Text("sent mid-turn")
+                    .font(.seira(12, .regular, relativeTo: .caption))
+                    .foregroundStyle(Color.seiraInk3)
+            }
         }
     }
 
@@ -2376,12 +2351,16 @@ struct TextBubble: View {
         } else if mine {
             let shared = presentation.attached
             ForEach(Array(shared.attachments.enumerated()), id: \.offset) { _, attachment in
-                TranscriptAttachmentView(attachment: attachment, messageId: message.id, actions: actions)
+                TranscriptAttachmentView(
+                    attachment: attachment, messageId: message.id, actions: actions,
+                    foreground: Color.seiraInk
+                )
             }
             if !shared.text.isEmpty {
                 Text(shared.text)
-                    .font(.system(size: 17))
-                    .foregroundStyle(BubbleColor.mineText)
+                    .font(.seira(15))
+                    .lineSpacing(4)
+                    .foregroundStyle(Color.seiraInk)
                     .textSelection(.enabled)
                     .fixedSize(horizontal: false, vertical: true)
             }
@@ -2392,7 +2371,7 @@ struct TextBubble: View {
             ) { url in
                 actions.openLink(url, messageId: message.id)
             }
-                .foregroundStyle(Color.primary)
+                .foregroundStyle(Color.seiraInk)
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         }
@@ -2979,194 +2958,257 @@ struct CardView: View {
     /// `OptionCard.isApproval`.
     private static func isRefusal(_ option: String) -> Bool { OptionCard.isRefusal(option) }
 
-    private var tint: Color { MausPalette.color(context.color) }
-
     var body: some View {
         if let card = message.card {
-            VStack(alignment: .leading, spacing: 10) {
-                if card.isPending {
-                    Label("\(context.name) is waiting on you", systemImage: "hand.raised.fill")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundStyle(tint)
-                }
+            VStack(alignment: .leading, spacing: 12) {
+                header(card)
                 headline(card)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(Color.primary)
+                    .font(.seira(15, .semibold))
+                    .foregroundStyle(Color.seiraInk)
                     .fixedSize(horizontal: false, vertical: true)
-                if card.presentation == .standard {
-                    // Proposals are reviewed in full before anyone confirms them.
-                    if !card.subtitle.isEmpty {
-                        Text(card.subtitle)
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.secondary)
-                            .textSelection(.enabled)
-                            .fixedSize(horizontal: false, vertical: true)
-                    }
-                } else {
-                    // An approval leads with one line; the request itself,
-                    // raw arguments and all, waits under Details.
-                    if !card.summaryLine.isEmpty {
-                        Text(card.summaryLine)
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.secondary)
-                            .lineLimit(3)
-                            .fixedSize(horizontal: false, vertical: true)
-                            .accessibilityIdentifier("approval-summary")
-                    }
-                    if card.hasDetails {
-                        details(card.subtitle)
-                    }
-                }
-
-                if let skill = card.skillRequest {
-                    if let preview = skill.preview, let sha256 = skill.reviewedSha256 {
-                        VStack(alignment: .leading, spacing: 7) {
-                            HStack {
-                                Text("Review the complete SKILL.md")
-                                    .font(.system(size: 12, weight: .semibold))
-                                Spacer()
-                                Text("sha256 \(String(sha256.prefix(8)))")
-                                    .font(.system(size: 10, design: .monospaced))
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            Text(skill.source.map { LocalizedStringKey("Source: \($0)") } ?? "Source: unknown")
-                                .font(.system(size: 11))
-                                .foregroundStyle(Color.secondary)
-                                .textSelection(.enabled)
-                            ScrollView(.vertical) {
-                                Text(preview)
-                                    .font(.system(size: 12, design: .monospaced))
-                                    .foregroundStyle(Color.primary)
-                                    .textSelection(.enabled)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            }
-                            .frame(maxHeight: 220)
-                            .padding(10)
-                            .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
-                        }
-                    } else {
-                        Label(
-                            "This proposal was created by an older build and cannot be safely applied. Deny it and ask the bot to create it again.",
-                            systemImage: "exclamationmark.shield"
-                        )
-                        .font(.system(size: 12))
-                        .foregroundStyle(.orange)
-                    }
-                }
-
+                requestText(card)
+                skillReview(card)
                 if card.showsHeldNote, let held = card.held {
                     Label(held, systemImage: "exclamationmark.shield")
-                        .font(.system(size: 13))
-                        .foregroundStyle(.orange)
+                        .font(.seira(13, .regular, relativeTo: .subheadline))
+                        .foregroundStyle(Color.seiraWarningText)
                 }
-
-                if card.isPending {
-                    // A question's answers are sentences: one under another,
-                    // full width, wrapping. Allow and Deny share a row.
-                    Group {
-                        if card.stacksOptions {
-                            VStack(spacing: 8) {
-                                ForEach(card.options, id: \.self) { option in
-                                    optionButton(option, card: card, stacked: true)
-                                }
-                            }
-                            .accessibilityIdentifier("card-options-stacked")
-                        } else {
-                            HStack(spacing: 8) {
-                                ForEach(card.options, id: \.self) { option in
-                                    optionButton(option, card: card, stacked: false)
-                                }
-                            }
-                        }
-                    }
-                    .padding(.top, 2)
-
-                    if card.takesTypedAnswer {
-                        typedAnswerField(card)
-                    }
-
-                    // The grant key comes from the card. The phone never
-                    // derives its own, so it cannot permit something subtly
-                    // wider than the computer would have. The same goes for
-                    // the answer: it is one of the options the card offered,
-                    // never a string invented here.
-                    if card.allowKey != nil, let allow = allowChoice, context.isBot {
-                        Button("Always allow this tool") {
-                            Haptics.selection()
-                            answering = true
-                            Task {
-                                await actions.alwaysAllow(card)
-                                await actions.answer(card, choice: allow, rememberingPermission: false)
-                                answering = false
-                            }
-                        }
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.secondary)
-                        .frame(maxWidth: .infinity)
-                        .disabled(answering)
-                    }
-                } else if let outcome = card.outcome {
-                    Label {
-                        outcomeText(outcome)
-                    } icon: {
-                        Image(systemName: Self.outcomeSymbol(outcome))
-                    }
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.secondary)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityIdentifier("approval-outcome")
-                } else if card.expired == true {
-                    Label("Expired — ask for a fresh proposal", systemImage: "clock.badge.xmark")
-                        .font(.system(size: 14))
-                        .foregroundStyle(Color.secondary)
-                }
+                footer(card)
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .fill(card.isPending ? tint.opacity(0.12) : Color.secondary.opacity(0.13))
-            )
-            .overlay {
-                RoundedRectangle(cornerRadius: 22, style: .continuous)
-                    .strokeBorder(card.isPending ? tint : .clear, lineWidth: 1.5)
+            .seiraCard(radius: 22)
+            .feedback(.success, trigger: card.outcome?.isPositive == true)
+        }
+    }
+
+    private func header(_ card: OptionCard) -> some View {
+        HStack(spacing: 10) {
+            avatar
+            VStack(alignment: .leading, spacing: 1) {
+                Text(verbatim: context.name)
+                    .font(.seira(13, .semibold, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk)
+                    .lineLimit(1)
+                if let role = context.faceBot?.title, !role.isEmpty {
+                    Text(verbatim: role)
+                        .font(.seira(12, .regular, relativeTo: .caption))
+                        .foregroundStyle(Color.seiraInk3)
+                        .lineLimit(1)
+                }
+            }
+            Spacer(minLength: 8)
+            if card.isPending { needsOKPill }
+        }
+    }
+
+    @ViewBuilder private var avatar: some View {
+        if let face = context.faceBot {
+            SeiraAvatar(bot: face, size: 32)
+                .accessibilityHidden(true)
+        } else {
+            SeiraInitials(text: String(context.name.prefix(1)).uppercased(), size: 32, style: .tint)
+                .accessibilityHidden(true)
+        }
+    }
+
+    private var needsOKPill: some View {
+        Text("Needs your OK")
+            .font(.seira(12, .medium, relativeTo: .caption))
+            .foregroundStyle(Color.seiraWarningText)
+            .padding(.horizontal, 10)
+            .frame(height: 24)
+            .background(Color.seiraWarningSoft, in: Capsule())
+            .accessibilityLabel("\(context.name) is waiting on you")
+    }
+
+    @ViewBuilder private func requestText(_ card: OptionCard) -> some View {
+        if card.presentation == .standard {
+            // Proposals are reviewed in full before anyone confirms them.
+            if !card.subtitle.isEmpty {
+                Text(card.subtitle)
+                    .font(.seira(15))
+                    .lineSpacing(4)
+                    .foregroundStyle(Color.seiraInk2)
+                    .textSelection(.enabled)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        } else {
+            // An approval leads with one line; the request itself,
+            // raw arguments and all, waits under Details.
+            if !card.summaryLine.isEmpty {
+                Text(card.summaryLine)
+                    .font(.seira(15))
+                    .lineSpacing(4)
+                    .foregroundStyle(Color.seiraInk2)
+                    .lineLimit(3)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("approval-summary")
+            }
+            if card.hasDetails {
+                details(card.subtitle)
             }
         }
     }
 
-    /// One answer. Stacked, it takes the card's width and as many lines as
-    /// its label needs; in a row, it takes an equal share at one height.
-    private func optionButton(_ option: String, card: OptionCard, stacked: Bool) -> some View {
-        let refusal = Self.isRefusal(option)
-        let fill = refusal ? Color.secondary.opacity(0.18) : tint
-        // A capsule around two or three lines reads as a blob; a stacked
-        // answer gets rounded corners instead.
-        let shape = stacked ? AnyShape(RoundedRectangle(cornerRadius: 20, style: .continuous)) : AnyShape(Capsule())
-        return Button {
-            Haptics.selection()
-            answering = true
-            Task {
-                await actions.answer(card, choice: option)
-                answering = false
+    @ViewBuilder private func skillReview(_ card: OptionCard) -> some View {
+        if let skill = card.skillRequest {
+            if let preview = skill.preview, let sha256 = skill.reviewedSha256 {
+                VStack(alignment: .leading, spacing: 7) {
+                    HStack {
+                        Text("Review the complete SKILL.md")
+                            .font(.seira(12, .semibold, relativeTo: .caption))
+                            .foregroundStyle(Color.seiraInk)
+                        Spacer()
+                        Text("sha256 \(String(sha256.prefix(8)))")
+                            .font(.system(size: 10, design: .monospaced))
+                            .foregroundStyle(Color.seiraInk3)
+                    }
+                    Text(skill.source.map { LocalizedStringKey("Source: \($0)") } ?? "Source: unknown")
+                        .font(.seira(11, .regular, relativeTo: .caption2))
+                        .foregroundStyle(Color.seiraInk3)
+                        .textSelection(.enabled)
+                    ScrollView(.vertical) {
+                        Text(preview)
+                            .font(.system(size: 12, design: .monospaced))
+                            .foregroundStyle(Color.seiraInk)
+                            .textSelection(.enabled)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .frame(maxHeight: 220)
+                    .padding(10)
+                    .background(Color.seiraApp, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                }
+            } else {
+                Label(
+                    "This proposal was created by an older build and cannot be safely applied. Deny it and ask the bot to create it again.",
+                    systemImage: "exclamationmark.shield"
+                )
+                .font(.seira(12, .regular, relativeTo: .caption))
+                .foregroundStyle(Color.seiraWarningText)
             }
-        } label: {
-            Text(option)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(refusal ? Color.primary : .white)
-                .multilineTextAlignment(stacked ? .center : .leading)
-                .fixedSize(horizontal: false, vertical: stacked)
-                .padding(.horizontal, stacked ? 16 : 0)
-                .padding(.vertical, stacked ? 10 : 0)
-                .frame(maxWidth: .infinity)
-                .frame(minHeight: stacked ? 44 : 40, maxHeight: stacked ? nil : 40)
-                .background(shape.fill(fill))
-                .contentShape(shape)
         }
-        .buttonStyle(.plain)
-        .disabled(
-            answering ||
-                (card.skillRequest != nil && !refusal && card.skillRequest?.reviewedSha256 == nil)
-        )
+    }
+
+    @ViewBuilder private func footer(_ card: OptionCard) -> some View {
+        if card.isPending {
+            pendingFooter(card)
+        } else if let outcome = card.outcome {
+            answeredPill(outcome)
+        } else if card.expired == true {
+            Label("Expired — ask for a fresh proposal", systemImage: "clock.badge.xmark")
+                .font(.seira(13, .regular, relativeTo: .subheadline))
+                .foregroundStyle(Color.seiraInk3)
+        }
+    }
+
+    private func pendingFooter(_ card: OptionCard) -> some View {
+        VStack(alignment: .leading, spacing: 12) {
+            optionButtons(card)
+            if card.takesTypedAnswer {
+                typedAnswerField(card)
+            }
+            alwaysAllowButton(card)
+        }
+    }
+
+    private func affirmative(_ card: OptionCard) -> String? { allowChoice ?? card.options.first }
+
+    /// A question's answers are sentences: one under another, full width,
+    /// wrapping. Allow and Deny share a row.
+    @ViewBuilder private func optionButtons(_ card: OptionCard) -> some View {
+        if card.stacksOptions {
+            VStack(spacing: 8) {
+                ForEach(card.options, id: \.self) { option in
+                    optionButton(option, card: card, stacked: true, leading: option == affirmative(card))
+                }
+            }
+            .accessibilityIdentifier("card-options-stacked")
+        } else {
+            HStack(spacing: 8) {
+                ForEach(card.options, id: \.self) { option in
+                    optionButton(option, card: card, stacked: false, leading: option == affirmative(card))
+                }
+            }
+        }
+    }
+
+    /// The grant key comes from the card. The phone never derives its own,
+    /// so it cannot permit something subtly wider than the computer would
+    /// have. The same goes for the answer: it is one of the options the card
+    /// offered, never a string invented here.
+    @ViewBuilder private func alwaysAllowButton(_ card: OptionCard) -> some View {
+        if card.allowKey != nil, let allow = allowChoice, context.isBot {
+            Button("Always allow this tool") {
+                Haptics.selection()
+                answering = true
+                Task {
+                    await actions.alwaysAllow(card)
+                    await actions.answer(card, choice: allow, rememberingPermission: false)
+                    answering = false
+                }
+            }
+            .font(.seira(12, .regular, relativeTo: .caption))
+            .foregroundStyle(Color.seiraInk3)
+            .frame(maxWidth: .infinity, minHeight: 44)
+            .disabled(answering)
+        }
+    }
+
+    private func answeredPill(_ outcome: OptionCard.Outcome) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: Self.outcomeSymbol(outcome))
+                .font(.system(size: 15, weight: .semibold))
+            outcomeText(outcome)
+                .font(.seira(15, .medium))
+                .lineLimit(2)
+        }
+        .foregroundStyle(outcome.isPositive ? Color.seiraSuccess : Color.seiraInk2)
+        .padding(.horizontal, 16)
+        .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+        .background(outcomeFill(outcome), in: Capsule())
+        .accessibilityElement(children: .combine)
+        .accessibilityIdentifier("approval-outcome")
+    }
+
+    private func outcomeFill(_ outcome: OptionCard.Outcome) -> Color {
+        outcome.isPositive ? Color.seiraSuccessSoft : Color.seiraControl
+    }
+
+    /// One answer. Stacked, it takes the card's width and as many lines as
+    /// its label needs; in a row, the first answer flexes.
+    @ViewBuilder
+    private func optionButton(_ option: String, card: OptionCard, stacked: Bool, leading: Bool) -> some View {
+        let refusal = Self.isRefusal(option)
+        let blocked = answering
+            || (card.skillRequest != nil && !refusal && card.skillRequest?.reviewedSha256 == nil)
+        if leading && !refusal {
+            Button { choose(option, card: card) } label: { optionLabel(option, stacked: stacked) }
+                .buttonStyle(SeiraPrimaryButtonStyle(height: 44))
+                .disabled(blocked)
+        } else {
+            Button { choose(option, card: card) } label: { optionLabel(option, stacked: stacked) }
+                .buttonStyle(SeiraControlButtonStyle(height: 44))
+                .disabled(blocked)
+        }
+    }
+
+    private func optionLabel(_ option: String, stacked: Bool) -> some View {
+        Text(option)
+            .font(.seira(15, .semibold))
+            .multilineTextAlignment(stacked ? .center : .leading)
+            .fixedSize(horizontal: false, vertical: stacked)
+            .padding(.vertical, stacked ? 6 : 0)
+            .frame(maxWidth: .infinity)
+    }
+
+    private func choose(_ option: String, card: OptionCard) {
+        Haptics.selection()
+        answering = true
+        Task {
+            await actions.answer(card, choice: option)
+            answering = false
+        }
     }
 
     /// A question also takes words: under its options, or on its own when it
@@ -3177,7 +3219,7 @@ struct CardView: View {
         let ready = !typedAnswer.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && !answering
         return HStack(alignment: .bottom, spacing: 8) {
             TextField(prompt, text: $typedAnswer, axis: .vertical)
-                .font(.system(size: 15))
+                .font(.seira(15))
                 .lineLimit(1...4)
                 .textFieldStyle(.plain)
                 .focused($answerFocused)
@@ -3189,9 +3231,9 @@ struct CardView: View {
             } label: {
                 Image(systemName: "arrow.up")
                     .font(.system(size: 14, weight: .bold))
-                    .foregroundStyle(ready ? Color.white : Color.secondary)
+                    .foregroundStyle(ready ? Color.seiraOnPrimary : Color.seiraInk3)
                     .frame(width: 30, height: 30)
-                    .background(Circle().fill(ready ? tint : Color.secondary.opacity(0.18)))
+                    .background(Circle().fill(ready ? Color.seiraPrimary : Color.seiraControl))
             }
             .buttonStyle(.plain)
             .disabled(!ready)
@@ -3202,7 +3244,7 @@ struct CardView: View {
         .padding(.leading, 14)
         .padding(.trailing, 6)
         .background(
-            RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.secondary.opacity(0.10))
+            RoundedRectangle(cornerRadius: 20, style: .continuous).fill(Color.seiraApp)
         )
     }
 
@@ -3240,7 +3282,7 @@ struct CardView: View {
     private func details(_ text: String) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             Button {
-                withAnimation(.easeInOut(duration: 0.2)) { showingDetails.toggle() }
+                withSeiraAnimation(SeiraMotion.base) { showingDetails.toggle() }
             } label: {
                 HStack(spacing: 4) {
                     Text("Details")
@@ -3248,8 +3290,9 @@ struct CardView: View {
                         .font(.system(size: 11, weight: .semibold))
                         .rotationEffect(.degrees(showingDetails ? 90 : 0))
                 }
-                .font(.system(size: 13, weight: .semibold))
-                .foregroundStyle(Color.secondary)
+                .font(.seira(13, .medium, relativeTo: .subheadline))
+                .foregroundStyle(Color.seiraInk3)
+                .frame(minHeight: 44, alignment: .leading)
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
@@ -3259,7 +3302,7 @@ struct CardView: View {
             if showingDetails {
                 let request = Text(verbatim: text)
                     .font(.system(size: 12, design: .monospaced))
-                    .foregroundStyle(Color.primary)
+                    .foregroundStyle(Color.seiraInk)
                     .textSelection(.enabled)
                     .frame(maxWidth: .infinity, alignment: .leading)
                 Group {
@@ -3271,7 +3314,7 @@ struct CardView: View {
                     }
                 }
                 .padding(10)
-                .background(Color.secondary.opacity(0.08), in: RoundedRectangle(cornerRadius: 10))
+                .background(Color.seiraApp, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
                 .accessibilityIdentifier("approval-details")
             }
         }
@@ -3375,37 +3418,40 @@ struct StreamingBubble: View {
 
     var body: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                if let reasoning, !reasoning.isEmpty, text?.isEmpty != false {
-                    AgentThoughtChamberView(
-                        reasoning: reasoning,
-                        botName: "Bot",
-                        mascotColor: MausPalette.color(color),
-                        isStreaming: true
-                    )
-                    .equatable()
-                }
-                if let text, !text.isEmpty {
-                    // Same renderer as the settled bubble, for the same
-                    // reason as the padding: a live reply showing `**bold**`
-                    // that snaps to bold on arrival is the message jumping,
-                    // just in a different dimension. The parser tolerates the
-                    // half-finished markdown this is always holding — an
-                    // unclosed fence renders as code, an unclosed link as the
-                    // characters typed so far.
-                    MarkdownText(source: text, caret: true)
-                        .foregroundStyle(Color.primary)
-                }
+            VStack(alignment: .leading, spacing: 6) {
+                thoughts
+                prose
             }
-            .padding(.horizontal, 15)
-            .padding(.vertical, 11)
-            .background(SpeechBubble(tail: .leading).fill(BubbleColor.theirs))
-            .padding(.bottom, SpeechBubble.tailDrop())
-            Spacer(minLength: 44)
+            Spacer(minLength: 24)
         }
         // No `.textSelection` on purpose: selecting text that is still growing
         // fights the reader, and the settled bubble a frame later is
         // selectable anyway.
+    }
+
+    @ViewBuilder private var thoughts: some View {
+        if let reasoning, !reasoning.isEmpty, text?.isEmpty != false {
+            AgentThoughtChamberView(
+                reasoning: reasoning,
+                botName: "Bot",
+                mascotColor: MausPalette.color(color),
+                isStreaming: true
+            )
+            .equatable()
+        }
+    }
+
+    /// Same renderer as the settled reply, so a live reply showing `**bold**`
+    /// does not snap to bold on arrival. The parser tolerates the
+    /// half-finished markdown a stream always holds.
+    @ViewBuilder private var prose: some View {
+        if let text, !text.isEmpty {
+            Text("Writing…")
+                .font(.seira(13, .regular, relativeTo: .subheadline))
+                .foregroundStyle(Color.seiraInk3)
+            MarkdownText(source: text, caret: true)
+                .foregroundStyle(Color.seiraInk)
+        }
     }
 }
 

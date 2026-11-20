@@ -19,6 +19,11 @@ The iOS app bundles a prebuilt WebRTC library for Live calls
 project authors, used under the BSD 3-Clause License. WebRTC includes
 third-party components under their own licenses, listed with the library.
 
+The iOS app bundles the Geist font (Geist-Regular, Geist-Medium and
+Geist-SemiBold), Copyright 2024 The Geist Project Authors
+(https://github.com/vercel/geist-font), used under the SIL Open Font License,
+Version 1.1. The full license text is in ios/App/Fonts/OFL.txt.
+
 The Android app bundles the Geist font (Geist Regular, Medium and SemiBold),
 Copyright 2024 The Geist Project Authors
 (https://github.com/vercel/geist-font), used under the SIL Open Font License

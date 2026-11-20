@@ -19,6 +19,13 @@ enum PrefKey {
     static let rosterDensity = "companion.prefs.rosterDensity"
     /// Live calls: speaker (true, the default) or earpiece. A phone-side choice.
     static let liveSpeaker = "companion.prefs.liveSpeaker"
+    static let appearance = "companion.prefs.appearance"
+    /// Alerts when a bot waits for an answer. Default on.
+    static let notifyApprovals = "companion.prefs.notifyApprovals"
+    /// Alerts when a bot finishes a job or sends an update. Default on.
+    static let notifyUpdates = "companion.prefs.notifyUpdates"
+    /// Captions on the Live call screen. Default on.
+    static let liveCaptions = "companion.prefs.liveCaptions"
 }
 
 extension ActivityDetail {

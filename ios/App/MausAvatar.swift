@@ -31,6 +31,9 @@ enum MausPalette {
         Color(hex: hex[name] ?? "#8E8E93")
     }
 
+    /// The hex value of a palette name, or nil for a name the palette lacks.
+    static func hexString(_ name: String) -> String? { hex[name] }
+
 }
 
 /// The viewport half of the silhouette: how the face box lands in a rect.
