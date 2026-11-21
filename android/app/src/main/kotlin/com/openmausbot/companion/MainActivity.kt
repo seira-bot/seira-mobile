@@ -35,7 +35,6 @@ import com.openmausbot.companion.tile.TalkRequestHandler
 import com.openmausbot.companion.ui.LiveCallUi
 import com.openmausbot.companion.browser.CloudDesktopBrowser
 import com.openmausbot.companion.sharing.TranscriptSharing
-import com.openmausbot.companion.storage.ChatPreferences
 import android.os.PowerManager
 import com.openmausbot.companion.ui.CameraPermissionController
 import com.openmausbot.companion.ui.ChatDraftHolder
@@ -199,7 +198,7 @@ class MainActivity : ComponentActivity() {
         val sharing = TranscriptSharing(this)
         val browser = CloudDesktopBrowser(this)
 
-        val chatPreferences = ChatPreferences(this)
+        val chatPreferences = app.chatPreferences
         val nightMode = NightModeApplier.forSystem(getSystemService(UiModeManager::class.java))
         lifecycleScope.launch {
             chatPreferences.themeMode.collect(nightMode::apply)
