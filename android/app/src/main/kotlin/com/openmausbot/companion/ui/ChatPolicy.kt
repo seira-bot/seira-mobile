@@ -334,7 +334,7 @@ object RosterLayout {
     /**
      * Whether the unsearched roster lists anything at all: a bot, or a group —
      * a row in compact, a tile in comfortable. Only when there is neither does
-     * "No bots yet" show; drawn over group rows, it would sit on top of them.
+     * "No chats yet" show; drawn over group rows, it would sit on top of them.
      * The iPhone asks the same question.
      */
     fun listsAnyChat(summaries: List<ChatSummary>): Boolean = summaries.isNotEmpty()

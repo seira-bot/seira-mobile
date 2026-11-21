@@ -178,6 +178,8 @@ struct ChatView: View {
         /// out of the transcript and shown as one grey status line instead.
         let live: LiveNarration
         let hasPendingApproval: Bool
+        /// The failed turn that may offer "Switch model", by message id.
+        let switchModelOfferId: String?
     }
 
     /// Reused while the thread, its messages, the bot's busy flag and the
@@ -199,7 +201,8 @@ struct ChatView: View {
             rows: transcriptRows(shown, detail: detail),
             versions: session.state.userMessageVersions(inThread: threadId),
             live: live,
-            hasPendingApproval: messages.contains { $0.card?.isPending == true }
+            hasPendingApproval: messages.contains { $0.card?.isPending == true },
+            switchModelOfferId: switchModelOfferMessageId(in: messages)
         )
         snapshotMemo.remember(snapshot, for: key, messages: messages, all: all)
         return snapshot
@@ -511,7 +514,7 @@ struct ChatView: View {
     ) -> some View {
         let transcript = snapshot.rows
         let shared = RowShared(
-            context: rowContext,
+            context: rowContext(snapshot),
             today: RosterDay.today,
             pendingEditId: session.state.pendingEdits[threadId]?.placeholderId,
             versions: snapshot.versions,
@@ -577,7 +580,7 @@ struct ChatView: View {
 
     /// The chat-wide values the rows draw from, read once per render
     /// rather than once per row.
-    private var rowContext: TranscriptRowContext {
+    private func rowContext(_ snapshot: TranscriptSnapshot) -> TranscriptRowContext {
         let chat = current
         var bot: Bot?
         if case let .bot(value) = chat { bot = value }
@@ -590,6 +593,8 @@ struct ChatView: View {
             busy: bot?.busy == true,
             editPending: session.state.pendingEdits[chat.threadId] != nil,
             claudeInstanceId: bot?.currentTaskModelSelection.instanceId,
+            modelSelection: bot?.currentTaskModelSelection,
+            switchModelOfferId: bot != nil && session.canAdminister ? snapshot.switchModelOfferId : nil,
             credentials: CredentialAccess(
                 connectionId: connection?.id,
                 pairedForSecrets: connection.map { $0.secretPublicKey != nil && $0.companionDeviceId != nil } ?? false,
@@ -657,6 +662,8 @@ struct ChatView: View {
             fileOpenError = "This link can't be opened securely."
         case let .reveal(messageId):
             proxy.scrollTo(messageId, anchor: .center)
+        case .botSettings:
+            showingProfile = true
         }
     }
 
@@ -2210,6 +2217,9 @@ struct MessageRow: View, Equatable {
             // model: offer to run the updater for the engine this thread uses.
             if message.tool?.claudeUpdate == true, let instanceId = context.claudeInstanceId {
                 ClaudeUpdateCard(instanceId: instanceId, tint: SeiraPalette.color(context.color), actions: actions)
+            }
+            if context.switchModelOfferId == message.id, let selection = context.modelSelection {
+                SwitchModelCard(selection: selection, tint: SeiraPalette.color(context.color), actions: actions)
             }
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {

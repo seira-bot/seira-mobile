@@ -435,6 +435,16 @@ class StoreTest {
     }
 
     @Test
+    fun notificationsKeepTheirRequestId() {
+        val approval = NotificationFrame(
+            "approval", "b1", "Scout", "t1", "Scout needs approval", "git push", requestId = "req-7",
+        )
+        val done = NotificationFrame("done", "b1", "Scout", "t1", "Scout finished", "pushed")
+        val state = CompanionState().apply(Frame.Notify(approval)).apply(Frame.Notify(done))
+        assertEquals(listOf("req-7", null), state.notifications.map { it.requestId })
+    }
+
+    @Test
     fun notificationsKeepOnlyARecentWindow() {
         var state = CompanionState()
         repeat(120) { index ->

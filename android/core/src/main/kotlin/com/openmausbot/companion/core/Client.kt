@@ -109,12 +109,14 @@ private fun pairingRouteMessage(
             "Your phone couldn't reach $computer over Tailscale. Turn on Tailscale on this phone, " +
                 "signed in to the same tailnet as the computer, then try again."
         // Same Wi-Fi first; then the firewall, because a phone already on that Wi-Fi is most
-        // often stopped by Windows Firewall on a network Windows calls Public (the desktop's
-        // Wi-Fi pairing panel says so too); then Remote access, which connects outward.
+        // often stopped by Windows Firewall on a network Windows calls Public, or by ufw or
+        // firewalld dropping inbound connections on Linux (the desktop's Wi-Fi pairing panel
+        // shows the fix for both); then Remote access, which connects outward.
         else ->
             "Your phone couldn't reach $computer on this network. Put the phone on the same Wi-Fi " +
                 "as the computer. If it already is, the computer's firewall may be blocking " +
-                "Seira: on a Windows PC, set its network to Private. Or open Settings → " +
+                "Seira: on a Windows PC, set its network to Private; on Linux, run the firewall " +
+                "command that Seira shows on the computer. Or open Settings → " +
                 "Remote access on the computer and sign in so the phone can connect from anywhere."
     }
     return advice
@@ -672,6 +674,10 @@ class CompanionClient(
     suspend fun runRoutine(id: String): RoutineRun = send<RoutineRunResponse>(
         makeRequest("POST", "/api/routines/${segment(id)}/run"),
     ).run
+
+    suspend fun logout() {
+        sendUnit(makeRequest("POST", "/api/auth/logout"))
+    }
 
     suspend fun deleteRoutine(id: String) {
         sendUnit(makeRequest("DELETE", "/api/routines/${segment(id)}"))

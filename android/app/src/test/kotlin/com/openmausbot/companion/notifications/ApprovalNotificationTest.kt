@@ -183,7 +183,99 @@ class ApprovalNotificationTest {
 
         assertFalse(approved)
         assertEquals(0, dispatcher.answers.size)
-        assertEquals("Couldn't approve. Open the chat to review.", text(posted(approvalFrame(), 1)))
+        val replaced = posted(approvalFrame(), 1)
+        assertEquals("Already answered. Open the chat to see it.", text(replaced))
+        assertOpensTheThread(replaced)
+    }
+
+    @Test
+    fun `a request the server no longer holds opens the chat`() = runTest {
+        val session = bind(fleetWith(NotificationFixture.permissionCard()))
+        poster.deliver(approvalFrame(requestId = REQUEST_ID), sequence = 1)
+        server.enqueue(NotificationFixture.ok("""{"ok":true,"outcome":"unavailable"}"""))
+
+        val approved = NotificationActionHandler(session, poster).approve(request())
+
+        assertFalse(approved)
+        assertEquals(1, dispatcher.answers.size)
+        val replaced = posted(approvalFrame(), 1)
+        assertEquals("Already answered. Open the chat to see it.", text(replaced))
+        assertEquals(listOf("Review"), replaced.actions.map { it.title.toString() })
+        assertOpensTheThread(replaced)
+    }
+
+    @Test
+    fun `the server requestId picks its card among two pending cards`() = runTest {
+        bind(fleetWith(NotificationFixture.permissionCard(), NotificationFixture.permissionCard(requestId = "r2")))
+
+        poster.deliver(approvalFrame(requestId = "r2"), sequence = 1)
+
+        val posted = posted(approvalFrame(), 1)
+        assertEquals(listOf("Approve", "Review"), posted.actions.map { it.title.toString() })
+        assertEquals("r2", approveRequestOf(posted).requestId)
+    }
+
+    @Test
+    fun `Approve answers the exact request the server named`() = runTest {
+        val session = bind(
+            fleetWith(NotificationFixture.permissionCard(), NotificationFixture.permissionCard(requestId = "r2")),
+        )
+        poster.deliver(approvalFrame(requestId = "r2"), sequence = 1)
+        server.enqueue(NotificationFixture.ok())
+
+        val approved = NotificationActionHandler(session, poster).approve(approveRequestOf(posted(approvalFrame(), 1)))
+
+        assertTrue(approved)
+        val sent = dispatcher.answers.poll(5, java.util.concurrent.TimeUnit.SECONDS)!!
+        assertEquals("/api/threads/$THREAD_ID/respond", sent.path)
+        assertEquals(
+            mapOf("requestId" to "r2", "behavior" to "allow"),
+            CompanionJson.parseToJsonElement(sent.body.readUtf8()).jsonObject
+                .mapValues { it.value.jsonPrimitive.content },
+        )
+        assertEquals("Approved", text(posted(approvalFrame(), 1)))
+    }
+
+    @Test
+    fun `without a requestId two pending cards only get Review`() = runTest {
+        bind(fleetWith(NotificationFixture.permissionCard(), NotificationFixture.permissionCard(requestId = "r2")))
+
+        poster.deliver(approvalFrame(), sequence = 1)
+
+        assertEquals(listOf("Review"), posted(approvalFrame(), 1).actions.map { it.title.toString() })
+    }
+
+    @Test
+    fun `a requestId the thread does not hold only gets Review`() = runTest {
+        bind(fleetWith(NotificationFixture.permissionCard()))
+
+        poster.deliver(approvalFrame(requestId = "other"), sequence = 1)
+
+        assertEquals(listOf("Review"), posted(approvalFrame(), 1).actions.map { it.title.toString() })
+    }
+
+    @Test
+    fun `a skill request the server names only gets Review`() = runTest {
+        bind(fleetWith(NotificationFixture.permissionCard(skill = NotificationFixture.skill())))
+
+        poster.deliver(approvalFrame(requestId = REQUEST_ID), sequence = 1)
+
+        assertEquals(listOf("Review"), posted(approvalFrame(), 1).actions.map { it.title.toString() })
+    }
+
+    @Test
+    fun `secret and sign-in notifications keep opening the chat`() = runTest {
+        bind(fleetWith(NotificationFixture.permissionCard()))
+
+        listOf("secret", "sign-in").forEachIndexed { index, kind ->
+            val frame = approvalFrame(requestId = REQUEST_ID).copy(kind = kind)
+            poster.deliver(frame, sequence = index + 1)
+            runCurrent()
+
+            val posted = posted(frame, index + 1)
+            assertTrue(posted.actions.orEmpty().none { it.title.toString() == "Approve" }, kind)
+            assertOpensTheThread(posted)
+        }
     }
 
     @Test
@@ -246,8 +338,14 @@ class ApprovalNotificationTest {
     private suspend fun TestScope.stateWith(messages: List<Message>): CompanionState =
         liveSession(server, Fleet(listOf(NotificationFixture.bot(messages = messages)), emptyList())).state.value
 
-    private fun fleetWith(card: com.openmausbot.companion.core.OptionCard) = Fleet(
-        listOf(NotificationFixture.bot(messages = listOf(NotificationFixture.cardMessage(card)))),
+    private fun fleetWith(vararg cards: com.openmausbot.companion.core.OptionCard) = Fleet(
+        listOf(
+            NotificationFixture.bot(
+                messages = cards.mapIndexed { index, card ->
+                    NotificationFixture.cardMessage(card, "message-${index + 1}")
+                },
+            ),
+        ),
         emptyList(),
     )
 
@@ -258,14 +356,27 @@ class ApprovalNotificationTest {
         return session
     }
 
-    private fun approvalFrame() = NotificationFrame(
+    private fun approvalFrame(requestId: String? = null) = NotificationFrame(
         kind = "approval",
         botId = BOT_ID,
         botName = "Scout",
         threadId = THREAD_ID,
         title = "Approval needed",
         body = "git push",
+        requestId = requestId,
     )
+
+    private fun approveRequestOf(notification: Notification): ApproveRequest {
+        val approve = notification.actions.first { it.title.toString() == "Approve" }
+        return assertNotNull(NotificationActions.approveRequest(shadowOf(approve.actionIntent).savedIntent))
+    }
+
+    private fun assertOpensTheThread(notification: Notification) {
+        val open = shadowOf(assertNotNull(notification.contentIntent)).savedIntent
+        assertEquals(NotificationIntents.ACTION_OPEN, open.action)
+        assertEquals(BOT_ID, open.getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID))
+        assertEquals(THREAD_ID, open.getStringExtra(LocalNotificationPoster.EXTRA_THREAD_ID))
+    }
 
     private fun request() = ApproveRequest(
         tag = NotificationMapping.dedupeId(approvalFrame(), 1),

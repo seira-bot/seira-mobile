@@ -77,10 +77,10 @@ internal object NotificationFixture {
     fun cardMessage(card: OptionCard, id: String = "message-1") =
         Message(id = id, role = Message.Role.BOT, kind = Message.Kind.OPTIONS, at = 1.0, card = card)
 
-    fun ok(): MockResponse = MockResponse()
+    fun ok(body: String = "{}"): MockResponse = MockResponse()
         .setResponseCode(200)
         .setHeader("Content-Type", "application/json")
-        .setBody("{}")
+        .setBody(body)
 
     class AnswerDispatcher : okhttp3.mockwebserver.QueueDispatcher() {
         val answers = java.util.concurrent.LinkedBlockingQueue<okhttp3.mockwebserver.RecordedRequest>()
