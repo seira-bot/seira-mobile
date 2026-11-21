@@ -508,7 +508,7 @@ object MessageActions {
             ?.takeIf { it.isNotEmpty() }
             ?.joinToString("\n\n")
         // A tool chip is context, a screenshot is pixels, a digest is a log line.
-        Message.Kind.ACTIVITY, Message.Kind.SCREEN, Message.Kind.DIGEST -> null
+        Message.Kind.ACTIVITY, Message.Kind.SCREEN, Message.Kind.DIGEST, Message.Kind.SECRET -> null
         Message.Kind.COMPACTION -> message.compaction?.summary ?: message.text?.takeIf { it.isNotBlank() }
         // The run's report and error are the parts worth keeping; the headline without either.
         Message.Kind.ROUTINE_RUN -> message.routineRun

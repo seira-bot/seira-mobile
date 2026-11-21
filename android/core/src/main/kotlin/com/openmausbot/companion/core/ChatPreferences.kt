@@ -156,6 +156,7 @@ internal fun previewText(message: Message): String = when (message.kind) {
     Message.Kind.DIGEST -> ""
     Message.Kind.COMPACTION -> message.compaction?.chipText ?: message.text.orEmpty()
     Message.Kind.ROUTINE_RUN -> message.routineRunPreview
+    Message.Kind.SECRET -> message.secret?.label?.takeIf { it.isNotBlank() } ?: message.text.orEmpty()
     Message.Kind.APP, Message.Kind.UNKNOWN -> message.text.orEmpty()
 }
 

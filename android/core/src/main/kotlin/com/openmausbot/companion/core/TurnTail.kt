@@ -53,14 +53,18 @@ object TurnTail {
     }
 
     /**
-     * An approval or question card still open anywhere in the thread. They settle on
-     * the computer (answered, dismissed, expired), so any pending one is live.
+     * An approval or question card still open anywhere in the thread, or a credential
+     * request in the turn since the person's last message.
      *
-     * iOS also counts a credential request in the current turn. This client has no
-     * model for those cards (they decode as [Message.Kind.UNKNOWN]), so it cannot.
+     * Option cards settle on the computer (answered, dismissed, expired), so any pending
+     * one is live. A credential card settles only when someone acts on it, so one the
+     * person ignored turns ago would otherwise hold the dots off in this thread for good.
      */
-    internal fun awaitsAnswer(messages: List<Message>): Boolean =
-        messages.any { it.card?.isPending == true }
+    internal fun awaitsAnswer(messages: List<Message>): Boolean {
+        if (messages.any { it.card?.isPending == true }) return true
+        val turn = messages.drop(messages.indexOfLast { it.role == Message.Role.USER } + 1)
+        return turn.any { it.kind == Message.Kind.SECRET && it.secret?.isPending == true }
+    }
 
     /**
      * The tail is the end of a turn rather than a step inside one: a bot's settled

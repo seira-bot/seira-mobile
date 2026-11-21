@@ -283,12 +283,36 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == SECRET`: what the credential card asks for. Never carries the value. */
+    val secret: SecretRequestCardData? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, SECRET, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
+}
+
+/** A credential request for one paused task. The computer sends display copy and ids, never the credential. */
+@Serializable
+data class SecretRequestCardData(
+    val target: String? = null,
+    val label: String? = null,
+    val description: String? = null,
+    val placeholder: String? = null,
+    val helpUrl: String? = null,
+    val requestKey: String? = null,
+    val provided: Boolean? = null,
+    val dismissed: Boolean? = null,
+    /** A newer request for the same credential replaced this card. */
+    val superseded: Boolean? = null,
+    val resumed: Boolean? = null,
+    val error: String? = null,
+    /** Stop ended the task this card paused. */
+    val stopped: Boolean? = null,
+) {
+    val isPending: Boolean
+        get() = provided != true && dismissed != true && superseded != true && stopped != true
 }
 
 object MessageKindSerializer : KSerializer<Message.Kind> {
@@ -303,6 +327,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "secret" -> Message.Kind.SECRET
         else -> Message.Kind.UNKNOWN
     }
 
