@@ -17,6 +17,8 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.printToString
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.openmausbot.companion.R
@@ -229,7 +231,11 @@ class RunCardsRenderTest {
     fun aTaskWithoutAConversationDoesNotOpenAnything() {
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { })
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
+        try {
+            compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
+        } catch (e: Throwable) {
+            throw AssertionError("DEBUG " + requests + " " + compose.onRoot().printToString(), e)
+        }
         compose.waitForIdle()
         compose.onNodeWithText("Invoice May").assertIsDisplayed()
         assertEquals(
