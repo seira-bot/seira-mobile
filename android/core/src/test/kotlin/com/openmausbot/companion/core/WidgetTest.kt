@@ -417,4 +417,61 @@ class WidgetTest {
         assertEquals(listOf("mon", "wed", "sun"), widgetDays("sun,mon,wed"))
         assertEquals(emptyList(), widgetDays(""))
     }
+
+    @Test
+    fun badNumbersAreHeldInRange() {
+        val n = node("""{"a":1e999,"b":-5,"c":1e9,"d":"NaN","e":2.7}""")
+        assertNull(widgetNumber(n, "a"))
+        assertNull(widgetNumber(n, "d"))
+        assertEquals(1, widgetInt(n, "b", 1, 50))
+        assertEquals(50, widgetInt(n, "c", 1, 50))
+        assertEquals(0, widgetInt(n, "b", 0, 40))
+        assertEquals(2, widgetInt(n, "e", 0, 40))
+        assertNull(widgetInt(n, "missing", 0, 40))
+        assertEquals(0f, widgetFraction(n, "a"))
+        assertEquals(1f, widgetFraction(n, "c"))
+        assertEquals(0f, widgetFraction(n, "b"))
+    }
+
+    @Test
+    fun aVeryDeepTreeIsCutAtTheDepthLimit() {
+        var json = """{"type":"Text","id":"leaf","value":"deep"}"""
+        repeat(1000) { json = """{"type":"Col","children":[$json]}""" }
+        val view = assertNotNull(widgetView(node("""{"v":1,"rev":1,"root":{"type":"Card","children":[$json]}}""")))
+        assertTrue(view.truncated)
+        var depth = 0
+        var current: WidgetNode? = view.root
+        while (current != null) {
+            depth++
+            current = widgetChildren(current).firstOrNull()
+        }
+        assertTrue(depth <= WidgetLimits.DEPTH + 1)
+    }
+
+    @Test
+    fun aHugeRevIsHeldInRange() {
+        val view = assertNotNull(widgetView(node("""{"v":1,"rev":1e999,"root":{"type":"Card"}}""")))
+        assertEquals(0, view.rev)
+    }
+
+    @Test
+    fun aChartWithEqualValuesNanPointsOrNoSeriesDoesNotBreak() {
+        val equal = widgetChart(
+            node("""{"type":"Chart","xAxis":{"dataKey":"x"},"series":[{"type":"bar","dataKey":"y"}],"data":[{"x":"a","y":5},{"x":"b","y":5}]}"""),
+        )
+        assertNotNull(equal)
+        val bad = widgetChart(
+            node("""{"type":"Chart","xAxis":{"dataKey":"x"},"series":[{"type":"line","dataKey":"y"}],"data":[{"x":1e999,"y":1e999},{"x":"b","y":"NaN"},{"x":"c","y":null}]}"""),
+        )
+        assertNotNull(bad)
+        assertTrue(bad.series.all { s -> s.values.all { it == null || it.isFinite() } })
+        assertNull(widgetChart(node("""{"type":"Chart","xAxis":{"dataKey":"x"},"series":[],"data":[{"x":"a"}]}""")))
+    }
+
+    @Test
+    fun aTableKeepsOnlyTheFirstSixtyRows() {
+        val rows = (1..200).joinToString(",") { """{"type":"Table.Row","children":[{"type":"Table.Cell","children":[{"type":"Text","value":"r$it"}]}]}""" }
+        val table = widgetTable(node("""{"type":"Table","children":[$rows]}"""))
+        assertTrue(table.rows.size <= WidgetLimits.TABLE_ROWS)
+    }
 }

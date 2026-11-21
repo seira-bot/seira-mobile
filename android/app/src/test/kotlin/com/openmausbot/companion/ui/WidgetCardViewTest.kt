@@ -211,4 +211,44 @@ class WidgetCardViewTest {
         compose.onNodeWithText("Sales").assertIsDisplayed()
         compose.onNodeWithText("May").assertIsDisplayed()
     }
+
+    private fun cardWith(children: String) =
+        """{"v":1,"rev":1,"root":{"type":"Card","id":"n1","title":"Safe card","children":[$children]}}"""
+
+    @Test
+    fun oddMaxLinesAndLimitDoNotCrash() {
+        val texts = listOf("0", "-5", "1000000000", "\"NaN\"", "1e999").mapIndexed { i, v ->
+            """{"type":"Text","id":"t$i","value":"line $i","maxLines":$v}"""
+        }
+        val list = """{"type":"ListView","id":"l1","limit":-1,"children":[{"type":"ListViewItem","id":"i1","children":[{"type":"Text","id":"i2","value":"item"}]}]}"""
+        show(message(cardWith((texts + list).joinToString(","))), Taps())
+        compose.onNodeWithText("Safe card").assertIsDisplayed()
+        compose.onNodeWithText("line 0").assertIsDisplayed()
+    }
+
+    @Test
+    fun oddProgressValuesDoNotCrash() {
+        val bars = listOf("\"NaN\"", "1e999", "5", "-3").mapIndexed { i, v ->
+            """{"type":"Progress","id":"p$i","value":$v,"max":0}"""
+        }
+        show(message(cardWith(bars.joinToString(","))), Taps())
+        compose.onNodeWithText("Safe card").assertIsDisplayed()
+    }
+
+    @Test
+    fun oddChartsDoNotCrash() {
+        val equal = """{"type":"Chart","id":"c1","xAxis":{"dataKey":"x"},"series":[{"type":"bar","dataKey":"y"},{"type":"area","dataKey":"y"}],"data":[{"x":"a","y":5},{"x":"b","y":5}]}"""
+        val empty = """{"type":"Chart","id":"c2","xAxis":{"dataKey":"x"},"series":[],"data":[]}"""
+        val nan = """{"type":"Chart","id":"c3","xAxis":{"dataKey":"x"},"series":[{"type":"line","dataKey":"y"}],"data":[{"x":"a","y":1e999},{"x":"b","y":"NaN"},{"x":"c","y":null}]}"""
+        show(message(cardWith("$equal,$empty,$nan")), Taps())
+        compose.onNodeWithText("Safe card").assertIsDisplayed()
+    }
+
+    @Test
+    fun aThousandLevelsDeepTreeDoesNotCrash() {
+        var json = """{"type":"Text","id":"leaf","value":"deep"}"""
+        repeat(1000) { json = """{"type":"Col","children":[$json]}""" }
+        show(message(cardWith(json)), Taps())
+        compose.onNodeWithText("Safe card").assertIsDisplayed()
+    }
 }

@@ -121,9 +121,10 @@ import com.openmausbot.companion.core.widgetDays
 import com.openmausbot.companion.core.widgetFallbackText
 import com.openmausbot.companion.core.widgetFieldOptions
 import com.openmausbot.companion.core.widgetFields
+import com.openmausbot.companion.core.widgetFraction
 import com.openmausbot.companion.core.widgetImageUrl
+import com.openmausbot.companion.core.widgetInt
 import com.openmausbot.companion.core.widgetInitialValues
-import com.openmausbot.companion.core.widgetNumber
 import com.openmausbot.companion.core.widgetString
 import com.openmausbot.companion.core.widgetTable
 import com.openmausbot.companion.core.widgetTakesOther
@@ -432,7 +433,7 @@ private fun WidgetSurface(message: Message, view: WidgetView, form: WidgetForm, 
                 }
             }
             WidgetChildren(cut.root, Modifier.fillMaxWidth())
-            if (cut.cut) {
+            if (cut.cut || view.truncated) {
                 widgetFallbackText(message.text)?.let { Text(it, fontSize = 14.sp, color = secondaryTint) }
             }
             form.problem?.takeIf { form.invalidField == null }?.let {
@@ -457,7 +458,7 @@ private fun WidgetSurface(message: Message, view: WidgetView, form: WidgetForm, 
 @Composable
 private fun WidgetChildren(node: WidgetNode, modifier: Modifier = Modifier) {
     val items = widgetChildren(node)
-    val limit = widgetNumber(node, "limit")?.toInt()
+    val limit = widgetInt(node, "limit", 0, 40)
     val shown = if (widgetType(node) == "ListView" && limit != null) items.take(limit) else items
     if (widgetType(node) == "ListView") {
         WidgetListView(node, shown, modifier)
@@ -519,7 +520,7 @@ private fun WidgetNodeView(node: WidgetNode) {
             if (type == "Box" && widgetString(node, "direction") == "row") WidgetRow(node) else WidgetChildren(node)
         }
         "Row" -> WidgetRow(node)
-        "Spacer" -> Spacer(Modifier.height((widgetNumber(node, "minSize")?.toInt() ?: 8).coerceIn(4, 48).dp))
+        "Spacer" -> Spacer(Modifier.height((widgetInt(node, "minSize", 4, 48) ?: 8).dp))
         "Divider" -> HorizontalDivider(color = colors.hairline)
         "Text" -> WidgetText(node, 14.sp, FontWeight.Normal)
         "Title" -> WidgetText(node, titleSize(widgetString(node, "size")), FontWeight.SemiBold)
@@ -632,7 +633,7 @@ private fun WidgetText(node: WidgetNode, base: androidx.compose.ui.unit.TextUnit
         "normal" -> FontWeight.Normal
         else -> baseWeight
     }
-    val lines = widgetNumber(node, "maxLines")?.toInt() ?: if (node["truncate"] == JsonPrimitive(true)) 1 else Int.MAX_VALUE
+    val lines = widgetInt(node, "maxLines", 1, 50) ?: if (node["truncate"] == JsonPrimitive(true)) 1 else Int.MAX_VALUE
     Text(
         widgetString(node, "value").orEmpty(),
         style = TextStyle(
@@ -676,7 +677,7 @@ private fun WidgetBadge(node: WidgetNode) {
 
 @Composable
 private fun WidgetProgress(node: WidgetNode) {
-    val value = (widgetNumber(node, "value") ?: 0.0).toFloat().coerceIn(0f, 1f)
+    val value = widgetFraction(node, "value")
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(widgetString(node, "label").orEmpty(), fontSize = 13.sp, color = secondaryTint)
@@ -752,8 +753,8 @@ private fun WidgetTextField(node: WidgetNode, multiline: Boolean) {
             isError = form.invalidField == name,
             placeholder = widgetString(node, "placeholder")?.let { hint -> @Composable { Text(hint) } },
             singleLine = !multiline,
-            minLines = if (multiline) (widgetNumber(node, "rows")?.toInt() ?: 3).coerceIn(1, 12) else 1,
-            maxLines = if (multiline) (widgetNumber(node, "maxRows")?.toInt() ?: 8).coerceIn(1, 20) else 1,
+            minLines = if (multiline) widgetInt(node, "rows", 1, 12) ?: 3 else 1,
+            maxLines = if (multiline) max(widgetInt(node, "rows", 1, 12) ?: 3, widgetInt(node, "maxRows", 1, 20) ?: 8) else 1,
             keyboardOptions = KeyboardOptions(keyboardType = keyboard),
             modifier = Modifier.fillMaxWidth(),
         )

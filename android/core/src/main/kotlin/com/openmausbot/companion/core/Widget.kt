@@ -22,6 +22,9 @@ import kotlinx.serialization.json.put
 typealias WidgetNode = JsonObject
 
 object WidgetLimits {
+    const val DEPTH = 32
+    const val TABLE_ROWS = 60
+    const val CHART_VALUE = 1e12
     const val FALLBACK = 1_500
     const val LABEL = 80
     const val CHART_ROWS = 100
@@ -45,7 +48,17 @@ const val WIDGET_PHONE_PAIRING_ACTION = "open_phone_pairing"
 
 fun widgetString(node: WidgetNode, key: String): String? = (node[key] as? JsonPrimitive)?.takeIf { it.isString }?.content
 
-fun widgetNumber(node: WidgetNode, key: String): Double? = (node[key] as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull
+/** A number from a bot: never NaN or infinite, so it is safe to calculate with. */
+fun widgetNumber(node: WidgetNode, key: String): Double? =
+    (node[key] as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull?.takeIf { it.isFinite() }
+
+/** A whole number from a bot, held between [min] and [max]. Null when the prop is missing or not a number. */
+fun widgetInt(node: WidgetNode, key: String, min: Int, max: Int): Int? =
+    widgetNumber(node, key)?.coerceIn(min.toDouble(), max.toDouble())?.toInt()
+
+/** A fraction from a bot, held between 0 and 1. */
+fun widgetFraction(node: WidgetNode, key: String): Float =
+    (widgetNumber(node, key) ?: 0.0).coerceIn(0.0, 1.0).toFloat()
 
 fun widgetType(node: WidgetNode): String? = widgetString(node, "type")
 
@@ -97,7 +110,7 @@ data class WidgetSettled(
 )
 
 /** The parts of a widget payload the phone reads. */
-data class WidgetView(val root: WidgetNode, val rev: Int, val settled: WidgetSettled?)
+data class WidgetView(val root: WidgetNode, val rev: Int, val settled: WidgetSettled?, val truncated: Boolean = false)
 
 /**
  * The widget to draw, or null when the phone must show the message text instead:
@@ -106,7 +119,27 @@ data class WidgetView(val root: WidgetNode, val rev: Int, val settled: WidgetSet
 fun widgetView(widget: JsonObject?): WidgetView? {
     val root = widget?.let { widgetObject(it, "root") } ?: return null
     if (widgetType(root) !in WIDGET_ROOT_TYPES) return null
-    return WidgetView(root, widgetNumber(widget, "rev")?.toInt() ?: 0, readSettled(widgetObject(widget, "settled")))
+    val capped = widgetCapDepth(root)
+    return WidgetView(
+        capped.root,
+        widgetInt(widget, "rev", 0, 1_000_000_000) ?: 0,
+        readSettled(widgetObject(widget, "settled")),
+        capped.cut,
+    )
+}
+
+/** The tree without anything nested deeper than [WidgetLimits.DEPTH], so no walk of it can overflow the stack. */
+fun widgetCapDepth(root: WidgetNode): WidgetCut {
+    var cut = false
+    fun cap(node: WidgetNode, depth: Int): WidgetNode {
+        val children = node["children"] as? JsonArray ?: return node
+        if (depth >= WidgetLimits.DEPTH) {
+            cut = cut || children.isNotEmpty()
+            return JsonObject(node + ("children" to JsonArray(emptyList())))
+        }
+        return JsonObject(node + ("children" to JsonArray(children.map { (it as? JsonObject)?.let { child -> cap(child, depth + 1) } ?: it })))
+    }
+    return WidgetCut(cap(root, 1), cut)
 }
 
 private fun readSettled(raw: JsonObject?): WidgetSettled? {
@@ -501,8 +534,9 @@ fun widgetInlineText(node: WidgetNode): String = when (widgetType(node)) {
 
 /** A Table node as the grid the chat already draws. The first row marked as a header names the columns. */
 fun widgetTable(node: WidgetNode): TranscriptCard.Table {
-    val rows = widgetChildren(node).map { row -> widgetChildren(row).map(::widgetInlineText).take(WidgetLimits.TABLE_COLS) }
-    val headerIndex = widgetChildren(node).indexOfFirst { it["header"] == JsonPrimitive(true) }
+    val tableRows = widgetChildren(node).take(WidgetLimits.TABLE_ROWS)
+    val rows = tableRows.map { row -> widgetChildren(row).map(::widgetInlineText).take(WidgetLimits.TABLE_COLS) }
+    val headerIndex = tableRows.indexOfFirst { it["header"] == JsonPrimitive(true) }
     val width = rows.maxOfOrNull { it.size } ?: 0
     val headers = if (headerIndex >= 0) rows[headerIndex] else List(width) { "" }
     val body = rows.filterIndexed { index, _ -> index != headerIndex }
@@ -539,7 +573,7 @@ fun widgetChart(node: WidgetNode): WidgetChartModel? {
         when {
             cell == null || cell is JsonNull -> ""
             cell.isString -> cell.content
-            else -> cell.doubleOrNull?.let(::formatWidgetNumber) ?: cell.contentOrNull.orEmpty()
+            else -> cell.doubleOrNull?.takeIf { it.isFinite() }?.let(::formatWidgetNumber) ?: cell.contentOrNull.orEmpty()
         }
     }
     val series = specs.mapNotNull { spec ->
@@ -548,7 +582,10 @@ fun widgetChart(node: WidgetNode): WidgetChartModel? {
             type = widgetString(spec, "type") ?: "bar",
             label = widgetString(spec, "label") ?: key,
             stack = widgetString(spec, "stack"),
-            values = rows.map { row -> (row[key] as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull },
+            values = rows.map { row ->
+                (row[key] as? JsonPrimitive)?.takeIf { !it.isString }?.doubleOrNull?.takeIf { it.isFinite() }
+                    ?.coerceIn(-WidgetLimits.CHART_VALUE, WidgetLimits.CHART_VALUE)
+            },
         )
     }
     if (series.isEmpty()) return null
