@@ -507,6 +507,7 @@ private fun MessageContent(
         Message.Kind.UNKNOWN -> if (!message.text.isNullOrEmpty()) {
             TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
+        Message.Kind.WIDGET -> WidgetMessageRow(chat, message, openLink, openThread)
         // The three run kinds draw a card from their data; without it, the computer's own text.
         Message.Kind.GOAL_RUN -> {
             val goalRun = message.goalRun

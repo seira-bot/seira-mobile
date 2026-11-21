@@ -283,6 +283,10 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == WIDGET`: the card tree a bot showed. Kept as JSON so a newer node type never breaks decoding. */
+    val widget: JsonObject? = null,
+    /** `kind == WIDGET`: the computer wrote this card itself, in English. */
+    val serverCard: Boolean? = null,
     /** `kind == GOAL_RUN`: the group goal run, patched in place. */
     val goalRun: GoalRunCard? = null,
     /** `kind == BURST`: a preview, then the progress card. */
@@ -293,7 +297,7 @@ data class Message(
     val callId: String? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, GOAL_RUN, BURST, CALL, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -311,6 +315,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "widget" -> Message.Kind.WIDGET
         "goal.run" -> Message.Kind.GOAL_RUN
         "burst" -> Message.Kind.BURST
         "call" -> Message.Kind.CALL
