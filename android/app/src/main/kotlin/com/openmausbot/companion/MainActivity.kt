@@ -48,6 +48,12 @@ import com.openmausbot.companion.ui.NotificationPermissionController
 import com.openmausbot.companion.ui.PermissionPreferences
 import com.openmausbot.companion.ui.PermissionRequests
 import com.openmausbot.companion.ui.PendingThreadNavigation
+import com.google.android.play.core.appupdate.AppUpdateManagerFactory
+import com.openmausbot.companion.update.AppUpdateController
+import com.openmausbot.companion.update.InstallSource
+import com.openmausbot.companion.update.PlayAppUpdates
+import com.openmausbot.companion.update.PreferencesUpdateCheckLog
+import com.openmausbot.companion.update.UpdateGate
 
 /**
  * The single Activity. It owns the permission launchers and the one thing that
@@ -84,6 +90,14 @@ class MainActivity : ComponentActivity() {
         // a second source of truth.
         app.permissions.refresh()
         permissionRequests.onResults(results)
+    }
+
+    private lateinit var appUpdates: AppUpdateController
+
+    private val updateLauncher = registerForActivityResult(
+        ActivityResultContracts.StartIntentSenderForResult(),
+    ) { result ->
+        appUpdates.onFlowResult(result.resultCode)
     }
 
     private val cameraLauncher = registerForActivityResult(
@@ -191,6 +205,16 @@ class MainActivity : ComponentActivity() {
             chatPreferences.themeMode.collect(nightMode::apply)
         }
 
+        appUpdates = AppUpdateController(
+            updates = PlayAppUpdates(AppUpdateManagerFactory.create(this), updateLauncher),
+            scope = lifecycleScope,
+            enabled = BuildConfig.IN_APP_UPDATES,
+            installedByPlay = { InstallSource.isGooglePlay(this) },
+            busy = ::updatesWait,
+            log = PreferencesUpdateCheckLog(this),
+        )
+        if (savedInstanceState == null) appUpdates.checkOnStart()
+
         val environment = CompanionEnvironment(
             session = app.session,
             permissions = app.permissions,
@@ -214,6 +238,7 @@ class MainActivity : ComponentActivity() {
             shareInbox = app.shareInbox,
             alwaysOnEnabled = app.alwaysOn.enabled,
             onToggleAlwaysOn = ::toggleAlwaysOn,
+            appUpdates = appUpdates,
         )
 
         handleIntent(intent, talk = savedInstanceState == null)
@@ -257,9 +282,18 @@ class MainActivity : ComponentActivity() {
         camera.refresh()
         mic.refresh()
         notifications.refresh()
+        appUpdates.resume()
     }
 
+    private fun updatesWait(): Boolean = UpdateGate.busy(
+        call = app.liveCalls.state.value,
+        pairingRequested = app.session.pairingRequested.value,
+        hasPairingInvite = app.session.pairingInvite.value != null,
+        state = app.session.state.value,
+    )
+
     override fun onDestroy() {
+        if (::appUpdates.isInitialized) appUpdates.close()
         // Activity teardown releases the recognizer; process-background stop is
         // already handled inside SpeechDictation via ProcessLifecycleOwner.
         if (isFinishing && ::dictation.isInitialized) dictation.stop()
