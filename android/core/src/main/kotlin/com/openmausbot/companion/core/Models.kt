@@ -283,9 +283,17 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == GOAL_RUN`: the group goal run, patched in place. */
+    val goalRun: GoalRunCard? = null,
+    /** `kind == BURST`: a preview, then the progress card. */
+    val burst: BurstCard? = null,
+    /** `kind == CALL`: the finished Live call. */
+    val call: CallRecord? = null,
+    /** The Live call a user line was spoken on (`via == "call"`). */
+    val callId: String? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, GOAL_RUN, BURST, CALL, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -303,11 +311,20 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "goal.run" -> Message.Kind.GOAL_RUN
+        "burst" -> Message.Kind.BURST
+        "call" -> Message.Kind.CALL
         else -> Message.Kind.UNKNOWN
     }
 
     override fun serialize(encoder: Encoder, value: Message.Kind) {
-        encoder.encodeString(if (value == Message.Kind.ROUTINE_RUN) "routine.run" else value.name.lowercase())
+        encoder.encodeString(
+            when (value) {
+                Message.Kind.ROUTINE_RUN -> "routine.run"
+                Message.Kind.GOAL_RUN -> "goal.run"
+                else -> value.name.lowercase()
+            },
+        )
     }
 }
 
