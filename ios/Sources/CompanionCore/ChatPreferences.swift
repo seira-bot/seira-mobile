@@ -197,7 +197,7 @@ func previewText(of message: Message) -> String {
     case .digest: return ""
     case .compaction: return message.compaction?.chipText ?? message.text ?? ""
     case .routineRun: return message.routineRun?.previewLine ?? message.text ?? ""
-    case .unknown: return message.text ?? ""
+    case .app, .unknown: return message.text ?? ""
     }
 }
 

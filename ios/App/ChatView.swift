@@ -2240,7 +2240,7 @@ struct MessageRow: View, Equatable {
                 // is written for exactly this reader.
                 bubble(presentation)
             }
-        case .unknown:
+        case .unknown, .app:
             // A message kind from a newer computer. Almost everything the
             // harness sends carries `text`, so showing it is usually the
             // whole message and always better than a gap in the transcript.
