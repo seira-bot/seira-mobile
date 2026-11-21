@@ -109,5 +109,7 @@ internal fun coreCopyParts(source: String): List<CopyPart>? {
 @Composable
 internal fun localizedCoreCopy(source: String): String? {
     val parts = coreCopyParts(source) ?: return null
-    return parts.joinToString(" ") { stringResource(it.id, *it.args.toTypedArray()) }
+    val sentences = ArrayList<String>(parts.size)
+    for (part in parts) sentences.add(stringResource(part.id, *part.args.toTypedArray()))
+    return sentences.joinToString(" ")
 }
