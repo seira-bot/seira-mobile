@@ -5,7 +5,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
-import androidx.compose.ui.test.onNode
 import androidx.compose.ui.test.performTextInput
 import com.openmausbot.companion.core.Connection
 import java.util.concurrent.ConcurrentHashMap
