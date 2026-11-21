@@ -105,6 +105,8 @@ data class OptionCard(
     val outboundRequest: OutboundRequest? = null,
     /** Present on "Remember this for the team?" cards. */
     val teamMemoryRequest: TeamMemoryRequest? = null,
+    /** Present on the offer to continue on another engine after a usage limit stopped a turn. */
+    val quotaSwitch: QuotaSwitchCard? = null,
 ) {
     val isPending: Boolean get() =
         requestId != null && answered == null && dismissed != true && expired != true
@@ -174,6 +176,10 @@ data class NotificationTarget private constructor(
     }
 }
 
+/** Marks an options card as the usage-limit offer; the phone reads only that it exists. */
+@Serializable
+data class QuotaSwitchCard(val messageId: String? = null, val rootId: String? = null)
+
 @Serializable
 data class ToolActivity(
     val name: String,
@@ -192,6 +198,13 @@ data class ToolActivity(
      * characters and already redacted. Older computers omit it.
      */
     val output: String? = null,
+    /** A failed turn: epoch ms when the usage limit that stopped it resets. */
+    val limitResetsAt: Double? = null,
+    /** A failed turn: the catalog key of a fixed server notice; [name] keeps the English. */
+    val nameCode: String? = null,
+    val nameParams: JsonObject? = null,
+    /** A failed turn whose reply came back; only a step it ran failed. */
+    val partial: Boolean? = null,
 )
 
 /**
@@ -283,9 +296,13 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == WIDGET`: the card tree a bot showed. Kept as JSON so a newer node type never breaks decoding. */
+    val widget: JsonObject? = null,
+    /** `kind == WIDGET`: the computer wrote this card itself, in English. */
+    val serverCard: Boolean? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -303,6 +320,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "widget" -> Message.Kind.WIDGET
         else -> Message.Kind.UNKNOWN
     }
 

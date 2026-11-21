@@ -1759,6 +1759,36 @@ class Session(
         }
     }
 
+    /**
+     * Press a button on a widget card. A widget in a room is view-only, so a
+     * press there is refused without a request. A refusal carries the computer's
+     * own sentence; a transport failure carries nothing and may be retried.
+     */
+    suspend fun pressWidget(chat: Chat, press: WidgetPress): WidgetPressResult {
+        val botChat = chat as? Chat.BotChat ?: return WidgetPressResult.Refused(null)
+        val activeClient = client ?: return WidgetPressResult.Failed
+        val connectionId = _connection.value?.id
+        return try {
+            activeClient.sendWidgetAction(botChat.bot.id, botChat.threadId, press)
+            WidgetPressResult.Sent
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError.Status) {
+            if (error.isUnauthorized) {
+                gate.withLock {
+                    if (connectionId != null && _connection.value?.id == connectionId) {
+                        _status.value = Status.Unauthorized
+                    }
+                }
+                WidgetPressResult.Failed
+            } else {
+                WidgetPressResult.Refused(error.serverMessage)
+            }
+        } catch (error: Throwable) {
+            WidgetPressResult.Failed
+        }
+    }
+
     suspend fun interrupt(bot: Bot) {
         perform { it.interrupt(bot.id, bot.threadId) }
     }
@@ -2228,7 +2258,7 @@ class Session(
         }
     }
 
-    suspend fun updateModel(selection: ModelSelection, forBot: Bot): Bot? {
+    suspend fun updateModel(selection: ModelSelection, forBot: Bot, quietly: Boolean = false): Bot? {
         val activeClient = client ?: return null
         return try {
             val updated = activeClient.updateModel(forBot.id, selection, forBot.threadId)
@@ -2237,8 +2267,70 @@ class Session(
             updated.forTask(forBot.threadId)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            if (!quietly) _actionError.value = error.message
             null
+        }
+    }
+
+    /** This pairing may read the model list and continue at a limit reset. */
+    val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false
+
+    private val _modelListForbidden = MutableStateFlow(false)
+
+    /** This phone may not read the model list (a Team member phone). */
+    val modelListForbidden: StateFlow<Boolean> = _modelListForbidden.asStateFlow()
+
+    private val _limitResetForbidden = MutableStateFlow(false)
+
+    /** This phone may not continue a turn at the limit reset. */
+    val limitResetForbidden: StateFlow<Boolean> = _limitResetForbidden.asStateFlow()
+
+    /**
+     * The models a person can switch to. A 403 means this phone has no access;
+     * it is remembered for the session and raises no error banner.
+     */
+    suspend fun switchableModels(): ModelListResult {
+        val activeClient = client ?: return ModelListResult.Failed
+        if (!canAdminister) return ModelListResult.Forbidden.also { _modelListForbidden.value = true }
+        return try {
+            ModelListResult.Loaded(activeClient.instances()).also { _modelListForbidden.value = false }
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            if (error is APIError.Status && error.code == 403) {
+                _modelListForbidden.value = true
+                ModelListResult.Forbidden
+            } else {
+                ModelListResult.Failed
+            }
+        }
+    }
+
+    /**
+     * Send the person's last message again in this conversation, as the
+     * desktop "Try again" does. False when there is nothing to send.
+     */
+    suspend fun retryLast(chat: Chat.BotChat): Boolean {
+        val bot = chat.bot.let { _state.value.bot(it.id)?.forTask(chat.threadId) ?: it }
+        val last = FailedTurnActions.lastUserMessage(_state.value.transcript(chat.threadId)) ?: return false
+        edit(last, bot, last.text.orEmpty())
+        return true
+    }
+
+    /** Ask the computer to continue this turn when the limit resets. A 403 hides the action. */
+    suspend fun continueAtReset(chat: Chat.BotChat): Boolean {
+        val activeClient = client ?: return false
+        if (!canAdminister) return false
+        return try {
+            activeClient.limitResetContinue(chat.bot.id, chat.threadId)
+            true
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            if (error is APIError.Status && error.code == 403) {
+                _limitResetForbidden.value = true
+            } else {
+                _actionError.value = error.message
+            }
+            false
         }
     }
 

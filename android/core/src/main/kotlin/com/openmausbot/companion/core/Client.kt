@@ -427,6 +427,14 @@ class CompanionClient(
         .filter { it.capabilities?.images == true }
         .mapTo(mutableSetOf(), Instance::instanceId)
 
+    suspend fun limitResetContinue(botId: String, threadId: String) {
+        sendUnit(makeRequest(
+            "POST",
+            "/api/limit-resets/continue",
+            body = jsonBody("botId" to safeRouteId(botId), "threadId" to safeRouteId(threadId)),
+        ))
+    }
+
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
     /**
@@ -756,6 +764,12 @@ class CompanionClient(
                 put("sendId", sendId)
             },
         ))
+    }
+
+    /** A press on a widget button. The same [WidgetPress.sendId] on a retry makes the computer count it once. */
+    suspend fun sendWidgetAction(botId: String, threadId: String, press: WidgetPress): SendReceipt {
+        if (!isSafeRouteId(threadId) || !isSafeSendId(press.sendId)) throw APIError.BadUrl
+        return sendForReceipt(makeRequest("POST", "/api/bots/${safeRouteId(botId)}/messages", body = press.body(threadId)))
     }
 
     suspend fun respond(

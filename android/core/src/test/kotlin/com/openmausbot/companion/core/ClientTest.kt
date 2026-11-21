@@ -3,6 +3,7 @@ package com.openmausbot.companion.core
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
@@ -380,6 +381,41 @@ class ClientTest {
             mapOf("text" to "Review this", "threadId" to "task_1", "sendId" to "share_1234567890123456"),
             stringBody(send.body.readUtf8()),
         )
+    }
+
+    @Test
+    fun aWidgetPressPostsTheActionAndAResendKeepsItsSendId() = runBlocking {
+        repeat(2) { server.enqueue(json("""{"ok":true}""")) }
+        val press = WidgetPress(
+            messageId = "m1", ref = "confirm", rev = 2,
+            values = mapOf("city" to WidgetValue.Text("rome"), "agree" to WidgetValue.Flag(true)),
+            sendId = "widget-send-12345678",
+        )
+        client.sendWidgetAction("bot-1", "task_1", press)
+        client.sendWidgetAction("bot-1", "task_1", press)
+        repeat(2) {
+            val request = server.takeRequest()
+            assertEquals("POST /api/bots/bot-1/messages", "${request.method} ${request.path}")
+            val body = Json.parseToJsonElement(request.body.readUtf8()).jsonObject
+            assertEquals("task_1", body.getValue("threadId").jsonPrimitive.content)
+            assertEquals("widget-send-12345678", body.getValue("sendId").jsonPrimitive.content)
+            val action = body.getValue("widgetAction").jsonObject
+            assertEquals("m1", action.getValue("messageId").jsonPrimitive.content)
+            assertEquals("confirm", action.getValue("ref").jsonPrimitive.content)
+            assertEquals("2", action.getValue("rev").jsonPrimitive.content)
+            assertEquals("rome", action.getValue("values").jsonObject.getValue("city").jsonPrimitive.content)
+            assertEquals("true", action.getValue("values").jsonObject.getValue("agree").jsonPrimitive.content)
+            assertFalse("text" in body)
+        }
+    }
+
+    @Test
+    fun aWidgetPressRejectsUnsafeIdsBeforeNetworking() = runBlocking {
+        val press = WidgetPress("m1", "n2", 0, sendId = "widget-send-12345678")
+        assertFailsWith<APIError.BadUrl> { client.sendWidgetAction("../config", "task", press) }
+        assertFailsWith<APIError.BadUrl> { client.sendWidgetAction("bot-1", "a/b", press) }
+        assertFailsWith<APIError.BadUrl> { client.sendWidgetAction("bot-1", "task", press.copy(sendId = "short")) }
+        assertEquals(0, server.requestCount)
     }
 
     @Test
