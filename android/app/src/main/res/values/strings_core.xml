@@ -7,7 +7,7 @@
     <string name="core_route_local_network_blocked">Android blocked this app from your local network. Allow local network access for it in the phone\'s Settings, then try again.</string>
     <string name="core_route_secure_failed">Make sure the computer is awake with Seira open, then try again.</string>
     <string name="core_route_tailscale_only">Your phone couldn\'t reach %1$s over Tailscale. Turn on Tailscale on this phone, signed in to the same tailnet as the computer, then try again.</string>
-    <string name="core_route_same_network">Your phone couldn\'t reach %1$s on this network. Put the phone on the same Wi-Fi as the computer. If it already is, the computer\'s firewall may be blocking Seira: on a Windows PC, set its network to Private. Or open Settings → Remote access on the computer and sign in so the phone can connect from anywhere.</string>
+    <string name="core_route_same_network">Your phone couldn\'t reach %1$s on this network. Put the phone on the same Wi-Fi as the computer. If it already is, the computer\'s firewall may be blocking Seira: on a Windows PC, set its network to Private; on Linux, run the firewall command that Seira shows on the computer. Or open Settings → Remote access on the computer and sign in so the phone can connect from anywhere.</string>
     <string name="core_advice_host_unresolved">“%1$s” didn\'t resolve. If that\'s a Tailscale name, this phone may not be on the tailnet.</string>
     <string name="core_advice_port_closed">Reached your computer, but Phone access isn\'t answering on port %1$d — open Seira → Settings → Phone.</string>
     <string name="core_advice_no_route">No route to your computer at %1$s — different network, or a firewall.</string>

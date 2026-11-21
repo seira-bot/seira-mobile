@@ -52,7 +52,8 @@ private val patternCoreCopy: List<Pair<Regex, (MatchResult) -> CopyPart>> = list
         { m -> CopyPart(R.string.core_route_tailscale_only, listOf(m.groupValues[1])) },
     Regex("""^Your phone couldn't reach (.+) on this network\. Put the phone on the same Wi-Fi as the """ +
         """computer\. If it already is, the computer's firewall may be blocking Seira: on a Windows PC, """ +
-        """set its network to Private\. Or open Settings → Remote access on the computer and sign in so """ +
+        """set its network to Private; on Linux, run the firewall command that Seira shows on the computer\. """ +
+        """Or open Settings → Remote access on the computer and sign in so """ +
         """the phone can connect from anywhere\.$""") to
         { m -> CopyPart(R.string.core_route_same_network, listOf(m.groupValues[1])) },
     Regex("""^“(.+)” didn't resolve\. If that's a Tailscale name, this phone may not be on the tailnet\.$""") to

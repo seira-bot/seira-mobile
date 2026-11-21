@@ -330,7 +330,6 @@
     </plurals>
     <string name="mobile_camera_permission_description">允許使用相機掃描 Seira 顯示的配對 QR Code。</string>
     <string name="mobile_camera_permission_denied">允許使用相機掃描 Seira 顯示的配對 QR Code，或返回手動輸入位址與代碼。</string>
-
     <string name="mobile_settings_name">名稱</string>
     <string name="mobile_settings_other_computers">其他電腦</string>
     <string name="mobile_settings_connect_another_computer">連接另一台電腦</string>
@@ -390,7 +389,6 @@
     <string name="mobile_activity_reduced_caption">將步驟合併為一行。失敗資訊一律顯示。</string>
     <string name="mobile_activity_hidden">隱藏</string>
     <string name="mobile_activity_hidden_caption">隱藏操作過程，只顯示訊息。</string>
-
     <string name="mobile_settings_connect_computer">連接電腦</string>
     <string name="mobile_settings_connection_label">連線狀態</string>
     <string name="mobile_settings_status_label">狀態</string>
@@ -408,8 +406,6 @@
     <string name="mobile_settings_remove_this_computer">移除此電腦</string>
     <string name="mobile_settings_unpair_this_phone">取消此手機配對</string>
     <string name="mobile_settings_invalid_address">請輸入安全的 https:// 位址，例如 192.168.1.42:8810 或 macbook.tail1234.ts.net。</string>
-
-    <!-- MOCA-291: copy that was hard-coded in Kotlin. -->
     <string name="mobile_chat_call_bot">與 %1$s 通話</string>
     <string name="mobile_message_via_call">來自通話</string>
     <string name="mobile_voice_note_unavailable">語音留言無法使用</string>
@@ -458,7 +454,6 @@
     <string name="mobile_discovery_access_off">區域網路存取權已關閉。請開啟「鄰近裝置」權限，或在下方輸入 Tailscale 位址。</string>
     <string name="mobile_discovery_unavailable">區域網路探索目前無法使用。請在下方輸入「手機」設定中顯示的位址。</string>
     <string name="mobile_discovery_keeps_failing">此手機上的區域網路探索一再中斷。請在下方輸入「手機」設定中顯示的位址。</string>
-
     <string name="mobile_roster_nothing_matches">沒有符合項目</string>
     <string name="mobile_roster_no_thread_matches">沒有符合「%1$s」的對話。</string>
     <string name="mobile_roster_needs_attention">需要處理</string>
@@ -467,7 +462,6 @@
     <string name="mobile_thread_closed">已關閉</string>
     <string name="mobile_thread_working">工作中</string>
     <string name="mobile_phone_unpaired_banner">此手機已在電腦上取消配對。</string>
-
     <string name="mobile_action_add_photo">將照片加入此訊息</string>
     <string name="mobile_action_add_document">從「檔案」新增文件</string>
     <string name="mobile_action_new_thread_for_bot">與 %1$s 開啟新的對話</string>
@@ -483,197 +477,103 @@
     <string name="mobile_slash_diff_description">檢視最新的 Git 變更和修補程式</string>
     <string name="mobile_slash_retry_description">使用新的上下文重試上一回合</string>
     <string name="mobile_slash_steer_description">引導並調整正在執行的工作</string>
-
     <string name="mobile_section_ready">%1$s 已就緒</string>
     <string name="mobile_section_add_more_bots">為其他區段選擇更多機器人，或點選「完成」。</string>
     <string name="mobile_section_chief_conflict">一個區段只能有一個 Chief。請返回並選擇一個 Chief，或使用不指定 Chief 的區段。</string>
     <string name="mobile_section_pinned_stays">已釘選的機器人會一直留在「已釘選」中，直到你取消釘選。</string>
     <string name="mobile_section_at_limit">已選取 100 個，已達區段上限。</string>
     <string name="mobile_section_under_limit">一個區段最多可選取 100 個機器人。</string>
-
     <string name="mobile_all_quiet_889fd4f7">目前沒有待處理事項</string>
-
     <string name="mobile_apply_model_474897c3">套用模型</string>
-
     <string name="mobile_avatar_7631b26e">頭像</string>
-
     <string name="mobile_can_reach_e5d301f8">可連線至</string>
-
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">正在檢查雲端 VM 是否可用…</string>
-
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">請選擇 PNG、JPEG、GIF 或 WebP 圖片。</string>
-
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">選擇可用的提供者以變更此機器人的模型。</string>
-
     <string name="mobile_circle_1cc7820a">圓形</string>
-
     <string name="mobile_cloud_vm_26ca291f">雲端 VM</string>
-
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">無法取得雲端 VM 狀態</string>
-
     <string name="mobile_completed_1798b3ba">已完成</string>
-
     <string name="mobile_completed_waiting_failed_and_manually_st_55acdcb1">已完成、等待中、失敗及手動啟動的執行會顯示於此。</string>
-
     <string name="mobile_computer_only_bc8646ec">僅限電腦</string>
-
     <string name="mobile_connect_when_you_re_ready_49cd74c6">準備好時再連線</string>
-
     <string name="mobile_couldn_t_start_the_microphone_320ceafa">無法啟動麥克風。</string>
-
     <string name="mobile_couldn_t_transcribe_that_f440f144">無法辨識這段語音。</string>
-
     <string name="mobile_current_provider_unavailable_2fe5cf65">目前的提供者（無法使用）</string>
-
     <string name="mobile_default_808d7dca">預設</string>
-
     <string name="mobile_deleted_agent_ff6eff9d">已刪除機器人</string>
-
     <string name="mobile_dictation_isn_t_available_for_this_langu_1a6b15c5">此語言無法使用聽寫。</string>
-
     <string name="mobile_dictation_needs_microphone_access_enable_e9addded">聽寫功能需要麥克風權限。請前往「設定 → Seira」啟用。</string>
-
     <string name="mobile_does_0ae736c9">執行方式</string>
-
     <string name="mobile_elevenlabs_is_not_configured_5a3dcc07">尚未設定 ElevenLabs</string>
-
     <string name="mobile_explain_steps_b60a9fb6">說明步驟</string>
-
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
-
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">尚未設定 Fish Audio</string>
-
     <string name="mobile_generate_an_avatar_01e5cee4">產生頭像</string>
-
     <string name="mobile_generate_on_computer_ff5b7448">在電腦上產生</string>
-
     <string name="mobile_hide_diff_120df7c2">隱藏差異</string>
-
     <string name="mobile_identity_7e5a975b">身分</string>
-
     <string name="mobile_idle_cc1ebdd0">閒置</string>
-
     <string name="mobile_loading_models_eeade2be">正在載入模型</string>
-
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">區域網路探索已中斷。正在重試…</string>
-
     <string name="mobile_mascot_e0489488">吉祥物</string>
-
     <string name="mobile_more_4bab2d8f">更多</string>
-
     <string name="mobile_needs_you_0d9d0df1">需要你處理</string>
-
     <string name="mobile_new_task_17b2b838">新增任務</string>
-
     <string name="mobile_no_changes_recorded_yet_2eab95e9">尚未記錄任何變更。</string>
-
     <string name="mobile_no_model_providers_are_available_a224e94c">沒有可用的模型提供者</string>
-
     <string name="mobile_no_routines_1cd3f572">沒有例行工作</string>
-
     <string name="mobile_nothing_needs_you_c7649c9b">目前沒有需要你處理的項目</string>
-
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">尚未排定或學到任何內容。</string>
-
     <string name="mobile_nothing_to_show_yet_95f8d609">目前沒有內容可顯示</string>
-
     <string name="mobile_open_live_cloud_desktop_88662ef7">開啟即時雲端桌面</string>
-
     <string name="mobile_open_live_cloud_desktop_f2746abf">要開啟即時雲端桌面嗎？</string>
-
     <string name="mobile_open_task_a1f1752a">開啟任務</string>
-
     <string name="mobile_open_thread">開啟討論串</string>
-
     <string name="mobile_opening_b1b8530b">開啟中…</string>
-
     <string name="mobile_past_run_receipts_remain_available_fd5e2bbd">先前的執行回執仍可查看。</string>
-
     <string name="mobile_paused_c7dfb6f1">已暫停</string>
-
     <string name="mobile_pick_a_voice_for_this_agent_before_enabl_121cdfed">啟用語音前，請先為此機器人選擇語音。</string>
-
     <string name="mobile_pick_an_agent_voice_or_configure_a_works_1f464020">請先選擇機器人語音，或在電腦上設定工作區預設語音。</string>
-
     <string name="mobile_preparing_attachments_343475f3">正在準備附件…</string>
-
     <string name="mobile_preview_f1fbb2b4">預覽</string>
-
     <string name="mobile_preview_voice_560a6fec">預覽語音</string>
-
     <string name="mobile_primary_account_32f2184e">主要帳戶</string>
-
     <string name="mobile_recent_changes_1bfd2320">近期變更</string>
-
     <string name="mobile_rounded_c5aa340f">圓角</string>
-
     <string name="mobile_routines_a445e5ad">例行工作</string>
-
     <string name="mobile_run_all_automated_tests_4032d93f">執行所有自動化測試</string>
-
     <string name="mobile_run_receipts_9115568f">執行回執</string>
-
     <string name="mobile_run_tests_fcab481b">執行測試</string>
-
     <string name="mobile_save_profile_changes_49c8333d">儲存設定檔變更</string>
-
     <string name="mobile_schedule_0a8adac9">排程</string>
-
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">排定週期性或單次的機器人工作。</string>
-
     <string name="mobile_sending_cf765512">傳送中…</string>
-
     <string name="mobile_show_diff_78016e77">顯示差異</string>
-
     <string name="mobile_square_82810cb9">方形</string>
-
     <string name="mobile_start_dictation_ee00527b">開始語音輸入</string>
-
     <string name="mobile_stop_dictation_96ad53f1">停止語音輸入</string>
-
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">變更模型前請先停止此機器人。</string>
-
     <string name="mobile_that_image_is_larger_than_10_mb_baaf657b">該圖片超過 10 MB。</string>
-
     <string name="mobile_the_downloaded_file_couldn_t_be_previewe_e92bd29f">無法預覽下載的檔案。</string>
-
     <string name="mobile_the_generated_audio_could_not_be_played_fc933657">無法播放產生的音訊。</string>
-
     <string name="mobile_this_bot_s_computer_is_only_captured_whi_df844363">只有在此機器人工作時，才會擷取其電腦畫面。</string>
-
     <string name="mobile_this_computer_4ccce6f4">此電腦</string>
-
     <string name="mobile_to_review_066f77ce">待檢查</string>
-
     <string name="mobile_unknown_bc7819b3">未知</string>
-
     <string name="mobile_upload_image_f35dec5f">上傳圖片</string>
-
     <string name="mobile_use_mascot_0de90a12">使用吉祥物</string>
-
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">使用已配對電腦上此機器人所選的模型與電腦設定。</string>
-
     <string name="mobile_view_diff_39f85d34">檢視差異</string>
-
     <string name="mobile_waiting_for_a_frame_a772baa4">正在等待畫面…</string>
-
     <string name="mobile_webhooks_fdfe2da7">Webhook</string>
-
     <string name="mobile_what_this_bot_does_7a664f47">此機器人的工作內容</string>
-
     <string name="mobile_what_s_next_3d4b36bc">接下來呢？</string>
-
-
     <string name="mobile_where_does_it_run_6e4a5297">執行位置？</string>
-
     <string name="mobile_who_7d531617">對象</string>
-
     <string name="mobile_won_t_f51153fe">不會</string>
-
     <string name="mobile_work_00040bab">工作</string>
-
     <string name="mobile_yesterday_da24830f">昨天</string>
-
     <string name="mobile_model_settings_footer">提供者帳戶和 API 金鑰會保留在電腦上。預設選項不會傳送推理層級，由提供者決定。</string>
     <string name="mobile_model_none_available">沒有可用的模型提供者</string>
     <string name="mobile_model_busy_note">變更模型前請先停止此機器人。</string>
@@ -697,14 +597,11 @@
     <string name="mobile_profile_voice_ready_footer">語音選擇屬於此代理程式。工作區預設語音會使用你在電腦上選取的共用語音。</string>
     <string name="mobile_profile_pick_voice">啟用語音前，請先為此代理程式選擇語音。</string>
     <string name="mobile_profile_preview_refused">請先選擇代理程式語音，或在電腦上設定工作區預設語音。</string>
-
     <string name="mobile_roster_header_connected">%1$s · 已連線</string>
     <string name="mobile_roster_header_connecting">%1$s · 正在連線…</string>
     <string name="mobile_roster_header_offline">%1$s · 離線</string>
     <string name="mobile_roster_header_unpaired">%1$s · 未配對</string>
-
     <string name="mobile_overview_title">%1$s 的工作內容</string>
-
     <string name="mobile_updates_headline_needs_you">%1$s 需要你處理</string>
     <string name="mobile_updates_headline_working">%1$s 正在工作</string>
     <string name="mobile_updates_headline_review">%1$s 有一項更新</string>
@@ -718,31 +615,18 @@
     <plurals name="mobile_updates_queued_count">
         <item quantity="other">%1$d 則訊息已排入佇列</item>
     </plurals>
-
     <string name="mobile_allow_once_c551e6cf">允許一次</string>
-
     <string name="mobile_always_allow_41325daa">一律允許</string>
-
     <string name="mobile_deny_53577bb5">拒絕</string>
-
     <string name="mobile_every_day_3b2eb513">每天</string>
-
     <string name="mobile_file_2c3cafa4">檔案</string>
-
     <string name="mobile_image_50e19fda">圖片</string>
-
     <string name="mobile_listening_6c19a476">聆聽中…</string>
-
     <string name="mobile_running_73989d9c">執行中</string>
-
     <string name="mobile_weekdays_4ffc67b6">平日</string>
-
     <string name="mobile_computer_c60266a8">電腦</string>
-
     <string name="mobile_queued_efcc7714">已排入佇列</string>
-
     <string name="mobile_running_3c49d9cc">執行中</string>
-
     <string name="mobile_chat_add_attachment_failed">無法新增此附件。</string>
     <string name="mobile_chat_open_file_failed">無法開啟該檔案，請再試一次。</string>
     <string name="mobile_chat_open_link_failed">此手機無法開啟此連結。</string>
@@ -801,19 +685,15 @@
     <string name="mobile_share_needs_attention">需要你處理</string>
     <string name="mobile_unlock_phone">請解鎖此手機後再試著分享。</string>
     <string name="mobile_share_saved_connection_unavailable">此手機上已無法使用此已儲存的連線。請移除並重新配對。</string>
-
     <string name="mobile_chat_download_preview_failed">無法預覽已下載的檔案。</string>
-
     <string name="mobile_attachment_too_large">%1$s 超過附件剩餘大小上限 %2$s。</string>
     <string name="mobile_file_no_viewer">此手機上沒有可以開啟 %1$s 的 App。</string>
     <string name="mobile_file_share_title">分享 %1$s</string>
     <string name="mobile_file_no_share_app">此手機上沒有可以分享 %1$s 的 App。</string>
-
     <string name="mobile_pairing_notice_https">只有在這是你剛掃描 QR 碼的電腦時才繼續。確認後會建立經過驗證的 HTTPS 配套連線。</string>
     <string name="mobile_pairing_notice_scan">只有在這是你剛掃描 QR 碼的電腦時才繼續。確認後會建立經過驗證的配套連線。請使用可信任的 Wi-Fi 網路或 tailnet；Seira 不會加密本機 Wi-Fi 流量。</string>
     <string name="mobile_pairing_enter_code_notice">請輸入電腦上顯示的 6 位數代碼：</string>
     <string name="mobile_pairing_rescan_notice">配對完成前，應用程式已重新啟動。該一次性代碼絕不會重複使用，因為它可能已被兌換。請在電腦上重新開始配對，並掃描新的 QR 碼。</string>
-
     <string name="mobile_composer_ask_bot">詢問 %1$s</string>
     <string name="mobile_composer_answer_bot">回答 %1$s…</string>
     <string name="mobile_type_your_answer">輸入你的回答</string>
@@ -847,7 +727,6 @@
     <string name="mobile_routine_thursday_short">週四</string>
     <string name="mobile_routine_friday_short">週五</string>
     <string name="mobile_routine_saturday_short">週六</string>
-
     <plurals name="mobile_diff_show_first_lines">
         <item quantity="other">顯示前 %1$d 行</item>
     </plurals>
