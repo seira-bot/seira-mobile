@@ -249,7 +249,7 @@ class AppUpdateControllerTest {
     }
 
     private object NoopLauncher : ActivityResultLauncher<IntentSenderRequest>() {
-        override fun launch(input: IntentSenderRequest?, options: ActivityOptionsCompat?) = Unit
+        override fun launch(input: IntentSenderRequest, options: ActivityOptionsCompat?) = Unit
         override fun unregister() = Unit
         override val contract: ActivityResultContract<IntentSenderRequest, *>
             get() = ActivityResultContracts.StartIntentSenderForResult()
