@@ -70,6 +70,7 @@ import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.RosterDensity
+import com.openmausbot.companion.core.AiUsageRules
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -95,6 +96,7 @@ internal fun SettingsScreen(
     onBack: () -> Unit,
     onOpenRoutines: (() -> Unit)? = null,
     onOpenConnectedApps: (() -> Unit)? = null,
+    onOpenAiUsage: (() -> Unit)? = null,
     onConnect: (() -> Unit)? = null,
     accounts: AccountInfoSource? = null,
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
@@ -163,6 +165,13 @@ internal fun SettingsScreen(
         account = if (connection != null) source.load() else AccountInfo()
     }
 
+    val aiUsageHiddenFor by session.aiUsageHiddenFor.collectAsState()
+    val showsAiUsage = onOpenAiUsage != null && connection != null &&
+        !AiUsageRules.hidden(aiUsageHiddenFor, connection?.id)
+    LaunchedEffect(connection?.id, status, onOpenAiUsage != null) {
+        if (onOpenAiUsage != null && connection != null && status == Session.Status.Live) session.aiUsage()
+    }
+
     val version = remember {
         runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }
             .getOrNull()
@@ -216,7 +225,7 @@ internal fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon3d(R.drawable.icon3d_appearance, 30.dp, "appearance")
+                    Icon(SeiraIcons.Sun, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(20.dp))
                     Text(
                         stringResource(R.string.settings_appearance_caption),
                         style = SeiraType.callout,
@@ -247,7 +256,6 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = bound.name,
                     icon = SeiraIcons.Laptop,
-                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                     subtitle = computerStatusPhrase(status),
                     subtitleDot = if (live) colors.success else if (offline) colors.danger else null,
@@ -359,7 +367,6 @@ internal fun SettingsScreen(
                     title = stringResource(R.string.mobile_settings_connection_label),
                     subtitle = localizedConnectionStatus(status),
                     icon = SeiraIcons.Laptop,
-                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                 )
             }
@@ -370,7 +377,6 @@ internal fun SettingsScreen(
                     title = computer.name,
                     subtitle = stringResource(R.string.settings_state_saved),
                     icon = SeiraIcons.Laptop,
-                    art = Art3d(R.drawable.icon3d_computer, "computer"),
                     minHeight = 64.dp,
                     onClick = {
                         haptics.play(TactileAction.SWITCH_COMPUTER)
@@ -389,7 +395,6 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = stringResource(R.string.mobile_settings_connect_computer),
                     icon = SeiraIcons.Plus,
-                    art = Art3d(R.drawable.icon3d_pair, "pair"),
                     onClick = onConnect,
                     trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
                 )
@@ -404,7 +409,6 @@ internal fun SettingsScreen(
                     title = stringResource(R.string.settings_notif_turn_on),
                     subtitle = stringResource(R.string.settings_notif_turn_on_body),
                     icon = SeiraIcons.Bell,
-                    art = Art3d(R.drawable.icon3d_notifications, "notifications"),
                     minHeight = 64.dp,
                     enabled = NotificationPermissionController.buttonEnabled(notifications),
                     onClick = environment.notifications::act,
@@ -417,7 +421,6 @@ internal fun SettingsScreen(
                         title = stringResource(row.title),
                         subtitle = stringResource(row.body),
                         icon = SeiraIcons.Bell,
-                        art = Art3d(R.drawable.icon3d_notifications, "notifications"),
                         checked = channelStates[row.channelId] ?: true,
                         onToggle = { openChannelSettings(context, row.channelId) },
                     )
@@ -431,7 +434,6 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = stringResource(R.string.mobile_voice_3091c844),
                     icon = SeiraIcons.Volume2,
-                    art = Art3d(R.drawable.icon3d_voice, "voice"),
                     onClick = { showingLiveSettings = true },
                     trailing = {
                         liveVoice?.let { ValueWithChevron(it) }
@@ -495,6 +497,14 @@ internal fun SettingsScreen(
                     onClick = onOpenRoutines,
                     trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
                 )
+                if (showsAiUsage) {
+                    DesignRow(
+                        title = stringResource(R.string.ai_usage_title),
+                        icon = SeiraIcons.BarChart,
+                        onClick = onOpenAiUsage,
+                        trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                    )
+                }
             }
         }
 
@@ -504,7 +514,6 @@ internal fun SettingsScreen(
                 DesignRow(
                     title = stringResource(R.string.settings_connected_apps),
                     icon = SeiraIcons.Shield,
-                    art = Art3d(R.drawable.icon3d_privacy, "privacy"),
                     onClick = onOpenConnectedApps,
                     trailing = {
                         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -521,7 +530,6 @@ internal fun SettingsScreen(
             DesignRow(
                 title = stringResource(R.string.mobile_settings_help_faq),
                 icon = SeiraIcons.Search,
-                art = Art3d(R.drawable.icon3d_help, "help"),
                 onClick = { openLink(context, SettingsPolicy.HELP_FAQ_URL) },
                 trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
             )

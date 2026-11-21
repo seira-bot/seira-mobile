@@ -90,8 +90,15 @@ object NotificationActions {
             .build()
     }
 
-    fun reviewAction(context: Context, label: String, botId: String, threadId: String, kind: String?): NotificationCompat.Action =
-        NotificationCompat.Action.Builder(0, label, NotificationIntents.openPending(context, botId, threadId, kind))
+    fun reviewAction(
+        context: Context,
+        label: String,
+        botId: String,
+        threadId: String,
+        kind: String?,
+        pairing: String? = null,
+    ): NotificationCompat.Action =
+        NotificationCompat.Action.Builder(0, label, NotificationIntents.openPending(context, botId, threadId, kind, pairing))
             .setSemanticAction(NotificationCompat.Action.SEMANTIC_ACTION_NONE)
             .setShowsUserInterface(true)
             .build()
