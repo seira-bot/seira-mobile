@@ -217,6 +217,19 @@ Beberapa fitur butuh Seira terbaru di komputer.
 </id>
 ```
 
+### Catatan rilis update 1.0.5
+
+Isi teks ini saat rilis 1.0.5 dibuat di Console:
+
+```text
+<en-US>
+Switch to another paired computer from the Chats screen: tap the computer name. A new pairing with a second server at the same address no longer replaces the first computer. Sending a password or key no longer stops when its card scrolls off the screen.
+</en-US>
+<id>
+Pindah ke komputer lain yang sudah dipasangkan langsung dari layar Chats: ketuk nama komputer. Pairing server kedua di alamat yang sama tidak lagi menggantikan komputer pertama. Kirim password atau key tidak lagi berhenti saat kartunya tergulir keluar layar.
+</id>
+```
+
 ## Negara dan rollout
 
 - Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan
