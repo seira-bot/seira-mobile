@@ -5,10 +5,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
-import com.openmausbot.companion.core.AiUsageRules
 import com.openmausbot.companion.core.ContextUsage
 import com.openmausbot.companion.core.EngineLimit
-import com.openmausbot.companion.core.EngineLimitsReport
 import com.openmausbot.companion.core.LimitWindowUsage
 import com.openmausbot.companion.core.TaskUsage
 import java.time.Instant
@@ -26,30 +24,21 @@ class AiUsageScreenTest {
     @get:Rule
     val compose = createAndroidComposeRule<ComponentActivity>()
 
-    private val now = Instant.parse("2026-11-21T08:00:00Z").toEpochMilli()
+    private val now = Instant.parse("2026-11-21T08:00:00Z")
 
     private fun ms(iso: String) = Instant.parse(iso).toEpochMilli().toDouble()
 
     @Test
     fun aCardShowsEachWindowWithItsPercentLeftAndResetTime() {
-        val report = EngineLimitsReport(
-            checkedAt = 1.0,
-            engines = listOf(
-                EngineLimit(
-                    engine = "a", name = "Claude", driver = "claude", usedPercent = 40.0, blocked = false,
-                    windows = listOf(
-                        LimitWindowUsage("5-hour", 40.0, ms("2026-11-21T15:40:00Z")),
-                        LimitWindowUsage("monthly", 95.0, null),
-                    ),
-                ),
+        val limit = EngineLimit(
+            engine = "a", name = "Claude", driver = "claude", usedPercent = 40.0, blocked = false,
+            windows = listOf(
+                LimitWindowUsage("5-hour", 40.0, ms("2026-11-21T15:40:00Z")),
+                LimitWindowUsage("monthly", 95.0, null),
             ),
         )
         compose.setContent {
-            CompanionTheme {
-                Column {
-                    AiUsageRules.cards(report, now).forEach { AiUsageCardView(it, Locale.US, now, ZoneOffset.UTC) }
-                }
-            }
+            CompanionTheme { AiUsageCardView(limit, Locale.US, now, ZoneOffset.UTC) }
         }
         compose.onNodeWithText("Claude").assertIsDisplayed()
         compose.onNodeWithText("5-hour limit").assertIsDisplayed()
@@ -60,18 +49,12 @@ class AiUsageScreenTest {
 
     @Test
     fun aPausedCardShowsWhenItResumes() {
-        val report = EngineLimitsReport(
-            engines = listOf(
-                EngineLimit(
-                    engine = "a", name = "Codex", driver = "codex", usedPercent = 100.0,
-                    resetsAt = ms("2026-11-21T12:30:00Z"), blocked = true,
-                ),
-            ),
+        val limit = EngineLimit(
+            engine = "a", name = "Codex", driver = "codex", window = "5-hour", usedPercent = 100.0,
+            resetsAt = ms("2026-11-21T12:30:00Z"), blocked = true,
         )
         compose.setContent {
-            CompanionTheme {
-                AiUsageRules.cards(report, now).forEach { AiUsageCardView(it, Locale.US, now, ZoneOffset.UTC) }
-            }
+            CompanionTheme { AiUsageCardView(limit, Locale.US, now, ZoneOffset.UTC) }
         }
         compose.onNodeWithText("Paused until 12:30 PM").assertIsDisplayed()
     }

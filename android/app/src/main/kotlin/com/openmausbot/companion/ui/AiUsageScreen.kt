@@ -40,19 +40,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
-import com.openmausbot.companion.core.AiUsageCard
 import com.openmausbot.companion.core.AiUsageResult
 import com.openmausbot.companion.core.AiUsageRules
 import com.openmausbot.companion.core.ConversationUsageLine
+import com.openmausbot.companion.core.EngineLimit
 import com.openmausbot.companion.core.EngineLimitsReport
+import com.openmausbot.companion.core.EngineUsage
 import com.openmausbot.companion.core.LimitWindowKind
 import com.openmausbot.companion.core.TaskUsage
-import com.openmausbot.companion.core.UsageWindowRow
+import com.openmausbot.companion.core.UsageRow
+import com.openmausbot.companion.core.UsageTone
+import com.openmausbot.companion.core.limitLine
+import com.openmausbot.companion.core.limitResetTime
+import com.openmausbot.companion.core.usageRows
+import com.openmausbot.companion.core.usageTone
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraCard
 import com.openmausbot.companion.ui.theme.SeiraType
+import java.time.Instant
 import java.time.ZoneId
 import java.util.Locale
+import kotlin.math.roundToInt
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -113,9 +121,7 @@ internal fun AiUsageScreen(onBack: () -> Unit) {
             ) {
                 val current = report
                 val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
-                val cards = remember(current) {
-                    current?.let { AiUsageRules.cards(it, System.currentTimeMillis()) }.orEmpty()
-                }
+                val cards = remember(current) { current?.let { EngineUsage.reporting(it.engines) }.orEmpty() }
                 cards.forEach { AiUsageCardView(it, locale) }
                 when {
                     failed -> Text(stringResource(R.string.ai_usage_load_failed), color = Seira.colors.ink2)
@@ -131,27 +137,36 @@ internal fun AiUsageScreen(onBack: () -> Unit) {
 
 @Composable
 internal fun AiUsageCardView(
-    card: AiUsageCard,
+    limit: EngineLimit,
     locale: Locale,
-    now: Long = System.currentTimeMillis(),
+    now: Instant = Instant.now(),
     zone: ZoneId = ZoneId.systemDefault(),
 ) {
     val colors = Seira.colors
-    val tone = if (card.nearLimit) colors.warning else colors.accent
+    val tone = usageTone(limit)
+    val ringColor = when (tone) {
+        UsageTone.FINE -> colors.accent
+        UsageTone.NEAR -> colors.warning
+        UsageTone.OUT -> colors.danger
+    }
+    val name = limit.name.ifBlank { limit.engine.replaceFirstChar { it.uppercase() } }
+    val percent = if (limit.blocked) 100 else (limit.usedPercent ?: 0.0).roundToInt().coerceIn(0, 100)
+    val paused = limit.blocked || limit.held == true
     SeiraCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                val ringDescription = stringResource(R.string.ai_usage_ring_description, card.name, card.usedPercent)
+                val ringDescription = stringResource(R.string.ai_usage_ring_description, name, percent)
                 UsageRing(
-                    percent = card.usedPercent,
-                    color = tone,
+                    percent = percent,
+                    color = ringColor,
                     modifier = Modifier.semantics { contentDescription = ringDescription },
                 )
                 Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text(card.name, style = SeiraType.headline, color = colors.ink)
-                    if (card.paused) {
-                        val chip = card.pausedUntil?.let {
-                            stringResource(R.string.ai_usage_paused_until, AiUsageRules.resetTime(it, now, zone, locale))
+                    Text(name, style = SeiraType.headline, color = colors.ink)
+                    if (paused) {
+                        val until = limitLine(limit, now).resetsAt
+                        val chip = until?.let {
+                            stringResource(R.string.ai_usage_paused_until, limitResetTime(it, now, locale, zone))
                         } ?: stringResource(R.string.ai_usage_paused)
                         Text(
                             chip,
@@ -161,31 +176,32 @@ internal fun AiUsageCardView(
                                 .background(colors.warningSoft, RoundedCornerShape(50))
                                 .padding(horizontal = 10.dp, vertical = 3.dp),
                         )
-                    } else if (card.nearLimit) {
+                    } else if (tone != UsageTone.FINE) {
                         Text(stringResource(R.string.ai_usage_near_limit), style = SeiraType.caption, color = colors.warningText)
                     }
                 }
             }
-            card.rows.forEach { UsageRowView(it, now, zone, locale) }
+            usageRows(limit).forEach { UsageRowView(it, now, zone, locale) }
         }
     }
 }
 
 @Composable
-private fun UsageRowView(row: UsageWindowRow, now: Long, zone: ZoneId, locale: Locale) {
+private fun UsageRowView(row: UsageRow, now: Instant, zone: ZoneId, locale: Locale) {
     val label = stringResource(
-        when (row.kind) {
+        when (EngineUsage.windowKind(row.window)) {
             LimitWindowKind.FIVE_HOUR -> R.string.ai_usage_window_five_hour
             LimitWindowKind.WEEKLY -> R.string.ai_usage_window_weekly
             LimitWindowKind.OTHER -> R.string.ai_usage_window_other
         },
     )
-    val detail = row.resetsAt?.let {
-        stringResource(R.string.ai_usage_window_row, row.percentLeft, AiUsageRules.resetTime(it, now, zone, locale))
-    } ?: stringResource(R.string.ai_usage_window_row_no_reset, row.percentLeft)
+    val reset = row.resetsAt?.takeIf { it > now }
+    val detail = reset?.let {
+        stringResource(R.string.ai_usage_window_row, row.left, limitResetTime(it, now, locale, zone))
+    } ?: stringResource(R.string.ai_usage_window_row_no_reset, row.left)
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         Text(label, style = SeiraType.body, color = Seira.colors.ink)
-        Text(detail, style = SeiraType.callout, color = if (row.nearLimit) Seira.colors.warningText else Seira.colors.ink2)
+        Text(detail, style = SeiraType.callout, color = if (row.tone == UsageTone.FINE) Seira.colors.ink2 else Seira.colors.warningText)
     }
 }
 
@@ -208,12 +224,14 @@ internal fun ConversationUsageSection(usage: TaskUsage?) {
     FormSection(header = null) {
         Column(modifier = Modifier.padding(vertical = 6.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(conversationUsageText(line, locale), fontSize = 15.sp)
-            if (line.contextTokens != null && line.contextWindow != null) {
+            val contextTokens = line.contextTokens
+            val contextWindow = line.contextWindow
+            if (contextTokens != null && contextWindow != null) {
                 Text(
                     stringResource(
                         R.string.ai_usage_conversation_context,
-                        AiUsageRules.formatCount(line.contextTokens, locale),
-                        AiUsageRules.formatCount(line.contextWindow, locale),
+                        AiUsageRules.formatCount(contextTokens, locale),
+                        AiUsageRules.formatCount(contextWindow, locale),
                     ),
                     fontSize = 13.sp,
                     color = secondaryTint,
