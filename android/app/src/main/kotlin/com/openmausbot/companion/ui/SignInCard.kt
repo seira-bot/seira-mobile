@@ -102,8 +102,9 @@ internal fun SignInCard(
         return
     }
     if (outcome != null) {
+        val savedLogin = card.savedLogin
         val settled = when {
-            card.savedLogin != null -> stringResource(R.string.signin_settled_saved, card.savedLogin)
+            savedLogin != null -> stringResource(R.string.signin_settled_saved, savedLogin)
             outcome == SignInRequestCardData.Outcome.DONE -> stringResource(R.string.signin_settled_done, card.site)
             else -> stringResource(R.string.signin_settled_declined, card.site)
         }
