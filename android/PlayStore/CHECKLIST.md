@@ -113,3 +113,5 @@ commit and artifact being submitted; unchecked items remain release work.
   PR #33 turned on R8 on `main` (`92d1a82`) on 2026-11-21. 1.0.3 does not have it.
   1.0.4 (10004) is the first release with R8. Its bundle carries the R8 mapping file.
   1.0.4 was sent for review on 2026-11-21.
+  Google approved 1.0.4 (10004) on 2026-11-21: available on Google Play, 178
+  countries, 100% rollout.
