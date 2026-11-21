@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import android.os.Looper
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
@@ -60,6 +61,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 /**
@@ -271,7 +273,12 @@ class SecretCardTest {
             shown = false
             compose.waitForIdle()
             answer.countDown()
-            compose.waitUntil(5_000) { wiring.session.credentialSends.value.values.any { it is CredentialSend.Sent } }
+            compose.waitUntil(5_000) {
+                shadowOf(Looper.getMainLooper()).idle()
+                wiring.session.credentialSends.value.values.none { it == CredentialSend.Sending }
+            }
+            val outcome = wiring.session.credentialSends.value.values.single()
+            assertTrue(outcome is CredentialSend.Sent, "the send ended as $outcome")
 
             shown = true
             compose.waitForIdle()
