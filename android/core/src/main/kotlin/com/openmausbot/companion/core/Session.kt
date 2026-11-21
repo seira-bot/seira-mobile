@@ -5,6 +5,7 @@ import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -19,6 +20,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
+import kotlinx.coroutines.job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -185,6 +187,11 @@ class Session(
     private val _credentialResetGeneration = MutableStateFlow(0)
     /** Grows when the phone leaves the screen or the computer: a credential card then clears what was typed. */
     val credentialResetGeneration: StateFlow<Int> = _credentialResetGeneration.asStateFlow()
+    /** In-flight sends, guarded by itself. A key is here exactly while its state is [CredentialSend.Sending]. */
+    private val credentialSendJobs = mutableMapOf<PreparedPhoneCredential, Job>()
+    private val _credentialSends = MutableStateFlow<Map<PreparedPhoneCredential, CredentialSend>>(emptyMap())
+    /** Where each sealed card's send stands. A send runs in this session, so a card that leaves the screen keeps it. */
+    val credentialSends: StateFlow<Map<PreparedPhoneCredential, CredentialSend>> = _credentialSends.asStateFlow()
 
     /**
      * One pairing attempt at a time, plus the invite that arrived during it.
@@ -1054,6 +1061,7 @@ class Session(
 
     /** Called when the app leaves the screen — deliberate disconnect so the cursor is known. */
     fun disconnect() {
+        stopCredentialSends { true }
         _credentialResetGeneration.update { it + 1 }
         streamJob?.cancel()
         streamJob = null
@@ -2107,8 +2115,64 @@ class Session(
         get() = synchronized(preparedCredentials) { preparedCredentials.size }
 
     fun discardPreparedCredential(prepared: PreparedPhoneCredential) {
+        forgetCredentialSends { it === prepared }
         synchronized(preparedCredentials) {
             if (preparedCredentials[prepared.identity] === prepared) preparedCredentials.remove(prepared.identity)
+        }
+    }
+
+    /**
+     * Send [prepared] in this session's scope and publish the outcome in [credentialSends]. A new
+     * send of the same envelope replaces the one in flight.
+     */
+    fun sendCredential(prepared: PreparedPhoneCredential) {
+        synchronized(credentialSendJobs) {
+            credentialSendJobs.remove(prepared)?.cancel()
+            _credentialSends.update { it + (prepared to CredentialSend.Sending) }
+            val job = scope.launch(start = CoroutineStart.LAZY) {
+                val outcome = try {
+                    CredentialSend.Sent(provideCredential(prepared))
+                } catch (cancelled: CancellationException) {
+                    throw cancelled
+                } catch (error: Exception) {
+                    CredentialSend.Failed(error)
+                }
+                finishCredentialSend(prepared, coroutineContext.job, outcome)
+            }
+            credentialSendJobs[prepared] = job
+            job.start()
+        }
+    }
+
+    /** Stop the send of [prepared] and drop its error. The envelope stays, so a retry is the same operation. */
+    fun stopCredentialSend(prepared: PreparedPhoneCredential) {
+        stopCredentialSends { it === prepared }
+    }
+
+    private fun finishCredentialSend(prepared: PreparedPhoneCredential, job: Job, outcome: CredentialSend) {
+        synchronized(credentialSendJobs) {
+            if (credentialSendJobs[prepared] !== job) return
+            credentialSendJobs.remove(prepared)
+            _credentialSends.update { it + (prepared to outcome) }
+        }
+    }
+
+    /** Cancels matching sends in flight and drops their errors. A send the computer answered stays. */
+    private fun stopCredentialSends(predicate: (PreparedPhoneCredential) -> Boolean) {
+        synchronized(credentialSendJobs) {
+            val stopped = _credentialSends.value.filter { (prepared, send) -> send !is CredentialSend.Sent && predicate(prepared) }.keys
+            if (stopped.isEmpty()) return
+            stopped.forEach { credentialSendJobs.remove(it)?.cancel() }
+            _credentialSends.update { it - stopped }
+        }
+    }
+
+    private fun forgetCredentialSends(predicate: (PreparedPhoneCredential) -> Boolean) {
+        synchronized(credentialSendJobs) {
+            val forgotten = _credentialSends.value.keys.filter(predicate)
+            if (forgotten.isEmpty()) return
+            forgotten.forEach { credentialSendJobs.remove(it)?.cancel() }
+            _credentialSends.update { it - forgotten.toSet() }
         }
     }
 
@@ -2157,6 +2221,7 @@ class Session(
         ).joinToString("\u0000")
 
     private fun forgetPreparedCredentials(predicate: (PreparedPhoneCredential) -> Boolean) {
+        forgetCredentialSends(predicate)
         synchronized(preparedCredentials) { preparedCredentials.values.removeAll(predicate) }
     }
 

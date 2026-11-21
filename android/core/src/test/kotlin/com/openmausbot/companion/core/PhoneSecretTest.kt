@@ -119,6 +119,25 @@ class PhoneSecretTest {
     }
 
     @Test
+    fun theLimitCheckCountsTheBytesThatGetSealed() {
+        val samples = listOf(
+            "", "   ", " sk-test\n", "é".repeat(2_048), "€".repeat(1_366), "😀", " 😀é€x ",
+            "\uD83D", "a\uDE00b", "\uD83Dx", "x".repeat(4_096), "\u3000key\u2003",
+        )
+        samples.forEach { value ->
+            assertEquals(value.trim().toByteArray(Charsets.UTF_8).size, PhoneSecretCrypto.credentialByteCount(value), "for <$value>")
+        }
+
+        assertTrue(PhoneSecretCrypto.fitsCredentialLimit("é".repeat(2_048)), "2048 two-byte characters are 4096 bytes")
+        assertFalse(PhoneSecretCrypto.fitsCredentialLimit("€".repeat(1_366)), "1366 characters are 4098 bytes")
+        assertFalse(PhoneSecretCrypto.fitsCredentialLimit(" \n\t"))
+        val refused = assertFailsWith<PhoneSecretException> {
+            PhoneSecretCrypto.encrypt("€".repeat(1_366), publicKey, context)
+        }
+        assertEquals(PhoneSecretException.Reason.INVALID_CREDENTIAL, refused.reason)
+    }
+
+    @Test
     fun sealsOnlyTheTrimmedValueAndSendsExactlyEightFields() {
         val envelope = PhoneSecretCrypto.encrypt("  android-secret-that-must-not-leak \n", publicKey, context)
         val wire = CompanionJson.encodeToString(PhoneSecretEnvelope.serializer(), envelope)

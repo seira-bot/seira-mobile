@@ -2,6 +2,8 @@ package com.openmausbot.companion.core
 
 import java.net.InetAddress
 import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -18,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.runBlocking
@@ -41,6 +44,8 @@ class SessionPhoneSecretTest {
     private lateinit var http: OkHttpClient
     private val answers = ConcurrentLinkedQueue<MockResponse>()
     private val provides = ConcurrentLinkedQueue<RecordedRequest>()
+    /** While set, the computer holds each provide request open until it counts down. */
+    @Volatile private var holdProvides: CountDownLatch? = null
 
     private val bot = Bot(
         id = "bot-1",
@@ -71,6 +76,7 @@ class SessionPhoneSecretTest {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 if (request.path?.endsWith("/provide") != true) return MockResponse().setResponseCode(404)
                 provides.add(request)
+                holdProvides?.await(10, TimeUnit.SECONDS)
                 return answers.poll() ?: MockResponse().setResponseCode(500)
             }
         }
@@ -84,6 +90,7 @@ class SessionPhoneSecretTest {
 
     @AfterTest
     fun tearDown() {
+        holdProvides?.countDown()
         scope.cancel()
         server.shutdown()
         http.connectionPool.evictAll()
@@ -135,6 +142,59 @@ class SessionPhoneSecretTest {
             assertContentEquals(firstBody, second.body.readByteArray())
             assertFalse(firstBody.toString(Charsets.UTF_8).contains("sk-voice-secret"))
             assertFalse(firstBody.toString(Charsets.UTF_8).contains("another value"))
+        } finally {
+            session.disconnect()
+        }
+    }
+
+    @Test
+    fun aSendRunsInTheSessionAndARetrySendsTheSameBytes() = runBlocking {
+        answers.add(json("""{"error":"The computer could not save it yet."}""", code = 500))
+        answers.add(json("""{"provided":true,"resumed":true}"""))
+        val session = live(tailnet())
+        try {
+            val prepared = session.prepareCredential("sk-voice-secret", chat, card())
+            session.sendCredential(prepared)
+            val failed = withTimeout(5_000) { session.credentialSends.first { it[prepared] is CredentialSend.Failed } }
+            assertEquals("The computer could not save it yet.", (failed[prepared] as CredentialSend.Failed).error.message)
+            assertSame(prepared, session.preparedCredential(chat, card()), "a failed send keeps its envelope")
+
+            session.sendCredential(prepared)
+            val sent = withTimeout(5_000) { session.credentialSends.first { it[prepared] is CredentialSend.Sent } }
+            assertEquals(CredentialSend.Sent(CredentialProvided(provided = true, resumed = true)), sent[prepared])
+
+            val (first, second) = provides.toList()
+            assertContentEquals(first.body.readByteArray(), second.body.readByteArray())
+        } finally {
+            session.disconnect()
+        }
+    }
+
+    @Test
+    fun leavingTheAppStopsASendAndKeepsItsEnvelope() = runBlocking {
+        answers.add(json("""{"provided":true,"resumed":false}"""))
+        answers.add(json("""{"provided":true,"resumed":false}"""))
+        val hold = CountDownLatch(1).also { holdProvides = it }
+        val session = live(tailnet())
+        try {
+            val prepared = session.prepareCredential("sk-voice-secret", chat, card())
+            session.sendCredential(prepared)
+            withTimeout(5_000) { while (provides.isEmpty()) delay(10) }
+            assertEquals(CredentialSend.Sending, session.credentialSends.value[prepared])
+
+            session.disconnect()
+            assertNull(session.credentialSends.value[prepared], "a stopped send leaves no state")
+            assertSame(prepared, session.preparedCredential(chat, card()), "the envelope stays for the retry")
+
+            holdProvides = null
+            hold.countDown()
+            session.connect()
+            withTimeout(5_000) { session.status.first { it is Session.Status.Live } }
+            session.sendCredential(prepared)
+            withTimeout(5_000) { session.credentialSends.first { it[prepared] is CredentialSend.Sent } }
+
+            val (first, second) = provides.toList()
+            assertContentEquals(first.body.readByteArray(), second.body.readByteArray())
         } finally {
             session.disconnect()
         }
@@ -199,7 +259,9 @@ class SessionPhoneSecretTest {
     fun switchingComputersForgetsEveryEnvelope() = runBlocking {
         val session = live(tailnet(), other())
         try {
-            session.prepareCredential("sk-voice-secret", chat, card())
+            val prepared = session.prepareCredential("sk-voice-secret", chat, card())
+            session.sendCredential(prepared)
+            withTimeout(5_000) { session.credentialSends.first { it[prepared] is CredentialSend.Failed } }
             val generation = session.credentialResetGeneration.value
             assertEquals(1, session.preparedCredentialCount)
 
@@ -207,6 +269,7 @@ class SessionPhoneSecretTest {
             withTimeout(5_000) { session.connection.first { it?.id == "other" } }
 
             assertEquals(0, session.preparedCredentialCount)
+            assertTrue(session.credentialSends.value.isEmpty(), "the old computer's sends are forgotten")
             assertTrue(session.credentialResetGeneration.value > generation)
         } finally {
             session.disconnect()
