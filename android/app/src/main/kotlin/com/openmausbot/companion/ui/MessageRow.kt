@@ -550,6 +550,14 @@ private fun MessageContent(
         } else if (!message.text.isNullOrEmpty()) {
             TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
+        Message.Kind.SECRET -> {
+            val secret = message.secret
+            if (secret != null) {
+                SecretCard(chat, message, secret, haptics, openLink)
+            } else if (!message.text.isNullOrEmpty()) {
+                TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            }
+        }
     }
 }
 

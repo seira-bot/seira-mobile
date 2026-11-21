@@ -318,15 +318,39 @@ data class Message(
     /** `kind == SIGNIN`: a website sign-in a bot asks for. */
     @Serializable(with = SignInRequestCardSerializer::class)
     val signIn: SignInRequestCardData? = null,
+    /** `kind == SECRET`: what the credential card asks for. Never carries the value. */
+    val secret: SecretRequestCardData? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
     enum class Kind {
         TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, CONNECTOR,
-        SIGNIN, UNKNOWN,
+        SIGNIN, SECRET, UNKNOWN,
     }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
+}
+
+/** A credential request for one paused task. The computer sends display copy and ids, never the credential. */
+@Serializable
+data class SecretRequestCardData(
+    val target: String? = null,
+    val label: String? = null,
+    val description: String? = null,
+    val placeholder: String? = null,
+    val helpUrl: String? = null,
+    val requestKey: String? = null,
+    val provided: Boolean? = null,
+    val dismissed: Boolean? = null,
+    /** A newer request for the same credential replaced this card. */
+    val superseded: Boolean? = null,
+    val resumed: Boolean? = null,
+    val error: String? = null,
+    /** Stop ended the task this card paused. */
+    val stopped: Boolean? = null,
+) {
+    val isPending: Boolean
+        get() = provided != true && dismissed != true && superseded != true && stopped != true
 }
 
 object MessageKindSerializer : KSerializer<Message.Kind> {
@@ -347,6 +371,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "call" -> Message.Kind.CALL
         "connector" -> Message.Kind.CONNECTOR
         "signin" -> Message.Kind.SIGNIN
+        "secret" -> Message.Kind.SECRET
         else -> Message.Kind.UNKNOWN
     }
 
