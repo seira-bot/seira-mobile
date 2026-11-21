@@ -48,6 +48,11 @@ class FailedTurnSessionTest {
     fun retryLastSendsTheLastUserMessageAgainThroughTheEditRoute() = runTest {
         val bot = bot()
         val session = session(bot)
+        server.enqueue(json(
+            """{"messages":${CompanionJson.encodeToString(kotlinx.serialization.builtins.ListSerializer(Message.serializer()), messages)},"hasMore":false}""",
+        ))
+        session.loadThread("task-a")
+        assertEquals("/api/threads/task-a/messages?limit=50", server.takeRequest().path)
         server.enqueue(json("{}"))
 
         assertTrue(session.retryLast(Chat.BotChat(bot)))
