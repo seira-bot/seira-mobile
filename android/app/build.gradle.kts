@@ -112,7 +112,6 @@ android {
         buildConfigField("boolean", "ALWAYS_ON", "true")
         buildConfigField("boolean", "REMOTE_PUSH", hasGoogleServices.toString())
         buildConfigField("boolean", "IN_APP_UPDATES", "false")
-        buildConfigField("boolean", "REMOTE_PUSH", hasGoogleServices.toString())
     }
 
     signingConfigs {
