@@ -227,6 +227,8 @@ struct CredentialAccess: Equatable {
     var connectionId: String?
     /// The pairing carried the computer's secret key and this phone's id.
     var pairedForSecrets = false
+    /// The phone is paired with a server, which never hands it a secret key.
+    var pairedWithServer = false
     /// The current route protects credentials (HTTPS or Tailscale).
     var transportProtected = false
     var status: Session.Status = .unpaired

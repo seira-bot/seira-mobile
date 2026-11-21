@@ -598,6 +598,7 @@ struct ChatView: View {
             credentials: CredentialAccess(
                 connectionId: connection?.id,
                 pairedForSecrets: connection.map { $0.secretPublicKey != nil && $0.companionDeviceId != nil } ?? false,
+                pairedWithServer: connection?.pairedWithServer ?? false,
                 transportProtected: session.phoneCredentialTransportIsProtected,
                 status: session.status,
                 resetGeneration: session.credentialEntryResetGeneration
@@ -2504,6 +2505,7 @@ struct CredentialRequestCardView: View {
     let context: TranscriptRowContext
     let actions: TranscriptActions
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.locale) private var locale
     @State private var value = ""
     @State private var fieldID = UUID()
     @State private var preparedSubmission: PreparedPhoneCredential?
@@ -2533,9 +2535,37 @@ struct CredentialRequestCardView: View {
         }
         if secret.dismissed == true { return Text("Not provided.") }
         if submitted { return Text("Encrypted and sent to your computer.") }
-        if canEnterOnPhone { return Text("Enter it securely on this phone.") }
-        if !hasSecurePairing { return Text("Pair again by QR code, or finish on your computer.") }
-        return Text("Use secure phone access or Tailscale, or finish on your computer.")
+        switch entryRoute {
+        case .phone: return Text("Enter it securely on this phone.")
+        case .pairAgain: return Text("Pair again by QR code, or finish on your computer.")
+        case .server: return Text("Enter it in Seira for this server, in a browser.")
+        case .secureConnection: return Text("Use secure phone access or Tailscale, or finish on your computer.")
+        }
+    }
+
+    private var status: CredentialCardStatus? {
+        CredentialCardStatus(
+            provided: secret.provided == true,
+            resumed: secret.resumed == true,
+            dismissed: secret.dismissed == true,
+            submitted: submitted,
+            submitting: submitting
+        )
+    }
+
+    /// The status line as VoiceOver speaks it, in the language the app shows.
+    private var spokenStatus: String? {
+        guard let status else { return nil }
+        var resource: LocalizedStringResource
+        switch status {
+        case .saving: resource = "Encrypted and saving…"
+        case .sent: resource = "Encrypted and saved on your computer"
+        case .saved: resource = "Saved securely on your computer."
+        case .resumed: resource = "Saved securely. The task resumed."
+        case .notProvided: resource = "Not provided."
+        }
+        resource.locale = locale
+        return String(localized: resource)
     }
 
     private func visible(_ value: String?) -> String? {
@@ -2566,7 +2596,15 @@ struct CredentialRequestCardView: View {
         context.credentials.transportProtected
     }
 
-    private var canEnterOnPhone: Bool { hasSecurePairing && hasProtectedTransport }
+    private var entryRoute: CredentialEntryRoute {
+        CredentialEntryRoute(
+            pairedForSecrets: hasSecurePairing,
+            pairedWithServer: context.credentials.pairedWithServer,
+            transportProtected: hasProtectedTransport
+        )
+    }
+
+    private var canEnterOnPhone: Bool { entryRoute == .phone }
 
     private var placeholder: String { visible(secret.placeholder) ?? label }
 
@@ -2635,6 +2673,7 @@ struct CredentialRequestCardView: View {
         }
         .accessibilityElement(children: canEnterOnPhone ? .contain : .combine)
         .accessibilityLabel("\(label). \(accessibilityStatus)")
+        .modifier(SpokenChanges(texts: [spokenStatus, visible(submissionError), visible(secret.error)]))
         .onAppear {
             preparedSubmission = actions.preparedCredential(message: message, secret: secret)
         }
@@ -2691,12 +2730,13 @@ struct CredentialRequestCardView: View {
         } else if submitted {
             Label("Encrypted and saved on your computer", systemImage: "checkmark.shield.fill")
                 .foregroundStyle(.green)
-        } else if canEnterOnPhone {
-            phoneEntry
-        } else if !hasSecurePairing {
-            pairAgainNotice
         } else {
-            secureConnectionNotice
+            switch entryRoute {
+            case .phone: phoneEntry
+            case .pairAgain: pairAgainNotice
+            case .server: serverNotice
+            case .secureConnection: secureConnectionNotice
+            }
         }
     }
 
@@ -2821,6 +2861,21 @@ struct CredentialRequestCardView: View {
         .background(tint.opacity(0.08), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
     }
 
+    private var serverNotice: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Label("Enter it in Seira for this server", systemImage: "globe")
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(tint)
+            Text("A phone paired with a server cannot enter this value. Open Seira for this server in a browser and enter it there.")
+                .font(.system(size: 13))
+                .foregroundStyle(Color.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(11)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(tint.opacity(0.08), in: RoundedRectangle(cornerRadius: 13, style: .continuous))
+    }
+
     private var secureConnectionNotice: some View {
         VStack(alignment: .leading, spacing: 5) {
             Label("Secure connection required", systemImage: "lock.shield.fill")
@@ -2930,6 +2985,27 @@ struct CredentialRequestCardView: View {
         submitted = false
     }
 
+}
+
+/// Speaks each text when it changes to a new value, after any speech in
+/// progress. The value a view first appears with stays silent.
+private struct SpokenChanges: ViewModifier {
+    let texts: [String?]
+
+    func body(content: Content) -> some View {
+        content.onValueChangePair(of: texts) { old, new in
+            for (index, text) in new.enumerated() {
+                guard let text, index >= old.count || old[index] != text else { continue }
+                UIAccessibility.post(
+                    notification: .announcement,
+                    argument: NSAttributedString(
+                        string: text,
+                        attributes: [.accessibilitySpeechQueueAnnouncement: true]
+                    )
+                )
+            }
+        }
+    }
 }
 
 /// An option card. When it still has a request behind it, this is the
