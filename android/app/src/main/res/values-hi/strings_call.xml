@@ -20,4 +20,11 @@
     <string name="call_service_connecting">कनेक्ट हो रहा है…</string>
     <string name="call_service_live">लाइव कॉल</string>
     <string name="call_service_hang_up">कॉल काटें</string>
+    <string name="call_record_title">%1$s के साथ कॉल</string>
+    <string name="call_record_open">%1$s, %2$s। कॉल खोलें।</string>
+    <string name="call_record_partial">इस कॉल का कुछ हिस्सा पुराने संदेशों में है। पूरा देखने के लिए पुराने संदेश लोड करें।</string>
+    <string name="call_record_started">शुरू: %1$s</string>
+    <string name="call_record_ended">समाप्त: %1$s</string>
+    <string name="call_record_said">आपने क्या कहा</string>
+    <string name="call_record_nothing">इस कॉल के लिए कोई बोली गई पंक्ति लोड नहीं है।</string>
 </resources>

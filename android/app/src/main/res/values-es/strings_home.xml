@@ -20,4 +20,14 @@
     <string name="home_team_member_working">%1$s, trabajando</string>
     <string name="home_team_member_waiting">%1$s, esperándote</string>
     <string name="home_manage_threads">Gestionar hilos</string>
+    <string name="home_empty_chats_title">Aún no hay chats</string>
+    <string name="home_empty_chats_body">Pregúntale lo que quieras a Seira. Tus chats aparecen aquí.</string>
+    <string name="home_empty_not_connected_title">Tu ordenador no está conectado</string>
+    <string name="home_empty_not_connected_body">Abre Seira en tu ordenador. Tus chats vuelven cuando se conecte.</string>
+    <string name="home_empty_pair_computer">Vincular un ordenador</string>
+    <string name="home_empty_offline_title">Estás sin conexión</string>
+    <string name="home_empty_offline_body">Revisa tu conexión a internet. Seira continúa donde lo dejaste.</string>
+    <string name="home_empty_all_done_title">Todo al día</string>
+    <string name="home_empty_all_done_body">Nada espera tu respuesta ahora mismo.</string>
+    <string name="home_empty_back_to_chats">Volver a los chats</string>
 </resources>

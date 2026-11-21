@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Вхід до %1$s</string>
+    <string name="connector_connect">Підключити безпечно</string>
+    <string name="connector_sign_in">Увійти</string>
+    <string name="connector_open_again">Відкрити знову</string>
+    <string name="connector_try_again">Повторити</string>
+    <string name="connector_not_now">Не зараз</string>
+    <string name="connector_hint_app">Входьте або вводьте ключ застосунку на захищеній сторінці підключення, але не в чаті.</string>
+    <string name="connector_hint_mcp">Входьте на сторінці, що відкриється, але не в чаті.</string>
+    <string name="connector_waiting">Чекаємо на вхід…</string>
+    <string name="connector_requested">Запит від вашого бота</string>
+    <string name="connector_line_connected">%1$s · Підключено</string>
+    <string name="connector_line_connected_continuing">%1$s · Підключено · Продовжуємо</string>
+    <string name="connector_line_stopped">%1$s · Зупинено</string>
+    <string name="connector_continue">Продовжити завдання</string>
+    <string name="connector_link_not_opened">Якщо сторінка не відкрилася, скористайтеся посиланням нижче.</string>
+    <string name="connector_open_page">Відкрити сторінку входу</string>
+    <string name="connector_bad_link">Це посилання для входу недійсне. Спробуйте ще раз.</string>
+    <string name="signin_title">Потрібен вхід</string>
+    <string name="signin_where_browser">Увійдіть у вбудованому браузері бота %1$s. Кнопка «Відкрити» веде в цей браузер, він уже під вашим керуванням.</string>
+    <string name="signin_where_vm">Увійдіть на приватному робочому столі, де працює %1$s. Кнопка «Відкрити» показує його з режимом «Перейняти керування».</string>
+    <string name="signin_where_cloud">Увійдіть на хмарному робочому столі, де працює %1$s. Кнопка «Відкрити» показує його з режимом «Перейняти керування».</string>
+    <string name="signin_where_local">Увійдіть на комп’ютері, де працює Seira, у браузері, яким користується %1$s.</string>
+    <string name="signin_private">Пароль ви вводите на сторінці самі. Seira його не бачить.</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · Ви відповіли в чаті</string>
+    <string name="signin_line_replaced">%1$s · Замінено новим запитом</string>
+    <string name="signin_line_stopped">%1$s · Зупинено</string>
+    <string name="signin_settled_done">Вхід до %1$s виконано</string>
+    <string name="signin_settled_declined">Вхід до %1$s відхилено</string>
+    <string name="signin_settled_saved">Логін для %1$s збережено</string>
+    <string name="signin_follow_resumed">%1$s продовжує роботу</string>
+    <string name="signin_follow_stopped">Зупинено</string>
+    <string name="signin_follow_failed">Не вдалося продовжити</string>
+    <string name="signin_follow_waiting">Очікує на продовження</string>
+    <string name="signin_card_label">Запит на вхід від %1$s для %2$s</string>
+</resources>

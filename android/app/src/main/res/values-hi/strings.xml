@@ -458,9 +458,7 @@
     <string name="mobile_discovery_access_off">लोकल नेटवर्क एक्सेस बंद है। आस-पास के डिवाइस की अनुमति चालू करें, या नीचे Tailscale पता दर्ज करें।</string>
     <string name="mobile_discovery_unavailable">लोकल खोज अभी उपलब्ध नहीं है। नीचे फ़ोन सेटिंग्स में दिखने वाला पता दर्ज करें।</string>
     <string name="mobile_discovery_keeps_failing">इस फ़ोन पर लोकल खोज बार-बार रुक रही है। नीचे फ़ोन सेटिंग्स में दिखने वाला पता दर्ज करें।</string>
-    <string name="mobile_roster_no_bots_yet">अभी कोई बॉट नहीं</string>
     <string name="mobile_roster_nothing_matches">कुछ नहीं मिला</string>
-    <string name="mobile_roster_empty_description">आप अपने कंप्यूटर पर जो बॉट बनाते हैं, वे यहाँ दिखते हैं।</string>
     <string name="mobile_roster_no_thread_matches">“%1$s” से कोई थ्रेड नहीं मिला।</string>
     <string name="mobile_roster_needs_attention">ध्यान चाहिए</string>
     <string name="mobile_roster_pinned">पिन किए गए</string>
@@ -575,7 +573,6 @@
     <string name="mobile_webhooks_fdfe2da7">वेबहुक</string>
     <string name="mobile_what_this_bot_does_7a664f47">यह बॉट क्या करता है</string>
     <string name="mobile_what_s_next_3d4b36bc">आगे क्या?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">जब कोई बॉट जवाब के लिए रुके, काम के बीच में हो या कुछ पूरा करे, तो वह यहाँ दिखता है।</string>
     <string name="mobile_where_does_it_run_6e4a5297">यह कहाँ चलता है?</string>
     <string name="mobile_who_7d531617">कौन</string>
     <string name="mobile_won_t_f51153fe">नहीं करेगा</string>

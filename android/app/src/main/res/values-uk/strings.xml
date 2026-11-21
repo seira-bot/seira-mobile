@@ -466,9 +466,7 @@
     <string name="mobile_discovery_access_off">Доступ до локальної мережі вимкнено. Дозвольте доступ до пристроїв поблизу або введіть адресу Tailscale нижче.</string>
     <string name="mobile_discovery_unavailable">Локальний пошук зараз недоступний. Введіть нижче адресу з налаштувань телефона.</string>
     <string name="mobile_discovery_keeps_failing">Локальний пошук на цьому телефоні постійно переривається. Введіть нижче адресу з налаштувань телефона.</string>
-    <string name="mobile_roster_no_bots_yet">Ботів ще немає</string>
     <string name="mobile_roster_nothing_matches">Нічого не знайдено</string>
-    <string name="mobile_roster_empty_description">Боти, яких ви створюєте на комп’ютері, з’являються тут.</string>
     <string name="mobile_roster_no_thread_matches">Жодна гілка не відповідає «%1$s».</string>
     <string name="mobile_roster_needs_attention">Потребує уваги</string>
     <string name="mobile_roster_pinned">Закріплені</string>
@@ -583,7 +581,6 @@
     <string name="mobile_webhooks_fdfe2da7">Вебхуки</string>
     <string name="mobile_what_this_bot_does_7a664f47">Що робить цей бот</string>
     <string name="mobile_what_s_next_3d4b36bc">Що далі?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Коли бот зупиняється в очікуванні відповіді, виконує завдання або щось завершує, це з’являється тут.</string>
     <string name="mobile_where_does_it_run_6e4a5297">Де це виконується?</string>
     <string name="mobile_who_7d531617">Хто</string>
     <string name="mobile_won_t_f51153fe">Не буде</string>

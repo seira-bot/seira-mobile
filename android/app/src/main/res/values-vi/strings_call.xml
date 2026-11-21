@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Đang kết nối…</string>
     <string name="call_service_live">Cuộc gọi trực tiếp</string>
     <string name="call_service_hang_up">Cúp máy</string>
+    <string name="call_record_title">Cuộc gọi với %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Mở cuộc gọi.</string>
+    <string name="call_record_partial">Một phần cuộc gọi này nằm trong các tin nhắn cũ hơn. Hãy tải tin nhắn cũ hơn để xem đầy đủ.</string>
+    <string name="call_record_started">Bắt đầu %1$s</string>
+    <string name="call_record_ended">Kết thúc %1$s</string>
+    <string name="call_record_said">Điều bạn đã nói</string>
+    <string name="call_record_nothing">Không có lời nói nào được tải cho cuộc gọi này.</string>
 </resources>

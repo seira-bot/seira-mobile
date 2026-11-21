@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Inicia sesión en %1$s</string>
+    <string name="connector_connect">Conectar de forma segura</string>
+    <string name="connector_sign_in">Iniciar sesión</string>
+    <string name="connector_open_again">Abrir de nuevo</string>
+    <string name="connector_try_again">Reintentar</string>
+    <string name="connector_not_now">Ahora no</string>
+    <string name="connector_hint_app">Inicia sesión o introduce la clave de la app en la página de conexión segura, nunca en el chat.</string>
+    <string name="connector_hint_mcp">Inicia sesión en la página que se abre, nunca en el chat.</string>
+    <string name="connector_waiting">Esperando el inicio de sesión…</string>
+    <string name="connector_requested">Solicitado por tu bot</string>
+    <string name="connector_line_connected">%1$s · Conectado</string>
+    <string name="connector_line_connected_continuing">%1$s · Conectado · Continuando</string>
+    <string name="connector_line_stopped">%1$s · Detenido</string>
+    <string name="connector_continue">Continuar la tarea</string>
+    <string name="connector_link_not_opened">Si la página no se abrió, usa el enlace de abajo.</string>
+    <string name="connector_open_page">Abrir la página de inicio de sesión</string>
+    <string name="connector_bad_link">Este enlace de inicio de sesión no es válido. Inténtalo de nuevo.</string>
+    <string name="signin_title">Hace falta iniciar sesión</string>
+    <string name="signin_where_browser">Inicia sesión en el navegador integrado de %1$s. Abrir te lleva a su navegador, ya bajo tu control.</string>
+    <string name="signin_where_vm">Inicia sesión en el escritorio privado en el que trabaja %1$s. Abrir lo muestra con Tomar el control.</string>
+    <string name="signin_where_cloud">Inicia sesión en el escritorio en la nube en el que trabaja %1$s. Abrir lo muestra con Tomar el control.</string>
+    <string name="signin_where_local">Inicia sesión en el ordenador donde se ejecuta Seira, en el navegador que usa %1$s.</string>
+    <string name="signin_private">Tú escribes la contraseña en la página. Seira nunca la ve.</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · Respondiste en el chat</string>
+    <string name="signin_line_replaced">%1$s · Sustituida por una solicitud más reciente</string>
+    <string name="signin_line_stopped">%1$s · Detenido</string>
+    <string name="signin_settled_done">Sesión iniciada en %1$s</string>
+    <string name="signin_settled_declined">Inicio de sesión en %1$s rechazado</string>
+    <string name="signin_settled_saved">Acceso guardado para %1$s</string>
+    <string name="signin_follow_resumed">%1$s continúa</string>
+    <string name="signin_follow_stopped">Detenido</string>
+    <string name="signin_follow_failed">No se pudo reanudar</string>
+    <string name="signin_follow_waiting">Esperando para reanudar</string>
+    <string name="signin_card_label">Solicitud de inicio de sesión de %1$s para %2$s</string>
+</resources>

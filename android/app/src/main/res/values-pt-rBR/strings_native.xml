@@ -6,6 +6,7 @@
     <string name="notification_sender_you">Você</string>
     <string name="notification_approved">Aprovado</string>
     <string name="notification_approve_failed">Não foi possível aprovar. Abra o chat para revisar.</string>
+    <string name="notification_approve_settled">Já respondido. Abra a conversa para ver.</string>
     <string name="notification_reply_failed">Não foi possível enviar. Abra o chat para tentar de novo.</string>
     <string name="tile_talk_label">Falar</string>
     <string name="shortcut_talk_short">Falar</string>

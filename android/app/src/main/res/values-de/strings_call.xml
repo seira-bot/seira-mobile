@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Verbindung wird hergestellt…</string>
     <string name="call_service_live">Live-Anruf</string>
     <string name="call_service_hang_up">Auflegen</string>
+    <string name="call_record_title">Anruf mit %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Anruf öffnen.</string>
+    <string name="call_record_partial">Ein Teil dieses Anrufs steht in früheren Nachrichten. Lade frühere Nachrichten, um alles zu sehen.</string>
+    <string name="call_record_started">Gestartet %1$s</string>
+    <string name="call_record_ended">Beendet %1$s</string>
+    <string name="call_record_said">Was du gesagt hast</string>
+    <string name="call_record_nothing">Für diesen Anruf sind keine gesprochenen Zeilen geladen.</string>
 </resources>

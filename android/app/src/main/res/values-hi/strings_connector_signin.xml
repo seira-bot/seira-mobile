@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">%1$s में साइन इन करें</string>
+    <string name="connector_connect">सुरक्षित रूप से जोड़ें</string>
+    <string name="connector_sign_in">साइन इन करें</string>
+    <string name="connector_open_again">फिर से खोलें</string>
+    <string name="connector_try_again">फिर कोशिश करें</string>
+    <string name="connector_not_now">अभी नहीं</string>
+    <string name="connector_hint_app">साइन इन करें या ऐप की कुंजी सुरक्षित कनेक्शन पेज पर डालें, चैट में कभी नहीं।</string>
+    <string name="connector_hint_mcp">खुलने वाले पेज पर साइन इन करें, चैट में कभी नहीं।</string>
+    <string name="connector_waiting">साइन-इन की प्रतीक्षा है…</string>
+    <string name="connector_requested">आपके बॉट ने माँगा</string>
+    <string name="connector_line_connected">%1$s · जुड़ गया</string>
+    <string name="connector_line_connected_continuing">%1$s · जुड़ गया · काम जारी है</string>
+    <string name="connector_line_stopped">%1$s · रोका गया</string>
+    <string name="connector_continue">कार्य जारी रखें</string>
+    <string name="connector_link_not_opened">अगर पेज नहीं खुला, तो नीचे दिया लिंक इस्तेमाल करें।</string>
+    <string name="connector_open_page">साइन-इन पेज खोलें</string>
+    <string name="connector_bad_link">यह साइन-इन लिंक मान्य नहीं है। फिर से कोशिश करें।</string>
+    <string name="signin_title">साइन-इन ज़रूरी है</string>
+    <string name="signin_where_browser">%1$s के बिल्ट-इन ब्राउज़र में साइन इन करें। खोलें दबाने पर आप उसके ब्राउज़र में पहुँचते हैं, जो पहले से आपके नियंत्रण में है।</string>
+    <string name="signin_where_vm">उस निजी डेस्कटॉप पर साइन इन करें जिस पर %1$s काम करता है। खोलें दबाने पर वह नियंत्रण लें के साथ दिखता है।</string>
+    <string name="signin_where_cloud">उस क्लाउड डेस्कटॉप पर साइन इन करें जिस पर %1$s काम करता है। खोलें दबाने पर वह नियंत्रण लें के साथ दिखता है।</string>
+    <string name="signin_where_local">उस कंप्यूटर पर साइन इन करें जिस पर Seira चल रहा है, उसी ब्राउज़र में जो %1$s इस्तेमाल कर रहा है।</string>
+    <string name="signin_private">पासवर्ड आप खुद पेज पर डालते हैं। Seira उसे कभी नहीं देखता।</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · आपने चैट में जवाब दिया</string>
+    <string name="signin_line_replaced">%1$s · नए अनुरोध ने इसकी जगह ली</string>
+    <string name="signin_line_stopped">%1$s · रोका गया</string>
+    <string name="signin_settled_done">%1$s में साइन इन हो गया</string>
+    <string name="signin_settled_declined">%1$s में साइन-इन अस्वीकार किया गया</string>
+    <string name="signin_settled_saved">%1$s का लॉगिन सहेजा गया</string>
+    <string name="signin_follow_resumed">%1$s काम जारी रख रहा है</string>
+    <string name="signin_follow_stopped">रोका गया</string>
+    <string name="signin_follow_failed">फिर से शुरू नहीं हो सका</string>
+    <string name="signin_follow_waiting">फिर शुरू होने की प्रतीक्षा में</string>
+    <string name="signin_card_label">%1$s की ओर से %2$s के लिए साइन-इन अनुरोध</string>
+</resources>

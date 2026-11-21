@@ -6,6 +6,7 @@
     <string name="notification_sender_you">Вы</string>
     <string name="notification_approved">Одобрено</string>
     <string name="notification_approve_failed">Не удалось одобрить. Откройте чат, чтобы посмотреть.</string>
+    <string name="notification_approve_settled">Уже отвечено. Откройте чат, чтобы посмотреть.</string>
     <string name="notification_reply_failed">Не удалось отправить. Откройте чат и повторите попытку.</string>
     <string name="tile_talk_label">Говорить</string>
     <string name="shortcut_talk_short">Говорить</string>

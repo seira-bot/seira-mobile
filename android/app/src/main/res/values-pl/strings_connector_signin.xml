@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Zaloguj się do %1$s</string>
+    <string name="connector_connect">Połącz bezpiecznie</string>
+    <string name="connector_sign_in">Zaloguj się</string>
+    <string name="connector_open_again">Otwórz ponownie</string>
+    <string name="connector_try_again">Spróbuj ponownie</string>
+    <string name="connector_not_now">Nie teraz</string>
+    <string name="connector_hint_app">Zaloguj się lub wpisz klucz aplikacji na stronie bezpiecznego połączenia, nigdy na czacie.</string>
+    <string name="connector_hint_mcp">Zaloguj się na otwartej stronie, nigdy na czacie.</string>
+    <string name="connector_waiting">Oczekiwanie na zalogowanie…</string>
+    <string name="connector_requested">Zażądał Twój bot</string>
+    <string name="connector_line_connected">%1$s · Połączono</string>
+    <string name="connector_line_connected_continuing">%1$s · Połączono · Wznawianie</string>
+    <string name="connector_line_stopped">%1$s · Zatrzymano</string>
+    <string name="connector_continue">Kontynuuj zadanie</string>
+    <string name="connector_link_not_opened">Jeśli strona się nie otworzyła, użyj linku poniżej.</string>
+    <string name="connector_open_page">Otwórz stronę logowania</string>
+    <string name="connector_bad_link">Ten link logowania jest nieprawidłowy. Spróbuj ponownie.</string>
+    <string name="signin_title">Wymagane logowanie</string>
+    <string name="signin_where_browser">Zaloguj się w wbudowanej przeglądarce: %1$s. Otwórz przenosi do niej, a kontrolę masz już Ty.</string>
+    <string name="signin_where_vm">Zaloguj się na prywatnym pulpicie, na którym pracuje %1$s. Otwórz pokazuje go z opcją Przejmij kontrolę.</string>
+    <string name="signin_where_cloud">Zaloguj się na pulpicie w chmurze, na którym pracuje %1$s. Otwórz pokazuje go z opcją Przejmij kontrolę.</string>
+    <string name="signin_where_local">Zaloguj się na komputerze, na którym działa Seira, w przeglądarce używanej przez %1$s.</string>
+    <string name="signin_private">Hasło wpisujesz sam na stronie. Seira nigdy go nie widzi.</string>
+    <string name="signin_reason">„%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · Odpowiedziano na czacie</string>
+    <string name="signin_line_replaced">%1$s · Zastąpiono nowszą prośbą</string>
+    <string name="signin_line_stopped">%1$s · Zatrzymano</string>
+    <string name="signin_settled_done">Zalogowano do %1$s</string>
+    <string name="signin_settled_declined">Logowanie do %1$s odrzucono</string>
+    <string name="signin_settled_saved">Zapisano logowanie do %1$s</string>
+    <string name="signin_follow_resumed">%1$s kontynuuje</string>
+    <string name="signin_follow_stopped">Zatrzymano</string>
+    <string name="signin_follow_failed">Nie udało się wznowić</string>
+    <string name="signin_follow_waiting">Oczekiwanie na wznowienie</string>
+    <string name="signin_card_label">Prośba o logowanie od %1$s do %2$s</string>
+</resources>

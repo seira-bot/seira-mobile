@@ -22,4 +22,14 @@
     <string name="home_team_member_working">%1$s, працює</string>
     <string name="home_team_member_waiting">%1$s, чекає на вас</string>
     <string name="home_manage_threads">Керувати гілками</string>
+    <string name="home_empty_chats_title">Чатів поки немає</string>
+    <string name="home_empty_chats_body">Запитайте Seira про що завгодно. Ваші чати з’являться тут.</string>
+    <string name="home_empty_not_connected_title">Ваш комп’ютер не підключено</string>
+    <string name="home_empty_not_connected_body">Відкрийте Seira на комп’ютері. Чати повернуться, коли він підключиться.</string>
+    <string name="home_empty_pair_computer">Під’єднати комп’ютер</string>
+    <string name="home_empty_offline_title">Немає підключення до мережі</string>
+    <string name="home_empty_offline_body">Перевірте інтернет-з’єднання. Seira продовжить з того місця, де ви зупинилися.</string>
+    <string name="home_empty_all_done_title">Усе розібрано</string>
+    <string name="home_empty_all_done_body">Зараз ніхто не чекає на вашу відповідь.</string>
+    <string name="home_empty_back_to_chats">До чатів</string>
 </resources>

@@ -20,4 +20,14 @@
     <string name="home_team_member_working">%1$s, çalışıyor</string>
     <string name="home_team_member_waiting">%1$s, sizi bekliyor</string>
     <string name="home_manage_threads">Konuları yönet</string>
+    <string name="home_empty_chats_title">Henüz sohbet yok</string>
+    <string name="home_empty_chats_body">Seira\'ya istediğini sor. Sohbetlerin burada görünür.</string>
+    <string name="home_empty_not_connected_title">Bilgisayarın bağlı değil</string>
+    <string name="home_empty_not_connected_body">Bilgisayarında Seira\'yı aç. Bağlandığında sohbetlerin geri gelir.</string>
+    <string name="home_empty_pair_computer">Bilgisayar eşle</string>
+    <string name="home_empty_offline_title">Çevrimdışısın</string>
+    <string name="home_empty_offline_body">İnternet bağlantını kontrol et. Seira kaldığın yerden devam eder.</string>
+    <string name="home_empty_all_done_title">Her şey tamam</string>
+    <string name="home_empty_all_done_body">Şu anda yanıtını bekleyen bir şey yok.</string>
+    <string name="home_empty_back_to_chats">Sohbetlere dön</string>
 </resources>

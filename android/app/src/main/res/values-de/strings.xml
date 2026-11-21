@@ -458,9 +458,7 @@
     <string name="mobile_discovery_access_off">Der Zugriff auf das lokale Netzwerk ist aus. Aktiviere die Berechtigung „Geräte in der Nähe“ oder gib unten eine Tailscale-Adresse ein.</string>
     <string name="mobile_discovery_unavailable">Die lokale Suche ist gerade nicht verfügbar. Gib unten die Adresse aus den Telefon-Einstellungen ein.</string>
     <string name="mobile_discovery_keeps_failing">Die lokale Suche wird auf diesem Telefon immer wieder unterbrochen. Gib unten die Adresse aus den Telefon-Einstellungen ein.</string>
-    <string name="mobile_roster_no_bots_yet">Noch keine Bots</string>
     <string name="mobile_roster_nothing_matches">Keine Treffer</string>
-    <string name="mobile_roster_empty_description">Bots, die du auf deinem Computer erstellst, erscheinen hier.</string>
     <string name="mobile_roster_no_thread_matches">Kein Thread passt zu „%1$s“.</string>
     <string name="mobile_roster_needs_attention">Braucht Aufmerksamkeit</string>
     <string name="mobile_roster_pinned">Angeheftet</string>
@@ -575,7 +573,6 @@
     <string name="mobile_webhooks_fdfe2da7">Webhooks</string>
     <string name="mobile_what_this_bot_does_7a664f47">Was dieser Bot macht</string>
     <string name="mobile_what_s_next_3d4b36bc">Was kommt als Nächstes?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Wenn ein Bot auf eine Antwort wartet, mitten in einer Aufgabe ist oder etwas abschließt, erscheint das hier.</string>
     <string name="mobile_where_does_it_run_6e4a5297">Wo läuft es?</string>
     <string name="mobile_who_7d531617">Wer</string>
     <string name="mobile_won_t_f51153fe">Macht nicht</string>

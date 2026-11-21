@@ -20,4 +20,14 @@
     <string name="home_team_member_working">%1$s, काम कर रहा है</string>
     <string name="home_team_member_waiting">%1$s, आपका इंतज़ार कर रहा है</string>
     <string name="home_manage_threads">थ्रेड्स संभालें</string>
+    <string name="home_empty_chats_title">अभी कोई चैट नहीं</string>
+    <string name="home_empty_chats_body">Seira से कुछ भी पूछें। आपकी चैट यहाँ दिखेंगी।</string>
+    <string name="home_empty_not_connected_title">आपका कंप्यूटर जुड़ा नहीं है</string>
+    <string name="home_empty_not_connected_body">अपने कंप्यूटर पर Seira खोलें। जुड़ते ही आपकी चैट वापस आ जाएँगी।</string>
+    <string name="home_empty_pair_computer">कंप्यूटर जोड़ें</string>
+    <string name="home_empty_offline_title">आप ऑफ़लाइन हैं</string>
+    <string name="home_empty_offline_body">अपना इंटरनेट कनेक्शन जाँचें। Seira वहीं से आगे बढ़ेगा जहाँ आपने छोड़ा था।</string>
+    <string name="home_empty_all_done_title">सब निपट गया</string>
+    <string name="home_empty_all_done_body">अभी आपके जवाब का इंतज़ार कोई नहीं कर रहा।</string>
+    <string name="home_empty_back_to_chats">चैट पर वापस</string>
 </resources>

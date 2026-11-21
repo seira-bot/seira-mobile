@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">%1$s에 로그인</string>
+    <string name="connector_connect">안전하게 연결</string>
+    <string name="connector_sign_in">로그인</string>
+    <string name="connector_open_again">다시 열기</string>
+    <string name="connector_try_again">다시 시도</string>
+    <string name="connector_not_now">나중에</string>
+    <string name="connector_hint_app">로그인이나 앱 키 입력은 채팅이 아니라 보안 연결 페이지에서 하세요.</string>
+    <string name="connector_hint_mcp">열리는 페이지에서 로그인하세요. 채팅에서는 하지 마세요.</string>
+    <string name="connector_waiting">로그인을 기다리는 중…</string>
+    <string name="connector_requested">봇이 요청했어요</string>
+    <string name="connector_line_connected">%1$s · 연결됨</string>
+    <string name="connector_line_connected_continuing">%1$s · 연결됨 · 이어서 진행 중</string>
+    <string name="connector_line_stopped">%1$s · 중지됨</string>
+    <string name="connector_continue">작업 이어서 진행</string>
+    <string name="connector_link_not_opened">페이지가 열리지 않으면 아래 링크를 사용하세요.</string>
+    <string name="connector_open_page">로그인 페이지 열기</string>
+    <string name="connector_bad_link">이 로그인 링크가 올바르지 않아요. 다시 시도해 주세요.</string>
+    <string name="signin_title">로그인이 필요해요</string>
+    <string name="signin_where_browser">%1$s의 내장 브라우저에서 로그인하세요. 열기를 누르면 이미 내가 제어할 수 있는 브라우저로 이동해요.</string>
+    <string name="signin_where_vm">%1$s이(가) 작업 중인 프라이빗 데스크톱에서 로그인하세요. 열기를 누르면 제어하기 버튼과 함께 표시돼요.</string>
+    <string name="signin_where_cloud">%1$s이(가) 작업 중인 클라우드 데스크톱에서 로그인하세요. 열기를 누르면 제어하기 버튼과 함께 표시돼요.</string>
+    <string name="signin_where_local">Seira가 실행 중인 컴퓨터에서 %1$s이(가) 사용하는 브라우저로 로그인하세요.</string>
+    <string name="signin_private">비밀번호는 직접 페이지에 입력하세요. Seira는 볼 수 없어요.</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · 채팅에서 답변했어요</string>
+    <string name="signin_line_replaced">%1$s · 새 요청으로 대체됨</string>
+    <string name="signin_line_stopped">%1$s · 중지됨</string>
+    <string name="signin_settled_done">%1$s에 로그인했어요</string>
+    <string name="signin_settled_declined">%1$s 로그인을 거절했어요</string>
+    <string name="signin_settled_saved">%1$s 로그인 정보를 저장했어요</string>
+    <string name="signin_follow_resumed">%1$s이(가) 이어서 진행 중이에요</string>
+    <string name="signin_follow_stopped">중지됨</string>
+    <string name="signin_follow_failed">다시 시작하지 못했어요</string>
+    <string name="signin_follow_waiting">다시 시작 대기 중</string>
+    <string name="signin_card_label">%2$s에 대한 %1$s의 로그인 요청</string>
+</resources>

@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Łączenie…</string>
     <string name="call_service_live">Rozmowa na żywo</string>
     <string name="call_service_hang_up">Rozłącz</string>
+    <string name="call_record_title">Rozmowa z %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Otwórz rozmowę.</string>
+    <string name="call_record_partial">Część tej rozmowy jest we wcześniejszych wiadomościach. Wczytaj wcześniejsze wiadomości, aby zobaczyć całość.</string>
+    <string name="call_record_started">Początek: %1$s</string>
+    <string name="call_record_ended">Koniec: %1$s</string>
+    <string name="call_record_said">Co powiedziałeś</string>
+    <string name="call_record_nothing">Brak wczytanych wypowiedzi z tej rozmowy.</string>
 </resources>

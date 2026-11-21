@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">アップデート</string>
+    <string name="widget_updates_description">「アップデート」ボタンに表示される内容をすべて表示します。対応が必要なチャットが先頭に来ます。</string>
+    <string name="widget_all_quiet">静かです</string>
+    <string name="widget_open_to_pair">Seira を開いてペアリング</string>
+    <string name="widget_open_to_answer">Seira を開いて回答</string>
+    <string name="widget_as_of">%1$s時点</string>
+    <string name="widget_active_count">%1$d件アクティブ</string>
+    <string name="widget_section_needs_you">対応が必要</string>
+    <string name="widget_section_working">作業中</string>
+    <string name="widget_section_to_review">確認待ち</string>
+    <string name="widget_request_changed">このリクエストは変更されました。チャットを開いて確認してください。</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">コマンドを実行: git push</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Оновлення</string>
+    <string name="widget_updates_description">Усе, що показує кнопка «Оновлення», спершу чати, де потрібні ви.</string>
+    <string name="widget_all_quiet">Усе спокійно</string>
+    <string name="widget_open_to_pair">Відкрийте Seira для підключення</string>
+    <string name="widget_open_to_answer">Відкрийте Seira, щоб відповісти</string>
+    <string name="widget_as_of">Станом на %1$s</string>
+    <string name="widget_active_count">Активних: %1$d</string>
+    <string name="widget_section_needs_you">Потрібні ви</string>
+    <string name="widget_section_working">У роботі</string>
+    <string name="widget_section_to_review">На перевірку</string>
+    <string name="widget_request_changed">Цей запит змінився. Відкрийте чат, щоб перевірити його.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Виконати команду: git push</string>
+</resources>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Bản cập nhật</string>
+    <string name="widget_updates_description">Mọi thứ mà nút Bản cập nhật hiển thị, các cuộc trò chuyện cần bạn được xếp trước.</string>
+    <string name="widget_all_quiet">Yên ắng</string>
+    <string name="widget_open_to_pair">Mở Seira để ghép nối</string>
+    <string name="widget_open_to_answer">Mở Seira để trả lời</string>
+    <string name="widget_as_of">Tính đến %1$s</string>
+    <string name="widget_active_count">%1$d đang hoạt động</string>
+    <string name="widget_section_needs_you">Cần bạn</string>
+    <string name="widget_section_working">Đang làm việc</string>
+    <string name="widget_section_to_review">Cần xem lại</string>
+    <string name="widget_request_changed">Yêu cầu này đã thay đổi. Hãy mở cuộc trò chuyện để xem lại.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Chạy một lệnh: git push</string>
+</resources>

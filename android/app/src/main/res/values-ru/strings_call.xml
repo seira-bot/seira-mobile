@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Подключение…</string>
     <string name="call_service_live">Живой звонок</string>
     <string name="call_service_hang_up">Завершить</string>
+    <string name="call_record_title">Звонок: %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Открыть звонок.</string>
+    <string name="call_record_partial">Часть этого звонка находится в более ранних сообщениях. Загрузите ранние сообщения, чтобы увидеть всё.</string>
+    <string name="call_record_started">Начало: %1$s</string>
+    <string name="call_record_ended">Конец: %1$s</string>
+    <string name="call_record_said">Что вы сказали</string>
+    <string name="call_record_nothing">Для этого звонка не загружено ни одной реплики.</string>
 </resources>

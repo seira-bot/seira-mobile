@@ -466,9 +466,7 @@
     <string name="mobile_discovery_access_off">Доступ к локальной сети выключен. Разрешите доступ к устройствам поблизости или введите адрес Tailscale ниже.</string>
     <string name="mobile_discovery_unavailable">Локальный поиск сейчас недоступен. Введите адрес, показанный в настройках телефона, ниже.</string>
     <string name="mobile_discovery_keeps_failing">Локальный поиск на этом телефоне то и дело прерывается. Введите адрес, показанный в настройках телефона, ниже.</string>
-    <string name="mobile_roster_no_bots_yet">Пока нет ботов</string>
     <string name="mobile_roster_nothing_matches">Ничего не найдено</string>
-    <string name="mobile_roster_empty_description">Боты, созданные на вашем компьютере, появятся здесь.</string>
     <string name="mobile_roster_no_thread_matches">Нет веток по запросу «%1$s».</string>
     <string name="mobile_roster_needs_attention">Требует внимания</string>
     <string name="mobile_roster_pinned">Закреплённые</string>
@@ -583,7 +581,6 @@
     <string name="mobile_webhooks_fdfe2da7">Вебхуки</string>
     <string name="mobile_what_this_bot_does_7a664f47">Что делает этот бот</string>
     <string name="mobile_what_s_next_3d4b36bc">Что дальше?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Когда бот ждёт ответа, занят задачей или что-то завершил, это появится здесь.</string>
     <string name="mobile_where_does_it_run_6e4a5297">Где это выполняется?</string>
     <string name="mobile_who_7d531617">Кто</string>
     <string name="mobile_won_t_f51153fe">Не будет</string>

@@ -458,9 +458,7 @@
     <string name="mobile_discovery_access_off">El acceso a la red local está desactivado. Activa el permiso de dispositivos cercanos o escribe abajo una dirección de Tailscale.</string>
     <string name="mobile_discovery_unavailable">La detección local no está disponible ahora. Escribe abajo la dirección que aparece en los ajustes de Teléfono.</string>
     <string name="mobile_discovery_keeps_failing">La detección local se sigue interrumpiendo en este teléfono. Escribe abajo la dirección que aparece en los ajustes de Teléfono.</string>
-    <string name="mobile_roster_no_bots_yet">Aún no hay bots</string>
     <string name="mobile_roster_nothing_matches">Sin coincidencias</string>
-    <string name="mobile_roster_empty_description">Los bots que crees en tu ordenador aparecen aquí.</string>
     <string name="mobile_roster_no_thread_matches">Ningún hilo coincide con «%1$s».</string>
     <string name="mobile_roster_needs_attention">Requiere atención</string>
     <string name="mobile_roster_pinned">Fijados</string>
@@ -575,7 +573,6 @@
     <string name="mobile_webhooks_fdfe2da7">Webhooks</string>
     <string name="mobile_what_this_bot_does_7a664f47">Qué hace este bot</string>
     <string name="mobile_what_s_next_3d4b36bc">¿Qué sigue?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Cuando un bot se detiene a esperar una respuesta, está a mitad de una tarea o termina algo, aparece aquí.</string>
     <string name="mobile_where_does_it_run_6e4a5297">¿Dónde se ejecuta?</string>
     <string name="mobile_who_7d531617">Quién</string>
     <string name="mobile_won_t_f51153fe">No hace</string>

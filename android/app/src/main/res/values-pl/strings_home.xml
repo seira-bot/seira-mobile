@@ -22,4 +22,14 @@
     <string name="home_team_member_working">%1$s, pracuje</string>
     <string name="home_team_member_waiting">%1$s, czeka na Ciebie</string>
     <string name="home_manage_threads">Zarządzaj wątkami</string>
+    <string name="home_empty_chats_title">Brak czatów</string>
+    <string name="home_empty_chats_body">Zapytaj Seirę o cokolwiek. Twoje czaty pojawią się tutaj.</string>
+    <string name="home_empty_not_connected_title">Twój komputer nie jest połączony</string>
+    <string name="home_empty_not_connected_body">Otwórz Seirę na komputerze. Twoje czaty wrócą po połączeniu.</string>
+    <string name="home_empty_pair_computer">Połącz komputer</string>
+    <string name="home_empty_offline_title">Jesteś offline</string>
+    <string name="home_empty_offline_body">Sprawdź połączenie z internetem. Seira wznowi od miejsca, w którym skończyłeś.</string>
+    <string name="home_empty_all_done_title">Wszystko załatwione</string>
+    <string name="home_empty_all_done_body">Nic teraz nie czeka na Twoją odpowiedź.</string>
+    <string name="home_empty_back_to_chats">Wróć do czatów</string>
 </resources>

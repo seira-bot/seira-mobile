@@ -458,9 +458,7 @@
     <string name="mobile_discovery_access_off">Yerel ağ erişimi kapalı. Yakındaki cihazlar iznini etkinleştirin ya da aşağıya bir Tailscale adresi girin.</string>
     <string name="mobile_discovery_unavailable">Yerel keşif şu anda kullanılamıyor. Aşağıya Telefon ayarlarında gösterilen adresi girin.</string>
     <string name="mobile_discovery_keeps_failing">Yerel keşif bu telefonda sürekli kesintiye uğruyor. Aşağıya Telefon ayarlarında gösterilen adresi girin.</string>
-    <string name="mobile_roster_no_bots_yet">Henüz bot yok</string>
     <string name="mobile_roster_nothing_matches">Eşleşen yok</string>
-    <string name="mobile_roster_empty_description">Bilgisayarınızda oluşturduğunuz botlar burada görünür.</string>
     <string name="mobile_roster_no_thread_matches">“%1$s” ile eşleşen konu yok.</string>
     <string name="mobile_roster_needs_attention">İlgi bekliyor</string>
     <string name="mobile_roster_pinned">Sabitlenenler</string>
@@ -575,7 +573,6 @@
     <string name="mobile_webhooks_fdfe2da7">Webhook\'lar</string>
     <string name="mobile_what_this_bot_does_7a664f47">Bu bot ne yapar</string>
     <string name="mobile_what_s_next_3d4b36bc">Sırada ne var?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Bir bot yanıt için durduğunda, bir işin ortasındayken ya da bir şeyi bitirdiğinde burada görünür.</string>
     <string name="mobile_where_does_it_run_6e4a5297">Nerede çalışır?</string>
     <string name="mobile_who_7d531617">Kim</string>
     <string name="mobile_won_t_f51153fe">Yapmaz</string>

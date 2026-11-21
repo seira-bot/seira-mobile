@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Aktualizacje</string>
+    <string name="widget_updates_description">Wszystko, co pokazuje przycisk Aktualizacje, a najpierw czaty, które Cię potrzebują.</string>
+    <string name="widget_all_quiet">Spokój</string>
+    <string name="widget_open_to_pair">Otwórz Seirę, aby połączyć</string>
+    <string name="widget_open_to_answer">Otwórz Seirę, aby odpowiedzieć</string>
+    <string name="widget_as_of">Stan na %1$s</string>
+    <string name="widget_active_count">Aktywne: %1$d</string>
+    <string name="widget_section_needs_you">Czeka na Ciebie</string>
+    <string name="widget_section_working">W toku</string>
+    <string name="widget_section_to_review">Do przejrzenia</string>
+    <string name="widget_request_changed">Ta prośba się zmieniła. Otwórz czat, aby ją przejrzeć.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Uruchom polecenie: git push</string>
+</resources>

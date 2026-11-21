@@ -20,4 +20,11 @@
     <string name="call_service_connecting">연결 중…</string>
     <string name="call_service_live">실시간 통화</string>
     <string name="call_service_hang_up">끊기</string>
+    <string name="call_record_title">%1$s님과의 통화</string>
+    <string name="call_record_open">%1$s, %2$s. 통화를 여세요.</string>
+    <string name="call_record_partial">이 통화의 일부는 이전 메시지에 있어요. 이전 메시지를 불러오면 전체를 볼 수 있어요.</string>
+    <string name="call_record_started">시작 %1$s</string>
+    <string name="call_record_ended">종료 %1$s</string>
+    <string name="call_record_said">내가 한 말</string>
+    <string name="call_record_nothing">이 통화에서 불러온 발언이 없어요.</string>
 </resources>

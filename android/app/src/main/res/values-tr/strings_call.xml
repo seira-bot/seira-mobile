@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Bağlanıyor…</string>
     <string name="call_service_live">Canlı arama</string>
     <string name="call_service_hang_up">Kapat</string>
+    <string name="call_record_title">%1$s ile arama</string>
+    <string name="call_record_open">%1$s, %2$s. Aramayı aç.</string>
+    <string name="call_record_partial">Bu aramanın bir kısmı önceki mesajlarda. Tamamını görmek için önceki mesajları yükle.</string>
+    <string name="call_record_started">Başlangıç: %1$s</string>
+    <string name="call_record_ended">Bitiş: %1$s</string>
+    <string name="call_record_said">Söylediklerin</string>
+    <string name="call_record_nothing">Bu arama için yüklenmiş konuşma satırı yok.</string>
 </resources>

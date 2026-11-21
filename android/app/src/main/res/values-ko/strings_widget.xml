@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">먼저 %1$s을(를) 입력하세요.</string>
+    <string name="widget_send_failed">보내지 못했어요. 다시 시도해 주세요.</string>
+    <string name="widget_sending">보내는 중…</string>
+    <string name="widget_sent">보냄</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">세부 정보 숨기기</string>
+    <string name="widget_other">기타</string>
+    <string name="widget_other_hint">직접 입력한 답변</string>
+    <string name="widget_show_image">이미지 표시</string>
+    <string name="widget_chart">차트: %1$s</string>
+    <string name="widget_choose">선택…</string>
+    <string name="widget_not_set">설정 안 됨</string>
+    <string name="widget_selected">선택됨</string>
+</resources>

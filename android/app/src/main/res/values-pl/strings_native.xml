@@ -6,6 +6,7 @@
     <string name="notification_sender_you">Ty</string>
     <string name="notification_approved">Zatwierdzono</string>
     <string name="notification_approve_failed">Nie udało się zatwierdzić. Otwórz czat, aby przejrzeć.</string>
+    <string name="notification_approve_settled">Już odpowiedziano. Otwórz czat, aby zobaczyć.</string>
     <string name="notification_reply_failed">Nie udało się wysłać. Otwórz czat, aby spróbować ponownie.</string>
     <string name="tile_talk_label">Rozmowa</string>
     <string name="shortcut_talk_short">Rozmowa</string>

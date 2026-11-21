@@ -454,9 +454,7 @@
     <string name="mobile_discovery_access_off">Quyền truy cập mạng cục bộ đang tắt. Hãy bật quyền thiết bị ở gần, hoặc nhập địa chỉ Tailscale bên dưới.</string>
     <string name="mobile_discovery_unavailable">Hiện không thể dùng tính năng phát hiện cục bộ. Hãy nhập địa chỉ hiển thị trong cài đặt Điện thoại ở bên dưới.</string>
     <string name="mobile_discovery_keeps_failing">Tính năng phát hiện cục bộ liên tục bị gián đoạn trên điện thoại này. Hãy nhập địa chỉ hiển thị trong cài đặt Điện thoại ở bên dưới.</string>
-    <string name="mobile_roster_no_bots_yet">Chưa có bot nào</string>
     <string name="mobile_roster_nothing_matches">Không có kết quả phù hợp</string>
-    <string name="mobile_roster_empty_description">Các bot bạn tạo trên máy tính sẽ hiện ở đây.</string>
     <string name="mobile_roster_no_thread_matches">Không có luồng nào khớp với “%1$s”.</string>
     <string name="mobile_roster_needs_attention">Cần chú ý</string>
     <string name="mobile_roster_pinned">Đã ghim</string>
@@ -571,7 +569,6 @@
     <string name="mobile_webhooks_fdfe2da7">Webhook</string>
     <string name="mobile_what_this_bot_does_7a664f47">Bot này làm gì</string>
     <string name="mobile_what_s_next_3d4b36bc">Tiếp theo là gì?</string>
-    <string name="mobile_when_a_bot_stops_for_an_answer_is_mid_ta_6141a0c8">Khi một bot dừng để chờ câu trả lời, đang làm dở hoặc hoàn tất việc gì đó, nó sẽ hiện ở đây.</string>
     <string name="mobile_where_does_it_run_6e4a5297">Chạy ở đâu?</string>
     <string name="mobile_who_7d531617">Ai</string>
     <string name="mobile_won_t_f51153fe">Không làm</string>
