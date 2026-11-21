@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">先填写%1$s。</string>
+    <string name="widget_send_failed">无法发送。请重试。</string>
+    <string name="widget_sending">正在发送…</string>
+    <string name="widget_sent">已发送</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">收起详情</string>
+    <string name="widget_other">其他</string>
+    <string name="widget_other_hint">你自己的回答</string>
+    <string name="widget_show_image">显示图片</string>
+    <string name="widget_chart">图表：%1$s</string>
+    <string name="widget_choose">请选择…</string>
+    <string name="widget_not_set">未设置</string>
+    <string name="widget_selected">已选中</string>
+</resources>
