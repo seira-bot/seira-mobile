@@ -5,6 +5,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.hasSetTextAction
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import com.openmausbot.companion.core.Connection
 import java.util.concurrent.ConcurrentHashMap
@@ -103,10 +104,12 @@ class ConnectedAppsLazyListTest {
         val catalogBefore = asked("/api/connectors/catalog")
         val connectedBefore = asked("/api/connectors/connected")
 
-        compose.onNode(hasSetTextAction()).performTextInput("app49")
+        compose.onNode(hasSetTextAction()).performTextInput("app499")
         compose.waitForIdle()
 
-        assertEquals(11, composedCards())
+        assertEquals(1, composedCards())
+        compose.onNodeWithText("App 499").assertExists()
+        compose.onNodeWithText("App 0").assertDoesNotExist()
         assertEquals(catalogBefore, asked("/api/connectors/catalog"))
         assertEquals(connectedBefore, asked("/api/connectors/connected"))
     }
