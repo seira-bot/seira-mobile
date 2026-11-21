@@ -307,7 +307,7 @@ function validateTranslation(language, key, source, value) {
   if (!required) return [`${key}: no plural rule for language ${language}`];
   if (source.kind === "string") {
     const text = typeof value === "string" ? value : value?.text;
-    if (typeof text !== "string" || !text.trim()) return [`${key}: text is empty`];
+    if (typeof text !== "string" || (!text.trim() && source.text.trim())) return [`${key}: text is empty`];
     if (!sameList(formatArguments(text), source.args)) {
       problems.push(`${key}: arguments ${formatArguments(text)} differ from English ${source.args}`);
     }

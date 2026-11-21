@@ -118,7 +118,7 @@ class LocaleCatalogTest {
             val sourceOther = source.texts.getValue(if (source.plural) "other" else "")
             for ((quantity, text) in entry.texts) {
                 val where = if (entry.plural) "$key[$quantity]" else key
-                if (text.isBlank()) found += "$folderName: $where is blank"
+                if (text.isBlank() && sourceOther.isNotBlank()) found += "$folderName: $where is blank"
                 quoteProblem(text)?.let { found += "$folderName: $where has $it" }
                 val sourceArguments = arguments(sourceOther)
                 val ownArguments = arguments(text)
