@@ -79,10 +79,10 @@ internal class WiringScene(
     liveDisclosureShown: Boolean = true,
     /** The HTTP client of the session, for a test that answers its requests from a local server. */
     httpClient: OkHttpClient = OkHttpClient(),
-    /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
-    private val events: (Int) -> Flow<StreamFrame> = { flow { awaitCancellation() } },
     /** More computers saved on this phone, each with its device token; [connection] stays the active one. */
     otherComputers: List<Pair<Connection, String>> = emptyList(),
+    /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
+    private val events: (Int) -> Flow<StreamFrame> = { flow { awaitCancellation() } },
 ) {
     private val context: Context = RuntimeEnvironment.getApplication() as Application
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
