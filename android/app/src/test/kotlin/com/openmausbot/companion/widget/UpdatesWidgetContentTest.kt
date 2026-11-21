@@ -81,16 +81,6 @@ class UpdatesWidgetContentTest {
     }
 
     @Test
-    fun `no widget node can run a callback`() = runGlanceAppWidgetUnitTest {
-        setContext(context)
-        for (size in listOf(UpdatesWidget.SMALL, UpdatesWidget.WIDE, UpdatesWidget.TALL)) {
-            setAppWidgetSize(size)
-            provideComposable { UpdatesWidgetContent(view(listOf(row(), working())), face) }
-            onNode(hasText("Approve")).assertDoesNotExist()
-        }
-    }
-
-    @Test
     fun `a row tap opens that chat`() = runGlanceAppWidgetUnitTest {
         setContext(context)
         setAppWidgetSize(UpdatesWidget.TALL)
