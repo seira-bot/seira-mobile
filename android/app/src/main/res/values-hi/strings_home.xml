@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">सुप्रभात</string>
+    <string name="home_greeting_afternoon">नमस्कार</string>
+    <string name="home_greeting_evening">शुभ संध्या</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">और विकल्प</string>
+    <string name="home_talk">बात करें</string>
+    <string name="home_status_ready">तैयार</string>
+    <string name="home_team">टीम</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">सभी %1$d देखें</item>
+        <item quantity="other">सभी %1$d देखें</item>
+    </plurals>
+    <string name="home_team_show_less">कम दिखाएँ</string>
+    <string name="home_chats">चैट</string>
+    <string name="home_search_prompt">चैट और बॉट खोजें</string>
+    <string name="home_new_chat">नई चैट</string>
+    <string name="home_talk_to">%1$s से बात करें</string>
+    <string name="home_team_member_working">%1$s, काम कर रहा है</string>
+    <string name="home_team_member_waiting">%1$s, आपका इंतज़ार कर रहा है</string>
+    <string name="home_manage_threads">थ्रेड्स संभालें</string>
+</resources>

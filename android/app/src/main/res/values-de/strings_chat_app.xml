@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_app_loading">Seite wird geöffnet…</string>
+    <string name="chat_app_failed">Diese Seite konnte nicht geöffnet werden.</string>
+    <string name="chat_app_unavailable">Diese Seite kann auf deinem Telefon nicht angezeigt werden.</string>
+    <string name="chat_app_update_webview">Aktualisiere Android System WebView, um diese Seite zu öffnen.</string>
+</resources>

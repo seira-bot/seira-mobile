@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">Dein Computer</string>
+    <string name="settings_appearance_caption">„Automatisch“ folgt der Einstellung deines Telefons.</string>
+    <string name="settings_pair_another">Weiteren Computer koppeln</string>
+    <string name="settings_state_same_wifi">Verbunden · gleiches WLAN</string>
+    <string name="settings_state_tailscale">Verbunden · Tailscale</string>
+    <string name="settings_state_internet">Verbunden · über das Internet</string>
+    <string name="settings_state_connected">Verbunden</string>
+    <string name="settings_state_saved">Auf diesem Telefon gespeichert</string>
+    <string name="settings_connection_details">Verbindungsdetails</string>
+    <string name="settings_notif_approval_title">Braucht dein OK</string>
+    <string name="settings_notif_approval_body">Wenn ein Bot auf deine Antwort wartet</string>
+    <string name="settings_notif_done_title">Aufgabe erledigt</string>
+    <string name="settings_notif_done_body">Wenn ein Bot einen Auftrag erledigt hat</string>
+    <string name="settings_notif_routine_title">Routine-Probleme</string>
+    <string name="settings_notif_routine_body">Wenn ein geplanter Auftrag fehlschlägt</string>
+    <string name="settings_notif_turn_on">Mitteilungen einschalten</string>
+    <string name="settings_notif_turn_on_body">Damit deine Bots dich erreichen können</string>
+    <string name="settings_privacy">Datenschutz</string>
+    <string name="settings_connected_apps">Verbundene Apps</string>
+    <string name="settings_sign_out">Abmelden</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">Dein Computer ist nicht erreichbar</string>
+    <string name="settings_reconnect">Erneut verbinden</string>
+</resources>

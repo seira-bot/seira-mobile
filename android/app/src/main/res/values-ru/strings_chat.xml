@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">В работе</string>
+    <string name="chat_status_waiting">Ждёт вас</string>
+    <string name="chat_status_idle">Простаивает</string>
+    <string name="chat_call_start">Начать живой звонок</string>
+    <string name="chat_call_open">Открыть живой звонок</string>
+    <string name="chat_composer_hint">Сообщение для %1$s</string>
+    <string name="chat_composer_talk">Поговорить с %1$s</string>
+    <string name="chat_composer_dictate">Начать диктовку</string>
+    <string name="chat_composer_dictate_stop">Остановить диктовку</string>
+    <string name="chat_writing">Пишет…</string>
+    <string name="chat_sheet_title">Добавить в чат</string>
+    <string name="chat_sheet_camera">Камера</string>
+    <string name="chat_sheet_photos">Фото</string>
+    <string name="chat_sheet_files">Файлы</string>
+    <string name="chat_sheet_call">Живой звонок</string>
+    <string name="chat_sheet_call_sub">Обсудите всё с %1$s</string>
+    <string name="chat_sheet_schedule">Расписание</string>
+    <string name="chat_sheet_schedule_sub">Выполнить позже или каждую неделю</string>
+    <string name="chat_sheet_desktop">Облачный рабочий стол</string>
+    <string name="chat_sheet_desktop_sub">Наблюдайте, как %1$s работает на экране</string>
+    <string name="chat_needs_ok">Нужно ваше «ОК»</string>
+    <string name="chat_from_bot">от %1$s</string>
+</resources>

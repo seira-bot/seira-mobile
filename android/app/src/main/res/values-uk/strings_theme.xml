@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">Вигляд</string>
+    <string name="theme_mode_choose">Виберіть вигляд</string>
+    <string name="theme_mode_light">Світлий</string>
+    <string name="theme_mode_dark">Темний</string>
+    <string name="theme_mode_auto">Авто</string>
+</resources>

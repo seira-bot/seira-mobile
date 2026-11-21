@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">काम जारी</string>
+    <string name="chat_status_waiting">आपका इंतज़ार</string>
+    <string name="chat_status_idle">निष्क्रिय</string>
+    <string name="chat_call_start">लाइव कॉल शुरू करें</string>
+    <string name="chat_call_open">लाइव कॉल खोलें</string>
+    <string name="chat_composer_hint">%1$s को संदेश भेजें</string>
+    <string name="chat_composer_talk">%1$s से बात करें</string>
+    <string name="chat_composer_dictate">बोलकर लिखना शुरू करें</string>
+    <string name="chat_composer_dictate_stop">बोलकर लिखना रोकें</string>
+    <string name="chat_writing">लिख रहा है…</string>
+    <string name="chat_sheet_title">चैट में जोड़ें</string>
+    <string name="chat_sheet_camera">कैमरा</string>
+    <string name="chat_sheet_photos">फ़ोटो</string>
+    <string name="chat_sheet_files">Files</string>
+    <string name="chat_sheet_call">लाइव कॉल</string>
+    <string name="chat_sheet_call_sub">%1$s के साथ बात करके सुलझाएँ</string>
+    <string name="chat_sheet_schedule">शेड्यूल</string>
+    <string name="chat_sheet_schedule_sub">बाद में चलाएँ, या हर हफ़्ते</string>
+    <string name="chat_sheet_desktop">क्लाउड डेस्कटॉप</string>
+    <string name="chat_sheet_desktop_sub">स्क्रीन पर %1$s को काम करते देखें</string>
+    <string name="chat_needs_ok">आपकी मंज़ूरी चाहिए</string>
+    <string name="chat_from_bot">%1$s की ओर से</string>
+</resources>

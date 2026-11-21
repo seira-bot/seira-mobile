@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">Bilgisayarınız</string>
+    <string name="settings_appearance_caption">Otomatik, telefonunuzun ayarını izler.</string>
+    <string name="settings_pair_another">Başka bir bilgisayarı eşle</string>
+    <string name="settings_state_same_wifi">Bağlı · aynı Wi-Fi</string>
+    <string name="settings_state_tailscale">Bağlı · Tailscale</string>
+    <string name="settings_state_internet">Bağlı · internet üzerinden</string>
+    <string name="settings_state_connected">Bağlı</string>
+    <string name="settings_state_saved">Bu telefonda kayıtlı</string>
+    <string name="settings_connection_details">Bağlantı ayrıntıları</string>
+    <string name="settings_notif_approval_title">Onayınız gerekiyor</string>
+    <string name="settings_notif_approval_body">Bir bot yanıtınızı beklediğinde</string>
+    <string name="settings_notif_done_title">Görev bitti</string>
+    <string name="settings_notif_done_body">Bir bot bir işi bitirdiğinde</string>
+    <string name="settings_notif_routine_title">Rutin sorunları</string>
+    <string name="settings_notif_routine_body">Zamanlanmış bir iş başarısız olduğunda</string>
+    <string name="settings_notif_turn_on">Bildirimleri aç</string>
+    <string name="settings_notif_turn_on_body">Botlarınız size ulaşabilsin diye</string>
+    <string name="settings_privacy">Gizlilik</string>
+    <string name="settings_connected_apps">Bağlı uygulamalar</string>
+    <string name="settings_sign_out">Oturumu kapat</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">Bilgisayarınıza ulaşılamıyor</string>
+    <string name="settings_reconnect">Yeniden bağlan</string>
+</resources>

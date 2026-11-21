@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Günaydın</string>
+    <string name="home_greeting_afternoon">İyi günler</string>
+    <string name="home_greeting_evening">İyi akşamlar</string>
+    <string name="home_greeting_with_name">%2$s, %1$s</string>
+    <string name="home_more_options">Diğer seçenekler</string>
+    <string name="home_talk">Konuş</string>
+    <string name="home_status_ready">Hazır</string>
+    <string name="home_team">Ekip</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Tümünü gör (%1$d)</item>
+        <item quantity="other">Tümünü gör (%1$d)</item>
+    </plurals>
+    <string name="home_team_show_less">Daha az göster</string>
+    <string name="home_chats">Sohbetler</string>
+    <string name="home_search_prompt">Sohbetlerde ve botlarda ara</string>
+    <string name="home_new_chat">Yeni sohbet</string>
+    <string name="home_talk_to">%1$s ile konuş</string>
+    <string name="home_team_member_working">%1$s, çalışıyor</string>
+    <string name="home_team_member_waiting">%1$s, sizi bekliyor</string>
+    <string name="home_manage_threads">Konuları yönet</string>
+</resources>

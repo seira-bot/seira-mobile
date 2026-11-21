@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pair_title">컴퓨터 연결</string>
+    <string name="pair_body">컴퓨터에서 Seira를 열고 연결 코드를 표시하세요. 그런 다음 카메라로 코드를 비추세요.</string>
+    <string name="pair_status_point">카메라로 코드를 비추세요</string>
+    <string name="pair_status_found">코드를 찾았어요</string>
+    <string name="pair_status_connecting">연결 중…</string>
+    <string name="pair_status_paired_with">%1$s와(과) 연결됨</string>
+    <string name="pair_flash_on">손전등 켜기</string>
+    <string name="pair_flash_off">손전등 끄기</string>
+    <string name="pair_viewfinder">연결 코드를 비추는 카메라 화면</string>
+    <string name="pair_kind_same_wifi">같은 Wi-Fi</string>
+    <string name="pair_kind_tailscale">Tailscale</string>
+    <string name="pair_kind_internet">인터넷 연결</string>
+    <string name="pair_found_just_now">%1$s · 방금 찾음</string>
+    <string name="pair_waiting">컴퓨터를 기다리는 중</string>
+    <string name="pair_waiting_body">코드는 컴퓨터의 Seira에 표시돼요.</string>
+    <string name="pair_enter_code">코드 직접 입력</string>
+    <string name="pair_connected_title">연결되었어요</string>
+    <string name="pair_connected_body">이 휴대폰에서 채팅과 봇을 사용할 수 있어요.</string>
+    <string name="pair_done">완료</string>
+    <string name="pair_camera_off_title">카메라가 꺼져 있어요</string>
+    <string name="pair_camera_off_body">코드를 스캔하려면 카메라를 허용하세요. 코드나 주소를 직접 입력해도 돼요.</string>
+    <string name="pair_camera_starting">카메라를 시작하는 중…</string>
+    <string name="pair_back">설정으로 돌아가기</string>
+    <string name="pair_open_tailscale">Tailscale 열기</string>
+</resources>

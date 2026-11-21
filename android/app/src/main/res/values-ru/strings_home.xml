@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Доброе утро</string>
+    <string name="home_greeting_afternoon">Добрый день</string>
+    <string name="home_greeting_evening">Добрый вечер</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">Дополнительные параметры</string>
+    <string name="home_talk">Говорить</string>
+    <string name="home_status_ready">Готово</string>
+    <string name="home_team">Команда</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Показать все: %1$d</item>
+        <item quantity="few">Показать все: %1$d</item>
+        <item quantity="many">Показать все: %1$d</item>
+        <item quantity="other">Показать все: %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Свернуть</string>
+    <string name="home_chats">Чаты</string>
+    <string name="home_search_prompt">Поиск по чатам и ботам</string>
+    <string name="home_new_chat">Новый чат</string>
+    <string name="home_talk_to">Поговорить с %1$s</string>
+    <string name="home_team_member_working">%1$s, в работе</string>
+    <string name="home_team_member_waiting">%1$s, ждёт вас</string>
+    <string name="home_manage_threads">Управление ветками</string>
+</resources>

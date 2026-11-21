@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Không thể kết nối tới %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale đang tắt trên điện thoại này. Hãy bật nó rồi thử lại.</string>
+    <string name="core_route_tailnet_unreachable">Điện thoại này không kết nối được tới “%1$s”. Hãy mở Tailscale trên điện thoại và đăng nhập cùng tài khoản với máy tính. Nếu DNS riêng tư hiển thị tên nhà cung cấp, hãy đặt thành Tắt hoặc Tự động (Cài đặt → Mạng và internet).</string>
+    <string name="core_route_internet_also_failed">Địa chỉ internet cũng không phản hồi. Hãy kiểm tra máy tính đã bật chưa.</string>
+    <string name="core_route_local_network_blocked">Android đã chặn ứng dụng này truy cập mạng cục bộ của bạn. Hãy cho phép truy cập mạng cục bộ trong Cài đặt của điện thoại rồi thử lại.</string>
+    <string name="core_route_secure_failed">Hãy đảm bảo máy tính đang thức và đã mở Seira, rồi thử lại.</string>
+    <string name="core_route_tailscale_only">Điện thoại của bạn không kết nối được tới %1$s qua Tailscale. Hãy bật Tailscale trên điện thoại, đăng nhập vào cùng tailnet với máy tính, rồi thử lại.</string>
+    <string name="core_route_same_network">Điện thoại của bạn không kết nối được tới %1$s trên mạng này. Hãy cho điện thoại dùng cùng Wi-Fi với máy tính. Nếu đã cùng mạng, tường lửa của máy tính có thể đang chặn Seira: trên máy Windows, hãy đặt mạng thành Riêng tư. Hoặc mở Cài đặt → Truy cập từ xa trên máy tính và đăng nhập để điện thoại kết nối được từ mọi nơi.</string>
+    <string name="core_advice_host_unresolved">Không phân giải được “%1$s”. Nếu đó là tên Tailscale, có thể điện thoại này chưa nằm trong tailnet.</string>
+    <string name="core_advice_port_closed">Đã kết nối tới máy tính của bạn, nhưng quyền truy cập Điện thoại không phản hồi trên cổng %1$d — hãy mở Seira → Cài đặt → Điện thoại.</string>
+    <string name="core_advice_no_route">Không có đường tới máy tính của bạn tại %1$s — có thể do khác mạng hoặc do tường lửa.</string>
+    <string name="core_advice_offline">Bạn đang ngoại tuyến.</string>
+    <string name="core_advice_could_not_reach_host">Không thể kết nối tới %1$s.</string>
+    <string name="core_advice_gateway">Đường truyền qua %1$s tạm thời không khả dụng (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Đang thử %1$s tiếp theo.</string>
+    <string name="core_advice_keeps_retrying">Ứng dụng sẽ tự động thử lại liên tục.</string>
+    <string name="core_lost_connection">Mất kết nối.</string>
+    <string name="core_could_not_reach_computer">Không thể kết nối tới máy tính.</string>
+    <string name="core_computer_offline">Máy tính này đang ngoại tuyến.</string>
+    <string name="core_unlock_to_reach">Hãy mở khóa điện thoại này để kết nối tới máy tính của bạn.</string>
+    <string name="core_unlock_to_switch">Hãy mở khóa điện thoại này rồi thử chuyển máy tính lại.</string>
+    <string name="core_saved_connection_unavailable">Kết nối đã lưu này không còn khả dụng trên điện thoại này. Hãy gỡ nó và ghép nối lại.</string>
+    <string name="core_pairing_server_changed">Máy chủ đã thay đổi trong lúc ghép nối. Hãy quét mã mới rồi thử lại.</string>
+    <string name="core_pairing_code_used">Mã ghép nối đó đã được dùng. Hãy bắt đầu ghép nối lại trên máy tính và quét lại mã QR mới.</string>
+    <string name="core_pairing_invalid">Lời mời ghép nối đó không hợp lệ. Hãy bắt đầu ghép nối lại trên máy tính của bạn.</string>
+    <string name="core_pairing_in_progress">Một lần ghép nối khác đang diễn ra.</string>
+    <string name="core_pairing_storage_unavailable">Điện thoại này vừa không đọc được kết nối đã lưu.</string>
+    <string name="core_different_server">Địa chỉ này thuộc về một máy chủ khác. Hãy ghép nối lại để tiếp tục.</string>
+    <string name="core_pair_to_open_task">Hãy ghép nối điện thoại này với máy tính của bạn để mở tác vụ đó.</string>
+    <string name="core_pair_to_open_thread">Hãy ghép nối điện thoại này với máy tính của bạn để mở luồng đó.</string>
+    <string name="core_thread_gone">Luồng đó không còn trên máy tính của bạn.</string>
+    <string name="core_agent_gone">Tác nhân đó không còn tồn tại.</string>
+    <string name="core_write_or_attach">Hãy viết tin nhắn hoặc đính kèm tệp trước.</string>
+    <string name="core_update_for_images">Hãy cập nhật Seira trên máy tính này trước khi gửi ảnh.</string>
+    <string name="core_cannot_send">Không thể gửi tin nhắn này. Hãy thử lại.</string>
+    <string name="core_unreadable_response">Máy tính đã gửi một nội dung mà ứng dụng này không đọc được.</string>
+</resources>

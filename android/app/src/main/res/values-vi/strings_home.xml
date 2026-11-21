@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Chào buổi sáng</string>
+    <string name="home_greeting_afternoon">Chào buổi chiều</string>
+    <string name="home_greeting_evening">Chào buổi tối</string>
+    <string name="home_greeting_with_name">%2$s, %1$s</string>
+    <string name="home_more_options">Thêm tùy chọn</string>
+    <string name="home_talk">Nói chuyện</string>
+    <string name="home_status_ready">Sẵn sàng</string>
+    <string name="home_team">Nhóm</string>
+    <plurals name="home_team_see_all">
+        <item quantity="other">Xem tất cả %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Thu gọn</string>
+    <string name="home_chats">Cuộc trò chuyện</string>
+    <string name="home_search_prompt">Tìm cuộc trò chuyện và bot</string>
+    <string name="home_new_chat">Cuộc trò chuyện mới</string>
+    <string name="home_talk_to">Nói chuyện với %1$s</string>
+    <string name="home_team_member_working">%1$s, đang làm việc</string>
+    <string name="home_team_member_waiting">%1$s, đang chờ bạn</string>
+    <string name="home_manage_threads">Quản lý luồng</string>
+</resources>

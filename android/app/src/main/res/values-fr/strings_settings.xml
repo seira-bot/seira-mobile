@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">Votre ordinateur</string>
+    <string name="settings_appearance_caption">Automatique suit le réglage de votre téléphone.</string>
+    <string name="settings_pair_another">Associer un autre ordinateur</string>
+    <string name="settings_state_same_wifi">Connecté · même Wi-Fi</string>
+    <string name="settings_state_tailscale">Connecté · Tailscale</string>
+    <string name="settings_state_internet">Connecté · via Internet</string>
+    <string name="settings_state_connected">Connecté</string>
+    <string name="settings_state_saved">Enregistré sur ce téléphone</string>
+    <string name="settings_connection_details">Détails de la connexion</string>
+    <string name="settings_notif_approval_title">Votre accord est requis</string>
+    <string name="settings_notif_approval_body">Quand un bot attend votre réponse</string>
+    <string name="settings_notif_done_title">Tâche terminée</string>
+    <string name="settings_notif_done_body">Quand un bot a terminé un travail</string>
+    <string name="settings_notif_routine_title">Problèmes de routine</string>
+    <string name="settings_notif_routine_body">Quand une tâche planifiée échoue</string>
+    <string name="settings_notif_turn_on">Activer les notifications</string>
+    <string name="settings_notif_turn_on_body">Pour que vos bots puissent vous joindre</string>
+    <string name="settings_privacy">Confidentialité</string>
+    <string name="settings_connected_apps">Applications connectées</string>
+    <string name="settings_sign_out">Se déconnecter</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">Impossible de joindre votre ordinateur</string>
+    <string name="settings_reconnect">Se reconnecter</string>
+</resources>

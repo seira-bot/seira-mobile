@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">Seu computador</string>
+    <string name="settings_appearance_caption">Automático segue a configuração do seu celular.</string>
+    <string name="settings_pair_another">Parear outro computador</string>
+    <string name="settings_state_same_wifi">Conectado · mesmo Wi-Fi</string>
+    <string name="settings_state_tailscale">Conectado · Tailscale</string>
+    <string name="settings_state_internet">Conectado · pela internet</string>
+    <string name="settings_state_connected">Conectado</string>
+    <string name="settings_state_saved">Salvo neste celular</string>
+    <string name="settings_connection_details">Detalhes da conexão</string>
+    <string name="settings_notif_approval_title">Precisa do seu OK</string>
+    <string name="settings_notif_approval_body">Quando um bot espera pela sua resposta</string>
+    <string name="settings_notif_done_title">Tarefa concluída</string>
+    <string name="settings_notif_done_body">Quando um bot termina um trabalho</string>
+    <string name="settings_notif_routine_title">Problemas em rotinas</string>
+    <string name="settings_notif_routine_body">Quando um trabalho agendado falha</string>
+    <string name="settings_notif_turn_on">Ativar notificações</string>
+    <string name="settings_notif_turn_on_body">Para que seus bots possam falar com você</string>
+    <string name="settings_privacy">Privacidade</string>
+    <string name="settings_connected_apps">Apps conectados</string>
+    <string name="settings_sign_out">Sair</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">Não foi possível alcançar seu computador</string>
+    <string name="settings_reconnect">Reconectar</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Dzień dobry</string>
+    <string name="home_greeting_afternoon">Dzień dobry</string>
+    <string name="home_greeting_evening">Dobry wieczór</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">Więcej opcji</string>
+    <string name="home_talk">Rozmowa</string>
+    <string name="home_status_ready">Gotowe</string>
+    <string name="home_team">Zespół</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Zobacz wszystkie: %1$d</item>
+        <item quantity="few">Zobacz wszystkie: %1$d</item>
+        <item quantity="many">Zobacz wszystkie: %1$d</item>
+        <item quantity="other">Zobacz wszystkie: %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Pokaż mniej</string>
+    <string name="home_chats">Czaty</string>
+    <string name="home_search_prompt">Szukaj czatów i botów</string>
+    <string name="home_new_chat">Nowy czat</string>
+    <string name="home_talk_to">Porozmawiaj z: %1$s</string>
+    <string name="home_team_member_working">%1$s, pracuje</string>
+    <string name="home_team_member_waiting">%1$s, czeka na Ciebie</string>
+    <string name="home_manage_threads">Zarządzaj wątkami</string>
+</resources>

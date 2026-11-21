@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">作業中</string>
+    <string name="chat_status_waiting">あなたの対応待ち</string>
+    <string name="chat_status_idle">待機中</string>
+    <string name="chat_call_start">ライブ通話を開始</string>
+    <string name="chat_call_open">ライブ通話を開く</string>
+    <string name="chat_composer_hint">%1$s にメッセージ</string>
+    <string name="chat_composer_talk">%1$s と話す</string>
+    <string name="chat_composer_dictate">音声入力を開始</string>
+    <string name="chat_composer_dictate_stop">音声入力を停止</string>
+    <string name="chat_writing">書いています…</string>
+    <string name="chat_sheet_title">チャットに追加</string>
+    <string name="chat_sheet_camera">カメラ</string>
+    <string name="chat_sheet_photos">写真</string>
+    <string name="chat_sheet_files">ファイル</string>
+    <string name="chat_sheet_call">ライブ通話</string>
+    <string name="chat_sheet_call_sub">%1$s と話しながら進める</string>
+    <string name="chat_sheet_schedule">スケジュール</string>
+    <string name="chat_sheet_schedule_sub">あとで、または毎週実行</string>
+    <string name="chat_sheet_desktop">クラウドデスクトップ</string>
+    <string name="chat_sheet_desktop_sub">%1$s の作業を画面で見る</string>
+    <string name="chat_needs_ok">承認が必要です</string>
+    <string name="chat_from_bot">%1$s から</string>
+</resources>

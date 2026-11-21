@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">チャットに戻る</string>
+    <string name="call_screen_live_call">ライブ通話</string>
+    <string name="call_screen_speaking">%1$s が話しています</string>
+    <string name="call_screen_listening">聞いています</string>
+    <string name="call_screen_muted">ミュート中です</string>
+    <string name="call_screen_you">あなた</string>
+    <string name="call_screen_mute">ミュート</string>
+    <string name="call_screen_unmute">ミュート解除</string>
+    <string name="call_screen_speaker">スピーカー</string>
+    <string name="call_screen_captions">字幕</string>
+    <string name="call_screen_end">終了</string>
+    <string name="call_screen_end_call">通話を終了</string>
+    <string name="call_screen_try_again">もう一度試す</string>
+    <string name="call_screen_close">閉じる</string>
+    <string name="call_open_call">通話を開く</string>
+    <string name="call_service_channel_name">ライブ通話</string>
+    <string name="call_service_channel_description">ライブ通話の実行中に表示されます。</string>
+    <string name="call_service_connecting">接続中…</string>
+    <string name="call_service_live">ライブ通話</string>
+    <string name="call_service_hang_up">通話を終了</string>
+</resources>

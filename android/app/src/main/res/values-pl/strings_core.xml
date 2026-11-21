@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Nie udało się połączyć z: %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale jest wyłączony na tym telefonie. Włącz go i spróbuj ponownie.</string>
+    <string name="core_route_tailnet_unreachable">Ten telefon nie może połączyć się z „%1$s”. Otwórz Tailscale na tym telefonie i zaloguj się na to samo konto co na komputerze. Jeśli Prywatny DNS pokazuje nazwę dostawcy, ustaw go na Wyłączony lub Automatyczny (Ustawienia → Sieć i internet).</string>
+    <string name="core_route_internet_also_failed">Adres internetowy też nie odpowiedział. Sprawdź, czy komputer jest włączony.</string>
+    <string name="core_route_local_network_blocked">Android zablokował tej aplikacji dostęp do Twojej sieci lokalnej. Zezwól jej na dostęp do sieci lokalnej w Ustawieniach telefonu i spróbuj ponownie.</string>
+    <string name="core_route_secure_failed">Upewnij się, że komputer jest wybudzony i Seira jest otwarta, po czym spróbuj ponownie.</string>
+    <string name="core_route_tailscale_only">Telefon nie mógł połączyć się z %1$s przez Tailscale. Włącz Tailscale na tym telefonie, zalogowany do tego samego tailnetu co komputer, i spróbuj ponownie.</string>
+    <string name="core_route_same_network">Telefon nie mógł połączyć się z %1$s w tej sieci. Podłącz telefon do tej samej sieci Wi-Fi co komputer. Jeśli już jest, zapora komputera może blokować Seira: na komputerze z Windows ustaw jego sieć jako prywatną. Możesz też otworzyć Ustawienia → Dostęp zdalny na komputerze i zalogować się, aby telefon mógł łączyć się z dowolnego miejsca.</string>
+    <string name="core_advice_host_unresolved">Nie udało się rozpoznać „%1$s”. Jeśli to nazwa Tailscale, ten telefon może nie być w tailnecie.</string>
+    <string name="core_advice_port_closed">Połączono z komputerem, ale dostęp telefonu nie odpowiada na porcie %1$d — otwórz Seira → Ustawienia → Telefon.</string>
+    <string name="core_advice_no_route">Brak trasy do Twojego komputera pod adresem %1$s — inna sieć lub zapora.</string>
+    <string name="core_advice_offline">Jesteś offline.</string>
+    <string name="core_advice_could_not_reach_host">Nie udało się połączyć z: %1$s.</string>
+    <string name="core_advice_gateway">Trasa przez %1$s jest chwilowo niedostępna (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Następnie próba: %1$s.</string>
+    <string name="core_advice_keeps_retrying">Aplikacja automatycznie ponawia próby.</string>
+    <string name="core_lost_connection">Utracono połączenie.</string>
+    <string name="core_could_not_reach_computer">Nie udało się połączyć z komputerem.</string>
+    <string name="core_computer_offline">Ten komputer jest offline.</string>
+    <string name="core_unlock_to_reach">Odblokuj telefon, aby połączyć się z komputerem.</string>
+    <string name="core_unlock_to_switch">Odblokuj telefon, a potem spróbuj ponownie przełączyć komputery.</string>
+    <string name="core_saved_connection_unavailable">To zapisane połączenie nie jest już dostępne na tym telefonie. Usuń je i sparuj ponownie.</string>
+    <string name="core_pairing_server_changed">Serwer zmienił się podczas parowania. Zeskanuj nowy kod i spróbuj ponownie.</string>
+    <string name="core_pairing_code_used">Ten kod parowania został już użyty. Rozpocznij parowanie od nowa na komputerze i zeskanuj nowy kod QR.</string>
+    <string name="core_pairing_invalid">To zaproszenie do parowania jest nieprawidłowe. Rozpocznij parowanie od nowa na komputerze.</string>
+    <string name="core_pairing_in_progress">Inna próba parowania jest już w toku.</string>
+    <string name="core_pairing_storage_unavailable">Ten telefon nie mógł teraz odczytać zapisanego połączenia.</string>
+    <string name="core_different_server">Ten adres należy do innego serwera. Sparuj ponownie, aby kontynuować.</string>
+    <string name="core_pair_to_open_task">Sparuj ten telefon z komputerem, aby otworzyć to zadanie.</string>
+    <string name="core_pair_to_open_thread">Sparuj ten telefon z komputerem, aby otworzyć ten wątek.</string>
+    <string name="core_thread_gone">Tego wątku nie ma już na Twoim komputerze.</string>
+    <string name="core_agent_gone">Ten agent już nie istnieje.</string>
+    <string name="core_write_or_attach">Najpierw napisz wiadomość lub dołącz plik.</string>
+    <string name="core_update_for_images">Zaktualizuj Seira na tym komputerze, zanim zaczniesz wysyłać obrazy.</string>
+    <string name="core_cannot_send">Nie udało się wysłać tej wiadomości. Spróbuj ponownie.</string>
+    <string name="core_unreadable_response">Komputer wysłał coś, czego ta aplikacja nie mogła odczytać.</string>
+</resources>

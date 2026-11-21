@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">Aprobar</string>
+    <string name="notification_action_review">Revisar</string>
+    <string name="notification_action_reply">Responder</string>
+    <string name="notification_sender_you">Tú</string>
+    <string name="notification_approved">Aprobado</string>
+    <string name="notification_approve_failed">No se pudo aprobar. Abre el chat para revisarlo.</string>
+    <string name="notification_reply_failed">No se pudo enviar. Abre el chat para intentarlo de nuevo.</string>
+    <string name="tile_talk_label">Hablar</string>
+    <string name="shortcut_talk_short">Hablar</string>
+    <string name="shortcut_talk_long">Habla con tu jefe de gabinete</string>
+</resources>

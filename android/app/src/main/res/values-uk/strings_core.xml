@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Не вдалося зв’язатися з %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale вимкнено на цьому телефоні. Увімкніть його й спробуйте знову.</string>
+    <string name="core_route_tailnet_unreachable">Цей телефон не може зв’язатися з «%1$s». Відкрийте Tailscale на цьому телефоні й увійдіть в той самий обліковий запис, що й на комп’ютері. Якщо в Приватному DNS указано назву постачальника, виберіть «Вимкнено» або «Автоматично» (Налаштування → Мережа й інтернет).</string>
+    <string name="core_route_internet_also_failed">Адреса в інтернеті теж не відповіла. Переконайтеся, що комп’ютер увімкнено.</string>
+    <string name="core_route_local_network_blocked">Android заблокував цьому застосунку доступ до вашої локальної мережі. Дозвольте йому доступ до локальної мережі в налаштуваннях телефона й спробуйте знову.</string>
+    <string name="core_route_secure_failed">Переконайтеся, що комп’ютер не спить і на ньому відкрито Seira, потім спробуйте знову.</string>
+    <string name="core_route_tailscale_only">Ваш телефон не зміг зв’язатися з %1$s через Tailscale. Увімкніть Tailscale на цьому телефоні та увійдіть у ту саму tailnet, що й комп’ютер, потім спробуйте знову.</string>
+    <string name="core_route_same_network">Ваш телефон не зміг зв’язатися з %1$s у цій мережі. Підключіть телефон до тієї самої мережі Wi-Fi, що й комп’ютер. Якщо він уже в ній, брандмауер комп’ютера може блокувати Seira: на ПК з Windows виберіть для мережі профіль «Приватна». Або відкрийте на комп’ютері Налаштування → Віддалений доступ і увійдіть, щоб телефон міг підключатися звідусіль.</string>
+    <string name="core_advice_host_unresolved">«%1$s» не вдалося визначити. Якщо це ім’я Tailscale, цей телефон, імовірно, не в tailnet.</string>
+    <string name="core_advice_port_closed">Комп’ютер досягнуто, але доступ для телефона не відповідає на порту %1$d — відкрийте Seira → Налаштування → Телефон.</string>
+    <string name="core_advice_no_route">Немає маршруту до вашого комп’ютера за адресою %1$s — інша мережа або брандмауер.</string>
+    <string name="core_advice_offline">Ви не в мережі.</string>
+    <string name="core_advice_could_not_reach_host">Не вдалося зв’язатися з %1$s.</string>
+    <string name="core_advice_gateway">Маршрут через %1$s тимчасово недоступний (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Далі пробую %1$s.</string>
+    <string name="core_advice_keeps_retrying">Застосунок автоматично повторює спроби.</string>
+    <string name="core_lost_connection">З’єднання втрачено.</string>
+    <string name="core_could_not_reach_computer">Не вдалося зв’язатися з комп’ютером.</string>
+    <string name="core_computer_offline">Цей комп’ютер не в мережі.</string>
+    <string name="core_unlock_to_reach">Розблокуйте телефон, щоб зв’язатися з комп’ютером.</string>
+    <string name="core_unlock_to_switch">Розблокуйте телефон і спробуйте перемкнути комп’ютер знову.</string>
+    <string name="core_saved_connection_unavailable">Це збережене підключення більше недоступне на цьому телефоні. Вилучіть його й під’єднайте знову.</string>
+    <string name="core_pairing_server_changed">Під час підключення сервер змінився. Відскануйте новий код і спробуйте знову.</string>
+    <string name="core_pairing_code_used">Цей код підключення вже використано. Почніть підключення знову на комп’ютері й відскануйте новий QR-код.</string>
+    <string name="core_pairing_invalid">Це запрошення до підключення недійсне. Почніть підключення знову на комп’ютері.</string>
+    <string name="core_pairing_in_progress">Інша спроба підключення вже триває.</string>
+    <string name="core_pairing_storage_unavailable">Цей телефон щойно не зміг прочитати своє збережене підключення.</string>
+    <string name="core_different_server">Ця адреса належить іншому серверу. Під’єднайте знову, щоб продовжити.</string>
+    <string name="core_pair_to_open_task">Під’єднайте цей телефон до комп’ютера, щоб відкрити це завдання.</string>
+    <string name="core_pair_to_open_thread">Під’єднайте цей телефон до комп’ютера, щоб відкрити цю гілку.</string>
+    <string name="core_thread_gone">Цієї гілки вже немає на вашому комп’ютері.</string>
+    <string name="core_agent_gone">Цього агента більше не існує.</string>
+    <string name="core_write_or_attach">Спершу напишіть повідомлення або додайте файл.</string>
+    <string name="core_update_for_images">Оновіть Seira на цьому комп’ютері, перш ніж надсилати зображення.</string>
+    <string name="core_cannot_send">Не вдалося надіслати це повідомлення. Спробуйте знову.</string>
+    <string name="core_unreadable_response">Комп’ютер надіслав щось, що цей застосунок не зміг прочитати.</string>
+</resources>

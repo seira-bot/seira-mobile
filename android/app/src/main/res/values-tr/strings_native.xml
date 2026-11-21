@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">Onayla</string>
+    <string name="notification_action_review">İncele</string>
+    <string name="notification_action_reply">Yanıtla</string>
+    <string name="notification_sender_you">Siz</string>
+    <string name="notification_approved">Onaylandı</string>
+    <string name="notification_approve_failed">Onaylanamadı. İncelemek için sohbeti açın.</string>
+    <string name="notification_reply_failed">Gönderilemedi. Tekrar denemek için sohbeti açın.</string>
+    <string name="tile_talk_label">Konuş</string>
+    <string name="shortcut_talk_short">Konuş</string>
+    <string name="shortcut_talk_long">Kurmay başkanınızla konuşun</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings_your_computer">आपका कंप्यूटर</string>
+    <string name="settings_appearance_caption">ऑटो में आपके फ़ोन की सेटिंग लागू होती है।</string>
+    <string name="settings_pair_another">दूसरा कंप्यूटर जोड़ें</string>
+    <string name="settings_state_same_wifi">कनेक्ट है · वही Wi-Fi</string>
+    <string name="settings_state_tailscale">कनेक्ट है · Tailscale</string>
+    <string name="settings_state_internet">कनेक्ट है · इंटरनेट से</string>
+    <string name="settings_state_connected">कनेक्ट है</string>
+    <string name="settings_state_saved">इस फ़ोन में सहेजा हुआ</string>
+    <string name="settings_connection_details">कनेक्शन का ब्योरा</string>
+    <string name="settings_notif_approval_title">आपकी मंज़ूरी चाहिए</string>
+    <string name="settings_notif_approval_body">जब कोई बॉट आपके जवाब का इंतज़ार करे</string>
+    <string name="settings_notif_done_title">काम पूरा हुआ</string>
+    <string name="settings_notif_done_body">जब कोई बॉट किसी काम से निपट जाए</string>
+    <string name="settings_notif_routine_title">रूटीन की समस्याएँ</string>
+    <string name="settings_notif_routine_body">जब कोई शेड्यूल किया गया काम विफल हो</string>
+    <string name="settings_notif_turn_on">सूचनाएँ चालू करें</string>
+    <string name="settings_notif_turn_on_body">ताकि आपके बॉट आप तक पहुँच सकें</string>
+    <string name="settings_privacy">गोपनीयता</string>
+    <string name="settings_connected_apps">जुड़े हुए ऐप</string>
+    <string name="settings_sign_out">साइन आउट करें</string>
+    <string name="settings_version_footer">Seira %1$s</string>
+    <string name="settings_state_offline">आपके कंप्यूटर तक नहीं पहुँचा जा सकता</string>
+    <string name="settings_reconnect">फिर से कनेक्ट करें</string>
+</resources>

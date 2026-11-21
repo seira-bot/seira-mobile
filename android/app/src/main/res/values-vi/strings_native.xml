@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">Phê duyệt</string>
+    <string name="notification_action_review">Xem xét</string>
+    <string name="notification_action_reply">Trả lời</string>
+    <string name="notification_sender_you">Bạn</string>
+    <string name="notification_approved">Đã phê duyệt</string>
+    <string name="notification_approve_failed">Không thể phê duyệt. Hãy mở cuộc trò chuyện để xem xét.</string>
+    <string name="notification_reply_failed">Không thể gửi. Hãy mở cuộc trò chuyện để thử lại.</string>
+    <string name="tile_talk_label">Nói chuyện</string>
+    <string name="shortcut_talk_short">Nói chuyện</string>
+    <string name="shortcut_talk_long">Nói chuyện với chief of staff của bạn</string>
+</resources>

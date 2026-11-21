@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Назад до чату</string>
+    <string name="call_screen_live_call">Живий дзвінок</string>
+    <string name="call_screen_speaking">%1$s говорить</string>
+    <string name="call_screen_listening">Слухаю</string>
+    <string name="call_screen_muted">Ваш мікрофон вимкнено</string>
+    <string name="call_screen_you">Ви</string>
+    <string name="call_screen_mute">Вимкнути мікрофон</string>
+    <string name="call_screen_unmute">Увімкнути мікрофон</string>
+    <string name="call_screen_speaker">Гучномовець</string>
+    <string name="call_screen_captions">Субтитри</string>
+    <string name="call_screen_end">Завершити</string>
+    <string name="call_screen_end_call">Завершити дзвінок</string>
+    <string name="call_screen_try_again">Спробувати знову</string>
+    <string name="call_screen_close">Закрити</string>
+    <string name="call_open_call">Відкрити дзвінок</string>
+    <string name="call_service_channel_name">Живі дзвінки</string>
+    <string name="call_service_channel_description">Показується, поки триває живий дзвінок.</string>
+    <string name="call_service_connecting">Підключення…</string>
+    <string name="call_service_live">Живий дзвінок</string>
+    <string name="call_service_hang_up">Завершити</string>
+</resources>

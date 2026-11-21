@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">У роботі</string>
+    <string name="chat_status_waiting">Чекає на вас</string>
+    <string name="chat_status_idle">Простоює</string>
+    <string name="chat_call_start">Почати живий дзвінок</string>
+    <string name="chat_call_open">Відкрити живий дзвінок</string>
+    <string name="chat_composer_hint">Написати: %1$s</string>
+    <string name="chat_composer_talk">Поговорити з %1$s</string>
+    <string name="chat_composer_dictate">Почати диктування</string>
+    <string name="chat_composer_dictate_stop">Зупинити диктування</string>
+    <string name="chat_writing">Пише…</string>
+    <string name="chat_sheet_title">Додати в чат</string>
+    <string name="chat_sheet_camera">Камера</string>
+    <string name="chat_sheet_photos">Фото</string>
+    <string name="chat_sheet_files">Файли</string>
+    <string name="chat_sheet_call">Живий дзвінок</string>
+    <string name="chat_sheet_call_sub">Обговоріть це з %1$s</string>
+    <string name="chat_sheet_schedule">Розклад</string>
+    <string name="chat_sheet_schedule_sub">Запустити пізніше або щотижня</string>
+    <string name="chat_sheet_desktop">Хмарний робочий стіл</string>
+    <string name="chat_sheet_desktop_sub">Стежте, як %1$s працює на екрані</string>
+    <string name="chat_needs_ok">Потрібне ваше підтвердження</string>
+    <string name="chat_from_bot">від %1$s</string>
+</resources>

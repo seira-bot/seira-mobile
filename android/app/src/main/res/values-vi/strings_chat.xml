@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">Đang xử lý</string>
+    <string name="chat_status_waiting">Đang chờ bạn</string>
+    <string name="chat_status_idle">Nhàn rỗi</string>
+    <string name="chat_call_start">Bắt đầu cuộc gọi trực tiếp</string>
+    <string name="chat_call_open">Mở cuộc gọi trực tiếp</string>
+    <string name="chat_composer_hint">Nhắn cho %1$s</string>
+    <string name="chat_composer_talk">Trò chuyện với %1$s</string>
+    <string name="chat_composer_dictate">Bắt đầu đọc chính tả</string>
+    <string name="chat_composer_dictate_stop">Dừng đọc chính tả</string>
+    <string name="chat_writing">Đang soạn…</string>
+    <string name="chat_sheet_title">Thêm vào cuộc trò chuyện</string>
+    <string name="chat_sheet_camera">Máy ảnh</string>
+    <string name="chat_sheet_photos">Ảnh</string>
+    <string name="chat_sheet_files">Tệp</string>
+    <string name="chat_sheet_call">Cuộc gọi trực tiếp</string>
+    <string name="chat_sheet_call_sub">Cùng trao đổi với %1$s</string>
+    <string name="chat_sheet_schedule">Lên lịch</string>
+    <string name="chat_sheet_schedule_sub">Chạy sau, hoặc mỗi tuần</string>
+    <string name="chat_sheet_desktop">Màn hình đám mây</string>
+    <string name="chat_sheet_desktop_sub">Xem %1$s làm việc trên màn hình</string>
+    <string name="chat_needs_ok">Cần bạn đồng ý</string>
+    <string name="chat_from_bot">từ %1$s</string>
+</resources>

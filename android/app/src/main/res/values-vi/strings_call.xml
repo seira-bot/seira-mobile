@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Quay lại cuộc trò chuyện</string>
+    <string name="call_screen_live_call">Cuộc gọi trực tiếp</string>
+    <string name="call_screen_speaking">%1$s đang nói</string>
+    <string name="call_screen_listening">Đang nghe</string>
+    <string name="call_screen_muted">Bạn đang tắt tiếng</string>
+    <string name="call_screen_you">Bạn</string>
+    <string name="call_screen_mute">Tắt tiếng</string>
+    <string name="call_screen_unmute">Bật tiếng</string>
+    <string name="call_screen_speaker">Loa ngoài</string>
+    <string name="call_screen_captions">Phụ đề</string>
+    <string name="call_screen_end">Kết thúc</string>
+    <string name="call_screen_end_call">Kết thúc cuộc gọi</string>
+    <string name="call_screen_try_again">Thử lại</string>
+    <string name="call_screen_close">Đóng</string>
+    <string name="call_open_call">Mở cuộc gọi</string>
+    <string name="call_service_channel_name">Cuộc gọi trực tiếp</string>
+    <string name="call_service_channel_description">Hiển thị khi một cuộc gọi trực tiếp đang chạy.</string>
+    <string name="call_service_connecting">Đang kết nối…</string>
+    <string name="call_service_live">Cuộc gọi trực tiếp</string>
+    <string name="call_service_hang_up">Cúp máy</string>
+</resources>

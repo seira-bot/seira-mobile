@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">화면 모드</string>
+    <string name="theme_mode_choose">화면 모드 선택</string>
+    <string name="theme_mode_light">라이트</string>
+    <string name="theme_mode_dark">다크</string>
+    <string name="theme_mode_auto">자동</string>
+</resources>

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Torna alla chat</string>
+    <string name="call_screen_live_call">Chiamata in diretta</string>
+    <string name="call_screen_speaking">%1$s sta parlando</string>
+    <string name="call_screen_listening">In ascolto</string>
+    <string name="call_screen_muted">Sei in silenzio</string>
+    <string name="call_screen_you">Tu</string>
+    <string name="call_screen_mute">Silenzia</string>
+    <string name="call_screen_unmute">Riattiva audio</string>
+    <string name="call_screen_speaker">Altoparlante</string>
+    <string name="call_screen_captions">Sottotitoli</string>
+    <string name="call_screen_end">Termina</string>
+    <string name="call_screen_end_call">Termina chiamata</string>
+    <string name="call_screen_try_again">Riprova</string>
+    <string name="call_screen_close">Chiudi</string>
+    <string name="call_open_call">Apri chiamata</string>
+    <string name="call_service_channel_name">Chiamate in diretta</string>
+    <string name="call_service_channel_description">Appare mentre è in corso una chiamata in diretta.</string>
+    <string name="call_service_connecting">Connessione in corso…</string>
+    <string name="call_service_live">Chiamata in diretta</string>
+    <string name="call_service_hang_up">Riaggancia</string>
+</resources>

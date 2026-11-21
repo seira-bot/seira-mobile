@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Wróć do czatu</string>
+    <string name="call_screen_live_call">Rozmowa na żywo</string>
+    <string name="call_screen_speaking">%1$s mówi</string>
+    <string name="call_screen_listening">Słuchanie</string>
+    <string name="call_screen_muted">Masz wyciszony mikrofon</string>
+    <string name="call_screen_you">Ty</string>
+    <string name="call_screen_mute">Wycisz</string>
+    <string name="call_screen_unmute">Włącz mikrofon</string>
+    <string name="call_screen_speaker">Głośnik</string>
+    <string name="call_screen_captions">Napisy</string>
+    <string name="call_screen_end">Zakończ</string>
+    <string name="call_screen_end_call">Zakończ rozmowę</string>
+    <string name="call_screen_try_again">Spróbuj ponownie</string>
+    <string name="call_screen_close">Zamknij</string>
+    <string name="call_open_call">Otwórz rozmowę</string>
+    <string name="call_service_channel_name">Rozmowy na żywo</string>
+    <string name="call_service_channel_description">Widoczne podczas rozmowy na żywo.</string>
+    <string name="call_service_connecting">Łączenie…</string>
+    <string name="call_service_live">Rozmowa na żywo</string>
+    <string name="call_service_hang_up">Rozłącz</string>
+</resources>

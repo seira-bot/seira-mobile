@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Не удалось связаться с %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale выключен на этом телефоне. Включите его и повторите попытку.</string>
+    <string name="core_route_tailnet_unreachable">Этот телефон не может связаться с «%1$s». Откройте Tailscale на телефоне и войдите в тот же аккаунт, что и на компьютере. Если в «Частном DNS» указано имя провайдера, выберите «Отключено» или «Автоматически» (Настройки → Сеть и интернет).</string>
+    <string name="core_route_internet_also_failed">Адрес в интернете тоже не ответил. Убедитесь, что компьютер включён.</string>
+    <string name="core_route_local_network_blocked">Android запретил этому приложению доступ к вашей локальной сети. Разрешите ему доступ к локальной сети в настройках телефона и повторите попытку.</string>
+    <string name="core_route_secure_failed">Убедитесь, что компьютер не спит и Seira открыта, затем повторите попытку.</string>
+    <string name="core_route_tailscale_only">Телефон не смог связаться с %1$s через Tailscale. Включите Tailscale на этом телефоне, войдя в ту же сеть tailnet, что и компьютер, затем повторите попытку.</string>
+    <string name="core_route_same_network">Телефон не смог связаться с %1$s в этой сети. Подключите телефон к той же сети Wi-Fi, что и компьютер. Если он уже в ней, возможно, брандмауэр компьютера блокирует Seira: на ПК с Windows задайте для сети тип «Частная». Или откройте на компьютере «Настройки» → «Удалённый доступ» и войдите, чтобы телефон мог подключаться откуда угодно.</string>
+    <string name="core_advice_host_unresolved">«%1$s» не удалось определить. Если это имя Tailscale, возможно, этот телефон не в сети tailnet.</string>
+    <string name="core_advice_port_closed">Компьютер найден, но доступ для телефона не отвечает на порту %1$d — откройте Seira → «Настройки» → «Телефон».</string>
+    <string name="core_advice_no_route">Нет маршрута к вашему компьютеру по адресу %1$s — другая сеть или брандмауэр.</string>
+    <string name="core_advice_offline">Вы не в сети.</string>
+    <string name="core_advice_could_not_reach_host">Не удалось связаться с %1$s.</string>
+    <string name="core_advice_gateway">Маршрут через %1$s временно недоступен (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Дальше пробуем %1$s.</string>
+    <string name="core_advice_keeps_retrying">Приложение продолжает автоматически повторять попытки.</string>
+    <string name="core_lost_connection">Соединение потеряно.</string>
+    <string name="core_could_not_reach_computer">Не удалось связаться с компьютером.</string>
+    <string name="core_computer_offline">Этот компьютер не в сети.</string>
+    <string name="core_unlock_to_reach">Разблокируйте телефон, чтобы связаться с компьютером.</string>
+    <string name="core_unlock_to_switch">Разблокируйте телефон и повторите переключение компьютеров.</string>
+    <string name="core_saved_connection_unavailable">Это сохранённое подключение больше недоступно на этом телефоне. Удалите его и подключитесь снова.</string>
+    <string name="core_pairing_server_changed">Сервер изменился во время подключения. Отсканируйте новый код и повторите попытку.</string>
+    <string name="core_pairing_code_used">Этот код подключения уже использован. Начните подключение заново на компьютере и отсканируйте новый QR-код.</string>
+    <string name="core_pairing_invalid">Это приглашение к подключению недействительно. Начните подключение заново на компьютере.</string>
+    <string name="core_pairing_in_progress">Другая попытка подключения уже выполняется.</string>
+    <string name="core_pairing_storage_unavailable">Телефон только что не смог прочитать своё сохранённое подключение.</string>
+    <string name="core_different_server">Этот адрес принадлежит другому серверу. Подключитесь заново, чтобы продолжить.</string>
+    <string name="core_pair_to_open_task">Подключите телефон к компьютеру, чтобы открыть эту задачу.</string>
+    <string name="core_pair_to_open_thread">Подключите телефон к компьютеру, чтобы открыть эту ветку.</string>
+    <string name="core_thread_gone">Этой ветки больше нет на вашем компьютере.</string>
+    <string name="core_agent_gone">Этого агента больше не существует.</string>
+    <string name="core_write_or_attach">Сначала напишите сообщение или прикрепите файл.</string>
+    <string name="core_update_for_images">Обновите Seira на этом компьютере, прежде чем отправлять изображения.</string>
+    <string name="core_cannot_send">Не удалось отправить это сообщение. Повторите попытку.</string>
+    <string name="core_unreadable_response">Компьютер прислал то, что это приложение не смогло прочитать.</string>
+</resources>

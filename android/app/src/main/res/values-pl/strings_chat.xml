@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">W toku</string>
+    <string name="chat_status_waiting">Czeka na Ciebie</string>
+    <string name="chat_status_idle">Bezczynny</string>
+    <string name="chat_call_start">Rozpocznij rozmowę na żywo</string>
+    <string name="chat_call_open">Otwórz rozmowę na żywo</string>
+    <string name="chat_composer_hint">Napisz do: %1$s</string>
+    <string name="chat_composer_talk">Porozmawiaj z: %1$s</string>
+    <string name="chat_composer_dictate">Rozpocznij dyktowanie</string>
+    <string name="chat_composer_dictate_stop">Zakończ dyktowanie</string>
+    <string name="chat_writing">Pisanie…</string>
+    <string name="chat_sheet_title">Dodaj do czatu</string>
+    <string name="chat_sheet_camera">Aparat</string>
+    <string name="chat_sheet_photos">Zdjęcia</string>
+    <string name="chat_sheet_files">Pliki</string>
+    <string name="chat_sheet_call">Rozmowa na żywo</string>
+    <string name="chat_sheet_call_sub">Omówcie to z: %1$s</string>
+    <string name="chat_sheet_schedule">Harmonogram</string>
+    <string name="chat_sheet_schedule_sub">Uruchom później albo co tydzień</string>
+    <string name="chat_sheet_desktop">Pulpit chmurowy</string>
+    <string name="chat_sheet_desktop_sub">Obserwuj pracę %1$s na ekranie</string>
+    <string name="chat_needs_ok">Czeka na Twoją zgodę</string>
+    <string name="chat_from_bot">od: %1$s</string>
+</resources>

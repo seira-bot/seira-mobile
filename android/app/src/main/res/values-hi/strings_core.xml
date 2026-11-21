@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">%1$s तक नहीं पहुँचा जा सका।</string>
+    <string name="core_route_tailscale_off">इस फ़ोन पर Tailscale बंद है। इसे चालू करें, फिर कोशिश करें।</string>
+    <string name="core_route_tailnet_unreachable">यह फ़ोन “%1$s” तक नहीं पहुँच पा रहा। इस फ़ोन पर Tailscale खोलें और कंप्यूटर वाले खाते से ही साइन इन करें। अगर Private DNS में किसी प्रदाता का नाम दिखे, तो उसे बंद या ऑटोमैटिक करें (सेटिंग्स → नेटवर्क और इंटरनेट)।</string>
+    <string name="core_route_internet_also_failed">इंटरनेट वाले पते ने भी जवाब नहीं दिया। जाँचें कि कंप्यूटर चालू है।</string>
+    <string name="core_route_local_network_blocked">Android ने इस ऐप को आपके लोकल नेटवर्क तक पहुँचने से रोक दिया। फ़ोन की सेटिंग्स में इसे लोकल नेटवर्क एक्सेस की अनुमति दें, फिर कोशिश करें।</string>
+    <string name="core_route_secure_failed">पक्का करें कि कंप्यूटर चालू है और उस पर Seira खुला है, फिर कोशिश करें।</string>
+    <string name="core_route_tailscale_only">आपका फ़ोन Tailscale के ज़रिए %1$s तक नहीं पहुँच सका। इस फ़ोन पर Tailscale चालू करें, कंप्यूटर वाले ही tailnet में साइन इन रखें, फिर कोशिश करें।</string>
+    <string name="core_route_same_network">आपका फ़ोन इस नेटवर्क पर %1$s तक नहीं पहुँच सका। फ़ोन को कंप्यूटर वाले ही Wi-Fi पर लाएँ। अगर वह पहले से उसी पर है, तो हो सकता है कंप्यूटर का फ़ायरवॉल Seira को रोक रहा हो: Windows PC पर उसके नेटवर्क को Private पर सेट करें। या कंप्यूटर पर सेटिंग्स → रिमोट एक्सेस खोलकर साइन इन करें, ताकि फ़ोन कहीं से भी कनेक्ट हो सके।</string>
+    <string name="core_advice_host_unresolved">“%1$s” का पता नहीं चल सका। अगर यह Tailscale नाम है, तो हो सकता है यह फ़ोन tailnet में न हो।</string>
+    <string name="core_advice_port_closed">आपके कंप्यूटर तक पहुँचा, लेकिन फ़ोन एक्सेस पोर्ट %1$d पर जवाब नहीं दे रहा — Seira → सेटिंग्स → फ़ोन खोलें।</string>
+    <string name="core_advice_no_route">%1$s पर आपके कंप्यूटर तक कोई रास्ता नहीं — अलग नेटवर्क, या फ़ायरवॉल।</string>
+    <string name="core_advice_offline">आप ऑफ़लाइन हैं।</string>
+    <string name="core_advice_could_not_reach_host">%1$s तक नहीं पहुँचा जा सका।</string>
+    <string name="core_advice_gateway">%1$s के ज़रिए का रास्ता अभी अस्थायी रूप से उपलब्ध नहीं है (HTTP %2$d)।</string>
+    <string name="core_advice_trying_next">अब %1$s आज़माया जा रहा है।</string>
+    <string name="core_advice_keeps_retrying">ऐप अपने-आप बार-बार कोशिश करता रहता है।</string>
+    <string name="core_lost_connection">कनेक्शन टूट गया।</string>
+    <string name="core_could_not_reach_computer">कंप्यूटर तक नहीं पहुँचा जा सका।</string>
+    <string name="core_computer_offline">यह कंप्यूटर ऑफ़लाइन है।</string>
+    <string name="core_unlock_to_reach">अपने कंप्यूटर तक पहुँचने के लिए इस फ़ोन को अनलॉक करें।</string>
+    <string name="core_unlock_to_switch">इस फ़ोन को अनलॉक करें, फिर कंप्यूटर बदलकर देखें।</string>
+    <string name="core_saved_connection_unavailable">यह सहेजा हुआ कनेक्शन अब इस फ़ोन पर उपलब्ध नहीं है। इसे हटाएँ और फिर से जोड़ें।</string>
+    <string name="core_pairing_server_changed">जोड़ने के दौरान सर्वर बदल गया। नया कोड स्कैन करें और फिर कोशिश करें।</string>
+    <string name="core_pairing_code_used">वह जोड़ने वाला कोड पहले ही इस्तेमाल हो चुका है। अपने कंप्यूटर पर जोड़ना फिर से शुरू करें और नया QR कोड स्कैन करें।</string>
+    <string name="core_pairing_invalid">वह जोड़ने का न्योता मान्य नहीं है। अपने कंप्यूटर पर जोड़ना फिर से शुरू करें।</string>
+    <string name="core_pairing_in_progress">जोड़ने की एक और कोशिश पहले से चल रही है।</string>
+    <string name="core_pairing_storage_unavailable">यह फ़ोन अभी अपना सहेजा हुआ कनेक्शन पढ़ नहीं सका।</string>
+    <string name="core_different_server">यह पता किसी दूसरे सर्वर का है। जारी रखने के लिए फिर से जोड़ें।</string>
+    <string name="core_pair_to_open_task">वह टास्क खोलने के लिए इस फ़ोन को अपने कंप्यूटर से जोड़ें।</string>
+    <string name="core_pair_to_open_thread">वह थ्रेड खोलने के लिए इस फ़ोन को अपने कंप्यूटर से जोड़ें।</string>
+    <string name="core_thread_gone">वह थ्रेड अब आपके कंप्यूटर पर नहीं है।</string>
+    <string name="core_agent_gone">वह एजेंट अब मौजूद नहीं है।</string>
+    <string name="core_write_or_attach">पहले संदेश लिखें या कोई फ़ाइल जोड़ें।</string>
+    <string name="core_update_for_images">इमेज भेजने से पहले इस कंप्यूटर पर Seira अपडेट करें।</string>
+    <string name="core_cannot_send">यह संदेश भेजा नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="core_unreadable_response">कंप्यूटर ने कुछ ऐसा भेजा जिसे यह ऐप पढ़ नहीं सका।</string>
+</resources>

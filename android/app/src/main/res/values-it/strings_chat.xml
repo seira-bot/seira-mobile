@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_status_working">In corso</string>
+    <string name="chat_status_waiting">Aspetta te</string>
+    <string name="chat_status_idle">Inattivo</string>
+    <string name="chat_call_start">Avvia chiamata in diretta</string>
+    <string name="chat_call_open">Apri chiamata in diretta</string>
+    <string name="chat_composer_hint">Scrivi a %1$s</string>
+    <string name="chat_composer_talk">Parla con %1$s</string>
+    <string name="chat_composer_dictate">Avvia dettato</string>
+    <string name="chat_composer_dictate_stop">Ferma dettato</string>
+    <string name="chat_writing">Sta scrivendo…</string>
+    <string name="chat_sheet_title">Aggiungi alla chat</string>
+    <string name="chat_sheet_camera">Fotocamera</string>
+    <string name="chat_sheet_photos">Foto</string>
+    <string name="chat_sheet_files">File</string>
+    <string name="chat_sheet_call">Chiamata in diretta</string>
+    <string name="chat_sheet_call_sub">Parlane con %1$s</string>
+    <string name="chat_sheet_schedule">Pianifica</string>
+    <string name="chat_sheet_schedule_sub">Eseguila più tardi o ogni settimana</string>
+    <string name="chat_sheet_desktop">Desktop cloud</string>
+    <string name="chat_sheet_desktop_sub">Guarda %1$s al lavoro sullo schermo</string>
+    <string name="chat_needs_ok">Serve il tuo OK</string>
+    <string name="chat_from_bot">da %1$s</string>
+</resources>
