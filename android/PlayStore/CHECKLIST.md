@@ -26,6 +26,7 @@ commit and artifact being submitted; unchecked items remain release work.
   Done 2026-11-20: 10002, sha256 `35966bc1…a98bc1dc888a1e20c9ecce69415bf4f`, same upload key.
   Done 2026-11-21: 10003 (1.0.3) from `ae435d9`, sha256 `c20c1c43…0b9b050bb224c53fc1`, same upload key.
   Done 2026-11-21: 10004 (1.0.4) from `0e5daef4`, sha256 `d2e128f2…cf2438c3bdcf13a30e7c7`, same upload key.
+  Done 2026-11-21: 10005 (1.0.5) from `b5d8186e`, sha256 `ec10e06b…13445676ad169dc3254469302bd9afb605f1e98bd3`, same upload key.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
@@ -38,6 +39,10 @@ commit and artifact being submitted; unchecked items remain release work.
   bot reply against an isolated fixture, with no crash. Its bundle has the same sha256
   as the submitted 10004 bundle. Push, the home screen widget and the credential card
   are not tested on a real device.
+  Partial 2026-11-21: the 1.0.5 release APK passed pairing, chat with a bot reply, pairing
+  two more computers from the Chats heading, switching between three computers, and a
+  restart, against isolated fixtures, with no crash. A second server at the same address
+  stayed a separate computer. Its bundle has the same sha256 as the submitted 10005 bundle.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
   Partial 2026-11-20: the upgrade from 1.0.1 to a PR #11 test build did not
@@ -101,6 +106,8 @@ commit and artifact being submitted; unchecked items remain release work.
   Done 2026-11-20: Production, 178 countries, 100% rollout, sent for review on the owner's go.
   Done 2026-11-21 for 1.0.4: Production, all targeted countries, 100% rollout, sent for
   review on the owner's go.
+  Done 2026-11-21 for 1.0.5: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
@@ -115,3 +122,4 @@ commit and artifact being submitted; unchecked items remain release work.
   1.0.4 was sent for review on 2026-11-21.
   Google approved 1.0.4 (10004) on 2026-11-21: available on Google Play, 178
   countries, 100% rollout.
+  1.0.5 (10005) was sent for review on 2026-11-21.
