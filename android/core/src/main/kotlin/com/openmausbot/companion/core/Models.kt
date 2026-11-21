@@ -399,6 +399,7 @@ data class BotTask(
      * still checks the clock, because a live stream never refreshes one.
      */
     val snoozedUntil: Double? = null,
+    val usage: TaskUsage? = null,
 )
 
 /** The time the thread list sorts and stamps by. */
@@ -550,6 +551,7 @@ data class Room(
     val tasks: List<BotTask>? = null,
     val messages: List<Message>? = null,
     val hasMore: Boolean? = null,
+    val usage: TaskUsage? = null,
 )
 
 @Serializable(with = FleetSerializer::class)

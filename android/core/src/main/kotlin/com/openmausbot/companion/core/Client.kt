@@ -504,6 +504,14 @@ class CompanionClient(
 
     suspend fun routines(): RoutinesResponse = send(makeRequest("GET", "/api/routines"))
 
+    suspend fun limitResets(refresh: Boolean = false): EngineLimitsReport = send(
+        makeRequest(
+            "GET",
+            "/api/limit-resets",
+            query = if (refresh) listOf("refresh" to "1") else emptyList(),
+        ),
+    )
+
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 

@@ -2332,6 +2332,34 @@ class Session(
         }
     }
 
+    private val _aiUsageHiddenFor = MutableStateFlow<String?>(null)
+    val aiUsageHiddenFor: StateFlow<String?> = _aiUsageHiddenFor.asStateFlow()
+
+    val aiUsageHidden: Boolean
+        get() = AiUsageRules.hidden(_aiUsageHiddenFor.value, _connection.value?.id)
+
+    suspend fun aiUsage(refresh: Boolean = false): AiUsageResult {
+        val activeClient = client ?: return AiUsageResult.Failed
+        val connectionId = _connection.value?.id
+        return try {
+            val report = activeClient.limitResets(refresh)
+            if (client !== activeClient) return AiUsageResult.Failed
+            if (report.engines.isEmpty() && connectionId != null) _aiUsageHiddenFor.value = connectionId
+            AiUsageResult.Report(report)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError) {
+            if (client !== activeClient) return AiUsageResult.Failed
+            if (error.isUnauthorized) _status.value = Status.Unauthorized
+            if (error is APIError.Status && AiUsageRules.isNotAvailable(error.code)) {
+                if (connectionId != null) _aiUsageHiddenFor.value = connectionId
+                AiUsageResult.NotAvailable
+            } else {
+                AiUsageResult.Failed
+            }
+        }
+    }
+
     suspend fun loadRoutines(): RoutinesResponse {
         val activeClient = client ?: return RoutinesResponse(emptyList(), emptyList())
         return try {
