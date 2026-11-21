@@ -25,6 +25,7 @@ commit and artifact being submitted; unchecked items remain release work.
   Done 2026-11-20: 10001, sha256 `f334454d…ba36f6457e50c47`, upload key `FD:4C:…:C1:FD`.
   Done 2026-11-20: 10002, sha256 `35966bc1…a98bc1dc888a1e20c9ecce69415bf4f`, same upload key.
   Done 2026-11-21: 10003 (1.0.3) from `ae435d9`, sha256 `c20c1c43…0b9b050bb224c53fc1`, same upload key.
+  Done 2026-11-21: 10004 (1.0.4) from `0e5daef4`, sha256 `d2e128f2…cf2438c3bdcf13a30e7c7`, same upload key.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
@@ -33,6 +34,10 @@ commit and artifact being submitted; unchecked items remain release work.
   "Deny"), and a bot reply against the review server. The signed 10002 build
   started on an emulator and showed the 3D character without a crash. Pairing
   on 10002 is not tested again.
+  Partial 2026-11-21: the 1.0.4 release APK passed typed-code pairing, chat, send and a
+  bot reply against an isolated fixture, with no crash. Its bundle has the same sha256
+  as the submitted 10004 bundle. Push, the home screen widget and the credential card
+  are not tested on a real device.
 - [ ] Test installation/upgrade and every advertised workflow on the release
   build, including the connection methods and device types being claimed.
   Partial 2026-11-20: the upgrade from 1.0.1 to a PR #11 test build did not
@@ -94,6 +99,8 @@ commit and artifact being submitted; unchecked items remain release work.
 - [x] Have the release owner select countries, track, rollout scope, and timing
   and review the complete submission before publishing.
   Done 2026-11-20: Production, 178 countries, 100% rollout, sent for review on the owner's go.
+  Done 2026-11-21 for 1.0.4: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
@@ -104,3 +111,5 @@ commit and artifact being submitted; unchecked items remain release work.
   Console warning on 1.0.2: DEX code optimization is below the threshold
   (Obfuscation 0%). Fix by February 2027: turn on R8 with tested keep rules.
   PR #33 turned on R8 on `main` (`92d1a82`) on 2026-11-21. 1.0.3 does not have it.
+  1.0.4 (10004) is the first release with R8. Its bundle carries the R8 mapping file.
+  1.0.4 was sent for review on 2026-11-21.
