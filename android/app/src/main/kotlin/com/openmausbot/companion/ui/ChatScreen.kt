@@ -44,6 +44,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -73,6 +74,7 @@ import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.AttachmentPolicy
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Chat
+import com.openmausbot.companion.core.SignInOpenTarget
 import com.openmausbot.companion.core.ComposerMention
 import com.openmausbot.companion.core.ComposerQuestion
 import com.openmausbot.companion.core.TypedAnswerResult
@@ -130,6 +132,8 @@ fun ChatScreen(
     /** An "Opened thread" chip pointing at another bot pushes that chat. */
     onOpenChat: (Chat) -> Unit = {},
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    /** A sign-in card for the built-in browser opens that bot's browser screen. */
+    onOpenBrowser: (String) -> Unit = {},
 ) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
@@ -149,7 +153,17 @@ fun ChatScreen(
             // Resolve the owner without changing the task named by the destination.
             val resolved = (destination as? Destination.Thread)?.let { resolution.chat.target }
             LaunchedEffect(resolved) { if (resolved != null) onResolved(resolved) }
-            LoadedChat(resolution.chat, state, onBack, onOpenComputer, onOpenOverview, retainsDraft, onResolved, onOpenChat, callsEnabled)
+            val signInOpen = remember(onOpenBrowser, onOpenComputer) {
+                SignInOpen { botId, target ->
+                    when (target) {
+                        SignInOpenTarget.BrowserScreen -> onOpenBrowser(botId)
+                        SignInOpenTarget.ComputerScreen -> onOpenComputer(botId)
+                    }
+                }
+            }
+            CompositionLocalProvider(LocalSignInOpen provides signInOpen) {
+                LoadedChat(resolution.chat, state, onBack, onOpenComputer, onOpenOverview, retainsDraft, onResolved, onOpenChat, callsEnabled)
+            }
         }
     }
 }
