@@ -106,7 +106,8 @@ class PairingClientTest {
             // network Windows calls Public, so the message does not stop at "same Wi-Fi".
             "Your phone couldn't reach Miguel's computer on this network. Put the phone on the " +
                 "same Wi-Fi as the computer. If it already is, the computer's firewall may be " +
-                "blocking Seira: on a Windows PC, set its network to Private. Or open " +
+                "blocking Seira: on a Windows PC, set its network to Private; on Linux, run the " +
+                "firewall command that Seira shows on the computer. Or open " +
                 "Settings → Remote access on the computer and sign in so the phone can connect " +
                 "from anywhere.",
             error.message,

@@ -372,7 +372,7 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier, fro
  * detail and nothing a screen reader ever stops on.
  */
 @Composable
-private fun DataGrid(
+internal fun DataGrid(
     headers: List<String>,
     rows: List<List<String>>,
     modifier: Modifier = Modifier,

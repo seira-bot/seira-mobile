@@ -65,6 +65,7 @@ import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.RosterRowStatus
+import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.StreamFrame
 import com.openmausbot.companion.core.rosterStatus
 import com.openmausbot.companion.core.rosterThreadCount
@@ -438,15 +439,25 @@ class RosterScreenTest {
     }
 
     @Test
-    fun `No bots yet stays away while there are groups, in both densities`() {
+    fun `No chats yet stays away while there are groups, in both densities`() {
         val fleet = RosterFixture.fleet().let { it.copy(bots = it.bots.map { bot -> bot.copy(hidden = true) }) }
         mount(fleet = fleet)
         compose.onNodeWithTag("chat-row.${RosterFixture.GROUP}").assertIsDisplayed()
-        compose.onNodeWithText("No bots yet").assertDoesNotExist()
+        compose.onNodeWithText("No chats yet").assertDoesNotExist()
 
         compose.runOnIdle { scene.environment.chatPreferences.setRosterDensity(RosterDensity.COMFORTABLE) }
         compose.onAllNodesWithText("Groups").onFirst().assertIsDisplayed()
-        compose.onNodeWithText("No bots yet").assertDoesNotExist()
+        compose.onNodeWithText("No chats yet").assertDoesNotExist()
+    }
+
+    @Test
+    fun `an empty home says No chats yet and New chat opens the sheet`() {
+        mount(fleet = Fleet(emptyList(), emptyList()))
+        compose.onNodeWithText("No chats yet").assertIsDisplayed()
+        compose.onNodeWithText("Ask Seira anything. Your chats show up here.").assertIsDisplayed()
+
+        compose.onNodeWithTag(EMPTY_PRIMARY_TAG).assertIsDisplayed().performClick()
+        compose.onNodeWithTag("new-chat-group").assertIsDisplayed()
     }
 
     @Test
@@ -652,13 +663,15 @@ class RosterScreenTest {
                 CompanionTheme(darkTheme = false) {
                     Surface(Modifier.fillMaxSize()) {
                         val state by scene.session.state.collectAsState()
-                        if (state.bots.isNotEmpty()) Screens(navigator)
+                        if (state.bots.isNotEmpty() || fleet.bots.isEmpty()) Screens(navigator)
                     }
                 }
             }
         }
         compose.runOnIdle { scene.session.connect() }
-        compose.waitUntil(5_000) { scene.session.state.value.bots.isNotEmpty() }
+        compose.waitUntil(5_000) {
+            if (fleet.bots.isEmpty()) scene.session.status.value == Session.Status.Live else scene.session.state.value.bots.isNotEmpty()
+        }
         compose.waitForIdle()
         return navigator
     }

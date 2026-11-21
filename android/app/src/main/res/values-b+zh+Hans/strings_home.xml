@@ -19,4 +19,14 @@
     <string name="home_team_member_working">%1$s，正在工作</string>
     <string name="home_team_member_waiting">%1$s，等你处理</string>
     <string name="home_manage_threads">管理对话</string>
+    <string name="home_empty_chats_title">还没有聊天</string>
+    <string name="home_empty_chats_body">随时问问 Seira。你的聊天会显示在这里。</string>
+    <string name="home_empty_not_connected_title">你的电脑未连接</string>
+    <string name="home_empty_not_connected_body">请在电脑上打开 Seira。连接后，你的聊天就会回来。</string>
+    <string name="home_empty_pair_computer">配对电脑</string>
+    <string name="home_empty_offline_title">你已离线</string>
+    <string name="home_empty_offline_body">请检查你的网络连接。Seira 会从上次中断的地方继续。</string>
+    <string name="home_empty_all_done_title">全部处理完毕</string>
+    <string name="home_empty_all_done_body">目前没有需要你回答的内容。</string>
+    <string name="home_empty_back_to_chats">返回聊天</string>
 </resources>

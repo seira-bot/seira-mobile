@@ -493,10 +493,12 @@ public struct PairingRouteError: Error, LocalizedError, Equatable, Sendable {
         } else {
             // Same Wi-Fi first; then the firewall, because a phone already on that
             // Wi-Fi is most often stopped by Windows Firewall on a network Windows
-            // calls Public; then Remote access, which connects outward.
+            // calls Public, or by ufw or firewalld dropping inbound connections on
+            // Linux; then Remote access, which connects outward.
             advice = "Your phone couldn’t reach \(computer) on this network. Put the phone on the same Wi-Fi " +
                 "as the computer. If it already is, the computer’s firewall may be blocking " +
-                "Seira: on a Windows PC, set its network to Private. Or open Settings → " +
+                "Seira: on a Windows PC, set its network to Private; on Linux, run the firewall " +
+                "command that Seira shows on the computer. Or open Settings → " +
                 "Remote access on the computer and sign in so the phone can connect from anywhere."
         }
         return attemptedHosts.isEmpty
@@ -1061,6 +1063,22 @@ public struct CompanionClient: Sendable {
 
     public func instances() async throws -> [Instance] {
         try await send(try makeRequest("GET", "/api/instances"), as: InstanceList.self).instances
+    }
+
+    /// The AI plan usage of each engine. A computer that does not serve it,
+    /// or a pairing that may not read it, answers 404 or 403: that gives nil,
+    /// and the app shows no usage. `refresh` asks the providers again, so
+    /// only a person's "Check now" may set it.
+    public func engineLimits(refresh: Bool = false) async throws -> EngineLimitsReport? {
+        let request = try makeRequest(
+            "GET", "/api/limit-resets",
+            query: refresh ? [URLQueryItem(name: "refresh", value: "1")] : []
+        )
+        do {
+            return try await send(request, as: EngineLimitsReport.self)
+        } catch let APIError.status(code, _) where code == 403 || code == 404 {
+            return nil
+        }
     }
 
     /// The image capability is intentionally queried independently from the

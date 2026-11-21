@@ -1,0 +1,49 @@
+{
+  "checkedAt": 1795277400000,
+  "engines": [
+    {
+      "engine": "claude",
+      "name": "Claude",
+      "driver": "claude",
+      "window": "5-hour",
+      "usedPercent": 100,
+      "resetsAt": 1795284000000,
+      "blocked": true,
+      "windows": [
+        { "window": "5-hour", "usedPercent": 100, "resetsAt": 1795284000000 },
+        { "window": "weekly", "usedPercent": 41, "resetsAt": 1795600000000 }
+      ]
+    },
+    {
+      "engine": "codex",
+      "name": "Codex",
+      "driver": "codex",
+      "window": "weekly",
+      "usedPercent": 62,
+      "resetsAt": 1795600000000,
+      "blocked": false
+    },
+    {
+      "engine": "grok",
+      "name": "Grok",
+      "driver": "grok",
+      "window": null,
+      "usedPercent": null,
+      "resetsAt": null,
+      "blocked": false
+    },
+    {
+      "engine": "opencode-local",
+      "name": "Local model",
+      "driver": "opencode",
+      "window": "monthly",
+      "usedPercent": 93,
+      "resetsAt": null,
+      "blocked": false,
+      "held": false,
+      "windows": [
+        { "window": "monthly", "usedPercent": 93, "resetsAt": null }
+      ]
+    }
+  ]
+}

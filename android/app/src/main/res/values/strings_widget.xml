@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">Fill in %1$s first.</string>
+    <string name="widget_send_failed">Could not send. Try again.</string>
+    <string name="widget_sending">Sending…</string>
+    <string name="widget_sent">Sent</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">Hide details</string>
+    <string name="widget_other">Other</string>
+    <string name="widget_other_hint">Your own answer</string>
+    <string name="widget_show_image">Show image</string>
+    <string name="widget_chart">Chart: %1$s</string>
+    <string name="widget_choose">Choose…</string>
+    <string name="widget_not_set">Not set</string>
+    <string name="widget_selected">Selected</string>
+</resources>
