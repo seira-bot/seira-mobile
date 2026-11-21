@@ -250,6 +250,9 @@ public struct Message: Codable, Hashable, Identifiable, Sendable {
         /// One background routine run, upserted into the thread that asked
         /// for it and patched as the run moves. `routineRun` carries the card.
         case routineRun = "routine.run"
+        /// A page a bot showed. `app` carries the row; the HTML is fetched
+        /// separately, so the message is never large.
+        case app
         /// A kind this build has never heard of.
         ///
         /// Not decorative. `kind` is not optional, so without this a single
@@ -322,6 +325,9 @@ public struct Message: Codable, Hashable, Identifiable, Sendable {
     public var mime: String?
     /// Agent-generated images carried on a text reply, including late message patches.
     public var attachments: [MessageImageAttachment]?
+    /// `kind == .app`: the page's row. A payload this build cannot read
+    /// decodes as an app that cannot open, so the text still shows.
+    public var app: ChatApp?
 
     public var date: Date { Date(timeIntervalSince1970: at / 1000) }
 
@@ -574,6 +580,10 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     /// Which body from the mascot body catalog this bot wears. Absent (an
     /// older harness included) means the shipped `cursor` silhouette.
     public var mascotBody: String?
+    /// `white` or `black` ink for the character's screen. Absent means white.
+    public var mascotFaceColor: String?
+    /// Accessory ids the look wears. Absent (an older harness included) means none.
+    public var mascotAccessories: [String]?
     public var tasks: [BotTask]?
     public var projects: [BotProject]?
     public var messages: [Message]?

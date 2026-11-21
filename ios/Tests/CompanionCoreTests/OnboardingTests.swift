@@ -256,7 +256,7 @@ final class OnboardingTests: XCTestCase {
     func testAnInviteHeldBehindRecoverySurvivesPairAgain() {
         let invite = PairingInvite(
             connection: Connection(name: "Mac", host: "mac.local", port: 8810),
-            credential: "omb_pair_" + String(repeating: "a", count: 43)
+            credential: "seira_pair_" + String(repeating: "a", count: 43)
         )
         let held = CompanionPairingInvitePolicy.nextInvite(current: nil, after: .received(invite))
         XCTAssertEqual(

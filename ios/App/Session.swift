@@ -196,11 +196,23 @@ final class Session: ObservableObject {
     private var registry = CompanionConnectionRegistry()
     // MARK: - Pairing
 
+    private let pathWatcher = NetworkPathWatcher()
+
     init() {
         Self.removeStaleFilePreviews()
+        pathWatcher.start { [weak self] in self?.networkPathChanged() }
         _ = NotificationCoordinator.shared
         NotificationCoordinator.shared.responseHandler = { [weak self] target in
             Task { @MainActor in await self?.openNotification(target) }
+        }
+        NotificationCoordinator.shared.avatarProvider = { [weak self] botId in
+            guard let self, let bot = self.state.bot(botId) else { return nil }
+            guard let path = bot.avatarUrl, (bot.avatarCrop ?? .mascot) != .mascot else {
+                return SeiraPlate.plateImage(look: SeiraLook(bot: bot), size: 128, scale: 2)?.pngData()
+            }
+            if let cached = self.avatarCache.object(forKey: path as NSString) { return cached as Data }
+            Task { _ = await self.avatarData(for: bot) }
+            return nil
         }
 #if DEBUG
         let arguments = ProcessInfo.processInfo.arguments
@@ -529,17 +541,17 @@ final class Session: ObservableObject {
         // A 12-character code pairs with a server directly (its own sessions,
         // a bearer with the code's scopes); anything else is the companion's.
         if let code = PairingInvite.normalizedServerCode(credential) {
-            // Reachability first, on the public descriptor: a wrong address
-            // then fails as an address problem rather than a code problem,
-            // and no attempt is spent against the server's lockout.
-            try await Self.confirmServer(at: invited)
-            let paired = try await CompanionClient.pairWithServer(
+            let outcome = try await CompanionClient.pairWithServerFirstReachable(
                 connection: invited,
                 code: code,
                 label: deviceName,
                 attemptId: pairRequestId
             )
-            var stored = invited
+            let paired = outcome.response
+            let winner = outcome.connection.activeEndpoint
+            var stored = outcome.connection
+            stored.pinRouteConsent(afterPairingThrough: winner, invite: invited)
+            if let winner { stored.promote(winner) }
             if !paired.environment.label.isEmpty { stored.name = paired.environment.label }
             stored.serverEnvironmentId = paired.environment.environmentId
             stored.serverScopes = paired.session.scopes
@@ -547,7 +559,7 @@ final class Session: ObservableObject {
             if let existing = registry.matchingConnection(for: stored) {
                 stored.id = existing.id
             }
-            try commitPairing(stored, token: paired.token)
+            try commitPairing(stored, token: paired.token, winner: winner)
             return
         }
         let outcome = try await CompanionClient.pairFirstReachable(
@@ -647,25 +659,10 @@ final class Session: ObservableObject {
         return BrowserLiveClient(connection: route, token: token)
     }
 
-    /// `GET /.well-known/openmausbot/environment` on a server about to be
-    /// paired. Nothing there means this address is not a server; the message
-    /// names the address, since that is what the person can fix. Any other
-    /// answer — unreachable, a gateway error — is passed through as it is.
-    private static func confirmServer(at connection: Connection) async throws {
-        let probe = CompanionClient(connection: connection, token: nil, requestTimeout: 8)
-        do {
-            _ = try await probe.environment()
-        } catch APIError.status(404, _) {
-            throw APIError.transport(
-                "\(connection.displayAddress) isn't a Seira server. Check the address and try again."
-            )
-        }
-    }
-
     func receiveURL(_ url: URL) {
         guard let link = CompanionDeepLink.parse(url) else {
             // A link this app does not know — the desktop's own
-            // openmausbot://thread/… or openmausbot://cloud among them. Not
+            // seira://thread/… or seira://cloud among them. Not
             // the person's mistake, and not a pairing, so nothing to say.
             log.notice("ignored link \(url.scheme ?? "", privacy: .public)://\(url.host ?? "", privacy: .public)")
             return
@@ -1034,10 +1031,8 @@ final class Session: ObservableObject {
                 // on what is actually a deliberate reconnect.
                 // With somewhere else to go, find out in seconds whether this
                 // route answers at all rather than in the stream's ninety.
-                if rotation.count > 1 {
-                    try await client.probeRoute()
-                    if Task.isCancelled { return }
-                }
+                let client = try await routedClient(current: client)
+                if Task.isCancelled { return }
                 var receivedHello = false
                 var framesAfterHello = 0
                 let events = try client.events(
@@ -1160,8 +1155,21 @@ final class Session: ObservableObject {
     /// is what keeps a token problem from masquerading as an address walk.
     private func failureMessage(for error: Error) -> String {
         guard let connection else { return error.localizedDescription }
+        if let routeError = error as? PairingRouteError {
+            return routeError.advice().message + " The app keeps retrying automatically."
+        }
         let failed = rotation.currentEndpoint ?? connection.activeEndpoint ??
             CompanionEndpoint.direct(host: connection.host, port: connection.port, priority: 10_000)
+        if let urlError = error as? URLError,
+           ConnectionAdvice.shouldTryAnotherHost(urlError.code),
+           let failed, failed.host.lowercased().hasSuffix(".ts.net") {
+            let single = PairingRouteError(
+                attemptedHosts: [failed.url],
+                computerName: connection.name,
+                failures: [failed.url: RouteFailureReason(urlError)]
+            )
+            return single.advice().message + " The app keeps retrying automatically."
+        }
         var next: String?
         if let candidate = rotation.advanceEndpoint(after: error), let token {
             client = CompanionClient(connection: connection.dialing(candidate), token: token)
@@ -1197,6 +1205,35 @@ final class Session: ObservableObject {
         return error.localizedDescription
     }
 
+    /// Probe every stored route together and dial the first in priority order
+    /// that answers. Throws `PairingRouteError` when none does.
+    private func routedClient(current: CompanionClient) async throws -> CompanionClient {
+        guard rotation.count > 1, let connection, let token else { return current }
+        let routes = connection.automaticEndpoints
+        let selection = await CompanionClient.firstAnsweringRoute(among: routes, of: connection)
+        if Task.isCancelled { throw CancellationError() }
+        guard let winner = selection.winner else {
+            throw PairingRouteError(
+                attemptedHosts: routes.map(\.url),
+                computerName: connection.name,
+                failures: selection.failures
+            )
+        }
+        guard rotation.currentEndpoint?.url != winner.url
+                || current.connection.activeEndpoint?.url != winner.url else { return current }
+        rotation = CandidateRotation(endpoints: [winner] + routes.filter { $0.url != winner.url })
+        let next = CompanionClient(connection: connection.dialing(winner), token: token)
+        client = next
+        return next
+    }
+
+    /// The phone moved to another network: dial again now instead of waiting
+    /// for the stream to notice.
+    func networkPathChanged() {
+        guard client != nil, streamTask != nil else { return }
+        restartStream()
+    }
+
     /// Persist the route that carried a live stream. Legacy host lists promote
     /// it for the next launch; typed lists keep their explicit policy order.
     private func rememberWorkingRoute() {
@@ -1212,9 +1249,7 @@ final class Session: ObservableObject {
     /// sidecars return 404 and a transient refresh error must not tear down a
     /// perfectly healthy event stream.
     private func refreshConnectionMetadata(using sourceClient: CompanionClient) {
-        // A server has no companion routes to advertise (`/api/companion/*`
-        // is the sidecar's); its one address is the one that was paired.
-        guard connection?.pairedWithServer != true, let connectionID = connection?.id else { return }
+        guard let connectionID = connection?.id else { return }
         let workingEndpoint = rotation.currentEndpoint ?? sourceClient.connection.activeEndpoint
         endpointRefreshTask?.cancel()
         endpointRefreshTask = Task { [weak self] in
@@ -2331,6 +2366,21 @@ final class Session: ObservableObject {
         } catch {
             if !Task.isCancelled { actionError = error.localizedDescription }
             return nil
+        }
+    }
+
+    /// Sends only the look fields that differ from `original`. Gives true when nothing needed sending.
+    /// A failure is not put in `actionError`: the Change look sheet shows it in place.
+    func saveLook(_ look: SeiraLook, from original: SeiraLook, for bot: Bot) async -> Bool {
+        let patch = BotLookPatch(from: original, to: look)
+        if patch.isEmpty { return true }
+        guard let client else { return false }
+        do {
+            let updated = try await client.updateLook(botId: bot.id, patch: patch)
+            state.apply(.bot(updated))
+            return true
+        } catch {
+            return false
         }
     }
 

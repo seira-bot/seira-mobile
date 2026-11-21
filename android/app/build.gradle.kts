@@ -69,7 +69,7 @@ private val releaseKeystore: java.io.File? = when {
 // The one line to edit at a release. `versionCode` is derived from it below, so
 // there is no second number to bump and no way to build a new version under a
 // code the Play Store has already accepted.
-private val appVersionName = "1.0.0"
+private val appVersionName = "1.0.3"
 
 // Play orders uploads by `versionCode` alone and refuses one it has already
 // seen, so the code has to rise whenever the name does — and rise in the
@@ -101,6 +101,7 @@ android {
         versionCode = appVersionCode
         versionName = appVersionName
         buildConfigField("boolean", "LIVE_CALLS", "true")
+        buildConfigField("boolean", "ALWAYS_ON", "true")
     }
 
     signingConfigs {
@@ -139,37 +140,24 @@ android {
         release {
             // The Play listing offers no calls, and a microphone foreground
             // service needs a Play declaration. Release leaves calls out.
+            // Always-on stays out too: no listing claim, and its foreground
+            // service needs its own declaration.
             buildConfigField("boolean", "LIVE_CALLS", "false")
+            buildConfigField("boolean", "ALWAYS_ON", "false")
             // Null whenever no signing material was supplied — the unsigned
             // handover build — and the "release" config whenever it was.
             signingConfig = signingConfigs.findByName("release")
 
-            // R8 is off deliberately, and this line says so rather than letting
-            // the default imply it.
-            //
-            // `:core` carries 66 `@Serializable` classes, and
-            // kotlinx.serialization reaches their generated serializers
-            // reflectively: `Foo.Companion.serializer()`, looked up by name at
-            // the moment a frame is decoded. R8 sees no call site for those
-            // companions and no reference to the field names its descriptors
-            // carry, so without keep rules it renames and strips them. What
-            // comes out builds, installs, opens — and then fails the first time
-            // the phone talks to the computer, as a SerializationException on a
-            // frame off the socket, in release only, with a stack trace made of
-            // one-letter class names.
-            //
-            // Turning it on means writing and *testing* keep rules: the
-            // serializable surface in `:core` and `:app`, ML Kit's native
-            // barcode entry points, and Tink under androidx.security.crypto.
-            // Testing them means installing the minified APK and driving a real
-            // pairing and a real session against a real computer. None of that
-            // failure mode shows up in a unit test, and a minified APK that
-            // launches proves nothing. Until someone does that work, `false` is
-            // the tested state and ~34 MB is its price.
-            isMinifyEnabled = false
-            // Resource shrinking is R8's, and AGP rejects the build if it is
-            // turned on while the line above is false.
-            isShrinkResources = false
+            // Google Play warns on a release without R8 ("DEX code optimization
+            // below our threshold"). A unit test cannot find a missing keep
+            // rule: verify each change to these rules with
+            // docs/verification/android-release-r8.md.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro",
+            )
         }
     }
 
@@ -250,6 +238,10 @@ dependencies {
     // process and hide the origin from someone about to grant full control of a
     // cloud machine. ~200 KB, no transitive weight beyond androidx.core.
     implementation("androidx.browser:browser:1.9.0")
+
+    // The host page that shows a bot's page: a web view whose only bridge is a message listener bound to the
+    // bundled page's origin, which no JavaScript interface object can give.
+    implementation("androidx.webkit:webkit:1.18.0")
 
     // Pairing QR scanner. CameraX gives the preview and frame pipeline; ML Kit's
     // *bundled* barcode model reads them. Bundled rather than the Play-services

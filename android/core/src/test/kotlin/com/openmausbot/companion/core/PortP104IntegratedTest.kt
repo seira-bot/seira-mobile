@@ -559,7 +559,7 @@ class PortP104IntegratedTest {
             "${legacyAddress.host}:${legacyAddress.port}",
             StandardCharsets.UTF_8,
         ).replace("+", "%20")
-        return "openmausbot://pair?address=$address&token=$QR_CREDENTIAL&endpoints=$encodedEndpoints"
+        return "seira://pair?address=$address&token=$QR_CREDENTIAL&endpoints=$encodedEndpoints"
     }
 
     private fun pairResponse(endpoints: List<CompanionEndpoint>? = null): String {
@@ -586,8 +586,8 @@ class PortP104IntegratedTest {
 
         const val CONNECTION_ID = "p1-04-connection"
         const val DEVICE_ID = "p1-04-device"
-        const val DEVICE_TOKEN = "omb_device_p1_04_secret"
-        const val QR_CREDENTIAL = "omb_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        const val DEVICE_TOKEN = "seira_device_p1_04_secret"
+        const val QR_CREDENTIAL = "seira_pair_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
         const val REQUEST_ID = "5a8e9d25-ef9c-40a2-a8b6-e8a3fd723102"
 
         const val HOSTED = "mac.p104.companion.example"
@@ -797,7 +797,7 @@ private class RecordingDispatcher(
     }
 }
 
-private fun healthResponse(): MockResponse = jsonResponse("""{"app":"openmausbot","pid":42,"static":true}""")
+private fun healthResponse(): MockResponse = jsonResponse("""{"app":"seira","pid":42,"static":true}""")
 
 private fun jsonResponse(body: String, code: Int = 200): MockResponse = MockResponse()
     .setResponseCode(code)

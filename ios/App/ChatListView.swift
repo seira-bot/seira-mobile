@@ -1,11 +1,12 @@
 // The roster.
 //
-// Messages-shaped: a glass header, built-in and user-named sidebar sections,
-// and a floating bar that keeps Updates, search, organization and new-bot
-// actions within one thumb's reach while everything scrolls beneath the
-// glass. Two densities, chosen in Settings: compact (the default) puts each
-// bot and group on one line; comfortable keeps channels as tiles and bots as
-// two-line rows with a "Threads" disclosure beneath each.
+// Home: a greeting, the Chief of Staff card, a rail of the team, and the chats
+// with built-in and user-named sidebar sections. A floating bar keeps Updates,
+// search and "New chat" within one thumb's reach while everything scrolls
+// beneath its fade. Two densities, chosen in Settings: compact (the default)
+// shows each bot and group without its last message; comfortable keeps
+// channels as tiles and bots with their last message and a "Threads"
+// disclosure beneath each.
 import SwiftUI
 import CompanionCore
 
@@ -31,17 +32,18 @@ struct ChatListView: View {
     @State private var collapsedFolders = Set<String>()
     @State private var creatingThreads = Set<String>()
     @State private var managingThreads: Chat?
+    @State private var disclosingLiveCall: Bot?
+    @State private var changingLook: Bot?
     /// The preview lines comfortable rows and search show, folded again only
     /// for a thread that changed. Filled while rendering: it is a cache,
     /// not something any view observes.
     @State private var previewCache = RosterPreviewCache()
-    /// Working bots' faces in comfortable rows: six move at once.
-    @State private var motionBudget = MascotMotionBudget(limit: 6)
     @FocusState private var searchFocused: Bool
 
-    /// Space between the header's glass buttons and whatever the list
-    /// starts with, so a first section title is never tucked under them.
-    private static let listTopInset: CGFloat = 12
+    /// Space between the header and whatever the list starts with.
+    private static let listTopInset: CGFloat = 8
+    /// Where the bar's bottom edge sits above the screen's own edge.
+    private static let barBottomGap: CGFloat = 30
     /// Clear space above the floating bar once the list is scrolled to its
     /// end. The bar's own height is inset by `safeAreaInset`, so the last
     /// row stays fully visible and tappable whatever the bar measures.
@@ -59,77 +61,19 @@ struct ChatListView: View {
         NavigationStack(path: $path) {
             GeometryReader { geo in
             VStack(spacing: 0) {
-                header
+                HomeHeader(profileName: session.connection?.name ?? "You") { showingCalendar = true }
                 StatusBanner()
                 LiveCallBanner { target in
                     if let bot = session.state.bot(target.botId)?.projected(forThread: target.threadId) {
                         path.append(Chat.bot(bot))
                     }
                 }
-
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        if query.isEmpty {
-                            rosterSections(waiting: waiting)
-                        } else {
-                            if !searchHits.isEmpty {
-                                HStack {
-                                    sectionLabel(Text("Messages"))
-                                    Spacer()
-                                    if searching { ProgressView().controlSize(.small) }
-                                }
-                                .padding(.top, 10)
-                                .padding(.bottom, 4)
-
-                                ForEach(searchHits) { hit in
-                                    Button {
-                                        Task {
-                                            if let chat = await session.open(hit) {
-                                                Haptics.selection()
-                                                path.append(chat)
-                                            }
-                                        }
-                                    } label: {
-                                        SearchHitRow(hit: hit)
-                                    }
-                                    .buttonStyle(.plain)
-                                    .padding(.horizontal, 16)
-                                }
-                                sectionLabel(Text("Threads"))
-                                    .padding(.top, 14)
-                                    .padding(.bottom, 4)
-                            } else if searching {
-                                ProgressView()
-                                    .controlSize(.small)
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.top, 24)
-                            }
-
-                            botRows(matches, waiting: waiting)
-                        }
-                    }
-                    .padding(.top, Self.listTopInset)
-                    .padding(.bottom, Self.listBottomMargin)
-                }
-                .environment(\.mascotMotionBudget, motionBudget)
-                .refreshable { await session.refresh() }
-                .accessibilityIdentifier("roster-list")
-                .overlay {
-                    if rosterIsEmpty(matches: matches) {
-                        EmptyStateView(
-                            query.isEmpty ? "No bots yet" : "Nothing matches",
-                            systemImage: query.isEmpty ? "bubble.left.and.bubble.right" : "magnifyingglass",
-                            description: Text(
-                                query.isEmpty
-                                    ? "Bots you create on your computer show up here."
-                                    : "No thread matches \u{201C}\(query)\u{201D}."
-                            )
-                        )
-                    }
-                }
-                // The list scrolls beneath the floating bar, and its end is
-                // inset by the bar's measured height rather than a guess.
-                .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar(updates: updates) }
+                rosterScroll(
+                    updates: updates,
+                    waiting: waiting,
+                    matches: matches,
+                    barGap: max(8, Self.barBottomGap - geo.safeAreaInsets.bottom)
+                )
             }
             // top-aligned: the roster fills downward from the header
             .frame(maxWidth: CompanionLayout.rosterWidth, maxHeight: .infinity, alignment: .top)
@@ -141,6 +85,7 @@ struct ChatListView: View {
                 }
             }
             }
+            .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Chat.self) { ChatView(chat: $0) }
             .onValueChange(of: session.notificationChat) { chat in
@@ -179,6 +124,10 @@ struct ChatListView: View {
                 }
             }
 #endif
+            .sheet(item: $changingLook) { bot in
+                ChangeLookSheet(bot: bot)
+                    .environmentObject(session)
+            }
             .sheet(isPresented: $showingCalendar) {
                 RoutineCalendarView()
                     .environmentObject(session)
@@ -232,72 +181,196 @@ struct ChatListView: View {
         }
     }
 
-    // MARK: - Header
+    // MARK: - Scroll
 
-    /// The paired computer's profile on the left; the routine calendar and
-    /// settings on the right, and where you are in between. The avatar is
-    /// identity, not a second hidden route to the same screen.
-    private var header: some View {
-        HStack(alignment: .center) {
-            ProfileAvatar(name: session.connection?.name ?? "You", size: 30)
-                .frame(width: 44, height: 44)
-                .glassCapsule(interactive: false)
-                .accessibilityLabel(session.connection.map { LocalizedStringKey("Connected to \($0.name)") }
-                    ?? "Connected to your computer")
-
-            Spacer(minLength: 8)
-
-            HStack(spacing: 8) {
-                // Routines on a calendar, a tap from Home rather than buried
-                // in Settings (MOCA-191).
-                Button { showingCalendar = true } label: {
-                    Image(systemName: "calendar")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.primary)
-                        .frame(width: 44, height: 44)
+    private func rosterScroll(
+        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary], barGap: CGFloat
+    ) -> some View {
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    if query.isEmpty {
+                        homeTop(updates: updates, waiting: waiting) { id in
+                            withSeiraAnimation(SeiraMotion.slow) { proxy.scrollTo(id, anchor: .top) }
+                        }
+                        rosterSections(waiting: waiting)
+                    } else {
+                        searchResults(matches, waiting: waiting)
+                    }
                 }
-                .buttonStyle(.plain)
-                .glassCapsule()
-                .accessibilityLabel("Routine calendar")
-                .accessibilityIdentifier("open-calendar")
-
-                NavigationLink { SettingsView() } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(Color.primary)
-                        .frame(width: 44, height: 44)
-                }
-                .buttonStyle(.plain)
-                .glassCapsule()
-                .accessibilityLabel("Settings")
+                .padding(.top, Self.listTopInset)
+                .padding(.bottom, Self.listBottomMargin)
             }
+            .refreshable { await session.refresh() }
+            .accessibilityIdentifier("roster-list")
+            .overlay { emptyState(matches: matches) }
+            .overlay(alignment: .bottom) { SeiraFade(edge: .bottom, height: 128, color: .seiraApp) }
+            // The list scrolls beneath the floating bar, and its end is
+            // inset by the bar's measured height rather than a guess.
+            .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar(updates: updates, gap: barGap) }
         }
-        // Centred on the screen, not between the uneven sides.
-        .overlay {
-            VStack(spacing: 2) {
-                Text("Threads")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(Color.primary)
-                Text(headerSubtitle)
-                    .font(.system(size: 13))
-                    .foregroundStyle(Color.secondary)
-                    .lineLimit(1)
-            }
-            .padding(.horizontal, 104)
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 4)
-        .padding(.bottom, 12)
     }
 
-    private var headerSubtitle: String {
-        let name = session.connection?.name ?? "Not paired"
-        switch session.status {
-        case .live: return "\(name) · connected"
-        case .connecting: return "\(name) · connecting…"
-        case .offline: return "\(name) · offline"
-        case .unauthorized: return "\(name) · unpaired"
-        case .unpaired: return "Not paired"
+    @ViewBuilder
+    private func emptyState(matches: [ChatSummary]) -> some View {
+        if rosterIsEmpty(matches: matches) {
+            if !query.isEmpty {
+                EmptyStateView(
+                    "Nothing matches",
+                    systemImage: "magnifyingglass",
+                    description: Text("No thread matches \u{201C}\(query)\u{201D}.")
+                )
+            } else if case .offline = session.status {
+                SeiraEmptyState(
+                    icon: "Icons3D/offline",
+                    title: "You are offline",
+                    message: "Check your internet connection. Seira picks up where you left off."
+                )
+            } else {
+                SeiraEmptyState(
+                    icon: "Icons3D/empty-chats",
+                    title: "No bots",
+                    message: "Bots you create on your computer show up here."
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func searchResults(_ matches: [ChatSummary], waiting: Set<String>) -> some View {
+        if !searchHits.isEmpty {
+            HStack {
+                sectionLabel(Text("Messages"))
+                Spacer()
+                if searching { ProgressView().controlSize(.small) }
+            }
+            .padding(.top, 10)
+            .padding(.bottom, 4)
+
+            ForEach(searchHits) { hit in
+                Button {
+                    Task {
+                        if let chat = await session.open(hit) {
+                            Haptics.selection()
+                            path.append(chat)
+                        }
+                    }
+                } label: {
+                    SearchHitRow(hit: hit)
+                }
+                .buttonStyle(HomeRowButtonStyle())
+                .padding(.horizontal, HomeRowMetrics.side)
+            }
+            sectionLabel(Text("Threads"))
+                .padding(.top, 14)
+                .padding(.bottom, 4)
+        } else if searching {
+            ProgressView()
+                .controlSize(.small)
+                .frame(maxWidth: .infinity)
+                .padding(.top, 24)
+        }
+
+        botRows(matches, waiting: waiting)
+    }
+
+    // MARK: - Home top
+
+    /// The Chief of Staff, or the first Chief when none sits outside a section.
+    private var homeChief: Bot? {
+        let state = session.state
+        return state.unsectionedChief ?? state.bots.first { $0.hidden != true && $0.chiefOfStaff == true }
+    }
+
+    @ViewBuilder
+    private func homeTop(
+        updates: [ChatUpdate], waiting: Set<String>, scrollTo: @escaping (String) -> Void
+    ) -> some View {
+        let chief = homeChief
+        let team = teamMembers(excluding: chief, waiting: waiting)
+        if let chief {
+            chiefCard(chief, updates: updates, waiting: waiting)
+                .padding(.top, 12)
+        }
+        if !team.isEmpty {
+            HomeTeamRail(
+                members: team,
+                open: { openBot($0) },
+                changeLook: { changingLook = $0 },
+                seeAll: session.state.unsectionedBots.isEmpty ? nil : { scrollTo(Self.botsSectionID) }
+            )
+            .padding(.top, chief == nil ? 0 : 20)
+        }
+        if !rosterIsEmpty(matches: []) {
+            sectionLabel(Text("Chats"))
+                .padding(.top, chief == nil && team.isEmpty ? 8 : 24)
+                .padding(.bottom, 4)
+        }
+    }
+
+    private static let botsSectionID = "home-bots-section"
+
+    private func chiefCard(_ chief: Bot, updates: [ChatUpdate], waiting: Set<String>) -> some View {
+        let line = updates.first { $0.kind == .working && $0.chat.id == chief.id }?.line ?? ""
+        let canTalk = !liveCall.machine.isActive
+            && liveCall.machine.allowsStart(onThread: chief.threadId)
+            && session.state.liveCall?.isRunning != true
+        return HomeChiefCard(
+            bot: chief,
+            status: chief.rosterStatus(hasPendingCard: waiting.contains(chief.id)),
+            workingLine: line,
+            canTalk: canTalk,
+            open: { openBot(chief) },
+            talk: { talkTo(chief) }
+        )
+        .modifier(HomeLiveCallDisclosure(bot: $disclosingLiveCall, start: startLiveCall))
+    }
+
+    /// Waiting first, then working, then the rest, each in the roster's order.
+    private func teamMembers(excluding chief: Bot?, waiting: Set<String>) -> [HomeTeamMember] {
+        let members = session.state.bots
+            .filter { $0.hidden != true && $0.id != chief?.id }
+            .map { HomeTeamMember(bot: $0, status: $0.rosterStatus(hasPendingCard: waiting.contains($0.id))) }
+        func rank(_ member: HomeTeamMember) -> Int {
+            switch member.status {
+            case .waitingOnYou: return 0
+            case .working: return 1
+            case .idle: return 2
+            }
+        }
+        return members.enumerated()
+            .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }
+            .map(\.element)
+    }
+
+    private func openBot(_ bot: Bot) {
+        Haptics.selection()
+        path.append(session.threadSelection.restoringThread(.bot(bot), connectionID: session.connection?.id))
+    }
+
+    private func talkTo(_ bot: Bot) {
+        Haptics.selection()
+        if LiveCallDisclosure().isDue {
+            disclosingLiveCall = bot
+        } else {
+            startLiveCall(bot)
+        }
+    }
+
+    private func startLiveCall(_ bot: Bot) {
+        liveCall.start(bot: bot)
+        liveCall.presentScreen()
+    }
+
+    private func newChat() {
+        guard let chief = homeChief, creatingThreads.insert(chief.id).inserted else { return }
+        Haptics.selection()
+        Task {
+            defer { creatingThreads.remove(chief.id) }
+            if let created = await session.createRosterThread(for: chief) {
+                Haptics.success()
+                path.append(Chat.bot(created))
+            }
         }
     }
 
@@ -325,10 +398,9 @@ struct ChatListView: View {
                     Haptics.selection()
                     openAttention(entry)
                 } label: {
-                    AttentionRow(entry: entry, followsDynamicType: density == .compact)
+                    AttentionRow(entry: entry)
                 }
-                .buttonStyle(.plain)
-                .padding(.horizontal, 16)
+                .buttonStyle(HomeRowButtonStyle())
             }
         }
 
@@ -379,6 +451,7 @@ struct ChatListView: View {
             sectionLabel(Text("Bots"))
                 .padding(.top, sectionSpacing)
                 .padding(.bottom, 4)
+                .id(Self.botsSectionID)
             botRows(unsectioned, waiting: waiting)
         }
 
@@ -412,7 +485,7 @@ struct ChatListView: View {
     }
 
     /// Between one section and the next title.
-    private var sectionSpacing: CGFloat { density == .compact ? 14 : 18 }
+    private var sectionSpacing: CGFloat { density == .compact ? 20 : 24 }
 
     /// Groups as one-line rows under a title that carries the "+" the
     /// comfortable strip shows as a tile.
@@ -429,13 +502,13 @@ struct ChatListView: View {
                     showingNewGroup = true
                 } label: {
                     Image(systemName: "plus")
-                        .font(.body.weight(.medium))
-                        .foregroundStyle(Color.secondary)
+                        .font(.system(size: 17, weight: .medium))
+                        .foregroundStyle(Color.seiraInk3)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .padding(.trailing, 6)
+                .padding(.trailing, 10)
                 .accessibilityLabel("New group")
                 .accessibilityIdentifier("new-group")
             }
@@ -464,7 +537,7 @@ struct ChatListView: View {
                 )
                 .equatable()
             }
-            .buttonStyle(.plain)
+            .buttonStyle(HomeRowButtonStyle())
             .accessibilityIdentifier("chat-row.\(room.id)")
         }
     }
@@ -501,7 +574,7 @@ struct ChatListView: View {
                     .accessibilityLabel("New group")
                 }
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, HomeRowMetrics.side)
         }
     }
 
@@ -523,7 +596,7 @@ struct ChatListView: View {
             case let .bot(bot):
                 CompactBotEntry(
                     bot: bot,
-                    face: MausState.forChat(summary.chat, in: session.state),
+                    face: CharacterMood.forChat(summary.chat, in: session.state),
                     lastActivity: summary.lastActivity,
                     today: today,
                     hasPendingCard: waiting.contains(bot.id),
@@ -559,7 +632,7 @@ struct ChatListView: View {
                     )
                     .equatable()
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(HomeRowButtonStyle())
                 .accessibilityIdentifier("chat-row.\(room.id)")
             }
         }
@@ -576,7 +649,7 @@ struct ChatListView: View {
                 } label: {
                     entry.row.equatable()
                 }
-                .buttonStyle(.plain)
+                .buttonStyle(HomeRowButtonStyle())
                 .accessibilityIdentifier("chat-row.\(entry.id)")
                 if case let .bot(bot) = entry.row.chat {
                     threadTree(bot, queued: entry.queued, held: entry.held)
@@ -595,15 +668,17 @@ struct ChatListView: View {
         let queued = state.queuedThreadIds
         // The trees' "Queued" marks read the held sends themselves.
         let held = Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key })
-        return rows.enumerated().map { index, summary -> ComfortableEntry in
+        return rows.map { summary -> ComfortableEntry in
+            var roomMembers: [Bot] = []
+            if case let .room(room) = summary.chat { roomMembers = members(of: room) }
             let row = ChatRow(
                 chat: summary.chat,
+                members: roomMembers,
                 preview: summary.preview,
                 at: summary.lastActivity,
                 today: today,
-                state: MausState.forChat(summary.chat, in: state),
-                waiting: waiting.contains(summary.chat.id),
-                last: index == rows.count - 1
+                state: CharacterMood.forChat(summary.chat, in: state),
+                waiting: waiting.contains(summary.chat.id)
             )
             return ComfortableEntry(row: row, queued: queued, held: held)
         }
@@ -627,93 +702,79 @@ struct ChatListView: View {
 
     // MARK: - Bottom bar
 
-    private func bottomBar(updates: [ChatUpdate]) -> some View {
+    private func bottomBar(updates: [ChatUpdate], gap: CGFloat) -> some View {
         GlassGroup(spacing: 8) {
-            HStack(spacing: 8) {
+            VStack(spacing: 10) {
                 if searchOpen {
-                    HStack(spacing: 8) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 15, weight: .semibold))
-                            .foregroundStyle(Color.secondary)
-                        TextField("Search threads", text: $query)
-                            .font(.system(size: 17))
-                            .submitLabel(.search)
-                            .autocorrectionDisabled()
-                            .focused($searchFocused)
-                        if !query.isEmpty {
-                            Button {
-                                query = ""
-                            } label: {
-                                Image(systemName: "xmark.circle.fill").foregroundStyle(Color.secondary)
-                            }
-                            .buttonStyle(.plain)
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .frame(height: 52)
-                    .glassCapsule()
-
-                    Button("Cancel") {
-                        query = ""
-                        searchOpen = false
-                        searchFocused = false
-                    }
-                    .font(.system(size: 17))
-                    .foregroundStyle(Color.primary)
-                    .padding(.horizontal, 16)
-                    .frame(height: 52)
-                    .glassCapsule()
+                    searchField
                 } else {
-                    ViewThatFits(in: .horizontal) {
-                        expandedBottomActions(updates: updates)
-                        compactBottomActions(updates: updates)
-                    }
+                    updatesButton(updates: updates)
+                    HomeBottomBar(
+                        hasChief: homeChief != nil,
+                        canAdminister: session.canAdminister,
+                        hasVisibleBots: hasVisibleBots,
+                        walkieDisabled: liveCall.machine.isActive,
+                        openSearch: openSearch,
+                        newChat: newChat,
+                        newGroup: { Haptics.selection(); showingNewGroup = true },
+                        newSection: openNewSection,
+                        newBot: createBot,
+                        walkie: { Haptics.selection(); showingWalkie = true }
+                    )
                 }
             }
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 8)
-        .animation(.snappy(duration: 0.25), value: searchOpen)
+        .padding(.bottom, gap)
+        .seiraAnimation(SeiraMotion.base, value: searchOpen)
     }
 
-    private func expandedBottomActions(updates: [ChatUpdate]) -> some View {
+    private var searchField: some View {
         HStack(spacing: 8) {
-            updatesButton(updates: updates)
-                .frame(width: 180)
-            searchButton
-            walkieButton
-            if session.canAdminister {
-                sectionButton
-                newBotButton
-            }
-        }
-    }
-
-    private func compactBottomActions(updates: [ChatUpdate]) -> some View {
-        HStack(spacing: 8) {
-            updatesButton(updates: updates)
-                .frame(minWidth: 148)
-            searchButton
-            walkieButton
-            // Creating bots and sections needs the admin scope on a server;
-            // a chat-only phone is not shown buttons the server would refuse.
-            if session.canAdminister {
-                Menu {
-                    Button("New section", systemImage: "folder.badge.plus", action: openNewSection)
-                        .disabled(!hasVisibleBots)
-                    Button("New bot", systemImage: "square.and.pencil", action: createBot)
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 20, weight: .medium))
-                        .foregroundStyle(Color.primary)
-                        .frame(width: 48, height: 48)
-                        .contentShape(Circle())
+            HStack(spacing: 8) {
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 17, weight: .medium))
+                    .foregroundStyle(Color.seiraInk3)
+                TextField("Search threads", text: $query)
+                    .font(.seira(15, relativeTo: .body))
+                    .foregroundStyle(Color.seiraInk)
+                    .submitLabel(.search)
+                    .autocorrectionDisabled()
+                    .focused($searchFocused)
+                if !query.isEmpty {
+                    Button {
+                        query = ""
+                    } label: {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(Color.seiraInk3)
+                            .frame(width: 44, height: 44)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Clear")
                 }
-                .buttonStyle(.plain)
-                .glassCapsule()
-                .accessibilityLabel("Create")
             }
+            .padding(.horizontal, 18)
+            .frame(height: 52)
+            .glassCapsule()
+
+            Button("Cancel") {
+                query = ""
+                searchOpen = false
+                searchFocused = false
+            }
+            .font(.seira(15, .medium, relativeTo: .body))
+            .foregroundStyle(Color.seiraInk)
+            .padding(.horizontal, 16)
+            .frame(height: 52)
+            .glassCapsule()
         }
+    }
+
+    private func openSearch() {
+        Haptics.selection()
+        searchOpen = true
+        searchFocused = true
     }
 
     private func updatesButton(updates: [ChatUpdate]) -> some View {
@@ -722,37 +783,6 @@ struct ChatListView: View {
             showingUpdates = true
         }
         .frame(height: 52)
-    }
-
-    private var searchButton: some View {
-        GlassButton(systemImage: "magnifyingglass", size: 48, weight: .semibold) {
-            Haptics.selection()
-            searchOpen = true
-            searchFocused = true
-        }
-        .accessibilityLabel("Search")
-    }
-
-    /// Walkie: hold-to-talk with every agent's state at a glance.
-    private var walkieButton: some View {
-        GlassButton(systemImage: "waveform", size: 48, weight: .semibold) {
-            Haptics.selection()
-            showingWalkie = true
-        }
-        .accessibilityLabel("Walkie")
-        .disabled(liveCall.machine.isActive)
-    }
-
-    private var sectionButton: some View {
-        GlassButton(systemImage: "folder.badge.plus", size: 48, weight: .medium, action: openNewSection)
-            .disabled(!hasVisibleBots)
-            .opacity(hasVisibleBots ? 1 : 0.45)
-            .accessibilityLabel("New section")
-    }
-
-    private var newBotButton: some View {
-        GlassButton(systemImage: "square.and.pencil", size: 48, weight: .medium, action: createBot)
-            .accessibilityLabel("New bot")
     }
 
     private var hasVisibleBots: Bool {
@@ -852,16 +882,7 @@ struct ChatListView: View {
     }
 
     private func sectionLabel(_ text: Text) -> some View {
-        text
-            .textCase(.uppercase)
-            // Compact rows follow Dynamic Type, so their titles do too, but
-            // only up to xxxLarge: beyond it these uppercase labels would
-            // outweigh the names they head. Comfortable's never scale.
-            .font(density == .compact ? .footnote.weight(.semibold) : .system(size: 13, weight: .semibold))
-            .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-            .tracking(0.4)
-            .foregroundStyle(Color.secondary)
-            .padding(.horizontal, 20)
+        HomeSectionTitle(text: text)
     }
 }
 
@@ -886,7 +907,7 @@ private struct RoomTile: Identifiable, Equatable {
     var id: String { room.id }
 }
 
-/// A room as a round tile: the first two members' mascots stacked, its name
+/// A room as a round tile: the first two members' faces stacked, its name
 /// beneath. `nil` is the "make one" tile.
 ///
 /// Its members come from the list, which looks them up once, and it is shown
@@ -900,44 +921,50 @@ struct GroupTile: View, Equatable {
         VStack(spacing: 7) {
             ZStack {
                 if let room {
-                    Circle().fill(Color.secondary.opacity(0.14))
-                    let bots = members
-                    if let first = bots.first {
-                        BotAvatarView(bot: first, size: 34, state: .happy, animated: false)
-                            .offset(x: -9, y: -6)
-                    }
-                    if bots.count > 1 {
-                        BotAvatarView(bot: bots[1], size: 30, state: .happy, animated: false)
-                            .padding(2)
-                            .background(Circle().fill(Color(uiColor: .systemBackground)))
-                            .offset(x: 11, y: 9)
-                    }
+                    Circle().fill(Color.seiraTint)
+                    faces
                     if room.unread {
                         Circle()
-                            .fill(MausPalette.color("blue"))
+                            .fill(Color.seiraAccent)
                             .frame(width: 10, height: 10)
-                            .overlay(Circle().stroke(Color(uiColor: .systemBackground), lineWidth: 2))
+                            .overlay(Circle().stroke(Color.seiraApp, lineWidth: 2))
                             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
                             .padding(3)
+                            .accessibilityLabel("Unread")
                     }
                 } else {
                     Circle()
                         .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-                        .foregroundStyle(Color.secondary.opacity(0.6))
+                        .foregroundStyle(Color.seiraInk3)
                     Image(systemName: "plus")
                         .font(.system(size: 22, weight: .medium))
-                        .foregroundStyle(Color.secondary)
+                        .foregroundStyle(Color.seiraInk3)
                 }
             }
             .frame(width: 64, height: 64)
 
             Text(room?.name ?? "New group")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(room == nil ? Color.secondary : Color.primary)
+                .font(.seira(12, .medium, relativeTo: .caption))
+                .foregroundStyle(room == nil ? Color.seiraInk3 : Color.seiraInk)
                 .lineLimit(1)
         }
         .frame(width: 76)
         .contentShape(Rectangle())
+    }
+
+    @ViewBuilder private var faces: some View {
+        if let first = members.first {
+            SeiraAvatar(bot: first, size: 34, ringGap: .seiraTint)
+                .offset(x: -9, y: -6)
+                .accessibilityHidden(true)
+        }
+        if members.count > 1 {
+            SeiraAvatar(bot: members[1], size: 30, ringGap: .seiraTint)
+                .padding(2)
+                .background(Color.seiraTint, in: Circle())
+                .offset(x: 11, y: 9)
+                .accessibilityHidden(true)
+        }
     }
 }
 
@@ -946,23 +973,13 @@ struct GroupTile: View, Equatable {
 /// working, which outranks queued and unread — the same order as the tree.
 struct AttentionRow: View {
     let entry: AttentionThread
-    /// Compact's rows follow Dynamic Type, and these grow with them, in the
-    /// proportions they have at the default size. Comfortable's rows keep
-    /// fixed sizes, and so do these beside them.
-    var followsDynamicType = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
-    @ScaledMetric(relativeTo: .subheadline) private var scaledTitle: CGFloat = 15
-    @ScaledMetric(relativeTo: .subheadline) private var scaledDetail: CGFloat = 12
-    @ScaledMetric(relativeTo: .subheadline) private var scaledMarkWidth: CGFloat = 24
+    @ScaledMetric(relativeTo: .body) private var markWidth: CGFloat = 24
 
-    /// The title's size, and the mark's beside it.
-    private var titleSize: CGFloat { followsDynamicType ? scaledTitle : 15 }
-    private var detailSize: CGFloat { followsDynamicType ? scaledDetail : 12 }
-    private var markWidth: CGFloat { followsDynamicType ? scaledMarkWidth : 24 }
     /// A scaled title wraps at the accessibility sizes instead of being cut
-    /// short, as compact's names and thread titles do there.
-    private var titleWraps: Bool { followsDynamicType && typeSize.isAccessibilitySize }
+    /// short.
+    private var titleWraps: Bool { typeSize.isAccessibilitySize }
 
     private var waiting: Bool { entry.task.activity == "waiting-on-you" }
     private var working: Bool { !waiting && (entry.task.busy == true || entry.task.activity == "working") }
@@ -975,61 +992,77 @@ struct AttentionRow: View {
         return "Unread"
     }
 
+    private var markColor: Color {
+        if waiting { return .seiraWarning }
+        if queued { return .seiraInk3 }
+        return .seiraAccent
+    }
+
+    private var markSymbol: String {
+        if waiting { return "exclamationmark.circle.fill" }
+        return queued ? "clock" : "bell.badge.fill"
+    }
+
     var body: some View {
         HStack(spacing: 12) {
-            Group {
-                if working {
-                    ProgressView().controlSize(.small)
-                } else {
-                    Image(systemName: waiting ? "exclamationmark.circle.fill" : queued ? "clock" : "bell.badge.fill")
-                        .font(.system(size: titleSize, weight: .medium))
-                }
-            }
-            .foregroundStyle(waiting ? Color.orange : queued ? Color.secondary : Color.accentColor)
-            .frame(width: markWidth)
+            mark
+                .foregroundStyle(markColor)
+                .frame(width: markWidth)
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(verbatim: entry.task.displayTitle)
-                    .font(.system(size: titleSize, weight: .medium))
-                    .foregroundStyle(Color.primary)
+                    .font(.seira(15, .medium, relativeTo: .body))
+                    .foregroundStyle(Color.seiraInk)
                     .lineLimit(titleWraps ? 3 : 1)
                     .fixedSize(horizontal: false, vertical: titleWraps)
                 Text("\(entry.botName) · \(statusText)")
-                    .font(.system(size: detailSize))
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(13, relativeTo: .subheadline))
+                    .foregroundStyle(waiting ? Color.seiraWarningText : Color.seiraInk2)
                     .lineLimit(1)
             }
             Spacer(minLength: 0)
         }
+        .padding(.horizontal, HomeRowMetrics.side)
         .padding(.vertical, 8)
-        .frame(minHeight: 44)
+        .frame(minHeight: 56)
         .contentShape(Rectangle())
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(entry.task.displayTitle), \(entry.botName), \(statusText)")
     }
+
+    @ViewBuilder private var mark: some View {
+        if working {
+            ProgressView().controlSize(.small)
+        } else {
+            Image(systemName: markSymbol)
+                .font(.system(size: 17, weight: .medium))
+        }
+    }
 }
 
-/// A bot or group in comfortable Home: face, name and role, time, the last
-/// line, and a hand while it waits on the person.
+/// A bot or group in comfortable Home: face, name, time, the last line, and
+/// a warning-coloured line while it waits on the person.
 ///
 /// Plain values only, shown `.equatable()` like `CompactBotEntry`, so a row
 /// whose chat has not moved is skipped when the session publishes.
 struct ChatRow: View, Equatable {
     let chat: Chat
+    /// A group's members, for its two stacked faces; empty for a bot.
+    var members: [Bot] = []
     let preview: String
     let at: Double
     /// The day the list drew on (`RosterDay.today`); see
     /// `CompactBotEntry.today`. "9:15 AM" must still become "Yesterday".
     let today: Date
-    var state: MausState = .idle
+    var state: CharacterMood = .idle
     var waiting = false
-    var last = false
 
     /// `Chat`'s own `==` compares identity (id and thread) only; a row
     /// draws the whole bot or room, so it compares those.
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.preview == rhs.preview && lhs.at == rhs.at && lhs.today == rhs.today && lhs.state == rhs.state
-            && lhs.waiting == rhs.waiting && lhs.last == rhs.last && sameContent(lhs.chat, rhs.chat)
+            && lhs.waiting == rhs.waiting && lhs.members == rhs.members
+            && sameContent(lhs.chat, rhs.chat)
     }
 
     private static func sameContent(_ lhs: Chat, _ rhs: Chat) -> Bool {
@@ -1040,86 +1073,25 @@ struct ChatRow: View, Equatable {
         }
     }
 
+    private var detail: String {
+        if !preview.isEmpty { return preview }
+        return waiting ? String(localized: "Waiting on you") : ""
+    }
+
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            // the unread dot, in the bot's own colour, at the very edge
-            ZStack {
-                if chat.unread && !chat.busy {
-                    Circle()
-                        .fill(MausPalette.color(chat.color))
-                        .frame(width: 10, height: 10)
-                }
-            }
-            .frame(width: 22)
-            .frame(maxHeight: .infinity)
-
-            HStack(alignment: .top, spacing: 14) {
-                ChatAvatarView(chat: chat, size: 52, state: state, animated: state.showsActivity)
-                    .padding(.top, 12)
-
-                VStack(alignment: .leading, spacing: 4) {
-                    HStack(spacing: 8) {
-                        Text(chat.name)
-                            .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color.primary)
-                            .lineLimit(1)
-                            .layoutPriority(1)
-
-                        // the bot's job, the way the desktop shows it
-                        if !chat.subtitle.isEmpty {
-                            Text(chat.subtitle)
-                                .font(.system(size: 13))
-                                .foregroundStyle(Color.secondary)
-                                .lineLimit(1)
-                                .padding(.horizontal, 8)
-                                .padding(.vertical, 3)
-                                .background(Capsule().fill(Color.secondary.opacity(0.15)))
-                        }
-
-                        Spacer(minLength: 4)
-
-                        Text(RelativeStamp.list(at))
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.secondary)
-                            .fixedSize()
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 13, weight: .semibold))
-                            .foregroundStyle(Color.secondary.opacity(0.5))
-                    }
-
-                    HStack(alignment: .top, spacing: 8) {
-                        // one line for every bot, so the rows keep one rhythm
-                        Text(preview.isEmpty ? " " : preview)
-                            .font(.system(size: 15))
-                            .foregroundStyle(Color.secondary)
-                            .lineLimit(1)
-
-                        Spacer(minLength: 0)
-
-                        if chat.busy {
-                            ProgressView().controlSize(.mini).padding(.top, 3)
-                        }
-                    }
-
-                    if waiting {
-                        Label("Waiting on you", systemImage: "hand.raised.fill")
-                            .font(.system(size: 12, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 9)
-                            .padding(.vertical, 4)
-                            .background(Capsule().fill(MausPalette.color(chat.color)))
-                            .padding(.top, 4)
-                    }
-                }
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .overlay(alignment: .bottom) {
-                    if !last { Divider() }
-                }
-            }
-            .padding(.trailing, 16)
+        HStack(spacing: HomeRowMetrics.gap) {
+            HomeRowAvatar(chat: chat, members: members, working: chat.busy && !waiting, waiting: waiting)
+            HomeRowLabels(
+                title: chat.name,
+                unread: chat.unread && !chat.busy,
+                stamp: RelativeStamp.list(at),
+                detail: detail,
+                detailWaiting: waiting,
+                working: chat.busy && !waiting
+            )
         }
-        .padding(.leading, 6)
+        .padding(.horizontal, HomeRowMetrics.side)
+        .frame(minHeight: HomeRowMetrics.minHeight)
         .contentShape(Rectangle())
     }
 }
@@ -1133,42 +1105,26 @@ struct UpdatesPill: View {
         Button(action: action) {
             HStack(spacing: 8) {
                 if !updates.isEmpty {
-                    MascotStack(colors: Array(updates.prefix(3).map(\.chat.color)))
+                    HeadStack(colors: Array(updates.prefix(3).map(\.chat.color)))
                 }
                 VStack(alignment: .leading, spacing: 1) {
-                    HStack(spacing: 4) {
-                        if let first = updates.first {
-                            switch first.kind {
-                            case .needsYou:
-                                Image(systemName: "hand.raised.fill")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundStyle(MausPalette.color(first.chat.color))
-                                Text("\(first.chat.name) needs you")
-                            case .working:
-                                Text("\(first.chat.name) is working")
-                            case .toReview:
-                                Text("\(first.chat.name) has an update")
-                            }
-                        } else {
-                            Text("All quiet")
-                        }
-                    }
-                    .font(.system(size: 14, weight: .semibold))
-                    .foregroundStyle(updates.isEmpty ? Color.secondary : Color.primary)
-                    .lineLimit(1)
+                    headline
+                        .font(.seira(14, .semibold, relativeTo: .subheadline))
+                        .foregroundStyle(updates.isEmpty ? Color.seiraInk3 : Color.seiraInk)
+                        .lineLimit(1)
 
-                    Text(subline)
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.secondary)
+                    subline
+                        .font(.seira(12, relativeTo: .caption))
+                        .foregroundStyle(Color.seiraInk3)
                         .lineLimit(1)
                 }
                 Spacer(minLength: 0)
                 Image(systemName: "chevron.up")
                     .font(.system(size: 12, weight: .bold))
-                    .foregroundStyle(Color.secondary)
+                    .foregroundStyle(Color.seiraInk3)
             }
-            .padding(.leading, updates.isEmpty ? 16 : 7)
-            .padding(.trailing, 12)
+            .padding(.leading, updates.isEmpty ? 18 : 7)
+            .padding(.trailing, 14)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .contentShape(Capsule())
         }
@@ -1178,16 +1134,36 @@ struct UpdatesPill: View {
         .accessibilityIdentifier("updates-button")
     }
 
-    private var subline: String {
-        guard let first = updates.first else { return "Nothing needs you" }
+    @ViewBuilder private var headline: some View {
+        HStack(spacing: 4) {
+            if let first = updates.first {
+                switch first.kind {
+                case .needsYou:
+                    Image(systemName: "hand.raised.fill")
+                        .font(.system(size: 11, weight: .bold))
+                        .foregroundStyle(Color.seiraWarning)
+                    Text("\(first.chat.name) needs you")
+                case .working:
+                    Text("\(first.chat.name) is working")
+                case .toReview:
+                    Text("\(first.chat.name) has an update")
+                }
+            } else {
+                Text("All quiet")
+            }
+        }
+    }
+
+    private var subline: Text {
+        guard let first = updates.first else { return Text("Nothing needs you") }
         let rest = updates.count - 1
-        if rest == 0 { return first.line.isEmpty ? " " : first.line }
-        return rest == 1 ? "1 more update" : "\(rest) more updates"
+        if rest == 0 { return Text(verbatim: first.line.isEmpty ? " " : first.line) }
+        return rest == 1 ? Text("1 more update") : Text("\(rest) more updates")
     }
 }
 
-/// Up to three mascots overlapping, the way a group of faces reads at a glance.
-struct MascotStack: View {
+/// Up to three heads overlapping, the way a group of faces reads at a glance.
+struct HeadStack: View {
     let colors: [String]
     var size: CGFloat = 28
     var overlap: CGFloat = 12
@@ -1195,7 +1171,8 @@ struct MascotStack: View {
     var body: some View {
         HStack(spacing: -overlap) {
             ForEach(Array(colors.enumerated()), id: \.offset) { _, color in
-                MausAvatar(color: color, size: size, state: .idle, animated: false)
+                SeiraAvatarHead(look: SeiraLook(hair: "seira", color: color), size: size)
+                    .background(Circle().fill(SeiraIdentity.plate(hex: color)))
                     .padding(2)
                     .background(Circle().fill(Color(uiColor: .systemBackground)))
             }
@@ -1213,19 +1190,19 @@ struct StatusBanner: View {
             case .live, .unpaired:
                 EmptyView()
             case .connecting:
-                banner("Connecting…", systemImage: "arrow.triangle.2.circlepath", tint: .secondary)
+                banner(Text("Connecting…"), systemImage: "arrow.triangle.2.circlepath", tint: .seiraInk2)
             case let .offline(reason):
-                banner(reason, systemImage: "wifi.slash", tint: .orange)
+                banner(Text(verbatim: reason), systemImage: "wifi.slash", tint: .seiraWarningText)
             case .unauthorized:
-                banner("This device was unpaired on the computer.", systemImage: "lock.slash", tint: .red)
+                banner(Text("This device was unpaired on the computer."), systemImage: "lock.slash", tint: .seiraDangerText)
             }
         }
-        .animation(.default, value: session.status)
+        .seiraAnimation(SeiraMotion.base, value: session.status)
     }
 
-    private func banner(_ text: String, systemImage: String, tint: Color) -> some View {
-        Label(text, systemImage: systemImage)
-            .font(.footnote)
+    private func banner(_ text: Text, systemImage: String, tint: Color) -> some View {
+        Label { text } icon: { Image(systemName: systemImage) }
+            .font(.seira(13, relativeTo: .footnote))
             .foregroundStyle(tint)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
@@ -1240,24 +1217,29 @@ struct SearchHitRow: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             Image(systemName: hit.role == .user ? "person.fill" : "bubble.left.fill")
-                .foregroundStyle(Color.secondary)
+                .foregroundStyle(Color.seiraInk3)
                 .frame(width: 26, height: 26)
-                .background(Circle().fill(Color.secondary.opacity(0.13)))
+                .background(Circle().fill(Color.seiraTint))
 
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text(hit.name).font(.system(size: 15, weight: .semibold))
+                    Text(hit.name)
+                        .font(.seira(15, .semibold, relativeTo: .body))
+                        .foregroundStyle(Color.seiraInk)
                     if let task = hit.task, !task.isEmpty {
-                        Text(task).font(.system(size: 12)).foregroundStyle(Color.secondary)
+                        Text(task)
+                            .font(.seira(12, relativeTo: .caption))
+                            .foregroundStyle(Color.seiraInk3)
                     }
                     Spacer()
                     Text(RelativeStamp.list(hit.at))
-                        .font(.system(size: 12))
-                        .foregroundStyle(Color.secondary)
+                        .font(.seira(12, relativeTo: .caption))
+                        .monospacedDigit()
+                        .foregroundStyle(Color.seiraInk3)
                 }
                 Text(hit.snippet)
-                    .font(.system(size: 14))
-                    .foregroundStyle(Color.secondary)
+                    .font(.seira(13, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk2)
                     .lineLimit(2)
                     .multilineTextAlignment(.leading)
             }

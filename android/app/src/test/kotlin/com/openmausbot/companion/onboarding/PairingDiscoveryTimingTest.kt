@@ -158,7 +158,7 @@ class PairingDiscoveryTimingTest {
         val scene = scene()
         mount(scene)
 
-        scene.session.receivePairingURL("openmausbot://pair?address=192.168.1.42:8810&code=123456")
+        scene.session.receivePairingURL("seira://pair?address=192.168.1.42:8810&code=123456")
         awaitConfirmation()
 
         assertEquals(
@@ -174,7 +174,7 @@ class PairingDiscoveryTimingTest {
         val scene = scene()
         mount(scene)
 
-        scene.session.receivePairingURL("openmausbot://pair?address=mac.tail1234.ts.net:8810&code=123456")
+        scene.session.receivePairingURL("seira://pair?address=mac.tail1234.ts.net:8810&code=123456")
         awaitConfirmation()
 
         assertEquals(emptyList(), scene.asked(), "a Tailscale computer is not on the local network")
@@ -213,7 +213,7 @@ class PairingDiscoveryTimingTest {
         mount(scene) { cancelled += 1 }
 
         scene.session.receivePairingURL(
-            "openmausbot://pair?address=127.0.0.1:8810&code=123456",
+            "seira://pair?address=127.0.0.1:8810&code=123456",
         )
         compose.waitUntil(5_000) { scene.session.pairingInvite.value != null }
         compose.waitForIdle()

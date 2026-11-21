@@ -12,8 +12,10 @@ copy of them.
 The code comes from the companion apps as they were on 2026-10-06, with
 their full history. App names, store IDs and icons are Seira. Internal code
 names (Swift and Kotlin types, packages, the Android `namespace`, the
-XcodeGen project) and protocol identifiers (the pairing URL scheme, the mDNS service name and
-the well-known path) keep their old names until the server changes.
+XcodeGen project) keep their old names. The apps read both the OpenMausBot
+and the Seira protocol identifiers: the pairing URL scheme, the pairing token,
+the well-known path and the health app id. They send the OpenMausBot
+identifiers, including the mDNS service name, until a later desktop release.
 
 ## Layout
 

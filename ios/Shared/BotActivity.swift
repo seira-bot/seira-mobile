@@ -15,8 +15,21 @@ struct BotActivityAttributes: ActivityAttributes {
     /// Retained to decode existing activities. Routing uses ContentState.
     var threadId: String
     var name: String
-    /// MausPalette colour name.
+    /// Palette colour name.
     var color: String
+    /// The look fields are optional so an activity started before they existed still decodes.
+    var mascotBody: String?
+    var mascotFaceColor: String?
+    var mascotAccessories: [String]?
+
+    var look: SeiraLook {
+        SeiraLook(
+            hair: mascotBody ?? SeiraLookCatalog.defaultHair,
+            color: color,
+            faceInk: mascotFaceColor,
+            accessories: mascotAccessories ?? []
+        )
+    }
 }
 
 /// Answer from the island or the lock screen. A `LiveActivityIntent` runs in

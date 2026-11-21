@@ -6,7 +6,9 @@ import com.openmausbot.companion.audio.LiveCallManager
 import com.openmausbot.companion.audio.VoicePreviewPlayer
 import com.openmausbot.companion.audio.VoiceNotePlayer
 import com.openmausbot.companion.avatar.AvatarImageStore
+import com.openmausbot.companion.core.CompanionClient
 import com.openmausbot.companion.core.Session
+import com.openmausbot.companion.network.AndroidNetworkMonitor
 import com.openmausbot.companion.discovery.NsdDiscovery
 import com.openmausbot.companion.lifecycle.AlwaysOnConnectionService
 import com.openmausbot.companion.lifecycle.AlwaysOnConnectionState
@@ -86,8 +88,12 @@ class OpenMausApp : Application() {
         discovery = NsdDiscovery(this)
         permissions = CompanionPermissions(this)
         onboarding = OnboardingPreferences(this)
+        val http = okhttp3.OkHttpClient()
         session = Session(
             scope = appScope,
+            httpClient = http,
+            networkMonitor = AndroidNetworkMonitor(this),
+            routeChoiceFn = { connection -> CompanionClient.firstReachableRoute(connection, http) },
             connectionStore = DataStoreConnectionStore(this),
             tokenStore = KeystoreTokenStore(this),
             onboardingStore = onboarding,
@@ -148,7 +154,7 @@ class OpenMausApp : Application() {
         // pressure and the user (or a notification tap) reopened it. A device
         // reboot is covered separately by AlwaysOnBootReceiver, which can run
         // before anything ever constructs this Application's Activity.
-        if (alwaysOn.enabled.value) {
+        if (BuildConfig.ALWAYS_ON && alwaysOn.enabled.value) {
             AlwaysOnConnectionService.start(this)
         }
     }

@@ -1,0 +1,320 @@
+{
+  "messages": [
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] Coffee counter\nCups of coffee today 0 One more Tell the bot How much is too much?",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Coffee counter",
+        "doc": "7e430e695685b36658c90931dfe71568ffa9639dceda737b0b63f0a5f653f2cf",
+        "rev": 0,
+        "bytes": 1118,
+        "height": 200,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com"
+          ],
+          "resources": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://fonts.googleapis.com",
+            "https://fonts.gstatic.com"
+          ]
+        },
+        "context": {
+          "text": "The counter shows 3 cups.",
+          "at": 1792000050000,
+          "delivered": false
+        }
+      },
+      "id": "app-counter",
+      "at": 1792000001000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "Signups by month: Jan 120, Feb 180, Mar 240, Apr 310.",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Signups by month",
+        "doc": "e72654228ebdc3f113c9896557f253e703c02d2782b5832e06305bc0a10432af",
+        "rev": 0,
+        "bytes": 580,
+        "height": 320,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com"
+          ],
+          "resources": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://fonts.googleapis.com",
+            "https://fonts.gstatic.com"
+          ]
+        }
+      },
+      "id": "app-chart",
+      "at": 1792000002000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] Weekly spend\nWeekly spend Bot Runs Cost Scout 38 $21.40 Kiwi 52 $6.35 Total: $29.10",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Weekly spend",
+        "doc": "641a5a64772401e785dffb712cbad2e1f328d4e0f94a8855e43dacdbc33fc452",
+        "rev": 1,
+        "bytes": 479,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com"
+          ],
+          "resources": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://fonts.googleapis.com",
+            "https://fonts.gstatic.com"
+          ]
+        },
+        "history": [
+          "f59df437e5ff86786e40ec79e4d5a19d9da1994965803228364dd1d85f4b865e"
+        ]
+      },
+      "id": "app-report",
+      "at": 1792000003000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] Search tip\nTip: press ⌘K to search every chat.",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Search tip",
+        "doc": "f7485e1df923134cf5374bf842f3e9dfe22501bf88e187c0e891a9dba7b13929",
+        "rev": 0,
+        "bytes": 192,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com"
+          ],
+          "resources": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://fonts.googleapis.com",
+            "https://fonts.gstatic.com"
+          ]
+        }
+      },
+      "id": "app-fragment",
+      "at": 1792000004000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] Tic-tac-toe\nYour move (X)",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Tic-tac-toe",
+        "doc": "0d253179ae52a946d30f36ee26c626fb8e1c88dba516a5fcaadd8e3feccc5092",
+        "rev": 0,
+        "bytes": 1433,
+        "height": 260,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com"
+          ],
+          "resources": [
+            "https://cdnjs.cloudflare.com",
+            "https://cdn.jsdelivr.net",
+            "https://unpkg.com",
+            "https://fonts.googleapis.com",
+            "https://fonts.gstatic.com"
+          ]
+        }
+      },
+      "id": "app-game",
+      "at": 1792000005000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "Basic Server · Get Time\n2026-10-14T09:30:00.000Z",
+      "app": {
+        "v": 1,
+        "source": "mcp",
+        "title": "Get Time",
+        "doc": "ec1b99622aa414330a8ffa047fad1d9d78198e1e4f537c39a5bb7e8ff2ba921f",
+        "rev": 0,
+        "bytes": 196,
+        "border": true,
+        "network": {
+          "connect": [],
+          "resources": []
+        },
+        "mcp": {
+          "server": "basic",
+          "serverTitle": "Basic Server",
+          "tool": "get-time",
+          "resourceUri": "ui://get-time/mcp-app.html"
+        }
+      },
+      "id": "app-mcp-basic",
+      "at": 1792000006000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "Excalidraw · Create view\nDiagram ready: 1 element.",
+      "app": {
+        "v": 1,
+        "source": "mcp",
+        "title": "Create view",
+        "doc": "f704b6b4dae61034bf1db3ad8323c0cd74ae1d3c636ca98df1a8ccdd7ebc0d03",
+        "rev": 0,
+        "bytes": 186,
+        "border": true,
+        "network": {
+          "connect": [
+            "https://esm.sh"
+          ],
+          "resources": [
+            "https://esm.sh"
+          ],
+          "refused": [
+            "http://localhost:8080",
+            "https://example.com/path"
+          ]
+        },
+        "mcp": {
+          "server": "excalidraw",
+          "serverTitle": "Excalidraw",
+          "tool": "create_view",
+          "resourceUri": "ui://excalidraw/mcp-app.html"
+        }
+      },
+      "id": "app-mcp-excalidraw",
+      "at": 1792000007000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "Debug Server · Debug Tool\nFailed on purpose.",
+      "app": {
+        "v": 1,
+        "source": "mcp",
+        "title": "Debug Tool",
+        "doc": "a37b162373af1377235d801f9a48ca25e98963001c42447db530e798d09ab801",
+        "rev": 0,
+        "bytes": 186,
+        "border": false,
+        "network": {
+          "connect": [],
+          "resources": []
+        },
+        "mcp": {
+          "server": "debug",
+          "serverTitle": "Debug Server",
+          "tool": "debug-tool",
+          "resourceUri": "ui://debug/mcp-app.html",
+          "isError": true
+        }
+      },
+      "id": "app-mcp-debugError",
+      "at": 1792000008000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] Huge map\nA map too large to keep.",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "Huge map",
+        "doc": "",
+        "rev": 0,
+        "bytes": 250000,
+        "border": true,
+        "network": {
+          "connect": [],
+          "resources": []
+        },
+        "blocked": "too-large"
+      },
+      "id": "app-too-large",
+      "at": 1792000009000
+    },
+    {
+      "role": "user",
+      "kind": "text",
+      "text": "I have had 3 cups of coffee today.",
+      "replyToId": "app-counter",
+      "sendId": "send-app-0000000001",
+      "fromApp": {
+        "messageId": "app-counter",
+        "title": "Coffee counter"
+      },
+      "id": "app-sent",
+      "at": 1792000010000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "[App] From the future",
+      "app": {
+        "v": 1,
+        "source": "html",
+        "title": "From the future",
+        "doc": "",
+        "rev": 0,
+        "bytes": 1,
+        "border": true,
+        "network": {
+          "connect": [],
+          "resources": []
+        },
+        "hologram": true,
+        "displayModes": [
+          "inline",
+          "pip"
+        ]
+      },
+      "id": "app-future",
+      "at": 1792000011000
+    },
+    {
+      "role": "bot",
+      "kind": "app",
+      "text": "An app this build cannot read",
+      "app": "nope",
+      "id": "app-broken",
+      "at": 1792000012000
+    }
+  ],
+  "hasMore": false
+}

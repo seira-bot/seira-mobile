@@ -237,6 +237,9 @@ struct TranscriptRowContext: Equatable {
     /// The engine an "Update Claude" card would update.
     let claudeInstanceId: String?
     let credentials: CredentialAccess
+    /// The bot's profile for avatars, in a bot chat; nil in a room.
+    let faceBot: Bot?
+    let isChief: Bool
 
     var isBot: Bool { botId != nil }
 }
@@ -252,6 +255,8 @@ struct TranscriptRowView: View, Equatable {
     let today: Date
     /// Last bubble of a run from the same side: the one with the tail.
     let endsRun: Bool
+    /// First reply of a run from this speaker: the one with the name line.
+    let startsRun: Bool
     /// The versions of a user message, for its "1 of 2" switcher.
     let versions: [Message]
     /// This row is the stand-in for an edit the computer has not answered.
@@ -265,7 +270,8 @@ struct TranscriptRowView: View, Equatable {
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.row == rhs.row && lhs.stamp == rhs.stamp && lhs.today == rhs.today
-            && lhs.endsRun == rhs.endsRun && lhs.versions == rhs.versions
+            && lhs.endsRun == rhs.endsRun && lhs.startsRun == rhs.startsRun
+            && lhs.versions == rhs.versions
             && lhs.isPendingEdit == rhs.isPendingEdit && lhs.routineRun == rhs.routineRun
             && lhs.context == rhs.context && lhs.revealedMessageId == rhs.revealedMessageId
             && lhs.actions == rhs.actions
@@ -277,12 +283,13 @@ struct TranscriptRowView: View, Equatable {
             // on every message is just noise
             if let stamp {
                 Text(RelativeStamp.separator(stamp))
-                    .font(.system(size: 12, weight: .medium))
-                    .foregroundStyle(Color.secondary.opacity(0.7))
+                    .font(.seira(12, .regular, relativeTo: .caption))
+                    .foregroundStyle(Color.seiraInk3)
                     .frame(maxWidth: .infinity)
                     .padding(.top, 10)
                     .padding(.bottom, 4)
             }
+            replyHeader
             content
         }
         // Never wider than the column, whatever is inside. A frame with only
@@ -292,6 +299,17 @@ struct TranscriptRowView: View, Equatable {
         // wide screenshot did it). An overflowing row now overflows its own
         // edge instead: yours to the left, a bot's to the right.
         .frame(minWidth: 0, maxWidth: .infinity, alignment: alignment)
+    }
+
+    @ViewBuilder private var replyHeader: some View {
+        if startsRun, case let .message(message) = row, message.role == .bot, message.kind == .text {
+            let own = message.from.map { $0.botId == context.botId } ?? true
+            BotReplyHeader(
+                name: message.from?.name ?? context.name, date: message.date,
+                faceBot: own ? context.faceBot : nil, isChief: own && context.isChief
+            )
+            .padding(.top, 18)
+        }
     }
 
     private var alignment: Alignment {
@@ -308,7 +326,7 @@ struct TranscriptRowView: View, Equatable {
                 context: context, actions: actions
             )
         case let .activityRun(items):
-            ActivityRunChip(items: items, openThread: actions.openThread)
+            ActivityRunChip(items: items, openThread: actions.openThread, faceBot: context.faceBot)
         case let .assistantTurn(turn):
             AssistantTurnChip(
                 turn: turn, context: context, actions: actions, revealedMessageId: revealedMessageId

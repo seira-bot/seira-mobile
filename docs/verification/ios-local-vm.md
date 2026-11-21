@@ -28,7 +28,7 @@ Use a disposable simulator:
 1. Build the `OpenMausCompanion` scheme with a team and local signing, as in
    the [iOS runbook](../../ios/TESTING.md), and install it on a fresh simulator.
 2. Pair by opening
-   `openmausbot://pair?address=127.0.0.1:PORT&code=CODE` in the simulator with
+   `seira://pair?address=127.0.0.1:PORT&code=CODE` in the simulator with
    the printed address and code, then tap **Connect**.
 3. Open Vee, then its computer. With computer access off (the default), the view
    says to turn on **Allow computer view** in Settings → Remote access.
@@ -67,7 +67,7 @@ the join and relay rewrite by `companion/test/viewer-relay.test.ts` and
 
 ## Phones paired with the server directly
 
-A phone paired with `openmausbot serve` itself (a headless server, reached over
+A phone paired with `seira serve` itself (a headless server, reached over
 Tailscale Serve or a tunnel) has no companion sidecar, so nothing rewrites the
 VM's noVNC address for it. The join route answers such a phone differently: a
 path on the server's own authenticated desktop proxy
@@ -75,7 +75,7 @@ path on the server's own authenticated desktop proxy
 conversation whose VM seat the join picked, plus the VNC password. The phone never sees a loopback address, and the
 proxy re-checks the lease and the session every few seconds and closes the
 socket when either lapses. Computer access is the pairing's scope: a Full
-access pairing (`openmausbot pair`) may; a chat-only one (`--client`) is
+access pairing (`seira pair`) may; a chat-only one (`--client`) is
 answered 403, which the phone shows as computer access being off.
 
 Phone control is unavailable in shared and pool modes, through either connection

@@ -159,11 +159,7 @@ struct UpdatesDigestView: View {
     ) -> some View {
         rowLink(row) {
             HStack(spacing: 8) {
-                MausFaceStill(
-                    color: row.chat.color,
-                    state: MausState(rawValue: row.face) ?? .idle,
-                    size: faceSize
-                )
+                SeiraPlateHead(chat: row.chat, face: row.face, size: faceSize)
                 VStack(alignment: .leading, spacing: 1) {
                     Text(row.chat.name)
                         .font(.system(size: nameSize, weight: .semibold))
@@ -210,14 +206,14 @@ struct UpdatesDigestView: View {
         case .needsYou:
             Image(systemName: "hand.raised.fill")
                 .font(.system(size: 12, weight: .bold))
-                .foregroundStyle(MausPalette.color(row.chat.color))
+                .foregroundStyle(SeiraPalette.color(row.chat.color))
         case .working:
             Image(systemName: "circle.dotted")
                 .font(.system(size: 12, weight: .semibold))
                 .foregroundStyle(.secondary)
         case .toReview:
             Circle()
-                .fill(MausPalette.color(row.chat.color))
+                .fill(SeiraPalette.color(row.chat.color))
                 .frame(width: 8, height: 8)
         }
     }
@@ -232,16 +228,11 @@ struct UpdatesDigestView: View {
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(.secondary)
         case .quiet:
-            // No chat to take a colour from, so the face wears the
-            // palette's own fallback grey.
-            MausFaceStill(color: "", state: .idle, size: 44)
+            // No chat to take a colour from, so the head stands on grey.
+            SeiraPlateHead(look: SeiraLook(hair: "seira", color: "silver"), size: 44)
         case .fresh, .stale:
             ZStack(alignment: .bottom) {
-                MausFaceStill(
-                    color: faceRow?.chat.color ?? "",
-                    state: faceRow.map { MausState(rawValue: $0.face) ?? .idle } ?? .idle,
-                    size: 44
-                )
+                faceHead
                 if let ask = asks.first {
                     // The count of asks, as a badge on the chin — the
                     // circle's version of the raised hand.
@@ -250,11 +241,17 @@ struct UpdatesDigestView: View {
                         .foregroundStyle(.white)
                         .padding(.horizontal, 7)
                         .padding(.vertical, 2)
-                        .background(Capsule().fill(MausPalette.color(ask.chat.color)))
+                        .background(Capsule().fill(SeiraPalette.color(ask.chat.color)))
                 }
             }
             .opacity(isStale ? 0.7 : 1)
         }
+    }
+
+    private var faceHead: some View {
+        let look = faceRow?.chat.seiraLook ?? SeiraLook(hair: "seira", color: "silver")
+        let mood = faceRow.flatMap { CharacterMood(rawValue: $0.face) } ?? .idle
+        return SeiraPlateHead(look: look, mood: mood, size: 44)
     }
 
     @ViewBuilder
@@ -267,11 +264,7 @@ struct UpdatesDigestView: View {
         case .fresh, .stale:
             if let row = rows.first {
                 HStack(spacing: 8) {
-                    MausFaceStill(
-                        color: row.chat.color,
-                        state: MausState(rawValue: row.face) ?? .idle,
-                        size: 20
-                    )
+                    SeiraPlateHead(chat: row.chat, face: row.face, size: 20)
                     VStack(alignment: .leading, spacing: 1) {
                         Text(row.chat.name)
                             .font(.system(size: 13, weight: .semibold))
@@ -310,7 +303,7 @@ struct UpdatesDigestView: View {
                 HStack(spacing: 4) {
                     Image(systemName: "hand.raised.fill")
                         .font(.system(size: 13, weight: .bold))
-                        .foregroundStyle(MausPalette.color(ask.chat.color))
+                        .foregroundStyle(SeiraPalette.color(ask.chat.color))
                     Text("\(asks.count) need you")
                 }
             } else if rows.isEmpty {
@@ -370,6 +363,6 @@ private struct DigestSection: Identifiable {
     /// The section header's colour: the first ask's own under Needs you —
     /// the sheet tints it the same way — secondary elsewhere.
     var tint: Color {
-        kind == .needsYou ? MausPalette.color(rows[0].chat.color) : .secondary
+        kind == .needsYou ? SeiraPalette.color(rows[0].chat.color) : .secondary
     }
 }

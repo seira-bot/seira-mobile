@@ -44,7 +44,7 @@ class ServerPairingScreenTest {
                         failFirstPair = false
                         return MockResponse().setResponseCode(failureStatus).setBody("{\"error\":\"temporarily unavailable\"}")
                     }
-                    return MockResponse().setBody("""{"token":"omb_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"Headless test server"}}""")
+                    return MockResponse().setBody("""{"token":"seira_sess_fixture","session":{"id":"s1","label":"Pixel","scopes":["client"]},"environment":{"environmentId":"env-fixture","label":"Headless test server"}}""")
                 }
                 return MockResponse().setBody("""{"environmentId":"env-fixture","label":"Headless test server"}""")
             }

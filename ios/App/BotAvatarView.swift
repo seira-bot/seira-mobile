@@ -3,15 +3,13 @@ import UIKit
 import CompanionCore
 
 /// An agent identity image fetched from the paired computer with the device
-/// bearer token. The mascot is deterministic fallback for missing, stale, or
-/// undecodable attachments, so identity never becomes an empty placeholder.
+/// bearer token. The Seira character on the bot's plate is the fallback for
+/// missing, stale, or undecodable attachments, so identity never becomes an
+/// empty placeholder.
 struct BotAvatarView: View {
     let bot: Bot
     let size: CGFloat
-    var state: MausState = .idle
-    /// Opt-in, mirroring MausAvatar: an animated face is a 30fps canvas.
-    var animated = false
-    var comets = false
+    var state: CharacterMood = .idle
 
     @Environment(\.avatarLoader) private var avatars
     @Environment(\.displayScale) private var displayScale
@@ -23,7 +21,7 @@ struct BotAvatarView: View {
     private var pixelSize: Int { max(1, Int((size * displayScale).rounded(.up))) }
     /// Which of the two renderings this bot gets. The decision itself is a
     /// pure function in `CompanionCore` so it can be tested without a
-    /// rendered `Canvas`; see `resolveBotAvatarOutcome`.
+    /// rendered view; see `resolveBotAvatarOutcome`.
     private var outcome: BotAvatarOutcome {
         resolveBotAvatarOutcome(
             crop: crop, hasUrl: bot.avatarUrl != nil, imageDecoded: image != nil, failed: failed)
@@ -32,12 +30,8 @@ struct BotAvatarView: View {
     var body: some View {
         Group {
             switch outcome {
-            // The picture instead of the mascot, masked to the chosen shape.
             case .flatImage: flatImage
-            // The mascot in the bot's own colours, which is also the fallback
-            // whenever there is no usable picture so identity is never an
-            // empty placeholder.
-            case .gradientMascot: mascot
+            case .character: character
             }
         }
         .frame(width: size, height: size)
@@ -46,7 +40,7 @@ struct BotAvatarView: View {
         .task(id: "\(bot.avatarUrl ?? "")|\(crop.rawValue)|\(pixelSize)") {
             image = nil
             failed = false
-            // Only the flat crops paint the bytes; the mascot never needs them.
+            // Only the flat crops paint the bytes; the character never needs them.
             guard crop != .mascot, let path = bot.avatarUrl else { return }
             let data = await avatars.data(for: bot)
             guard !Task.isCancelled else { return }
@@ -88,10 +82,11 @@ struct BotAvatarView: View {
         }
     }
 
-    private var mascot: some View {
-        MausAvatar(
-            color: bot.color, size: size, bodyId: bot.mascotBody,
-            state: state, animated: animated, comets: comets)
+    private var character: some View {
+        ZStack {
+            Circle().fill(SeiraIdentity.plate(hex: bot.color))
+            SeiraAvatarHead(look: SeiraLook(bot: bot), size: size, mood: state)
+        }
     }
 
     private var mask: AnyShape {
@@ -200,20 +195,103 @@ extension EnvironmentValues {
     }
 }
 
+/// A bot chat wears its bot's avatar. A room shows two of its members side by
+/// side, or one Seira head when no member is known.
 struct ChatAvatarView: View {
     let chat: Chat
     let size: CGFloat
-    var state: MausState = .idle
-    /// Opt-in, mirroring MausAvatar: an animated face is a 30fps canvas.
-    var animated = false
-    var comets = false
+    var state: CharacterMood = .idle
+    var members: [Bot] = []
 
     var body: some View {
         switch chat {
         case let .bot(bot):
-            BotAvatarView(bot: bot, size: size, state: state, animated: animated, comets: comets)
-        case .room:
-            MausAvatar(color: "blue", size: size, state: state, animated: animated, comets: comets)
+            BotAvatarView(bot: bot, size: size, state: state)
+        case let .room(room):
+            RoomAvatarView(room: room, members: members, size: size, state: state)
         }
+    }
+}
+
+private struct RoomAvatarView: View {
+    let room: Room
+    let members: [Bot]
+    let size: CGFloat
+    let state: CharacterMood
+
+    var body: some View {
+        if members.count >= 2 {
+            pair
+        } else if let only = members.first {
+            BotAvatarView(bot: only, size: size, state: state)
+        } else {
+            fallback
+        }
+    }
+
+    private var fallback: some View {
+        let look = SeiraLook(hair: "seira", color: "blue")
+        return ZStack {
+            Circle().fill(SeiraIdentity.plate(hex: look.color))
+            SeiraAvatarHead(look: look, size: size, mood: state)
+        }
+        .frame(width: size, height: size)
+    }
+
+    private var pair: some View {
+        let face = size * 0.68
+        let shift = (size - face) / 2
+        return ZStack {
+            BotAvatarView(bot: members[0], size: face, state: state)
+                .offset(x: -shift, y: -shift)
+            BotAvatarView(bot: members[1], size: face, state: state)
+                .padding(size * 0.03)
+                .background(Circle().fill(Color.seiraTint))
+                .offset(x: shift, y: shift)
+        }
+        .frame(width: size, height: size)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(room.name) avatar")
+    }
+}
+
+extension CompanionState {
+    /// The bots of a room, for the stacked pair its avatar shows. Empty for a bot chat.
+    func members(of chat: Chat) -> [Bot] {
+        guard case let .room(room) = chat else { return [] }
+        return room.memberIds.compactMap { bot($0) }
+    }
+}
+
+/// The large avatar: a bot with a photo shows the photo, every other bot the
+/// moving Seira character on its identity plate.
+struct BotCharacterView: View {
+    let bot: Bot
+    let size: CGFloat
+    var mood: CharacterMood = .idle
+    var motion: SeiraCharacterMotion = .still
+    var talkLevel: Double?
+
+    private var hasPhoto: Bool {
+        bot.avatarUrl != nil && (bot.avatarCrop ?? .mascot) != .mascot
+    }
+
+    var body: some View {
+        if hasPhoto {
+            BotAvatarView(bot: bot, size: size, state: mood)
+        } else {
+            plate
+        }
+    }
+
+    private var plate: some View {
+        ZStack {
+            Circle().fill(SeiraIdentity.plate(hex: bot.color))
+            SeiraCharacter(look: SeiraLook(bot: bot), size: size, mood: mood, motion: motion, talkLevel: talkLevel)
+        }
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(bot.name) avatar")
     }
 }

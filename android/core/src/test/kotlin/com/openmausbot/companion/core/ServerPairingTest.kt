@@ -38,6 +38,6 @@ class ServerPairingTest {
             "https://user:password@mini.example/pair#code=ABCDEFGHJKLM",
             "ftp://mini.example/pair#code=ABCDEFGHJKLM",
         )) assertNull(PairingInvite.parse(bad), bad)
-        assertNotNull(PairingInvite.parse("openmausbot://pair?address=192.168.1.9:8810&code=123456"))
+        assertNotNull(PairingInvite.parse("seira://pair?address=192.168.1.9:8810&code=123456"))
     }
 }
