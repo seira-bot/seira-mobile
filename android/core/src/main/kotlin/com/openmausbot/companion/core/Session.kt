@@ -566,7 +566,12 @@ class Session(
     private suspend fun unpairLocked() {
         val id = _connection.value?.id ?: registry.activeConnectionId
         if (id != null) unregisterPush(id)
+        val leaving = id?.let { _connection.value?.takeIf { active -> active.id == it } ?: registry.connection(it) }
+        val leavingToken = leaving?.takeIf { it.pairedWithServer }?.let { server ->
+            token?.takeIf { _connection.value?.id == server.id } ?: storedTokenOrNull(server.id)
+        }
         stopActiveRuntimeLocked()
+        if (leaving != null && leavingToken != null) revokeServerSession(leaving, leavingToken)
         if (id != null) tokenStore.remove(id)
         registry = id?.let(registry::remove) ?: ConnectionRegistry()
         _connections.value = registry.connections
@@ -637,7 +642,10 @@ class Session(
             gate.withLock {
                 if (registry.connection(id) == null) return@withLock
                 val wasActive = registry.activeConnectionId == id
+                val leaving = registry.connection(id)
+                val leavingToken = leaving?.takeIf { it.pairedWithServer }?.let { storedTokenOrNull(it.id) }
                 if (wasActive) stopActiveRuntimeLocked()
+                if (leaving != null && leavingToken != null) revokeServerSession(leaving, leavingToken)
                 tokenStore.remove(id)
                 registry = registry.remove(id)
                 _connections.value = registry.connections
@@ -651,6 +659,27 @@ class Session(
                 }
             }
             connect()
+        }
+    }
+
+    private suspend fun storedTokenOrNull(id: String): String? = try {
+        (tokenStore.read(id) as? TokenStore.ReadResult.Found)?.token
+    } catch (cancellation: CancellationException) {
+        throw cancellation
+    } catch (_: Exception) {
+        null
+    }
+
+    /** Ends the server session in the background. The local removal never waits for it. */
+    private fun revokeServerSession(connection: Connection, token: String) {
+        if (!connection.pairedWithServer) return
+        scope.launch {
+            try {
+                withTimeoutOrNull(REVOKE_TIMEOUT_MILLIS) { clientFactory(connection, token).logout() }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+            }
         }
     }
 
@@ -2603,6 +2632,7 @@ class Session(
         internal const val EMPTY_RESUMES_BEFORE_FRESH_START = 2
         private const val NETWORK_CHANGE_DEBOUNCE_MILLIS = 1_000L
         private const val PUSH_UNREGISTER_TIMEOUT_MILLIS = 4_000L
+        private const val REVOKE_TIMEOUT_MILLIS = 10_000L
 
         /** High-entropy QR token — distinct from a retryable six-digit code. */
         fun isQrCredential(credential: String): Boolean =

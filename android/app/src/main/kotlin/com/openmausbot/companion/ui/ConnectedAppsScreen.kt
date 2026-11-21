@@ -12,11 +12,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -30,6 +31,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +53,8 @@ import com.openmausbot.companion.core.ConnectorCard
 import com.openmausbot.companion.core.ConnectorCatalog
 import com.openmausbot.companion.core.ConnectorStatus
 import com.openmausbot.companion.core.ConnectorStatuses
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 /**
@@ -72,6 +77,9 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
     // Everything typed, and the dialog holding it, outlive a rotation: this
     // Activity is recreated on one, and the catalog behind them is re-fetched.
     var query by rememberSaveable { mutableStateOf("") }
+    val visibleCards by remember {
+        derivedStateOf { ConnectedAppsPolicy.filterCards(catalog?.cards.orEmpty(), query) }
+    }
     var loading by remember { mutableStateOf(true) }
     var refreshing by remember { mutableStateOf(false) }
     var aliasTarget by rememberSaveable(stateSaver = AliasTargetSaver) {
@@ -109,8 +117,12 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
     LaunchedEffect(Unit) {
         loading = true
         try {
-            catalog = session.loadConnectorCatalog()
-            refresh()
+            coroutineScope {
+                val loadedCatalog = async { catalog = session.loadConnectorCatalog() }
+                val loadedInventory = async { refresh() }
+                loadedCatalog.await()
+                loadedInventory.await()
+            }
         } finally {
             loading = false
         }
@@ -152,42 +164,46 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
             onRefresh = { scope.launch { refresh(showProgress = true) } },
             modifier = Modifier.fillMaxSize(),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                OutlinedTextField(
-                    value = query,
-                    onValueChange = { query = it },
-                    label = { Text(stringResource(R.string.mobile_search_apps_ca3ce8f3)) },
-                    singleLine = true,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+                item(key = "search", contentType = "search") {
+                    OutlinedTextField(
+                        value = query,
+                        onValueChange = { query = it },
+                        label = { Text(stringResource(R.string.mobile_search_apps_ca3ce8f3)) },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
 
                 if (inventory.credentialStoreUnreadable) {
-                    CredentialStoreWarning(hasLastKnownInventory = inventory.statuses != null)
+                    item(key = "credential-warning", contentType = "notice") {
+                        CredentialStoreWarning(hasLastKnownInventory = inventory.statuses != null)
+                    }
                 }
 
                 if (ConnectedAppsPolicy.showSetupNotice(catalog, inventory.credentialStoreUnreadable)) {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
-                        ) {
-                            Text(stringResource(R.string.mobile_connected_apps_need_setup_2cdb536a), fontWeight = FontWeight.SemiBold)
-                            Text(
-                                stringResource(R.string.mobile_configure_composio_on_your_compute_4281e8b0),
-                                color = secondaryTint,
-                                fontSize = 13.sp,
-                            )
+                    item(key = "setup-notice", contentType = "notice") {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(
+                                modifier = Modifier.padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Text(stringResource(R.string.mobile_connected_apps_need_setup_2cdb536a), fontWeight = FontWeight.SemiBold)
+                                Text(
+                                    stringResource(R.string.mobile_configure_composio_on_your_compute_4281e8b0),
+                                    color = secondaryTint,
+                                    fontSize = 13.sp,
+                                )
+                            }
                         }
                     }
                 }
 
-                ConnectedAppsPolicy.filterCards(catalog?.cards.orEmpty(), query).forEach { card ->
+                items(visibleCards, key = { it.slug }, contentType = { "card" }) { card ->
                     ConnectorCardView(
                         card = card,
                         status = inventory.statuses?.get(card.slug),
@@ -202,12 +218,16 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                 }
 
                 if (!loading && catalog?.cards.isNullOrEmpty()) {
-                    Text(stringResource(R.string.mobile_no_connected_apps_are_available_fr_0529e71d), color = secondaryTint)
+                    item(key = "empty", contentType = "notice") {
+                        Text(stringResource(R.string.mobile_no_connected_apps_are_available_fr_0529e71d), color = secondaryTint)
+                    }
                 }
 
                 if (loading) {
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
+                    item(key = "loading", contentType = "notice") {
+                        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(28.dp), strokeWidth = 3.dp)
+                        }
                     }
                 }
             }
@@ -248,6 +268,8 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
         )
     }
 }
+
+internal const val CONNECTOR_CARD_TAG = "connector-card"
 
 /**
  * What the alias dialog is about: the connector it will authorize and the name
@@ -293,7 +315,7 @@ private fun ConnectorCardView(
     val connected = status?.connected == true
     val pending = status?.pending == true
 
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(modifier = Modifier.fillMaxWidth().testTag(CONNECTOR_CARD_TAG)) {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                 Column(modifier = Modifier.weight(1f)) {

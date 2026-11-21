@@ -255,6 +255,103 @@ class ServerSessionPairingTest {
         assertNull(old.serverScopes)
     }
 
+    private fun serverSaved() =
+        assertNotNull(Connection.parse("https://mini.example")).copy(serverEnvironmentId = "env-fixture")
+
+    private suspend fun Fixture.logouts(expected: Int): List<Request> {
+        withTimeout(5_000) { while (requests.count { it.url.encodedPath == "/api/auth/logout" } < expected) delay(10) }
+        delay(100)
+        return requests.filter { it.url.encodedPath == "/api/auth/logout" }
+    }
+
+    @Test
+    fun signingOutOfAServerPairingSendsOneLogoutWithTheOldToken() = runBlocking<Unit> {
+        val saved = serverSaved()
+        Fixture(saved = saved).use { f ->
+            f.session.awaitRestored()
+            f.session.signOutAndAwait()
+            val logouts = f.logouts(1)
+            assertEquals(1, logouts.size)
+            assertEquals("POST", logouts.single().method)
+            assertEquals("Bearer seira_sess_fixture", logouts.single().header("Authorization"))
+            assertTrue(f.tokens.values.isEmpty())
+            assertNull(f.session.connection.value)
+            assertEquals(Session.Status.Unpaired, f.session.status.value)
+        }
+    }
+
+    @Test
+    fun forgettingAnInactiveServerPairingSendsLogoutWithTheStoredToken() = runBlocking<Unit> {
+        val active = Connection(name = "desktop", host = "192.168.1.20", port = 8810)
+        val saved = serverSaved()
+        Fixture(saved = active, extraSaved = saved).use { f ->
+            f.tokens.values[saved.id] = "seira_sess_inactive"
+            f.session.awaitRestored()
+            f.session.forgetConnection(saved.id)
+            val logouts = f.logouts(1)
+            assertEquals("Bearer seira_sess_inactive", logouts.single().header("Authorization"))
+            assertNull(f.tokens.values[saved.id])
+            assertEquals(active.id, f.session.connection.value?.id)
+        }
+    }
+
+    @Test
+    fun aLogoutThatNeverAnswersDoesNotHoldBackSignOut() = runBlocking<Unit> {
+        val release = java.util.concurrent.CountDownLatch(1)
+        Fixture(saved = serverSaved()) { request ->
+            if (request.url.encodedPath == "/api/auth/logout") release.await(30, java.util.concurrent.TimeUnit.SECONDS)
+            null
+        }.use { f ->
+            try {
+                f.session.awaitRestored()
+                withTimeout(5_000) { f.session.signOutAndAwait() }
+                assertEquals(Session.Status.Unpaired, f.session.status.value)
+                assertTrue(f.tokens.values.isEmpty())
+            } finally {
+                release.countDown()
+            }
+        }
+    }
+
+    @Test
+    fun aLogoutThatFailsStillRemovesTheTokenAndThePairing() = runBlocking<Unit> {
+        Fixture(saved = serverSaved()) { request ->
+            if (request.url.encodedPath == "/api/auth/logout") throw IOException("offline")
+            null
+        }.use { f ->
+            f.session.awaitRestored()
+            f.session.signOutAndAwait()
+            f.logouts(1)
+            assertEquals(Session.Status.Unpaired, f.session.status.value)
+            assertTrue(f.tokens.values.isEmpty())
+            assertTrue(f.session.connections.value.isEmpty())
+        }
+    }
+
+    @Test
+    fun aCompanionPairingSendsNoLogout() = runBlocking<Unit> {
+        val companion = Connection(name = "desktop", host = "192.168.1.20", port = 8810)
+        Fixture(saved = companion).use { f ->
+            f.session.awaitRestored()
+            f.session.signOutAndAwait()
+            delay(300)
+            assertTrue(f.requests.none { it.url.encodedPath == "/api/auth/logout" })
+            assertTrue(f.tokens.values.isEmpty())
+            assertEquals(Session.Status.Unpaired, f.session.status.value)
+        }
+    }
+
+    @Test
+    fun pairingAgainFromAServerPairingRevokesTheOldSession() = runBlocking<Unit> {
+        Fixture(saved = serverSaved()).use { f ->
+            f.session.awaitRestored()
+            f.session.pairAgainAndAwait()
+            val logouts = f.logouts(1)
+            assertEquals("Bearer seira_sess_fixture", logouts.single().header("Authorization"))
+            assertTrue(f.tokens.values.isEmpty())
+        }
+    }
+
     private class Fixture(
         val saved: Connection? = null,
         val extraSaved: Connection? = null,

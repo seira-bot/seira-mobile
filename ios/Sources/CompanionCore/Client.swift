@@ -1063,6 +1063,22 @@ public struct CompanionClient: Sendable {
         try await send(try makeRequest("GET", "/api/instances"), as: InstanceList.self).instances
     }
 
+    /// The AI plan usage of each engine. A computer that does not serve it,
+    /// or a pairing that may not read it, answers 404 or 403: that gives nil,
+    /// and the app shows no usage. `refresh` asks the providers again, so
+    /// only a person's "Check now" may set it.
+    public func engineLimits(refresh: Bool = false) async throws -> EngineLimitsReport? {
+        let request = try makeRequest(
+            "GET", "/api/limit-resets",
+            query: refresh ? [URLQueryItem(name: "refresh", value: "1")] : []
+        )
+        do {
+            return try await send(request, as: EngineLimitsReport.self)
+        } catch let APIError.status(code, _) where code == 403 || code == 404 {
+            return nil
+        }
+    }
+
     /// The image capability is intentionally queried independently from the
     /// general Instance model: older servers omit it, which must mean false
     /// for a share that would otherwise send an unreadable image prompt.

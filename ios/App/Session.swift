@@ -2343,6 +2343,33 @@ final class Session: ObservableObject {
         }
     }
 
+    enum UsageLoad {
+        case report(EngineLimitsReport)
+        /// The computer does not share usage with this phone.
+        case unavailable
+        case failed
+    }
+
+    /// Usage never goes to `actionError`: a screen that cannot read it hides
+    /// it or says so in place.
+    func loadEngineLimits(refresh: Bool = false) async -> UsageLoad {
+        guard canAdminister, let client else { return .unavailable }
+        do {
+            guard let report = try await client.engineLimits(refresh: refresh) else { return .unavailable }
+            return .report(report)
+        } catch {
+            return .failed
+        }
+    }
+
+    /// The model's name as the catalog words it, or its id when the catalog
+    /// cannot be read.
+    func modelLabel(for selection: ModelSelection) async -> String {
+        guard let client, let instances = try? await client.instances() else { return selection.model }
+        let instance = instances.first { $0.instanceId == selection.instanceId }
+        return instance?.models.options.first { $0.id == selection.model }?.label ?? selection.model
+    }
+
     func updateModel(_ selection: ModelSelection, for bot: Bot) async -> Bot? {
         guard let client else { return nil }
         do {
