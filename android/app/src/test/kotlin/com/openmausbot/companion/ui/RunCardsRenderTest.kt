@@ -234,7 +234,7 @@ class RunCardsRenderTest {
         try {
             compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
         } catch (e: Throwable) {
-            throw AssertionError("DEBUG " + requests + " " + compose.onRoot().printToString(), e)
+            throw AssertionError("DEBUG " + requests + " " + compose.onAllNodes(androidx.compose.ui.test.isRoot()).let { r -> (0 until r.fetchSemanticsNodes().size).joinToString { i -> r[i].printToString() } }, e)
         }
         compose.waitForIdle()
         compose.onNodeWithText("Invoice May").assertIsDisplayed()
