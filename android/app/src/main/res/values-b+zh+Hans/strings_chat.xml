@@ -71,4 +71,14 @@
     <string name="chat_burst_status_cancelled">已取消</string>
     <string name="chat_burst_error_action">没有成功。请稍后再试。</string>
     <string name="chat_burst_row_open">打开对话：%1$s</string>
+    <string name="chat_failed_turn_switch_model">切换模型</string>
+    <string name="chat_failed_turn_try_again">重试</string>
+    <string name="chat_failed_turn_check_usage">查看用量</string>
+    <string name="chat_failed_turn_continue_at">在 %1$s 继续</string>
+    <string name="chat_failed_turn_now_using">现在使用 %1$s。</string>
+    <string name="chat_failed_turn_model_down">目前无法使用</string>
+    <string name="chat_failed_turn_ask_owner">请让此工作区的所有者添加另一个 AI。</string>
+    <string name="chat_failed_turn_switch_failed">无法切换模型。请重试。</string>
+    <string name="chat_failed_turn_use_model">使用此模型</string>
+    <string name="chat_failed_turn_models_unavailable">此手机无法查看 AI 模型列表。</string>
 </resources>

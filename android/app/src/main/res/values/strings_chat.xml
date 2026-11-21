@@ -71,4 +71,14 @@
     <string name="chat_burst_status_cancelled">Cancelled</string>
     <string name="chat_burst_error_action">That didn\'t work. Try again in a moment.</string>
     <string name="chat_burst_row_open">Open the conversation: %1$s</string>
+    <string name="chat_failed_turn_switch_model">Switch model</string>
+    <string name="chat_failed_turn_try_again">Try again</string>
+    <string name="chat_failed_turn_check_usage">Check usage</string>
+    <string name="chat_failed_turn_continue_at">Continue at %1$s</string>
+    <string name="chat_failed_turn_now_using">Now using %1$s.</string>
+    <string name="chat_failed_turn_model_down">Not working right now</string>
+    <string name="chat_failed_turn_ask_owner">Ask the owner of this workspace to add another AI.</string>
+    <string name="chat_failed_turn_switch_failed">Could not switch the model. Try again.</string>
+    <string name="chat_failed_turn_use_model">Use this model</string>
+    <string name="chat_failed_turn_models_unavailable">The list of AI models is not available on this phone.</string>
 </resources>
