@@ -673,6 +673,10 @@ class CompanionClient(
         makeRequest("POST", "/api/routines/${segment(id)}/run"),
     ).run
 
+    suspend fun logout() {
+        sendUnit(makeRequest("POST", "/api/auth/logout"))
+    }
+
     suspend fun deleteRoutine(id: String) {
         sendUnit(makeRequest("DELETE", "/api/routines/${segment(id)}"))
     }
