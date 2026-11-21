@@ -1629,13 +1629,18 @@ class Session(
         }
     }
 
+    /**
+     * Answers [card] with [choice]. Returns what the harness did with the answer
+     * ("answered", "unavailable", …), or null when the server named nothing or
+     * the answer did not land (then [actionError] says why).
+     */
     suspend fun answer(
         chat: Chat,
         card: OptionCard,
         choice: String,
         rememberingPermission: Boolean = true,
-    ) {
-        val requestId = card.requestId ?: return
+    ): String? {
+        val requestId = card.requestId ?: return null
         if (
             rememberingPermission &&
             card.shouldRememberPermission(choice) &&
@@ -1643,7 +1648,7 @@ class Session(
         ) {
             alwaysAllow(chat.bot, card)
         }
-        answer(
+        return answer(
             threadId = chat.threadId,
             requestId = requestId,
             choice = choice,
@@ -1658,10 +1663,11 @@ class Session(
         choice: String,
         isPermission: Boolean,
         reviewedSha256: String? = null,
-    ) {
+    ): String? {
+        var outcome: String? = null
         perform {
             val behavior = OptionCard.responseBehavior(choice, isPermission)
-            it.respond(
+            outcome = it.respond(
                 threadId = threadId,
                 requestId = requestId,
                 behavior = behavior,
@@ -1669,6 +1675,7 @@ class Session(
                 reviewedSha256 = reviewedSha256.takeIf { behavior == "allow" },
             )
         }
+        return outcome
     }
 
     /**
