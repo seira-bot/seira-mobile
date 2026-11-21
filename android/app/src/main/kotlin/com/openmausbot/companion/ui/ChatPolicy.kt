@@ -334,7 +334,7 @@ object RosterLayout {
     /**
      * Whether the unsearched roster lists anything at all: a bot, or a group —
      * a row in compact, a tile in comfortable. Only when there is neither does
-     * "No bots yet" show; drawn over group rows, it would sit on top of them.
+     * "No chats yet" show; drawn over group rows, it would sit on top of them.
      * The iPhone asks the same question.
      */
     fun listsAnyChat(summaries: List<ChatSummary>): Boolean = summaries.isNotEmpty()
@@ -499,7 +499,7 @@ object SearchHitRole {
 object MessageActions {
     /** The text worth putting on the clipboard, or null when there is none. */
     fun copyableText(message: Message): String? = when (message.kind) {
-        Message.Kind.TEXT, Message.Kind.APP, Message.Kind.UNKNOWN -> message.text
+        Message.Kind.TEXT, Message.Kind.APP, Message.Kind.WIDGET, Message.Kind.UNKNOWN -> message.text
             ?.let { message.webhookContent?.task ?: AttachedMessageContent.parse(it).text }
             ?.takeIf { it.isNotBlank() }
         // An approval card is worth copying for what it is asking to do.

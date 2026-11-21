@@ -482,6 +482,7 @@ private fun MessageContent(
             if (message.tool?.claudeUpdate == true && claudeInstance != null) {
                 ClaudeUpdateCard(messageId = message.id, instanceId = claudeInstance)
             }
+            FailedTurnActionRow(chat, message)
         }
         Message.Kind.COMPACTION -> ReceiptChip(
             label = message.compaction?.chipText ?: message.text.orEmpty(),
@@ -507,6 +508,7 @@ private fun MessageContent(
         Message.Kind.UNKNOWN -> if (!message.text.isNullOrEmpty()) {
             TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
+        Message.Kind.WIDGET -> WidgetMessageRow(chat, message, openLink, openThread)
         // A page the bot showed: a card with Open when this phone can show it, else its text.
         Message.Kind.APP -> if (message.app?.isOpenablePage == true) {
             ChatAppCard(chat, message, startsRun, replyBot)

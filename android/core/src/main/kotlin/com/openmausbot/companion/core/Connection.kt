@@ -38,6 +38,13 @@ data class Connection(
 ) {
     val pairedWithServer: Boolean get() = serverEnvironmentId != null
 
+    /**
+     * Whether this pairing may administer the workspace (read the model list,
+     * continue at a limit reset). A server session may only with the `admin`
+     * scope; the server answers 403 otherwise.
+     */
+    val canAdminister: Boolean get() = !pairedWithServer || serverScopes?.contains("admin") == true
+
     val baseUrl: URI?
         get() {
             activeEndpoint?.let { endpoint ->

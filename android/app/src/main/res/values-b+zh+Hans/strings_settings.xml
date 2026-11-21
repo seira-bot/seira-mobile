@@ -23,4 +23,11 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">无法连接到你的电脑</string>
     <string name="settings_reconnect">重新连接</string>
+    <string name="update_banner_downloading">正在下载更新…</string>
+    <string name="update_banner_ready">更新已就绪。重启 Seira</string>
+    <string name="update_banner_restart">重启</string>
+    <string name="settings_check_updates">检查更新</string>
+    <string name="settings_update_checking">正在检查…</string>
+    <string name="settings_update_found">正在下载更新</string>
+    <string name="settings_update_current">已是最新版本</string>
 </resources>
