@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
@@ -616,7 +617,7 @@ private fun ConfirmationCard(
         }
         if (confirmation.otherAddresses > 0) {
             Text(
-                stringResource(R.string.mobile_pairing_other_addresses, confirmation.otherAddresses),
+                pluralStringResource(R.plurals.mobile_pairing_other_addresses, confirmation.otherAddresses, confirmation.otherAddresses),
                 color = colors.ink3,
                 style = SeiraType.callout,
             )

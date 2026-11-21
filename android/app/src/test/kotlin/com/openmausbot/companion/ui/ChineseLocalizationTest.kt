@@ -2,15 +2,12 @@ package com.openmausbot.companion.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import com.openmausbot.companion.R
-import java.io.File
-import javax.xml.parsers.DocumentBuilderFactory
-import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -43,48 +40,12 @@ class ChineseLocalizationTest {
         compose.onNodeWithText("Seira").assertIsDisplayed()
     }
 
-    @Test
-    fun bothChineseCatalogsKeepResourceNamesAndFormatArguments() {
-        val root = File("src/main/res").takeIf(File::isDirectory) ?: File("app/src/main/res")
-        val catalogs = File(root, "values").listFiles { file ->
-            file.name.startsWith("strings") && file.name.endsWith(".xml")
-        }.orEmpty().sortedBy(File::getName)
-        assertTrue(catalogs.any { it.name == "strings.xml" }, "no English catalog found in $root")
-        val arguments = Regex("%(?:\\d+\\$)?[a-zA-Z]")
-        for (catalog in catalogs) {
-            val english = strings(catalog)
-            for (folder in listOf("values-b+zh+Hans", "values-b+zh+Hant")) {
-                val file = File(root, "$folder/${catalog.name}")
-                assertTrue(file.isFile, "$folder is missing ${catalog.name}")
-                val translated = strings(file)
-                assertEquals(english.keys, translated.keys, "$folder/${catalog.name}")
-                for ((name, value) in english) {
-                    assertEquals(
-                        arguments.findAll(value).map { it.value }.sorted().toList(),
-                        arguments.findAll(translated.getValue(name)).map { it.value }.sorted().toList(),
-                        "$folder/${catalog.name}:$name",
-                    )
-                }
-            }
-        }
-    }
-
     private fun showCopy() = compose.setContent {
         Column {
             Text(localizedMobileCopy("List density"))
             Text(localizedMobileCopy("Compact"))
-            Text(stringResource(R.string.mobile_diff_show_all_lines, 27))
+            Text(pluralStringResource(R.plurals.mobile_diff_show_all_lines, 27, 27))
             Text(stringResource(R.string.app_name))
-        }
-    }
-
-    private fun strings(file: File): Map<String, String> {
-        val entries = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-            .parse(file).getElementsByTagName("string")
-        return (0 until entries.length).map(entries::item)
-            .filter { it.attributes.getNamedItem("translatable")?.nodeValue != "false" }
-            .associate { entry ->
-            entry.attributes.getNamedItem("name").nodeValue to entry.textContent
         }
     }
 }

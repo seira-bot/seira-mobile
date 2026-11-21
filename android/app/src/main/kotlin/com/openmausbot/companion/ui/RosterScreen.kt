@@ -1118,7 +1118,7 @@ fun StatusBanner() {
     val banner: Pair<String, Color>? = when (val current = status) {
         Session.Status.Live, Session.Status.Unpaired -> null
         Session.Status.Connecting -> stringResource(R.string.mobile_connecting_fd3e7969) to secondaryTint
-        is Session.Status.Offline -> current.message to Color(BotPalette.argb("orange"))
+        is Session.Status.Offline -> localizedMobileCopy(current.message) to Color(BotPalette.argb("orange"))
         Session.Status.Unauthorized ->
             stringResource(R.string.mobile_phone_unpaired_banner) to MaterialTheme.colorScheme.error
     }

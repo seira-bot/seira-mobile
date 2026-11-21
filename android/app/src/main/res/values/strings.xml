@@ -14,7 +14,6 @@
     <string name="mobile_text_da39a3ee"></string>
     <string name="mobile_answeredcount_of_questions_size_91c7d963">%1$s of %2$s</string>
     <string name="mobile_label_taskrules_title_task_48c15f59">%1$s %2$s</string>
-    <string name="mobile_minutes_minutes_29dd88a9">%1$s minutes</string>
     <string name="mobile_pinlabel_taskrules_title_task_5545ef6f">%1$s %2$s</string>
     <string name="mobile_bot_name_s_computer_7637def1">%1$s\'s computer</string>
     <string name="mobile_chat_name_has_a_question_13ca9f26">%1$s has a question</string>
@@ -27,7 +26,6 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_step_29869c51">1 step</string>
     <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1.  Open Seira → Settings → Phone</string>
     <string name="mobile_choose_set_up_a_phone_8fd474a9">2.  Choose Set up a phone</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">A frame of this bot\'s computer</string>
@@ -144,7 +142,10 @@
     <string name="mobile_calendar_previous_week">Previous week</string>
     <string name="mobile_calendar_next_week">Next week</string>
     <string name="mobile_calendar_scheduled">Scheduled</string>
-    <string name="mobile_calendar_day_runs">%1$d runs</string>
+    <plurals name="mobile_calendar_day_runs">
+        <item quantity="one">%1$d run</item>
+        <item quantity="other">%1$d runs</item>
+    </plurals>
     <string name="mobile_new_thread_02057e28">New thread</string>
     <string name="mobile_new_thread_with_bot_name_80fb4510">New thread with %1$s</string>
     <string name="mobile_newer_schedule_c56a41aa">Newer schedule</string>
@@ -306,7 +307,10 @@
     <string name="mobile_a11y_summary_collapsed">%1$s, collapsed</string>
     <string name="mobile_a11y_open_chat_settings">Open %1$s settings</string>
     <string name="mobile_a11y_threads_current">Threads, %1$s</string>
-    <string name="mobile_a11y_room_header">%1$s, %2$d bots</string>
+    <plurals name="mobile_a11y_room_header">
+        <item quantity="one">%1$s, %2$d bot</item>
+        <item quantity="other">%1$s, %2$d bots</item>
+    </plurals>
     <string name="mobile_a11y_close">Close</string>
     <string name="mobile_a11y_choose_custom_repeat_interval">Choose a custom repeat interval</string>
     <string name="mobile_a11y_repeat_interval">Repeat interval, %1$s minutes</string>
@@ -324,7 +328,10 @@
     <string name="mobile_pairing_no_address">That computer did not answer with an address. Enter the address shown in Phone settings instead.</string>
     <string name="mobile_pairing_invalid_address">Enter a secure https:// address, 192.168.1.42:8810, or a name like macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">That is not a Seira pairing QR code.</string>
-    <string name="mobile_pairing_other_addresses">and %1$d more of this computer\'s addresses</string>
+    <plurals name="mobile_pairing_other_addresses">
+        <item quantity="one">and %1$d more of this computer\'s addresses</item>
+        <item quantity="other">and %1$d more of this computer\'s addresses</item>
+    </plurals>
     <string name="mobile_camera_permission_description">Allow camera access to scan the pairing QR code shown by Seira.</string>
     <string name="mobile_camera_permission_denied">Allow camera access to scan the pairing QR code shown by Seira, or go back and enter the address and code by hand.</string>
 
@@ -422,8 +429,10 @@
     <string name="mobile_roster_create_thread_failed">Couldn\'t create a thread. Check the connection and try again.</string>
     <string name="mobile_webhook_task">Webhook task</string>
     <string name="mobile_webhook_event_payload">Event payload</string>
-    <string name="mobile_table_one_row">1 row</string>
-    <string name="mobile_table_rows">%1$d rows</string>
+    <plurals name="mobile_table_rows">
+        <item quantity="one">%1$d row</item>
+        <item quantity="other">%1$d rows</item>
+    </plurals>
     <string name="mobile_routine_run_untitled">Routine</string>
     <string name="mobile_routine_run_show_report">Show report</string>
     <string name="mobile_routine_run_show_less">Show less</string>
@@ -707,11 +716,19 @@
     <string name="mobile_updates_headline_needs_you">%1$s needs you</string>
     <string name="mobile_updates_headline_working">%1$s is working</string>
     <string name="mobile_updates_headline_review">%1$s has an update</string>
-    <string name="mobile_updates_active_count">%1$d active</string>
-    <string name="mobile_updates_more_count">%1$d more updates</string>
-    <string name="mobile_updates_one_more">1 more update</string>
+    <plurals name="mobile_updates_active_count">
+        <item quantity="one">%1$d active</item>
+        <item quantity="other">%1$d active</item>
+    </plurals>
+    <plurals name="mobile_updates_more_count">
+        <item quantity="one">%1$d more update</item>
+        <item quantity="other">%1$d more updates</item>
+    </plurals>
     <string name="mobile_updates_queued_waiting">Queued — waiting for an available slot</string>
-    <string name="mobile_updates_queued_count">%1$d messages queued</string>
+    <plurals name="mobile_updates_queued_count">
+        <item quantity="one">%1$d message queued</item>
+        <item quantity="other">%1$d messages queued</item>
+    </plurals>
 
     <string name="mobile_allow_once_c551e6cf">Allow once</string>
 
@@ -777,12 +794,20 @@
     <string name="mobile_share_send_timed_out">Sending took too long. Check your connection and try again.</string>
     <string name="mobile_share_generic_error">Seira couldn\'t send this. Please try again.</string>
     <string name="mobile_share_pairing_expired">This phone\'s pairing has expired. Open Seira and pair it again.</string>
-    <string name="mobile_share_one_item_omitted">1 unsupported item was left out.</string>
-    <string name="mobile_share_items_omitted">%1$d unsupported items were left out.</string>
+    <plurals name="mobile_share_items_omitted">
+        <item quantity="one">%1$d unsupported item was left out.</item>
+        <item quantity="other">%1$d unsupported items were left out.</item>
+    </plurals>
     <string name="mobile_share_link">Link</string>
-    <string name="mobile_share_links">%1$d links</string>
+    <plurals name="mobile_share_links">
+        <item quantity="one">%1$d link</item>
+        <item quantity="other">%1$d links</item>
+    </plurals>
     <string name="mobile_share_text">Text</string>
-    <string name="mobile_share_text_items">%1$d text items</string>
+    <plurals name="mobile_share_text_items">
+        <item quantity="one">%1$d text item</item>
+        <item quantity="other">%1$d text items</item>
+    </plurals>
     <string name="mobile_share_preparing">Preparing your share…</string>
     <string name="mobile_share_choose_destination">Choose where this should go</string>
     <string name="mobile_share_sending_securely">Sending securely…</string>
@@ -810,7 +835,10 @@
     <string name="mobile_composer_sends_after_turn">Sends after this turn</string>
     <string name="mobile_date_today_with_time">Today %1$s</string>
     <string name="mobile_date_yesterday_with_time">Yesterday %1$s</string>
-    <string name="mobile_routine_every_minutes">Every %1$d min</string>
+    <plurals name="mobile_routine_every_minutes">
+        <item quantity="one">Every %1$d min</item>
+        <item quantity="other">Every %1$d min</item>
+    </plurals>
     <string name="mobile_routine_interval_with_start">%1$s · starting %2$s</string>
     <string name="mobile_routine_daily_at">%1$s at %2$s</string>
     <string name="mobile_timeout_minutes_limit">%1$s min limit</string>
@@ -835,9 +863,18 @@
     <string name="mobile_routine_friday_short">Fri</string>
     <string name="mobile_routine_saturday_short">Sat</string>
 
-    <string name="mobile_diff_show_first_lines">Show first %1$d lines</string>
-    <string name="mobile_diff_show_all_lines">Show all %1$d lines</string>
-    <string name="mobile_steps_count">%1$d steps</string>
+    <plurals name="mobile_diff_show_first_lines">
+        <item quantity="one">Show first %1$d line</item>
+        <item quantity="other">Show first %1$d lines</item>
+    </plurals>
+    <plurals name="mobile_diff_show_all_lines">
+        <item quantity="one">Show all %1$d line</item>
+        <item quantity="other">Show all %1$d lines</item>
+    </plurals>
+    <plurals name="mobile_steps_count">
+        <item quantity="one">%1$d step</item>
+        <item quantity="other">%1$d steps</item>
+    </plurals>
     <string name="mobile_camera_unavailable">This phone\'s camera could not be started. Use its Camera app to read the QR code, or enter the address and code by hand.</string>
     <string name="mobile_thread_snoozed">Snoozed</string>
     <string name="mobile_snooze_task_rules_title">Snooze %1$s</string>
@@ -912,8 +949,10 @@
     <string name="mobile_try_again_reason">Try again — %1$s</string>
     <string name="mobile_could_not_read_the_live_settings_8c7bf24d">Could not read the Live settings from your computer.</string>
     <string name="mobile_could_not_save_that_setting_b274915a">Could not save that setting.</string>
-    <string name="mobile_1_minute_62957ecf">1 minute</string>
-    <string name="mobile_minutes_count">%1$d minutes</string>
+    <plurals name="mobile_minutes_count">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
     <string name="mobile_chief_of_staff_ab970bed">Chief of Staff</string>
     <string name="change_look_title">Change look</string>
     <string name="change_look_close">Close</string>
@@ -973,7 +1012,10 @@
     <string name="change_look_slot_top">Top</string>
     <string name="change_look_slot_neck">Neck</string>
     <string name="change_look_extras_count">%1$d of 3</string>
-    <string name="change_look_extras_count_a11y">%1$d extras on</string>
+    <plurals name="change_look_extras_count_a11y">
+        <item quantity="one">%1$d extra on</item>
+        <item quantity="other">%1$d extras on</item>
+    </plurals>
     <string name="change_look_surprise">Surprise me</string>
     <string name="change_look_save">Save</string>
     <string name="change_look_saving">Saving</string>

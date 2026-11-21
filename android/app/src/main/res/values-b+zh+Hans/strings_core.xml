@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">无法连接到 %1$s。</string>
+    <string name="core_route_tailscale_off">此手机上的 Tailscale 已关闭。请先开启，然后重试。</string>
+    <string name="core_route_tailnet_unreachable">此手机无法连接到“%1$s”。请在此手机上打开 Tailscale，并使用与电脑相同的账号登录。如果“私人 DNS”显示了提供商名称，请将其设为“关闭”或“自动”（设置 → 网络和互联网）。</string>
+    <string name="core_route_internet_also_failed">互联网地址也没有响应。请确认电脑已开机。</string>
+    <string name="core_route_local_network_blocked">Android 已阻止此应用访问你的本地网络。请在手机“设置”中允许它访问本地网络，然后重试。</string>
+    <string name="core_route_secure_failed">请确认电脑处于唤醒状态且 Seira 已打开，然后重试。</string>
+    <string name="core_route_tailscale_only">你的手机无法通过 Tailscale 连接到 %1$s。请在此手机上开启 Tailscale，并登录到与电脑相同的 tailnet，然后重试。</string>
+    <string name="core_route_same_network">你的手机无法在此网络上连接到 %1$s。请让手机连接与电脑相同的 Wi-Fi。如果已经相同，可能是电脑的防火墙拦截了 Seira：在 Windows 电脑上，请将该网络设为“专用”。或者在电脑上打开设置 → 远程访问并登录，这样手机就能从任何地方连接。</string>
+    <string name="core_advice_host_unresolved">“%1$s”无法解析。如果这是 Tailscale 名称，此手机可能未加入该 tailnet。</string>
+    <string name="core_advice_port_closed">已连接到你的电脑，但手机访问没有在端口 %1$d 上响应，请打开 Seira → 设置 → 手机。</string>
+    <string name="core_advice_no_route">无法通过 %1$s 找到你的电脑，可能是网络不同，或被防火墙拦截。</string>
+    <string name="core_advice_offline">你已离线。</string>
+    <string name="core_advice_could_not_reach_host">无法连接到 %1$s。</string>
+    <string name="core_advice_gateway">通过 %1$s 的路线暂时不可用（HTTP %2$d）。</string>
+    <string name="core_advice_trying_next">接下来将尝试 %1$s。</string>
+    <string name="core_advice_keeps_retrying">应用会自动持续重试。</string>
+    <string name="core_lost_connection">连接已中断。</string>
+    <string name="core_could_not_reach_computer">无法连接到电脑。</string>
+    <string name="core_computer_offline">这台电脑已离线。</string>
+    <string name="core_unlock_to_reach">请解锁此手机以连接你的电脑。</string>
+    <string name="core_unlock_to_switch">请解锁此手机后再尝试切换电脑。</string>
+    <string name="core_saved_connection_unavailable">此手机上已没有这个已保存的连接。请移除后重新配对。</string>
+    <string name="core_pairing_server_changed">配对期间服务器发生了变化。请扫描新的二维码后重试。</string>
+    <string name="core_pairing_code_used">该配对码已被使用。请在电脑上重新开始配对，并扫描新的二维码。</string>
+    <string name="core_pairing_invalid">该配对邀请无效。请在电脑上重新开始配对。</string>
+    <string name="core_pairing_in_progress">已有另一次配对正在进行。</string>
+    <string name="core_pairing_storage_unavailable">此手机刚才无法读取其已保存的连接。</string>
+    <string name="core_different_server">此地址属于另一台服务器。请重新配对后继续。</string>
+    <string name="core_pair_to_open_task">请先将此手机与电脑配对，才能打开该任务。</string>
+    <string name="core_pair_to_open_thread">请先将此手机与电脑配对，才能打开该对话。</string>
+    <string name="core_thread_gone">该对话已不在你的电脑上。</string>
+    <string name="core_agent_gone">该智能体已不存在。</string>
+    <string name="core_write_or_attach">请先输入消息或添加文件。</string>
+    <string name="core_update_for_images">发送图片前，请先更新这台电脑上的 Seira。</string>
+    <string name="core_cannot_send">无法发送此消息。请重试。</string>
+    <string name="core_unreadable_response">电脑发送了此应用无法读取的内容。</string>
+</resources>

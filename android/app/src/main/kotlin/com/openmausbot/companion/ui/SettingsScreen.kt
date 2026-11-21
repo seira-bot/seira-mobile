@@ -838,7 +838,7 @@ private fun localizedConnectionStatus(status: Session.Status): String = when (st
     Session.Status.Connecting -> stringResource(R.string.mobile_settings_connecting_status)
     Session.Status.Unpaired -> stringResource(R.string.mobile_settings_not_paired_status)
     Session.Status.Unauthorized -> stringResource(R.string.mobile_settings_unpaired_on_computer_status)
-    is Session.Status.Offline -> status.message
+    is Session.Status.Offline -> localizedMobileCopy(status.message)
 }
 
 @Composable
@@ -875,7 +875,7 @@ internal fun troubleshootingText(status: Session.Status): String = when (status)
     Session.Status.Connecting -> "Seira is trying the saved connection automatically."
     Session.Status.Unauthorized -> "This phone was removed from the computer. Pair it again to reconnect."
     Session.Status.Unpaired -> "This phone is not paired with a computer."
-    is Session.Status.Offline -> status.message
+    is Session.Status.Offline -> localizedMobileCopy(status.message)
 }
 
 /**

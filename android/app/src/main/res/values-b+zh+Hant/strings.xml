@@ -13,7 +13,6 @@
     <string name="mobile_text_da39a3ee"></string>
     <string name="mobile_answeredcount_of_questions_size_91c7d963">已回答 %1$s/%2$s 個問題</string>
     <string name="mobile_label_taskrules_title_task_48c15f59">%1$s：%2$s</string>
-    <string name="mobile_minutes_minutes_29dd88a9">%1$s 分鐘</string>
     <string name="mobile_pinlabel_taskrules_title_task_5545ef6f">%1$s %2$s</string>
     <string name="mobile_bot_name_s_computer_7637def1">%1$s 的電腦</string>
     <string name="mobile_chat_name_has_a_question_13ca9f26">%1$s 有一個問題</string>
@@ -26,7 +25,6 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_step_29869c51">1 個步驟</string>
     <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. 開啟 Seira → 設定 → 手機</string>
     <string name="mobile_choose_set_up_a_phone_8fd474a9">2. 選擇「設定手機」</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">此機器人電腦畫面的一格</string>
@@ -143,7 +141,9 @@
     <string name="mobile_calendar_previous_week">上一週</string>
     <string name="mobile_calendar_next_week">下一週</string>
     <string name="mobile_calendar_scheduled">已排程</string>
-    <string name="mobile_calendar_day_runs">%1$d 次執行</string>
+    <plurals name="mobile_calendar_day_runs">
+        <item quantity="other">%1$d 次執行</item>
+    </plurals>
     <string name="mobile_new_thread_02057e28">新增對話</string>
     <string name="mobile_new_thread_with_bot_name_80fb4510">與 %1$s 建立新對話</string>
     <string name="mobile_newer_schedule_c56a41aa">較新的排程</string>
@@ -305,7 +305,9 @@
     <string name="mobile_a11y_summary_collapsed">%1$s，已收合</string>
     <string name="mobile_a11y_open_chat_settings">開啟 %1$s 的設定</string>
     <string name="mobile_a11y_threads_current">對話，%1$s</string>
-    <string name="mobile_a11y_room_header">%1$s，%2$d 個機器人</string>
+    <plurals name="mobile_a11y_room_header">
+        <item quantity="other">%1$s，%2$d 個機器人</item>
+    </plurals>
     <string name="mobile_a11y_close">關閉</string>
     <string name="mobile_a11y_choose_custom_repeat_interval">選擇自訂重複間隔</string>
     <string name="mobile_a11y_repeat_interval">重複間隔：%1$s 分鐘</string>
@@ -323,7 +325,9 @@
     <string name="mobile_pairing_no_address">這部電腦沒有回傳位址。請改為輸入其「手機」設定中顯示的位址。</string>
     <string name="mobile_pairing_invalid_address">請輸入安全的 https:// 位址、192.168.1.42:8810，或 macbook.tail1234.ts.net 這類名稱。</string>
     <string name="mobile_pairing_invalid_qr">這不是 Seira 配對 QR Code。</string>
-    <string name="mobile_pairing_other_addresses">以及這部電腦的另外 %1$d 個位址</string>
+    <plurals name="mobile_pairing_other_addresses">
+        <item quantity="other">以及這部電腦的另外 %1$d 個位址</item>
+    </plurals>
     <string name="mobile_camera_permission_description">允許使用相機掃描 Seira 顯示的配對 QR Code。</string>
     <string name="mobile_camera_permission_denied">允許使用相機掃描 Seira 顯示的配對 QR Code，或返回手動輸入位址與代碼。</string>
 
@@ -421,8 +425,9 @@
     <string name="mobile_roster_create_thread_failed">無法建立對話。請檢查連線後再試一次。</string>
     <string name="mobile_webhook_task">Webhook 任務</string>
     <string name="mobile_webhook_event_payload">事件資料</string>
-    <string name="mobile_table_one_row">1 列</string>
-    <string name="mobile_table_rows">%1$d 列</string>
+    <plurals name="mobile_table_rows">
+        <item quantity="other">%1$d 列</item>
+    </plurals>
     <string name="mobile_routine_run_untitled">例行工作</string>
     <string name="mobile_routine_run_show_report">顯示報告</string>
     <string name="mobile_routine_run_show_less">收合</string>
@@ -706,11 +711,16 @@
     <string name="mobile_updates_headline_needs_you">%1$s 需要你處理</string>
     <string name="mobile_updates_headline_working">%1$s 正在工作</string>
     <string name="mobile_updates_headline_review">%1$s 有一項更新</string>
-    <string name="mobile_updates_active_count">%1$d 項進行中</string>
-    <string name="mobile_updates_more_count">另外還有 %1$d 項更新</string>
-    <string name="mobile_updates_one_more">另外還有 1 項更新</string>
+    <plurals name="mobile_updates_active_count">
+        <item quantity="other">%1$d 項進行中</item>
+    </plurals>
+    <plurals name="mobile_updates_more_count">
+        <item quantity="other">另外還有 %1$d 項更新</item>
+    </plurals>
     <string name="mobile_updates_queued_waiting">已排入佇列 — 等待可用的執行位置</string>
-    <string name="mobile_updates_queued_count">%1$d 則訊息已排入佇列</string>
+    <plurals name="mobile_updates_queued_count">
+        <item quantity="other">%1$d 則訊息已排入佇列</item>
+    </plurals>
 
     <string name="mobile_allow_once_c551e6cf">允許一次</string>
 
@@ -776,12 +786,17 @@
     <string name="mobile_share_send_timed_out">傳送逾時。請檢查連線後再試一次。</string>
     <string name="mobile_share_generic_error">Seira 無法傳送此內容，請再試一次。</string>
     <string name="mobile_share_pairing_expired">此手機的配對已過期。請開啟 Seira 並重新配對。</string>
-    <string name="mobile_share_one_item_omitted">已略過 1 個不支援的項目。</string>
-    <string name="mobile_share_items_omitted">已略過 %1$d 個不支援的項目。</string>
+    <plurals name="mobile_share_items_omitted">
+        <item quantity="other">已略過 %1$d 個不支援的項目。</item>
+    </plurals>
     <string name="mobile_share_link">連結</string>
-    <string name="mobile_share_links">%1$d 個連結</string>
+    <plurals name="mobile_share_links">
+        <item quantity="other">%1$d 個連結</item>
+    </plurals>
     <string name="mobile_share_text">文字</string>
-    <string name="mobile_share_text_items">%1$d 則文字</string>
+    <plurals name="mobile_share_text_items">
+        <item quantity="other">%1$d 則文字</item>
+    </plurals>
     <string name="mobile_share_preparing">正在準備分享內容…</string>
     <string name="mobile_share_choose_destination">選擇要傳送的位置</string>
     <string name="mobile_share_sending_securely">正在安全傳送…</string>
@@ -809,7 +824,9 @@
     <string name="mobile_composer_sends_after_turn">在目前回合結束後傳送</string>
     <string name="mobile_date_today_with_time">今天 %1$s</string>
     <string name="mobile_date_yesterday_with_time">昨天 %1$s</string>
-    <string name="mobile_routine_every_minutes">每 %1$d 分鐘</string>
+    <plurals name="mobile_routine_every_minutes">
+        <item quantity="other">每 %1$d 分鐘</item>
+    </plurals>
     <string name="mobile_routine_interval_with_start">%1$s · 從 %2$s 開始</string>
     <string name="mobile_routine_daily_at">%1$s · %2$s</string>
     <string name="mobile_timeout_minutes_limit">%1$s 分鐘上限</string>
@@ -834,9 +851,15 @@
     <string name="mobile_routine_friday_short">週五</string>
     <string name="mobile_routine_saturday_short">週六</string>
 
-    <string name="mobile_diff_show_first_lines">顯示前 %1$d 行</string>
-    <string name="mobile_diff_show_all_lines">顯示全部 %1$d 行</string>
-    <string name="mobile_steps_count">%1$d 個步驟</string>
+    <plurals name="mobile_diff_show_first_lines">
+        <item quantity="other">顯示前 %1$d 行</item>
+    </plurals>
+    <plurals name="mobile_diff_show_all_lines">
+        <item quantity="other">顯示全部 %1$d 行</item>
+    </plurals>
+    <plurals name="mobile_steps_count">
+        <item quantity="other">%1$d 個步驟</item>
+    </plurals>
     <string name="mobile_camera_unavailable">此手機無法啟動相機。請使用手機上的相機 App 讀取 QR Code，或手動輸入位址與代碼。</string>
     <string name="mobile_thread_snoozed">已延後</string>
     <string name="mobile_snooze_task_rules_title">延後 %1$s</string>
@@ -911,8 +934,9 @@
     <string name="mobile_try_again_reason">再試一次 — %1$s</string>
     <string name="mobile_could_not_read_the_live_settings_8c7bf24d">無法從你的電腦讀取即時通話設定。</string>
     <string name="mobile_could_not_save_that_setting_b274915a">無法儲存該設定。</string>
-    <string name="mobile_1_minute_62957ecf">1 分鐘</string>
-    <string name="mobile_minutes_count">%1$d 分鐘</string>
+    <plurals name="mobile_minutes_count">
+        <item quantity="other">%1$d 分鐘</item>
+    </plurals>
     <string name="mobile_chief_of_staff_ab970bed">幕僚長</string>
     <string name="change_look_title">更換形象</string>
     <string name="change_look_close">關閉</string>
@@ -972,7 +996,9 @@
     <string name="change_look_slot_top">頭頂</string>
     <string name="change_look_slot_neck">頸部</string>
     <string name="change_look_extras_count">%1$d / 3</string>
-    <string name="change_look_extras_count_a11y">已戴 %1$d 件配飾</string>
+    <plurals name="change_look_extras_count_a11y">
+        <item quantity="other">已戴 %1$d 件配飾</item>
+    </plurals>
     <string name="change_look_surprise">隨機換一個</string>
     <string name="change_look_save">儲存</string>
     <string name="change_look_saving">正在儲存</string>

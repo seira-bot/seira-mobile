@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Couldn\'t reach %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale is off on this phone. Turn it on, then try again.</string>
+    <string name="core_route_tailnet_unreachable">This phone can\'t reach “%1$s”. Open Tailscale on this phone and sign in with the same account as the computer. If Private DNS shows a provider name, set it to Off or Automatic (Settings → Network &amp; internet).</string>
+    <string name="core_route_internet_also_failed">The internet address did not answer either. Check that the computer is on.</string>
+    <string name="core_route_local_network_blocked">Android blocked this app from your local network. Allow local network access for it in the phone\'s Settings, then try again.</string>
+    <string name="core_route_secure_failed">Make sure the computer is awake with Seira open, then try again.</string>
+    <string name="core_route_tailscale_only">Your phone couldn\'t reach %1$s over Tailscale. Turn on Tailscale on this phone, signed in to the same tailnet as the computer, then try again.</string>
+    <string name="core_route_same_network">Your phone couldn\'t reach %1$s on this network. Put the phone on the same Wi-Fi as the computer. If it already is, the computer\'s firewall may be blocking Seira: on a Windows PC, set its network to Private. Or open Settings → Remote access on the computer and sign in so the phone can connect from anywhere.</string>
+    <string name="core_advice_host_unresolved">“%1$s” didn\'t resolve. If that\'s a Tailscale name, this phone may not be on the tailnet.</string>
+    <string name="core_advice_port_closed">Reached your computer, but Phone access isn\'t answering on port %1$d — open Seira → Settings → Phone.</string>
+    <string name="core_advice_no_route">No route to your computer at %1$s — different network, or a firewall.</string>
+    <string name="core_advice_offline">You\'re offline.</string>
+    <string name="core_advice_could_not_reach_host">Could not reach %1$s.</string>
+    <string name="core_advice_gateway">The route through %1$s is temporarily unavailable (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Trying %1$s next.</string>
+    <string name="core_advice_keeps_retrying">The app keeps retrying automatically.</string>
+    <string name="core_lost_connection">Lost the connection.</string>
+    <string name="core_could_not_reach_computer">Could not reach the computer.</string>
+    <string name="core_computer_offline">This computer is offline.</string>
+    <string name="core_unlock_to_reach">Unlock this phone to reach your computer.</string>
+    <string name="core_unlock_to_switch">Unlock this phone, then try switching computers again.</string>
+    <string name="core_saved_connection_unavailable">This saved connection is no longer available on this phone. Remove it and pair again.</string>
+    <string name="core_pairing_server_changed">The server changed while pairing. Scan a new code and try again.</string>
+    <string name="core_pairing_code_used">That pairing code was already used. Start pairing again on your computer and rescan the new QR code.</string>
+    <string name="core_pairing_invalid">That pairing invitation is not valid. Start pairing again on your computer.</string>
+    <string name="core_pairing_in_progress">Another pairing attempt is already in progress.</string>
+    <string name="core_pairing_storage_unavailable">This phone couldn\'t read its saved connection just now.</string>
+    <string name="core_different_server">This address belongs to a different server. Pair again to continue.</string>
+    <string name="core_pair_to_open_task">Pair this phone with your computer to open that task.</string>
+    <string name="core_pair_to_open_thread">Pair this phone with your computer to open that thread.</string>
+    <string name="core_thread_gone">That thread is no longer on your computer.</string>
+    <string name="core_agent_gone">That agent no longer exists.</string>
+    <string name="core_write_or_attach">Write a message or attach a file first.</string>
+    <string name="core_update_for_images">Update Seira on this computer before sending images.</string>
+    <string name="core_cannot_send">Couldn\'t send this message. Try again.</string>
+    <string name="core_unreadable_response">The computer sent something this app couldn\'t read.</string>
+</resources>

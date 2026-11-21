@@ -27,6 +27,22 @@ Prefix `cleanTest` when a test count matters:
 ./gradlew cleanTest :core:test :app:testDebugUnitTest :app:assembleDebug
 ```
 
+## Languages
+
+The language list comes from the folders under `app/src/main/res`: the build writes
+the per-app language list, so there is no list to edit. English strings live in
+`res/values`; add or change one there, then update the other languages.
+
+```sh
+node scripts/android-locale.mjs export --out <dir>      # <dir>/en.json, the text to translate
+node scripts/android-locale.mjs import --lang de --in de.json
+node scripts/android-locale.mjs check                    # missing, extra or stale keys
+```
+
+`android/l10n/glossary.json` holds the desktop words for place and feature names. Use them so
+the phone names a screen the same way the computer does. `LocaleCatalogTest` fails when a
+language lacks a key, changes a format argument, or lacks a plural form the language needs.
+
 ## Installable threads preview
 
 ```sh

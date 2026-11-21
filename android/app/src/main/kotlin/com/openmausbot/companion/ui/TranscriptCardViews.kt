@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
 import android.content.ClipData
@@ -190,13 +191,15 @@ fun DiffCard(card: TranscriptCard.Diff, modifier: Modifier = Modifier) {
 
                 if (card.isTruncated) {
                     val label = if (showingAll) {
-                        stringResource(
-                            R.string.mobile_diff_show_first_lines,
+                        pluralStringResource(
+                            R.plurals.mobile_diff_show_first_lines,
+                            TranscriptCard.Diff.PREVIEW_LINES,
                             TranscriptCard.Diff.PREVIEW_LINES,
                         )
                     } else {
-                        stringResource(
-                            R.string.mobile_diff_show_all_lines,
+                        pluralStringResource(
+                            R.plurals.mobile_diff_show_all_lines,
+                            card.lines.size,
                             card.lines.size,
                         )
                     }
@@ -330,7 +333,7 @@ fun DataTableCard(card: TranscriptCard.Table, modifier: Modifier = Modifier, fro
                 Spacer(Modifier.weight(1f))
             }
             Text(
-                text = if (card.rows.size == 1) stringResource(R.string.mobile_table_one_row) else stringResource(R.string.mobile_table_rows, card.rows.size),
+                text = pluralStringResource(R.plurals.mobile_table_rows, card.rows.size, card.rows.size),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 color = colors.ink2,
@@ -552,11 +555,7 @@ fun ThoughtChamber(
                 modifier = Modifier.weight(1f),
             )
             Text(
-                text = if (steps.size == 1) {
-                    stringResource(R.string.mobile_step_29869c51)
-                } else {
-                    stringResource(R.string.mobile_steps_count, steps.size)
-                },
+                text = pluralStringResource(R.plurals.mobile_steps_count, steps.size, steps.size),
                 fontSize = 12.sp,
                 fontFamily = FontFamily.Monospace,
                 color = secondaryTint,

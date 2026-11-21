@@ -166,6 +166,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    androidResources {
+        generateLocaleConfig = true
+    }
+
     buildFeatures {
         buildConfig = true
         compose = true

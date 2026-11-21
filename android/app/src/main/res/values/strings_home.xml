@@ -8,7 +8,10 @@
     <string name="home_talk">Talk</string>
     <string name="home_status_ready">Ready</string>
     <string name="home_team">Team</string>
-    <string name="home_team_see_all">See all %1$d</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">See all %1$d</item>
+        <item quantity="other">See all %1$d</item>
+    </plurals>
     <string name="home_team_show_less">Show less</string>
     <string name="home_chats">Chats</string>
     <string name="home_search_prompt">Search chats and bots</string>
