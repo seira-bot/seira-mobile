@@ -30,4 +30,6 @@
     <string name="home_empty_all_done_title">Her şey tamam</string>
     <string name="home_empty_all_done_body">Şu anda yanıtını bekleyen bir şey yok.</string>
     <string name="home_empty_back_to_chats">Sohbetlere dön</string>
+    <string name="home_computers_title">Bilgisayarlar</string>
+    <string name="home_switch_computer">Bilgisayar değiştir. Şu an: %1$s</string>
 </resources>

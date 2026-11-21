@@ -29,4 +29,6 @@
     <string name="home_empty_all_done_title">Bạn đã xem hết</string>
     <string name="home_empty_all_done_body">Hiện không có gì đang chờ bạn trả lời.</string>
     <string name="home_empty_back_to_chats">Quay lại cuộc trò chuyện</string>
+    <string name="home_computers_title">Máy tính</string>
+    <string name="home_switch_computer">Đổi máy tính. Hiện tại: %1$s</string>
 </resources>

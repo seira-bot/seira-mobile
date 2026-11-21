@@ -29,4 +29,6 @@
     <string name="home_empty_all_done_title">全部处理完毕</string>
     <string name="home_empty_all_done_body">目前没有需要你回答的内容。</string>
     <string name="home_empty_back_to_chats">返回聊天</string>
+    <string name="home_computers_title">电脑</string>
+    <string name="home_switch_computer">切换电脑。当前：%1$s</string>
 </resources>

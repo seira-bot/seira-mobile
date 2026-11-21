@@ -30,4 +30,6 @@
     <string name="home_empty_all_done_title">Tudo em dia</string>
     <string name="home_empty_all_done_body">Nada aguarda sua resposta agora.</string>
     <string name="home_empty_back_to_chats">Voltar às conversas</string>
+    <string name="home_computers_title">Computadores</string>
+    <string name="home_switch_computer">Trocar de computador. Agora: %1$s</string>
 </resources>

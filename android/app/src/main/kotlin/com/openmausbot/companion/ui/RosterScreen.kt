@@ -132,6 +132,7 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
     val state by session.state.collectAsState()
     val connection by session.connection.collectAsState()
     val status by session.status.collectAsState()
+    val computers by session.connections.collectAsState()
     // The same preference the transcript folds by, from the same store: a reader
     // who turned activity off must not still read tool names here.
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
@@ -156,6 +157,7 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
     var managingThreads by remember { mutableStateOf<Chat?>(null) }
     var changingLookId by rememberSaveable { mutableStateOf<String?>(null) }
     var showingNewChat by remember { mutableStateOf(false) }
+    var showingComputers by remember { mutableStateOf(false) }
     var teamExpanded by rememberSaveable { mutableStateOf(false) }
     var profile by remember { mutableStateOf<Profile?>(null) }
     val liveCall by environment.liveCalls.state.collectAsState()
@@ -395,6 +397,11 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                             greeting = greeting,
                             initials = HomeGreeting.initials(profile?.name),
                             onProfile = openSettings,
+                            computerName = connection?.name,
+                            onComputer = {
+                                haptics.play(HapticCue.SELECT)
+                                showingComputers = true
+                            },
                         )
                     }
                     item(key = "home-banner") { StatusBanner() }
@@ -654,6 +661,25 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                 .align(Alignment.BottomCenter)
                 .testTag("roster-bottom-bar")
                 .onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+        )
+    }
+
+    if (showingComputers) {
+        ComputerSwitchSheet(
+            computers = computers,
+            activeId = connection?.id,
+            status = status,
+            onPick = { computer ->
+                showingComputers = false
+                haptics.play(TactileAction.SWITCH_COMPUTER)
+                session.switchComputer(computer.id)
+            },
+            onPairAnother = {
+                showingComputers = false
+                haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
+                session.beginPairing()
+            },
+            onDismiss = { showingComputers = false },
         )
     }
 

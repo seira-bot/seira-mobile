@@ -243,16 +243,45 @@ class HomeScreenTest {
         compose.onNodeWithTag("home-new-chat").assert(hasContentDescription("New chat"))
     }
 
+    @Test
+    fun `the header names the computer and its sheet switches to another saved computer`() {
+        val navigator = mount(otherComputers = listOf(SECOND_COMPUTER to "second-token"))
+        compose.onNodeWithTag("home-computer")
+            .assert(hasText("Offline fixture"))
+            .assert(hasContentDescription("Switch computer. Now: Offline fixture"))
+            .performClick()
+        compose.onNodeWithTag("computer-switch-sheet").assertIsDisplayed()
+        compose.onNodeWithTag("computer-switch.home-fixture").assert(hasText("Offline fixture"))
+        compose.onNodeWithTag("computer-switch.second").assert(hasText("Studio PC")).assert(hasText("Saved on this phone"))
+
+        compose.onNodeWithTag("computer-switch.second").performClick()
+
+        compose.waitUntil(5_000) { scene.session.connection.value?.id == "second" }
+        assertEquals(Destination.Roster, navigator.current)
+        compose.waitUntil(5_000) { compose.onAllNodesWithTag("computer-switch-sheet").fetchSemanticsNodes().isEmpty() }
+        compose.waitUntil(5_000) { compose.onAllNodesWithText("Studio PC").fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test
+    fun `the computer sheet starts pairing for one more computer`() {
+        mount()
+        compose.onNodeWithTag("home-computer").performClick()
+        compose.onNodeWithTag("computer-switch-pair").assert(hasText("Pair another computer")).performClick()
+        compose.waitUntil(5_000) { scene.session.pairingRequested.value }
+    }
+
     private fun mount(
         hour: Int = 9,
         fleet: Fleet = RosterFixture.fleet(),
         callsEnabled: Boolean = true,
+        otherComputers: List<Pair<Connection, String>> = emptyList(),
     ): CompanionNavigator {
         context.getSharedPreferences(ChatPreferences.NAME, Context.MODE_PRIVATE).edit().clear().commit()
         val navigator = CompanionNavigator()
         scene = WiringScene(
             connection = Connection(id = "home-fixture", name = "Offline fixture", host = "127.0.0.1", port = server.port),
             fleet = fleet,
+            otherComputers = otherComputers.map { (computer, token) -> computer.copy(port = server.port) to token },
             events = {
                 flow {
                     emit(StreamFrame(Frame.Hello(cursor = "fixture:1", resumed = false), seq = 1))
@@ -301,4 +330,8 @@ class HomeScreenTest {
     private fun json(body: String): MockResponse = MockResponse()
         .setHeader("Content-Type", "application/json")
         .setBody(body)
+
+    private companion object {
+        val SECOND_COMPUTER = Connection(id = "second", name = "Studio PC", host = "127.0.0.1", port = 0)
+    }
 }

@@ -13,6 +13,8 @@ import com.openmausbot.companion.audio.VoiceNotePlayer
 import com.openmausbot.companion.avatar.AvatarImageStore
 import com.openmausbot.companion.core.APIError
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.ConnectionRegistry
+import com.openmausbot.companion.core.ConnectionRegistryRestore
 import com.openmausbot.companion.core.ConnectionStore
 import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Session
@@ -79,6 +81,8 @@ internal class WiringScene(
     httpClient: OkHttpClient = OkHttpClient(),
     /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
     private val events: (Int) -> Flow<StreamFrame> = { flow { awaitCancellation() } },
+    /** More computers saved on this phone, each with its device token; [connection] stays the active one. */
+    otherComputers: List<Pair<Connection, String>> = emptyList(),
 ) {
     private val context: Context = RuntimeEnvironment.getApplication() as Application
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -98,8 +102,8 @@ internal class WiringScene(
 
     val session = Session(
         scope = scope,
-        connectionStore = FakeConnectionStore(connection),
-        tokenStore = FakeTokenStore(connection?.id, token),
+        connectionStore = FakeConnectionStore(connection, otherComputers.map { it.first }),
+        tokenStore = FakeTokenStore(connection?.id, token, otherComputers),
         onboardingStore = onboarding,
         deviceNameProvider = { "Pixel" },
         httpClient = httpClient,
@@ -174,7 +178,8 @@ internal class WiringScene(
         override fun end() = Unit
     }
 
-    private class FakeConnectionStore(private var saved: Connection?) : ConnectionStore {
+    private class FakeConnectionStore(private var saved: Connection?, others: List<Connection>) : ConnectionStore {
+        private var registry = ConnectionRegistry(listOfNotNull(saved) + others, saved?.id)
         override suspend fun load(): Connection? = saved
         override suspend fun save(connection: Connection) {
             saved = connection
@@ -182,11 +187,18 @@ internal class WiringScene(
         override suspend fun clear() {
             saved = null
         }
+        override suspend fun loadRegistry(): ConnectionRegistryRestore =
+            ConnectionRegistryRestore(ConnectionRegistry(registry.connections, saved?.id), migratedLegacyConnection = false)
+        override suspend fun saveRegistry(registry: ConnectionRegistry) {
+            this.registry = registry
+            saved = registry.activeConnection
+        }
     }
 
-    private class FakeTokenStore(id: String?, token: String?) : TokenStore {
+    private class FakeTokenStore(id: String?, token: String?, others: List<Pair<Connection, String>>) : TokenStore {
         private val tokens = linkedMapOf<String, String>().apply {
             if (id != null && token != null) put(id, token)
+            others.forEach { (computer, otherToken) -> put(computer.id, otherToken) }
         }
         override suspend fun save(connectionId: String, token: String) {
             tokens[connectionId] = token

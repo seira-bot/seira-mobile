@@ -1,8 +1,10 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
@@ -10,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -29,9 +33,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.openmausbot.companion.R
@@ -77,13 +84,15 @@ internal fun homeGreetingText(hour: Int, fullName: String?): String {
     return stringResource(R.string.home_greeting_with_name, base, first)
 }
 
-/** The greeting, and the profile circle that opens Settings. */
+/** The greeting, the computer this list comes from, and the profile circle that opens Settings. */
 @Composable
 internal fun HomeHeader(
     greeting: String,
     initials: String,
     onProfile: () -> Unit,
     modifier: Modifier = Modifier,
+    computerName: String? = null,
+    onComputer: () -> Unit = {},
 ) {
     val colors = Seira.colors
     Row(
@@ -96,14 +105,17 @@ internal fun HomeHeader(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Text(
-            text = greeting,
-            style = SeiraType.title1,
-            color = colors.ink,
-            modifier = Modifier
-                .weight(1f)
-                .semantics { heading() },
-        )
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = greeting,
+                style = SeiraType.title1,
+                color = colors.ink,
+                modifier = Modifier.semantics { heading() },
+            )
+            if (computerName != null) {
+                ComputerChip(name = computerName, onClick = onComputer)
+            }
+        }
         TouchTarget(
             onClick = onProfile,
             contentDescription = stringResource(R.string.mobile_settings_c7f73bb5),
@@ -194,6 +206,34 @@ internal fun ChatsHeading(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun ComputerChip(name: String, onClick: () -> Unit) {
+    val colors = Seira.colors
+    val label = stringResource(R.string.home_switch_computer, name)
+    Row(
+        modifier = Modifier
+            .testTag("home-computer")
+            .heightIn(min = MIN_TOUCH_TARGET)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = label }
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(SeiraIcons.Laptop, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(16.dp))
+        Text(
+            text = name,
+            style = SeiraType.callout,
+            color = colors.ink2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Icon(SeiraIcons.ChevronDown, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(14.dp))
     }
 }
 

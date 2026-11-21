@@ -876,7 +876,7 @@ private fun localizedConnectionStatus(status: Session.Status): String = when (st
 }
 
 @Composable
-private fun computerStatusPhrase(status: Session.Status): String = when (status) {
+internal fun computerStatusPhrase(status: Session.Status): String = when (status) {
     is Session.Status.Offline -> stringResource(R.string.settings_state_offline)
     else -> localizedConnectionStatus(status)
 }
