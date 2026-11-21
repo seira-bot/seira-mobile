@@ -35,7 +35,7 @@ class RosterLayoutTest {
     }
 
     @Test
-    fun `No bots yet waits until there is neither a bot nor a group`() {
+    fun `No chats yet waits until there is neither a bot nor a group`() {
         // What the empty state under an unsearched roster asks. Groups are rows
         // in compact and tiles in comfortable; the empty state must not sit on
         // top of them.

@@ -150,7 +150,12 @@ class LocalNotificationPoster(
         bound: Integration?,
     ) {
         val found = bound?.let {
-            NotificationApproval.find(it.session.state.value, notification.botId, notification.threadId)
+            NotificationApproval.find(
+                it.session.state.value,
+                notification.botId,
+                notification.threadId,
+                notification.requestId,
+            )
         }
         val requestId = found?.card?.requestId
         if (found != null && requestId != null) {
@@ -212,19 +217,23 @@ class LocalNotificationPoster(
     private fun userPerson(): Person =
         Person.Builder().setName(appContext.getString(R.string.notification_sender_you)).build()
 
-    fun showApprovalOutcome(request: ApproveRequest, approved: Boolean) {
+    fun showApprovalOutcome(request: ApproveRequest, outcome: ApprovalOutcome) {
         if (!canPost()) return
         val builder = outcomeBuilder(
             NotificationMapping.CHANNEL_BLOCKING,
             request.title.ifBlank { appContext.getString(R.string.app_name) },
             appContext.getString(
-                if (approved) R.string.notification_approved else R.string.notification_approve_failed,
+                when (outcome) {
+                    ApprovalOutcome.APPROVED -> R.string.notification_approved
+                    ApprovalOutcome.SETTLED -> R.string.notification_approve_settled
+                    ApprovalOutcome.FAILED -> R.string.notification_approve_failed
+                },
             ),
             request.botId,
             request.threadId,
             KIND_APPROVAL,
         )
-        if (approved) {
+        if (outcome == ApprovalOutcome.APPROVED) {
             builder.setTimeoutAfter(OUTCOME_TIMEOUT_MS)
         } else {
             builder.addAction(
