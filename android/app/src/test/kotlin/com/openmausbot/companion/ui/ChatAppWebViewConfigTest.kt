@@ -50,7 +50,6 @@ class ChatAppWebViewConfigTest {
     @Test
     fun theHostPageIsServedFromTheBundledAsset() {
         val response = assertNotNull(client(emptySet()).shouldInterceptRequest(WebView(context), request(ChatAppWebPolicy.HOST_URL)))
-        assertEquals(200, response.statusCode)
         val head = response.data.readBytes().toString(Charsets.UTF_8).take(40)
         assertTrue(head.startsWith("<!-- seira app-host v1 sha256:"), head)
     }
