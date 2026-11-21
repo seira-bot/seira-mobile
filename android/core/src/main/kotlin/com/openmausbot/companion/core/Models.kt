@@ -192,6 +192,13 @@ data class ToolActivity(
      * characters and already redacted. Older computers omit it.
      */
     val output: String? = null,
+    /** A failed turn: epoch ms when the usage limit that stopped it resets. */
+    val limitResetsAt: Double? = null,
+    /** A failed turn: the catalog key of a fixed server notice; [name] keeps the English. */
+    val nameCode: String? = null,
+    val nameParams: JsonObject? = null,
+    /** A failed turn whose reply came back; only a step it ran failed. */
+    val partial: Boolean? = null,
 )
 
 /**

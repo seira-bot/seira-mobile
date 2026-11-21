@@ -425,6 +425,14 @@ class CompanionClient(
         .filter { it.capabilities?.images == true }
         .mapTo(mutableSetOf(), Instance::instanceId)
 
+    suspend fun limitResetContinue(botId: String, threadId: String) {
+        sendUnit(makeRequest(
+            "POST",
+            "/api/limit-resets/continue",
+            body = jsonBody("botId" to safeRouteId(botId), "threadId" to safeRouteId(threadId)),
+        ))
+    }
+
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
     /**
