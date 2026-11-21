@@ -23,6 +23,13 @@ import com.openmausbot.companion.storage.PrefsPushRegistrationStore
 import com.openmausbot.companion.shortcuts.BotShortcutSync
 import com.openmausbot.companion.shortcuts.BotShortcuts
 import com.openmausbot.companion.tile.TalkTileState
+import com.openmausbot.companion.widget.UpdatesWidget
+import com.openmausbot.companion.widget.WidgetFaces
+import com.openmausbot.companion.widget.WidgetSnapshotStore
+import com.openmausbot.companion.widget.WidgetSync
+import com.openmausbot.companion.widget.WorkManagerFreshness
+import androidx.glance.appwidget.updateAll
+import com.openmausbot.companion.storage.ChatPreferences
 import com.openmausbot.companion.permissions.CompanionPermissions
 import com.openmausbot.companion.sharing.ShareInbox
 import com.openmausbot.companion.storage.AlwaysOnPreferences
@@ -82,6 +89,8 @@ class OpenMausApp : Application() {
         private set
     lateinit var alwaysOn: AlwaysOnPreferences
         private set
+    lateinit var chatPreferences: ChatPreferences
+        private set
 
     override fun onCreate() {
         super.onCreate()
@@ -120,6 +129,19 @@ class OpenMausApp : Application() {
         RemotePush(this, session, appScope).start()
         appScope.launch {
             BotShortcutSync(session, avatars, shortcuts, TalkTileState(this@OpenMausApp)).run()
+        }
+        chatPreferences = ChatPreferences(this)
+        val widgetStore = WidgetSnapshotStore.forContext(this)
+        val widgetFaces = WidgetFaces(this, widgetStore)
+        appScope.launch {
+            WidgetSync(
+                session = session,
+                store = widgetStore,
+                detail = chatPreferences.activityDetail,
+                faces = widgetFaces::ensure,
+                refresh = { UpdatesWidget().updateAll(this@OpenMausApp) },
+                freshness = WorkManagerFreshness(this@OpenMausApp),
+            ).run()
         }
         // Live calls hold media across screens, and end when the process
         // leaves the foreground — not when a rotation recreates the Activity —

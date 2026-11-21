@@ -283,6 +283,13 @@ dependencies {
     implementation("androidx.camera:camera-view:1.5.0")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
 
+    // Home screen widget. Glance draws RemoteViews from Compose-style code; it
+    // runs in this process and reads a snapshot file, never the live session.
+    // WorkManager (a Glance dependency) schedules the redraw when content ages.
+    implementation("androidx.glance:glance-appwidget:1.2.0")
+    implementation("androidx.glance:glance-material3:1.2.0")
+    implementation("androidx.work:work-runtime-ktx:2.10.0")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:2.2.21")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
     testImplementation("junit:junit:4.13.2")
@@ -299,6 +306,7 @@ dependencies {
     // list the composable is free to ignore.
     testImplementation("org.robolectric:robolectric:4.16.1")
     testImplementation(composeBom)
+    testImplementation("androidx.glance:glance-appwidget-testing:1.2.0")
     testImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation(composeBom)
     debugImplementation("androidx.compose.ui:ui-test-manifest")

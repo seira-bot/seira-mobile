@@ -270,6 +270,22 @@
             android:exported="false" />
 
         <!--
+          Home screen Updates widget. The system sends the update broadcasts;
+          the widget reads a snapshot file and makes no network request.
+        -->
+        <receiver
+            android:name=".widget.UpdatesWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_updates_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/updates_widget_info" />
+        </receiver>
+
+        <!--
           Remote push. Firebase starts itself only after a computer is paired
           (RemotePush turns it on), so a phone with nothing paired gets no token.
         -->

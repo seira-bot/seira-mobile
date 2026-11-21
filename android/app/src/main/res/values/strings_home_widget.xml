@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Updates</string>
+    <string name="widget_updates_description">Everything the Updates pill shows, with the chats that need you first.</string>
+    <string name="widget_all_quiet">All quiet</string>
+    <string name="widget_open_to_pair">Open Seira to pair</string>
+    <string name="widget_open_to_answer">Open Seira to answer</string>
+    <string name="widget_as_of">As of %1$s</string>
+    <string name="widget_active_count">%1$d active</string>
+    <string name="widget_section_needs_you">Needs you</string>
+    <string name="widget_section_working">Working</string>
+    <string name="widget_section_to_review">To review</string>
+    <string name="widget_request_changed">This request has changed. Open the chat to review it.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Run a command: git push</string>
+</resources>
