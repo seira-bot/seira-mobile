@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import android.content.Context
+import android.os.Looper
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
@@ -32,10 +33,8 @@ import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.StreamFrame
 import com.openmausbot.companion.core.ThreadRef
 import kotlin.test.assertEquals
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.runBlocking
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -47,6 +46,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.GraphicsMode
 
 @RunWith(RobolectricTestRunner::class)
@@ -149,10 +149,13 @@ class RunCardsRenderTest {
     private fun spoken(id: String, text: String, at: Double) =
         Message(id, Message.Role.USER, Message.Kind.TEXT, at, text = text, via = "call", callId = "call-1")
 
-    // The first task-list read through the composition never completes in Robolectric
-    // unless the route has answered once on a real thread.
-    private fun warmUpTaskRoute() {
-        runBlocking(Dispatchers.IO) { scene.session.burstView("burst-1") }
+    // The task list comes over a real socket, so the main looper needs a turn after each poll.
+    private fun awaitText(text: String) {
+        compose.waitUntil(TASKS_LOAD_MS) {
+            Thread.sleep(25)
+            shadowOf(Looper.getMainLooper()).idle()
+            compose.onAllNodes(hasText(text)).fetchSemanticsNodes().isNotEmpty()
+        }
     }
 
     private fun text(res: Int, vararg args: Any) = context.getString(res, *args)
@@ -218,9 +221,8 @@ class RunCardsRenderTest {
     fun showTasksListsOneRowPerTaskAndARowWithAConversationOpensIt() {
         val opened = mutableListOf<ThreadRef>()
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { opened += it })
-        warmUpTaskRoute()
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        compose.waitUntil(TASKS_LOAD_MS) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
+        awaitText("Invoice April")
         compose.onNodeWithText(text(R.string.chat_burst_tasks_title)).assertIsDisplayed()
         compose.onNodeWithText("Invoice March").assertIsDisplayed()
         compose.onNodeWithText("Invoice April").assertIsDisplayed()
