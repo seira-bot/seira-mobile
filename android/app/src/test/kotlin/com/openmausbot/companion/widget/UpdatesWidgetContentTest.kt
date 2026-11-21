@@ -87,6 +87,20 @@ class UpdatesWidgetContentTest {
     }
 
     @Test
+    fun `a large font scale hides the approve button`() = runGlanceAppWidgetUnitTest {
+        val scaled = context.createConfigurationContext(
+            android.content.res.Configuration(context.resources.configuration).apply { fontScale = 1.3f },
+        )
+        setContext(scaled)
+        setAppWidgetSize(UpdatesWidget.SMALL)
+        val long = row(line = "x".repeat(30))
+        provideComposable { UpdatesWidgetContent(view(listOf(long)), face) }
+
+        onNode(hasText("Approve")).assertDoesNotExist()
+        onNode(hasStartActivityClickAction(openIntent(context, long))).assertExists()
+    }
+
+    @Test
     fun `the approve button disappears after ten minutes`() = runGlanceAppWidgetUnitTest {
         setContext(context)
         setAppWidgetSize(UpdatesWidget.SMALL)

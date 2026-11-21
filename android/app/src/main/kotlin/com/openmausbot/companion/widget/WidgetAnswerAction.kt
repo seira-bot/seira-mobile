@@ -23,7 +23,8 @@ import com.openmausbot.companion.notifications.NotificationIntents
  * Security invariants: a widget is a frozen picture, and it can show on a locked
  * screen. A tap answers only when the phone is unlocked, the snapshot is under
  * ten minutes old, the row holds this exact request and option with its whole
- * text shown, and the live session still holds the same plain permission card.
+ * text shown, and the live session still holds the same plain permission card
+ * with the same whole text.
  * Anything else changes nothing and opens the chat, where the system asks to
  * unlock.
  */
@@ -81,6 +82,13 @@ internal class WidgetAnswerHandler(
         }
         val row = snapshot?.answerableRow(threadId, requestId, choice, clock())
         val found = row?.let { NotificationApproval.find(state(), botId, threadId, requestId) }
+        val cardText = found?.card?.requestText()
+        if (found != null && row != null &&
+            (cardText != row.line.trim() || !WidgetSnapshot.isFullyShown(cardText))
+        ) {
+            startActivity(NotificationIntents.openIntent(context, botId, threadId, "needsYou"))
+            return
+        }
         if (snapshot == null || row == null || found == null || found.choice != choice) {
             tell(R.string.widget_request_changed)
             redraw()

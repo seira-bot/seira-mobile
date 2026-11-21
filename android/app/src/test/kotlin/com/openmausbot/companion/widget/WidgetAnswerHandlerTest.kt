@@ -100,6 +100,15 @@ class WidgetAnswerHandlerTest {
     }
 
     @Test
+    fun `a live card whose text differs from the snapshot sends no answer and opens the chat`() = runTest {
+        store.write(WidgetFixture.snapshot(listOf(ask.copy(line = "git status")), NOW))
+        handler(locked = false).tap()
+
+        assertTrue(approved.isEmpty())
+        assertEquals(1, started.size)
+    }
+
+    @Test
     fun `a snapshot older than ten minutes sends no answer`() = runTest {
         store.write(WidgetFixture.snapshot(listOf(ask), NOW))
         handler(locked = false, now = NOW + 601_000).tap()

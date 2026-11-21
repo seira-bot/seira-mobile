@@ -117,7 +117,8 @@ private fun Small(context: Context, view: WidgetView.Active, face: (WidgetSnapsh
         Spacer(GlanceModifier.height(4.dp))
         Text(row.line, style = caption(), maxLines = SMALL_LINES)
         Spacer(GlanceModifier.defaultWeight())
-        if (row.kind == WidgetSnapshot.Kind.NEEDS_YOU && row.canAnswer) {
+        val fontScale = context.resources.configuration.fontScale
+        if (row.canAnswer && WidgetSnapshot.fitsAtScale(row.line, fontScale)) {
             if (view.answersOn) {
                 AnswerButton(context, row)
             } else {

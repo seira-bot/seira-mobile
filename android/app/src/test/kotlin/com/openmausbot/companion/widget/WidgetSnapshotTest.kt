@@ -83,6 +83,40 @@ class WidgetSnapshotTest {
     }
 
     @Test
+    fun `every hiding character class is refused`() {
+        val samples = mapOf(
+            "newline" to "\n", "carriage return" to "\r", "tab" to "\t",
+            "line separator" to "\u2028", "paragraph separator" to "\u2029",
+            "next line" to "\u0085", "vertical tab" to "\u000B", "form feed" to "\u000C",
+            "right to left override" to "\u202E", "left to right mark" to "\u200E",
+            "isolate" to "\u2066", "zero width space" to "\u200B", "word joiner" to "\u2060",
+            "byte order mark" to "\uFEFF", "lone high surrogate" to "\uD800",
+            "lone low surrogate" to "\uDC00", "unassigned" to "\u0378", "private use" to "\uE000",
+        )
+        for ((name, char) in samples) {
+            assertFalse(WidgetSnapshot.isFullyShown("git ${char}push"), name)
+        }
+        assertFalse(WidgetSnapshot.isFullyShown(""))
+    }
+
+    @Test
+    fun `a wide line that passes the character count fails the width`() {
+        val wide = "删除".repeat(10)
+        assertTrue(wide.length < WidgetSnapshot.MAX_ANSWER_WEIGHT)
+        assertEquals(40, WidgetSnapshot.lineWeight(wide))
+        assertFalse(WidgetSnapshot.isFullyShown(wide))
+        assertEquals(2, WidgetSnapshot.lineWeight("\uD840\uDC00"))
+    }
+
+    @Test
+    fun `a larger font fits fewer characters`() {
+        val line = "x".repeat(30)
+        assertTrue(WidgetSnapshot.fitsAtScale(line, 1f))
+        assertTrue(WidgetSnapshot.fitsAtScale(line, 0.85f))
+        assertFalse(WidgetSnapshot.fitsAtScale(line, 1.3f))
+    }
+
+    @Test
     fun `an answer button expires after ten minutes`() {
         val s = snapshot()
         assertNotNull(answer(s, NOW + 10 * minute))
