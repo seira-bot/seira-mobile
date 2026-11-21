@@ -828,6 +828,41 @@ class CompanionClient(
         return url
     }
 
+    private fun connectorCardPath(botId: String, messageId: String, route: String) =
+        "/api/bots/${segment(botId)}/connector-cards/${segment(messageId)}/$route"
+
+    suspend fun authorizeConnectorCard(botId: String, messageId: String, threadId: String): URI {
+        val response = send<ConnectorAuthorizationResponse>(makeRequest(
+            "POST",
+            connectorCardPath(botId, messageId, "authorize"),
+            body = jsonBody("threadId" to threadId),
+        ))
+        return ConnectorCards.secureLink(response.url) ?: throw APIError.BadUrl
+    }
+
+    suspend fun connectorCardStatus(botId: String, messageId: String, threadId: String): ConnectorCardStatus =
+        send<ConnectorCardStatus>(makeRequest(
+            "GET",
+            connectorCardPath(botId, messageId, "status"),
+            query = listOf("threadId" to threadId),
+        ))
+
+    suspend fun resumeConnectorCard(botId: String, messageId: String, threadId: String) {
+        sendUnit(makeRequest("POST", connectorCardPath(botId, messageId, "resume"), body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun dismissConnectorCard(botId: String, messageId: String, threadId: String) {
+        sendUnit(makeRequest("POST", connectorCardPath(botId, messageId, "dismiss"), body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun answerSignIn(botId: String, messageId: String, threadId: String, choice: SignInChoice) {
+        sendUnit(makeRequest(
+            "POST",
+            "/api/bots/${segment(botId)}/sign-in-cards/${segment(messageId)}/${choice.route}",
+            body = jsonBody("threadId" to threadId),
+        ))
+    }
+
     suspend fun toggleReaction(threadId: String, messageId: String, emoji: String): Message =
         send<MessageResponse>(makeRequest(
             "POST",

@@ -312,9 +312,18 @@ data class Message(
     val call: CallRecord? = null,
     /** The Live call a user line was spoken on (`via == "call"`). */
     val callId: String? = null,
+    /** `kind == CONNECTOR`: an app or MCP sign-in a bot asks for, patched in place as it moves. */
+    @Serializable(with = ConnectorCardSerializer::class)
+    val connector: ConnectorCardData? = null,
+    /** `kind == SIGNIN`: a website sign-in a bot asks for. */
+    @Serializable(with = SignInRequestCardSerializer::class)
+    val signIn: SignInRequestCardData? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, UNKNOWN }
+    enum class Kind {
+        TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, CONNECTOR,
+        SIGNIN, UNKNOWN,
+    }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -336,6 +345,8 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "goal.run" -> Message.Kind.GOAL_RUN
         "burst" -> Message.Kind.BURST
         "call" -> Message.Kind.CALL
+        "connector" -> Message.Kind.CONNECTOR
+        "signin" -> Message.Kind.SIGNIN
         else -> Message.Kind.UNKNOWN
     }
 

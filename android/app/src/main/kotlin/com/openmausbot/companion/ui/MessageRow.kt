@@ -535,6 +535,16 @@ private fun MessageContent(
             }
         }
         // A page the bot showed: a card with Open when this phone can show it, else its text.
+        Message.Kind.CONNECTOR -> if (message.connector != null) {
+            ConnectorCardRow(chat, message, startsRun, replyBot)
+        } else if (!message.text.isNullOrEmpty()) {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        }
+        Message.Kind.SIGNIN -> if (message.signIn != null) {
+            SignInCardRow(chat, message, startsRun, replyBot)
+        } else if (!message.text.isNullOrEmpty()) {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        }
         Message.Kind.APP -> if (message.app?.isOpenablePage == true) {
             ChatAppCard(chat, message, startsRun, replyBot)
         } else if (!message.text.isNullOrEmpty()) {
