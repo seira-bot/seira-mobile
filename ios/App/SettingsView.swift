@@ -8,6 +8,7 @@ struct SettingsView: View {
     @EnvironmentObject private var session: Session
     @State private var enablingNotifications = false
     @State private var confirmingSignOut = false
+    @State private var usageReport: EngineLimitsReport?
     @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
     @AppStorage(PrefKey.islandIntro) private var islandIntro = IslandIntro.oncePerBot.rawValue
     @AppStorage(PrefKey.language) private var language = AppLanguage.system.rawValue
@@ -50,6 +51,7 @@ struct SettingsView: View {
         .toolbarBackground(Color.seiraApp, for: .navigationBar)
         .background(SwipeBackBridge())
         .task { await session.refreshNotificationAuthorization() }
+        .task { await loadUsageSupport() }
         .confirmationDialog(
             "Remove this connection?",
             isPresented: $confirmingSignOut,
@@ -323,8 +325,30 @@ struct SettingsView: View {
                         }
                         .buttonStyle(SettingsRowButtonStyle())
                     }
+
+                    if session.canAdminister, let usageReport {
+                        SettingsDivider()
+                        NavigationLink {
+                            UsageView(initial: usageReport)
+                        } label: {
+                            SettingsLinkLabel(symbol: "chart.bar", title: "AI usage")
+                        }
+                        .buttonStyle(SettingsRowButtonStyle())
+                    }
                 }
             }
+        }
+    }
+
+    private func loadUsageSupport() async {
+        guard session.canAdminister, session.connection != nil else {
+            usageReport = nil
+            return
+        }
+        if case let .report(loaded) = await session.loadEngineLimits() {
+            usageReport = loaded
+        } else {
+            usageReport = nil
         }
     }
 
