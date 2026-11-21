@@ -1,0 +1,197 @@
+{
+  "appHostSha256": "c5fd2b26b60c3d50b09faad0e6885c904f5a15f7239cf972a67ec42bd5384350",
+  "sentFrom": {
+    "app-sent": "Coffee counter"
+  },
+  "rows": {
+    "app-counter": {
+      "source": "html",
+      "title": "Coffee counter",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "height": 200,
+      "network": {
+        "connect": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        "resources": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "context": "The counter shows 3 cups.",
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.gstatic.com; img-src data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; media-src data: blob:; connect-src https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'\">",
+      "botHelper": true
+    },
+    "app-chart": {
+      "source": "html",
+      "title": "Signups by month",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "height": 320,
+      "network": {
+        "connect": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        "resources": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.gstatic.com; img-src data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; media-src data: blob:; connect-src https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'\">",
+      "botHelper": true
+    },
+    "app-report": {
+      "source": "html",
+      "title": "Weekly spend",
+      "rev": 1,
+      "border": true,
+      "hasDocument": true,
+      "network": {
+        "connect": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        "resources": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.gstatic.com; img-src data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; media-src data: blob:; connect-src https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'\">",
+      "botHelper": true
+    },
+    "app-fragment": {
+      "source": "html",
+      "title": "Search tip",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "network": {
+        "connect": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        "resources": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.gstatic.com; img-src data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; media-src data: blob:; connect-src https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'\">",
+      "botHelper": true
+    },
+    "app-game": {
+      "source": "html",
+      "title": "Tic-tac-toe",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "height": 260,
+      "network": {
+        "connect": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com"
+        ],
+        "resources": [
+          "https://cdnjs.cloudflare.com",
+          "https://cdn.jsdelivr.net",
+          "https://unpkg.com",
+          "https://fonts.googleapis.com",
+          "https://fonts.gstatic.com"
+        ]
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; style-src 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.googleapis.com; font-src data: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com https://fonts.gstatic.com; img-src data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; media-src data: blob:; connect-src https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; manifest-src 'none'\">",
+      "botHelper": true
+    },
+    "app-mcp-basic": {
+      "source": "mcp",
+      "title": "Get Time",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "network": {
+        "connect": [],
+        "resources": []
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; media-src data: blob:; connect-src 'none'; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'\">",
+      "botHelper": false
+    },
+    "app-mcp-excalidraw": {
+      "source": "mcp",
+      "title": "Create view",
+      "rev": 0,
+      "border": true,
+      "hasDocument": true,
+      "network": {
+        "connect": [
+          "https://esm.sh"
+        ],
+        "resources": [
+          "https://esm.sh"
+        ],
+        "refused": [
+          "http://localhost:8080",
+          "https://example.com/path"
+        ]
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval' https://esm.sh; style-src 'unsafe-inline' https://esm.sh; font-src data: https://esm.sh; img-src data: blob: https://esm.sh; media-src data: blob: https://esm.sh; connect-src https://esm.sh; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'\">",
+      "botHelper": false
+    },
+    "app-mcp-debugError": {
+      "source": "mcp",
+      "title": "Debug Tool",
+      "rev": 0,
+      "border": false,
+      "hasDocument": true,
+      "network": {
+        "connect": [],
+        "resources": []
+      },
+      "srcdocStartsWith": "<!DOCTYPE html><meta http-equiv=\"Content-Security-Policy\" content=\"default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'unsafe-inline'; font-src data:; img-src data: blob:; media-src data: blob:; connect-src 'none'; worker-src blob:; frame-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'\">",
+      "botHelper": false
+    },
+    "app-too-large": {
+      "source": "html",
+      "title": "Huge map",
+      "rev": 0,
+      "border": true,
+      "hasDocument": false,
+      "blocked": "too-large",
+      "network": {
+        "connect": [],
+        "resources": []
+      }
+    },
+    "app-future": {
+      "source": "html",
+      "title": "From the future",
+      "rev": 0,
+      "border": true,
+      "hasDocument": false,
+      "network": {
+        "connect": [],
+        "resources": []
+      }
+    }
+  }
+}
