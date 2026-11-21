@@ -100,7 +100,7 @@ extension CharacterMood {
     static func forBot(_ bot: Bot, last: Message?) -> CharacterMood {
         if let pinned = normalize(bot.mascotExpression) { return pinned }
 
-        if last?.kind == .activity, last?.tool?.ok == false { return .alerting }
+        if last?.kind == .activity, last?.tool?.statusOk == false { return .alerting }
         if bot.busy == true { return .working }
         if bot.unread { return .notifying }
         if last?.kind == .options { return .curious }

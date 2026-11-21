@@ -85,6 +85,7 @@ import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Dictation
 import com.openmausbot.companion.core.DisplayedMessageAttachment
 import com.openmausbot.companion.core.DownloadedFile
+import com.openmausbot.companion.core.FailedTurnActions
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.ThreadRef
 import com.openmausbot.companion.core.TranscriptRow
@@ -534,6 +535,7 @@ private fun LoadedChat(
     val pendingApproval = remember(rawTranscript) {
         ComposerAccessories.hasPendingApproval(rawTranscript)
     }
+    val lastTurnFailed = remember(rawTranscript) { FailedTurnActions.lastTurnFailed(rawTranscript) }
     // The one open question a typed line answers. A bot blocked on its
     // question never reads a line steered into its turn, so while exactly one
     // question waits (and nothing is attached) Send answers it instead.
@@ -1148,6 +1150,7 @@ private fun LoadedChat(
                     pendingApproval = pendingApproval,
                     hasQuickReplies = predictiveChips.isNotEmpty(),
                     hasAttachments = attachments.isNotEmpty(),
+                    lastTurnFailed = lastTurnFailed,
                 ),
                 commands = commands,
                 chips = predictiveChips,

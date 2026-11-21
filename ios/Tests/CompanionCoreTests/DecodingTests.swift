@@ -226,9 +226,8 @@ final class DecodingTests: XCTestCase {
     }
 
     func testDecodesTheCloudBackendAndItsAbsence() throws {
-        // The cloud-desktop button hides on cloudBackend == "vps", so both
-        // sides of that gate must decode: a harness that sends the field, and
-        // an older one that has never heard of it (nil keeps the button).
+        // A harness that sends the field and an older one that never has must
+        // both decode.
         let json = """
         {
           "bots": [

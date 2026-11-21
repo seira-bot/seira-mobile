@@ -33,7 +33,6 @@ import com.openmausbot.companion.notifications.notificationTarget
 import com.openmausbot.companion.tile.TalkIntents
 import com.openmausbot.companion.tile.TalkRequestHandler
 import com.openmausbot.companion.ui.LiveCallUi
-import com.openmausbot.companion.browser.CloudDesktopBrowser
 import com.openmausbot.companion.sharing.TranscriptSharing
 import android.os.PowerManager
 import com.openmausbot.companion.ui.CameraPermissionController
@@ -196,7 +195,6 @@ class MainActivity : ComponentActivity() {
         chatDrafts = ChatDraftHolder()
 
         val sharing = TranscriptSharing(this)
-        val browser = CloudDesktopBrowser(this)
 
         val chatPreferences = app.chatPreferences
         val nightMode = NightModeApplier.forSystem(getSystemService(UiModeManager::class.java))
@@ -233,7 +231,6 @@ class MainActivity : ComponentActivity() {
             requestPermissions = { permissions -> permissionRequests.request(permissions) },
             openAppSettings = ::openAppSettings,
             shareTranscript = sharing::share,
-            openCloudDesktop = browser::open,
             shareInbox = app.shareInbox,
             alwaysOnEnabled = app.alwaysOn.enabled,
             onToggleAlwaysOn = ::toggleAlwaysOn,

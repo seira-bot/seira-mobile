@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.statusOk
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Message
@@ -89,7 +90,7 @@ internal fun CharacterMood.Companion.normalize(value: String?): CharacterMood? {
 internal fun CharacterMood.Companion.forBot(bot: Bot, last: Message?): CharacterMood {
     normalize(bot.mascotExpression)?.let { return it }
 
-    if (last?.kind == Message.Kind.ACTIVITY && last.tool?.ok == false) return CharacterMood.ALERTING
+    if (last?.kind == Message.Kind.ACTIVITY && last.tool?.statusOk == false) return CharacterMood.ALERTING
     if (bot.busy == true) return CharacterMood.WORKING
     if (bot.unread) return CharacterMood.NOTIFYING
     if (last?.kind == Message.Kind.OPTIONS) return CharacterMood.CURIOUS

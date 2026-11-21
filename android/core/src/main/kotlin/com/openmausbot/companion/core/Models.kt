@@ -209,7 +209,15 @@ data class ToolActivity(
     val nameParams: JsonObject? = null,
     /** A failed turn whose reply came back; only a step it ran failed. */
     val partial: Boolean? = null,
+    /** A failed turn: the place it could not use. Older computers omit it. */
+    val place: FailedPlace? = null,
+    /** The turn ran; this row only says what it ran without. Not a failure. */
+    val notice: Boolean? = null,
 )
+
+/** `PlaceRow` of `failed-turn.ts` in `seira-bot/seira`; the phone reads the state only. */
+@Serializable
+data class FailedPlace(val state: String? = null)
 
 /**
  * A compaction record: from this message on, rebuilds of the thread's
@@ -835,29 +843,6 @@ object CompanionConnectionMetadataSerializer : KSerializer<CompanionConnectionMe
             value.hosts?.let { put("hosts", output.json.encodeToJsonElement(it)) }
             put("endpoints", output.json.encodeToJsonElement(value.endpoints))
         })
-    }
-}
-
-@Serializable(with = CloudDesktopSessionSerializer::class)
-data class CloudDesktopSession(val url: URI)
-
-object CloudDesktopSessionSerializer : KSerializer<CloudDesktopSession> {
-    @Serializable
-    private data class Wire(@SerialName("joinUrl") val joinUrl: String)
-
-    override val descriptor: SerialDescriptor = Wire.serializer().descriptor
-
-    override fun deserialize(decoder: Decoder): CloudDesktopSession {
-        val raw = Wire.serializer().deserialize(decoder).joinUrl
-        val parsed = runCatching { URI(raw) }.getOrNull()
-        if (parsed == null || !parsed.scheme.equals("https", ignoreCase = true) || parsed.host.isNullOrEmpty()) {
-            throw SerializationException("Cloud desktop URL must be HTTPS with a host")
-        }
-        return CloudDesktopSession(parsed)
-    }
-
-    override fun serialize(encoder: Encoder, value: CloudDesktopSession) {
-        Wire.serializer().serialize(encoder, Wire(value.url.toASCIIString()))
     }
 }
 

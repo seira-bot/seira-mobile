@@ -156,7 +156,6 @@ internal class WiringScene(
         requestPermissions = {},
         openAppSettings = {},
         shareTranscript = { _, _ -> null },
-        openCloudDesktop = { null },
         shareInbox = ShareInbox(),
         alwaysOnEnabled = MutableStateFlow(false),
         onToggleAlwaysOn = {},

@@ -45,8 +45,7 @@ data class BrowserInputBody(
  * Turns abstract gesture intents into browser-live protocol bodies.
  *
  * This is the whole of what the browser surface knows about gestures, and the
- * gesture core knows nothing about it. Swapping this for a VNC sink is how the
- * same core will drive the cloud desktop.
+ * gesture core knows nothing about it.
  *
  * Mirrors CompanionCore's `BrowserLiveSink`.
  */

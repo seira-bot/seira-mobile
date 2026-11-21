@@ -1030,10 +1030,6 @@ class CompanionClient(
         sendUnit(makeRequest("POST", route, body = body))
     }
 
-    suspend fun cloudDesktop(botId: String): CloudDesktopSession = send(
-        makeRequest("POST", "/api/bots/${segment(botId)}/computer/join"),
-    )
-
     // ── Live calls ──
     // The phone holds its own WebRTC audio to OpenAI; the Mac creates the
     // session (the key never leaves it) and runs the call. These four routes

@@ -118,6 +118,7 @@ import com.openmausbot.companion.core.ThreadRef
 import com.openmausbot.companion.core.ToolActivity
 import com.openmausbot.companion.core.forTask
 import com.openmausbot.companion.core.label
+import com.openmausbot.companion.core.statusOk
 import com.openmausbot.companion.core.routineExecutionRef
 import com.openmausbot.companion.core.TranscriptCard
 import com.openmausbot.companion.core.TranscriptCards
@@ -1158,7 +1159,7 @@ private fun ActivityChip(
     teammateReport: Boolean = false,
 ) {
     if (tool == null) return
-    val status = ActivityReceipt.status(tool.ok)
+    val status = ActivityReceipt.status(tool.statusOk)
     val tint = when (status) {
         ActivityStatus.RUNNING -> MaterialTheme.colorScheme.tertiary
         ActivityStatus.SUCCESS -> secondaryTint

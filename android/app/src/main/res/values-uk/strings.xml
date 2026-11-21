@@ -173,7 +173,6 @@
     <string name="mobile_one_time_6fea9e4d">Одноразово</string>
     <string name="mobile_open_cf9b7706">Відкрити</string>
     <string name="mobile_open_settings_134635e9">Відкрити налаштування</string>
-    <string name="mobile_open_desktop_cd6f8218">Відкрити на комп’ютері</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Відкрийте чат, щоб переглянути SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Відкрити оновлення</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -460,8 +459,6 @@
     <string name="mobile_overview_failed">Не вдалося завантажити огляд.</string>
     <string name="mobile_profile_connected_apps_footer">Дозволи на інструменти призначаються в Seira на вашому комп’ютері. Цей телефон показує їх лише для перегляду.</string>
     <string name="mobile_profile_preview_during_call">Прослуховування голосу вимкнено під час живого дзвінка.</string>
-    <string name="mobile_computer_vnc_note">Інтерактивний сеанс VNC. Доступ потрібно ввімкнути для цього телефона в налаштуваннях телефона на комп’ютері.</string>
-    <string name="mobile_computer_confirm_message">Це дає цьому телефону повний контроль над хмарним комп’ютером, зокрема над усім, що відкрито в ньому під вашим обліковим записом.</string>
     <string name="mobile_live_call_disclosure">Живий дзвінок надсилає ваш голос в OpenAI разом з останніми повідомленнями чату, відповідями бота та подробицями будь-якого підтвердження, яке він запитує. Ключ OpenAI залишається на вашому комп’ютері.</string>
     <string name="mobile_discovery_access_off">Доступ до локальної мережі вимкнено. Дозвольте доступ до пристроїв поблизу або введіть адресу Tailscale нижче.</string>
     <string name="mobile_discovery_unavailable">Локальний пошук зараз недоступний. Введіть нижче адресу з налаштувань телефона.</string>
@@ -538,8 +535,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Ніщо не потребує вас</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Поки нічого не заплановано й не засвоєно.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Поки нічого показувати</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Відкрити живий хмарний робочий стіл</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Відкрити живий хмарний робочий стіл?</string>
     <string name="mobile_open_task_a1f1752a">Відкрити завдання</string>
     <string name="mobile_open_thread">Відкрити гілку</string>
     <string name="mobile_opening_b1b8530b">Відкриття…</string>
@@ -658,7 +653,6 @@
     <string name="mobile_chat_thread_update_failed">Не вдалося оновити цю гілку. Спробуйте знову.</string>
     <string name="mobile_chat_typing">%1$s друкує</string>
     <string name="mobile_chat_attachment_unsupported">«%1$s» не підтримується як вкладення. Спробуйте зображення, PDF, текстовий файл, Word, Excel або PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">Не вдалося відкрити хмарний робочий стіл.</string>
     <string name="mobile_connected_apps_no_browser">На цьому телефоні немає браузера, щоб відкрити сторінку авторизації.</string>
     <string name="mobile_connected_apps_auth_page_failed">Не вдалося відкрити сторінку авторизації. Перевірте обмеження браузера й спробуйте знову.</string>
     <string name="mobile_file_open_other_computer">Відкривайте посилання на файли з іншого комп’ютера з початкового повідомлення.</string>
