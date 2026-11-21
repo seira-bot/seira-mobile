@@ -212,6 +212,8 @@ class RunCardsRenderTest {
     fun showTasksListsOneRowPerTaskAndARowWithAConversationOpensIt() {
         val opened = mutableListOf<ThreadRef>()
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { opened += it })
+        val direct = kotlinx.coroutines.runBlocking(kotlinx.coroutines.Dispatchers.IO) { scene.session.burstView("burst-1") }
+        assertEquals("DIRECT", direct?.burstId?.let { "DIRECT" })
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
         compose.waitUntil(TASKS_LOAD_MS) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(text(R.string.chat_burst_tasks_title)).assertIsDisplayed()
