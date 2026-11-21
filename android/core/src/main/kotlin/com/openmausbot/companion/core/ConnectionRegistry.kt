@@ -43,11 +43,17 @@ data class ConnectionRegistry(
         return ConnectionRegistryUnchecked(next, active).value.normalized()
     }
 
+    /**
+     * The saved pairing a new pairing replaces: one that shares a real route and carries no
+     * identity that differs. Two servers behind one address, or two computers paired only
+     * through the relay, stay two computers. A claimed identity alone never matches: a QR or
+     * a server can claim any identity.
+     */
     fun matchingConnection(candidate: Connection): Connection? {
-        val candidateRoutes = candidate.orderedEndpoints.map { it.url }.toSet()
+        val candidateRoutes = candidate.matchableRoutes()
         if (candidateRoutes.isEmpty()) return null
         return connections.firstOrNull { saved ->
-            saved.orderedEndpoints.any { it.url in candidateRoutes }
+            saved.matchableRoutes().any { it in candidateRoutes } && !saved.identityDiffersFrom(candidate)
         }
     }
 
@@ -67,6 +73,15 @@ data class ConnectionRegistryRestore(
     val registry: ConnectionRegistry,
     val migratedLegacyConnection: Boolean,
 )
+
+/** RFC 6761 `.invalid` names never resolve: a relay-only QR names one, so it is no address. */
+private fun Connection.matchableRoutes(): Set<String> =
+    orderedEndpoints.filterNot { it.host.endsWith(".invalid", ignoreCase = true) }.map { it.url }.toSet()
+
+private fun Connection.identityDiffersFrom(other: Connection): Boolean =
+    differs(serverEnvironmentId, other.serverEnvironmentId) || differs(secretPublicKey, other.secretPublicKey)
+
+private fun differs(left: String?, right: String?): Boolean = left != null && right != null && left != right
 
 /* Lets the repair paths build a validated registry without duplicating checks. */
 private data class ConnectionRegistryUnchecked(

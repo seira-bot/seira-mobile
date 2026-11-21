@@ -30,4 +30,6 @@
     <string name="home_empty_all_done_title">सब निपट गया</string>
     <string name="home_empty_all_done_body">अभी आपके जवाब का इंतज़ार कोई नहीं कर रहा।</string>
     <string name="home_empty_back_to_chats">चैट पर वापस</string>
+    <string name="home_computers_title">कंप्यूटर</string>
+    <string name="home_switch_computer">कंप्यूटर बदलें। अभी: %1$s</string>
 </resources>

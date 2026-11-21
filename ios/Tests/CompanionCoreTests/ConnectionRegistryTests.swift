@@ -58,6 +58,50 @@ final class ConnectionRegistryTests: XCTestCase {
         )))
     }
 
+    func testTwoServersBehindOneAddressStayTwoComputers() {
+        var saved = Connection(id: "saved", name: "Laptop", host: "10.0.0.5", port: 8799)
+        saved.serverEnvironmentId = "env-a"
+        let registry = CompanionConnectionRegistry(connections: [saved, second], activeConnectionID: saved.id)
+        var otherServer = Connection(name: "Laptop", host: "10.0.0.5", port: 8799)
+        otherServer.serverEnvironmentId = "env-b"
+        var sameServer = otherServer
+        sameServer.serverEnvironmentId = "env-a"
+
+        XCTAssertNil(registry.matchingConnection(for: otherServer))
+        XCTAssertEqual(registry.matchingConnection(for: sameServer)?.id, saved.id)
+    }
+
+    func testComputersWithDifferentKeysOnOneAddressStayTwoComputers() {
+        var home = first
+        home.secretPublicKey = "key-home"
+        let registry = CompanionConnectionRegistry(connections: [home], activeConnectionID: home.id)
+        var office = Connection(id: "new", name: first.name, host: "air.local", port: 8810)
+        office.secretPublicKey = "key-office"
+        var homeAgain = office
+        homeAgain.secretPublicKey = "key-home"
+
+        XCTAssertNil(registry.matchingConnection(for: office))
+        XCTAssertEqual(registry.matchingConnection(for: homeAgain)?.id, home.id)
+    }
+
+    func testAClaimedIdentityAtAnotherAddressNeverReplacesASavedComputer() {
+        var home = first
+        home.secretPublicKey = "key-home"
+        let registry = CompanionConnectionRegistry(connections: [home], activeConnectionID: home.id)
+        var impostor = Connection(name: first.name, host: "elsewhere.example", port: 8810)
+        impostor.secretPublicKey = "key-home"
+
+        XCTAssertNil(registry.matchingConnection(for: impostor))
+    }
+
+    func testTheRelayOnlyPlaceholderIsNoSharedAddress() {
+        var vps = Connection(id: "vps", name: "VPS", host: "relay-only.invalid", port: 443)
+        vps.secretPublicKey = "key-vps"
+        let registry = CompanionConnectionRegistry(connections: [vps, second], activeConnectionID: vps.id)
+        let studio = Connection(name: "Studio", host: "relay-only.invalid", port: 443)
+        XCTAssertNil(registry.matchingConnection(for: studio))
+    }
+
     func testRemovingActiveComputerFallsBackToAnotherSavedComputer() {
         var registry = CompanionConnectionRegistry(
             connections: [first, second],

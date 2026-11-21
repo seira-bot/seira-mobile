@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -9,7 +10,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -22,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.StrokeCap
@@ -29,9 +33,12 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.addPathNodes
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import com.openmausbot.companion.R
@@ -77,7 +84,7 @@ internal fun homeGreetingText(hour: Int, fullName: String?): String {
     return stringResource(R.string.home_greeting_with_name, base, first)
 }
 
-/** The greeting, and the profile circle that opens Settings. */
+/** The greeting and the profile circle that opens Settings. */
 @Composable
 internal fun HomeHeader(
     greeting: String,
@@ -130,8 +137,8 @@ internal fun HomeHeader(
 }
 
 /**
- * The Chats title and the menu that keeps the secondary actions one tap away:
- * updates, the routine calendar and Settings.
+ * The Chats title, the computer the chats come from, and the menu that keeps the
+ * secondary actions one tap away: updates, the routine calendar and Settings.
  */
 @Composable
 internal fun ChatsHeading(
@@ -139,6 +146,8 @@ internal fun ChatsHeading(
     onCalendar: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    computerName: String? = null,
+    onComputer: () -> Unit = {},
 ) {
     val colors = Seira.colors
     var menuOpen by remember { mutableStateOf(false) }
@@ -157,6 +166,9 @@ internal fun ChatsHeading(
                 .weight(1f)
                 .semantics { heading() },
         )
+        if (computerName != null) {
+            ComputerChip(name = computerName, onClick = onComputer)
+        }
         Box {
             TouchTarget(
                 onClick = { menuOpen = true },
@@ -197,7 +209,37 @@ internal fun ChatsHeading(
     }
 }
 
+@Composable
+private fun ComputerChip(name: String, onClick: () -> Unit) {
+    val colors = Seira.colors
+    val label = stringResource(R.string.home_switch_computer, name)
+    Row(
+        modifier = Modifier
+            .testTag("home-computer")
+            .heightIn(min = MIN_TOUCH_TARGET)
+            .widthIn(max = COMPUTER_CHIP_MAX_WIDTH)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = label }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(SeiraIcons.Laptop, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(16.dp))
+        Text(
+            text = name,
+            style = SeiraType.callout,
+            color = colors.ink2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Icon(SeiraIcons.ChevronDown, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(14.dp))
+    }
+}
+
 private val PROFILE_CIRCLE = 40.dp
+private val COMPUTER_CHIP_MAX_WIDTH = 180.dp
 
 /** Three dots in the theme's stroke weight; the theme has no ellipsis of its own. */
 private val EllipsisIcon: ImageVector = ImageVector.Builder(

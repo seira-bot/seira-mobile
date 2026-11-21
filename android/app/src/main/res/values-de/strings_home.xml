@@ -30,4 +30,6 @@
     <string name="home_empty_all_done_title">Alles erledigt</string>
     <string name="home_empty_all_done_body">Im Moment wartet nichts auf deine Antwort.</string>
     <string name="home_empty_back_to_chats">Zurück zu den Chats</string>
+    <string name="home_computers_title">Computer</string>
+    <string name="home_switch_computer">Computer wechseln. Jetzt: %1$s</string>
 </resources>

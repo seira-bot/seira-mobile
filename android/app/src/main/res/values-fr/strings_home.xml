@@ -30,4 +30,6 @@
     <string name="home_empty_all_done_title">Tout est à jour</string>
     <string name="home_empty_all_done_body">Rien n’attend votre réponse pour le moment.</string>
     <string name="home_empty_back_to_chats">Retour aux chats</string>
+    <string name="home_computers_title">Ordinateurs</string>
+    <string name="home_switch_computer">Changer d’ordinateur. Actuel : %1$s</string>
 </resources>

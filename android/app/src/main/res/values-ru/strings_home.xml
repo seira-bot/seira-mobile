@@ -32,4 +32,6 @@
     <string name="home_empty_all_done_title">Всё разобрано</string>
     <string name="home_empty_all_done_body">Сейчас никто не ждёт вашего ответа.</string>
     <string name="home_empty_back_to_chats">К чатам</string>
+    <string name="home_computers_title">Компьютеры</string>
+    <string name="home_switch_computer">Сменить компьютер. Сейчас: %1$s</string>
 </resources>

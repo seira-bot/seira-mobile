@@ -29,4 +29,6 @@
     <string name="home_empty_all_done_title">すべて確認済みです</string>
     <string name="home_empty_all_done_body">今、返答待ちのものはありません。</string>
     <string name="home_empty_back_to_chats">チャットに戻る</string>
+    <string name="home_computers_title">コンピュータ</string>
+    <string name="home_switch_computer">コンピュータを切り替え。現在: %1$s</string>
 </resources>

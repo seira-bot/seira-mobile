@@ -32,4 +32,6 @@
     <string name="home_empty_all_done_title">Wszystko załatwione</string>
     <string name="home_empty_all_done_body">Nic teraz nie czeka na Twoją odpowiedź.</string>
     <string name="home_empty_back_to_chats">Wróć do czatów</string>
+    <string name="home_computers_title">Komputery</string>
+    <string name="home_switch_computer">Zmień komputer. Teraz: %1$s</string>
 </resources>

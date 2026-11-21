@@ -196,6 +196,25 @@ class ServerSessionPairingTest {
     }
 
     @Test
+    fun aSecondServerOnTheSameAddressIsSavedBesideTheFirst() = runBlocking<Unit> {
+        val first = assertNotNull(Connection.parse("https://mini.example"))
+            .copy(id = "first", name = "old mini", serverEnvironmentId = "old-env")
+        Fixture(saved = first).use { f ->
+            f.session.awaitRestored()
+            f.tokens.values["first"] = "first-bearer"
+            f.session.pair(f.invite, "attempt-second")
+            val computers = f.session.connections.value
+            assertEquals(2, computers.size)
+            val added = computers.single { it.id != "first" }
+            assertEquals("env-fixture", added.serverEnvironmentId)
+            assertEquals(first, computers.single { it.id == "first" })
+            assertEquals("first-bearer", f.tokens.values["first"])
+            assertEquals("seira_sess_fixture", f.tokens.values[added.id])
+            assertEquals(added.id, f.session.connection.value?.id)
+        }
+    }
+
+    @Test
     fun authenticatedActionsOnSavedConnectionsVerifyIdentityBeforeSendingTheBearer() = runBlocking<Unit> {
         val saved = assertNotNull(Connection.parse("https://mini.example")).copy(serverEnvironmentId = "old-env")
         Fixture().use { f ->

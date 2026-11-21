@@ -29,15 +29,15 @@ public struct CompanionConnectionRegistry: Codable, Equatable, Sendable {
         connections.first { $0.id == id }
     }
 
-    /// Recognize a computer already saved under an older pairing id. A
-    /// shared advertised route is stronger evidence than a display name and
-    /// lets re-pairing refresh the existing Keychain item instead of drawing
-    /// a duplicate row.
+    /// The saved pairing a new pairing replaces: one that shares a real route
+    /// and carries no identity that differs. Two servers behind one address, or
+    /// two computers paired only through the relay, stay two computers. A
+    /// claimed identity alone never matches: a QR or a server can claim any.
     public func matchingConnection(for candidate: Connection) -> Connection? {
-        let candidateRoutes = Set(candidate.orderedEndpoints.map(\.url))
+        let candidateRoutes = candidate.matchableRoutes
         guard !candidateRoutes.isEmpty else { return nil }
         return connections.first { saved in
-            !candidateRoutes.isDisjoint(with: saved.orderedEndpoints.map(\.url))
+            !candidateRoutes.isDisjoint(with: saved.matchableRoutes) && !saved.identityDiffers(from: candidate)
         }
     }
 
@@ -125,5 +125,22 @@ public enum CompanionConnectionRegistryMigration {
             registry: CompanionConnectionRegistry(),
             migratedLegacyConnection: false
         )
+    }
+}
+
+private extension Connection {
+    /// RFC 6761 `.invalid` names never resolve: a relay-only QR names one, so it is no address.
+    var matchableRoutes: Set<String> {
+        Set(orderedEndpoints.filter { !$0.host.lowercased().hasSuffix(".invalid") }.map(\.url))
+    }
+
+    func identityDiffers(from other: Connection) -> Bool {
+        Self.differs(serverEnvironmentId, other.serverEnvironmentId)
+            || Self.differs(secretPublicKey, other.secretPublicKey)
+    }
+
+    static func differs(_ left: String?, _ right: String?) -> Bool {
+        guard let left, let right else { return false }
+        return left != right
     }
 }
