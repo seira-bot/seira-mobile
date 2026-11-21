@@ -5,6 +5,7 @@ import java.util.UUID
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
@@ -21,6 +22,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import okhttp3.OkHttpClient
 
@@ -86,6 +88,8 @@ class Session(
      * the stored order, which is what a session without a network to probe wants.
      */
     private val routeChoiceFn: (suspend (Connection) -> RouteChoice)? = null,
+    /** What each computer accepted for push. Durable in the app, so a restart does not register again. */
+    private val pushStore: PushRegistrationStore = InMemoryPushRegistrationStore(),
 ) {
     sealed interface Status {
         data object Unpaired : Status
@@ -167,6 +171,9 @@ class Session(
     private var emptyResumes = 0
     private var screenWatchers = 0
     private val gate = Mutex()
+    private val pushGate = Mutex()
+    @Volatile
+    private var pushToken: String? = null
     private val notificationGate = Mutex()
     private val attachmentDownloads = AttachmentDownloadCache(scope)
     private val restored = CompletableDeferred<Unit>()
@@ -558,6 +565,7 @@ class Session(
     /** Remove only the selected computer. Other saved computers remain usable. */
     private suspend fun unpairLocked() {
         val id = _connection.value?.id ?: registry.activeConnectionId
+        if (id != null) unregisterPush(id)
         val leaving = id?.let { _connection.value?.takeIf { active -> active.id == it } ?: registry.connection(it) }
         val leavingToken = leaving?.takeIf { it.pairedWithServer }?.let { server ->
             token?.takeIf { _connection.value?.id == server.id } ?: storedTokenOrNull(server.id)
@@ -591,42 +599,46 @@ class Session(
 
     /** Switches active runtime only after the chosen computer's token is readable. */
     fun switchComputer(id: String) {
-        scope.launch {
-            awaitRestored()
-            gate.withLock {
-                val saved = registry.connection(id) ?: return@withLock
-                if (_connection.value?.id == id) {
-                    restartStreamLocked()
-                    return@withLock
+        scope.launch { activateComputer(id) }
+    }
+
+    /** [switchComputer] for a caller that must wait until the chosen computer is the active one. */
+    suspend fun activateComputer(id: String) {
+        awaitRestored()
+        gate.withLock {
+            val saved = registry.connection(id) ?: return@withLock
+            if (_connection.value?.id == id) {
+                restartStreamLocked()
+                return@withLock
+            }
+            when (val stored = tokenStore.read(id)) {
+                is TokenStore.ReadResult.Found -> {
+                    stopActiveRuntimeLocked()
+                    registry = registry.select(id) ?: registry
+                    _connections.value = registry.connections
+                    connectionStore.saveRegistry(registry)
+                    configureActiveConnectionLocked(saved, stored.token)
                 }
-                when (val stored = tokenStore.read(id)) {
-                    is TokenStore.ReadResult.Found -> {
-                        stopActiveRuntimeLocked()
-                        registry = registry.select(id) ?: registry
-                        _connections.value = registry.connections
-                        connectionStore.saveRegistry(registry)
-                        configureActiveConnectionLocked(saved, stored.token)
+                is TokenStore.ReadResult.Unavailable -> {
+                    _actionError.value = if (stored.locked) {
+                        "Unlock this phone, then try switching computers again."
+                    } else {
+                        stored.message
                     }
-                    is TokenStore.ReadResult.Unavailable -> {
-                        _actionError.value = if (stored.locked) {
-                            "Unlock this phone, then try switching computers again."
-                        } else {
-                            stored.message
-                        }
-                    }
-                    TokenStore.ReadResult.Missing -> {
-                        _actionError.value =
-                            "This saved connection is no longer available on this phone. Remove it and pair again."
-                    }
+                }
+                TokenStore.ReadResult.Missing -> {
+                    _actionError.value =
+                        "This saved connection is no longer available on this phone. Remove it and pair again."
                 }
             }
-            connect()
         }
+        connect()
     }
 
     fun forgetConnection(id: String) {
         scope.launch {
             awaitRestored()
+            unregisterPush(id)
             gate.withLock {
                 if (registry.connection(id) == null) return@withLock
                 val wasActive = registry.activeConnectionId == id
@@ -698,6 +710,82 @@ class Session(
      */
     private fun emptyInviteQueue() = synchronized(inviteLock) {
         _pairingInvite.value = null
+    }
+
+    /** True while the stream to the saved computer [connectionId] is Live. */
+    fun holdsLiveStream(connectionId: String): Boolean =
+        _connection.value?.id == connectionId && _status.value is Status.Live
+
+    /**
+     * The push token this phone holds now, or null when it holds none. A new
+     * token marks every saved computer for registration; the active one
+     * registers at once when its stream is Live, the others at their next one.
+     */
+    fun setPushToken(token: String?) {
+        scope.launch { applyPushToken(token) }
+    }
+
+    internal suspend fun applyPushToken(token: String?) {
+        val value = token?.takeIf { it.isNotBlank() }
+        pushGate.withLock {
+            val previous = pushToken
+            pushToken = value
+            if (previous != null && previous != value) pushStore.forgetAll()
+        }
+        registerPush()
+    }
+
+    private suspend fun registerPush() {
+        val value = pushToken ?: return
+        val active = client ?: return
+        if (_status.value !is Status.Live) return
+        val pairing = active.connection.id
+        pushGate.withLock {
+            val signature = PushSignature.of(value, pairing)
+            if (pushStore.accepted(pairing) == signature) return
+            try {
+                if (active.registerPush(value, pairing).device != null) pushStore.save(pairing, signature)
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                // The next Live stream tries again.
+            }
+        }
+    }
+
+    /**
+     * Asks a computer to forget this phone before its credential is removed.
+     * An unreachable computer cannot hold the removal up for long.
+     */
+    private suspend fun unregisterPush(id: String) {
+        val registered = pushStore.accepted(id) != null
+        if (pushToken == null && !registered) return
+        val saved = registry.connection(id)
+        val caller = when {
+            saved == null -> null
+            _connection.value?.id == id -> client
+            else -> try {
+                (tokenStore.read(id) as? TokenStore.ReadResult.Found)?.let { clientFactory(saved, it.token) }
+            } catch (cancellation: CancellationException) {
+                throw cancellation
+            } catch (_: Exception) {
+                null
+            }
+        }
+        pushStore.forget(id)
+        if (caller == null) return
+        // Dispatchers.IO keeps the deadline on the wall clock, not on a test scheduler.
+        withContext(Dispatchers.IO) {
+            withTimeoutOrNull(PUSH_UNREGISTER_TIMEOUT_MILLIS) {
+                try {
+                    caller.unregisterPush()
+                } catch (cancellation: CancellationException) {
+                    throw cancellation
+                } catch (_: Exception) {
+                    // Gone or unreachable: the removal goes on.
+                }
+            }
+        }
     }
 
     /** Called when the app comes to the front, and once at launch. */
@@ -1002,6 +1090,7 @@ class Session(
                             _routeAdvice.value = null
                             promoteWorkingRoute()
                             refreshConnectionMetadata(activeClient)
+                            scope.launch { registerPush() }
                         } else {
                             // A frame after hello is the stream working. Only that
                             // resets the backoff, so hello-then-close slows down.
@@ -2701,6 +2790,7 @@ class Session(
         /** Empty resumes in a row before the stream starts over without a cursor. */
         internal const val EMPTY_RESUMES_BEFORE_FRESH_START = 2
         private const val NETWORK_CHANGE_DEBOUNCE_MILLIS = 1_000L
+        private const val PUSH_UNREGISTER_TIMEOUT_MILLIS = 4_000L
         private const val REVOKE_TIMEOUT_MILLIS = 10_000L
 
         /** High-entropy QR token — distinct from a retryable six-digit code. */

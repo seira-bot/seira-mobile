@@ -15,6 +15,7 @@ fun Intent.notificationTarget(): NotificationTarget? =
     NotificationTarget.from(
         getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID),
         getStringExtra(LocalNotificationPoster.EXTRA_THREAD_ID),
+        getStringExtra(LocalNotificationPoster.EXTRA_PAIRING),
     )
 
 /**
@@ -37,11 +38,12 @@ object NotificationIntents {
      * Distinct for every `(botId, threadId)` pair — including UUID strings
      * that collide under 32-bit [String.hashCode].
      */
-    fun contentIdentity(botId: String, threadId: String): String =
-        "openmaus://notification/${encode(botId)}/${encode(threadId)}"
+    fun contentIdentity(botId: String, threadId: String, pairing: String? = null): String =
+        "openmaus://notification/${encode(botId)}/${encode(threadId)}" +
+            (pairing?.let { "?pairing=${encode(it)}" } ?: "")
 
-    fun contentUri(botId: String, threadId: String): Uri =
-        Uri.parse(contentIdentity(botId, threadId))
+    fun contentUri(botId: String, threadId: String, pairing: String? = null): Uri =
+        Uri.parse(contentIdentity(botId, threadId, pairing))
 
     const val EXTRA_SHORTCUT_ID = "openmaus.shortcutId"
 
@@ -60,13 +62,15 @@ object NotificationIntents {
         botId: String,
         threadId: String,
         kind: String? = null,
+        pairing: String? = null,
     ): Intent = Intent(packageContext, MainActivity::class.java).apply {
         action = ACTION_OPEN
-        data = contentUri(botId, threadId)
+        data = contentUri(botId, threadId, pairing)
         flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
         putExtra(LocalNotificationPoster.EXTRA_THREAD_ID, threadId)
         putExtra(LocalNotificationPoster.EXTRA_BOT_ID, botId)
         if (kind != null) putExtra(LocalNotificationPoster.EXTRA_KIND, kind)
+        if (pairing != null) putExtra(LocalNotificationPoster.EXTRA_PAIRING, pairing)
     }
 
     fun openPending(
@@ -74,10 +78,11 @@ object NotificationIntents {
         botId: String,
         threadId: String,
         kind: String? = null,
+        pairing: String? = null,
     ): android.app.PendingIntent = android.app.PendingIntent.getActivity(
         packageContext,
         0,
-        openIntent(packageContext, botId, threadId, kind),
+        openIntent(packageContext, botId, threadId, kind, pairing),
         android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE,
     )
 

@@ -1050,6 +1050,21 @@ class CompanionClient(
         sendUnit(makeRequest("POST", "/api/groups/${segment(roomId)}/read", body = jsonBody("threadId" to threadId)))
     }
 
+    /** Registers this phone's push token with the computer. The body is exactly these three fields. */
+    suspend fun registerPush(token: String, pairing: String): PushAnswer = send(
+        makeRequest(
+            "PUT",
+            "/api/push/device",
+            body = jsonBody("platform" to "fcm", "token" to token, "pairing" to pairing),
+        ),
+    )
+
+    suspend fun pushDevice(): PushAnswer = send(makeRequest("GET", "/api/push/device"))
+
+    suspend fun unregisterPush() {
+        sendUnit(makeRequest("DELETE", "/api/push/device"))
+    }
+
     fun events(since: String?, screens: Boolean = false): Flow<StreamFrame> {
         val query = buildList {
             add("screens" to if (screens) "on" else "off")
@@ -1682,3 +1697,18 @@ class CompanionClient(
  */
 @Serializable
 internal data class RespondBody(val outcome: String? = null)
+
+/** The computer's answer about this phone's push registration. It never echoes the token. */
+@Serializable
+data class PushAnswer(
+    val push: String,
+    val device: PushDevice? = null,
+    val relay: String? = null,
+)
+
+@Serializable
+data class PushDevice(
+    val platform: String,
+    val pairing: String? = null,
+    val updatedAt: Double? = null,
+)
