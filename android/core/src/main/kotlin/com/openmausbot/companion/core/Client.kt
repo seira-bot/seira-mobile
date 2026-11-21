@@ -827,6 +827,41 @@ class CompanionClient(
         return url
     }
 
+    private fun connectorCardPath(botId: String, messageId: String, route: String) =
+        "/api/bots/${segment(botId)}/connector-cards/${segment(messageId)}/$route"
+
+    suspend fun authorizeConnectorCard(botId: String, messageId: String, threadId: String): URI {
+        val response = send<ConnectorAuthorizationResponse>(makeRequest(
+            "POST",
+            connectorCardPath(botId, messageId, "authorize"),
+            body = jsonBody("threadId" to threadId),
+        ))
+        return ConnectorCards.secureLink(response.url) ?: throw APIError.BadUrl
+    }
+
+    suspend fun connectorCardStatus(botId: String, messageId: String, threadId: String): ConnectorCardStatus =
+        send<ConnectorCardStatus>(makeRequest(
+            "GET",
+            connectorCardPath(botId, messageId, "status"),
+            query = listOf("threadId" to threadId),
+        ))
+
+    suspend fun resumeConnectorCard(botId: String, messageId: String, threadId: String) {
+        sendUnit(makeRequest("POST", connectorCardPath(botId, messageId, "resume"), body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun dismissConnectorCard(botId: String, messageId: String, threadId: String) {
+        sendUnit(makeRequest("POST", connectorCardPath(botId, messageId, "dismiss"), body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun answerSignIn(botId: String, messageId: String, threadId: String, choice: SignInChoice) {
+        sendUnit(makeRequest(
+            "POST",
+            "/api/bots/${segment(botId)}/sign-in-cards/${segment(messageId)}/${choice.route}",
+            body = jsonBody("threadId" to threadId),
+        ))
+    }
+
     suspend fun toggleReaction(threadId: String, messageId: String, emoji: String): Message =
         send<MessageResponse>(makeRequest(
             "POST",
@@ -966,6 +1001,21 @@ class CompanionClient(
     /** Stop a room's running turn, whichever member is speaking. */
     suspend fun interruptRoom(groupId: String, threadId: String? = null) {
         sendUnit(makeRequest("POST", "/api/groups/${segment(groupId)}/interrupt", body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun burst(burstId: String): BurstView =
+        send(makeRequest("GET", "/api/bursts/${safeRouteId(burstId)}"))
+
+    suspend fun burstAction(burstId: String, action: BurstAction, edit: BurstEdit? = null) {
+        require((action == BurstAction.EDIT) == (edit != null)) { "Only an edit carries a plan." }
+        val route = "/api/bursts/${safeRouteId(burstId)}/${action.path}"
+        val body = edit?.let {
+            buildJsonObject {
+                put("instructions", it.instructions)
+                put("items", JsonArray(it.items.map(::JsonPrimitive)))
+            }
+        }
+        sendUnit(makeRequest("POST", route, body = body))
     }
 
     suspend fun cloudDesktop(botId: String): CloudDesktopSession = send(

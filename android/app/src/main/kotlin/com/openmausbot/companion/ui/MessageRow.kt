@@ -509,7 +509,42 @@ private fun MessageContent(
             TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
         Message.Kind.WIDGET -> WidgetMessageRow(chat, message, openLink, openThread)
+        // The three run kinds draw a card from their data; without it, the computer's own text.
+        Message.Kind.GOAL_RUN -> {
+            val goalRun = message.goalRun
+            if (goalRun != null) {
+                GoalRunCardView(chat, message, goalRun)
+            } else if (!message.text.isNullOrEmpty()) {
+                TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            }
+        }
+        Message.Kind.BURST -> {
+            val burst = message.burst
+            if (burst != null) {
+                BurstCardView(message, burst, openThread)
+            } else if (!message.text.isNullOrEmpty()) {
+                TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            }
+        }
+        Message.Kind.CALL -> {
+            val call = message.call
+            if (call != null) {
+                CallRecordRow(chat, call)
+            } else if (!message.text.isNullOrEmpty()) {
+                TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            }
+        }
         // A page the bot showed: a card with Open when this phone can show it, else its text.
+        Message.Kind.CONNECTOR -> if (message.connector != null) {
+            ConnectorCardRow(chat, message, startsRun, replyBot)
+        } else if (!message.text.isNullOrEmpty()) {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        }
+        Message.Kind.SIGNIN -> if (message.signIn != null) {
+            SignInCardRow(chat, message, startsRun, replyBot)
+        } else if (!message.text.isNullOrEmpty()) {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        }
         Message.Kind.APP -> if (message.app?.isOpenablePage == true) {
             ChatAppCard(chat, message, startsRun, replyBot)
         } else if (!message.text.isNullOrEmpty()) {
