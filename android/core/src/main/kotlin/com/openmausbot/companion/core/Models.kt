@@ -283,9 +283,15 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == CONNECTOR`: an app or MCP sign-in a bot asks for, patched in place as it moves. */
+    @Serializable(with = ConnectorCardSerializer::class)
+    val connector: ConnectorCardData? = null,
+    /** `kind == SIGNIN`: a website sign-in a bot asks for. */
+    @Serializable(with = SignInRequestCardSerializer::class)
+    val signIn: SignInRequestCardData? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, CONNECTOR, SIGNIN, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -303,6 +309,8 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "connector" -> Message.Kind.CONNECTOR
+        "signin" -> Message.Kind.SIGNIN
         else -> Message.Kind.UNKNOWN
     }
 

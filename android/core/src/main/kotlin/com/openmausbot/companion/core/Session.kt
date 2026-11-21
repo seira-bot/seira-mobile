@@ -2332,6 +2332,31 @@ class Session(
         }
     }
 
+    private suspend fun <T> cardCall(block: suspend (CompanionClient) -> T): Result<T> {
+        val activeClient = client ?: return Result.failure(APIError.BadUrl)
+        return try {
+            Result.success(block(activeClient))
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            Result.failure(error)
+        }
+    }
+
+    suspend fun authorizeConnectorCard(botId: String, messageId: String, threadId: String): Result<URI> =
+        cardCall { it.authorizeConnectorCard(botId, messageId, threadId) }
+
+    suspend fun connectorCardStatus(botId: String, messageId: String, threadId: String): Result<ConnectorCardStatus> =
+        cardCall { it.connectorCardStatus(botId, messageId, threadId) }
+
+    suspend fun resumeConnectorCard(botId: String, messageId: String, threadId: String): Result<Unit> =
+        cardCall { it.resumeConnectorCard(botId, messageId, threadId) }
+
+    suspend fun dismissConnectorCard(botId: String, messageId: String, threadId: String): Result<Unit> =
+        cardCall { it.dismissConnectorCard(botId, messageId, threadId) }
+
+    suspend fun answerSignIn(botId: String, messageId: String, threadId: String, choice: SignInChoice): Result<Unit> =
+        cardCall { it.answerSignIn(botId, messageId, threadId, choice) }
+
     suspend fun loadRoutines(): RoutinesResponse {
         val activeClient = client ?: return RoutinesResponse(emptyList(), emptyList())
         return try {
