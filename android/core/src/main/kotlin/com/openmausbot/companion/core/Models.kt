@@ -283,9 +283,13 @@ data class Message(
     /** `kind == APP`: the page a bot showed. Never carries the HTML. */
     @Serializable(with = ChatAppSerializer::class)
     val app: ChatApp? = null,
+    /** `kind == WIDGET`: the card tree a bot showed. Kept as JSON so a newer node type never breaks decoding. */
+    val widget: JsonObject? = null,
+    /** `kind == WIDGET`: the computer wrote this card itself, in English. */
+    val serverCard: Boolean? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -303,6 +307,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
+        "widget" -> Message.Kind.WIDGET
         else -> Message.Kind.UNKNOWN
     }
 
