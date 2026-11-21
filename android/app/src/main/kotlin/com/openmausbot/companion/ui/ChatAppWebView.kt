@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.webkit.ConsoleMessage
 import android.webkit.GeolocationPermissions
 import android.webkit.PermissionRequest
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -41,7 +42,8 @@ private const val HOST_ASSET = "app/app-host.html"
  * A bot's page in a locked-down web view. The device token, cookies and files never reach it: it loads only the
  * bundled host page, which holds the page's own sandboxed frame.
  *
- * [onUnsupported] runs when this phone's web view cannot carry the page bridge.
+ * [onUnsupported] runs when this phone's web view cannot carry the page bridge. [onGone] runs when the page's renderer
+ * stops, so the screen can drop this web view instead of the whole app closing.
  */
 @Composable
 fun ChatAppWebView(
@@ -51,13 +53,19 @@ fun ChatAppWebView(
     hostVersion: String,
     onOpenLink: (String) -> Unit,
     onUnsupported: () -> Unit,
+    onGone: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val session = remember(document) { ChatAppWebSession(document, heightDp, dark, hostVersion, onOpenLink) }
     AndroidView(
         modifier = modifier,
-        factory = { context -> createChatAppWebView(context, session, onUnsupported) },
-        onRelease = { view -> releaseChatAppWebView(view) },
+        factory = { context ->
+            createChatAppWebView(context, session, onUnsupported) {
+                session.gone = true
+                onGone()
+            }
+        },
+        onRelease = { view -> releaseChatAppWebView(view, session.gone) },
     )
 }
 
@@ -69,6 +77,7 @@ internal class ChatAppWebSession(
     val onOpenLink: (String) -> Unit,
 ) {
     @Volatile var proxy: JavaScriptReplyProxy? = null
+    @Volatile var gone = false
 }
 
 /** One call: every setting that keeps the page inside its frame. */
@@ -103,13 +112,18 @@ internal fun lockDownChatAppWebView(webView: WebView) {
 }
 
 @SuppressLint("ClickableViewAccessibility")
-private fun createChatAppWebView(context: Context, session: ChatAppWebSession, onUnsupported: () -> Unit): WebView {
+private fun createChatAppWebView(
+    context: Context,
+    session: ChatAppWebSession,
+    onUnsupported: () -> Unit,
+    onGone: () -> Unit,
+): WebView {
     val webView = WebView(context)
     webView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
     lockDownChatAppWebView(webView)
     webView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
     webView.webChromeClient = ChatAppChromeClient()
-    webView.webViewClient = ChatAppWebViewClient(hostAssetLoader(context), session.document.allowedOrigins)
+    webView.webViewClient = ChatAppWebViewClient(hostAssetLoader(context), session.document.allowedOrigins, onGone)
 
     if (!WebViewFeature.isFeatureSupported(WebViewFeature.WEB_MESSAGE_LISTENER)) {
         onUnsupported()
@@ -156,10 +170,13 @@ private fun handlePageMessage(session: ChatAppWebSession, raw: String, replyProx
     }
 }
 
-private fun releaseChatAppWebView(view: WebView) {
-    view.stopLoading()
+/** After its renderer is gone, a web view may only be destroyed. */
+private fun releaseChatAppWebView(view: WebView, gone: Boolean) {
     view.setOnTouchListener(null)
-    view.loadUrl("about:blank")
+    if (!gone) {
+        view.stopLoading()
+        view.loadUrl("about:blank")
+    }
     (view.parent as? ViewGroup)?.removeView(view)
     view.destroy()
 }
@@ -188,7 +205,14 @@ private fun blocked(status: Int, reason: String) =
 internal class ChatAppWebViewClient(
     private val assets: WebViewAssetLoader,
     private val allowedOrigins: Set<String>,
+    private val onGone: () -> Unit = {},
 ) : WebViewClient() {
+    // Android closes the whole app when this returns false, so a page that crashes its renderer must not decide that.
+    override fun onRenderProcessGone(view: WebView, detail: RenderProcessGoneDetail): Boolean {
+        onGone()
+        return true
+    }
+
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean =
         !ChatAppWebPolicy.allowsNavigation(request.url.toString(), request.isForMainFrame)
 

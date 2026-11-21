@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import android.net.Uri
+import android.webkit.RenderProcessGoneDetail
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.test.core.app.ApplicationProvider
@@ -30,6 +31,18 @@ class ChatAppWebViewConfigTest {
     }
 
     private fun client(allowed: Set<String>) = ChatAppWebViewClient(hostAssetLoader(context), allowed)
+
+    @Test
+    fun aPageThatCrashesItsRendererStopsOnlyThePage() {
+        var gone = 0
+        val client = ChatAppWebViewClient(hostAssetLoader(context), emptySet()) { gone += 1 }
+        val detail = object : RenderProcessGoneDetail() {
+            override fun didCrash() = true
+            override fun rendererPriorityAtExit() = 0
+        }
+        assertTrue(client.onRenderProcessGone(WebView(context), detail))
+        assertEquals(1, gone)
+    }
 
     @Test
     fun theWebViewIsLockedDown() {

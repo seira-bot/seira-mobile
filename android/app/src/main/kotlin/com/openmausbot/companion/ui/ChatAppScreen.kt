@@ -69,6 +69,7 @@ fun ChatAppScreen(threadId: String, messageId: String, title: String, onDismiss:
     var attempt by remember { mutableIntStateOf(0) }
     var load by remember { mutableStateOf<ChatAppLoad>(ChatAppLoad.Loading) }
     var webViewTooOld by remember { mutableStateOf(false) }
+    var pageStopped by remember { mutableStateOf(false) }
 
     LaunchedEffect(threadId, messageId, attempt) {
         load = ChatAppLoad.Loading
@@ -113,6 +114,11 @@ fun ChatAppScreen(threadId: String, messageId: String, title: String, onDismiss:
                         ChatAppLoad.Failed -> ChatAppStatus(text = stringResource(R.string.chat_app_failed), retry = { attempt += 1 })
                         is ChatAppLoad.Ready -> if (webViewTooOld) {
                             ChatAppStatus(text = stringResource(R.string.chat_app_update_webview))
+                        } else if (pageStopped) {
+                            ChatAppStatus(text = stringResource(R.string.chat_app_failed), retry = {
+                                pageStopped = false
+                                attempt += 1
+                            })
                         } else {
                             ChatAppWebView(
                                 document = current.document,
@@ -121,6 +127,7 @@ fun ChatAppScreen(threadId: String, messageId: String, title: String, onDismiss:
                                 hostVersion = "android-${BuildConfig.VERSION_NAME}",
                                 onOpenLink = { url -> openInCustomTab(context, url) },
                                 onUnsupported = { webViewTooOld = true },
+                                onGone = { pageStopped = true },
                                 modifier = Modifier.fillMaxSize().testTag(CHAT_APP_WEB_TAG),
                             )
                         }
