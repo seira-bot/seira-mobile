@@ -42,6 +42,12 @@ import com.openmausbot.companion.ui.theme.SeiraType
 internal object ComputerSwitchRules {
     fun ordered(computers: List<Connection>, activeId: String?): List<Connection> =
         computers.filter { it.id == activeId } + computers.filter { it.id != activeId }
+
+    /** The address that tells apart computers with one name; a relay-only `.invalid` name is no address. */
+    fun distinguishingAddress(computer: Connection, computers: List<Connection>): String? =
+        computer.displayAddress.takeIf {
+            computers.count { it.name == computer.name } > 1 && !computer.host.endsWith(".invalid", ignoreCase = true)
+        }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -76,10 +82,12 @@ internal fun ComputerSwitchSheet(
             }
             items(ComputerSwitchRules.ordered(computers, activeId), key = { "computer-${it.id}" }) { computer ->
                 val active = computer.id == activeId
+                val state = if (active) computerStatusPhrase(status) else stringResource(R.string.settings_state_saved)
                 ComputerRow(
                     icon = SeiraIcons.Laptop,
                     title = computer.name,
-                    subtitle = if (active) computerStatusPhrase(status) else stringResource(R.string.settings_state_saved),
+                    subtitle = listOfNotNull(state, ComputerSwitchRules.distinguishingAddress(computer, computers))
+                        .joinToString(" · "),
                     tag = "computer-switch.${computer.id}",
                     active = active,
                     onClick = { if (active) onDismiss() else onPick(computer) },

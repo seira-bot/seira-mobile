@@ -29,15 +29,15 @@ public struct CompanionConnectionRegistry: Codable, Equatable, Sendable {
         connections.first { $0.id == id }
     }
 
-    /// Recognize a computer already saved under an older pairing id. A
-    /// shared advertised route is stronger evidence than a display name and
-    /// lets re-pairing refresh the existing Keychain item instead of drawing
-    /// a duplicate row.
+    /// The saved pairing a new pairing replaces: one with the same identity, or
+    /// one that shares a real route and carries no identity that differs. Two
+    /// servers behind one address, or two computers paired only through the
+    /// relay, stay two computers.
     public func matchingConnection(for candidate: Connection) -> Connection? {
-        let candidateRoutes = Set(candidate.orderedEndpoints.map(\.url))
-        guard !candidateRoutes.isEmpty else { return nil }
+        let candidateRoutes = candidate.matchableRoutes
         return connections.first { saved in
-            !candidateRoutes.isDisjoint(with: saved.orderedEndpoints.map(\.url))
+            !saved.identityDiffers(from: candidate)
+                && (saved.identityEquals(candidate) || !candidateRoutes.isDisjoint(with: saved.matchableRoutes))
         }
     }
 
@@ -125,5 +125,32 @@ public enum CompanionConnectionRegistryMigration {
             registry: CompanionConnectionRegistry(),
             migratedLegacyConnection: false
         )
+    }
+}
+
+private extension Connection {
+    /// RFC 6761 `.invalid` names never resolve: a relay-only QR names one, so it is no address.
+    var matchableRoutes: Set<String> {
+        Set(orderedEndpoints.filter { !$0.host.lowercased().hasSuffix(".invalid") }.map(\.url))
+    }
+
+    func identityDiffers(from other: Connection) -> Bool {
+        Self.differs(serverEnvironmentId, other.serverEnvironmentId)
+            || Self.differs(secretPublicKey, other.secretPublicKey)
+    }
+
+    func identityEquals(_ other: Connection) -> Bool {
+        Self.same(serverEnvironmentId, other.serverEnvironmentId)
+            || Self.same(secretPublicKey, other.secretPublicKey)
+    }
+
+    static func differs(_ left: String?, _ right: String?) -> Bool {
+        guard let left, let right else { return false }
+        return left != right
+    }
+
+    static func same(_ left: String?, _ right: String?) -> Bool {
+        guard let left else { return false }
+        return left == right
     }
 }
