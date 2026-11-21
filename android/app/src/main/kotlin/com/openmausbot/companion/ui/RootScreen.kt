@@ -404,6 +404,7 @@ private fun PairedScreen(
     // whatever is on screen down by its height rather than covering it.
     Column(modifier = Modifier.fillMaxSize()) {
         LiveCallBannerHost(navigator)
+        UpdateBannerHost()
         Box(
             modifier = Modifier
                 .weight(1f)

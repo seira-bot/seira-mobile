@@ -482,6 +482,7 @@ private fun MessageContent(
             if (message.tool?.claudeUpdate == true && claudeInstance != null) {
                 ClaudeUpdateCard(messageId = message.id, instanceId = claudeInstance)
             }
+            FailedTurnActionRow(chat, message)
         }
         Message.Kind.COMPACTION -> ReceiptChip(
             label = message.compaction?.chipText ?: message.text.orEmpty(),

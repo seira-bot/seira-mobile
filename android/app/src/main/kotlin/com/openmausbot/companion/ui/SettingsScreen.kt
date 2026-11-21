@@ -583,6 +583,32 @@ internal fun SettingsScreen(
             )
         }
 
+        val appUpdates = environment.appUpdates
+        if (appUpdates?.available == true) {
+            var updateCheck by remember { mutableStateOf(UpdateCheck.IDLE) }
+            Spacer(Modifier.height(18.dp))
+            SeiraCard(modifier = Modifier.fillMaxWidth()) {
+                DesignRow(
+                    title = stringResource(R.string.settings_check_updates),
+                    enabled = updateCheck != UpdateCheck.CHECKING,
+                    onClick = {
+                        updateCheck = UpdateCheck.CHECKING
+                        scope.launch {
+                            updateCheck = if (appUpdates.checkNow()) UpdateCheck.FOUND else UpdateCheck.CURRENT
+                        }
+                    },
+                    trailing = {
+                        when (updateCheck) {
+                            UpdateCheck.IDLE -> Unit
+                            UpdateCheck.CHECKING -> Text(stringResource(R.string.settings_update_checking), style = SeiraType.callout, color = colors.ink3)
+                            UpdateCheck.FOUND -> Text(stringResource(R.string.settings_update_found), style = SeiraType.callout, color = colors.ink3)
+                            UpdateCheck.CURRENT -> Text(stringResource(R.string.settings_update_current), style = SeiraType.callout, color = colors.ink3)
+                        }
+                    },
+                )
+            }
+        }
+
         Column(
             modifier = Modifier.fillMaxWidth().padding(top = 28.dp, bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -904,3 +930,5 @@ internal fun shortenedAddress(address: String): String {
     val leading = minOf(20, maxOf(8, address.length - 8))
     return address.take(leading) + "…" + address.takeLast(6)
 }
+
+private enum class UpdateCheck { IDLE, CHECKING, FOUND, CURRENT }

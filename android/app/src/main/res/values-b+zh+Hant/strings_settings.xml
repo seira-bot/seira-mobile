@@ -41,4 +41,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">1 輪共 %1$s 個詞元</string>
     <string name="ai_usage_conversation_cost">%1$s · 約 %2$s</string>
     <string name="ai_usage_conversation_context">上下文 %1$s / %2$s</string>
+    <string name="update_banner_downloading">正在下載更新…</string>
+    <string name="update_banner_ready">更新已就緒。重新啟動 Seira</string>
+    <string name="update_banner_restart">重新啟動</string>
+    <string name="settings_check_updates">檢查更新</string>
+    <string name="settings_update_checking">正在檢查…</string>
+    <string name="settings_update_found">正在下載更新</string>
+    <string name="settings_update_current">已是最新版本</string>
 </resources>

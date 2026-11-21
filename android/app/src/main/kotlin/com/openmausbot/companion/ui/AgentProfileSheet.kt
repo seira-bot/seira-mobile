@@ -139,7 +139,6 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var selectedModelId by rememberSaveable { mutableStateOf(opened.modelSelection.model) }
     // "" is the engine default; the picker has no null row.
     var selectedEffort by rememberSaveable { mutableStateOf(opened.modelSelection.effort.orEmpty()) }
-    val selectedInstance = instances.firstOrNull { it.instanceId == selectedInstanceId }
     val modelDraft = ModelSelection(selectedInstanceId, selectedModelId, selectedEffort.ifEmpty { null })
 
     fun liveBot(): Bot = session.state.value.bot(opened.id) ?: opened
@@ -286,102 +285,32 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                 ConversationUsageSection(current.tasks?.firstOrNull { it.threadId == opened.threadId }?.usage)
 
                 FormSection(header = "Model", footer = ModelRules.FOOTER) {
-                    val instanceChoices = ModelRules.instanceChoices(instances, savedModel)
-                    if (!modelsLoaded) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_TARGET),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(localizedMobileCopy(ModelRules.LOADING), fontSize = 15.sp, modifier = Modifier.weight(1f))
-                            CircularProgressIndicator(modifier = Modifier.size(20.dp))
-                        }
-                    } else if (instanceChoices.isEmpty()) {
-                        IconNote(text = ModelRules.NONE_AVAILABLE, icon = Icons.Filled.Warning)
-                    } else {
-                        val providerRows = buildList {
-                            if (ModelRules.providerMissing(instances, selectedInstanceId)) {
-                                add(
-                                    VoiceChoice(
-                                        id = selectedInstanceId,
-                                        label = ModelRules.CURRENT_PROVIDER_UNAVAILABLE,
-                                        detail = null,
-                                        enabled = false,
-                                    ),
-                                )
-                            }
-                            instanceChoices.forEach {
-                                add(
-                                    VoiceChoice(
-                                        id = it.instanceId,
-                                        label = ModelRules.instanceLabel(it),
-                                        detail = null,
-                                        enabled = it.snapshot.isAvailable,
-                                    ),
-                                )
-                            }
-                        }
-                        ChoicePicker(
-                            label = stringResource(R.string.mobile_provider_7ceee3f3),
-                            choices = providerRows,
-                            selected = selectedInstanceId,
-                            onSelect = { id ->
-                                val instance = instances.firstOrNull { it.instanceId == id }
-                                if (instance != null) showModel(ModelRules.defaultsFor(instance, savedModel))
-                            },
-                        )
-                        ChoicePicker(
-                            label = stringResource(R.string.mobile_model_68c2cc7f),
-                            choices = ModelRules.modelChoices(selectedInstance, selectedModelId).map {
-                                VoiceChoice(id = it.id, label = it.label, detail = null, enabled = true)
-                            },
-                            selected = selectedModelId,
-                            enabled = selectedInstance?.snapshot?.isAvailable == true,
-                            onSelect = { selectedModelId = it },
-                        )
-                        val effortLevels = ModelRules.effortLevels(selectedInstance)
-                        if (effortLevels.isNotEmpty()) {
-                            ChoicePicker(
-                                label = stringResource(R.string.mobile_reasoning_effort_cd32c0f5),
-                                choices = buildList {
-                                    add(VoiceChoice(id = "", label = ModelRules.DEFAULT_EFFORT_LABEL, detail = null, enabled = true))
-                                    effortLevels.forEach {
-                                        add(VoiceChoice(id = it, label = ModelRules.effortLabel(it), detail = null, enabled = true))
+                    ModelPickerFields(
+                        instances = instances,
+                        loaded = modelsLoaded,
+                        saved = savedModel,
+                        draft = modelDraft,
+                        onDraft = ::showModel,
+                        taskBusy = currentTask?.busy,
+                        applying = busy,
+                        applyLabel = "Apply model",
+                        canChange = currentTask != null,
+                        onApply = {
+                            scope.launch {
+                                busy = true
+                                try {
+                                    val target = liveBot().forTask(opened.threadId) ?: return@launch
+                                    val updated = session.updateModel(modelDraft, target)
+                                    if (updated != null) {
+                                        savedModel = updated.modelSelection
+                                        showModel(updated.modelSelection)
                                     }
-                                },
-                                selected = selectedEffort,
-                                onSelect = { selectedEffort = it },
-                            )
-                        }
-                        ModelRules.note(currentTask?.busy, selectedInstance)?.let { note ->
-                            IconNote(text = note, icon = Icons.Filled.Info)
-                        }
-                        ActionRow(
-                            text = "Apply model",
-                            icon = Icons.Filled.Check,
-                            enabled = !busy && currentTask != null && ModelRules.canApply(
-                                loaded = modelsLoaded,
-                                botBusy = currentTask?.busy,
-                                instance = selectedInstance,
-                                draft = modelDraft,
-                                saved = savedModel,
-                            ),
-                            onClick = {
-                                scope.launch {
-                                    busy = true
-                                    try {
-                                        val target = liveBot().forTask(opened.threadId) ?: return@launch
-                                        val updated = session.updateModel(modelDraft, target)
-                                        if (updated != null) {
-                                            savedModel = updated.modelSelection
-                                            showModel(updated.modelSelection)
-                                        }
-                                    } finally {
-                                        busy = false
-                                    }
+                                } finally {
+                                    busy = false
                                 }
-                            },
-                        )
-                    }
+                            }
+                        },
+                    )
                 }
 
                 FormSection(header = "Avatar", footer = ProfileRules.AVATAR_FOOTER) {
