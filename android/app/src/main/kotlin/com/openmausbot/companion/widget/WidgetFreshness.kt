@@ -9,7 +9,7 @@ import androidx.work.WorkerParameters
 import androidx.glance.appwidget.updateAll
 import java.util.concurrent.TimeUnit
 
-/** Redraws the widget when its content crosses an age line: answers off at 10 minutes, stale label at 15. */
+/** Redraws the widget when its content turns 15 minutes old, so the stale label shows. */
 class WidgetFreshnessWorker(context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
     override suspend fun doWork(): Result {
         UpdatesWidget().updateAll(applicationContext)
@@ -23,7 +23,6 @@ fun interface WidgetFreshnessScheduler {
 
 class WorkManagerFreshness(private val context: Context) : WidgetFreshnessScheduler {
     override fun schedule(writtenAt: Long, now: Long) {
-        enqueue(ANSWERS_OFF, writtenAt + WidgetSnapshot.ANSWER_MAXIMUM_AGE_MS + 1_000, now)
         enqueue(STALE, writtenAt + WidgetSnapshot.STALE_AFTER_MS + 1_000, now)
     }
 
@@ -35,7 +34,6 @@ class WorkManagerFreshness(private val context: Context) : WidgetFreshnessSchedu
     }
 
     private companion object {
-        const val ANSWERS_OFF = "widget-answers-off"
         const val STALE = "widget-stale"
     }
 }

@@ -7,12 +7,7 @@ internal sealed interface WidgetView {
     /** [asOf] is the write time once the content is stale. */
     data class Quiet(val asOf: Long?) : WidgetView
 
-    /** [answersOn] is false once the snapshot is too old to answer from. */
-    data class Active(
-        val rows: List<WidgetSnapshot.Row>,
-        val asOf: Long?,
-        val answersOn: Boolean,
-    ) : WidgetView
+    data class Active(val rows: List<WidgetSnapshot.Row>, val asOf: Long?) : WidgetView
 }
 
 internal object WidgetPresentation {
@@ -25,7 +20,7 @@ internal object WidgetPresentation {
         val age = now - snapshot.writtenAt
         val asOf = snapshot.writtenAt.takeIf { age >= WidgetSnapshot.STALE_AFTER_MS }
         if (snapshot.rows.isEmpty()) return WidgetView.Quiet(asOf)
-        return WidgetView.Active(snapshot.rows, asOf, answersOn = age <= WidgetSnapshot.ANSWER_MAXIMUM_AGE_MS)
+        return WidgetView.Active(snapshot.rows, asOf)
     }
 
     fun sections(rows: List<WidgetSnapshot.Row>, budget: Int = DIGEST_BUDGET): List<Pair<WidgetSnapshot.Kind, List<WidgetSnapshot.Row>>> {

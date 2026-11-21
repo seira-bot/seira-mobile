@@ -7,11 +7,6 @@ internal object WidgetFixture {
         threadId: String = "thread-1",
         kind: WidgetSnapshot.Kind = WidgetSnapshot.Kind.NEEDS_YOU,
         line: String = "git push",
-        requestId: String? = "request-1",
-        options: List<String> = listOf("Allow", "Deny"),
-        isPermission: Boolean = true,
-        plainAllow: String? = "Allow",
-        fullyShown: Boolean = true,
         since: Long? = null,
         name: String = "Scout",
     ) = WidgetSnapshot.Row(
@@ -23,21 +18,12 @@ internal object WidgetFixture {
         kind = kind,
         line = line,
         since = since,
-        requestId = requestId,
-        options = options,
-        isPermission = isPermission,
-        plainAllow = plainAllow,
-        fullyShown = fullyShown,
     )
 
     fun working(threadId: String = "thread-2", line: String = "Working…") = row(
         threadId = threadId,
         kind = WidgetSnapshot.Kind.WORKING,
         line = line,
-        requestId = null,
-        options = emptyList(),
-        isPermission = false,
-        plainAllow = null,
     )
 
     fun snapshot(

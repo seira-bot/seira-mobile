@@ -2,8 +2,7 @@ package com.openmausbot.companion.widget
 
 import android.app.Application
 import android.graphics.Bitmap
-import androidx.glance.action.actionParametersOf
-import androidx.glance.appwidget.testing.unit.hasRunCallbackClickAction
+import androidx.glance.appwidget.testing.unit.assertHasStartActivityClickAction
 import androidx.glance.appwidget.testing.unit.hasStartActivityClickAction
 import androidx.glance.appwidget.testing.unit.runGlanceAppWidgetUnitTest
 import androidx.glance.testing.unit.hasText
@@ -59,67 +58,36 @@ class UpdatesWidgetContentTest {
     }
 
     @Test
-    fun `the small widget offers one approve button for a plain permission ask`() = runGlanceAppWidgetUnitTest {
+    fun `the small widget shows the top request with one review button that opens its chat`() = runGlanceAppWidgetUnitTest {
         setContext(context)
         setAppWidgetSize(UpdatesWidget.SMALL)
-        provideComposable { UpdatesWidgetContent(view(listOf(row())), face) }
+        val ask = row()
+        provideComposable { UpdatesWidgetContent(view(listOf(working(), ask)), face) }
 
-        val parameters = actionParametersOf(
-            WidgetAnswerAction.ThreadKey to "thread-1",
-            WidgetAnswerAction.BotKey to "bot-1",
-            WidgetAnswerAction.RequestKey to "request-1",
-            WidgetAnswerAction.ChoiceKey to "Allow",
-        )
-        onNode(hasRunCallbackClickAction<WidgetAnswerAction>(parameters)).assertExists()
-        onNode(hasText("Approve")).assertExists()
+        onNode(hasText("Scout")).assertExists()
+        onNode(hasText("git push")).assertExists()
+        onNode(hasText("Review")).assertExists().assertHasStartActivityClickAction(openIntent(context, ask))
+        onNode(hasText("Approve")).assertDoesNotExist()
+        onNode(hasText("Allow")).assertDoesNotExist()
     }
 
     @Test
-    fun `a request that may be cut shows no approve button and a tap opens the chat`() = runGlanceAppWidgetUnitTest {
+    fun `the small widget shows no review button for a row that needs nothing`() = runGlanceAppWidgetUnitTest {
         setContext(context)
         setAppWidgetSize(UpdatesWidget.SMALL)
-        val cut = row(fullyShown = false)
-        provideComposable { UpdatesWidgetContent(view(listOf(cut)), face) }
+        provideComposable { UpdatesWidgetContent(view(listOf(working())), face) }
 
-        onNode(hasText("Approve")).assertDoesNotExist()
-        onNode(hasRunCallbackClickAction<WidgetAnswerAction>()).assertDoesNotExist()
-        onNode(hasStartActivityClickAction(openIntent(context, cut))).assertExists()
+        onNode(hasText("Review")).assertDoesNotExist()
     }
 
     @Test
-    fun `a large font scale hides the approve button`() = runGlanceAppWidgetUnitTest {
-        val scaled = context.createConfigurationContext(
-            android.content.res.Configuration(context.resources.configuration).apply { fontScale = 1.3f },
-        )
-        setContext(scaled)
-        setAppWidgetSize(UpdatesWidget.SMALL)
-        val long = row(line = "x".repeat(30))
-        provideComposable { UpdatesWidgetContent(view(listOf(long)), face) }
-
-        onNode(hasText("Approve")).assertDoesNotExist()
-        onNode(hasStartActivityClickAction(openIntent(context, long))).assertExists()
-    }
-
-    @Test
-    fun `the approve button disappears after ten minutes`() = runGlanceAppWidgetUnitTest {
+    fun `no widget node can run a callback`() = runGlanceAppWidgetUnitTest {
         setContext(context)
-        setAppWidgetSize(UpdatesWidget.SMALL)
-        provideComposable { UpdatesWidgetContent(view(listOf(row()), age = 11 * minute), face) }
-
-        onNode(hasText("Approve")).assertDoesNotExist()
-        onNode(hasText("Open Seira to answer")).assertExists()
-    }
-
-    @Test
-    fun `an ask that is not a plain permission card only opens the chat`() = runGlanceAppWidgetUnitTest {
-        setContext(context)
-        setAppWidgetSize(UpdatesWidget.SMALL)
-        val skill = row(plainAllow = null, options = emptyList(), isPermission = false)
-        provideComposable { UpdatesWidgetContent(view(listOf(skill)), face) }
-
-        onNode(hasText("Approve")).assertDoesNotExist()
-        onNode(hasRunCallbackClickAction<WidgetAnswerAction>()).assertDoesNotExist()
-        onNode(hasStartActivityClickAction(openIntent(context, skill))).assertExists()
+        for (size in listOf(UpdatesWidget.SMALL, UpdatesWidget.WIDE, UpdatesWidget.TALL)) {
+            setAppWidgetSize(size)
+            provideComposable { UpdatesWidgetContent(view(listOf(row(), working())), face) }
+            onNode(hasText("Approve")).assertDoesNotExist()
+        }
     }
 
     @Test

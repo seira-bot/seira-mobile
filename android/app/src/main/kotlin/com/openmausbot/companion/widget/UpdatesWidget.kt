@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.glance.Button
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -14,11 +15,9 @@ import androidx.glance.Image
 import androidx.glance.ImageProvider
 import androidx.glance.LocalContext
 import androidx.glance.LocalSize
-import androidx.glance.action.actionParametersOf
 import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
-import androidx.glance.appwidget.action.actionRunCallback
 import androidx.glance.appwidget.action.actionStartActivity
 import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
@@ -92,7 +91,6 @@ internal fun UpdatesWidgetContent(view: WidgetView, face: (WidgetSnapshot.Row) -
     }
 }
 
-private const val SMALL_LINES = 4
 private val WIDE_FROM = 200.dp
 private val TALL_FROM = 200.dp
 
@@ -115,45 +113,16 @@ private fun Small(context: Context, view: WidgetView.Active, face: (WidgetSnapsh
     Column(modifier = GlanceModifier.fillMaxSize().clickable(openChat(context, row))) {
         RowHead(row, face(row), nameSize = 14)
         Spacer(GlanceModifier.height(4.dp))
-        Text(row.line, style = caption(), maxLines = SMALL_LINES)
+        Text(row.line, style = caption(), maxLines = 3)
         Spacer(GlanceModifier.defaultWeight())
-        val fontScale = context.resources.configuration.fontScale
-        if (row.canAnswer && WidgetSnapshot.fitsAtScale(row.line, fontScale)) {
-            if (view.answersOn) {
-                AnswerButton(context, row)
-            } else {
-                Text(context.getString(R.string.widget_open_to_answer), style = caption())
-            }
+        if (row.kind == WidgetSnapshot.Kind.NEEDS_YOU) {
+            Button(
+                text = context.getString(R.string.notification_action_review),
+                onClick = openChat(context, row),
+                modifier = GlanceModifier.fillMaxWidth(),
+            )
         }
         view.asOf?.let { AsOf(context, it) }
-    }
-}
-
-@Composable
-private fun AnswerButton(context: Context, row: WidgetSnapshot.Row) {
-    val choice = row.plainAllow ?: return
-    val requestId = row.requestId ?: return
-    Box(
-        modifier = GlanceModifier.fillMaxWidth()
-            .height(32.dp)
-            .background(GlanceTheme.colors.primary)
-            .cornerRadius(16.dp)
-            .clickable(
-                actionRunCallback<WidgetAnswerAction>(
-                    actionParametersOf(
-                        WidgetAnswerAction.ThreadKey to row.threadId,
-                        WidgetAnswerAction.BotKey to row.botId,
-                        WidgetAnswerAction.RequestKey to requestId,
-                        WidgetAnswerAction.ChoiceKey to choice,
-                    ),
-                ),
-            ),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            context.getString(R.string.notification_action_approve),
-            style = TextStyle(color = GlanceTheme.colors.onPrimary, fontSize = 13.sp, fontWeight = FontWeight.Medium),
-        )
     }
 }
 

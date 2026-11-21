@@ -18,6 +18,3 @@
 # libwebrtc 150.7871.01 ships no R8 rules. Its native code finds these
 # classes and members by name over JNI.
 -keep class org.webrtc.** { *; }
-
-# Glance creates the widget's answer callback by class name when a button is tapped.
--keep class com.openmausbot.companion.widget.WidgetAnswerAction { <init>(); }

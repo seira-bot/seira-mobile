@@ -14,9 +14,6 @@ import kotlin.test.assertTrue
 
 class WidgetSnapshotTest {
     private val minute = 60_000L
-    private val answer = { s: WidgetSnapshot, now: Long ->
-        s.answerableRow("thread-1", "request-1", "Allow", now)
-    }
 
     @Test
     fun `an unchanged payload renews at most once a minute`() {
@@ -30,7 +27,6 @@ class WidgetSnapshotTest {
     fun `a change of anything but a working line publishes at once`() {
         val held = snapshot(listOf(row(), working()))
         assertTrue(snapshot(listOf(row(line = "rm -rf"), working()), NOW + 1).shouldReplace(held))
-        assertTrue(snapshot(listOf(row(requestId = "request-2"), working()), NOW + 1).shouldReplace(held))
         assertTrue(snapshot(listOf(row(), working(threadId = "thread-3")), NOW + 1).shouldReplace(held))
         assertTrue(snapshot(listOf(row()), NOW + 1).shouldReplace(held))
         assertTrue(snapshot(listOf(row(name = "Maren"), working()), NOW + 1).shouldReplace(held))
@@ -49,96 +45,6 @@ class WidgetSnapshotTest {
     @Test
     fun `a clock that went backwards publishes`() {
         assertTrue(snapshot(writtenAt = NOW - 1).shouldReplace(snapshot()))
-    }
-
-    @Test
-    fun `an answer button matches the rendered ask`() {
-        assertNotNull(answer(snapshot(), NOW + 9 * minute))
-    }
-
-    @Test
-    fun `an answer button refuses every mismatch`() {
-        val s = snapshot()
-        assertNull(s.answerableRow("thread-9", "request-1", "Allow", NOW))
-        assertNull(s.answerableRow("thread-1", "request-9", "Allow", NOW))
-        assertNull(s.answerableRow("thread-1", "request-1", "Deny", NOW))
-        assertNull(s.answerableRow("thread-1", "request-1", "Always allow", NOW))
-        assertNull(snapshot(listOf(working(threadId = "thread-1"))).answerableRow("thread-1", "request-1", "Allow", NOW))
-    }
-
-    @Test
-    fun `a request that may be cut is never answerable`() {
-        assertNull(answer(snapshot(listOf(row(fullyShown = false))), NOW))
-    }
-
-    @Test
-    fun `only a short single line counts as fully shown`() {
-        assertTrue(WidgetSnapshot.isFullyShown("git push origin main"))
-        assertFalse(WidgetSnapshot.isFullyShown("git push\norigin main"))
-        assertFalse(WidgetSnapshot.isFullyShown("git push\r"))
-        assertFalse(WidgetSnapshot.isFullyShown("x".repeat(WidgetSnapshot.MAX_ANSWER_WEIGHT + 1)))
-        assertTrue(WidgetSnapshot.isFullyShown("x".repeat(WidgetSnapshot.MAX_ANSWER_WEIGHT)))
-        assertFalse(WidgetSnapshot.isFullyShown("删除".repeat(10)))
-        assertTrue(WidgetSnapshot.isFullyShown("删除".repeat(9)))
-    }
-
-    @Test
-    fun `every hiding character class is refused`() {
-        val samples = mapOf(
-            "newline" to "\n", "carriage return" to "\r", "tab" to "\t",
-            "line separator" to "\u2028", "paragraph separator" to "\u2029",
-            "next line" to "\u0085", "vertical tab" to "\u000B", "form feed" to "\u000C",
-            "right to left override" to "\u202E", "left to right mark" to "\u200E",
-            "isolate" to "\u2066", "zero width space" to "\u200B", "word joiner" to "\u2060",
-            "byte order mark" to "\uFEFF", "lone high surrogate" to "\uD800",
-            "lone low surrogate" to "\uDC00", "unassigned" to "\u0378", "private use" to "\uE000",
-        )
-        for ((name, char) in samples) {
-            assertFalse(WidgetSnapshot.isFullyShown("git ${char}push"), name)
-        }
-        assertFalse(WidgetSnapshot.isFullyShown(""))
-    }
-
-    @Test
-    fun `a wide line that passes the character count fails the width`() {
-        val wide = "删除".repeat(10)
-        assertTrue(wide.length < WidgetSnapshot.MAX_ANSWER_WEIGHT)
-        assertEquals(40, WidgetSnapshot.lineWeight(wide))
-        assertFalse(WidgetSnapshot.isFullyShown(wide))
-        assertEquals(2, WidgetSnapshot.lineWeight("\uD840\uDC00"))
-    }
-
-    @Test
-    fun `a larger font fits fewer characters`() {
-        val line = "x".repeat(30)
-        assertTrue(WidgetSnapshot.fitsAtScale(line, 1f))
-        assertTrue(WidgetSnapshot.fitsAtScale(line, 0.85f))
-        assertFalse(WidgetSnapshot.fitsAtScale(line, 1.3f))
-    }
-
-    @Test
-    fun `an answer button expires after ten minutes`() {
-        val s = snapshot()
-        assertNotNull(answer(s, NOW + 10 * minute))
-        assertNull(answer(s, NOW + 10 * minute + 1))
-    }
-
-    @Test
-    fun `an ask that only opens the chat is never answerable`() {
-        assertNull(answer(snapshot(listOf(row(plainAllow = null))), NOW))
-        assertNull(answer(snapshot(listOf(row(isPermission = false))), NOW))
-        assertNull(answer(snapshot(listOf(row(requestId = null))), NOW))
-        assertNull(answer(snapshot(listOf(row(options = emptyList()))), NOW))
-    }
-
-    @Test
-    fun `removing an answered row keeps the rest as written`() {
-        val s = snapshot(listOf(row(), working()), writtenAt = NOW - 5 * minute)
-        val after = s.removingRow(answeredInThread = "thread-1")
-        assertEquals(listOf(working()), after.rows)
-        assertEquals(s.writtenAt, after.writtenAt)
-        assertEquals(s.connectionId, after.connectionId)
-        assertEquals(s.detail, after.detail)
     }
 
     @Test
@@ -219,16 +125,12 @@ class WidgetSnapshotTest {
     }
 
     @Test
-    fun `the view tells unpaired quiet stale and answers off apart`() {
+    fun `the view tells unpaired quiet and stale apart`() {
         assertEquals(WidgetView.Unpaired, WidgetPresentation.view(null, NOW))
         assertEquals(WidgetView.Quiet(null), WidgetPresentation.view(snapshot(emptyList()), NOW + 14 * minute))
         assertEquals(WidgetView.Quiet(NOW), WidgetPresentation.view(snapshot(emptyList()), NOW + 15 * minute))
-        val fresh = WidgetPresentation.view(snapshot(), NOW + 9 * minute) as WidgetView.Active
-        assertTrue(fresh.answersOn)
+        val fresh = WidgetPresentation.view(snapshot(), NOW + 14 * minute) as WidgetView.Active
         assertNull(fresh.asOf)
-        val aged = WidgetPresentation.view(snapshot(), NOW + 11 * minute) as WidgetView.Active
-        assertFalse(aged.answersOn)
-        assertNull(aged.asOf)
         val stale = WidgetPresentation.view(snapshot(), NOW + 16 * minute) as WidgetView.Active
         assertEquals(NOW, stale.asOf)
     }

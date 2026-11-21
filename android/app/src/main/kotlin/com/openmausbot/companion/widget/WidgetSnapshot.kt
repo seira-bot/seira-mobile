@@ -3,8 +3,6 @@ package com.openmausbot.companion.widget
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.CompanionState
-import com.openmausbot.companion.core.OptionCard
-import com.openmausbot.companion.notifications.NotificationApproval
 import com.openmausbot.companion.ui.ChatUpdate
 import com.openmausbot.companion.ui.UpdateKind
 import com.openmausbot.companion.ui.updates
@@ -46,25 +44,7 @@ data class WidgetSnapshot(
         val line: String,
         /** When this chat's current kind began. Null means not known. */
         val since: Long? = null,
-        val requestId: String? = null,
-        /** The options of a live ask that is not a skill request. */
-        val options: List<String> = emptyList(),
-        val isPermission: Boolean = false,
-        /**
-         * The one label that approves this ask, set only for a plain permission
-         * card (see [NotificationApproval]). Null means the row only opens the chat.
-         */
-        val plainAllow: String? = null,
-        /**
-         * True only when [line] is the whole request text: it had no line break,
-         * no cut, and is short enough to show in full. Set at write time from the
-         * original text. A button never shows next to a request that may be hidden.
-         */
-        val fullyShown: Boolean = false,
     ) {
-        val canAnswer: Boolean
-            get() = kind == Kind.NEEDS_YOU && requestId != null && plainAllow != null && fullyShown
-
         internal fun matchesExceptLine(other: Row): Boolean = copy(line = "") == other.copy(line = "")
     }
 
@@ -89,83 +69,11 @@ data class WidgetSnapshot(
         return elapsed >= interval
     }
 
-    /**
-     * The row that an answer button may still answer, or null when the rendered
-     * button has gone stale. The write must be at most [maximumAgeMs] old, the
-     * row must still hold a live ask with this exact request and option, and the
-     * option must be the plain approval of a plain permission card.
-     */
-    fun answerableRow(
-        threadId: String,
-        requestId: String,
-        choice: String,
-        now: Long,
-        maximumAgeMs: Long = ANSWER_MAXIMUM_AGE_MS,
-    ): Row? {
-        if (now - writtenAt > maximumAgeMs) return null
-        val row = rows.firstOrNull { it.threadId == threadId } ?: return null
-        if (!row.canAnswer || !row.isPermission) return null
-        if (row.requestId != requestId || choice !in row.options || choice != row.plainAllow) return null
-        return row
-    }
-
-    /** The snapshot with one answered ask gone; everything else stays as written, `writtenAt` included. */
-    fun removingRow(answeredInThread: String): WidgetSnapshot =
-        copy(rows = rows.filter { it.threadId != answeredInThread })
-
     companion object {
         const val RENEWAL_INTERVAL_MS = 60_000L
         const val WORKING_LINE_INTERVAL_MS = 30_000L
-        const val ANSWER_MAXIMUM_AGE_MS = 600_000L
         const val STALE_AFTER_MS = 900_000L
         const val MAX_LINE = 160
-
-        /** Widest request, in [lineWeight] units, that the 2x2 widget shows in full at normal font size. */
-        const val MAX_ANSWER_WEIGHT = 36
-
-        private val WIDE = listOf(
-            0x1100..0x115F, 0x2E80..0xA4CF, 0xAC00..0xD7A3, 0xF900..0xFAFF, 0xFE30..0xFE4F,
-            0xFF00..0xFF60, 0xFFE0..0xFFE6, 0x1F300..0x1FAFF, 0x20000..0x3FFFD,
-        )
-
-        private val REFUSED_TYPES = setOf(
-            Character.LINE_SEPARATOR, Character.PARAGRAPH_SEPARATOR, Character.CONTROL,
-            Character.FORMAT, Character.SURROGATE, Character.UNASSIGNED, Character.PRIVATE_USE,
-        ).map(Int::toByte).toSet()
-
-        private val REFUSED_POINTS = setOf(0x85, 0x0B, 0x0C)
-
-        /** A wide (CJK) character takes two units because it fills twice the width. */
-        fun lineWeight(text: String): Int {
-            var weight = 0
-            var i = 0
-            while (i < text.length) {
-                val point = text.codePointAt(i)
-                weight += if (WIDE.any { point in it }) 2 else 1
-                i += Character.charCount(point)
-            }
-            return weight
-        }
-
-        /**
-         * Allowlist: every code point must be one that draws as itself. A line
-         * break, control, format (bidi, zero width), surrogate, unassigned or
-         * private-use point could hide or reorder text next to a button.
-         */
-        fun isFullyShown(original: String): Boolean {
-            if (original.isEmpty() || original.length > MAX_LINE) return false
-            var i = 0
-            while (i < original.length) {
-                val point = original.codePointAt(i)
-                if (point in REFUSED_POINTS || Character.getType(point).toByte() in REFUSED_TYPES) return false
-                i += Character.charCount(point)
-            }
-            return lineWeight(original) <= MAX_ANSWER_WEIGHT
-        }
-
-        /** A larger system font fits fewer characters on the same lines. */
-        fun fitsAtScale(original: String, fontScale: Float): Boolean =
-            lineWeight(original) * maxOf(1f, fontScale) <= MAX_ANSWER_WEIGHT
     }
 }
 
@@ -211,17 +119,13 @@ internal fun CompanionState.widgetSnapshot(
     clock: WidgetSinceClock = WidgetSinceClock(),
 ): WidgetSnapshot {
     val updates = updates(detail)
-    val rows = updates.map { update -> update.toRow(this, clock, now) }
+    val rows = updates.map { update -> update.toRow(clock, now) }
     clock.forgetAbsentFrom(rows.map { it.botId to it.threadId })
     return WidgetSnapshot(now, connectionId, detail.wireValue, rows)
 }
 
-private fun ChatUpdate.toRow(state: CompanionState, clock: WidgetSinceClock, now: Long): WidgetSnapshot.Row {
+private fun ChatUpdate.toRow(clock: WidgetSinceClock, now: Long): WidgetSnapshot.Row {
     val widgetKind = kind.toWidgetKind()
-    val liveCard = card?.takeIf { widgetKind == WidgetSnapshot.Kind.NEEDS_YOU && it.isPending && it.skillRequest == null }
-    val plain = liveCard?.requestId?.let { requestId ->
-        NotificationApproval.find(state, chat.id, chat.threadId, requestId)?.choice
-    }
     return WidgetSnapshot.Row(
         botId = chat.id,
         threadId = chat.threadId,
@@ -231,12 +135,7 @@ private fun ChatUpdate.toRow(state: CompanionState, clock: WidgetSinceClock, now
         lookKey = lookKey(chat),
         kind = widgetKind,
         line = line.replace('\n', ' ').take(WidgetSnapshot.MAX_LINE),
-        fullyShown = fullyShown(),
         since = clock.stamp(chat.id, chat.threadId, widgetKind, now),
-        requestId = liveCard?.requestId,
-        options = liveCard?.options.orEmpty(),
-        isPermission = liveCard?.isPermission == true,
-        plainAllow = plain,
     )
 }
 
@@ -248,16 +147,3 @@ internal fun lookKey(chat: Chat): String = when (chat) {
     ).joinToString("|")
     is Chat.RoomChat -> "room|${chat.color}"
 }
-
-/**
- * The card's own text is the request. The update line keeps only the first line
- * of it and may cut that, so the check reads the card, not the line.
- */
-private fun ChatUpdate.fullyShown(): Boolean {
-    val card = card ?: return false
-    val original = card.requestText()
-    return original == line.trim() && WidgetSnapshot.isFullyShown(original)
-}
-
-/** The whole text of the request that a button would approve. */
-internal fun OptionCard.requestText(): String = subtitle.trim().ifEmpty { title.trim() }

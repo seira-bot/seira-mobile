@@ -55,13 +55,11 @@ class WidgetSyncTest {
         clock = { WidgetFixture.NOW },
     )
 
-    private fun askFleet(skill: Boolean = false) = Fleet(
+    private fun askFleet() = Fleet(
         listOf(
             NotificationFixture.bot(
                 messages = listOf(
-                    cardMessage(
-                        NotificationFixture.permissionCard(skill = if (skill) NotificationFixture.skill() else null),
-                    ),
+                    cardMessage(NotificationFixture.permissionCard()),
                 ),
             ),
         ),
@@ -80,51 +78,13 @@ class WidgetSyncTest {
             val written = requireNotNull(store.read())
             val row = written.rows.single()
             assertEquals(WidgetSnapshot.Kind.NEEDS_YOU, row.kind)
-            assertEquals("request-1", row.requestId)
-            assertEquals("Allow", row.plainAllow)
-            assertTrue(row.fullyShown)
+            assertEquals("git push", row.line)
+            assertEquals(NotificationFixture.THREAD_ID, row.threadId)
             assertEquals(requireNotNull(session.connection.value).id, written.connectionId)
             assertEquals(ActivityDetail.REDUCED.wireValue, written.detail)
             assertTrue(refreshes >= 1)
             assertEquals(listOf(WidgetFixture.NOW), scheduled.distinct())
             assertTrue(WidgetSync.WINDOW_MS < 1_000)
-        } finally {
-            server.shutdown()
-        }
-    }
-
-    @Test
-    fun `a multi line request is written as not fully shown`() = runTest {
-        val server = MockWebServer().apply { start() }
-        try {
-            val card = NotificationFixture.permissionCard().copy(subtitle = "git push\nrm -rf build")
-            val fleet = Fleet(listOf(NotificationFixture.bot(messages = listOf(cardMessage(card)))), emptyList())
-            val session = liveSession(server, fleet)
-            backgroundScope.launch { sync(session).run() }
-            advanceTimeBy(WidgetSync.WINDOW_MS + 1)
-            runCurrent()
-
-            val row = requireNotNull(store.read()).rows.single()
-            assertFalse(row.fullyShown)
-            assertFalse(row.canAnswer)
-        } finally {
-            server.shutdown()
-        }
-    }
-
-    @Test
-    fun `a skill request is written without an answer option`() = runTest {
-        val server = MockWebServer().apply { start() }
-        try {
-            val session = liveSession(server, askFleet(skill = true))
-            backgroundScope.launch { sync(session).run() }
-            advanceTimeBy(WidgetSync.WINDOW_MS + 1)
-            runCurrent()
-
-            val row = requireNotNull(store.read()).rows.single()
-            assertNull(row.plainAllow)
-            assertNull(row.requestId)
-            assertTrue(row.options.isEmpty())
         } finally {
             server.shutdown()
         }
@@ -163,7 +123,7 @@ class WidgetSyncTest {
     fun `the widget code makes no network call`() {
         val root = File("src/main/kotlin/com/openmausbot/companion/widget")
             .takeIf(File::isDirectory) ?: File("app/src/main/kotlin/com/openmausbot/companion/widget")
-        val forbidden = listOf("okhttp", "java.net.", "HttpURLConnection", "Session.send", "session.send")
+        val forbidden = listOf("okhttp", "java.net.", "HttpURLConnection", "Session.send", "session.send", "approve(")
         for (file in root.listFiles().orEmpty()) {
             val text = file.readText()
             for (token in forbidden) {
