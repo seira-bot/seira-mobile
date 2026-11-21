@@ -327,6 +327,17 @@ class CompanionClient(
         .writeTimeout(ACTION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
         .build()
 
+    /** The computer waits 90 s for its credential store and the sidecar 105 s, so the phone waits longer than both. */
+    private val credentialClient = baseClient.newBuilder()
+        .followRedirects(baseClient.followRedirects && !connection.pairedWithServer)
+        .followSslRedirects(baseClient.followSslRedirects && !connection.pairedWithServer)
+        .dns(endpoint?.dns ?: baseClient.dns)
+        .callTimeout(CREDENTIAL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .connectTimeout(ACTION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .readTimeout(CREDENTIAL_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .writeTimeout(ACTION_TIMEOUT_SECONDS, TimeUnit.SECONDS)
+        .build()
+
     /**
      * Claude Code's own updater can take minutes on the computer, so this
      * route gets its own deadline instead of the twenty-second action one.
@@ -989,6 +1000,29 @@ class CompanionClient(
     suspend fun liveCall(): LiveCallState? =
         send<LiveCallResponse>(makeRequest("GET", "/api/live/call")).call
 
+    /**
+     * Post a sealed credential. The body is the envelope and nothing else. A 200 the
+     * phone cannot read still means the computer saved the value.
+     */
+    suspend fun provideCredential(botId: String, messageId: String, envelope: PhoneSecretEnvelope): CredentialProvided {
+        if (!connection.dialsProtectedRoute) {
+            throw PhoneSecretException(PhoneSecretException.Reason.INSECURE_TRANSPORT)
+        }
+        val body = CompanionJson.encodeToJsonElement(PhoneSecretEnvelope.serializer(), envelope).jsonObject
+        val request = makeRequest(
+            "POST",
+            "/api/bots/${segment(botId)}/secret-cards/${segment(messageId)}/provide",
+            body = body,
+        )
+        val raw = perform(request, credentialClient)
+        check(raw)
+        return try {
+            CompanionJson.decodeFromString<CredentialProvided>(raw.data.toString(Charsets.UTF_8))
+        } catch (_: SerializationException) {
+            CredentialProvided()
+        }
+    }
+
     /** Non-secret settings only. The route refuses a key, and this never sends one. */
     suspend fun updateLiveSettings(patch: LiveSettingsPatch): LiveSettings {
         val body = CompanionJson.encodeToJsonElement(LiveSettingsPatch.serializer(), patch).jsonObject
@@ -1149,6 +1183,7 @@ class CompanionClient(
 
         private const val ACTION_TIMEOUT_SECONDS = 20L
         private const val LIVE_SESSION_TIMEOUT_SECONDS = 35L
+        private const val CREDENTIAL_TIMEOUT_SECONDS = 115L
         private const val AVATAR_GENERATION_TIMEOUT_SECONDS = 150L
         /** The harness allows the updater three minutes; leave room to hear back. */
         private const val CLAUDE_UPDATE_TIMEOUT_SECONDS = 200L
