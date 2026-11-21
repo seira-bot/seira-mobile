@@ -63,6 +63,13 @@ class PreparedPhoneCredential internal constructor(
     override fun toString(): String = "PreparedPhoneCredential(messageId=$messageId, envelope=$envelope)"
 }
 
+/** Where the send of one sealed card stands. No entry means nothing is in flight and no answer is kept. */
+sealed interface CredentialSend {
+    data object Sending : CredentialSend
+    data class Sent(val answer: CredentialProvided) : CredentialSend
+    data class Failed(val error: Exception) : CredentialSend
+}
+
 /** RFC 9180 base mode with DHKEM(P-256, HKDF-SHA256), HKDF-SHA256 and AES-256-GCM, as the computer opens it. */
 object PhoneSecretCrypto {
     const val VERSION = 1
@@ -122,12 +129,41 @@ object PhoneSecretCrypto {
         ).joinToString("\n").toByteArray(Charsets.UTF_8)
     }
 
+    /**
+     * The UTF-8 size of [value] once trimmed, as [encrypt] seals it. Security invariant: it
+     * copies nothing, so checking a typed value leaves no extra plaintext in memory.
+     */
+    fun credentialByteCount(value: CharSequence): Int {
+        var start = 0
+        var end = value.length
+        while (start < end && value[start].isWhitespace()) start++
+        while (end > start && value[end - 1].isWhitespace()) end--
+        var bytes = 0
+        var index = start
+        while (index < end) {
+            val character = value[index]
+            bytes += when {
+                character.code < 0x80 -> 1
+                character.code < 0x800 -> 2
+                character.isHighSurrogate() && index + 1 < end && value[index + 1].isLowSurrogate() -> {
+                    index++
+                    4
+                }
+                // The JDK encoder writes "?" for a lone surrogate.
+                character.isSurrogate() -> 1
+                else -> 3
+            }
+            index++
+        }
+        return bytes
+    }
+
+    fun fitsCredentialLimit(value: CharSequence): Boolean = credentialByteCount(value) in 1..MAXIMUM_CREDENTIAL_BYTES
+
     fun encrypt(value: String, publicKey: String, context: PhoneSecretRequestContext): PhoneSecretEnvelope {
+        if (!fitsCredentialLimit(value)) throw PhoneSecretException(PhoneSecretException.Reason.INVALID_CREDENTIAL)
         val plaintext = value.trim().toByteArray(Charsets.UTF_8)
         try {
-            if (plaintext.isEmpty() || plaintext.size > MAXIMUM_CREDENTIAL_BYTES) {
-                throw PhoneSecretException(PhoneSecretException.Reason.INVALID_CREDENTIAL)
-            }
             val normalized = normalizedPublicKey(publicKey)
                 ?: throw PhoneSecretException(PhoneSecretException.Reason.INVALID_PUBLIC_KEY)
             val raw = decodeBase64Url(normalized)

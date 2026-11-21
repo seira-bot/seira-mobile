@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
+import okhttp3.OkHttpClient
 import org.robolectric.RuntimeEnvironment
 
 /**
@@ -76,6 +77,8 @@ internal class WiringScene(
     liveDisclosureShown: Boolean = true,
     /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
     private val events: (Int) -> Flow<StreamFrame> = { flow { awaitCancellation() } },
+    /** The HTTP client of the session, for a test that answers its requests from a local server. */
+    httpClient: OkHttpClient = OkHttpClient(),
 ) {
     private val context: Context = RuntimeEnvironment.getApplication() as Application
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
@@ -99,6 +102,7 @@ internal class WiringScene(
         tokenStore = FakeTokenStore(connection?.id, token),
         onboardingStore = onboarding,
         deviceNameProvider = { "Pixel" },
+        httpClient = httpClient,
         eventsFn = { _, _, _ -> flow { emitAll(events(streamStarts.incrementAndGet())) } },
         hydrateFn = { _, _ -> fleet },
         metadataFn = { throw APIError.Status(404) },

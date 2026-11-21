@@ -43,7 +43,6 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,9 +53,11 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -70,6 +71,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.APIError
 import com.openmausbot.companion.core.Chat
+import com.openmausbot.companion.core.CredentialSend
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.PhoneSecretCrypto
 import com.openmausbot.companion.core.PhoneSecretException
@@ -82,43 +84,30 @@ import com.openmausbot.companion.core.safeHelpUrl
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraType
 import java.util.WeakHashMap
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 
 internal const val CREDENTIAL_FIELD_TAG = "secret-card-field"
 internal const val CREDENTIAL_SAVE_TAG = "secret-card-save"
 
 /**
  * Security invariant: the typed value lives only in [value] (plain `remember`, never saved
- * state) and is cleared before any coroutine starts. Only the sealed envelope is kept.
+ * state) and is cleared before any send starts. Only the sealed envelope is kept, and its
+ * send runs in the session.
  */
 private class SecretEntry(prepared: PreparedPhoneCredential?) {
     var value by mutableStateOf("")
     var fieldGeneration by mutableIntStateOf(0)
     var prepared by mutableStateOf(prepared)
-    var submitting by mutableStateOf(false)
-    var submitted by mutableStateOf(false)
+    /** A sealing failure. A send failure lives in the session with the send. */
     var error by mutableStateOf<SecretCardError?>(null)
-    var job: Job? = null
-    var attempt = 0
 
     /** An empty field keeps its node, so a password manager that is still filling it can finish. */
     fun clearPlaintext() {
         if (value.isEmpty()) return
         value = ""
         fieldGeneration++
-    }
-
-    /** Stops entry and any send, and keeps a sealed envelope so a retry resends the same bytes. */
-    fun suspendEntry() {
-        clearPlaintext()
-        attempt++
-        job?.cancel()
-        job = null
-        submitting = false
-        error = null
     }
 }
 
@@ -137,7 +126,7 @@ internal fun SecretCard(
 ) {
     val session = LocalCompanion.current.session
     val connection by session.connection.collectAsState()
-    val scope = rememberCoroutineScope()
+    val sends by session.credentialSends.collectAsState()
     val colors = Seira.colors
     val uriHandler = LocalUriHandler.current
     val tint = Color(BotPalette.argb(message.from?.color ?: chat.color))
@@ -150,6 +139,7 @@ internal fun SecretCard(
     val protectedRoute = connection?.dialsProtectedRoute == true
     val computerOnly = target in PhoneSecretCrypto.COMPUTER_ONLY_TARGETS
     val canEnterOnPhone = pairedForSecrets && protectedRoute && !computerOnly
+    val serverPairing = connection?.pairedWithServer == true
     val botId = when (chat) {
         is Chat.BotChat -> chat.bot.id
         is Chat.RoomChat -> message.from?.botId
@@ -158,44 +148,49 @@ internal fun SecretCard(
     val entry = remember(connection?.id, botId, chat.threadId, message.id, secret.target, secret.requestKey) {
         SecretEntry(session.preparedCredential(chat, message))
     }
-    DisposableEffect(entry) { onDispose { entry.suspendEntry() } }
-    LaunchedEffect(entry) { session.credentialResetGeneration.drop(1).collect { entry.suspendEntry() } }
-    LaunchedEffect(entry) { session.status.collect { if (it !is Session.Status.Live) entry.suspendEntry() } }
+    val sendState = entry.prepared?.let { sends[it] }
+    val submitting = sendState == CredentialSend.Sending
+    val submitted = sendState is CredentialSend.Sent
+
+    /** Clears what was typed and stops this card's send. A sealed envelope stays for the retry. */
+    fun suspendEntry() {
+        entry.clearPlaintext()
+        entry.error = null
+        entry.prepared?.let(session::stopCredentialSend)
+    }
+
+    DisposableEffect(entry) { onDispose { entry.clearPlaintext() } }
+    LaunchedEffect(entry) { session.credentialResetGeneration.drop(1).collect { suspendEntry() } }
+    LaunchedEffect(entry) {
+        session.status.map { it is Session.Status.Live }.distinctUntilChanged().drop(1).collect { live ->
+            if (!live) suspendEntry()
+        }
+    }
     LaunchedEffect(entry, secret.isPending) { if (!secret.isPending) entry.clearPlaintext() }
     val lifecycleOwner = LocalLifecycleOwner.current
     DisposableEffect(lifecycleOwner, entry) {
-        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) entry.suspendEntry() }
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_STOP) suspendEntry() }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-
-    fun send(prepared: PreparedPhoneCredential) {
-        entry.job?.cancel()
-        val attempt = ++entry.attempt
-        entry.error = null
-        entry.submitting = true
-        entry.job = scope.launch {
-            try {
-                session.provideCredential(prepared)
-                if (entry.attempt == attempt) {
-                    entry.submitted = true
-                    haptics.play(HapticCue.SUCCESS)
-                }
-            } catch (cancelled: CancellationException) {
-                throw cancelled
-            } catch (error: Exception) {
-                if (entry.attempt == attempt) entry.error = secretCardError(error)
-            } finally {
-                if (entry.attempt == attempt) {
-                    entry.job = null
-                    entry.submitting = false
-                }
-            }
+    LaunchedEffect(entry.prepared) {
+        val prepared = entry.prepared ?: return@LaunchedEffect
+        var previous: CredentialSend? = null
+        session.credentialSends.map { it[prepared] }.distinctUntilChanged().collect { current ->
+            if (previous == CredentialSend.Sending && current is CredentialSend.Sent) haptics.play(HapticCue.SUCCESS)
+            previous = current
         }
     }
 
-    val canSubmit = canEnterOnPhone && !entry.submitting && !entry.submitted &&
-        (entry.prepared != null || entry.value.isNotBlank())
+    fun send(prepared: PreparedPhoneCredential) {
+        entry.error = null
+        session.sendCredential(prepared)
+    }
+
+    val tooLong = entry.prepared == null &&
+        PhoneSecretCrypto.credentialByteCount(entry.value) > PhoneSecretCrypto.MAXIMUM_CREDENTIAL_BYTES
+    val canSubmit = canEnterOnPhone && !submitting && !submitted &&
+        (entry.prepared != null || PhoneSecretCrypto.fitsCredentialLimit(entry.value))
 
     fun submit() {
         if (!canSubmit) return
@@ -217,10 +212,9 @@ internal fun SecretCard(
     }
 
     fun discardPrepared() {
-        entry.suspendEntry()
+        suspendEntry()
         entry.prepared?.let(session::discardPreparedCredential)
         entry.prepared = null
-        entry.submitted = false
     }
 
     val status = stringResource(
@@ -229,12 +223,19 @@ internal fun SecretCard(
             secret.dismissed == true -> R.string.secret_card_dismissed
             secret.superseded == true -> R.string.secret_card_superseded
             secret.stopped == true -> R.string.secret_card_stopped
-            entry.submitted -> R.string.secret_card_a11y_sent
+            submitted -> R.string.secret_card_a11y_sent
             computerOnly -> R.string.secret_card_computer_only
             canEnterOnPhone -> R.string.secret_card_a11y_enter
+            !pairedForSecrets && serverPairing -> R.string.secret_card_a11y_server
             !pairedForSecrets -> R.string.secret_card_a11y_pair_again
             else -> R.string.secret_card_a11y_secure
         },
+    )
+    val sendError = entry.error ?: (sendState as? CredentialSend.Failed)?.let { secretCardError(it.error) }
+    val errors = listOfNotNull(
+        sendError?.text(),
+        stringResource(R.string.secret_card_value_length).takeIf { tooLong },
+        secret.error.visible(),
     )
     val cardShape = RoundedCornerShape(22.dp)
 
@@ -243,7 +244,14 @@ internal fun SecretCard(
             .fillMaxWidth()
             .background(colors.tint, cardShape)
             .border(1.dp, if (secret.isPending) tint.copy(alpha = 0.65f) else colors.hairline, cardShape)
-            .semantics(mergeDescendants = !canEnterOnPhone) { contentDescription = "$label. $status" }
+            .semantics(mergeDescendants = !canEnterOnPhone) {
+                if (canEnterOnPhone) {
+                    contentDescription = "$label. $status"
+                } else {
+                    contentDescription = (listOf("$label. $status") + errors).joinToString(" ")
+                    liveRegion = LiveRegionMode.Polite
+                }
+            }
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
@@ -271,14 +279,14 @@ internal fun SecretCard(
                 )
                 val prepared = entry.prepared
                 if (secret.resumed != true && prepared != null) {
-                    TextButton(onClick = { send(prepared) }, enabled = !entry.submitting && protectedRoute) {
-                        if (entry.submitting) {
+                    TextButton(onClick = { send(prepared) }, enabled = !submitting && protectedRoute) {
+                        if (submitting) {
                             CircularProgressIndicator(Modifier.size(14.dp), strokeWidth = 2.dp)
                         } else {
                             Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(16.dp))
                         }
                         Text(
-                            stringResource(if (entry.submitting) R.string.secret_card_resuming else R.string.secret_card_resume),
+                            stringResource(if (submitting) R.string.secret_card_resuming else R.string.secret_card_resume),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
                             modifier = Modifier.padding(start = 7.dp),
@@ -289,16 +297,23 @@ internal fun SecretCard(
             secret.dismissed == true -> StatusLine(Icons.Filled.Close, stringResource(R.string.secret_card_dismissed), colors.ink2)
             secret.superseded == true -> StatusLine(Icons.Filled.Info, stringResource(R.string.secret_card_superseded), colors.ink2)
             secret.stopped == true -> StatusLine(Icons.Filled.Close, stringResource(R.string.secret_card_stopped), colors.ink2)
-            entry.submitted -> StatusLine(Icons.Filled.CheckCircle, stringResource(R.string.secret_card_submitted), colors.success)
+            submitted -> StatusLine(Icons.Filled.CheckCircle, stringResource(R.string.secret_card_submitted), colors.success)
             computerOnly -> StatusLine(Icons.Filled.Info, stringResource(R.string.secret_card_computer_only), colors.ink2)
             canEnterOnPhone -> PhoneEntry(
                 entry = entry,
+                submitting = submitting,
+                failed = sendError != null,
                 label = label,
                 placeholder = placeholder,
                 tint = tint,
                 canSubmit = canSubmit,
                 onSubmit = ::submit,
                 onDiscard = ::discardPrepared,
+            )
+            !pairedForSecrets && serverPairing -> Notice(
+                tint,
+                stringResource(R.string.secret_card_server_title),
+                stringResource(R.string.secret_card_server_body),
             )
             !pairedForSecrets -> Notice(
                 tint,
@@ -312,7 +327,8 @@ internal fun SecretCard(
             )
         }
 
-        entry.error?.let { StatusLine(Icons.Filled.Warning, it.text(), colors.danger) }
+        sendError?.let { StatusLine(Icons.Filled.Warning, it.text(), colors.danger) }
+        if (tooLong) StatusLine(Icons.Filled.Warning, stringResource(R.string.secret_card_value_length), colors.danger)
         secret.error.visible()?.let { StatusLine(Icons.Filled.Warning, it, colors.warningText) }
 
         secret.safeHelpUrl?.let { url ->
@@ -327,6 +343,8 @@ internal fun SecretCard(
 @Composable
 private fun PhoneEntry(
     entry: SecretEntry,
+    submitting: Boolean,
+    failed: Boolean,
     label: String,
     placeholder: String,
     tint: Color,
@@ -355,7 +373,7 @@ private fun PhoneEntry(
                     onValueChange = { entry.value = it },
                     placeholder = { Text(placeholder) },
                     singleLine = true,
-                    enabled = !entry.submitting,
+                    enabled = !submitting,
                     visualTransformation = PasswordVisualTransformation(),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Password,
@@ -379,13 +397,14 @@ private fun PhoneEntry(
                     .fillMaxWidth()
                     .heightIn(min = 44.dp)
                     .background(colors.control, RoundedCornerShape(11.dp))
+                    .semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite }
                     .padding(horizontal = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(Icons.Filled.Lock, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(14.dp))
                 Text(
-                    stringResource(if (entry.submitting) R.string.secret_card_prepared_saving else R.string.secret_card_prepared_ready),
+                    stringResource(if (submitting) R.string.secret_card_prepared_saving else R.string.secret_card_prepared_ready),
                     fontSize = 13.sp,
                     color = colors.ink2,
                 )
@@ -394,16 +413,16 @@ private fun PhoneEntry(
         SaveButton(
             text = stringResource(
                 when {
-                    entry.submitting -> R.string.secret_card_saving
+                    submitting -> R.string.secret_card_saving
                     prepared == null -> R.string.secret_card_save
                     else -> R.string.secret_card_retry
                 },
             ),
             enabled = canSubmit,
-            busy = entry.submitting,
+            busy = submitting,
             onClick = onSubmit,
         )
-        if (prepared != null && !entry.submitting && entry.error != null) {
+        if (prepared != null && !submitting && failed) {
             TextButton(onClick = onDiscard) {
                 Text(stringResource(R.string.secret_card_enter_different), fontSize = 13.sp, fontWeight = FontWeight.Medium)
             }
@@ -444,7 +463,11 @@ private fun SaveButton(text: String, enabled: Boolean, busy: Boolean, onClick: (
 
 @Composable
 private fun StatusLine(icon: ImageVector, text: String, color: Color) {
-    Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
         Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(16.dp))
         Text(text, fontSize = 13.sp, color = color)
     }

@@ -10,11 +10,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.SemanticsProperties
+import androidx.compose.ui.test.SemanticsMatcher
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.hasContentDescription
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -23,6 +31,7 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.CompanionEndpoint
 import com.openmausbot.companion.core.CompanionEndpointKind
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.CredentialSend
 import com.openmausbot.companion.core.Fleet
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.Message
@@ -31,12 +40,22 @@ import com.openmausbot.companion.core.SecretRequestCardData
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.StreamFrame
 import java.io.File
+import java.net.InetAddress
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.flow.flow
+import okhttp3.Dns
+import okhttp3.OkHttpClient
+import okhttp3.mockwebserver.Dispatcher
+import okhttp3.mockwebserver.MockResponse
+import okhttp3.mockwebserver.MockWebServer
+import okhttp3.mockwebserver.RecordedRequest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,9 +90,9 @@ class SecretCardTest {
     private fun message(secret: SecretRequestCardData) =
         Message("m1", Message.Role.BOT, Message.Kind.SECRET, 1.0, secret = secret)
 
-    private fun tailnet(key: String? = publicKey, device: String? = "paired-device-1"): Connection {
+    private fun tailnet(key: String? = publicKey, device: String? = "paired-device-1", port: Int = 8810): Connection {
         val endpoint = assertNotNull(
-            CompanionEndpoint.create("http://mac.fixture.ts.net:8810", CompanionEndpointKind.TAILNET, 0),
+            CompanionEndpoint.create("http://mac.fixture.ts.net:$port", CompanionEndpointKind.TAILNET, 0),
         )
         return Connection(
             id = "c1",
@@ -90,9 +109,10 @@ class SecretCardTest {
     private var shown by mutableStateOf(true)
     private var secret by mutableStateOf(pending)
 
-    private fun show(connection: Connection): WiringScene {
+    private fun show(connection: Connection, http: OkHttpClient = OkHttpClient(), live: Boolean = true): WiringScene {
         val wiring = WiringScene(
             connection = connection,
+            httpClient = http,
             fleet = Fleet(listOf(bot), emptyList()),
             events = {
                 flow {
@@ -111,10 +131,14 @@ class SecretCardTest {
             }
         }
         wiring.session.connect()
-        compose.waitUntil(5_000) { wiring.session.status.value is Session.Status.Live }
+        compose.waitUntil(5_000) {
+            if (live) wiring.session.status.value is Session.Status.Live else wiring.session.connection.value != null
+        }
         compose.waitForIdle()
         return wiring
     }
+
+    private val politeLiveRegion = SemanticsMatcher.expectValue(SemanticsProperties.LiveRegion, LiveRegionMode.Polite)
 
     private fun fields() = compose.onAllNodesWithTag(CREDENTIAL_FIELD_TAG).fetchSemanticsNodes().size
 
@@ -188,6 +212,77 @@ class SecretCardTest {
         secret = pending
         compose.waitForIdle()
         assertEquals(0, typed())
+    }
+
+    @Test
+    fun anOlderPairingCardIsALiveRegion() {
+        show(tailnet(key = null))
+        compose.onNode(hasContentDescription("Pair again by QR code", substring = true)).assert(politeLiveRegion)
+    }
+
+    @Test
+    fun aServerPairingPointsToSeiraForThatServer() {
+        val server = tailnet().copy(serverEnvironmentId = "environment-1")
+        show(server, live = false)
+        compose.onNodeWithText("Enter it in Seira for this server", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Pair again to enter here", useUnmergedTree = true).assertDoesNotExist()
+        assertEquals(0, fields())
+    }
+
+    @Test
+    fun theLimitCountsBytesAndSaysWhenAValueIsTooLong() {
+        show(tailnet())
+        compose.onNodeWithTag(CREDENTIAL_FIELD_TAG).performTextInput("é".repeat(2048))
+        compose.onNodeWithTag(CREDENTIAL_SAVE_TAG).assertIsEnabled()
+        compose.onNodeWithText("This value is too long. Paste only the key.", useUnmergedTree = true).assertDoesNotExist()
+
+        compose.onNodeWithTag(CREDENTIAL_FIELD_TAG).performTextInput("é")
+        compose.onNodeWithTag(CREDENTIAL_SAVE_TAG).assertIsNotEnabled()
+        compose.onNode(hasText("This value is too long. Paste only the key.") and politeLiveRegion).assertExists()
+    }
+
+    @Test
+    fun theSendKeepsGoingWhenTheCardLeavesTheScreen() {
+        val answer = CountDownLatch(1)
+        val provides = AtomicInteger(0)
+        val server = MockWebServer()
+        server.dispatcher = object : Dispatcher() {
+            override fun dispatch(request: RecordedRequest): MockResponse {
+                if (request.path?.endsWith("/provide") != true) return MockResponse().setResponseCode(404)
+                provides.incrementAndGet()
+                answer.await(10, TimeUnit.SECONDS)
+                return MockResponse()
+                    .setHeader("Content-Type", "application/json")
+                    .setBody("""{"provided":true,"resumed":false}""")
+            }
+        }
+        server.start()
+        val http = OkHttpClient.Builder()
+            .dns(object : Dns {
+                override fun lookup(hostname: String) = listOf(InetAddress.getByName("127.0.0.1"))
+            })
+            .build()
+        try {
+            val wiring = show(tailnet(port = server.port), http)
+            compose.onNodeWithTag(CREDENTIAL_FIELD_TAG).performTextInput("sk-test")
+            compose.onNodeWithTag(CREDENTIAL_SAVE_TAG).performClick()
+            compose.waitUntil(5_000) { provides.get() == 1 }
+
+            shown = false
+            compose.waitForIdle()
+            answer.countDown()
+            compose.waitUntil(5_000) { wiring.session.credentialSends.value.values.any { it is CredentialSend.Sent } }
+
+            shown = true
+            compose.waitForIdle()
+            compose.onNode(hasText("Encrypted and saved on your computer") and politeLiveRegion).assertExists()
+            assertEquals(1, provides.get())
+            assertEquals(0, fields())
+        } finally {
+            answer.countDown()
+            server.shutdown()
+            http.connectionPool.evictAll()
+        }
     }
 
     @Test
