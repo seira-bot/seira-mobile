@@ -2709,31 +2709,6 @@ class Session(
         }
     }
 
-    private val _aiUsageHiddenFor = MutableStateFlow<String?>(null)
-    val aiUsageHiddenFor: StateFlow<String?> = _aiUsageHiddenFor.asStateFlow()
-
-    val aiUsageHidden: Boolean
-        get() = AiUsageRules.hidden(_aiUsageHiddenFor.value, _connection.value?.id)
-
-    suspend fun aiUsage(refresh: Boolean = false): AiUsageResult {
-        val activeClient = client ?: return AiUsageResult.Failed
-        val connectionId = _connection.value?.id
-        return try {
-            val report = activeClient.engineLimits(refresh)
-            if (client !== activeClient) return AiUsageResult.Failed
-            if ((report == null || report.engines.isEmpty()) && connectionId != null) {
-                _aiUsageHiddenFor.value = connectionId
-            }
-            if (report == null) AiUsageResult.NotAvailable else AiUsageResult.Report(report)
-        } catch (error: CancellationException) {
-            throw error
-        } catch (error: APIError) {
-            if (client !== activeClient) return AiUsageResult.Failed
-            if (error.isUnauthorized) _status.value = Status.Unauthorized
-            AiUsageResult.Failed
-        }
-    }
-
     private suspend fun <T> cardCall(block: suspend (CompanionClient) -> T): Result<T> {
         val activeClient = client ?: return Result.failure(APIError.BadUrl)
         return try {
@@ -2758,6 +2733,31 @@ class Session(
 
     suspend fun answerSignIn(botId: String, messageId: String, threadId: String, choice: SignInChoice): Result<Unit> =
         cardCall { it.answerSignIn(botId, messageId, threadId, choice) }
+
+    private val _aiUsageHiddenFor = MutableStateFlow<String?>(null)
+    val aiUsageHiddenFor: StateFlow<String?> = _aiUsageHiddenFor.asStateFlow()
+
+    val aiUsageHidden: Boolean
+        get() = AiUsageRules.hidden(_aiUsageHiddenFor.value, _connection.value?.id)
+
+    suspend fun aiUsage(refresh: Boolean = false): AiUsageResult {
+        val activeClient = client ?: return AiUsageResult.Failed
+        val connectionId = _connection.value?.id
+        return try {
+            val report = activeClient.engineLimits(refresh)
+            if (client !== activeClient) return AiUsageResult.Failed
+            if ((report == null || report.engines.isEmpty()) && connectionId != null) {
+                _aiUsageHiddenFor.value = connectionId
+            }
+            if (report == null) AiUsageResult.NotAvailable else AiUsageResult.Report(report)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError) {
+            if (client !== activeClient) return AiUsageResult.Failed
+            if (error.isUnauthorized) _status.value = Status.Unauthorized
+            AiUsageResult.Failed
+        }
+    }
 
     suspend fun loadRoutines(): RoutinesResponse {
         val activeClient = client ?: return RoutinesResponse(emptyList(), emptyList())
