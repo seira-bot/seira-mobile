@@ -8,6 +8,8 @@ negara, rollout 100%.
 Update 1.0.3 (versionCode 10003) membawa PR #11 (wire id lama dan wire id
 Seira) dan PR #27 (pairing mencoba semua alamat). Google menyetujui 1.0.3.
 Rilis "1.0.3" tayang di Play pada 2026-11-21: 178 negara, rollout 100%.
+Update 1.0.4 (versionCode 10004) dikirim untuk review pada 2026-11-21: Production,
+semua negara target, rollout 100%. Bundle dibangun dari `main` `0e5daef4`.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
