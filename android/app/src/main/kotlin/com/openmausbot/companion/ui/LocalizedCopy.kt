@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.openmausbot.companion.R
 
@@ -38,12 +39,6 @@ private val localizedCopyResources = mapOf(
     "Local discovery keeps getting interrupted on this phone. Enter the address shown in Phone settings below." to R.string.mobile_discovery_keeps_failing,
     "Larger faces, with each bot's latest message under its name." to R.string.mobile_density_comfortable_caption,
     "One line per bot. Bots with more than one active thread show how many; tap the number to list them." to R.string.mobile_density_compact_caption,
-    "%1\$d active" to R.string.mobile_updates_active_count,
-    "%1\$d links" to R.string.mobile_share_links,
-    "%1\$d messages queued" to R.string.mobile_updates_queued_count,
-    "%1\$d more updates" to R.string.mobile_updates_more_count,
-    "%1\$d text items" to R.string.mobile_share_text_items,
-    "%1\$d unsupported items were left out." to R.string.mobile_share_items_omitted,
     "%1\$s at %2\$s" to R.string.mobile_routine_daily_at,
     "%1\$s avatar" to R.string.mobile_current_name_avatar_de638954,
     "%1\$s folder" to R.string.mobile_a11y_folder,
@@ -56,7 +51,6 @@ private val localizedCopyResources = mapOf(
     "%1\$s isn't a supported attachment. Try an image, PDF, text, Word, Excel, or PowerPoint file." to R.string.mobile_chat_attachment_unsupported,
     "%1\$s isn't a supported document. Try PDF, text, Word, Excel, or PowerPoint." to R.string.mobile_share_unsupported_document,
     "%1\$s lines added, %2\$s removed" to R.string.mobile_a11y_diff_stats,
-    "%1\$s minutes" to R.string.mobile_minutes_minutes_29dd88a9,
     "%1\$s needs you" to R.string.mobile_updates_headline_needs_you,
     "%1\$s · %2\$s" to R.string.mobile_routine_run_subtitle,
     "%1\$s · %2\$s · %3\$s" to R.string.mobile_routine_subtitle,
@@ -75,9 +69,6 @@ private val localizedCopyResources = mapOf(
     "/steer" to R.string.mobile_steer_72f3f4c7,
     "/threads" to R.string.mobile_threads_3e761c97,
     "000000" to R.string.mobile_text_c984aed0,
-    "1 more update" to R.string.mobile_updates_one_more,
-    "1 step" to R.string.mobile_step_29869c51,
-    "1 unsupported item was left out." to R.string.mobile_share_one_item_omitted,
     "1.  Open Seira → Settings → Phone" to R.string.mobile_open_openmausbot_settings_phone_38cfc5bb,
     "100 selected — that’s the section limit." to R.string.mobile_section_at_limit,
     "2.  Choose Set up a phone" to R.string.mobile_choose_set_up_a_phone_8fd474a9,
@@ -228,7 +219,6 @@ private val localizedCopyResources = mapOf(
     "Enter a secure https:// address, 192.168.1.42:8810, or a name like macbook.tail1234.ts.net." to R.string.mobile_settings_invalid_address,
     "Enter the 6-digit code shown on your desktop:" to R.string.mobile_pairing_enter_code_notice,
     "Enter whatever Phone settings on your computer shows. The pairing itself is kept." to R.string.mobile_settings_edit_address_message,
-    "Every %1\$d min" to R.string.mobile_routine_every_minutes,
     "Every bot that may answer in this channel must use a model that supports images." to R.string.mobile_share_channel_image_compatibility,
     "Every day" to R.string.mobile_every_day_3b2eb513,
     "Every step a bot takes." to R.string.mobile_activity_full_caption,
@@ -679,7 +669,6 @@ private val localizedCopyResources = mapOf(
     "A Live call is already running from another device. Hang up there first." to R.string.mobile_a_live_call_is_already_running_c86eb553,
     "Could not read the Live settings from your computer." to R.string.mobile_could_not_read_the_live_settings_8c7bf24d,
     "Could not save that setting." to R.string.mobile_could_not_save_that_setting_b274915a,
-    "1 minute" to R.string.mobile_1_minute_62957ecf,
     "Connecting…" to R.string.mobile_connecting_fd3e7969,
     "Chief of Staff" to R.string.mobile_chief_of_staff_ab970bed
 )
@@ -691,8 +680,18 @@ internal fun localizedMobileCopy(source: String): String {
         .matchEntire(source)?.let { return stringResource(R.string.mobile_live_with_bot, it.groupValues[1]) + " · " + it.groupValues[2] }
     Regex("""^Live with (.+)$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_live_with_bot, it.groupValues[1]) }
-    Regex("""^(\d+) minutes$""")
-        .matchEntire(source)?.let { return stringResource(R.string.mobile_minutes_count, it.groupValues[1].toInt()) }
+    Regex("""^(\d+) minutes?$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_minutes_count, it) }
+    Regex("""^Every (\d+) min$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_routine_every_minutes, it) }
+    Regex("""^(\d+) steps?$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_steps_count, it) }
+    Regex("""^(\d+) more updates?$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_updates_more_count, it) }
+    Regex("""^(\d+) active$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_updates_active_count, it) }
+    Regex("""^(\d+) messages? queued$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_updates_queued_count, it) }
     Regex("""^Ask (.+)$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_composer_ask_bot, it.groupValues[1]) }
     Regex("""^Answer (.+)…$""")
@@ -725,13 +724,20 @@ internal fun localizedMobileCopy(source: String): String {
         .matchEntire(source)?.let { return stringResource(R.string.mobile_share_bot_thread, it.groupValues[1]) }
     Regex("""^Channel · (.+)$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_share_channel_thread, it.groupValues[1]) }
-    Regex("""^(\d+) links$""")
-        .matchEntire(source)?.let { return stringResource(R.string.mobile_share_links, it.groupValues[1].toInt()) }
-    Regex("""^(\d+) text items$""")
-        .matchEntire(source)?.let { return stringResource(R.string.mobile_share_text_items, it.groupValues[1].toInt()) }
-    Regex("""^(\d+) unsupported items were left out\.$""")
-        .matchEntire(source)?.let { return stringResource(R.string.mobile_share_items_omitted, it.groupValues[1].toInt()) }
+    Regex("""^(\d+) links?$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_share_links, it) }
+    Regex("""^(\d+) text items?$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_share_text_items, it) }
+    Regex("""^(\d+) unsupported items? (?:was|were) left out\.$""")
+        .matchEntire(source)?.let { return countCopy(R.plurals.mobile_share_items_omitted, it) }
     Regex("""^Message from (.+)$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_search_hit_from, it.groupValues[1]) }
+    localizedCoreCopy(source)?.let { return it }
     return source
+}
+
+@Composable
+private fun countCopy(plural: Int, match: MatchResult): String {
+    val count = match.groupValues[1].toIntOrNull() ?: return match.value
+    return pluralStringResource(plural, count, count)
 }

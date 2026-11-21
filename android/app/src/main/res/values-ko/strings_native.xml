@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">승인</string>
+    <string name="notification_action_review">검토</string>
+    <string name="notification_action_reply">답장</string>
+    <string name="notification_sender_you">나</string>
+    <string name="notification_approved">승인됨</string>
+    <string name="notification_approve_failed">승인하지 못했어요. 채팅을 열어 검토하세요.</string>
+    <string name="notification_approve_settled">이미 답변했어요. 채팅을 열어 확인하세요.</string>
+    <string name="notification_reply_failed">보내지 못했어요. 채팅을 열어 다시 시도하세요.</string>
+    <string name="tile_talk_label">대화</string>
+    <string name="shortcut_talk_short">대화</string>
+    <string name="shortcut_talk_long">비서실장과 대화</string>
+</resources>

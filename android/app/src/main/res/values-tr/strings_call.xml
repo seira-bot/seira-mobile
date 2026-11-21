@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Sohbete dön</string>
+    <string name="call_screen_live_call">Canlı arama</string>
+    <string name="call_screen_speaking">%1$s konuşuyor</string>
+    <string name="call_screen_listening">Dinliyor</string>
+    <string name="call_screen_muted">Sesiniz kapalı</string>
+    <string name="call_screen_you">Siz</string>
+    <string name="call_screen_mute">Sessize al</string>
+    <string name="call_screen_unmute">Sesi aç</string>
+    <string name="call_screen_speaker">Hoparlör</string>
+    <string name="call_screen_captions">Altyazı</string>
+    <string name="call_screen_end">Bitir</string>
+    <string name="call_screen_end_call">Aramayı bitir</string>
+    <string name="call_screen_try_again">Tekrar dene</string>
+    <string name="call_screen_close">Kapat</string>
+    <string name="call_open_call">Aramayı aç</string>
+    <string name="call_service_channel_name">Canlı aramalar</string>
+    <string name="call_service_channel_description">Bir Canlı arama sürerken gösterilir.</string>
+    <string name="call_service_connecting">Bağlanıyor…</string>
+    <string name="call_service_live">Canlı arama</string>
+    <string name="call_service_hang_up">Kapat</string>
+    <string name="call_record_title">%1$s ile arama</string>
+    <string name="call_record_open">%1$s, %2$s. Aramayı aç.</string>
+    <string name="call_record_partial">Bu aramanın bir kısmı önceki mesajlarda. Tamamını görmek için önceki mesajları yükle.</string>
+    <string name="call_record_started">Başlangıç: %1$s</string>
+    <string name="call_record_ended">Bitiş: %1$s</string>
+    <string name="call_record_said">Söylediklerin</string>
+    <string name="call_record_nothing">Bu arama için yüklenmiş konuşma satırı yok.</string>
+</resources>

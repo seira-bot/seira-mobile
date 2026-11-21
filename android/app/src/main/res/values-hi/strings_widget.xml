@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">पहले %1$s भरें।</string>
+    <string name="widget_send_failed">भेजा नहीं जा सका। फिर से कोशिश करें।</string>
+    <string name="widget_sending">भेजा जा रहा है…</string>
+    <string name="widget_sent">भेजा गया</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">विवरण छिपाएँ</string>
+    <string name="widget_other">अन्य</string>
+    <string name="widget_other_hint">आपका अपना जवाब</string>
+    <string name="widget_show_image">छवि दिखाएँ</string>
+    <string name="widget_chart">चार्ट: %1$s</string>
+    <string name="widget_choose">चुनें…</string>
+    <string name="widget_not_set">सेट नहीं है</string>
+    <string name="widget_selected">चुना गया</string>
+</resources>

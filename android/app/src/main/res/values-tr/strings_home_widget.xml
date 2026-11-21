@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Güncellemeler</string>
+    <string name="widget_updates_description">Güncellemeler düğmesinin gösterdiği her şey, önce senin ilgilenmen gereken sohbetler.</string>
+    <string name="widget_all_quiet">Her şey sakin</string>
+    <string name="widget_open_to_pair">Eşlemek için Seira\'yı aç</string>
+    <string name="widget_open_to_answer">Yanıtlamak için Seira\'yı aç</string>
+    <string name="widget_as_of">%1$s itibarıyla</string>
+    <string name="widget_active_count">%1$d etkin</string>
+    <string name="widget_section_needs_you">Seni bekleyenler</string>
+    <string name="widget_section_working">Çalışanlar</string>
+    <string name="widget_section_to_review">İncelenecekler</string>
+    <string name="widget_request_changed">Bu istek değişti. İncelemek için sohbeti aç.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Bir komut çalıştır: git push</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">चैट पर वापस</string>
+    <string name="call_screen_live_call">लाइव कॉल</string>
+    <string name="call_screen_speaking">%1$s बोल रहा है</string>
+    <string name="call_screen_listening">सुन रहा है</string>
+    <string name="call_screen_muted">आप म्यूट हैं</string>
+    <string name="call_screen_you">आप</string>
+    <string name="call_screen_mute">म्यूट करें</string>
+    <string name="call_screen_unmute">अनम्यूट करें</string>
+    <string name="call_screen_speaker">स्पीकर</string>
+    <string name="call_screen_captions">कैप्शन</string>
+    <string name="call_screen_end">खत्म</string>
+    <string name="call_screen_end_call">कॉल खत्म करें</string>
+    <string name="call_screen_try_again">फिर कोशिश करें</string>
+    <string name="call_screen_close">बंद करें</string>
+    <string name="call_open_call">कॉल खोलें</string>
+    <string name="call_service_channel_name">लाइव कॉल</string>
+    <string name="call_service_channel_description">लाइव कॉल चलने के दौरान दिखता है।</string>
+    <string name="call_service_connecting">कनेक्ट हो रहा है…</string>
+    <string name="call_service_live">लाइव कॉल</string>
+    <string name="call_service_hang_up">कॉल काटें</string>
+    <string name="call_record_title">%1$s के साथ कॉल</string>
+    <string name="call_record_open">%1$s, %2$s। कॉल खोलें।</string>
+    <string name="call_record_partial">इस कॉल का कुछ हिस्सा पुराने संदेशों में है। पूरा देखने के लिए पुराने संदेश लोड करें।</string>
+    <string name="call_record_started">शुरू: %1$s</string>
+    <string name="call_record_ended">समाप्त: %1$s</string>
+    <string name="call_record_said">आपने क्या कहा</string>
+    <string name="call_record_nothing">इस कॉल के लिए कोई बोली गई पंक्ति लोड नहीं है।</string>
+</resources>

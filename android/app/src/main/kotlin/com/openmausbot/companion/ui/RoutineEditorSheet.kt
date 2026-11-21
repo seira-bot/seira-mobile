@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
 import android.text.format.DateFormat
@@ -707,7 +708,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
     ) {
         OutlinedTextField(
             value = value?.let {
-                stringResource(R.string.mobile_minutes_minutes_29dd88a9, it)
+                pluralStringResource(R.plurals.mobile_minutes_count, it, it)
             } ?: stringResource(R.string.mobile_no_limit_10850b93),
             onValueChange = {},
             readOnly = true,
@@ -730,7 +731,7 @@ private fun TimeoutPicker(value: Int?, onSelect: (Int?) -> Unit) {
             )
             RoutineRules.TIMEOUT_OPTIONS.forEach { minutes ->
                 DropdownMenuItem(
-                    text = { Text(stringResource(R.string.mobile_minutes_minutes_29dd88a9, minutes)) },
+                    text = { Text(pluralStringResource(R.plurals.mobile_minutes_count, minutes, minutes)) },
                     onClick = {
                         expanded = false
                         onSelect(minutes)

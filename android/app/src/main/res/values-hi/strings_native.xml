@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">मंज़ूर करें</string>
+    <string name="notification_action_review">देखें</string>
+    <string name="notification_action_reply">जवाब दें</string>
+    <string name="notification_sender_you">आप</string>
+    <string name="notification_approved">मंज़ूर किया गया</string>
+    <string name="notification_approve_failed">मंज़ूर नहीं हो सका। देखने के लिए चैट खोलें।</string>
+    <string name="notification_approve_settled">जवाब दिया जा चुका है। देखने के लिए चैट खोलें।</string>
+    <string name="notification_reply_failed">भेजा नहीं जा सका। फिर कोशिश करने के लिए चैट खोलें।</string>
+    <string name="tile_talk_label">बात करें</string>
+    <string name="shortcut_talk_short">बात करें</string>
+    <string name="shortcut_talk_long">अपने चीफ़ ऑफ़ स्टाफ़ से बात करें</string>
+</resources>

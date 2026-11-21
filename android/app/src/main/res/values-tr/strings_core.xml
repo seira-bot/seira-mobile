@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">%1$s adlı bilgisayara ulaşılamadı.</string>
+    <string name="core_route_tailscale_off">Bu telefonda Tailscale kapalı. Açın, ardından tekrar deneyin.</string>
+    <string name="core_route_tailnet_unreachable">Bu telefon “%1$s” adresine ulaşamıyor. Bu telefonda Tailscale\'i açın ve bilgisayarla aynı hesapla oturum açın. Özel DNS bir sağlayıcı adı gösteriyorsa Kapalı ya da Otomatik yapın (Ayarlar → Ağ ve internet).</string>
+    <string name="core_route_internet_also_failed">İnternet adresi de yanıt vermedi. Bilgisayarın açık olduğundan emin olun.</string>
+    <string name="core_route_local_network_blocked">Android bu uygulamanın yerel ağınıza erişimini engelledi. Telefonun Ayarlar bölümünde bunun için yerel ağ erişimine izin verin, ardından tekrar deneyin.</string>
+    <string name="core_route_secure_failed">Bilgisayarın uyanık ve Seira\'nın açık olduğundan emin olun, ardından tekrar deneyin.</string>
+    <string name="core_route_tailscale_only">Telefonunuz %1$s adlı bilgisayara Tailscale üzerinden ulaşamadı. Bu telefonda, bilgisayarla aynı tailnet\'te oturum açmış olarak Tailscale\'i açın, ardından tekrar deneyin.</string>
+    <string name="core_route_same_network">Telefonunuz %1$s adlı bilgisayara bu ağda ulaşamadı. Telefonu bilgisayarla aynı Wi-Fi ağına bağlayın. Zaten aynı ağdaysa bilgisayarın güvenlik duvarı Seira\'yı engelliyor olabilir: bir Windows bilgisayarda ağını Özel olarak ayarlayın; Linux\'ta Seira\'nın bilgisayarda gösterdiği güvenlik duvarı komutunu çalıştırın. Ya da bilgisayarda Ayarlar → Uzaktan erişim bölümünü açıp oturum açın; böylece telefon her yerden bağlanabilir.</string>
+    <string name="core_advice_host_unresolved">“%1$s” çözümlenemedi. Bu bir Tailscale adıysa bu telefon tailnet\'te olmayabilir.</string>
+    <string name="core_advice_port_closed">Bilgisayarınıza ulaşıldı ancak Telefon erişimi %1$d numaralı bağlantı noktasında yanıt vermiyor — Seira → Ayarlar → Telefon bölümünü açın.</string>
+    <string name="core_advice_no_route">%1$s adresindeki bilgisayarınıza yol yok — farklı bir ağ ya da bir güvenlik duvarı.</string>
+    <string name="core_advice_offline">Çevrimdışısınız.</string>
+    <string name="core_advice_could_not_reach_host">%1$s adresine ulaşılamadı.</string>
+    <string name="core_advice_gateway">%1$s üzerinden giden yol geçici olarak kullanılamıyor (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Sıradaki deneme: %1$s.</string>
+    <string name="core_advice_keeps_retrying">Uygulama otomatik olarak yeniden denemeyi sürdürüyor.</string>
+    <string name="core_lost_connection">Bağlantı koptu.</string>
+    <string name="core_could_not_reach_computer">Bilgisayara ulaşılamadı.</string>
+    <string name="core_computer_offline">Bu bilgisayar çevrimdışı.</string>
+    <string name="core_unlock_to_reach">Bilgisayarınıza ulaşmak için bu telefonun kilidini açın.</string>
+    <string name="core_unlock_to_switch">Bu telefonun kilidini açın, ardından bilgisayar değiştirmeyi tekrar deneyin.</string>
+    <string name="core_saved_connection_unavailable">Bu kayıtlı bağlantı artık bu telefonda kullanılamıyor. Kaldırıp yeniden eşleyin.</string>
+    <string name="core_pairing_server_changed">Eşleme sırasında sunucu değişti. Yeni bir kod tarayıp tekrar deneyin.</string>
+    <string name="core_pairing_code_used">Bu eşleme kodu zaten kullanılmış. Bilgisayarınızda eşlemeyi yeniden başlatın ve yeni QR kodunu tarayın.</string>
+    <string name="core_pairing_invalid">Bu eşleme daveti geçerli değil. Bilgisayarınızda eşlemeyi yeniden başlatın.</string>
+    <string name="core_pairing_in_progress">Başka bir eşleme denemesi zaten sürüyor.</string>
+    <string name="core_pairing_storage_unavailable">Bu telefon kayıtlı bağlantısını az önce okuyamadı.</string>
+    <string name="core_different_server">Bu adres farklı bir sunucuya ait. Devam etmek için yeniden eşleyin.</string>
+    <string name="core_pair_to_open_task">Bu görevi açmak için telefonu bilgisayarınızla eşleyin.</string>
+    <string name="core_pair_to_open_thread">Bu konuyu açmak için telefonu bilgisayarınızla eşleyin.</string>
+    <string name="core_thread_gone">Bu konu artık bilgisayarınızda yok.</string>
+    <string name="core_agent_gone">Bu ajan artık yok.</string>
+    <string name="core_write_or_attach">Önce bir mesaj yazın ya da bir dosya ekleyin.</string>
+    <string name="core_update_for_images">Görsel göndermeden önce bu bilgisayarda Seira\'yı güncelleyin.</string>
+    <string name="core_cannot_send">Bu mesaj gönderilemedi. Tekrar deneyin.</string>
+    <string name="core_unreadable_response">Bilgisayar, bu uygulamanın okuyamadığı bir şey gönderdi.</string>
+</resources>

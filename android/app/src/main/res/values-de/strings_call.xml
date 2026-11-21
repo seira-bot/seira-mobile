@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Zurück zum Chat</string>
+    <string name="call_screen_live_call">Live-Anruf</string>
+    <string name="call_screen_speaking">%1$s spricht</string>
+    <string name="call_screen_listening">Hört zu</string>
+    <string name="call_screen_muted">Du bist stummgeschaltet</string>
+    <string name="call_screen_you">Du</string>
+    <string name="call_screen_mute">Stummschalten</string>
+    <string name="call_screen_unmute">Stummschaltung aufheben</string>
+    <string name="call_screen_speaker">Lautsprecher</string>
+    <string name="call_screen_captions">Untertitel</string>
+    <string name="call_screen_end">Beenden</string>
+    <string name="call_screen_end_call">Anruf beenden</string>
+    <string name="call_screen_try_again">Erneut versuchen</string>
+    <string name="call_screen_close">Schließen</string>
+    <string name="call_open_call">Anruf öffnen</string>
+    <string name="call_service_channel_name">Live-Anrufe</string>
+    <string name="call_service_channel_description">Wird angezeigt, solange ein Live-Anruf läuft.</string>
+    <string name="call_service_connecting">Verbindung wird hergestellt…</string>
+    <string name="call_service_live">Live-Anruf</string>
+    <string name="call_service_hang_up">Auflegen</string>
+    <string name="call_record_title">Anruf mit %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Anruf öffnen.</string>
+    <string name="call_record_partial">Ein Teil dieses Anrufs steht in früheren Nachrichten. Lade frühere Nachrichten, um alles zu sehen.</string>
+    <string name="call_record_started">Gestartet %1$s</string>
+    <string name="call_record_ended">Beendet %1$s</string>
+    <string name="call_record_said">Was du gesagt hast</string>
+    <string name="call_record_nothing">Für diesen Anruf sind keine gesprochenen Zeilen geladen.</string>
+</resources>

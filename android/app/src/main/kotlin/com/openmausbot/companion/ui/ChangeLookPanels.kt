@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -136,7 +137,7 @@ private fun ExtrasPanel(state: ChangeLookState) {
     val haptics = rememberHaptics()
     Column(verticalArrangement = Arrangement.spacedBy(18.dp)) {
         val count = state.look.accessories.size
-        val spoken = stringResource(R.string.change_look_extras_count_a11y, count)
+        val spoken = pluralStringResource(R.plurals.change_look_extras_count_a11y, count, count)
         Text(
             text = stringResource(R.string.change_look_extras_count, count),
             style = SeiraType.callout.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),

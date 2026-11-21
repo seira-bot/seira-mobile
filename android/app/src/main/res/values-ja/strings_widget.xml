@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">先に%1$sを入力してください。</string>
+    <string name="widget_send_failed">送信できませんでした。もう一度お試しください。</string>
+    <string name="widget_sending">送信中…</string>
+    <string name="widget_sent">送信済み</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">詳細を隠す</string>
+    <string name="widget_other">その他</string>
+    <string name="widget_other_hint">自分の回答</string>
+    <string name="widget_show_image">画像を表示</string>
+    <string name="widget_chart">グラフ: %1$s</string>
+    <string name="widget_choose">選択…</string>
+    <string name="widget_not_set">未設定</string>
+    <string name="widget_selected">選択済み</string>
+</resources>

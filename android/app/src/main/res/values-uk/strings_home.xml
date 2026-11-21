@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Доброго ранку</string>
+    <string name="home_greeting_afternoon">Добрий день</string>
+    <string name="home_greeting_evening">Добрий вечір</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">Більше параметрів</string>
+    <string name="home_talk">Говорити</string>
+    <string name="home_status_ready">Готово</string>
+    <string name="home_team">Команда</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Показати всі: %1$d</item>
+        <item quantity="few">Показати всі: %1$d</item>
+        <item quantity="many">Показати всі: %1$d</item>
+        <item quantity="other">Показати всі: %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Показати менше</string>
+    <string name="home_chats">Чати</string>
+    <string name="home_search_prompt">Пошук чатів і ботів</string>
+    <string name="home_new_chat">Новий чат</string>
+    <string name="home_talk_to">Поговорити з %1$s</string>
+    <string name="home_team_member_working">%1$s, працює</string>
+    <string name="home_team_member_waiting">%1$s, чекає на вас</string>
+    <string name="home_manage_threads">Керувати гілками</string>
+    <string name="home_empty_chats_title">Чатів поки немає</string>
+    <string name="home_empty_chats_body">Запитайте Seira про що завгодно. Ваші чати з’являться тут.</string>
+    <string name="home_empty_not_connected_title">Ваш комп’ютер не підключено</string>
+    <string name="home_empty_not_connected_body">Відкрийте Seira на комп’ютері. Чати повернуться, коли він підключиться.</string>
+    <string name="home_empty_pair_computer">Під’єднати комп’ютер</string>
+    <string name="home_empty_offline_title">Немає підключення до мережі</string>
+    <string name="home_empty_offline_body">Перевірте інтернет-з’єднання. Seira продовжить з того місця, де ви зупинилися.</string>
+    <string name="home_empty_all_done_title">Усе розібрано</string>
+    <string name="home_empty_all_done_body">Зараз ніхто не чекає на вашу відповідь.</string>
+    <string name="home_empty_back_to_chats">До чатів</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">Підтвердити</string>
+    <string name="notification_action_review">Переглянути</string>
+    <string name="notification_action_reply">Відповісти</string>
+    <string name="notification_sender_you">Ви</string>
+    <string name="notification_approved">Підтверджено</string>
+    <string name="notification_approve_failed">Не вдалося підтвердити. Відкрийте чат, щоб переглянути.</string>
+    <string name="notification_approve_settled">Уже відповіли. Відкрийте чат, щоб переглянути.</string>
+    <string name="notification_reply_failed">Не вдалося надіслати. Відкрийте чат, щоб спробувати знову.</string>
+    <string name="tile_talk_label">Говорити</string>
+    <string name="shortcut_talk_short">Говорити</string>
+    <string name="shortcut_talk_long">Поговорити зі своїм Chief of Staff</string>
+</resources>

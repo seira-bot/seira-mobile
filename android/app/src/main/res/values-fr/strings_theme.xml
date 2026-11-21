@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">Apparence</string>
+    <string name="theme_mode_choose">Choisir l’apparence</string>
+    <string name="theme_mode_light">Clair</string>
+    <string name="theme_mode_dark">Sombre</string>
+    <string name="theme_mode_auto">Auto</string>
+</resources>

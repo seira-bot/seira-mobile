@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">%1$s war nicht erreichbar.</string>
+    <string name="core_route_tailscale_off">Tailscale ist auf diesem Telefon aus. Schalte es ein und versuche es dann erneut.</string>
+    <string name="core_route_tailnet_unreachable">Dieses Telefon erreicht „%1$s“ nicht. Öffne Tailscale auf diesem Telefon und melde dich mit demselben Konto wie auf dem Computer an. Wenn bei „Privates DNS“ ein Anbietername steht, stelle es auf „Aus“ oder „Automatisch“ (Einstellungen → Netzwerk &amp; Internet).</string>
+    <string name="core_route_internet_also_failed">Die Internetadresse hat ebenfalls nicht geantwortet. Prüfe, ob der Computer an ist.</string>
+    <string name="core_route_local_network_blocked">Android hat dieser App den Zugriff auf dein lokales Netzwerk verwehrt. Erlaube ihr den Zugriff auf das lokale Netzwerk in den Einstellungen des Telefons und versuche es dann erneut.</string>
+    <string name="core_route_secure_failed">Stelle sicher, dass der Computer aktiv und Seira geöffnet ist, und versuche es dann erneut.</string>
+    <string name="core_route_tailscale_only">Dein Telefon konnte %1$s nicht über Tailscale erreichen. Schalte Tailscale auf diesem Telefon ein, angemeldet im selben Tailnet wie der Computer, und versuche es dann erneut.</string>
+    <string name="core_route_same_network">Dein Telefon konnte %1$s in diesem Netzwerk nicht erreichen. Verbinde das Telefon mit demselben WLAN wie den Computer. Wenn es schon so ist, blockiert vielleicht die Firewall des Computers Seira: Stelle auf einem Windows-PC sein Netzwerk auf „Privat“; unter Linux führe den Firewall-Befehl aus, den Seira auf dem Computer zeigt. Oder öffne auf dem Computer Einstellungen → Fernzugriff und melde dich an, damit sich das Telefon von überall verbinden kann.</string>
+    <string name="core_advice_host_unresolved">„%1$s“ wurde nicht aufgelöst. Wenn das ein Tailscale-Name ist, ist dieses Telefon vielleicht nicht im Tailnet.</string>
+    <string name="core_advice_port_closed">Dein Computer ist erreichbar, aber der Telefonzugriff antwortet nicht auf Port %1$d – öffne Seira → Einstellungen → Telefon.</string>
+    <string name="core_advice_no_route">Keine Route zu deinem Computer unter %1$s – anderes Netzwerk oder eine Firewall.</string>
+    <string name="core_advice_offline">Du bist offline.</string>
+    <string name="core_advice_could_not_reach_host">%1$s war nicht erreichbar.</string>
+    <string name="core_advice_gateway">Die Route über %1$s ist vorübergehend nicht verfügbar (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Als Nächstes wird %1$s versucht.</string>
+    <string name="core_advice_keeps_retrying">Die App versucht es automatisch weiter.</string>
+    <string name="core_lost_connection">Die Verbindung wurde unterbrochen.</string>
+    <string name="core_could_not_reach_computer">Der Computer war nicht erreichbar.</string>
+    <string name="core_computer_offline">Dieser Computer ist offline.</string>
+    <string name="core_unlock_to_reach">Entsperre dieses Telefon, um deinen Computer zu erreichen.</string>
+    <string name="core_unlock_to_switch">Entsperre dieses Telefon und versuche dann erneut, den Computer zu wechseln.</string>
+    <string name="core_saved_connection_unavailable">Diese gespeicherte Verbindung ist auf diesem Telefon nicht mehr verfügbar. Entferne sie und koppel erneut.</string>
+    <string name="core_pairing_server_changed">Der Server hat sich während der Kopplung geändert. Scanne einen neuen Code und versuche es erneut.</string>
+    <string name="core_pairing_code_used">Dieser Kopplungscode wurde bereits verwendet. Starte die Kopplung auf deinem Computer erneut und scanne den neuen QR-Code.</string>
+    <string name="core_pairing_invalid">Diese Kopplungseinladung ist ungültig. Starte die Kopplung auf deinem Computer erneut.</string>
+    <string name="core_pairing_in_progress">Ein anderer Kopplungsversuch läuft bereits.</string>
+    <string name="core_pairing_storage_unavailable">Dieses Telefon konnte seine gespeicherte Verbindung gerade nicht lesen.</string>
+    <string name="core_different_server">Diese Adresse gehört zu einem anderen Server. Koppel erneut, um fortzufahren.</string>
+    <string name="core_pair_to_open_task">Koppel dieses Telefon mit deinem Computer, um diese Aufgabe zu öffnen.</string>
+    <string name="core_pair_to_open_thread">Koppel dieses Telefon mit deinem Computer, um diesen Thread zu öffnen.</string>
+    <string name="core_thread_gone">Dieser Thread ist nicht mehr auf deinem Computer.</string>
+    <string name="core_agent_gone">Dieser Agent existiert nicht mehr.</string>
+    <string name="core_write_or_attach">Schreibe zuerst eine Nachricht oder hänge eine Datei an.</string>
+    <string name="core_update_for_images">Aktualisiere Seira auf diesem Computer, bevor du Bilder sendest.</string>
+    <string name="core_cannot_send">Diese Nachricht konnte nicht gesendet werden. Versuche es erneut.</string>
+    <string name="core_unreadable_response">Der Computer hat etwas gesendet, das diese App nicht lesen konnte.</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Bei %1$s anmelden</string>
+    <string name="connector_connect">Sicher verbinden</string>
+    <string name="connector_sign_in">Anmelden</string>
+    <string name="connector_open_again">Erneut öffnen</string>
+    <string name="connector_try_again">Erneut versuchen</string>
+    <string name="connector_not_now">Jetzt nicht</string>
+    <string name="connector_hint_app">Melde dich auf der sicheren Verbindungsseite an oder gib dort den App-Schlüssel ein, niemals im Chat.</string>
+    <string name="connector_hint_mcp">Melde dich auf der Seite an, die sich öffnet, niemals im Chat.</string>
+    <string name="connector_waiting">Warten auf die Anmeldung…</string>
+    <string name="connector_requested">Von deinem Bot angefordert</string>
+    <string name="connector_line_connected">%1$s · Verbunden</string>
+    <string name="connector_line_connected_continuing">%1$s · Verbunden · Wird fortgesetzt</string>
+    <string name="connector_line_stopped">%1$s · Gestoppt</string>
+    <string name="connector_continue">Aufgabe fortsetzen</string>
+    <string name="connector_link_not_opened">Falls sich die Seite nicht geöffnet hat, nutze den Link unten.</string>
+    <string name="connector_open_page">Anmeldeseite öffnen</string>
+    <string name="connector_bad_link">Dieser Anmeldelink ist ungültig. Versuch es noch einmal.</string>
+    <string name="signin_title">Anmeldung nötig</string>
+    <string name="signin_where_browser">Melde dich im integrierten Browser von %1$s an. Mit „Öffnen“ gelangst du zu diesem Browser, schon unter deiner Kontrolle.</string>
+    <string name="signin_where_vm">Melde dich auf dem privaten Desktop an, auf dem %1$s arbeitet. „Öffnen“ zeigt ihn mit „Steuerung übernehmen“.</string>
+    <string name="signin_where_cloud">Melde dich auf dem Cloud-Desktop an, auf dem %1$s arbeitet. „Öffnen“ zeigt ihn mit „Steuerung übernehmen“.</string>
+    <string name="signin_where_local">Melde dich auf dem Computer an, auf dem Seira läuft, im Browser, den %1$s verwendet.</string>
+    <string name="signin_private">Du gibst das Passwort selbst auf der Seite ein. Seira sieht es nie.</string>
+    <string name="signin_reason">„%1$s“ — %2$s</string>
+    <string name="signin_line_answered">%1$s · Du hast im Chat geantwortet</string>
+    <string name="signin_line_replaced">%1$s · Durch eine neuere Anfrage ersetzt</string>
+    <string name="signin_line_stopped">%1$s · Gestoppt</string>
+    <string name="signin_settled_done">Bei %1$s angemeldet</string>
+    <string name="signin_settled_declined">Anmeldung bei %1$s abgelehnt</string>
+    <string name="signin_settled_saved">Login für %1$s gespeichert</string>
+    <string name="signin_follow_resumed">%1$s macht weiter</string>
+    <string name="signin_follow_stopped">Gestoppt</string>
+    <string name="signin_follow_failed">Fortsetzen fehlgeschlagen</string>
+    <string name="signin_follow_waiting">Wartet auf Fortsetzung</string>
+    <string name="signin_card_label">Anmeldeanfrage von %1$s für %2$s</string>
+</resources>

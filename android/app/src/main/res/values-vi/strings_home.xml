@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Chào buổi sáng</string>
+    <string name="home_greeting_afternoon">Chào buổi chiều</string>
+    <string name="home_greeting_evening">Chào buổi tối</string>
+    <string name="home_greeting_with_name">%2$s, %1$s</string>
+    <string name="home_more_options">Thêm tùy chọn</string>
+    <string name="home_talk">Nói chuyện</string>
+    <string name="home_status_ready">Sẵn sàng</string>
+    <string name="home_team">Nhóm</string>
+    <plurals name="home_team_see_all">
+        <item quantity="other">Xem tất cả %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Thu gọn</string>
+    <string name="home_chats">Cuộc trò chuyện</string>
+    <string name="home_search_prompt">Tìm cuộc trò chuyện và bot</string>
+    <string name="home_new_chat">Cuộc trò chuyện mới</string>
+    <string name="home_talk_to">Nói chuyện với %1$s</string>
+    <string name="home_team_member_working">%1$s, đang làm việc</string>
+    <string name="home_team_member_waiting">%1$s, đang chờ bạn</string>
+    <string name="home_manage_threads">Quản lý luồng</string>
+    <string name="home_empty_chats_title">Chưa có cuộc trò chuyện nào</string>
+    <string name="home_empty_chats_body">Hãy hỏi Seira bất cứ điều gì. Các cuộc trò chuyện của bạn sẽ hiện ở đây.</string>
+    <string name="home_empty_not_connected_title">Máy tính của bạn chưa được kết nối</string>
+    <string name="home_empty_not_connected_body">Hãy mở Seira trên máy tính. Các cuộc trò chuyện sẽ quay lại khi kết nối.</string>
+    <string name="home_empty_pair_computer">Ghép nối máy tính</string>
+    <string name="home_empty_offline_title">Bạn đang ngoại tuyến</string>
+    <string name="home_empty_offline_body">Hãy kiểm tra kết nối Internet. Seira sẽ tiếp tục từ chỗ bạn đã dừng.</string>
+    <string name="home_empty_all_done_title">Bạn đã xem hết</string>
+    <string name="home_empty_all_done_body">Hiện không có gì đang chờ bạn trả lời.</string>
+    <string name="home_empty_back_to_chats">Quay lại cuộc trò chuyện</string>
+</resources>

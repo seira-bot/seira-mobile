@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">%1$s에 연결할 수 없어요.</string>
+    <string name="core_route_tailscale_off">이 휴대폰에서 Tailscale이 꺼져 있어요. 켠 뒤 다시 시도하세요.</string>
+    <string name="core_route_tailnet_unreachable">이 휴대폰에서 “%1$s”에 연결할 수 없어요. 이 휴대폰에서 Tailscale을 열고 컴퓨터와 같은 계정으로 로그인하세요. 비공개 DNS에 제공업체 이름이 표시되어 있다면 끔 또는 자동으로 설정하세요(설정 → 네트워크 및 인터넷).</string>
+    <string name="core_route_internet_also_failed">인터넷 주소도 응답하지 않았어요. 컴퓨터가 켜져 있는지 확인하세요.</string>
+    <string name="core_route_local_network_blocked">Android가 이 앱의 로컬 네트워크 접근을 차단했어요. 휴대폰 설정에서 이 앱의 로컬 네트워크 접근을 허용한 뒤 다시 시도하세요.</string>
+    <string name="core_route_secure_failed">컴퓨터가 켜져 있고 Seira가 열려 있는지 확인한 뒤 다시 시도하세요.</string>
+    <string name="core_route_tailscale_only">휴대폰이 Tailscale을 통해 %1$s에 연결하지 못했어요. 이 휴대폰에서 컴퓨터와 같은 tailnet에 로그인한 상태로 Tailscale을 켠 뒤 다시 시도하세요.</string>
+    <string name="core_route_same_network">휴대폰이 이 네트워크에서 %1$s에 연결하지 못했어요. 휴대폰을 컴퓨터와 같은 Wi-Fi에 연결하세요. 이미 같은 Wi-Fi라면 컴퓨터의 방화벽이 Seira를 차단하고 있을 수 있어요. Windows PC에서는 네트워크를 프라이빗으로 설정하세요. Linux에서는 Seira가 컴퓨터에 표시하는 방화벽 명령을 실행하세요. 또는 컴퓨터에서 설정 → 원격 접근을 열고 로그인하면 어디서든 휴대폰이 연결할 수 있어요.</string>
+    <string name="core_advice_host_unresolved">“%1$s”을(를) 찾지 못했어요. Tailscale 이름이라면 이 휴대폰이 tailnet에 연결되어 있지 않을 수 있어요.</string>
+    <string name="core_advice_port_closed">컴퓨터에는 연결됐지만 휴대폰 접근이 포트 %1$d에서 응답하지 않아요. Seira → 설정 → 휴대폰을 여세요.</string>
+    <string name="core_advice_no_route">%1$s에서 컴퓨터로 가는 경로가 없어요. 네트워크가 다르거나 방화벽 때문일 수 있어요.</string>
+    <string name="core_advice_offline">오프라인 상태예요.</string>
+    <string name="core_advice_could_not_reach_host">%1$s에 연결할 수 없어요.</string>
+    <string name="core_advice_gateway">%1$s을(를) 통한 경로를 일시적으로 사용할 수 없어요(HTTP %2$d).</string>
+    <string name="core_advice_trying_next">다음으로 %1$s을(를) 시도해요.</string>
+    <string name="core_advice_keeps_retrying">앱이 자동으로 계속 다시 시도해요.</string>
+    <string name="core_lost_connection">연결이 끊어졌어요.</string>
+    <string name="core_could_not_reach_computer">컴퓨터에 연결할 수 없어요.</string>
+    <string name="core_computer_offline">이 컴퓨터가 오프라인이에요.</string>
+    <string name="core_unlock_to_reach">컴퓨터에 연결하려면 휴대폰 잠금을 해제하세요.</string>
+    <string name="core_unlock_to_switch">휴대폰 잠금을 해제한 뒤 컴퓨터 전환을 다시 시도하세요.</string>
+    <string name="core_saved_connection_unavailable">저장된 이 연결은 이 휴대폰에서 더 이상 사용할 수 없어요. 제거한 뒤 다시 연결하세요.</string>
+    <string name="core_pairing_server_changed">연결 중에 서버가 바뀌었어요. 새 코드를 스캔하고 다시 시도하세요.</string>
+    <string name="core_pairing_code_used">이미 사용된 연결 코드예요. 컴퓨터에서 연결을 다시 시작하고 새 QR 코드를 스캔하세요.</string>
+    <string name="core_pairing_invalid">유효하지 않은 연결 초대예요. 컴퓨터에서 연결을 다시 시작하세요.</string>
+    <string name="core_pairing_in_progress">다른 연결 시도가 이미 진행 중이에요.</string>
+    <string name="core_pairing_storage_unavailable">이 휴대폰이 방금 저장된 연결을 읽지 못했어요.</string>
+    <string name="core_different_server">이 주소는 다른 서버의 주소예요. 계속하려면 다시 연결하세요.</string>
+    <string name="core_pair_to_open_task">해당 작업을 열려면 이 휴대폰을 컴퓨터와 연결하세요.</string>
+    <string name="core_pair_to_open_thread">해당 스레드를 열려면 이 휴대폰을 컴퓨터와 연결하세요.</string>
+    <string name="core_thread_gone">해당 스레드가 컴퓨터에 더 이상 없어요.</string>
+    <string name="core_agent_gone">해당 에이전트가 더 이상 존재하지 않아요.</string>
+    <string name="core_write_or_attach">먼저 메시지를 쓰거나 파일을 첨부하세요.</string>
+    <string name="core_update_for_images">이미지를 보내기 전에 이 컴퓨터의 Seira를 업데이트하세요.</string>
+    <string name="core_cannot_send">메시지를 보내지 못했어요. 다시 시도하세요.</string>
+    <string name="core_unreadable_response">컴퓨터가 이 앱에서 읽을 수 없는 응답을 보냈어요.</string>
+</resources>

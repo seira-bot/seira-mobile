@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Aggiornamenti</string>
+    <string name="widget_updates_description">Tutto ciò che mostra l’indicatore Aggiornamenti, con prima le chat che hanno bisogno di te.</string>
+    <string name="widget_all_quiet">Tutto tranquillo</string>
+    <string name="widget_open_to_pair">Apri Seira per collegare</string>
+    <string name="widget_open_to_answer">Apri Seira per rispondere</string>
+    <string name="widget_as_of">Aggiornato alle %1$s</string>
+    <string name="widget_active_count">%1$d attivi</string>
+    <string name="widget_section_needs_you">Hanno bisogno di te</string>
+    <string name="widget_section_working">In corso</string>
+    <string name="widget_section_to_review">Da rivedere</string>
+    <string name="widget_request_changed">Questa richiesta è cambiata. Apri la chat per rivederla.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Esegui un comando: git push</string>
+</resources>

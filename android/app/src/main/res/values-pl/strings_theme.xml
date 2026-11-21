@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">Wygląd</string>
+    <string name="theme_mode_choose">Wybierz wygląd</string>
+    <string name="theme_mode_light">Jasny</string>
+    <string name="theme_mode_dark">Ciemny</string>
+    <string name="theme_mode_auto">Automatyczny</string>
+</resources>

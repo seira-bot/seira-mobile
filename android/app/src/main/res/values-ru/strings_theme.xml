@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">Оформление</string>
+    <string name="theme_mode_choose">Выберите оформление</string>
+    <string name="theme_mode_light">Светлое</string>
+    <string name="theme_mode_dark">Тёмное</string>
+    <string name="theme_mode_auto">Авто</string>
+</resources>

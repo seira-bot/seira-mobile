@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">おはようございます</string>
+    <string name="home_greeting_afternoon">こんにちは</string>
+    <string name="home_greeting_evening">こんばんは</string>
+    <string name="home_greeting_with_name">%1$s、%2$s</string>
+    <string name="home_more_options">その他のオプション</string>
+    <string name="home_talk">話す</string>
+    <string name="home_status_ready">準備完了</string>
+    <string name="home_team">チーム</string>
+    <plurals name="home_team_see_all">
+        <item quantity="other">%1$d 件すべて表示</item>
+    </plurals>
+    <string name="home_team_show_less">表示を減らす</string>
+    <string name="home_chats">チャット</string>
+    <string name="home_search_prompt">チャットとボットを検索</string>
+    <string name="home_new_chat">新しいチャット</string>
+    <string name="home_talk_to">%1$s と話す</string>
+    <string name="home_team_member_working">%1$s、作業中</string>
+    <string name="home_team_member_waiting">%1$s、あなたの対応待ち</string>
+    <string name="home_manage_threads">スレッドを管理</string>
+    <string name="home_empty_chats_title">チャットはまだありません</string>
+    <string name="home_empty_chats_body">Seira になんでも聞いてみましょう。チャットはここに表示されます。</string>
+    <string name="home_empty_not_connected_title">コンピューターに接続されていません</string>
+    <string name="home_empty_not_connected_body">コンピューターで Seira を開いてください。接続されるとチャットが戻ります。</string>
+    <string name="home_empty_pair_computer">コンピューターをペアリング</string>
+    <string name="home_empty_offline_title">オフラインです</string>
+    <string name="home_empty_offline_body">インターネット接続を確認してください。Seira は続きから再開します。</string>
+    <string name="home_empty_all_done_title">すべて確認済みです</string>
+    <string name="home_empty_all_done_body">今、返答待ちのものはありません。</string>
+    <string name="home_empty_back_to_chats">チャットに戻る</string>
+</resources>

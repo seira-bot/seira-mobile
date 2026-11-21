@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Назад в чат</string>
+    <string name="call_screen_live_call">Живой звонок</string>
+    <string name="call_screen_speaking">%1$s говорит</string>
+    <string name="call_screen_listening">Слушаю</string>
+    <string name="call_screen_muted">Ваш микрофон выключен</string>
+    <string name="call_screen_you">Вы</string>
+    <string name="call_screen_mute">Выключить микрофон</string>
+    <string name="call_screen_unmute">Включить микрофон</string>
+    <string name="call_screen_speaker">Динамик</string>
+    <string name="call_screen_captions">Субтитры</string>
+    <string name="call_screen_end">Завершить</string>
+    <string name="call_screen_end_call">Завершить звонок</string>
+    <string name="call_screen_try_again">Повторить</string>
+    <string name="call_screen_close">Закрыть</string>
+    <string name="call_open_call">Открыть звонок</string>
+    <string name="call_service_channel_name">Живые звонки</string>
+    <string name="call_service_channel_description">Показывается, пока идёт живой звонок.</string>
+    <string name="call_service_connecting">Подключение…</string>
+    <string name="call_service_live">Живой звонок</string>
+    <string name="call_service_hang_up">Завершить</string>
+    <string name="call_record_title">Звонок: %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Открыть звонок.</string>
+    <string name="call_record_partial">Часть этого звонка находится в более ранних сообщениях. Загрузите ранние сообщения, чтобы увидеть всё.</string>
+    <string name="call_record_started">Начало: %1$s</string>
+    <string name="call_record_ended">Конец: %1$s</string>
+    <string name="call_record_said">Что вы сказали</string>
+    <string name="call_record_nothing">Для этого звонка не загружено ни одной реплики.</string>
+</resources>

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">채팅으로 돌아가기</string>
+    <string name="call_screen_live_call">실시간 통화</string>
+    <string name="call_screen_speaking">%1$s이(가) 말하고 있어요</string>
+    <string name="call_screen_listening">듣는 중</string>
+    <string name="call_screen_muted">음소거 중이에요</string>
+    <string name="call_screen_you">나</string>
+    <string name="call_screen_mute">음소거</string>
+    <string name="call_screen_unmute">음소거 해제</string>
+    <string name="call_screen_speaker">스피커</string>
+    <string name="call_screen_captions">자막</string>
+    <string name="call_screen_end">종료</string>
+    <string name="call_screen_end_call">통화 종료</string>
+    <string name="call_screen_try_again">다시 시도</string>
+    <string name="call_screen_close">닫기</string>
+    <string name="call_open_call">통화 열기</string>
+    <string name="call_service_channel_name">실시간 통화</string>
+    <string name="call_service_channel_description">실시간 통화가 진행 중일 때 표시돼요.</string>
+    <string name="call_service_connecting">연결 중…</string>
+    <string name="call_service_live">실시간 통화</string>
+    <string name="call_service_hang_up">끊기</string>
+    <string name="call_record_title">%1$s님과의 통화</string>
+    <string name="call_record_open">%1$s, %2$s. 통화를 여세요.</string>
+    <string name="call_record_partial">이 통화의 일부는 이전 메시지에 있어요. 이전 메시지를 불러오면 전체를 볼 수 있어요.</string>
+    <string name="call_record_started">시작 %1$s</string>
+    <string name="call_record_ended">종료 %1$s</string>
+    <string name="call_record_said">내가 한 말</string>
+    <string name="call_record_nothing">이 통화에서 불러온 발언이 없어요.</string>
+</resources>

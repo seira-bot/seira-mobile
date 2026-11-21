@@ -42,6 +42,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -229,7 +230,7 @@ private fun DayCell(
     val ink = MaterialTheme.colorScheme.onSurface
     val description = day.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL).withLocale(locale)) + ", " +
         if (count == 0) stringResource(R.string.mobile_calendar_empty_title)
-        else stringResource(R.string.mobile_calendar_day_runs, count)
+        else pluralStringResource(R.plurals.mobile_calendar_day_runs, count, count)
     Column(
         modifier = modifier
             .clickable(role = Role.Button, onClick = onClick)

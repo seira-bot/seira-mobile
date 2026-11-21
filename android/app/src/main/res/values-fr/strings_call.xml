@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="call_screen_back_to_chat">Retour au chat</string>
+    <string name="call_screen_live_call">Appel Live</string>
+    <string name="call_screen_speaking">%1$s parle</string>
+    <string name="call_screen_listening">Écoute</string>
+    <string name="call_screen_muted">Vous êtes en sourdine</string>
+    <string name="call_screen_you">Vous</string>
+    <string name="call_screen_mute">Couper le micro</string>
+    <string name="call_screen_unmute">Réactiver le micro</string>
+    <string name="call_screen_speaker">Haut-parleur</string>
+    <string name="call_screen_captions">Sous-titres</string>
+    <string name="call_screen_end">Terminer</string>
+    <string name="call_screen_end_call">Terminer l’appel</string>
+    <string name="call_screen_try_again">Réessayer</string>
+    <string name="call_screen_close">Fermer</string>
+    <string name="call_open_call">Ouvrir l’appel</string>
+    <string name="call_service_channel_name">Appels Live</string>
+    <string name="call_service_channel_description">S’affiche pendant un appel Live.</string>
+    <string name="call_service_connecting">Connexion…</string>
+    <string name="call_service_live">Appel Live</string>
+    <string name="call_service_hang_up">Raccrocher</string>
+    <string name="call_record_title">Appel avec %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Ouvrir l’appel.</string>
+    <string name="call_record_partial">Une partie de cet appel se trouve dans des messages plus anciens. Chargez les messages précédents pour tout voir.</string>
+    <string name="call_record_started">Début : %1$s</string>
+    <string name="call_record_ended">Fin : %1$s</string>
+    <string name="call_record_said">Ce que vous avez dit</string>
+    <string name="call_record_nothing">Aucune ligne parlée n’est chargée pour cet appel.</string>
+</resources>

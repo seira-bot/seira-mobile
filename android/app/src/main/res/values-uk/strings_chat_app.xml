@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_app_loading">Відкриття сторінки…</string>
+    <string name="chat_app_failed">Не вдалося відкрити цю сторінку.</string>
+    <string name="chat_app_unavailable">Цю сторінку не можна показати на вашому телефоні.</string>
+    <string name="chat_app_update_webview">Оновіть Android System WebView, щоб відкрити цю сторінку.</string>
+</resources>

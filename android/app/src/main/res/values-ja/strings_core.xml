@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">%1$s に接続できませんでした。</string>
+    <string name="core_route_tailscale_off">このスマホでは Tailscale がオフです。オンにしてから、もう一度お試しください。</string>
+    <string name="core_route_tailnet_unreachable">このスマホから「%1$s」に接続できません。このスマホで Tailscale を開き、コンピューターと同じアカウントでサインインしてください。プライベート DNS にプロバイダー名が表示されている場合は、「オフ」または「自動」に設定してください（設定 → ネットワークとインターネット）。</string>
+    <string name="core_route_internet_also_failed">インターネット経由のアドレスからも応答がありませんでした。コンピューターの電源が入っているか確認してください。</string>
+    <string name="core_route_local_network_blocked">Android が、このアプリからローカルネットワークへのアクセスをブロックしました。スマホの「設定」でこのアプリのローカルネットワークへのアクセスを許可してから、もう一度お試しください。</string>
+    <string name="core_route_secure_failed">コンピューターがスリープしておらず、Seira が開いていることを確認してから、もう一度お試しください。</string>
+    <string name="core_route_tailscale_only">スマホから Tailscale 経由で %1$s に接続できませんでした。このスマホで Tailscale をオンにし、コンピューターと同じ tailnet にサインインしてから、もう一度お試しください。</string>
+    <string name="core_route_same_network">スマホからこのネットワーク上の %1$s に接続できませんでした。スマホをコンピューターと同じ Wi-Fi に接続してください。すでに同じ場合は、コンピューターのファイアウォールが Seira をブロックしている可能性があります。Windows の PC では、ネットワークを「プライベート」に設定してください。Linux では、Seira がコンピューターに表示するファイアウォールのコマンドを実行してください。または、コンピューターの「設定」→「リモートアクセス」を開いてサインインすると、スマホがどこからでも接続できるようになります。</string>
+    <string name="core_advice_host_unresolved">「%1$s」を解決できませんでした。Tailscale の名前の場合、このスマホが tailnet に入っていない可能性があります。</string>
+    <string name="core_advice_port_closed">コンピューターには到達しましたが、ポート %1$d で「スマホ」アクセスが応答していません。Seira の「設定」→「スマホ」を開いてください。</string>
+    <string name="core_advice_no_route">%1$s のコンピューターへの経路がありません。ネットワークが違うか、ファイアウォールの可能性があります。</string>
+    <string name="core_advice_offline">オフラインです。</string>
+    <string name="core_advice_could_not_reach_host">%1$s に接続できませんでした。</string>
+    <string name="core_advice_gateway">%1$s 経由の経路が一時的に利用できません（HTTP %2$d）。</string>
+    <string name="core_advice_trying_next">次に %1$s を試します。</string>
+    <string name="core_advice_keeps_retrying">アプリは自動で再試行を続けます。</string>
+    <string name="core_lost_connection">接続が切れました。</string>
+    <string name="core_could_not_reach_computer">コンピューターに接続できませんでした。</string>
+    <string name="core_computer_offline">このコンピューターはオフラインです。</string>
+    <string name="core_unlock_to_reach">コンピューターに接続するには、このスマホのロックを解除してください。</string>
+    <string name="core_unlock_to_switch">このスマホのロックを解除してから、もう一度コンピューターの切り替えをお試しください。</string>
+    <string name="core_saved_connection_unavailable">保存された接続は、このスマホでは使えなくなりました。削除して、もう一度ペアリングしてください。</string>
+    <string name="core_pairing_server_changed">ペアリング中にサーバーが変わりました。新しいコードをスキャンして、もう一度お試しください。</string>
+    <string name="core_pairing_code_used">そのペアリングコードはすでに使用済みです。コンピューターでもう一度ペアリングを開始し、新しい QR コードをスキャンしてください。</string>
+    <string name="core_pairing_invalid">そのペアリングの招待は無効です。コンピューターでもう一度ペアリングを開始してください。</string>
+    <string name="core_pairing_in_progress">別のペアリングがすでに進行中です。</string>
+    <string name="core_pairing_storage_unavailable">このスマホは、保存された接続をたった今読み取れませんでした。</string>
+    <string name="core_different_server">このアドレスは別のサーバーのものです。続けるには、もう一度ペアリングしてください。</string>
+    <string name="core_pair_to_open_task">そのタスクを開くには、このスマホをコンピューターとペアリングしてください。</string>
+    <string name="core_pair_to_open_thread">そのスレッドを開くには、このスマホをコンピューターとペアリングしてください。</string>
+    <string name="core_thread_gone">そのスレッドは、もうコンピューターにありません。</string>
+    <string name="core_agent_gone">そのエージェントはもう存在しません。</string>
+    <string name="core_write_or_attach">先にメッセージを書くか、ファイルを添付してください。</string>
+    <string name="core_update_for_images">画像を送信する前に、このコンピューターの Seira をアップデートしてください。</string>
+    <string name="core_cannot_send">このメッセージを送信できませんでした。もう一度お試しください。</string>
+    <string name="core_unreadable_response">コンピューターから、このアプリが読み取れないデータが届きました。</string>
+</resources>

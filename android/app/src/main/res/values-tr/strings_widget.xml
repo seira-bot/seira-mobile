@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">Önce %1$s alanını doldur.</string>
+    <string name="widget_send_failed">Gönderilemedi. Tekrar dene.</string>
+    <string name="widget_sending">Gönderiliyor…</string>
+    <string name="widget_sent">Gönderildi</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">Ayrıntıları gizle</string>
+    <string name="widget_other">Diğer</string>
+    <string name="widget_other_hint">Kendi yanıtın</string>
+    <string name="widget_show_image">Resmi göster</string>
+    <string name="widget_chart">Grafik: %1$s</string>
+    <string name="widget_choose">Seç…</string>
+    <string name="widget_not_set">Ayarlanmadı</string>
+    <string name="widget_selected">Seçildi</string>
+</resources>

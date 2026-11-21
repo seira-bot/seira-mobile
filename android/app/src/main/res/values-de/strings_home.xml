@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Guten Morgen</string>
+    <string name="home_greeting_afternoon">Guten Tag</string>
+    <string name="home_greeting_evening">Guten Abend</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">Weitere Optionen</string>
+    <string name="home_talk">Sprechen</string>
+    <string name="home_status_ready">Bereit</string>
+    <string name="home_team">Team</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Alle %1$d anzeigen</item>
+        <item quantity="other">Alle %1$d anzeigen</item>
+    </plurals>
+    <string name="home_team_show_less">Weniger anzeigen</string>
+    <string name="home_chats">Chats</string>
+    <string name="home_search_prompt">Chats und Bots durchsuchen</string>
+    <string name="home_new_chat">Neuer Chat</string>
+    <string name="home_talk_to">Mit %1$s sprechen</string>
+    <string name="home_team_member_working">%1$s, arbeitet</string>
+    <string name="home_team_member_waiting">%1$s, wartet auf dich</string>
+    <string name="home_manage_threads">Threads verwalten</string>
+    <string name="home_empty_chats_title">Noch keine Chats</string>
+    <string name="home_empty_chats_body">Frag Seira, was du willst. Deine Chats erscheinen hier.</string>
+    <string name="home_empty_not_connected_title">Dein Computer ist nicht verbunden</string>
+    <string name="home_empty_not_connected_body">Öffne Seira auf deinem Computer. Deine Chats kommen zurück, sobald er verbunden ist.</string>
+    <string name="home_empty_pair_computer">Computer koppeln</string>
+    <string name="home_empty_offline_title">Du bist offline</string>
+    <string name="home_empty_offline_body">Prüfe deine Internetverbindung. Seira macht dort weiter, wo du aufgehört hast.</string>
+    <string name="home_empty_all_done_title">Alles erledigt</string>
+    <string name="home_empty_all_done_body">Im Moment wartet nichts auf deine Antwort.</string>
+    <string name="home_empty_back_to_chats">Zurück zu den Chats</string>
+</resources>

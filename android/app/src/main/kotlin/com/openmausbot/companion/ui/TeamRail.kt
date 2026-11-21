@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
@@ -120,7 +121,7 @@ internal fun TeamRail(
                         text = if (expanded) {
                             stringResource(R.string.home_team_show_less)
                         } else {
-                            stringResource(R.string.home_team_see_all, members.size)
+                            pluralStringResource(R.plurals.home_team_see_all, members.size, members.size)
                         },
                         style = SeiraType.callout,
                         color = colors.accentText,

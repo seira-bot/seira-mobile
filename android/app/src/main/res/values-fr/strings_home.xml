@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home_greeting_morning">Bonjour</string>
+    <string name="home_greeting_afternoon">Bon après-midi</string>
+    <string name="home_greeting_evening">Bonsoir</string>
+    <string name="home_greeting_with_name">%1$s, %2$s</string>
+    <string name="home_more_options">Plus d’options</string>
+    <string name="home_talk">Parler</string>
+    <string name="home_status_ready">Prêt</string>
+    <string name="home_team">Équipe</string>
+    <plurals name="home_team_see_all">
+        <item quantity="one">Voir les %1$d</item>
+        <item quantity="other">Voir les %1$d</item>
+    </plurals>
+    <string name="home_team_show_less">Afficher moins</string>
+    <string name="home_chats">Chats</string>
+    <string name="home_search_prompt">Rechercher des chats et des bots</string>
+    <string name="home_new_chat">Nouveau chat</string>
+    <string name="home_talk_to">Parler à %1$s</string>
+    <string name="home_team_member_working">%1$s, au travail</string>
+    <string name="home_team_member_waiting">%1$s, vous attend</string>
+    <string name="home_manage_threads">Gérer les fils</string>
+    <string name="home_empty_chats_title">Pas encore de chats</string>
+    <string name="home_empty_chats_body">Demandez ce que vous voulez à Seira. Vos chats apparaissent ici.</string>
+    <string name="home_empty_not_connected_title">Votre ordinateur n’est pas connecté</string>
+    <string name="home_empty_not_connected_body">Ouvrez Seira sur votre ordinateur. Vos chats reviennent dès qu’il se connecte.</string>
+    <string name="home_empty_pair_computer">Associer un ordinateur</string>
+    <string name="home_empty_offline_title">Vous êtes hors ligne</string>
+    <string name="home_empty_offline_body">Vérifiez votre connexion internet. Seira reprend là où vous vous étiez arrêté.</string>
+    <string name="home_empty_all_done_title">Tout est à jour</string>
+    <string name="home_empty_all_done_body">Rien n’attend votre réponse pour le moment.</string>
+    <string name="home_empty_back_to_chats">Retour aux chats</string>
+</resources>

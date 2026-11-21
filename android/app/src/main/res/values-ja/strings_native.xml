@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="notification_action_approve">承認</string>
+    <string name="notification_action_review">確認</string>
+    <string name="notification_action_reply">返信</string>
+    <string name="notification_sender_you">あなた</string>
+    <string name="notification_approved">承認しました</string>
+    <string name="notification_approve_failed">承認できませんでした。チャットを開いて確認してください。</string>
+    <string name="notification_approve_settled">すでに回答済みです。チャットを開いて確認してください。</string>
+    <string name="notification_reply_failed">送信できませんでした。チャットを開いて、もう一度お試しください。</string>
+    <string name="tile_talk_label">話す</string>
+    <string name="shortcut_talk_short">話す</string>
+    <string name="shortcut_talk_long">チーフ・オブ・スタッフと話す</string>
+</resources>

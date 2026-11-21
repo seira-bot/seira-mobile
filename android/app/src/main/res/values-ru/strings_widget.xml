@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">Сначала заполните: %1$s.</string>
+    <string name="widget_send_failed">Не удалось отправить. Повторите попытку.</string>
+    <string name="widget_sending">Отправляем…</string>
+    <string name="widget_sent">Отправлено</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">Скрыть подробности</string>
+    <string name="widget_other">Другое</string>
+    <string name="widget_other_hint">Ваш вариант ответа</string>
+    <string name="widget_show_image">Показать изображение</string>
+    <string name="widget_chart">Диаграмма: %1$s</string>
+    <string name="widget_choose">Выберите…</string>
+    <string name="widget_not_set">Не задано</string>
+    <string name="widget_selected">Выбрано</string>
+</resources>

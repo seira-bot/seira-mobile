@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Não foi possível alcançar %1$s.</string>
+    <string name="core_route_tailscale_off">O Tailscale está desativado neste celular. Ative-o e tente de novo.</string>
+    <string name="core_route_tailnet_unreachable">Este celular não consegue alcançar “%1$s”. Abra o Tailscale neste celular e entre com a mesma conta do computador. Se o DNS privado mostrar o nome de um provedor, defina-o como Desativado ou Automático (Configurações → Rede e internet).</string>
+    <string name="core_route_internet_also_failed">O endereço da internet também não respondeu. Verifique se o computador está ligado.</string>
+    <string name="core_route_local_network_blocked">O Android bloqueou este app de acessar sua rede local. Permita o acesso à rede local para ele nas Configurações do celular e tente de novo.</string>
+    <string name="core_route_secure_failed">Verifique se o computador está ativo com o Seira aberto e tente de novo.</string>
+    <string name="core_route_tailscale_only">Seu celular não conseguiu alcançar %1$s pelo Tailscale. Ative o Tailscale neste celular, conectado à mesma tailnet do computador, e tente de novo.</string>
+    <string name="core_route_same_network">Seu celular não conseguiu alcançar %1$s nesta rede. Coloque o celular no mesmo Wi-Fi do computador. Se já estiver, o firewall do computador pode estar bloqueando o Seira: em um PC com Windows, defina a rede como Privada; no Linux, execute o comando de firewall que o Seira mostra no computador. Ou abra Configurações → Acesso remoto no computador e entre para que o celular possa se conectar de qualquer lugar.</string>
+    <string name="core_advice_host_unresolved">“%1$s” não foi resolvido. Se for um nome do Tailscale, este celular pode não estar na tailnet.</string>
+    <string name="core_advice_port_closed">Chegou ao seu computador, mas o acesso do Celular não responde na porta %1$d — abra Seira → Configurações → Celular.</string>
+    <string name="core_advice_no_route">Sem rota para o seu computador em %1$s — rede diferente ou firewall.</string>
+    <string name="core_advice_offline">Você está offline.</string>
+    <string name="core_advice_could_not_reach_host">Não foi possível alcançar %1$s.</string>
+    <string name="core_advice_gateway">A rota por %1$s está temporariamente indisponível (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Tentando %1$s em seguida.</string>
+    <string name="core_advice_keeps_retrying">O app continua tentando automaticamente.</string>
+    <string name="core_lost_connection">A conexão foi perdida.</string>
+    <string name="core_could_not_reach_computer">Não foi possível alcançar o computador.</string>
+    <string name="core_computer_offline">Este computador está offline.</string>
+    <string name="core_unlock_to_reach">Desbloqueie este celular para alcançar seu computador.</string>
+    <string name="core_unlock_to_switch">Desbloqueie este celular e tente trocar de computador de novo.</string>
+    <string name="core_saved_connection_unavailable">Esta conexão salva não está mais disponível neste celular. Remova-a e pareie de novo.</string>
+    <string name="core_pairing_server_changed">O servidor mudou durante o pareamento. Escaneie um novo código e tente de novo.</string>
+    <string name="core_pairing_code_used">Esse código de pareamento já foi usado. Inicie o pareamento de novo no computador e escaneie o novo QR code.</string>
+    <string name="core_pairing_invalid">Esse convite de pareamento não é válido. Inicie o pareamento de novo no computador.</string>
+    <string name="core_pairing_in_progress">Outra tentativa de pareamento já está em andamento.</string>
+    <string name="core_pairing_storage_unavailable">Este celular não conseguiu ler a conexão salva agora.</string>
+    <string name="core_different_server">Este endereço pertence a outro servidor. Pareie de novo para continuar.</string>
+    <string name="core_pair_to_open_task">Pareie este celular com o seu computador para abrir essa tarefa.</string>
+    <string name="core_pair_to_open_thread">Pareie este celular com o seu computador para abrir essa conversa.</string>
+    <string name="core_thread_gone">Essa conversa não está mais no seu computador.</string>
+    <string name="core_agent_gone">Esse agente não existe mais.</string>
+    <string name="core_write_or_attach">Escreva uma mensagem ou anexe um arquivo primeiro.</string>
+    <string name="core_update_for_images">Atualize o Seira neste computador antes de enviar imagens.</string>
+    <string name="core_cannot_send">Não foi possível enviar esta mensagem. Tente de novo.</string>
+    <string name="core_unreadable_response">O computador enviou algo que este app não conseguiu ler.</string>
+</resources>

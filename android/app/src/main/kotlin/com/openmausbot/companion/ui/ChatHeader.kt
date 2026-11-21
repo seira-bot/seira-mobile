@@ -30,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -214,7 +215,7 @@ private fun ChatNamePill(
     val colors = Seira.colors
     val description = when (chat) {
         is Chat.BotChat -> stringResource(R.string.mobile_a11y_open_chat_settings, chat.name)
-        is Chat.RoomChat -> stringResource(R.string.mobile_a11y_room_header, chat.name, chat.room.memberIds.size)
+        is Chat.RoomChat -> pluralStringResource(R.plurals.mobile_a11y_room_header, chat.room.memberIds.size, chat.name, chat.room.memberIds.size)
     }
     Box(
         modifier = modifier

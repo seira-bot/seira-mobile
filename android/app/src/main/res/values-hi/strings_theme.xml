@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="theme_mode_title">दिखावट</string>
+    <string name="theme_mode_choose">दिखावट चुनें</string>
+    <string name="theme_mode_light">लाइट</string>
+    <string name="theme_mode_dark">डार्क</string>
+    <string name="theme_mode_auto">ऑटो</string>
+</resources>

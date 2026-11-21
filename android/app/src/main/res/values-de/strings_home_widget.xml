@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_updates_label">Updates</string>
+    <string name="widget_updates_description">Alles, was die Updates-Anzeige zeigt, mit den Chats zuerst, die dich brauchen.</string>
+    <string name="widget_all_quiet">Alles ruhig</string>
+    <string name="widget_open_to_pair">Seira zum Koppeln öffnen</string>
+    <string name="widget_open_to_answer">Seira zum Antworten öffnen</string>
+    <string name="widget_as_of">Stand %1$s</string>
+    <string name="widget_active_count">%1$d aktiv</string>
+    <string name="widget_section_needs_you">Braucht dich</string>
+    <string name="widget_section_working">In Arbeit</string>
+    <string name="widget_section_to_review">Zu prüfen</string>
+    <string name="widget_request_changed">Diese Anfrage hat sich geändert. Öffne den Chat, um sie zu prüfen.</string>
+    <string name="widget_preview_name">Scout</string>
+    <string name="widget_preview_line">Befehl ausführen: git push</string>
+</resources>

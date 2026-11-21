@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Accedi a %1$s</string>
+    <string name="connector_connect">Collega in modo sicuro</string>
+    <string name="connector_sign_in">Accedi</string>
+    <string name="connector_open_again">Apri di nuovo</string>
+    <string name="connector_try_again">Riprova</string>
+    <string name="connector_not_now">Non ora</string>
+    <string name="connector_hint_app">Accedi o inserisci la chiave dell’app nella pagina di connessione sicura, mai nella chat.</string>
+    <string name="connector_hint_mcp">Accedi nella pagina che si apre, mai nella chat.</string>
+    <string name="connector_waiting">In attesa dell’accesso…</string>
+    <string name="connector_requested">Richiesto dal tuo bot</string>
+    <string name="connector_line_connected">%1$s · Connesso</string>
+    <string name="connector_line_connected_continuing">%1$s · Connesso · In ripresa</string>
+    <string name="connector_line_stopped">%1$s · Interrotto</string>
+    <string name="connector_continue">Continua attività</string>
+    <string name="connector_link_not_opened">Se la pagina non si è aperta, usa il link qui sotto.</string>
+    <string name="connector_open_page">Apri la pagina di accesso</string>
+    <string name="connector_bad_link">Questo link di accesso non è valido. Riprova.</string>
+    <string name="signin_title">Accesso necessario</string>
+    <string name="signin_where_browser">Accedi nel browser integrato di %1$s. Apri ti porta al suo browser, già sotto il tuo controllo.</string>
+    <string name="signin_where_vm">Accedi sul desktop privato su cui lavora %1$s. Apri lo mostra con Prendi il controllo.</string>
+    <string name="signin_where_cloud">Accedi sul desktop cloud su cui lavora %1$s. Apri lo mostra con Prendi il controllo.</string>
+    <string name="signin_where_local">Accedi sul computer su cui gira Seira, nel browser che usa %1$s.</string>
+    <string name="signin_private">La password la digiti tu nella pagina. Seira non la vede mai.</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · Hai risposto nella chat</string>
+    <string name="signin_line_replaced">%1$s · Sostituita da una richiesta più recente</string>
+    <string name="signin_line_stopped">%1$s · Interrotto</string>
+    <string name="signin_settled_done">Accesso effettuato a %1$s</string>
+    <string name="signin_settled_declined">Accesso a %1$s rifiutato</string>
+    <string name="signin_settled_saved">Accesso salvato per %1$s</string>
+    <string name="signin_follow_resumed">%1$s riprende</string>
+    <string name="signin_follow_stopped">Interrotto</string>
+    <string name="signin_follow_failed">Ripresa non riuscita</string>
+    <string name="signin_follow_waiting">In attesa di riprendere</string>
+    <string name="signin_card_label">Richiesta di accesso da %1$s per %2$s</string>
+</resources>

@@ -2,6 +2,7 @@ package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.R
 
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
 import androidx.compose.foundation.background
@@ -138,15 +139,14 @@ private fun localizedUpdatesHeadline(updates: List<ChatUpdate>): String {
 private fun localizedUpdatesSubline(updates: List<ChatUpdate>): String {
     val first = updates.firstOrNull() ?: return localizedMobileCopy(UpdatesSummary.subline(updates))
     val remaining = updates.size - 1
-    if (remaining == 1) return stringResource(R.string.mobile_updates_one_more)
-    if (remaining > 1) return stringResource(R.string.mobile_updates_more_count, remaining)
+    if (remaining >= 1) return pluralStringResource(R.plurals.mobile_updates_more_count, remaining, remaining)
     return localizedUpdateLine(first.line.ifEmpty { " " })
 }
 
 @Composable
 private fun localizedUpdatesCount(updates: List<ChatUpdate>): String =
     if (updates.isEmpty()) localizedMobileCopy(UpdatesSummary.count(updates))
-    else stringResource(R.string.mobile_updates_active_count, updates.size)
+    else pluralStringResource(R.plurals.mobile_updates_active_count, updates.size, updates.size)
 
 @Composable
 private fun localizedUpdateLine(line: String): String {
@@ -154,7 +154,7 @@ private fun localizedUpdateLine(line: String): String {
         return stringResource(R.string.mobile_updates_queued_waiting)
     }
     val queued = QUEUED_MESSAGES.matchEntire(line)?.groupValues?.getOrNull(1)?.toIntOrNull()
-    if (queued != null) return stringResource(R.string.mobile_updates_queued_count, queued)
+    if (queued != null) return pluralStringResource(R.plurals.mobile_updates_queued_count, queued, queued)
     return localizedMobileCopy(line)
 }
 

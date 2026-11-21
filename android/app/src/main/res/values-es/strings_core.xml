@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">No se pudo conectar con %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale está desactivado en este teléfono. Actívalo e inténtalo de nuevo.</string>
+    <string name="core_route_tailnet_unreachable">Este teléfono no puede conectar con «%1$s». Abre Tailscale en este teléfono e inicia sesión con la misma cuenta que en el ordenador. Si DNS privado muestra el nombre de un proveedor, ponlo en Desactivado o Automático (Ajustes → Redes e Internet).</string>
+    <string name="core_route_internet_also_failed">La dirección de internet tampoco respondió. Comprueba que el ordenador esté encendido.</string>
+    <string name="core_route_local_network_blocked">Android bloqueó a esta app el acceso a tu red local. Permite el acceso a la red local para ella en los Ajustes del teléfono e inténtalo de nuevo.</string>
+    <string name="core_route_secure_failed">Asegúrate de que el ordenador esté activo con Seira abierta e inténtalo de nuevo.</string>
+    <string name="core_route_tailscale_only">Tu teléfono no pudo conectar con %1$s por Tailscale. Activa Tailscale en este teléfono, con sesión iniciada en la misma tailnet que el ordenador, e inténtalo de nuevo.</string>
+    <string name="core_route_same_network">Tu teléfono no pudo conectar con %1$s en esta red. Pon el teléfono en la misma red Wi-Fi que el ordenador. Si ya lo está, puede que el cortafuegos del ordenador esté bloqueando Seira: en un PC con Windows, pon su red como Privada; en Linux, ejecuta el comando de cortafuegos que Seira muestra en el ordenador. O abre Ajustes → Acceso remoto en el ordenador e inicia sesión para que el teléfono pueda conectarse desde cualquier lugar.</string>
+    <string name="core_advice_host_unresolved">«%1$s» no se resolvió. Si es un nombre de Tailscale, puede que este teléfono no esté en la tailnet.</string>
+    <string name="core_advice_port_closed">Se llegó a tu ordenador, pero el acceso del teléfono no responde en el puerto %1$d: abre Seira → Ajustes → Teléfono.</string>
+    <string name="core_advice_no_route">No hay ruta a tu ordenador en %1$s: red distinta o cortafuegos.</string>
+    <string name="core_advice_offline">No tienes conexión.</string>
+    <string name="core_advice_could_not_reach_host">No se pudo conectar con %1$s.</string>
+    <string name="core_advice_gateway">La ruta a través de %1$s no está disponible temporalmente (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Probando %1$s a continuación.</string>
+    <string name="core_advice_keeps_retrying">La app sigue reintentando automáticamente.</string>
+    <string name="core_lost_connection">Se perdió la conexión.</string>
+    <string name="core_could_not_reach_computer">No se pudo conectar con el ordenador.</string>
+    <string name="core_computer_offline">Este ordenador no tiene conexión.</string>
+    <string name="core_unlock_to_reach">Desbloquea este teléfono para conectar con tu ordenador.</string>
+    <string name="core_unlock_to_switch">Desbloquea este teléfono y vuelve a intentar cambiar de ordenador.</string>
+    <string name="core_saved_connection_unavailable">Esta conexión guardada ya no está disponible en este teléfono. Quítala y vincula de nuevo.</string>
+    <string name="core_pairing_server_changed">El servidor cambió durante la vinculación. Escanea un código nuevo e inténtalo de nuevo.</string>
+    <string name="core_pairing_code_used">Ese código de vinculación ya se usó. Inicia de nuevo la vinculación en tu ordenador y escanea el código QR nuevo.</string>
+    <string name="core_pairing_invalid">Esa invitación de vinculación no es válida. Inicia de nuevo la vinculación en tu ordenador.</string>
+    <string name="core_pairing_in_progress">Ya hay otro intento de vinculación en curso.</string>
+    <string name="core_pairing_storage_unavailable">Este teléfono no pudo leer su conexión guardada hace un momento.</string>
+    <string name="core_different_server">Esta dirección pertenece a otro servidor. Vincula de nuevo para continuar.</string>
+    <string name="core_pair_to_open_task">Vincula este teléfono con tu ordenador para abrir esa tarea.</string>
+    <string name="core_pair_to_open_thread">Vincula este teléfono con tu ordenador para abrir ese hilo.</string>
+    <string name="core_thread_gone">Ese hilo ya no está en tu ordenador.</string>
+    <string name="core_agent_gone">Ese agente ya no existe.</string>
+    <string name="core_write_or_attach">Escribe un mensaje o adjunta un archivo primero.</string>
+    <string name="core_update_for_images">Actualiza Seira en este ordenador antes de enviar imágenes.</string>
+    <string name="core_cannot_send">No se pudo enviar este mensaje. Inténtalo de nuevo.</string>
+    <string name="core_unreadable_response">El ordenador envió algo que esta app no pudo leer.</string>
+</resources>

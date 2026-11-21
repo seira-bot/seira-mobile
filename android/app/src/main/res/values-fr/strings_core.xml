@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_route_couldnt_reach_lead">Impossible de joindre %1$s.</string>
+    <string name="core_route_tailscale_off">Tailscale est désactivé sur ce téléphone. Activez-le, puis réessayez.</string>
+    <string name="core_route_tailnet_unreachable">Ce téléphone ne parvient pas à joindre « %1$s ». Ouvrez Tailscale sur ce téléphone et connectez-vous avec le même compte que l’ordinateur. Si le DNS privé affiche un nom de fournisseur, réglez-le sur Désactivé ou Automatique (Paramètres → Réseau et Internet).</string>
+    <string name="core_route_internet_also_failed">L’adresse Internet n’a pas répondu non plus. Vérifiez que l’ordinateur est allumé.</string>
+    <string name="core_route_local_network_blocked">Android a empêché cette app d’accéder à votre réseau local. Autorisez-lui l’accès au réseau local dans les paramètres du téléphone, puis réessayez.</string>
+    <string name="core_route_secure_failed">Assurez-vous que l’ordinateur est allumé et que Seira est ouverte, puis réessayez.</string>
+    <string name="core_route_tailscale_only">Votre téléphone n’a pas pu joindre %1$s via Tailscale. Activez Tailscale sur ce téléphone, connecté au même tailnet que l’ordinateur, puis réessayez.</string>
+    <string name="core_route_same_network">Votre téléphone n’a pas pu joindre %1$s sur ce réseau. Placez le téléphone sur le même Wi-Fi que l’ordinateur. S’il y est déjà, le pare-feu de l’ordinateur bloque peut-être Seira : sur un PC Windows, réglez son réseau sur Privé ; sous Linux, exécutez la commande de pare-feu que Seira affiche sur l’ordinateur. Ou ouvrez Paramètres → Accès à distance sur l’ordinateur et connectez-vous pour que le téléphone puisse se connecter de n’importe où.</string>
+    <string name="core_advice_host_unresolved">« %1$s » n’a pas pu être résolu. S’il s’agit d’un nom Tailscale, ce téléphone n’est peut-être pas sur le tailnet.</string>
+    <string name="core_advice_port_closed">Votre ordinateur est joignable, mais l’accès Téléphone ne répond pas sur le port %1$d — ouvrez Seira → Paramètres → Téléphone.</string>
+    <string name="core_advice_no_route">Aucune route vers votre ordinateur à l’adresse %1$s — réseau différent ou pare-feu.</string>
+    <string name="core_advice_offline">Vous êtes hors ligne.</string>
+    <string name="core_advice_could_not_reach_host">Impossible de joindre %1$s.</string>
+    <string name="core_advice_gateway">La route via %1$s est temporairement indisponible (HTTP %2$d).</string>
+    <string name="core_advice_trying_next">Essai suivant : %1$s.</string>
+    <string name="core_advice_keeps_retrying">L’app réessaie automatiquement.</string>
+    <string name="core_lost_connection">Connexion perdue.</string>
+    <string name="core_could_not_reach_computer">Impossible de joindre l’ordinateur.</string>
+    <string name="core_computer_offline">Cet ordinateur est hors ligne.</string>
+    <string name="core_unlock_to_reach">Déverrouillez ce téléphone pour joindre votre ordinateur.</string>
+    <string name="core_unlock_to_switch">Déverrouillez ce téléphone, puis réessayez de changer d’ordinateur.</string>
+    <string name="core_saved_connection_unavailable">Cette connexion enregistrée n’est plus disponible sur ce téléphone. Retirez-la et associez-le à nouveau.</string>
+    <string name="core_pairing_server_changed">Le serveur a changé pendant l’association. Scannez un nouveau code et réessayez.</string>
+    <string name="core_pairing_code_used">Ce code d’association a déjà été utilisé. Relancez l’association sur votre ordinateur et scannez à nouveau le nouveau code QR.</string>
+    <string name="core_pairing_invalid">Cette invitation d’association n’est pas valide. Relancez l’association sur votre ordinateur.</string>
+    <string name="core_pairing_in_progress">Une autre tentative d’association est déjà en cours.</string>
+    <string name="core_pairing_storage_unavailable">Ce téléphone n’a pas pu lire sa connexion enregistrée à l’instant.</string>
+    <string name="core_different_server">Cette adresse appartient à un autre serveur. Associez-le à nouveau pour continuer.</string>
+    <string name="core_pair_to_open_task">Associez ce téléphone à votre ordinateur pour ouvrir cette tâche.</string>
+    <string name="core_pair_to_open_thread">Associez ce téléphone à votre ordinateur pour ouvrir ce fil.</string>
+    <string name="core_thread_gone">Ce fil n’existe plus sur votre ordinateur.</string>
+    <string name="core_agent_gone">Cet agent n’existe plus.</string>
+    <string name="core_write_or_attach">Écrivez d’abord un message ou joignez un fichier.</string>
+    <string name="core_update_for_images">Mettez à jour Seira sur cet ordinateur avant d’envoyer des images.</string>
+    <string name="core_cannot_send">Impossible d’envoyer ce message. Réessayez.</string>
+    <string name="core_unreadable_response">L’ordinateur a envoyé quelque chose que cette app n’a pas pu lire.</string>
+</resources>

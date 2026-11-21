@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 
 import androidx.compose.animation.AnimatedVisibility
@@ -632,7 +633,7 @@ private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String
         } ?: stringResource(R.string.mobile_routine_date_unavailable)
 
         RoutineSchedule.Kind.INTERVAL -> schedule.everyMinutes?.let { minutes ->
-            val cadence = stringResource(R.string.mobile_routine_every_minutes, minutes)
+            val cadence = pluralStringResource(R.plurals.mobile_routine_every_minutes, minutes, minutes)
             schedule.anchorAt?.let { anchor ->
                 stringResource(
                     R.string.mobile_routine_interval_with_start,

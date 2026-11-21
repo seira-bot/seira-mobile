@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_required">Спершу заповніть: %1$s.</string>
+    <string name="widget_send_failed">Не вдалося надіслати. Спробуйте ще раз.</string>
+    <string name="widget_sending">Надсилаємо…</string>
+    <string name="widget_sent">Надіслано</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">Сховати подробиці</string>
+    <string name="widget_other">Інше</string>
+    <string name="widget_other_hint">Ваш варіант відповіді</string>
+    <string name="widget_show_image">Показати зображення</string>
+    <string name="widget_chart">Діаграма: %1$s</string>
+    <string name="widget_choose">Виберіть…</string>
+    <string name="widget_not_set">Не задано</string>
+    <string name="widget_selected">Вибрано</string>
+</resources>

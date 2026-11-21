@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">Đăng nhập vào %1$s</string>
+    <string name="connector_connect">Kết nối an toàn</string>
+    <string name="connector_sign_in">Đăng nhập</string>
+    <string name="connector_open_again">Mở lại</string>
+    <string name="connector_try_again">Thử lại</string>
+    <string name="connector_not_now">Để sau</string>
+    <string name="connector_hint_app">Hãy đăng nhập hoặc nhập khóa ứng dụng trên trang kết nối an toàn, không nhập trong cuộc trò chuyện.</string>
+    <string name="connector_hint_mcp">Hãy đăng nhập trên trang vừa mở, không đăng nhập trong cuộc trò chuyện.</string>
+    <string name="connector_waiting">Đang chờ đăng nhập…</string>
+    <string name="connector_requested">Do bot của bạn yêu cầu</string>
+    <string name="connector_line_connected">%1$s · Đã kết nối</string>
+    <string name="connector_line_connected_continuing">%1$s · Đã kết nối · Đang tiếp tục</string>
+    <string name="connector_line_stopped">%1$s · Đã dừng</string>
+    <string name="connector_continue">Tiếp tục tác vụ</string>
+    <string name="connector_link_not_opened">Nếu trang không mở, hãy dùng liên kết bên dưới.</string>
+    <string name="connector_open_page">Mở trang đăng nhập</string>
+    <string name="connector_bad_link">Liên kết đăng nhập này không hợp lệ. Hãy thử lại.</string>
+    <string name="signin_title">Cần đăng nhập</string>
+    <string name="signin_where_browser">Hãy đăng nhập trong trình duyệt tích hợp của %1$s. Mở sẽ đưa bạn đến trình duyệt đó, bạn đã có quyền điều khiển.</string>
+    <string name="signin_where_vm">Hãy đăng nhập trên màn hình riêng mà %1$s đang làm việc. Mở sẽ hiển thị màn hình đó cùng nút Tiếp quản.</string>
+    <string name="signin_where_cloud">Hãy đăng nhập trên màn hình đám mây mà %1$s đang làm việc. Mở sẽ hiển thị màn hình đó cùng nút Tiếp quản.</string>
+    <string name="signin_where_local">Hãy đăng nhập trên máy tính đang chạy Seira, trong trình duyệt mà %1$s đang dùng.</string>
+    <string name="signin_private">Bạn tự nhập mật khẩu vào trang. Seira không bao giờ nhìn thấy mật khẩu.</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · Bạn đã trả lời trong cuộc trò chuyện</string>
+    <string name="signin_line_replaced">%1$s · Đã được thay bằng yêu cầu mới hơn</string>
+    <string name="signin_line_stopped">%1$s · Đã dừng</string>
+    <string name="signin_settled_done">Đã đăng nhập vào %1$s</string>
+    <string name="signin_settled_declined">Đã từ chối đăng nhập vào %1$s</string>
+    <string name="signin_settled_saved">Đã lưu thông tin đăng nhập cho %1$s</string>
+    <string name="signin_follow_resumed">%1$s đang tiếp tục</string>
+    <string name="signin_follow_stopped">Đã dừng</string>
+    <string name="signin_follow_failed">Không thể tiếp tục</string>
+    <string name="signin_follow_waiting">Đang chờ để tiếp tục</string>
+    <string name="signin_card_label">Yêu cầu đăng nhập từ %1$s cho %2$s</string>
+</resources>
