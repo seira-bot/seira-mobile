@@ -123,7 +123,7 @@ private class SecretEntry(prepared: PreparedPhoneCredential?) {
 }
 
 private sealed interface SecretCardError {
-    data class Copy(@StringRes val id: Int) : SecretCardError
+    data class Copy(@param:StringRes val id: Int) : SecretCardError
     data class Words(val text: String) : SecretCardError
 }
 
