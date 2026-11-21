@@ -17,6 +17,8 @@ dependencies {
     api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     api("com.squareup.okhttp3:okhttp:4.12.0")
+    // HPKE for the credential card. Lightweight API only: no JCA provider is registered.
+    implementation("org.bouncycastle:bcprov-jdk18on:1.87")
 
     testImplementation(kotlin("test"))
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")

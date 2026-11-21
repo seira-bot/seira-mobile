@@ -180,6 +180,12 @@ class Session(
     /** QR credentials authoritatively rejected or redeemed — never start a new request (§6). */
     private val spentQrCredentials = mutableSetOf<String>()
 
+    /** Sealed credential cards by request, in memory only, so a retry resends the same bytes. */
+    private val preparedCredentials = mutableMapOf<String, PreparedPhoneCredential>()
+    private val _credentialResetGeneration = MutableStateFlow(0)
+    /** Grows when the phone leaves the screen or the computer: a credential card then clears what was typed. */
+    val credentialResetGeneration: StateFlow<Int> = _credentialResetGeneration.asStateFlow()
+
     /**
      * One pairing attempt at a time, plus the invite that arrived during it.
      *
@@ -354,6 +360,8 @@ class Session(
                 name = outcome.response.environment.label.ifEmpty { invited.name },
                 serverEnvironmentId = outcome.response.environment.environmentId,
                 serverScopes = outcome.response.session.scopes,
+                secretPublicKey = null,
+                companionDeviceId = null,
             ) to outcome.response.token
         }
         val outcome = pairFn(invited, credential, deviceName, requestId)
@@ -366,6 +374,7 @@ class Session(
         if (paired.serverName.isNotEmpty()) stored = stored.copy(name = paired.serverName)
         stored = stored.applyingPairingAdvertisement(paired.hosts, paired.endpoints)
         stored = winner?.let(stored::promoting) ?: stored.promoting(stored.host)
+        stored = stored.copy(companionDeviceId = paired.device.id)
         return stored to paired.token
     }
 
@@ -645,6 +654,7 @@ class Session(
                 val leaving = registry.connection(id)
                 val leavingToken = leaving?.takeIf { it.pairedWithServer }?.let { storedTokenOrNull(it.id) }
                 if (wasActive) stopActiveRuntimeLocked()
+                forgetPreparedCredentials { it.connectionId == id }
                 if (leaving != null && leavingToken != null) revokeServerSession(leaving, leavingToken)
                 tokenStore.remove(id)
                 registry = registry.remove(id)
@@ -684,6 +694,8 @@ class Session(
     }
 
     private fun stopActiveRuntimeLocked() {
+        forgetPreparedCredentials { true }
+        _credentialResetGeneration.update { it + 1 }
         attachmentDownloads.clear()
         streamGeneration += 1
         streamJob?.cancel()
@@ -1042,6 +1054,7 @@ class Session(
 
     /** Called when the app leaves the screen — deliberate disconnect so the cursor is known. */
     fun disconnect() {
+        _credentialResetGeneration.update { it + 1 }
         streamJob?.cancel()
         streamJob = null
         endpointRefreshJob?.cancel()
@@ -2035,6 +2048,118 @@ class Session(
         }
     }
 
+    /**
+     * Seal [value] for the computer that asked, on the caller's thread, so no coroutine
+     * holds the value. A request already sealed returns its kept envelope unchanged.
+     *
+     * Security invariant: nothing is sealed unless this pairing has the computer's key and
+     * the route in use protects credentials.
+     */
+    fun prepareCredential(value: String, chat: Chat, message: Message): PreparedPhoneCredential {
+        val activeClient = client ?: throw APIError.Transport(OFFLINE_MESSAGE)
+        val connection = _connection.value ?: throw APIError.Transport(OFFLINE_MESSAGE)
+        val secret = message.secret
+        val publicKey = connection.secretPublicKey
+        val deviceId = connection.companionDeviceId
+        val target = secret?.target?.takeIf(String::isNotEmpty)
+        val requestKey = secret?.requestKey?.takeIf(String::isNotEmpty)
+        if (!connection.pairedForSecrets || publicKey == null || deviceId == null || target == null || requestKey == null) {
+            throw PhoneSecretException(PhoneSecretException.Reason.UNAVAILABLE)
+        }
+        if (!connection.dialsProtectedRoute || !activeClient.connection.dialsProtectedRoute) {
+            throw PhoneSecretException(PhoneSecretException.Reason.INSECURE_TRANSPORT)
+        }
+        if (target in PhoneSecretCrypto.COMPUTER_ONLY_TARGETS) {
+            throw PhoneSecretException(PhoneSecretException.Reason.COMPUTER_ONLY)
+        }
+        val botId = credentialBotId(chat, message)
+            ?: throw PhoneSecretException(PhoneSecretException.Reason.INVALID_REQUEST)
+        val keyId = PhoneSecretCrypto.publicKeyId(publicKey)
+            ?: throw PhoneSecretException(PhoneSecretException.Reason.INVALID_PUBLIC_KEY)
+        val context = PhoneSecretRequestContext(deviceId, botId, chat.threadId, message.id, target, requestKey)
+        val identity = credentialIdentity(connection.id, keyId, context)
+        synchronized(preparedCredentials) { preparedCredentials[identity] }?.let { return it }
+        val envelope = PhoneSecretCrypto.encrypt(value, publicKey, context)
+        val prepared = PreparedPhoneCredential(identity, connection.id, botId, message.id, envelope)
+        return synchronized(preparedCredentials) { preparedCredentials.getOrPut(identity) { prepared } }
+    }
+
+    /** The envelope kept for this card on the current computer, if any. */
+    fun preparedCredential(chat: Chat, message: Message): PreparedPhoneCredential? {
+        val connection = _connection.value ?: return null
+        val secret = message.secret ?: return null
+        val deviceId = connection.companionDeviceId ?: return null
+        val keyId = connection.secretPublicKey?.let(PhoneSecretCrypto::publicKeyId) ?: return null
+        val botId = credentialBotId(chat, message) ?: return null
+        val context = PhoneSecretRequestContext(
+            deviceId,
+            botId,
+            chat.threadId,
+            message.id,
+            secret.target ?: return null,
+            secret.requestKey ?: return null,
+        )
+        val identity = credentialIdentity(connection.id, keyId, context)
+        return synchronized(preparedCredentials) { preparedCredentials[identity] }
+    }
+
+    internal val preparedCredentialCount: Int
+        get() = synchronized(preparedCredentials) { preparedCredentials.size }
+
+    fun discardPreparedCredential(prepared: PreparedPhoneCredential) {
+        synchronized(preparedCredentials) {
+            if (preparedCredentials[prepared.identity] === prepared) preparedCredentials.remove(prepared.identity)
+        }
+    }
+
+    /**
+     * Send a sealed card to the computer it was sealed for. Throws [APIError] with the
+     * computer's own words, or [PhoneSecretException] when the pairing or route changed.
+     */
+    suspend fun provideCredential(prepared: PreparedPhoneCredential): CredentialProvided {
+        val activeClient = client ?: throw APIError.Transport(OFFLINE_MESSAGE)
+        val envelope = prepared.envelope
+        val connection = _connection.value?.takeIf {
+            it.id == prepared.connectionId &&
+                it.pairedForSecrets &&
+                it.companionDeviceId == envelope.deviceId &&
+                it.secretPublicKey?.let(PhoneSecretCrypto::publicKeyId) == envelope.keyId
+        } ?: throw PhoneSecretException(PhoneSecretException.Reason.UNAVAILABLE)
+        if (!connection.dialsProtectedRoute || !activeClient.connection.dialsProtectedRoute) {
+            throw PhoneSecretException(PhoneSecretException.Reason.INSECURE_TRANSPORT)
+        }
+        return try {
+            activeClient.provideCredential(prepared.botId, prepared.messageId, envelope)
+        } catch (error: APIError) {
+            if (error.isUnauthorized) {
+                gate.withLock {
+                    if (_connection.value?.id == prepared.connectionId) _status.value = Status.Unauthorized
+                }
+            }
+            throw error
+        }
+    }
+
+    private fun credentialBotId(chat: Chat, message: Message): String? = when (chat) {
+        is Chat.BotChat -> chat.bot.id
+        is Chat.RoomChat -> message.from?.botId
+    }
+
+    private fun credentialIdentity(connectionId: String, keyId: String, context: PhoneSecretRequestContext): String =
+        listOf(
+            connectionId,
+            keyId,
+            context.botId,
+            context.threadId,
+            context.messageId,
+            context.target,
+            context.requestKey,
+        ).joinToString("\u0000")
+
+    private fun forgetPreparedCredentials(predicate: (PreparedPhoneCredential) -> Boolean) {
+        synchronized(preparedCredentials) { preparedCredentials.values.removeAll(predicate) }
+    }
+
     suspend fun markRead(chat: Chat) {
         perform(quietly = true) {
             when (chat) {
@@ -2583,6 +2708,31 @@ class Session(
             null
         }
     }
+
+    private suspend fun <T> cardCall(block: suspend (CompanionClient) -> T): Result<T> {
+        val activeClient = client ?: return Result.failure(APIError.BadUrl)
+        return try {
+            Result.success(block(activeClient))
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            Result.failure(error)
+        }
+    }
+
+    suspend fun authorizeConnectorCard(botId: String, messageId: String, threadId: String): Result<URI> =
+        cardCall { it.authorizeConnectorCard(botId, messageId, threadId) }
+
+    suspend fun connectorCardStatus(botId: String, messageId: String, threadId: String): Result<ConnectorCardStatus> =
+        cardCall { it.connectorCardStatus(botId, messageId, threadId) }
+
+    suspend fun resumeConnectorCard(botId: String, messageId: String, threadId: String): Result<Unit> =
+        cardCall { it.resumeConnectorCard(botId, messageId, threadId) }
+
+    suspend fun dismissConnectorCard(botId: String, messageId: String, threadId: String): Result<Unit> =
+        cardCall { it.dismissConnectorCard(botId, messageId, threadId) }
+
+    suspend fun answerSignIn(botId: String, messageId: String, threadId: String, choice: SignInChoice): Result<Unit> =
+        cardCall { it.answerSignIn(botId, messageId, threadId, choice) }
 
     private val _aiUsageHiddenFor = MutableStateFlow<String?>(null)
     val aiUsageHiddenFor: StateFlow<String?> = _aiUsageHiddenFor.asStateFlow()

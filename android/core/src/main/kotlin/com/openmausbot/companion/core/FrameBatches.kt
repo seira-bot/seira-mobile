@@ -115,7 +115,7 @@ private sealed interface WindowRead {
 internal val Frame.closesBatchWindow: Boolean
     get() = when (this) {
         is Frame.Notify, is Frame.LiveCall -> true
-        // a new approval or question card
+        // a new approval, question or credential card
         is Frame.Message -> message.opensAsk
         is Frame.MessagePatch -> message.opensAsk
         is Frame.Runtime -> event.type in WINDOW_CLOSING_RUNTIME_TYPES
@@ -123,7 +123,7 @@ internal val Frame.closesBatchWindow: Boolean
     }
 
 private val Message.opensAsk: Boolean
-    get() = card?.isPending == true
+    get() = card?.isPending == true || secret?.isPending == true
 
 private val WINDOW_CLOSING_RUNTIME_TYPES =
     setOf("request.opened", "request.resolved", "runtime.error", "turn.failed", "turn.aborted")

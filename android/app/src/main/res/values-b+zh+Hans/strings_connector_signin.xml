@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="connector_title_mcp">登录 %1$s</string>
+    <string name="connector_connect">安全连接</string>
+    <string name="connector_sign_in">登录</string>
+    <string name="connector_open_again">再次打开</string>
+    <string name="connector_try_again">重试</string>
+    <string name="connector_not_now">暂不</string>
+    <string name="connector_hint_app">请在安全连接页面登录或输入应用密钥，不要在聊天中输入。</string>
+    <string name="connector_hint_mcp">请在打开的页面中登录，不要在聊天中登录。</string>
+    <string name="connector_waiting">正在等待登录…</string>
+    <string name="connector_requested">由你的机器人请求</string>
+    <string name="connector_line_connected">%1$s · 已连接</string>
+    <string name="connector_line_connected_continuing">%1$s · 已连接 · 正在继续</string>
+    <string name="connector_line_stopped">%1$s · 已停止</string>
+    <string name="connector_continue">继续任务</string>
+    <string name="connector_link_not_opened">如果页面没有打开，请使用下方的链接。</string>
+    <string name="connector_open_page">打开登录页面</string>
+    <string name="connector_bad_link">此登录链接无效。请重试。</string>
+    <string name="signin_title">需要登录</string>
+    <string name="signin_where_browser">请在 %1$s 的内置浏览器中登录。点按“打开”会进入它的浏览器，并已由你控制。</string>
+    <string name="signin_where_vm">请在 %1$s 工作的私人桌面上登录。点按“打开”会显示该桌面，并带有“接管”。</string>
+    <string name="signin_where_cloud">请在 %1$s 工作的云桌面上登录。点按“打开”会显示该桌面，并带有“接管”。</string>
+    <string name="signin_where_local">请在运行 Seira 的电脑上，使用 %1$s 正在用的浏览器登录。</string>
+    <string name="signin_private">密码由你自己输入到页面中，Seira 不会看到。</string>
+    <string name="signin_reason">“%1$s” — %2$s</string>
+    <string name="signin_line_answered">%1$s · 你已在聊天中回答</string>
+    <string name="signin_line_replaced">%1$s · 已被更新的请求取代</string>
+    <string name="signin_line_stopped">%1$s · 已停止</string>
+    <string name="signin_settled_done">已登录 %1$s</string>
+    <string name="signin_settled_declined">已拒绝登录 %1$s</string>
+    <string name="signin_settled_saved">已保存 %1$s 的登录信息</string>
+    <string name="signin_follow_resumed">%1$s 正在继续</string>
+    <string name="signin_follow_stopped">已停止</string>
+    <string name="signin_follow_failed">继续失败</string>
+    <string name="signin_follow_waiting">等待继续</string>
+    <string name="signin_card_label">%1$s 对 %2$s 的登录请求</string>
+</resources>

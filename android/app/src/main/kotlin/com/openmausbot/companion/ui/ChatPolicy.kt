@@ -500,7 +500,7 @@ object MessageActions {
     /** The text worth putting on the clipboard, or null when there is none. */
     fun copyableText(message: Message): String? = when (message.kind) {
         Message.Kind.TEXT, Message.Kind.APP, Message.Kind.WIDGET, Message.Kind.GOAL_RUN, Message.Kind.BURST,
-        Message.Kind.CALL, Message.Kind.UNKNOWN -> message.text
+        Message.Kind.CALL, Message.Kind.CONNECTOR, Message.Kind.SIGNIN, Message.Kind.UNKNOWN -> message.text
             ?.let { message.webhookContent?.task ?: AttachedMessageContent.parse(it).text }
             ?.takeIf { it.isNotBlank() }
         // An approval card is worth copying for what it is asking to do.
@@ -509,7 +509,7 @@ object MessageActions {
             ?.takeIf { it.isNotEmpty() }
             ?.joinToString("\n\n")
         // A tool chip is context, a screenshot is pixels, a digest is a log line.
-        Message.Kind.ACTIVITY, Message.Kind.SCREEN, Message.Kind.DIGEST -> null
+        Message.Kind.ACTIVITY, Message.Kind.SCREEN, Message.Kind.DIGEST, Message.Kind.SECRET -> null
         Message.Kind.COMPACTION -> message.compaction?.summary ?: message.text?.takeIf { it.isNotBlank() }
         // The run's report and error are the parts worth keeping; the headline without either.
         Message.Kind.ROUTINE_RUN -> message.routineRun
