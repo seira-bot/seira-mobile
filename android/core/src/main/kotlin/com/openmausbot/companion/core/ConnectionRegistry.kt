@@ -44,15 +44,16 @@ data class ConnectionRegistry(
     }
 
     /**
-     * The saved pairing a new pairing replaces: one with the same identity, or one that shares
-     * a real route and carries no identity that differs. Two servers behind one address, or two
-     * computers paired only through the relay, stay two computers.
+     * The saved pairing a new pairing replaces: one that shares a real route and carries no
+     * identity that differs. Two servers behind one address, or two computers paired only
+     * through the relay, stay two computers. A claimed identity alone never matches: a QR or
+     * a server can claim any identity.
      */
     fun matchingConnection(candidate: Connection): Connection? {
         val candidateRoutes = candidate.matchableRoutes()
+        if (candidateRoutes.isEmpty()) return null
         return connections.firstOrNull { saved ->
-            !saved.identityDiffersFrom(candidate) &&
-                (saved.identityEquals(candidate) || saved.matchableRoutes().any { it in candidateRoutes })
+            saved.matchableRoutes().any { it in candidateRoutes } && !saved.identityDiffersFrom(candidate)
         }
     }
 
@@ -80,12 +81,7 @@ private fun Connection.matchableRoutes(): Set<String> =
 private fun Connection.identityDiffersFrom(other: Connection): Boolean =
     differs(serverEnvironmentId, other.serverEnvironmentId) || differs(secretPublicKey, other.secretPublicKey)
 
-private fun Connection.identityEquals(other: Connection): Boolean =
-    same(serverEnvironmentId, other.serverEnvironmentId) || same(secretPublicKey, other.secretPublicKey)
-
 private fun differs(left: String?, right: String?): Boolean = left != null && right != null && left != right
-
-private fun same(left: String?, right: String?): Boolean = left != null && left == right
 
 /* Lets the repair paths build a validated registry without duplicating checks. */
 private data class ConnectionRegistryUnchecked(

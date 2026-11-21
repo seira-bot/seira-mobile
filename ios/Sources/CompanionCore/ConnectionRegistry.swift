@@ -29,15 +29,15 @@ public struct CompanionConnectionRegistry: Codable, Equatable, Sendable {
         connections.first { $0.id == id }
     }
 
-    /// The saved pairing a new pairing replaces: one with the same identity, or
-    /// one that shares a real route and carries no identity that differs. Two
-    /// servers behind one address, or two computers paired only through the
-    /// relay, stay two computers.
+    /// The saved pairing a new pairing replaces: one that shares a real route
+    /// and carries no identity that differs. Two servers behind one address, or
+    /// two computers paired only through the relay, stay two computers. A
+    /// claimed identity alone never matches: a QR or a server can claim any.
     public func matchingConnection(for candidate: Connection) -> Connection? {
         let candidateRoutes = candidate.matchableRoutes
+        guard !candidateRoutes.isEmpty else { return nil }
         return connections.first { saved in
-            !saved.identityDiffers(from: candidate)
-                && (saved.identityEquals(candidate) || !candidateRoutes.isDisjoint(with: saved.matchableRoutes))
+            !candidateRoutes.isDisjoint(with: saved.matchableRoutes) && !saved.identityDiffers(from: candidate)
         }
     }
 
@@ -139,18 +139,8 @@ private extension Connection {
             || Self.differs(secretPublicKey, other.secretPublicKey)
     }
 
-    func identityEquals(_ other: Connection) -> Bool {
-        Self.same(serverEnvironmentId, other.serverEnvironmentId)
-            || Self.same(secretPublicKey, other.secretPublicKey)
-    }
-
     static func differs(_ left: String?, _ right: String?) -> Bool {
         guard let left, let right else { return false }
         return left != right
-    }
-
-    static func same(_ left: String?, _ right: String?) -> Bool {
-        guard let left else { return false }
-        return left == right
     }
 }

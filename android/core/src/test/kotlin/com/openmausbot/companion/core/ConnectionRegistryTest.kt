@@ -67,14 +67,6 @@ class ConnectionRegistryTest {
         assertNull(registry.matchingConnection(Connection(name = "Studio", host = "relay-only.invalid", port = 443)))
     }
 
-    @Test
-    fun pairingTheSameRelayOnlyComputerAgainReplacesIt() {
-        val vps = Connection(id = "vps", name = "VPS", host = "relay-only.invalid", port = 443, secretPublicKey = "key-vps")
-        val registry = ConnectionRegistry(listOf(vps, pro), vps.id)
-
-        assertEquals(vps, registry.matchingConnection(vps.copy(id = "new")))
-        assertNull(registry.matchingConnection(vps.copy(id = "new", secretPublicKey = "key-other")))
-    }
 
     @Test
     fun restoringNormalizesBadPersistedSelectionAndDuplicates() {

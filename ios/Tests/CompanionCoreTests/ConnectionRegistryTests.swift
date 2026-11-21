@@ -88,10 +88,8 @@ final class ConnectionRegistryTests: XCTestCase {
         var vps = Connection(id: "vps", name: "VPS", host: "relay-only.invalid", port: 443)
         vps.secretPublicKey = "key-vps"
         let registry = CompanionConnectionRegistry(connections: [vps, second], activeConnectionID: vps.id)
-        var studio = Connection(name: "Studio", host: "relay-only.invalid", port: 443)
+        let studio = Connection(name: "Studio", host: "relay-only.invalid", port: 443)
         XCTAssertNil(registry.matchingConnection(for: studio))
-        studio.secretPublicKey = "key-vps"
-        XCTAssertEqual(registry.matchingConnection(for: studio)?.id, vps.id)
     }
 
     func testRemovingActiveComputerFallsBackToAnotherSavedComputer() {
