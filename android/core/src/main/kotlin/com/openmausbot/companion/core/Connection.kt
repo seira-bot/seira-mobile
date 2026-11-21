@@ -31,6 +31,10 @@ data class Connection(
     val allowedLocalRouteURLs: Set<String>? = null,
     val serverEnvironmentId: String? = null,
     val serverScopes: List<String>? = null,
+    /** The computer's HPKE public key from the pairing QR: canonical base64url of the uncompressed P-256 point. */
+    val secretPublicKey: String? = null,
+    /** This phone's device id in the companion pairing; null for a server pairing. */
+    val companionDeviceId: String? = null,
 ) {
     val pairedWithServer: Boolean get() = serverEnvironmentId != null
 
@@ -444,6 +448,11 @@ data class PairingInvite(val connection: Connection, val credential: String) {
             values["endpoints"]?.let { encoded ->
                 val endpoints = decodeEndpoints(encoded) ?: return null
                 connection = connection.copy(endpoints = endpoints).dialing(endpoints.first())
+            }
+
+            values["secretKey"]?.let { encoded ->
+                val key = PhoneSecretCrypto.normalizedPublicKey(encoded) ?: return null
+                connection = connection.copy(secretPublicKey = key)
             }
 
             return PairingInvite(connection.establishingRoutePolicyFromInvite(everyLocalRoute = true), credential)
