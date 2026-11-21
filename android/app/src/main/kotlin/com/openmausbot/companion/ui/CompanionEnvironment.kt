@@ -15,6 +15,7 @@ import com.openmausbot.companion.permissions.CompanionPermissions
 import com.openmausbot.companion.sharing.ShareInbox
 import com.openmausbot.companion.storage.OnboardingPreferences
 import com.openmausbot.companion.storage.ChatPreferences
+import com.openmausbot.companion.update.AppUpdateController
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -143,6 +144,8 @@ class CompanionEnvironment(
     val onToggleAlwaysOn: () -> Unit,
     /** Whether the call screen is open, and a call another surface asked a chat to start. */
     val callUi: LiveCallUi = LiveCallUi(),
+    /** Null where no update flow exists, such as tests. */
+    val appUpdates: AppUpdateController? = null,
 )
 
 val LocalCompanion = staticCompositionLocalOf<CompanionEnvironment> {
