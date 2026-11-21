@@ -350,6 +350,18 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
         }
     }
 
+    val refresh: () -> Unit = {
+        if (!refreshing) {
+            scope.launch {
+                refreshing = true
+                // Session.refresh waits until the stream leaves connecting
+                // (or 10s), so the spinner means what it appears to mean.
+                session.refresh()
+                refreshing = false
+            }
+        }
+    }
+    val phoneOnline = rememberPhoneOnline()
     val openChief: () -> Unit = {
         chief?.let { bot -> summariesById[bot.id]?.let(openRow) ?: navigator.open(Chat.BotChat(bot)) }
     }
@@ -361,40 +373,16 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
         Column(modifier = Modifier.fillMaxSize()) {
             PullToRefreshBox(
                 isRefreshing = refreshing,
-                onRefresh = {
-                    scope.launch {
-                        refreshing = true
-                        // Session.refresh waits until the stream leaves connecting
-                        // (or 10s), so the spinner means what it appears to mean.
-                        session.refresh()
-                        refreshing = false
-                    }
-                },
+                onRefresh = refresh,
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
             ) {
-                // Unsearched, "No bots yet" waits until there is no group either:
+                // Unsearched, "No chats yet" waits until there is no group either:
                 // drawn over group rows, it would sit on top of them.
                 val nothingToList =
                     if (query.isEmpty()) !RosterLayout.listsAnyChat(summaries) else rows.isEmpty()
-                if (nothingToList && hits.isEmpty()) {
-                    EmptyState(
-                        title = stringResource(if (query.isEmpty()) R.string.mobile_roster_no_bots_yet else R.string.mobile_roster_nothing_matches),
-                        description = if (query.isEmpty()) {
-                            stringResource(R.string.mobile_roster_empty_description)
-                        } else {
-                            stringResource(R.string.mobile_roster_no_thread_matches, query)
-                        },
-                        art = if (query.isNotEmpty()) {
-                            null
-                        } else if (status is Session.Status.Offline) {
-                            Art3d(R.drawable.icon3d_offline, "offline")
-                        } else {
-                            Art3d(R.drawable.icon3d_empty_chats, "empty_chats")
-                        },
-                    )
-                }
+                val showEmpty = nothingToList && hits.isEmpty()
 
                 LazyColumn(
                     modifier = Modifier
@@ -623,6 +611,30 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                     if (query.isNotEmpty()) {
                         itemsIndexed(rows, key = { _, summary -> summary.chat.threadId }) { index, summary ->
                             entry(summary, index == rows.lastIndex)
+                        }
+                    }
+
+                    // Inside the list, so its buttons sit above nothing that
+                    // would swallow a tap.
+                    if (showEmpty) {
+                        item(key = "empty-state") {
+                            val emptyModifier = Modifier.fillParentMaxHeight(0.7f)
+                            if (query.isEmpty()) {
+                                RosterEmptyState(
+                                    empty = rosterEmpty(status, phoneOnline),
+                                    refreshing = refreshing,
+                                    onNewChat = { showingNewChat = true },
+                                    onPairComputer = { session.beginPairing() },
+                                    onRefresh = refresh,
+                                    modifier = emptyModifier,
+                                )
+                            } else {
+                                EmptyState(
+                                    title = stringResource(R.string.mobile_roster_nothing_matches),
+                                    description = stringResource(R.string.mobile_roster_no_thread_matches, query),
+                                    modifier = emptyModifier,
+                                )
+                            }
                         }
                     }
                 }

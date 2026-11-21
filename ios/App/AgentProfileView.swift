@@ -29,6 +29,7 @@ struct AgentProfileView: View {
     @State private var savingServer = false
     @State private var serverProblem: String?
     @State private var instances: [Instance] = []
+    @State private var limits: [String: EngineLimit] = [:]
     @State private var modelsLoaded = false
     @State private var selectedInstanceID: String
     @State private var selectedModelID: String
@@ -144,6 +145,7 @@ struct AgentProfileView: View {
             }
             .overlay { if busy { ProgressView().controlSize(.large) } }
             .task { await loadProfile() }
+            .task { await loadUsage() }
             .onValueChange(of: photo) { item in
                 guard let item else { return }
                 Task { await upload(item) }
@@ -571,7 +573,27 @@ struct AgentProfileView: View {
     private func instanceLabel(_ instance: Instance) -> String {
         let base = instance.displayName?.trimmingCharacters(in: .whitespacesAndNewlines)
         let name = base.flatMap { $0.isEmpty ? nil : $0 } ?? instance.instanceId
-        return instance.snapshot.isAvailable ? name : "\(name) (Unavailable)"
+        guard instance.snapshot.isAvailable else { return "\(name) (Unavailable)" }
+        guard let note = usageNote(for: instance.instanceId) else { return name }
+        return "\(name) · \(note)"
+    }
+
+    private func usageNote(for instanceId: String) -> String? {
+        guard let limit = limits[instanceId], EngineUsage.reportsUsage(limit) else { return nil }
+        let line = limitLine(limit)
+        if line.atLimit {
+            guard let reset = line.resetsAt else { return String(localized: "at limit") }
+            return String(localized: "at limit until \(limitResetTime(reset))")
+        }
+        guard let left = usageRows(limit).map(\.left).min() else { return nil }
+        return String(localized: "\(left)% left")
+    }
+
+    private func loadUsage() async {
+        guard session.canAdminister else { return }
+        if case let .report(report) = await session.loadEngineLimits() {
+            limits = Dictionary(report.engines.map { ($0.engine, $0) }, uniquingKeysWith: { first, _ in first })
+        }
     }
 
     private func effortLabel(_ effort: String) -> String {

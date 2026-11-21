@@ -32,26 +32,33 @@ class NotificationActionHandler(
     }
 
     suspend fun approve(request: ApproveRequest): Boolean {
-        val approved = attempt {
-            if (!awaitLive()) return@attempt false
-            val found = NotificationApproval.find(
-                session.state.value,
-                request.botId,
-                request.threadId,
-                request.requestId,
-            ) ?: return@attempt false
+        val outcome = attempt(ApprovalOutcome.FAILED) {
+            if (!awaitLive()) return@attempt ApprovalOutcome.FAILED
+            val state = session.state.value
+            val found = NotificationApproval.find(state, request.botId, request.threadId, request.requestId)
+            if (found == null) {
+                return@attempt if (NotificationApproval.isSettled(state, request.threadId, request.requestId)) {
+                    ApprovalOutcome.SETTLED
+                } else {
+                    ApprovalOutcome.FAILED
+                }
+            }
             session.actionError = null
-            session.answer(found.chat, found.card, found.choice, rememberingPermission = false)
+            val answered = session.answer(found.chat, found.card, found.choice, rememberingPermission = false)
             val landed = session.actionError == null && session.status.value !is Session.Status.Unauthorized
             session.actionError = null
-            landed
+            when {
+                !landed -> ApprovalOutcome.FAILED
+                answered == OUTCOME_UNAVAILABLE -> ApprovalOutcome.SETTLED
+                else -> ApprovalOutcome.APPROVED
+            }
         }
-        poster.showApprovalOutcome(request, approved)
-        return approved
+        poster.showApprovalOutcome(request, outcome)
+        return outcome == ApprovalOutcome.APPROVED
     }
 
     suspend fun reply(request: ReplyRequest, text: String): Boolean {
-        val sent = attempt {
+        val sent = attempt(false) {
             if (!awaitLive()) return@attempt false
             val chat = session.state.value.notificationChat(request.botId, request.threadId)
                 ?: return@attempt false
@@ -73,16 +80,19 @@ class NotificationActionHandler(
         return status is Session.Status.Live
     }
 
-    private suspend fun attempt(block: suspend () -> Boolean): Boolean =
+    private suspend fun <T> attempt(failed: T, block: suspend () -> T): T =
         try {
             block()
         } catch (cancellation: CancellationException) {
             throw cancellation
         } catch (_: Exception) {
-            false
+            failed
         }
 
     companion object {
         const val READY_WAIT_MS = 8_000L
+
+        /** The respond route's outcome when the request is no longer waiting. */
+        private const val OUTCOME_UNAVAILABLE = "unavailable"
     }
 }

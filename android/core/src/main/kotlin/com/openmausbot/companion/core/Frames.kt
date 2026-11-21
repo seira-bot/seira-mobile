@@ -31,6 +31,12 @@ data class NotificationFrame(
     val threadId: String,
     val title: String,
     val body: String,
+    /**
+     * The request this notification waits on. The server sets it for
+     * `approval`, `question`, `secret` and `sign-in`; an older server omits it.
+     * Answer it in [threadId].
+     */
+    val requestId: String? = null,
 ) {
     val isBlocking: Boolean get() = kind == "approval" || kind == "question"
 }
