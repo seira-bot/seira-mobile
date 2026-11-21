@@ -507,6 +507,12 @@ private fun MessageContent(
         Message.Kind.UNKNOWN -> if (!message.text.isNullOrEmpty()) {
             TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
         }
+        // A page the bot showed: a card with Open when this phone can show it, else its text.
+        Message.Kind.APP -> if (message.app?.isOpenablePage == true) {
+            ChatAppCard(chat, message, startsRun, replyBot)
+        } else if (!message.text.isNullOrEmpty()) {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        }
     }
 }
 
@@ -642,7 +648,7 @@ private fun userBubbleShape(): RoundedCornerShape {
  * until it reads, and the time. A room has no single face, so it starts at the name.
  */
 @Composable
-private fun ReplyHeader(bot: Bot?, name: String, colorName: String?, at: Double?) {
+internal fun ReplyHeader(bot: Bot?, name: String, colorName: String?, at: Double?) {
     val colors = Seira.colors
     val context = LocalContext.current
     val identity = Color(colorName?.let { BotPalette.argb(it) } ?: BotPalette.FALLBACK)
