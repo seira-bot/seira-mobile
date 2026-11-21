@@ -102,6 +102,7 @@ android {
         versionName = appVersionName
         buildConfigField("boolean", "LIVE_CALLS", "true")
         buildConfigField("boolean", "ALWAYS_ON", "true")
+        buildConfigField("boolean", "IN_APP_UPDATES", "false")
     }
 
     signingConfigs {
@@ -144,6 +145,8 @@ android {
             // service needs its own declaration.
             buildConfigField("boolean", "LIVE_CALLS", "false")
             buildConfigField("boolean", "ALWAYS_ON", "false")
+            // Only Play can install an update, and only release is on Play.
+            buildConfigField("boolean", "IN_APP_UPDATES", "true")
             // Null whenever no signing material was supplied — the unsigned
             // handover build — and the "release" config whenever it was.
             signingConfig = signingConfigs.findByName("release")
@@ -230,6 +233,10 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.0.1")
     // Share inbound: apply EXIF orientation while downsampling shared photos.
     implementation("androidx.exifinterface:exifinterface:1.3.7")
+
+    // Play in-app updates. 2.1.0 is the newest release; targetSdk 34 and up
+    // needs 2.1.0 or later. It ships its own consumer R8 rules.
+    implementation("com.google.android.play:app-update-ktx:2.1.0")
 
     // Chrome Custom Tabs, for the cloud desktop's noVNC viewer — the Android
     // counterpart of the SFSafariViewController iOS uses. A hardened browser

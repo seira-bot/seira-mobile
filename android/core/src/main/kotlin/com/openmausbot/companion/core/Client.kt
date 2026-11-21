@@ -427,6 +427,14 @@ class CompanionClient(
         .filter { it.capabilities?.images == true }
         .mapTo(mutableSetOf(), Instance::instanceId)
 
+    suspend fun limitResetContinue(botId: String, threadId: String) {
+        sendUnit(makeRequest(
+            "POST",
+            "/api/limit-resets/continue",
+            body = jsonBody("botId" to safeRouteId(botId), "threadId" to safeRouteId(threadId)),
+        ))
+    }
+
     suspend fun config(): ConfigStatus = send(makeRequest("GET", "/api/config"))
 
     /**
@@ -947,6 +955,21 @@ class CompanionClient(
     /** Stop a room's running turn, whichever member is speaking. */
     suspend fun interruptRoom(groupId: String, threadId: String? = null) {
         sendUnit(makeRequest("POST", "/api/groups/${segment(groupId)}/interrupt", body = jsonBody("threadId" to threadId)))
+    }
+
+    suspend fun burst(burstId: String): BurstView =
+        send(makeRequest("GET", "/api/bursts/${safeRouteId(burstId)}"))
+
+    suspend fun burstAction(burstId: String, action: BurstAction, edit: BurstEdit? = null) {
+        require((action == BurstAction.EDIT) == (edit != null)) { "Only an edit carries a plan." }
+        val route = "/api/bursts/${safeRouteId(burstId)}/${action.path}"
+        val body = edit?.let {
+            buildJsonObject {
+                put("instructions", it.instructions)
+                put("items", JsonArray(it.items.map(::JsonPrimitive)))
+            }
+        }
+        sendUnit(makeRequest("POST", route, body = body))
     }
 
     suspend fun cloudDesktop(botId: String): CloudDesktopSession = send(

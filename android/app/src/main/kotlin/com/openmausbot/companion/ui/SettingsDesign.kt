@@ -126,7 +126,6 @@ internal fun DesignRow(
     subtitle: String? = null,
     subtitleDot: androidx.compose.ui.graphics.Color? = null,
     icon: ImageVector? = null,
-    art: Art3d? = null,
     titleColor: androidx.compose.ui.graphics.Color = Seira.colors.ink,
     minHeight: androidx.compose.ui.unit.Dp = 56.dp,
     onClick: (() -> Unit)? = null,
@@ -143,9 +142,7 @@ internal fun DesignRow(
         horizontalArrangement = Arrangement.spacedBy(14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (art != null) {
-            Icon3d(art.res, 30.dp, art.name)
-        } else if (icon != null) {
+        if (icon != null) {
             Icon(icon, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(20.dp))
         }
         Column(modifier = Modifier.weight(1f)) {
@@ -173,7 +170,6 @@ internal fun SwitchRow(
     icon: ImageVector?,
     checked: Boolean,
     onToggle: () -> Unit,
-    art: Art3d? = null,
 ) {
     Box(
         modifier = Modifier
@@ -183,7 +179,6 @@ internal fun SwitchRow(
             title = title,
             subtitle = subtitle,
             icon = icon,
-            art = art,
             minHeight = 64.dp,
             trailing = {
                 Box(Modifier.clearAndSetSemantics {}) {
