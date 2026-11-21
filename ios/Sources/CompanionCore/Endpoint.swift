@@ -49,6 +49,10 @@ public struct CompanionEndpoint: Codable, Hashable, Sendable {
         return components.port ?? (components.scheme?.lowercased() == "https" ? 443 : 80)
     }
 
+    var routeKey: String {
+        "\(isSecure ? "https" : "http")://\(host):\(port)"
+    }
+
     public var isSecure: Bool {
         URLComponents(string: url)?.scheme?.lowercased() == "https"
     }

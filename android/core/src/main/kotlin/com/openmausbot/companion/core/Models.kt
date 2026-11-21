@@ -280,9 +280,12 @@ data class Message(
      * tests build messages positionally.
      */
     val via: String? = null,
+    /** `kind == APP`: the page a bot showed. Never carries the HTML. */
+    @Serializable(with = ChatAppSerializer::class)
+    val app: ChatApp? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -299,6 +302,7 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "digest" -> Message.Kind.DIGEST
         "compaction" -> Message.Kind.COMPACTION
         "routine.run" -> Message.Kind.ROUTINE_RUN
+        "app" -> Message.Kind.APP
         else -> Message.Kind.UNKNOWN
     }
 

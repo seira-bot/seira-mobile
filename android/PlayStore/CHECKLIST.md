@@ -24,6 +24,7 @@ commit and artifact being submitted; unchecked items remain release work.
   version, and certificate identity.
   Done 2026-11-20: 10001, sha256 `f334454d…ba36f6457e50c47`, upload key `FD:4C:…:C1:FD`.
   Done 2026-11-20: 10002, sha256 `35966bc1…a98bc1dc888a1e20c9ecce69415bf4f`, same upload key.
+  Done 2026-11-21: 10003 (1.0.3) from `ae435d9`, sha256 `c20c1c43…0b9b050bb224c53fc1`, same upload key.
 - [ ] Run the applicable [Android checks](../../docs/verification/android-threads.md)
   and manual release workflows using an isolated fixture and disposable emulator.
   Record results and gaps; do not use the user's live app or data.
@@ -98,5 +99,8 @@ commit and artifact being submitted; unchecked items remain release work.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
   2026-11-20. Google approved 1.0.2 (10002) on 2026-11-20: available on Google
   Play, 178 countries, 100% rollout. Monitor release health.
+  Google approved 1.0.3 (10003) on 2026-11-21: available on Google Play, 178
+  countries, 100% rollout.
   Console warning on 1.0.2: DEX code optimization is below the threshold
   (Obfuscation 0%). Fix by February 2027: turn on R8 with tested keep rules.
+  PR #33 turned on R8 on `main` (`92d1a82`) on 2026-11-21. 1.0.3 does not have it.

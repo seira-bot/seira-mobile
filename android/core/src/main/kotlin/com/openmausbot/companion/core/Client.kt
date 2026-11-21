@@ -457,6 +457,9 @@ class CompanionClient(
         return raw.data
     }
 
+    suspend fun appDocument(threadId: String, messageId: String): ChatAppDocument =
+        ChatAppDocument(send(makeRequest("GET", "/api/threads/${segment(threadId)}/messages/${segment(messageId)}/app")))
+
     /**
      * Fetch an app-owned file mentioned by one transcript message. The path
      * still names the file on the paired computer, so it is sent in an
