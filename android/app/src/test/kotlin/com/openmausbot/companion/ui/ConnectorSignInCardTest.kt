@@ -180,7 +180,7 @@ class ConnectorSignInCardTest {
             compose.waitForIdle()
             compose.onNodeWithText("This sign-in link is not valid. Try again.").assertIsDisplayed()
         }
-        assertEquals(emptyList(), opened)
+        assertEquals(emptyList<URI>(), opened)
     }
 
     @Test
@@ -190,7 +190,7 @@ class ConnectorSignInCardTest {
         compose.onNodeWithTag(CONNECTOR_CONNECT_TAG).performClick()
         compose.waitForIdle()
         compose.onNodeWithText("This sign-in link is not valid. Try again.").assertIsDisplayed()
-        assertEquals(emptyList(), opened)
+        assertEquals(emptyList<URI>(), opened)
     }
 
     @Test
@@ -326,7 +326,7 @@ class ConnectorSignInCardTest {
         compose.onNodeWithText("Sign in in Scout’s built-in browser. Open takes you to its browser, already in your control.").assertIsDisplayed()
         compose.onNodeWithTag(SIGNIN_OPEN_TAG).performClick()
         compose.waitForIdle()
-        assertEquals(listOf("bot-1" to SignInOpenTarget.BrowserScreen), openedScreens)
+        assertEquals(listOf<Pair<String, SignInOpenTarget>>("bot-1" to SignInOpenTarget.BrowserScreen), openedScreens)
     }
 
     @Test
@@ -336,7 +336,7 @@ class ConnectorSignInCardTest {
             show(signIn("\"place\":\"$place\""))
             compose.onNodeWithTag(SIGNIN_OPEN_TAG).performClick()
             compose.waitForIdle()
-            assertEquals(listOf("bot-1" to SignInOpenTarget.ComputerScreen), openedScreens, place)
+            assertEquals(listOf<Pair<String, SignInOpenTarget>>("bot-1" to SignInOpenTarget.ComputerScreen), openedScreens, place)
         }
     }
 
@@ -355,7 +355,7 @@ class ConnectorSignInCardTest {
         compose.onNodeWithTag(SIGNIN_OPEN_TAG).performClick()
         compose.onNodeWithTag(SIGNIN_DONE_TAG).performClick()
         compose.waitForIdle()
-        assertEquals(emptyList(), opened)
+        assertEquals(emptyList<URI>(), opened)
 
         val root = File("src/main/kotlin/com/openmausbot/companion/ui").takeIf(File::isDirectory)
             ?: File("app/src/main/kotlin/com/openmausbot/companion/ui")
