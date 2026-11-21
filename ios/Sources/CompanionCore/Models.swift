@@ -78,6 +78,9 @@ public struct OptionCard: Codable, Hashable, Sendable {
     public var outboundRequest: OutboundRequest? = nil
     /// Present on "Remember this for the team?" cards.
     public var teamMemoryRequest: TeamMemoryRequest? = nil
+    /// Present on the offer to continue on another engine after a usage
+    /// limit stopped a turn.
+    public var quotaSwitch: QuotaSwitchCard? = nil
 
     /// A card is actionable while it is unanswered and still has a request
     /// behind it. Everything else is transcript.
@@ -150,6 +153,13 @@ public struct OptionCard: Codable, Hashable, Sendable {
     }
 }
 
+/// Marks an options card as the usage-limit offer. The phone reads only that
+/// it exists; the options themselves are the engines to switch to.
+public struct QuotaSwitchCard: Codable, Hashable, Sendable {
+    public var messageId: String?
+    public var rootId: String?
+}
+
 public struct ToolActivity: Codable, Hashable, Sendable {
     public var name: String
     public var ok: Bool?
@@ -161,6 +171,9 @@ public struct ToolActivity: Codable, Hashable, Sendable {
     /// model; the phone offers to run Claude's updater. Absent on older
     /// computers, so it stays optional.
     public var claudeUpdate: Bool?
+    /// Epoch milliseconds when the usage limit that stopped this turn
+    /// resets, when the engine said. Absent on older computers.
+    public var limitResetsAt: Double?
     /// What the step returned, when the computer kept it. A teammate's
     /// "X replied" chip carries the report itself here (redacted, ≤2000
     /// characters) so it can be read without opening the teammate's thread.

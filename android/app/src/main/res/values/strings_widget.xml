@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_updates_label">Updates</string>
-    <string name="widget_updates_description">Everything the Updates pill shows, with the chats that need you first.</string>
-    <string name="widget_all_quiet">All quiet</string>
-    <string name="widget_open_to_pair">Open Seira to pair</string>
-    <string name="widget_open_to_answer">Open Seira to answer</string>
-    <string name="widget_as_of">As of %1$s</string>
-    <string name="widget_active_count">%1$d active</string>
-    <string name="widget_section_needs_you">Needs you</string>
-    <string name="widget_section_working">Working</string>
-    <string name="widget_section_to_review">To review</string>
-    <string name="widget_request_changed">This request has changed. Open the chat to review it.</string>
-    <string name="widget_preview_name">Scout</string>
-    <string name="widget_preview_line">Run a command: git push</string>
+    <string name="widget_required">Fill in %1$s first.</string>
+    <string name="widget_send_failed">Could not send. Try again.</string>
+    <string name="widget_sending">Sending…</string>
+    <string name="widget_sent">Sent</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">Hide details</string>
+    <string name="widget_other">Other</string>
+    <string name="widget_other_hint">Your own answer</string>
+    <string name="widget_show_image">Show image</string>
+    <string name="widget_chart">Chart: %1$s</string>
+    <string name="widget_choose">Choose…</string>
+    <string name="widget_not_set">Not set</string>
+    <string name="widget_selected">Selected</string>
 </resources>

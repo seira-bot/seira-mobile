@@ -6,6 +6,7 @@
     <string name="notification_sender_you">你</string>
     <string name="notification_approved">已核准</string>
     <string name="notification_approve_failed">無法核准。請開啟聊天查看。</string>
+    <string name="notification_approve_settled">已有人處理。請開啟聊天查看。</string>
     <string name="notification_reply_failed">無法傳送。請開啟聊天重試。</string>
     <string name="tile_talk_label">通話</string>
     <string name="shortcut_talk_short">通話</string>

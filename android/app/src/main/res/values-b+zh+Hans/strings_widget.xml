@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="widget_updates_label">动态</string>
-    <string name="widget_updates_description">显示“动态”胶囊中的全部内容，需要你处理的聊天排在最前。</string>
-    <string name="widget_all_quiet">一切安静</string>
-    <string name="widget_open_to_pair">打开 Seira 进行配对</string>
-    <string name="widget_open_to_answer">打开 Seira 来回复</string>
-    <string name="widget_as_of">截至 %1$s</string>
-    <string name="widget_active_count">%1$d 条进行中</string>
-    <string name="widget_section_needs_you">需要你</string>
-    <string name="widget_section_working">进行中</string>
-    <string name="widget_section_to_review">待查看</string>
-    <string name="widget_request_changed">此请求已变化。请打开聊天查看。</string>
-    <string name="widget_preview_name">Scout</string>
-    <string name="widget_preview_line">运行命令：git push</string>
+    <string name="widget_required">先填写%1$s。</string>
+    <string name="widget_send_failed">无法发送。请重试。</string>
+    <string name="widget_sending">正在发送…</string>
+    <string name="widget_sent">已发送</string>
+    <string name="widget_settled_line">%1$s · %2$s</string>
+    <string name="widget_hide_details">收起详情</string>
+    <string name="widget_other">其他</string>
+    <string name="widget_other_hint">你自己的回答</string>
+    <string name="widget_show_image">显示图片</string>
+    <string name="widget_chart">图表：%1$s</string>
+    <string name="widget_choose">请选择…</string>
+    <string name="widget_not_set">未设置</string>
+    <string name="widget_selected">已选中</string>
 </resources>

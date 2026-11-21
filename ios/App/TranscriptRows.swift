@@ -23,6 +23,8 @@ enum TranscriptNavigation {
     case refusedLink
     /// A folded reply asked to be scrolled into view once it is laid out.
     case reveal(messageId: String)
+    /// A failed turn's "Switch model": the bot's settings, at its model.
+    case botSettings
 }
 
 /// Where a row's taps go once they leave the row: ChatView's handlers, held
@@ -100,6 +102,14 @@ struct TranscriptActions: Equatable {
 
     @MainActor
     func reveal(messageId: String) { navigate(.reveal(messageId: messageId)) }
+
+    @MainActor
+    func openBotSettings() { navigate(.botSettings) }
+
+    @MainActor
+    func modelLabel(for selection: ModelSelection) async -> String {
+        await session.modelLabel(for: selection)
+    }
 
     // MARK: Messages
 
@@ -236,6 +246,11 @@ struct TranscriptRowContext: Equatable {
     let editPending: Bool
     /// The engine an "Update Claude" card would update.
     let claudeInstanceId: String?
+    /// The model this thread runs now, in a bot chat.
+    let modelSelection: ModelSelection?
+    /// The failed turn that offers "Switch model": set only when this phone
+    /// may change the model and no usage-limit offer is already open.
+    let switchModelOfferId: String?
     let credentials: CredentialAccess
     /// The bot's profile for avatars, in a bot chat; nil in a room.
     let faceBot: Bot?
