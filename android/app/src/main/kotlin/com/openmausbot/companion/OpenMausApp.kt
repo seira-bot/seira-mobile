@@ -17,6 +17,9 @@ import com.openmausbot.companion.lifecycle.SessionLingerController
 import com.openmausbot.companion.lifecycle.installSessionLinger
 import com.openmausbot.companion.notifications.LocalNotificationPoster
 import com.openmausbot.companion.notifications.NotificationActionHandler
+import com.openmausbot.companion.push.PushDelivery
+import com.openmausbot.companion.push.RemotePush
+import com.openmausbot.companion.storage.PrefsPushRegistrationStore
 import com.openmausbot.companion.shortcuts.BotShortcutSync
 import com.openmausbot.companion.shortcuts.BotShortcuts
 import com.openmausbot.companion.tile.TalkTileState
@@ -49,6 +52,9 @@ class OpenMausApp : Application() {
     lateinit var notificationActions: NotificationActionHandler
         private set
     lateinit var shortcuts: BotShortcuts
+        private set
+    @Volatile
+    var pushDelivery: PushDelivery? = null
         private set
     lateinit var discovery: NsdDiscovery
         private set
@@ -104,11 +110,14 @@ class OpenMausApp : Application() {
                     ?: android.os.Build.MODEL
             },
             notificationSink = notifications,
+            pushStore = PrefsPushRegistrationStore(this),
         )
         avatars = AvatarImageStore(fetch = session::avatarData)
         shortcuts = BotShortcuts(this)
         notifications.bind(session, avatars, shortcuts, appScope)
         notificationActions = NotificationActionHandler(session, notifications)
+        pushDelivery = PushDelivery(session, notifications)
+        RemotePush(this, session, appScope).start()
         appScope.launch {
             BotShortcutSync(session, avatars, shortcuts, TalkTileState(this@OpenMausApp)).run()
         }
