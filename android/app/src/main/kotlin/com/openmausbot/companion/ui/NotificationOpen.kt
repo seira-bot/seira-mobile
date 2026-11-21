@@ -59,6 +59,15 @@ object NotificationOpen {
             session.connect()
             return Result(chat = null, consumed = false)
         }
+        target.pairing?.let { pairing ->
+            if (session.connection.value?.id != pairing) {
+                if (session.connections.value.none { it.id == pairing }) {
+                    return Result(chat = null, consumed = true)
+                }
+                session.activateComputer(pairing)
+                if (session.connection.value?.id != pairing) return Result(chat = null, consumed = true)
+            }
+        }
         if (!canOpen(session)) {
             // Unpaired / unauthorized: do not carry a stale destination into a
             // future pairing — same rule as iOS clearing pending on sign-out.

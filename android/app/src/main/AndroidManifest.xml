@@ -285,6 +285,21 @@
         </receiver>
 
         <!--
+          Remote push. Firebase starts itself only after a computer is paired
+          (RemotePush turns it on), so a phone with nothing paired gets no token.
+        -->
+        <service
+            android:name=".push.PushMessagingService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+
+        <!--
           Quick Settings tile that starts a call with the chief of staff. The
           system binds it, so the bind permission is the only guard it needs.
         -->

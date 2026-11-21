@@ -1,6 +1,9 @@
 .DS_Store
 *.local
 
+# Firebase client config of the maintainer's project: never public.
+google-services.json
+
 # Local working files: never public. See "Local details stay local" in AGENTS.md.
 /internal/
 /AGENTS.local.md

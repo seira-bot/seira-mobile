@@ -162,17 +162,21 @@ data class OptionCard(
 data class NotificationTarget private constructor(
     val botId: String,
     val threadId: String,
+    /** The saved computer a remote push came from; null for a local notification. */
+    val pairing: String? = null,
 ) {
     fun requiresTaskSwitch(activeThreadId: String): Boolean = threadId != activeThreadId
 
     companion object {
-        fun from(botId: String?, threadId: String?): NotificationTarget? {
+        fun from(botId: String?, threadId: String?): NotificationTarget? = from(botId, threadId, null)
+
+        fun from(botId: String?, threadId: String?, pairing: String?): NotificationTarget? {
             if (botId.isNullOrBlank() || threadId.isNullOrBlank()) return null
-            return NotificationTarget(botId, threadId)
+            return NotificationTarget(botId, threadId, pairing?.takeIf { it.isNotBlank() })
         }
 
         fun from(payload: Map<String, String>): NotificationTarget? =
-            from(payload["botId"], payload["threadId"])
+            from(payload["botId"], payload["threadId"], payload["pairing"])
     }
 }
 

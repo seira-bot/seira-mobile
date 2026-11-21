@@ -6,6 +6,14 @@ plugins {
     kotlin("plugin.serialization")
 }
 
+// Remote push needs the Firebase client config of the maintainer's project. It
+// stays out of git (see .gitignore): a maintainer copies `google-services.json`
+// into `android/app/` before a release build. Without it the Google services
+// plugin is not applied, `REMOTE_PUSH` is false, and the app calls no Firebase
+// API, so a fork or a CI run builds and tests without any secret.
+private val hasGoogleServices = file("google-services.json").isFile
+if (hasGoogleServices) apply(plugin = "com.google.gms.google-services")
+
 // The release signing key belongs to the maintainer and never enters this
 // repository. It reaches a build from one of two places outside version
 // control:
@@ -103,6 +111,7 @@ android {
         buildConfigField("boolean", "LIVE_CALLS", "true")
         buildConfigField("boolean", "ALWAYS_ON", "true")
         buildConfigField("boolean", "IN_APP_UPDATES", "false")
+        buildConfigField("boolean", "REMOTE_PUSH", hasGoogleServices.toString())
     }
 
     signingConfigs {
@@ -253,6 +262,10 @@ dependencies {
     // The host page that shows a bot's page: a web view whose only bridge is a message listener bound to the
     // bundled page's origin, which no JavaScript interface object can give.
     implementation("androidx.webkit:webkit:1.18.0")
+
+    // Remote push: Firebase Cloud Messaging only. The BoM pins the one artifact.
+    implementation(platform("com.google.firebase:firebase-bom:35.2.0"))
+    implementation("com.google.firebase:firebase-messaging")
 
     // Pairing QR scanner. CameraX gives the preview and frame pipeline; ML Kit's
     // *bundled* barcode model reads them. Bundled rather than the Play-services
