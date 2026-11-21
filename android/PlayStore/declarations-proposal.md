@@ -198,6 +198,21 @@ Versi ini juga bekerja dengan Seira 0.1.182 dan yang lebih baru di komputer.
 </id>
 ```
 
+### Catatan rilis update 1.0.4
+
+Isi teks ini saat rilis 1.0.4 dibuat di Console:
+
+```text
+<en-US>
+New cards in chat: widgets, goal runs, task batches, call summaries, sign-in and app connection requests, and a safe way to send a password or key to your computer. Switch the model after a failed reply. See your AI plan usage. A home screen widget shows what waits for you. Updates from Google Play install inside the app. Signing out also ends the session on your computer. Now in 13 more languages.
+Some features need the newest Seira on your computer.
+</en-US>
+<id>
+Kartu baru di chat: widget, goal run, tugas berkelompok, ringkasan panggilan, permintaan sign-in dan koneksi app, serta cara aman mengirim password atau key ke komputer. Ganti model setelah balasan gagal. Lihat pemakaian paket AI. Widget layar utama menampilkan yang menunggu kamu. Update dari Google Play terpasang di dalam app. Sign out juga mengakhiri sesi di komputer. Kini tersedia dalam 13 bahasa lagi.
+Beberapa fitur butuh Seira terbaru di komputer.
+</id>
+```
+
 ## Negara dan rollout
 
 - Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan
