@@ -300,9 +300,17 @@ data class Message(
     val widget: JsonObject? = null,
     /** `kind == WIDGET`: the computer wrote this card itself, in English. */
     val serverCard: Boolean? = null,
+    /** `kind == GOAL_RUN`: the group goal run, patched in place. */
+    val goalRun: GoalRunCard? = null,
+    /** `kind == BURST`: a preview, then the progress card. */
+    val burst: BurstCard? = null,
+    /** `kind == CALL`: the finished Live call. */
+    val call: CallRecord? = null,
+    /** The Live call a user line was spoken on (`via == "call"`). */
+    val callId: String? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
-    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, UNKNOWN }
+    enum class Kind { TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, UNKNOWN }
 
     @Serializable(with = MessageRoleSerializer::class)
     enum class Role { BOT, USER }
@@ -321,11 +329,20 @@ object MessageKindSerializer : KSerializer<Message.Kind> {
         "routine.run" -> Message.Kind.ROUTINE_RUN
         "app" -> Message.Kind.APP
         "widget" -> Message.Kind.WIDGET
+        "goal.run" -> Message.Kind.GOAL_RUN
+        "burst" -> Message.Kind.BURST
+        "call" -> Message.Kind.CALL
         else -> Message.Kind.UNKNOWN
     }
 
     override fun serialize(encoder: Encoder, value: Message.Kind) {
-        encoder.encodeString(if (value == Message.Kind.ROUTINE_RUN) "routine.run" else value.name.lowercase())
+        encoder.encodeString(
+            when (value) {
+                Message.Kind.ROUTINE_RUN -> "routine.run"
+                Message.Kind.GOAL_RUN -> "goal.run"
+                else -> value.name.lowercase()
+            },
+        )
     }
 }
 

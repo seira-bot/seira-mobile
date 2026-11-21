@@ -20,4 +20,11 @@
     <string name="call_service_connecting">正在连接…</string>
     <string name="call_service_live">实时通话</string>
     <string name="call_service_hang_up">挂断</string>
+    <string name="call_record_title">与 %1$s 的通话</string>
+    <string name="call_record_open">%1$s，%2$s。打开通话。</string>
+    <string name="call_record_partial">这次通话的部分内容在更早的消息中。加载更早的消息即可查看全部。</string>
+    <string name="call_record_started">开始于 %1$s</string>
+    <string name="call_record_ended">结束于 %1$s</string>
+    <string name="call_record_said">你说的话</string>
+    <string name="call_record_nothing">这次通话没有已加载的语音内容。</string>
 </resources>

@@ -957,6 +957,21 @@ class CompanionClient(
         sendUnit(makeRequest("POST", "/api/groups/${segment(groupId)}/interrupt", body = jsonBody("threadId" to threadId)))
     }
 
+    suspend fun burst(burstId: String): BurstView =
+        send(makeRequest("GET", "/api/bursts/${safeRouteId(burstId)}"))
+
+    suspend fun burstAction(burstId: String, action: BurstAction, edit: BurstEdit? = null) {
+        require((action == BurstAction.EDIT) == (edit != null)) { "Only an edit carries a plan." }
+        val route = "/api/bursts/${safeRouteId(burstId)}/${action.path}"
+        val body = edit?.let {
+            buildJsonObject {
+                put("instructions", it.instructions)
+                put("items", JsonArray(it.items.map(::JsonPrimitive)))
+            }
+        }
+        sendUnit(makeRequest("POST", route, body = body))
+    }
+
     suspend fun cloudDesktop(botId: String): CloudDesktopSession = send(
         makeRequest("POST", "/api/bots/${segment(botId)}/computer/join"),
     )
