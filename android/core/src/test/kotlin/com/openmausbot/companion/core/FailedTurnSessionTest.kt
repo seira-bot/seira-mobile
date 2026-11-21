@@ -147,6 +147,16 @@ class FailedTurnSessionTest {
         assertNull(FailedTurnActions.offer(limited, false, false, session.limitResetForbidden.value)!!.continueAt)
     }
 
+    @Test
+    fun aServerPairingNeedsTheAdminScopeToAdminister() {
+        val base = requireNotNull(Connection.parse(server.url("/").toString()))
+        assertTrue(base.canAdminister)
+        val member = base.copy(serverEnvironmentId = "env", serverScopes = listOf("client"))
+        assertFalse(member.canAdminister)
+        assertFalse(base.copy(serverEnvironmentId = "env").canAdminister)
+        assertTrue(base.copy(serverEnvironmentId = "env", serverScopes = listOf("admin", "client")).canAdminister)
+    }
+
     private suspend fun TestScope.session(bot: Bot): Session {
         val connection = requireNotNull(Connection.parse(server.url("/").toString()))
         return Session(

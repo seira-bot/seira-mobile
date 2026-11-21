@@ -51,14 +51,31 @@ data class FailedTurnOffer(
 
 object FailedTurnActions {
     /**
-     * Only the newest failed turn of a conversation is offered, and only while
-     * the person has not written again. An older failure is history.
+     * The one failed turn that shows the actions: the latest, while nothing
+     * has been said since and no usage-limit offer is open. Matches the iPhone.
      */
-    fun isLatestFailure(messages: List<Message>, message: Message): Boolean {
-        val index = messages.indexOfFirst { it.id == message.id }
-        if (index < 0) return false
-        val later = messages.drop(index + 1)
-        return later.none { it.role == Message.Role.USER || isFailedTurn(it) }
+    fun switchModelOfferMessageId(messages: List<Message>): String? {
+        val index = messages.indexOfLast(::isFailedTurn)
+        if (index < 0) return null
+        if (messages.drop(index + 1).any { it.kind == Message.Kind.TEXT }) return null
+        if (messages.any { it.card?.quotaSwitch != null && it.card.isPending }) return null
+        if (messages[index].tool?.claudeUpdate == true) return null
+        return messages[index].id
+    }
+
+    /** "3:40 PM" for a reset today, "Fri 3:40 PM" further out. */
+    fun continueTime(
+        resetsAtMs: Double,
+        nowMs: Long = System.currentTimeMillis(),
+        zone: java.time.ZoneId = java.time.ZoneId.systemDefault(),
+        locale: java.util.Locale = java.util.Locale.getDefault(),
+    ): String {
+        val at = java.time.Instant.ofEpochMilli(resetsAtMs.toLong()).atZone(zone)
+        val today = java.time.Instant.ofEpochMilli(nowMs).atZone(zone).toLocalDate()
+        val time = java.time.format.DateTimeFormatter
+            .ofLocalizedTime(java.time.format.FormatStyle.SHORT).withLocale(locale).format(at)
+        if (at.toLocalDate() == today) return time
+        return java.time.format.DateTimeFormatter.ofPattern("EEE", locale).format(at) + " " + time
     }
 
     fun lastUserMessage(messages: List<Message>): Message? =

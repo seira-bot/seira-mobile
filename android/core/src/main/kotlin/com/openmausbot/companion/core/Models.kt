@@ -105,6 +105,8 @@ data class OptionCard(
     val outboundRequest: OutboundRequest? = null,
     /** Present on "Remember this for the team?" cards. */
     val teamMemoryRequest: TeamMemoryRequest? = null,
+    /** Present on the offer to continue on another engine after a usage limit stopped a turn. */
+    val quotaSwitch: QuotaSwitchCard? = null,
 ) {
     val isPending: Boolean get() =
         requestId != null && answered == null && dismissed != true && expired != true
@@ -173,6 +175,10 @@ data class NotificationTarget private constructor(
             from(payload["botId"], payload["threadId"])
     }
 }
+
+/** Marks an options card as the usage-limit offer; the phone reads only that it exists. */
+@Serializable
+data class QuotaSwitchCard(val messageId: String? = null, val rootId: String? = null)
 
 @Serializable
 data class ToolActivity(

@@ -2206,6 +2206,9 @@ class Session(
         }
     }
 
+    /** This pairing may read the model list and continue at a limit reset. */
+    val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false
+
     private val _modelListForbidden = MutableStateFlow(false)
 
     /** This phone may not read the model list (a Team member phone). */
@@ -2222,6 +2225,7 @@ class Session(
      */
     suspend fun switchableModels(): ModelListResult {
         val activeClient = client ?: return ModelListResult.Failed
+        if (!canAdminister) return ModelListResult.Forbidden.also { _modelListForbidden.value = true }
         return try {
             ModelListResult.Loaded(activeClient.instances()).also { _modelListForbidden.value = false }
         } catch (error: Throwable) {
@@ -2249,6 +2253,7 @@ class Session(
     /** Ask the computer to continue this turn when the limit resets. A 403 hides the action. */
     suspend fun continueAtReset(chat: Chat.BotChat): Boolean {
         val activeClient = client ?: return false
+        if (!canAdminister) return false
         return try {
             activeClient.limitResetContinue(chat.bot.id, chat.threadId)
             true

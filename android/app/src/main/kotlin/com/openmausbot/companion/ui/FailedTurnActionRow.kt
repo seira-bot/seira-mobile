@@ -19,7 +19,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -52,18 +51,19 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
     val uriHandler = LocalUriHandler.current
     val task = (state.bot(chat.bot.id) ?: chat.bot).forTask(chat.threadId)
     val running = task?.busy == true || state.pendingEdits.containsKey(chat.threadId)
-    val latest = FailedTurnActions.isLatestFailure(state.transcript(chat.threadId), message)
+    val latest = FailedTurnActions.switchModelOfferMessageId(state.transcript(chat.threadId)) == message.id
+    val admin = session.canAdminister
     var switchedTo by rememberSaveable(message.id) { mutableStateOf<String?>(null) }
     var picking by remember { mutableStateOf(false) }
     var failedModel by remember { mutableStateOf<ModelSelection?>(null) }
     val offer = if (latest) {
-        FailedTurnActions.offer(tool, running, modelForbidden, continueForbidden)
+        FailedTurnActions.offer(tool, running, modelForbidden || !admin, continueForbidden || !admin)
     } else {
         null
     }
 
     LaunchedEffect(offer?.tryAgain) {
-        if (offer?.tryAgain == true && !modelForbidden) session.switchableModels()
+        if (offer?.tryAgain == true && admin && !modelForbidden) session.switchableModels()
     }
     if (offer == null) return
 
@@ -110,8 +110,7 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
                 ) { Text(stringResource(R.string.chat_failed_turn_check_usage)) }
             }
             offer.continueAt?.let { resetsAt ->
-                val time = android.text.format.DateFormat.getTimeFormat(LocalContext.current)
-                    .format(java.util.Date(resetsAt.toLong()))
+                val time = FailedTurnActions.continueTime(resetsAt)
                 OutlinedButton(
                     onClick = { scope.launch { session.continueAtReset(chat) } },
                     modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET),
