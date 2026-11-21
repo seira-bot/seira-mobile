@@ -159,7 +159,7 @@ class RunCardsRenderTest {
         show(goalRun("working"))
         compose.onNodeWithText("Ship the monthly report").assertIsDisplayed()
         compose.onNodeWithText(text(R.string.chat_goal_status_working)).assertIsDisplayed()
-        compose.onNodeWithText("Scout coordinating · Turn 3 of 10").assertIsDisplayed()
+        compose.onNodeWithText("Scout · Turn 3 of 10").assertIsDisplayed()
         compose.onNode(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).assertIsDisplayed()
         compose.onNodeWithText(text(R.string.chat_goal_stop)).assertIsDisplayed()
     }
@@ -168,7 +168,7 @@ class RunCardsRenderTest {
     fun aFinishedGoalRunShowsItsLabelAndTurnCountWithoutSpinnerOrStop() {
         show(goalRun("completed", turns = 4))
         compose.onNodeWithText(text(R.string.chat_goal_status_completed)).assertIsDisplayed()
-        compose.onNodeWithText("Scout coordinating · 4 turns").assertIsDisplayed()
+        compose.onNodeWithText("Scout · 4 turns").assertIsDisplayed()
         assertEquals(0, compose.onAllNodes(hasProgressBarRangeInfo(ProgressBarRangeInfo.Indeterminate)).fetchSemanticsNodes().size)
         absent(text(R.string.chat_goal_stop))
     }
@@ -229,7 +229,9 @@ class RunCardsRenderTest {
     fun aTaskWithoutAConversationDoesNotOpenAnything() {
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { })
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice May")).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitForIdle()
+        compose.onNodeWithText("Invoice May").assertIsDisplayed()
         assertEquals(
             0,
             compose.onAllNodes(hasContentDescription(text(R.string.chat_burst_row_open, "Invoice May")))
@@ -274,7 +276,7 @@ class RunCardsRenderTest {
         compose.onNodeWithText("Plan the launch · 1:42").assertIsDisplayed()
         compose.onNodeWithText(text(R.string.call_record_said)).assertIsDisplayed()
         compose.onNodeWithText("Last, the support macros").assertIsDisplayed()
-        compose.onNodeWithText("Start with the pricing page").assertIsDisplayed()
+        assertEquals(2, compose.onAllNodes(hasText("Start with the pricing page")).fetchSemanticsNodes().size)
     }
 
     @Test
