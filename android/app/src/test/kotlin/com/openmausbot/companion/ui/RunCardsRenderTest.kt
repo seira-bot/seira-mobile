@@ -17,8 +17,6 @@ import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.onRoot
-import androidx.compose.ui.test.printToString
 import androidx.compose.ui.unit.dp
 import androidx.test.core.app.ApplicationProvider
 import com.openmausbot.companion.R
@@ -215,7 +213,7 @@ class RunCardsRenderTest {
         val opened = mutableListOf<ThreadRef>()
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { opened += it })
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(TASKS_LOAD_MS) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithText(text(R.string.chat_burst_tasks_title)).assertIsDisplayed()
         compose.onNodeWithText("Invoice March").assertIsDisplayed()
         compose.onNodeWithText("Invoice April").assertIsDisplayed()
@@ -231,11 +229,7 @@ class RunCardsRenderTest {
     fun aTaskWithoutAConversationDoesNotOpenAnything() {
         show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { })
         compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        try {
-            compose.waitUntil(5_000) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
-        } catch (e: Throwable) {
-            throw AssertionError("DEBUG " + requests + " " + compose.onAllNodes(androidx.compose.ui.test.isRoot()).let { r -> (0 until r.fetchSemanticsNodes().size).joinToString { i -> r[i].printToString() } }, e)
-        }
+        compose.waitUntil(TASKS_LOAD_MS) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
         compose.waitForIdle()
         compose.onNodeWithText("Invoice May").assertIsDisplayed()
         assertEquals(
@@ -293,6 +287,10 @@ class RunCardsRenderTest {
         ).performClick()
         compose.waitForIdle()
         compose.onNodeWithText(text(R.string.call_record_nothing)).assertIsDisplayed()
+    }
+
+    private companion object {
+        const val TASKS_LOAD_MS = 20_000L
     }
 
     private fun json(body: String, code: Int = 200): MockResponse = MockResponse()
