@@ -12,11 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.getBoundsInRoot
 import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.hasSetTextAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.longClick
@@ -25,6 +27,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
@@ -244,9 +247,9 @@ class HomeScreenTest {
     }
 
     @Test
-    fun `the header names the computer and its sheet switches to another saved computer`() {
+    fun `the Chats heading names the computer and its sheet switches to another saved computer`() {
         val navigator = mount(otherComputers = listOf(SECOND_COMPUTER to "second-token"))
-        compose.onNodeWithTag("home-computer")
+        computerChip()
             .assert(hasText("Offline fixture"))
             .assert(hasContentDescription("Switch computer. Now: Offline fixture"))
             .performClick()
@@ -265,7 +268,7 @@ class HomeScreenTest {
     @Test
     fun `the computer sheet starts pairing for one more computer`() {
         mount()
-        compose.onNodeWithTag("home-computer").performClick()
+        computerChip().performClick()
         compose.onNodeWithTag("computer-switch-pair").assert(hasText("Pair another computer")).performClick()
         compose.waitUntil(5_000) { scene.session.pairingRequested.value }
     }
@@ -330,6 +333,11 @@ class HomeScreenTest {
     private fun json(body: String): MockResponse = MockResponse()
         .setHeader("Content-Type", "application/json")
         .setBody(body)
+
+    private fun computerChip(): SemanticsNodeInteraction {
+        compose.onNodeWithTag("roster-list").performScrollToNode(hasTestTag("home-computer"))
+        return compose.onNodeWithTag("home-computer")
+    }
 
     private companion object {
         val SECOND_COMPUTER = Connection(id = "second", name = "Studio PC", host = "127.0.0.1", port = 0)

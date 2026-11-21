@@ -397,11 +397,6 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                             greeting = greeting,
                             initials = HomeGreeting.initials(profile?.name),
                             onProfile = openSettings,
-                            computerName = connection?.name,
-                            onComputer = {
-                                haptics.play(HapticCue.SELECT)
-                                showingComputers = true
-                            },
                         )
                     }
                     item(key = "home-banner") { StatusBanner() }
@@ -454,6 +449,11 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                                 },
                                 onCalendar = { navigator.push(Destination.Calendar) },
                                 onSettings = openSettings,
+                                computerName = connection?.name,
+                                onComputer = {
+                                    haptics.play(HapticCue.SELECT)
+                                    showingComputers = true
+                                },
                                 // The text sits 28 dp under the rail (6 dp of its own, and
                                 // half of the 48 dp row around "Chats").
                                 modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),

@@ -4,13 +4,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
@@ -84,15 +84,13 @@ internal fun homeGreetingText(hour: Int, fullName: String?): String {
     return stringResource(R.string.home_greeting_with_name, base, first)
 }
 
-/** The greeting, the computer this list comes from, and the profile circle that opens Settings. */
+/** The greeting and the profile circle that opens Settings. */
 @Composable
 internal fun HomeHeader(
     greeting: String,
     initials: String,
     onProfile: () -> Unit,
     modifier: Modifier = Modifier,
-    computerName: String? = null,
-    onComputer: () -> Unit = {},
 ) {
     val colors = Seira.colors
     Row(
@@ -105,17 +103,14 @@ internal fun HomeHeader(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = greeting,
-                style = SeiraType.title1,
-                color = colors.ink,
-                modifier = Modifier.semantics { heading() },
-            )
-            if (computerName != null) {
-                ComputerChip(name = computerName, onClick = onComputer)
-            }
-        }
+        Text(
+            text = greeting,
+            style = SeiraType.title1,
+            color = colors.ink,
+            modifier = Modifier
+                .weight(1f)
+                .semantics { heading() },
+        )
         TouchTarget(
             onClick = onProfile,
             contentDescription = stringResource(R.string.mobile_settings_c7f73bb5),
@@ -142,8 +137,8 @@ internal fun HomeHeader(
 }
 
 /**
- * The Chats title and the menu that keeps the secondary actions one tap away:
- * updates, the routine calendar and Settings.
+ * The Chats title, the computer the chats come from, and the menu that keeps the
+ * secondary actions one tap away: updates, the routine calendar and Settings.
  */
 @Composable
 internal fun ChatsHeading(
@@ -151,6 +146,8 @@ internal fun ChatsHeading(
     onCalendar: () -> Unit,
     onSettings: () -> Unit,
     modifier: Modifier = Modifier,
+    computerName: String? = null,
+    onComputer: () -> Unit = {},
 ) {
     val colors = Seira.colors
     var menuOpen by remember { mutableStateOf(false) }
@@ -169,6 +166,9 @@ internal fun ChatsHeading(
                 .weight(1f)
                 .semantics { heading() },
         )
+        if (computerName != null) {
+            ComputerChip(name = computerName, onClick = onComputer)
+        }
         Box {
             TouchTarget(
                 onClick = { menuOpen = true },
@@ -217,10 +217,11 @@ private fun ComputerChip(name: String, onClick: () -> Unit) {
         modifier = Modifier
             .testTag("home-computer")
             .heightIn(min = MIN_TOUCH_TARGET)
+            .widthIn(max = COMPUTER_CHIP_MAX_WIDTH)
             .clip(RoundedCornerShape(12.dp))
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = label }
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 8.dp, vertical = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -238,6 +239,7 @@ private fun ComputerChip(name: String, onClick: () -> Unit) {
 }
 
 private val PROFILE_CIRCLE = 40.dp
+private val COMPUTER_CHIP_MAX_WIDTH = 180.dp
 
 /** Three dots in the theme's stroke weight; the theme has no ellipsis of its own. */
 private val EllipsisIcon: ImageVector = ImageVector.Builder(
