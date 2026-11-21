@@ -22,4 +22,14 @@
     <string name="chat_sheet_desktop_sub">在螢幕上看 %1$s 工作</string>
     <string name="chat_needs_ok">需要你確認</string>
     <string name="chat_from_bot">來自 %1$s</string>
+    <string name="chat_failed_turn_switch_model">切換模型</string>
+    <string name="chat_failed_turn_try_again">重試</string>
+    <string name="chat_failed_turn_check_usage">查看用量</string>
+    <string name="chat_failed_turn_continue_at">在 %1$s 繼續</string>
+    <string name="chat_failed_turn_now_using">現在使用 %1$s。</string>
+    <string name="chat_failed_turn_model_down">目前無法使用</string>
+    <string name="chat_failed_turn_ask_owner">請讓此工作區的擁有者新增另一個 AI。</string>
+    <string name="chat_failed_turn_switch_failed">無法切換模型。請重試。</string>
+    <string name="chat_failed_turn_use_model">使用此模型</string>
+    <string name="chat_failed_turn_models_unavailable">此手機無法查看 AI 模型清單。</string>
 </resources>
