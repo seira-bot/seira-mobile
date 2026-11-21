@@ -149,10 +149,6 @@ internal object UpdatesSummary {
     /** At most this many faces stack in the pill. */
     const val MASCOTS = 3
 
-    const val EMPTY_TITLE = "Nothing needs you"
-    const val EMPTY_DESCRIPTION =
-        "When a bot stops for an answer, is mid-task, or finishes something, it shows up here."
-
     /** The pill's first line: who, and what they are doing about it. */
     fun headline(updates: List<ChatUpdate>): String {
         val first = updates.firstOrNull() ?: return "All quiet"
