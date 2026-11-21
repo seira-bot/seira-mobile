@@ -1801,6 +1801,41 @@ class Session(
         }
     }
 
+    /** The parts of a burst, or null when the computer cannot be asked right now. */
+    suspend fun burstView(burstId: String): BurstView? {
+        val activeClient = client ?: return null
+        return try {
+            activeClient.burst(burstId)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Throwable) {
+            null
+        }
+    }
+
+    /** Press one button of a burst card. The card shows the failure; nothing is reported twice. */
+    suspend fun burstAction(burstId: String, action: BurstAction, edit: BurstEdit? = null): BurstOutcome {
+        val activeClient = client ?: return BurstOutcome.Failed(OFFLINE_MESSAGE)
+        val connectionId = _connection.value?.id
+        return try {
+            activeClient.burstAction(burstId, action, edit)
+            BurstOutcome.Done
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError) {
+            if (error.isUnauthorized) {
+                gate.withLock {
+                    if (connectionId != null && _connection.value?.id == connectionId) {
+                        _status.value = Status.Unauthorized
+                    }
+                }
+            }
+            BurstOutcome.Failed((error as? APIError.Status)?.serverMessage)
+        } catch (_: Throwable) {
+            BurstOutcome.Failed(null)
+        }
+    }
+
     suspend fun cloudDesktop(forBot: Bot): URI {
         val activeClient = client ?: throw APIError.Transport("This computer is offline.")
         val connectionId = _connection.value?.id

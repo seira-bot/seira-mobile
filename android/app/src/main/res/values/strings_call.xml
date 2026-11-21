@@ -20,4 +20,11 @@
     <string name="call_service_connecting">Connecting…</string>
     <string name="call_service_live">Live call</string>
     <string name="call_service_hang_up">Hang up</string>
+    <string name="call_record_title">Call with %1$s</string>
+    <string name="call_record_open">%1$s, %2$s. Open the call.</string>
+    <string name="call_record_partial">Some of this call is in earlier messages. Load earlier messages to see all of it.</string>
+    <string name="call_record_started">Started %1$s</string>
+    <string name="call_record_ended">Ended %1$s</string>
+    <string name="call_record_said">What you said</string>
+    <string name="call_record_nothing">No spoken lines are loaded for this call.</string>
 </resources>
