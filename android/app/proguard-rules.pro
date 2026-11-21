@@ -18,3 +18,14 @@
 # libwebrtc 150.7871.01 ships no R8 rules. Its native code finds these
 # classes and members by name over JNI.
 -keep class org.webrtc.** { *; }
+
+# WorkManager 2.10.0 (a Glance dependency) creates WorkDatabase_Impl and its
+# InputMerger through the no-argument constructor by reflection. Room and
+# WorkManager keep only the classes, and R8 full mode then removes the
+# constructors: the app crashes at start in androidx.startup.
+-keep class * extends androidx.room.RoomDatabase {
+    <init>();
+}
+-keep class * extends androidx.work.InputMerger {
+    public <init>();
+}
