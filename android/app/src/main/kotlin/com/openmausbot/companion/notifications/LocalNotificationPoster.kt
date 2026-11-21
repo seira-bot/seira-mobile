@@ -17,6 +17,7 @@ import com.openmausbot.companion.R
 import com.openmausbot.companion.avatar.AvatarImageStore
 import com.openmausbot.companion.core.NotificationFrame
 import com.openmausbot.companion.core.NotificationSink
+import com.openmausbot.companion.core.PushAlert
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.shortcuts.BotIdentity
 import com.openmausbot.companion.shortcuts.BotShortcuts
@@ -67,6 +68,42 @@ class LocalNotificationPoster(
             addApprovalActions(builder, notification, tag, bound)
         }
         post(tag, builder.build())
+    }
+
+    /**
+     * A remote push names a title and a destination, nothing more. It offers
+     * Review only: the phone holds no card for it, so Approve has nothing to answer.
+     */
+    fun deliverPush(alert: PushAlert) {
+        if (!canPost()) return
+        val channelId = NotificationMapping.channelId(alert)
+        val blocking = alert.kind == KIND_APPROVAL || alert.kind == KIND_QUESTION
+        val builder = NotificationCompat.Builder(appContext, channelId)
+            .setSmallIcon(R.drawable.ic_seira_mark)
+            .setContentTitle(NotificationText.anchored(alert.title))
+            .setContentIntent(
+                NotificationIntents.openPending(appContext, alert.botId, alert.threadId, alert.kind, alert.pairing),
+            )
+            .setAutoCancel(true)
+            .setPriority(
+                if (channelId == NotificationMapping.CHANNEL_BLOCKING) {
+                    NotificationCompat.PRIORITY_HIGH
+                } else {
+                    NotificationCompat.PRIORITY_DEFAULT
+                },
+            )
+            .setCategory(if (blocking) NotificationCompat.CATEGORY_ALARM else NotificationCompat.CATEGORY_STATUS)
+            .addAction(
+                NotificationActions.reviewAction(
+                    appContext,
+                    appContext.getString(R.string.notification_action_review),
+                    alert.botId,
+                    alert.threadId,
+                    alert.kind,
+                    alert.pairing,
+                ),
+            )
+        post(alert.tag, builder.build())
     }
 
     private fun baseBuilder(notification: NotificationFrame): NotificationCompat.Builder {
@@ -408,8 +445,10 @@ class LocalNotificationPoster(
         const val EXTRA_THREAD_ID = "openmaus.threadId"
         const val EXTRA_BOT_ID = "openmaus.botId"
         const val EXTRA_KIND = "openmaus.kind"
+        const val EXTRA_PAIRING = "openmaus.pairing"
 
         private const val KIND_APPROVAL = "approval"
+        private const val KIND_QUESTION = "question"
         private const val NOTIFICATION_ID = 0
         private const val AVATAR_WAIT_MS = 1_500L
         private const val OUTCOME_TIMEOUT_MS = 5_000L

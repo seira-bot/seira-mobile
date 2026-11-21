@@ -1,6 +1,7 @@
 package com.openmausbot.companion.notifications
 
 import com.openmausbot.companion.core.NotificationFrame
+import com.openmausbot.companion.core.PushAlert
 
 /**
  * Pure mapping from companion notify frames to Android channel + dedupe id.
@@ -19,11 +20,19 @@ object NotificationMapping {
     const val CHANNEL_DONE = "bot_messages"
     const val CHANNEL_ROUTINE_FAILED = "routine_failed"
 
-    fun channelId(notification: NotificationFrame): String = when (notification.kind) {
+    fun channelId(notification: NotificationFrame): String = channelIdForKind(notification.kind)
+
+    fun channelIdForKind(kind: String): String = when (kind) {
         "approval", "question" -> CHANNEL_BLOCKING
         "routine-failed" -> CHANNEL_ROUTINE_FAILED
         else -> CHANNEL_DONE
     }
+
+    private val KNOWN_CHANNELS = setOf(CHANNEL_BLOCKING, CHANNEL_DONE, CHANNEL_ROUTINE_FAILED)
+
+    /** The channel the relay names when it is one of ours, else the one the kind maps to. */
+    fun channelId(alert: PushAlert): String =
+        alert.channelId?.takeIf { it in KNOWN_CHANNELS } ?: channelIdForKind(alert.kind)
 
     /** Matches iOS: `openmaus.{threadId}.{seq}` (title fallback when seq is null). */
     fun dedupeId(notification: NotificationFrame, sequence: Int?): String {

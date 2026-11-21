@@ -282,6 +282,8 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                     }
                 }
 
+                ConversationUsageSection(current.tasks?.firstOrNull { it.threadId == opened.threadId }?.usage)
+
                 FormSection(header = "Model", footer = ModelRules.FOOTER) {
                     ModelPickerFields(
                         instances = instances,
