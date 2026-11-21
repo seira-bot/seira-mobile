@@ -60,6 +60,16 @@ class ConnectionRegistryTest {
     }
 
     @Test
+    fun aClaimedIdentityAtAnotherAddressNeverReplacesASavedComputer() {
+        val server = Connection(id = "server", name = "Mini", host = "mini.local", port = 8799, serverEnvironmentId = "env-a")
+        val home = air.copy(secretPublicKey = "key-home")
+        val registry = ConnectionRegistry(listOf(server, home), server.id)
+
+        assertNull(registry.matchingConnection(Connection(name = "Mini", host = "elsewhere.example", port = 8799, serverEnvironmentId = "env-a")))
+        assertNull(registry.matchingConnection(Connection(name = "Air", host = "elsewhere.example", port = 8810, secretPublicKey = "key-home")))
+    }
+
+    @Test
     fun theRelayOnlyPlaceholderIsNoSharedAddress() {
         val vps = Connection(id = "vps", name = "VPS", host = "relay-only.invalid", port = 443)
         val registry = ConnectionRegistry(listOf(vps), vps.id)

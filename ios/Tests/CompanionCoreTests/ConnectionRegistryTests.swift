@@ -84,6 +84,16 @@ final class ConnectionRegistryTests: XCTestCase {
         XCTAssertEqual(registry.matchingConnection(for: homeAgain)?.id, home.id)
     }
 
+    func testAClaimedIdentityAtAnotherAddressNeverReplacesASavedComputer() {
+        var home = first
+        home.secretPublicKey = "key-home"
+        let registry = CompanionConnectionRegistry(connections: [home], activeConnectionID: home.id)
+        var impostor = Connection(name: first.name, host: "elsewhere.example", port: 8810)
+        impostor.secretPublicKey = "key-home"
+
+        XCTAssertNil(registry.matchingConnection(for: impostor))
+    }
+
     func testTheRelayOnlyPlaceholderIsNoSharedAddress() {
         var vps = Connection(id: "vps", name: "VPS", host: "relay-only.invalid", port: 443)
         vps.secretPublicKey = "key-vps"
