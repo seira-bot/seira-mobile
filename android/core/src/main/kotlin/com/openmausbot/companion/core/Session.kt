@@ -1759,6 +1759,36 @@ class Session(
         }
     }
 
+    /**
+     * Press a button on a widget card. A widget in a room is view-only, so a
+     * press there is refused without a request. A refusal carries the computer's
+     * own sentence; a transport failure carries nothing and may be retried.
+     */
+    suspend fun pressWidget(chat: Chat, press: WidgetPress): WidgetPressResult {
+        val botChat = chat as? Chat.BotChat ?: return WidgetPressResult.Refused(null)
+        val activeClient = client ?: return WidgetPressResult.Failed
+        val connectionId = _connection.value?.id
+        return try {
+            activeClient.sendWidgetAction(botChat.bot.id, botChat.threadId, press)
+            WidgetPressResult.Sent
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError.Status) {
+            if (error.isUnauthorized) {
+                gate.withLock {
+                    if (connectionId != null && _connection.value?.id == connectionId) {
+                        _status.value = Status.Unauthorized
+                    }
+                }
+                WidgetPressResult.Failed
+            } else {
+                WidgetPressResult.Refused(error.serverMessage)
+            }
+        } catch (error: Throwable) {
+            WidgetPressResult.Failed
+        }
+    }
+
     suspend fun interrupt(bot: Bot) {
         perform { it.interrupt(bot.id, bot.threadId) }
     }
