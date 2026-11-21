@@ -48,22 +48,4 @@
     <string name="settings_update_checking">正在检查…</string>
     <string name="settings_update_found">正在下载更新</string>
     <string name="settings_update_current">已是最新版本</string>
-    <string name="ai_usage_title">AI 用量</string>
-    <string name="ai_usage_window_five_hour">5 小时限额</string>
-    <string name="ai_usage_window_weekly">每周限额</string>
-    <string name="ai_usage_window_other">其他限额</string>
-    <string name="ai_usage_window_row">剩余 %1$d%% · %2$s重置</string>
-    <string name="ai_usage_window_row_no_reset">剩余 %1$d%%</string>
-    <string name="ai_usage_paused_until">暂停至 %1$s</string>
-    <string name="ai_usage_paused">已暂停</string>
-    <string name="ai_usage_near_limit">即将达到限额</string>
-    <string name="ai_usage_check_again">重新检查</string>
-    <string name="ai_usage_checking">正在检查…</string>
-    <string name="ai_usage_empty">没有可显示的 AI 用量。</string>
-    <string name="ai_usage_load_failed">无法加载 AI 用量。请重试。</string>
-    <string name="ai_usage_ring_description">%1$s，已用 %2$d%%</string>
-    <string name="ai_usage_conversation_tokens">%2$d 轮共 %1$s 个词元</string>
-    <string name="ai_usage_conversation_tokens_one_turn">1 轮共 %1$s 个词元</string>
-    <string name="ai_usage_conversation_cost">%1$s · 约 %2$s</string>
-    <string name="ai_usage_conversation_context">上下文 %1$s / %2$s</string>
 </resources>
