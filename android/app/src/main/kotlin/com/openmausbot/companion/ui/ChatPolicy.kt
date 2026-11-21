@@ -499,7 +499,8 @@ object SearchHitRole {
 object MessageActions {
     /** The text worth putting on the clipboard, or null when there is none. */
     fun copyableText(message: Message): String? = when (message.kind) {
-        Message.Kind.TEXT, Message.Kind.APP, Message.Kind.UNKNOWN -> message.text
+        Message.Kind.TEXT, Message.Kind.APP, Message.Kind.GOAL_RUN, Message.Kind.BURST, Message.Kind.CALL,
+        Message.Kind.UNKNOWN -> message.text
             ?.let { message.webhookContent?.task ?: AttachedMessageContent.parse(it).text }
             ?.takeIf { it.isNotBlank() }
         // An approval card is worth copying for what it is asking to do.
