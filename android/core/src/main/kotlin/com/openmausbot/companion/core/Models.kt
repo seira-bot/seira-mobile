@@ -323,8 +323,8 @@ data class Message(
 ) {
     @Serializable(with = MessageKindSerializer::class)
     enum class Kind {
-        TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL, CONNECTOR,
-        SIGNIN, SECRET, UNKNOWN,
+        TEXT, OPTIONS, ACTIVITY, SCREEN, DIGEST, COMPACTION, ROUTINE_RUN, APP, WIDGET, GOAL_RUN, BURST, CALL,
+        CONNECTOR, SIGNIN, SECRET, UNKNOWN,
     }
 
     @Serializable(with = MessageRoleSerializer::class)
