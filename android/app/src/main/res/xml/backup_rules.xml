@@ -27,4 +27,7 @@
     <exclude
         domain="sharedpref"
         path="openmaus.onboarding.xml" />
+    <exclude
+        domain="sharedpref"
+        path="openmaus.push.xml" />
 </full-backup-content>

@@ -514,6 +514,18 @@ class CompanionClient(
 
     suspend fun routines(): RoutinesResponse = send(makeRequest("GET", "/api/routines"))
 
+    suspend fun engineLimits(refresh: Boolean = false): EngineLimitsReport? = try {
+        send(
+            makeRequest(
+                "GET",
+                "/api/limit-resets",
+                query = if (refresh) listOf("refresh" to "1") else emptyList(),
+            ),
+        )
+    } catch (error: APIError.Status) {
+        if (error.code == 403 || error.code == 404) null else throw error
+    }
+
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 
@@ -1036,6 +1048,21 @@ class CompanionClient(
 
     suspend fun markRoomRead(roomId: String, threadId: String? = null) {
         sendUnit(makeRequest("POST", "/api/groups/${segment(roomId)}/read", body = jsonBody("threadId" to threadId)))
+    }
+
+    /** Registers this phone's push token with the computer. The body is exactly these three fields. */
+    suspend fun registerPush(token: String, pairing: String): PushAnswer = send(
+        makeRequest(
+            "PUT",
+            "/api/push/device",
+            body = jsonBody("platform" to "fcm", "token" to token, "pairing" to pairing),
+        ),
+    )
+
+    suspend fun pushDevice(): PushAnswer = send(makeRequest("GET", "/api/push/device"))
+
+    suspend fun unregisterPush() {
+        sendUnit(makeRequest("DELETE", "/api/push/device"))
     }
 
     fun events(since: String?, screens: Boolean = false): Flow<StreamFrame> {
@@ -1670,3 +1697,18 @@ class CompanionClient(
  */
 @Serializable
 internal data class RespondBody(val outcome: String? = null)
+
+/** The computer's answer about this phone's push registration. It never echoes the token. */
+@Serializable
+data class PushAnswer(
+    val push: String,
+    val device: PushDevice? = null,
+    val relay: String? = null,
+)
+
+@Serializable
+data class PushDevice(
+    val platform: String,
+    val pairing: String? = null,
+    val updatedAt: Double? = null,
+)
