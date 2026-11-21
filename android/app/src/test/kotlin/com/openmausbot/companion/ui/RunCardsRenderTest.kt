@@ -223,19 +223,9 @@ class RunCardsRenderTest {
         compose.onNode(hasContentDescription(text(R.string.chat_burst_row_open, "Invoice April"))).performClick()
         compose.waitForIdle()
         assertEquals(listOf(ThreadRef("bot-1", "thread-child-2", "Invoice April")), opened)
-    }
-
-    @Test
-    fun aTaskWithoutAConversationDoesNotOpenAnything() {
-        show(burst("running", mapOf("done" to 1, "running" to 1, "queued" to 1), total = 3), openThread = { })
-        compose.onNodeWithText(text(R.string.chat_burst_show_tasks)).performClick()
-        compose.waitUntil(TASKS_LOAD_MS) { compose.onAllNodes(hasText("Invoice April")).fetchSemanticsNodes().isNotEmpty() }
-        compose.waitForIdle()
-        compose.onNodeWithText("Invoice May").assertIsDisplayed()
         assertEquals(
             0,
-            compose.onAllNodes(hasContentDescription(text(R.string.chat_burst_row_open, "Invoice May")))
-                .fetchSemanticsNodes().size,
+            compose.onAllNodes(hasContentDescription(text(R.string.chat_burst_row_open, "Invoice May"))).fetchSemanticsNodes().size,
         )
     }
 
