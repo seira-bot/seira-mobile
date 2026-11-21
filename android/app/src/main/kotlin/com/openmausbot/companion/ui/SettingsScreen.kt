@@ -70,6 +70,7 @@ import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Profile
 import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.RosterDensity
+import com.openmausbot.companion.core.AiUsageRules
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -95,6 +96,7 @@ internal fun SettingsScreen(
     onBack: () -> Unit,
     onOpenRoutines: (() -> Unit)? = null,
     onOpenConnectedApps: (() -> Unit)? = null,
+    onOpenAiUsage: (() -> Unit)? = null,
     onConnect: (() -> Unit)? = null,
     accounts: AccountInfoSource? = null,
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
@@ -161,6 +163,13 @@ internal fun SettingsScreen(
     var account by remember { mutableStateOf(AccountInfo()) }
     LaunchedEffect(connection?.id, source) {
         account = if (connection != null) source.load() else AccountInfo()
+    }
+
+    val aiUsageHiddenFor by session.aiUsageHiddenFor.collectAsState()
+    val showsAiUsage = onOpenAiUsage != null && connection != null &&
+        !AiUsageRules.hidden(aiUsageHiddenFor, connection?.id)
+    LaunchedEffect(connection?.id, status, onOpenAiUsage != null) {
+        if (onOpenAiUsage != null && connection != null && status == Session.Status.Live) session.aiUsage()
     }
 
     val version = remember {
@@ -488,6 +497,14 @@ internal fun SettingsScreen(
                     onClick = onOpenRoutines,
                     trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
                 )
+                if (showsAiUsage) {
+                    DesignRow(
+                        title = stringResource(R.string.ai_usage_title),
+                        icon = SeiraIcons.BarChart,
+                        onClick = onOpenAiUsage,
+                        trailing = { Icon(SeiraIcons.ChevronRight, null, tint = colors.ink3, modifier = Modifier.size(18.dp)) },
+                    )
+                }
             }
         }
 
