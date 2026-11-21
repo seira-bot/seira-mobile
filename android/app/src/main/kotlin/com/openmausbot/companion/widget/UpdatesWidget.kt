@@ -92,6 +92,7 @@ internal fun UpdatesWidgetContent(view: WidgetView, face: (WidgetSnapshot.Row) -
     }
 }
 
+private const val SMALL_LINES = 4
 private val WIDE_FROM = 200.dp
 private val TALL_FROM = 200.dp
 
@@ -114,7 +115,7 @@ private fun Small(context: Context, view: WidgetView.Active, face: (WidgetSnapsh
     Column(modifier = GlanceModifier.fillMaxSize().clickable(openChat(context, row))) {
         RowHead(row, face(row), nameSize = 14)
         Spacer(GlanceModifier.height(4.dp))
-        Text(row.line, style = caption(), maxLines = 3)
+        Text(row.line, style = caption(), maxLines = SMALL_LINES)
         Spacer(GlanceModifier.defaultWeight())
         if (row.kind == WidgetSnapshot.Kind.NEEDS_YOU && row.canAnswer) {
             if (view.answersOn) {

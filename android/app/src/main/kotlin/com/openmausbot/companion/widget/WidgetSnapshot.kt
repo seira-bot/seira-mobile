@@ -54,8 +54,15 @@ data class WidgetSnapshot(
          * card (see [NotificationApproval]). Null means the row only opens the chat.
          */
         val plainAllow: String? = null,
+        /**
+         * True only when [line] is the whole request text: it had no line break,
+         * no cut, and is short enough to show in full. Set at write time from the
+         * original text. A button never shows next to a request that may be hidden.
+         */
+        val fullyShown: Boolean = false,
     ) {
-        val canAnswer: Boolean get() = kind == Kind.NEEDS_YOU && requestId != null && plainAllow != null
+        val canAnswer: Boolean
+            get() = kind == Kind.NEEDS_YOU && requestId != null && plainAllow != null && fullyShown
 
         internal fun matchesExceptLine(other: Row): Boolean = copy(line = "") == other.copy(line = "")
     }
@@ -111,6 +118,16 @@ data class WidgetSnapshot(
         const val ANSWER_MAXIMUM_AGE_MS = 600_000L
         const val STALE_AFTER_MS = 900_000L
         const val MAX_LINE = 160
+
+        /** Widest request, in [lineWeight] units, that the 2x2 widget shows in full (4 lines of about 15). */
+        const val MAX_ANSWER_WEIGHT = 36
+
+        /** A wide (CJK) character takes two units because it fills twice the width. */
+        fun lineWeight(text: String): Int = text.fold(0) { sum, c -> sum + (if (c.code >= 0x2E80) 2 else 1) }
+
+        fun isFullyShown(original: String): Boolean =
+            '\n' !in original && '\r' !in original && original.length <= MAX_LINE &&
+                lineWeight(original) <= MAX_ANSWER_WEIGHT
     }
 }
 
@@ -176,6 +193,7 @@ private fun ChatUpdate.toRow(state: CompanionState, clock: WidgetSinceClock, now
         lookKey = lookKey(chat),
         kind = widgetKind,
         line = line.replace('\n', ' ').take(WidgetSnapshot.MAX_LINE),
+        fullyShown = fullyShown(),
         since = clock.stamp(chat.id, chat.threadId, widgetKind, now),
         requestId = liveCard?.requestId,
         options = liveCard?.options.orEmpty(),
@@ -191,4 +209,14 @@ internal fun lookKey(chat: Chat): String = when (chat) {
         chat.bot.mascotAccessories.orEmpty().joinToString(","),
     ).joinToString("|")
     is Chat.RoomChat -> "room|${chat.color}"
+}
+
+/**
+ * The card's own text is the request. The update line keeps only the first line
+ * of it and may cut that, so the check reads the card, not the line.
+ */
+private fun ChatUpdate.fullyShown(): Boolean {
+    val card = card ?: return false
+    val original = card.subtitle.trim().ifEmpty { card.title.trim() }
+    return original == line.trim() && WidgetSnapshot.isFullyShown(original)
 }

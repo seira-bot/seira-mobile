@@ -82,11 +82,31 @@ class WidgetSyncTest {
             assertEquals(WidgetSnapshot.Kind.NEEDS_YOU, row.kind)
             assertEquals("request-1", row.requestId)
             assertEquals("Allow", row.plainAllow)
+            assertTrue(row.fullyShown)
             assertEquals(requireNotNull(session.connection.value).id, written.connectionId)
             assertEquals(ActivityDetail.REDUCED.wireValue, written.detail)
             assertTrue(refreshes >= 1)
             assertEquals(listOf(WidgetFixture.NOW), scheduled.distinct())
             assertTrue(WidgetSync.WINDOW_MS < 1_000)
+        } finally {
+            server.shutdown()
+        }
+    }
+
+    @Test
+    fun `a multi line request is written as not fully shown`() = runTest {
+        val server = MockWebServer().apply { start() }
+        try {
+            val card = NotificationFixture.permissionCard().copy(subtitle = "git push\nrm -rf build")
+            val fleet = Fleet(listOf(NotificationFixture.bot(messages = listOf(cardMessage(card)))), emptyList())
+            val session = liveSession(server, fleet)
+            backgroundScope.launch { sync(session).run() }
+            advanceTimeBy(WidgetSync.WINDOW_MS + 1)
+            runCurrent()
+
+            val row = requireNotNull(store.read()).rows.single()
+            assertFalse(row.fullyShown)
+            assertFalse(row.canAnswer)
         } finally {
             server.shutdown()
         }

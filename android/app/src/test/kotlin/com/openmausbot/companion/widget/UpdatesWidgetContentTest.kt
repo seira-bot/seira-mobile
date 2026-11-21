@@ -75,6 +75,18 @@ class UpdatesWidgetContentTest {
     }
 
     @Test
+    fun `a request that may be cut shows no approve button and a tap opens the chat`() = runGlanceAppWidgetUnitTest {
+        setContext(context)
+        setAppWidgetSize(UpdatesWidget.SMALL)
+        val cut = row(fullyShown = false)
+        provideComposable { UpdatesWidgetContent(view(listOf(cut)), face) }
+
+        onNode(hasText("Approve")).assertDoesNotExist()
+        onNode(hasRunCallbackClickAction<WidgetAnswerAction>()).assertDoesNotExist()
+        onNode(hasStartActivityClickAction(openIntent(context, cut))).assertExists()
+    }
+
+    @Test
     fun `the approve button disappears after ten minutes`() = runGlanceAppWidgetUnitTest {
         setContext(context)
         setAppWidgetSize(UpdatesWidget.SMALL)

@@ -11,6 +11,7 @@ internal object WidgetFixture {
         options: List<String> = listOf("Allow", "Deny"),
         isPermission: Boolean = true,
         plainAllow: String? = "Allow",
+        fullyShown: Boolean = true,
         since: Long? = null,
         name: String = "Scout",
     ) = WidgetSnapshot.Row(
@@ -26,6 +27,7 @@ internal object WidgetFixture {
         options = options,
         isPermission = isPermission,
         plainAllow = plainAllow,
+        fullyShown = fullyShown,
     )
 
     fun working(threadId: String = "thread-2", line: String = "Working…") = row(

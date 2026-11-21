@@ -67,6 +67,22 @@ class WidgetSnapshotTest {
     }
 
     @Test
+    fun `a request that may be cut is never answerable`() {
+        assertNull(answer(snapshot(listOf(row(fullyShown = false))), NOW))
+    }
+
+    @Test
+    fun `only a short single line counts as fully shown`() {
+        assertTrue(WidgetSnapshot.isFullyShown("git push origin main"))
+        assertFalse(WidgetSnapshot.isFullyShown("git push\norigin main"))
+        assertFalse(WidgetSnapshot.isFullyShown("git push\r"))
+        assertFalse(WidgetSnapshot.isFullyShown("x".repeat(WidgetSnapshot.MAX_ANSWER_WEIGHT + 1)))
+        assertTrue(WidgetSnapshot.isFullyShown("x".repeat(WidgetSnapshot.MAX_ANSWER_WEIGHT)))
+        assertFalse(WidgetSnapshot.isFullyShown("删除".repeat(10)))
+        assertTrue(WidgetSnapshot.isFullyShown("删除".repeat(9)))
+    }
+
+    @Test
     fun `an answer button expires after ten minutes`() {
         val s = snapshot()
         assertNotNull(answer(s, NOW + 10 * minute))

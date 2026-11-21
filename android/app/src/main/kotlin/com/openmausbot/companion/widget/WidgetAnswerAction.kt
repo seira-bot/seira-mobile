@@ -1,6 +1,8 @@
 package com.openmausbot.companion.widget
 
+import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Handler
 import android.os.Looper
 import android.widget.Toast
@@ -10,36 +12,81 @@ import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.updateAll
 import com.openmausbot.companion.OpenMausApp
 import com.openmausbot.companion.R
+import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.notifications.ApproveRequest
 import com.openmausbot.companion.notifications.NotificationApproval
+import com.openmausbot.companion.notifications.NotificationIntents
 
 /**
  * Approves the ask on a widget button.
  *
- * Security invariant: a widget is a frozen picture. The tap answers only when the
- * snapshot is under ten minutes old and still holds this exact request and
- * option, and the live session still holds the same plain permission card.
- * Anything else changes nothing and sends the person to the chat.
+ * Security invariants: a widget is a frozen picture, and it can show on a locked
+ * screen. A tap answers only when the phone is unlocked, the snapshot is under
+ * ten minutes old, the row holds this exact request and option with its whole
+ * text shown, and the live session still holds the same plain permission card.
+ * Anything else changes nothing and opens the chat, where the system asks to
+ * unlock.
  */
 class WidgetAnswerAction : ActionCallback {
     override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
-        val threadId = parameters[ThreadKey] ?: return
-        val botId = parameters[BotKey] ?: return
-        val requestId = parameters[RequestKey] ?: return
-        val choice = parameters[ChoiceKey] ?: return
         val app = context.applicationContext as? OpenMausApp ?: return
-        val store = WidgetSnapshotStore.forContext(context)
+        val locked = context.getSystemService(KeyguardManager::class.java)
+            ?.let { it.isKeyguardLocked || it.isDeviceLocked } ?: true
+        WidgetAnswerHandler(
+            context = context,
+            store = WidgetSnapshotStore.forContext(context),
+            clock = System::currentTimeMillis,
+            isLocked = { locked },
+            state = { app.session.state.value },
+            approve = { app.notificationActions.approve(it) },
+            startActivity = { context.startActivity(it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)) },
+            tell = { message ->
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+                }
+            },
+            redraw = { UpdatesWidget().updateAll(context) },
+        ).onTap(
+            threadId = parameters[ThreadKey] ?: return,
+            botId = parameters[BotKey] ?: return,
+            requestId = parameters[RequestKey] ?: return,
+            choice = parameters[ChoiceKey] ?: return,
+        )
+    }
+
+    companion object {
+        val ThreadKey = ActionParameters.Key<String>("thread")
+        val BotKey = ActionParameters.Key<String>("bot")
+        val RequestKey = ActionParameters.Key<String>("request")
+        val ChoiceKey = ActionParameters.Key<String>("choice")
+    }
+}
+
+internal class WidgetAnswerHandler(
+    private val context: Context,
+    private val store: WidgetSnapshotStore,
+    private val clock: () -> Long,
+    private val isLocked: () -> Boolean,
+    private val state: () -> CompanionState,
+    private val approve: suspend (ApproveRequest) -> Boolean,
+    private val startActivity: (Intent) -> Unit,
+    private val tell: (Int) -> Unit,
+    private val redraw: suspend () -> Unit,
+) {
+    suspend fun onTap(threadId: String, botId: String, requestId: String, choice: String) {
         val snapshot = store.read()
-        val row = snapshot?.answerableRow(threadId, requestId, choice, System.currentTimeMillis())
-        val found = row?.let {
-            NotificationApproval.find(app.session.state.value, botId, threadId, requestId)
-        }
-        if (snapshot == null || row == null || found == null || found.choice != choice) {
-            toast(context, R.string.widget_request_changed)
-            UpdatesWidget().updateAll(context)
+        if (isLocked()) {
+            startActivity(NotificationIntents.openIntent(context, botId, threadId, "needsYou"))
             return
         }
-        val answered = app.notificationActions.approve(
+        val row = snapshot?.answerableRow(threadId, requestId, choice, clock())
+        val found = row?.let { NotificationApproval.find(state(), botId, threadId, requestId) }
+        if (snapshot == null || row == null || found == null || found.choice != choice) {
+            tell(R.string.widget_request_changed)
+            redraw()
+            return
+        }
+        val answered = approve(
             ApproveRequest(
                 tag = "widget:$threadId:$requestId",
                 botId = botId,
@@ -49,17 +96,6 @@ class WidgetAnswerAction : ActionCallback {
             ),
         )
         if (answered) store.write(snapshot.removingRow(threadId))
-        UpdatesWidget().updateAll(context)
-    }
-
-    private fun toast(context: Context, message: Int) {
-        Handler(Looper.getMainLooper()).post { Toast.makeText(context, message, Toast.LENGTH_LONG).show() }
-    }
-
-    companion object {
-        val ThreadKey = ActionParameters.Key<String>("thread")
-        val BotKey = ActionParameters.Key<String>("bot")
-        val RequestKey = ActionParameters.Key<String>("request")
-        val ChoiceKey = ActionParameters.Key<String>("choice")
+        redraw()
     }
 }
