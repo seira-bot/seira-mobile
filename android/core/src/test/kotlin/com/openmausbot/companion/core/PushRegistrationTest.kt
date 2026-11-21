@@ -57,7 +57,7 @@ class PushRegistrationTest {
         runCatching { proServer.shutdown() }
     }
 
-    private fun server(computer: String) = MockWebServer().apply {
+    private fun server(computer: String): MockWebServer = MockWebServer().apply {
         dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 if (request.path != "/api/push/device") return MockResponse().setResponseCode(404)
@@ -123,7 +123,7 @@ class PushRegistrationTest {
         Json.parseToJsonElement(request.body.readUtf8()).jsonObject
 
     @Test
-    fun `AC-01 a Live stream registers with exactly platform, token and pairing`() = runBlocking {
+    fun `AC-01 a Live stream registers with exactly platform, token and pairing`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air)
         session.awaitRestored()
         session.applyPushToken("token-one")
@@ -141,7 +141,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-01 the same token and pairing are not sent again on the next Live stream`() = runBlocking {
+    fun `AC-01 the same token and pairing are not sent again on the next Live stream`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air)
         session.awaitRestored()
         session.applyPushToken("token-one")
@@ -155,7 +155,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-01 a token that arrives after the stream is Live registers at once`() = runBlocking {
+    fun `AC-01 a token that arrives after the stream is Live registers at once`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air)
         session.awaitRestored()
         session.connect()
@@ -167,7 +167,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-01 a computer that keeps no registration is asked again next time`() = runBlocking {
+    fun `AC-01 a computer that keeps no registration is asked again next time`(): Unit = runBlocking {
         airServer.dispatcher = object : Dispatcher() {
             override fun dispatch(request: RecordedRequest): MockResponse {
                 seen += Seen("air", request, true)
@@ -191,7 +191,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-02 a new token marks every saved computer and registers the active one now`() = runBlocking {
+    fun `AC-02 a new token marks every saved computer and registers the active one now`(): Unit = runBlocking {
         val store = InMemoryPushRegistrationStore()
         val session = session(store, air, pro)
         session.awaitRestored()
@@ -218,7 +218,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-08 removing a computer sends DELETE before its credential goes`() = runBlocking {
+    fun `AC-08 removing a computer sends DELETE before its credential goes`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air, pro)
         session.awaitRestored()
         session.applyPushToken("token-one")
@@ -237,7 +237,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-08 a saved computer that is not active gets DELETE with its own credential`() = runBlocking {
+    fun `AC-08 a saved computer that is not active gets DELETE with its own credential`(): Unit = runBlocking {
         val store = InMemoryPushRegistrationStore().apply {
             runBlocking { save("pro", PushSignature.of("token-one", "pro")) }
         }
@@ -254,7 +254,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-08 removal goes on when the computer cannot be reached`() = runBlocking {
+    fun `AC-08 removal goes on when the computer cannot be reached`(): Unit = runBlocking {
         val store = InMemoryPushRegistrationStore().apply {
             runBlocking { save("pro", PushSignature.of("token-one", "pro")) }
         }
@@ -268,7 +268,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `AC-08 removal goes on when the computer never answers`() = runBlocking {
+    fun `AC-08 removal goes on when the computer never answers`(): Unit = runBlocking {
         val store = InMemoryPushRegistrationStore().apply {
             runBlocking { save("pro", PushSignature.of("token-one", "pro")) }
         }
@@ -283,7 +283,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `a phone that never held a push token sends nothing when a computer is removed`() = runBlocking {
+    fun `a phone that never held a push token sends nothing when a computer is removed`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air, pro)
         session.awaitRestored()
 
@@ -293,7 +293,7 @@ class PushRegistrationTest {
     }
 
     @Test
-    fun `holdsLiveStream names only the active computer while it is Live`() = runBlocking {
+    fun `holdsLiveStream names only the active computer while it is Live`(): Unit = runBlocking {
         val session = session(InMemoryPushRegistrationStore(), air, pro)
         session.awaitRestored()
         assertTrue(!session.holdsLiveStream("air"))
