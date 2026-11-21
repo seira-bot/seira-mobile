@@ -16534,6 +16534,182 @@
           }
         }
       }
+    },
+    "Enter it in Seira for this server": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite no Seira deste servidor"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此服务器的 Seira 中输入"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "在此伺服器的 Seira 中輸入"
+          }
+        }
+      }
+    },
+    "A phone paired with a server cannot enter this value. Open Seira for this server in a browser and enter it there.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Um celular pareado com um servidor não pode digitar este valor. Abra o Seira deste servidor em um navegador e digite lá."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "与服务器配对的手机无法输入此值。请在浏览器中打开此服务器的 Seira，并在那里输入。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "與伺服器配對的手機無法輸入此值。請在瀏覽器中開啟此伺服器的 Seira，並在那裡輸入。"
+          }
+        }
+      }
+    },
+    "Enter it in Seira for this server, in a browser.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Digite no Seira deste servidor, em um navegador."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在浏览器中，于此服务器的 Seira 里输入。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在瀏覽器中，於此伺服器的 Seira 裡輸入。"
+          }
+        }
+      }
+    },
+    "Encrypted and saving…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criptografado, salvando…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加密，正在保存…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加密，正在儲存…"
+          }
+        }
+      }
+    },
+    "Encrypted and ready to retry": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Criptografado e pronto para tentar de novo"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加密，可以重试"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已加密，可以重試"
+          }
+        }
+      }
+    },
+    "Saving securely…": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvando com segurança…"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安全保存…"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "正在安全儲存…"
+          }
+        }
+      }
+    },
+    "Try again securely": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tentar de novo com segurança"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全重试"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全重試"
+          }
+        }
+      }
+    },
+    "Save securely": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Salvar com segurança"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全保存"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "安全儲存"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
