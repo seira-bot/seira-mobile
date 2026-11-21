@@ -113,12 +113,14 @@ object SeiraIcons {
         "M2.5 19h19",
     )
 
+    val BarChart = strokeIcon("BarChart", "M5 20V11 M12 20V4 M19 20v-6")
+
     val all: List<ImageVector> by lazy {
         listOf(
             AudioLines, PenSquare, Search, Plus, X, ChevronLeft, ChevronRight, ChevronDown,
             Phone, PhoneOff, Mic, MicOff, Volume2, Captions, Camera, Image, File, CalendarClock,
             Monitor, Flashlight, FlashlightOff, Check, Sun, Moon, Smartphone, User, LogOut,
-            Bell, Shield, Download, Laptop,
+            Bell, Shield, Download, Laptop, BarChart,
         )
     }
 }

@@ -514,6 +514,18 @@ class CompanionClient(
 
     suspend fun routines(): RoutinesResponse = send(makeRequest("GET", "/api/routines"))
 
+    suspend fun engineLimits(refresh: Boolean = false): EngineLimitsReport? = try {
+        send(
+            makeRequest(
+                "GET",
+                "/api/limit-resets",
+                query = if (refresh) listOf("refresh" to "1") else emptyList(),
+            ),
+        )
+    } catch (error: APIError.Status) {
+        if (error.code == 403 || error.code == 404) null else throw error
+    }
+
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 
