@@ -58,7 +58,7 @@ internal fun SignInCardRow(chat: Chat, message: Message, startsRun: Boolean, rep
 }
 
 /**
- * The card never opens [SignInRequestCardData.url]: a sign-in made in a browser on the phone stays on the
+ * The card never opens the sign-in page address: a sign-in made in a browser on the phone stays on the
  * phone and does not reach the bot. Open goes to the bot's own browser or computer screen instead.
  */
 @OptIn(ExperimentalLayoutApi::class)
