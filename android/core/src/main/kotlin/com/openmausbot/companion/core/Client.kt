@@ -537,6 +537,28 @@ class CompanionClient(
         if (error.code == 403 || error.code == 404) null else throw error
     }
 
+    /**
+     * The workspaces of the computer this phone is paired with. A computer that does not serve
+     * the list, or a pairing that may not read it, answers 404 or 403: that gives null, and the
+     * app shows no picker.
+     */
+    suspend fun workspaces(): List<PhoneWorkspace>? = try {
+        WorkspacePolicy.normalized(send<PhoneWorkspaceList>(makeRequest("GET", "/api/phones/self/workspaces")).workspaces)
+    } catch (error: APIError.Status) {
+        if (error.code == 403 || error.code == 404) null else throw error
+    }
+
+    /** Asks the computer to open [id]; the answer is the list again, with a workspace that must wait marked so. */
+    suspend fun switchWorkspace(id: String): List<PhoneWorkspace> = WorkspacePolicy.normalized(
+        send<PhoneWorkspaceList>(
+            makeRequest(
+                "POST",
+                "/api/phones/self/workspaces/switch",
+                body = buildJsonObject { put("id", id) },
+            ),
+        ).workspaces,
+    )
+
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 
