@@ -16359,24 +16359,24 @@
         }
       }
     },
-    "Now on %@. Send your message again to continue.": {
+    "Now using %@.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Agora em %@. Envie sua mensagem de novo para continuar."
+            "value": "Agora usando %@."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "现已切换到 %@。请重新发送消息以继续。"
+            "value": "现在使用 %@。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "現已切換到 %@。請重新傳送訊息以繼續。"
+            "value": "現在使用 %@。"
           }
         }
       }
