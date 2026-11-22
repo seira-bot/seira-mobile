@@ -117,6 +117,7 @@ import com.openmausbot.companion.core.OptionCard
 import com.openmausbot.companion.core.ThreadRef
 import com.openmausbot.companion.core.ToolActivity
 import com.openmausbot.companion.core.forTask
+import com.openmausbot.companion.core.isStoppedTurn
 import com.openmausbot.companion.core.label
 import com.openmausbot.companion.core.statusOk
 import com.openmausbot.companion.core.routineExecutionRef
@@ -465,7 +466,10 @@ private fun MessageContent(
     runRef: ThreadRef?,
 ) {
     when (message.kind) {
-        Message.Kind.TEXT -> TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        Message.Kind.TEXT -> {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            if (isStoppedTurn(message)) FailedTurnActionRow(chat, message)
+        }
         // A structured ask draws its own card: its answers are the model's
         // questions, not an allow/deny a tap could stand for.
         Message.Kind.OPTIONS -> if (QuestionCardRules.drawsQuestionCard(message)) {

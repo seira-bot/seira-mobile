@@ -135,6 +135,11 @@ struct TranscriptActions: Equatable {
     }
 
     @MainActor
+    func retry(_ message: Message) async {
+        await edit(message, text: message.text ?? "")
+    }
+
+    @MainActor
     func edit(_ message: Message, text: String) async {
         guard case let .bot(bot) = liveChat else { return }
         await session.edit(message, for: bot, text: text)
@@ -266,6 +271,10 @@ struct TranscriptRowContext: Equatable {
     /// The newest cloud-computer notice and where its bot works now: set only
     /// when this phone may administer.
     let worksOn: WorksOnState?
+    /// The failed or stopped turn that offers "Try again", and the message it
+    /// sends again. Nil while the bot works or an edit is on its way.
+    let retryOfferId: String?
+    let retryMessage: Message?
     let credentials: CredentialAccess
     /// The bot's profile for avatars, in a bot chat; nil in a room.
     let faceBot: Bot?
