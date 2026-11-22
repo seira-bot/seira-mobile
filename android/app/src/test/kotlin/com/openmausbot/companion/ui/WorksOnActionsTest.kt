@@ -125,6 +125,7 @@ class WorksOnActionsTest {
     fun offersOnlyNoComputerWhenThereIsNoOwnServer() {
         ownServerConfigured = false
         show()
+        compose.waitUntil(5_000) { count("Work without a computer") > 0 }
         compose.onNodeWithText("Work without a computer").assertIsDisplayed()
         assertEquals(0, count("Use your own server"))
     }
@@ -157,6 +158,7 @@ class WorksOnActionsTest {
     @Test
     fun aTapSendsExactlyComputerOffAndShowsTheNewPlace() {
         show()
+        compose.waitUntil(5_000) { count("Work without a computer") > 0 }
         compose.onNodeWithText("Work without a computer").performClick()
         compose.waitUntil(5_000) { count("Now works without a computer.") > 0 }
         assertEquals(listOf("""{"computer":"off"}"""), patches)
