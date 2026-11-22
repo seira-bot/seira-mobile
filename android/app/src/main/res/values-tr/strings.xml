@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Bir ajan birden fazla %1$s hesabı kullandığında, takma ad hesabı belirgin kılar.</string>
     <string name="mobile_answered_e0aafffa">Yanıtlandı</string>
     <string name="mobile_archived_eddc813f">Arşivlendi</string>
-    <string name="mobile_art_direction_52d878a2">Sanat yönetimi</string>
     <string name="mobile_back_b52b36b7">Geri</string>
     <string name="mobile_bot_settings_7092a294">Bot ayarları</string>
     <string name="mobile_bot_threads_ec81acf2">Bot konuları</string>
@@ -491,7 +490,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Cloud VM\'in kullanılabilirliği denetleniyor…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Bir PNG, JPEG, GIF veya WebP görseli seçin.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Bu botun modelini değiştirmek için kullanılabilir bir sağlayıcı seçin.</string>
-    <string name="mobile_circle_1cc7820a">Daire</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Cloud VM durumu kullanılamıyor</string>
     <string name="mobile_completed_1798b3ba">Tamamlandı</string>
@@ -510,14 +508,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Adımları açıkla</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio yapılandırılmadı</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Avatar oluştur</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Bilgisayarda oluştur</string>
     <string name="mobile_hide_diff_120df7c2">Diff\'i gizle</string>
     <string name="mobile_identity_7e5a975b">Kimlik</string>
     <string name="mobile_idle_cc1ebdd0">Boşta</string>
     <string name="mobile_loading_models_eeade2be">Modeller yükleniyor</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Yerel keşif kesintiye uğradı. Yeniden deneniyor…</string>
-    <string name="mobile_mascot_e0489488">Maskot</string>
     <string name="mobile_more_4bab2d8f">Daha fazla</string>
     <string name="mobile_needs_you_0d9d0df1">Sizi bekliyor</string>
     <string name="mobile_new_task_17b2b838">Yeni görev</string>
@@ -539,7 +534,6 @@
     <string name="mobile_preview_voice_560a6fec">Sesi önizle</string>
     <string name="mobile_primary_account_32f2184e">Birincil hesap</string>
     <string name="mobile_recent_changes_1bfd2320">Son değişiklikler</string>
-    <string name="mobile_rounded_c5aa340f">Yuvarlak köşeli</string>
     <string name="mobile_routines_a445e5ad">Rutinler</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Tüm otomatik testleri çalıştır</string>
     <string name="mobile_run_receipts_9115568f">Çalıştırma makbuzları</string>
@@ -549,7 +543,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Yinelenen veya tek seferlik ajan işi zamanlayın.</string>
     <string name="mobile_sending_cf765512">Gönderiliyor…</string>
     <string name="mobile_show_diff_78016e77">Diff\'i göster</string>
-    <string name="mobile_square_82810cb9">Kare</string>
     <string name="mobile_start_dictation_ee00527b">Dikteyi başlat</string>
     <string name="mobile_stop_dictation_96ad53f1">Dikteyi durdur</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Modelini değiştirmeden önce bu botu durdurun.</string>
@@ -560,8 +553,6 @@
     <string name="mobile_this_computer_4ccce6f4">Bu bilgisayar</string>
     <string name="mobile_to_review_066f77ce">İncelenecek</string>
     <string name="mobile_unknown_bc7819b3">Bilinmiyor</string>
-    <string name="mobile_upload_image_f35dec5f">Görsel yükle</string>
-    <string name="mobile_use_mascot_0de90a12">Maskotu kullan</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Eşlenen bilgisayarda bu ajanın seçili modelini ve bilgisayar ayarını kullanır.</string>
     <string name="mobile_view_diff_39f85d34">Diff\'i görüntüle</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Bir kare bekleniyor…</string>
@@ -578,9 +569,6 @@
     <string name="mobile_model_busy_note">Modelini değiştirmeden önce bu botu durdurun.</string>
     <string name="mobile_model_unavailable_note">Bu botun modelini değiştirmek için kullanılabilir bir sağlayıcı seçin.</string>
     <string name="mobile_model_unavailable">Kullanılamıyor</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF veya WebP, en fazla 10 MB. Görseller eşlenen bilgisayarınızda saklanır ve bu telefonun eşleme anahtarıyla yüklenir.</string>
-    <string name="mobile_profile_generate_ready">Oluşturma, bilgisayarınızda yapılandırılmış ortak görsel sağlayıcısını kullanır. Bu telefona hiçbir sağlayıcı anahtarı gönderilmez veya kaydedilmez.</string>
-    <string name="mobile_profile_generate_blocked">Görsel oluşturmak için bilgisayarınızdaki Seira\'da ortak görsel sağlayıcısını yapılandırın. Sağlayıcı anahtarları telefondan eklenemez.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs yapılandırılmadı</string>
     <string name="mobile_profile_builtin_voices_unavailable">Bilgisayarınızın yerleşik sesleri kullanılamıyor</string>
     <string name="mobile_profile_voice_unconfigured_footer">Ortak ElevenLabs anahtarını bilgisayarda bu ajanın profiline ekleyin. Anahtar bu telefona asla gönderilmez.</string>
@@ -826,7 +814,6 @@
     <string name="change_look_title">Görünümü değiştir</string>
     <string name="change_look_close">Kapat</string>
     <string name="change_look_preview">Görünüm önizlemesi</string>
-    <string name="change_look_cat_characters">Karakterler</string>
     <string name="change_look_cat_hair">Saç</string>
     <string name="change_look_cat_colour">Renk</string>
     <string name="change_look_cat_face">Yüz</string>
@@ -891,4 +878,16 @@
     <string name="change_look_no_changes">Henüz değişiklik yok</string>
     <string name="change_look_offline">Kaydetmek için bilgisayarınıza bağlanın.</string>
     <string name="change_look_failed">Kaydedilemedi. Tekrar deneyin.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Oluştur</string>
+    <string name="avatar_tab_upload">Yükle</string>
+    <string name="avatar_generate_prompt">Resmi tarif edin</string>
+    <string name="avatar_generate_action">Resim oluştur</string>
+    <string name="avatar_generate_setup">Kullanmak için bilgisayarınızdaki Seira’da görsel oluşturmayı ayarlayın.</string>
+    <string name="avatar_generate_failed">Resim oluşturulamadı. Tekrar deneyin.</string>
+    <string name="avatar_picture_failed">Resim değiştirilemedi. Tekrar deneyin.</string>
+    <string name="avatar_upload_choose">Resim seç</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF veya WebP, en fazla 10 MB.</string>
+    <string name="avatar_upload_use">Bu resmi kullan</string>
+    <string name="avatar_upload_remove">Resmi kaldır</string>
 </resources>

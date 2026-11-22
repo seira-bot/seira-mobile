@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Un alias distingue clairement le compte quand un agent utilise plusieurs comptes %1$s.</string>
     <string name="mobile_answered_e0aafffa">Répondu</string>
     <string name="mobile_archived_eddc813f">Archivé</string>
-    <string name="mobile_art_direction_52d878a2">Direction artistique</string>
     <string name="mobile_back_b52b36b7">Retour</string>
     <string name="mobile_bot_settings_7092a294">Paramètres du bot</string>
     <string name="mobile_bot_threads_ec81acf2">Fils du bot</string>
@@ -491,7 +490,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Vérification de la disponibilité de la VM cloud…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Choisissez une image PNG, JPEG, GIF ou WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Choisissez un fournisseur disponible pour changer le modèle de ce bot.</string>
-    <string name="mobile_circle_1cc7820a">Cercle</string>
     <string name="mobile_cloud_vm_26ca291f">VM cloud</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">L’état de la VM cloud est indisponible</string>
     <string name="mobile_completed_1798b3ba">Terminé</string>
@@ -510,14 +508,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Expliquer les étapes</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio n’est pas configuré</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Générer un avatar</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Générer sur l’ordinateur</string>
     <string name="mobile_hide_diff_120df7c2">Masquer le diff</string>
     <string name="mobile_identity_7e5a975b">Identité</string>
     <string name="mobile_idle_cc1ebdd0">Inactif</string>
     <string name="mobile_loading_models_eeade2be">Chargement des modèles</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">La détection locale a été interrompue. Nouvelle tentative…</string>
-    <string name="mobile_mascot_e0489488">Mascotte</string>
     <string name="mobile_more_4bab2d8f">Plus</string>
     <string name="mobile_needs_you_0d9d0df1">Vous êtes attendu</string>
     <string name="mobile_new_task_17b2b838">Nouvelle tâche</string>
@@ -539,7 +534,6 @@
     <string name="mobile_preview_voice_560a6fec">Écouter un aperçu de la voix</string>
     <string name="mobile_primary_account_32f2184e">Compte principal</string>
     <string name="mobile_recent_changes_1bfd2320">Modifications récentes</string>
-    <string name="mobile_rounded_c5aa340f">Arrondi</string>
     <string name="mobile_routines_a445e5ad">Routines</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Lancer tous les tests automatisés</string>
     <string name="mobile_run_receipts_9115568f">Reçus d’exécution</string>
@@ -549,7 +543,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Planifiez un travail d’agent récurrent ou ponctuel.</string>
     <string name="mobile_sending_cf765512">Envoi…</string>
     <string name="mobile_show_diff_78016e77">Afficher le diff</string>
-    <string name="mobile_square_82810cb9">Carré</string>
     <string name="mobile_start_dictation_ee00527b">Démarrer la dictée</string>
     <string name="mobile_stop_dictation_96ad53f1">Arrêter la dictée</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Arrêtez ce bot avant de changer son modèle.</string>
@@ -560,8 +553,6 @@
     <string name="mobile_this_computer_4ccce6f4">Cet ordinateur</string>
     <string name="mobile_to_review_066f77ce">À examiner</string>
     <string name="mobile_unknown_bc7819b3">Inconnu</string>
-    <string name="mobile_upload_image_f35dec5f">Téléverser une image</string>
-    <string name="mobile_use_mascot_0de90a12">Utiliser la mascotte</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Utilise le modèle sélectionné pour cet agent et le réglage d’ordinateur sur l’ordinateur associé.</string>
     <string name="mobile_view_diff_39f85d34">Afficher le diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">En attente d’une image…</string>
@@ -578,9 +569,6 @@
     <string name="mobile_model_busy_note">Arrêtez ce bot avant de changer son modèle.</string>
     <string name="mobile_model_unavailable_note">Choisissez un fournisseur disponible pour changer le modèle de ce bot.</string>
     <string name="mobile_model_unavailable">Indisponible</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF ou WebP, jusqu’à 10 Mo. Les images sont stockées sur votre ordinateur associé et chargées avec le jeton d’association de ce téléphone.</string>
-    <string name="mobile_profile_generate_ready">La génération utilise le fournisseur d’images partagé configuré sur votre ordinateur. Aucune clé de fournisseur n’est envoyée à ce téléphone ni stockée dessus.</string>
-    <string name="mobile_profile_generate_blocked">Pour générer des images, configurez le fournisseur d’images partagé dans Seira sur votre ordinateur. Les clés des fournisseurs ne peuvent pas être ajoutées depuis un téléphone.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs n’est pas configuré</string>
     <string name="mobile_profile_builtin_voices_unavailable">Les voix intégrées de votre ordinateur sont indisponibles</string>
     <string name="mobile_profile_voice_unconfigured_footer">Ajoutez la clé ElevenLabs partagée dans le profil de cet agent sur l’ordinateur. La clé n’est jamais envoyée à ce téléphone.</string>
@@ -826,7 +814,6 @@
     <string name="change_look_title">Changer d’apparence</string>
     <string name="change_look_close">Fermer</string>
     <string name="change_look_preview">Aperçu de l’apparence</string>
-    <string name="change_look_cat_characters">Personnages</string>
     <string name="change_look_cat_hair">Cheveux</string>
     <string name="change_look_cat_colour">Couleur</string>
     <string name="change_look_cat_face">Visage</string>
@@ -891,4 +878,16 @@
     <string name="change_look_no_changes">Aucune modification</string>
     <string name="change_look_offline">Connectez-vous à votre ordinateur pour enregistrer.</string>
     <string name="change_look_failed">Impossible d’enregistrer. Réessayez.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Générer</string>
+    <string name="avatar_tab_upload">Importer</string>
+    <string name="avatar_generate_prompt">Décrivez l’image</string>
+    <string name="avatar_generate_action">Générer l’image</string>
+    <string name="avatar_generate_setup">Configurez la génération d’images dans Seira sur votre ordinateur pour l’utiliser.</string>
+    <string name="avatar_generate_failed">Impossible de créer l’image. Réessayez.</string>
+    <string name="avatar_picture_failed">Impossible de changer l’image. Réessayez.</string>
+    <string name="avatar_upload_choose">Choisir une image</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF ou WebP, jusqu’à 10 Mo.</string>
+    <string name="avatar_upload_use">Utiliser cette image</string>
+    <string name="avatar_upload_remove">Supprimer l’image</string>
 </resources>

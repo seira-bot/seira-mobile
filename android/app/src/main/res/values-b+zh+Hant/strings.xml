@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">當代理程式使用多個 %1$s 帳戶時，別名可明確標示所用帳戶。</string>
     <string name="mobile_answered_e0aafffa">已回答</string>
     <string name="mobile_archived_eddc813f">已封存</string>
-    <string name="mobile_art_direction_52d878a2">美術方向</string>
     <string name="mobile_back_b52b36b7">返回</string>
     <string name="mobile_bot_settings_7092a294">機器人設定</string>
     <string name="mobile_bot_threads_ec81acf2">機器人對話</string>
@@ -487,7 +486,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">正在檢查雲端 VM 是否可用…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">請選擇 PNG、JPEG、GIF 或 WebP 圖片。</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">選擇可用的提供者以變更此機器人的模型。</string>
-    <string name="mobile_circle_1cc7820a">圓形</string>
     <string name="mobile_cloud_vm_26ca291f">雲端 VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">無法取得雲端 VM 狀態</string>
     <string name="mobile_completed_1798b3ba">已完成</string>
@@ -506,14 +504,11 @@
     <string name="mobile_explain_steps_b60a9fb6">說明步驟</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">尚未設定 Fish Audio</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">產生頭像</string>
-    <string name="mobile_generate_on_computer_ff5b7448">在電腦上產生</string>
     <string name="mobile_hide_diff_120df7c2">隱藏差異</string>
     <string name="mobile_identity_7e5a975b">身分</string>
     <string name="mobile_idle_cc1ebdd0">閒置</string>
     <string name="mobile_loading_models_eeade2be">正在載入模型</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">區域網路探索已中斷。正在重試…</string>
-    <string name="mobile_mascot_e0489488">吉祥物</string>
     <string name="mobile_more_4bab2d8f">更多</string>
     <string name="mobile_needs_you_0d9d0df1">需要你處理</string>
     <string name="mobile_new_task_17b2b838">新增任務</string>
@@ -535,7 +530,6 @@
     <string name="mobile_preview_voice_560a6fec">預覽語音</string>
     <string name="mobile_primary_account_32f2184e">主要帳戶</string>
     <string name="mobile_recent_changes_1bfd2320">近期變更</string>
-    <string name="mobile_rounded_c5aa340f">圓角</string>
     <string name="mobile_routines_a445e5ad">例行工作</string>
     <string name="mobile_run_all_automated_tests_4032d93f">執行所有自動化測試</string>
     <string name="mobile_run_receipts_9115568f">執行回執</string>
@@ -545,7 +539,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">排定週期性或單次的機器人工作。</string>
     <string name="mobile_sending_cf765512">傳送中…</string>
     <string name="mobile_show_diff_78016e77">顯示差異</string>
-    <string name="mobile_square_82810cb9">方形</string>
     <string name="mobile_start_dictation_ee00527b">開始語音輸入</string>
     <string name="mobile_stop_dictation_96ad53f1">停止語音輸入</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">變更模型前請先停止此機器人。</string>
@@ -556,8 +549,6 @@
     <string name="mobile_this_computer_4ccce6f4">此電腦</string>
     <string name="mobile_to_review_066f77ce">待檢查</string>
     <string name="mobile_unknown_bc7819b3">未知</string>
-    <string name="mobile_upload_image_f35dec5f">上傳圖片</string>
-    <string name="mobile_use_mascot_0de90a12">使用吉祥物</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">使用已配對電腦上此機器人所選的模型與電腦設定。</string>
     <string name="mobile_view_diff_39f85d34">檢視差異</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">正在等待畫面…</string>
@@ -574,9 +565,6 @@
     <string name="mobile_model_busy_note">變更模型前請先停止此機器人。</string>
     <string name="mobile_model_unavailable_note">選擇可用的提供者來變更此機器人的模型。</string>
     <string name="mobile_model_unavailable">無法使用</string>
-    <string name="mobile_profile_avatar_footer">支援 PNG、JPEG、GIF 或 WebP，最大 10 MB。圖片會儲存在已配對的電腦上，並透過此手機的配對權杖載入。</string>
-    <string name="mobile_profile_generate_ready">圖像生成會使用電腦上設定的共用圖像提供者。此手機不會傳送或儲存提供者金鑰。</string>
-    <string name="mobile_profile_generate_blocked">如要產生圖像，請在電腦上的 Seira 中設定共用圖像提供者。無法透過手機新增提供者金鑰。</string>
     <string name="mobile_profile_elevenlabs_unconfigured">尚未設定 ElevenLabs</string>
     <string name="mobile_profile_builtin_voices_unavailable">電腦的內建語音無法使用</string>
     <string name="mobile_profile_voice_unconfigured_footer">請在電腦上此代理程式的個人檔案中新增共用 ElevenLabs 金鑰。該金鑰不會傳回此手機。</string>
@@ -811,7 +799,6 @@
     <string name="change_look_title">更換形象</string>
     <string name="change_look_close">關閉</string>
     <string name="change_look_preview">形象預覽</string>
-    <string name="change_look_cat_characters">角色</string>
     <string name="change_look_cat_hair">髮型</string>
     <string name="change_look_cat_colour">顏色</string>
     <string name="change_look_cat_face">表情</string>
@@ -875,4 +862,16 @@
     <string name="change_look_no_changes">還沒有變更</string>
     <string name="change_look_offline">連線到你的電腦後才能儲存。</string>
     <string name="change_look_failed">無法儲存，請重試。</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">生成</string>
+    <string name="avatar_tab_upload">上傳</string>
+    <string name="avatar_generate_prompt">描述圖片</string>
+    <string name="avatar_generate_action">生成圖片</string>
+    <string name="avatar_generate_setup">要使用此功能，請在你的電腦上的 Seira 中設定圖片生成。</string>
+    <string name="avatar_generate_failed">無法生成圖片，請重試。</string>
+    <string name="avatar_picture_failed">無法更換圖片，請重試。</string>
+    <string name="avatar_upload_choose">選擇圖片</string>
+    <string name="avatar_upload_hint">PNG、JPEG、GIF 或 WebP，最大 10 MB。</string>
+    <string name="avatar_upload_use">使用這張圖片</string>
+    <string name="avatar_upload_remove">移除圖片</string>
 </resources>

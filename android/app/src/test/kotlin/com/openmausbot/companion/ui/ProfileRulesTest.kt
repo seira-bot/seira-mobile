@@ -1,6 +1,5 @@
 package com.openmausbot.companion.ui
 
-import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotOverviewGrant
 import com.openmausbot.companion.core.BotOverviewGrantLevel
@@ -34,7 +33,6 @@ class ProfileRulesTest {
         assertNull(patch.title)
         assertNull(patch.description)
         assertNull(patch.notifications)
-        assertNull(patch.avatarCrop)
         assertNull(patch.voice)
         assertNull(patch.speakReplies)
         // The narrow contract owns avatarUrl; the form never sends one.
@@ -156,23 +154,19 @@ class ProfileRulesTest {
     }
 
     @Test
-    fun `the art direction is trimmed and capped at 400`() {
-        assertEquals("a fox", ProfileRules.generatePrompt("  a fox\n"))
-        assertEquals(400, ProfileRules.generatePrompt("x".repeat(900)).length)
+    fun `the profile patch never carries an avatar field`() {
+        val bot = bot()
+        val form = ProfileForm.of(bot).copy(name = "New", title = "T", description = "D", notifications = !bot.notifications)
+        val patch = ProfileRules.patch(form, ProfileForm.of(bot), config = speaking())
+
+        assertNull(patch.avatarUrl)
+        assertNull(patch.avatarCrop)
     }
 
     @Test
-    fun `the generate footer says which computer holds the provider key`() {
-        assertEquals(
-            "Generation uses the shared image provider configured on your computer. " +
-                "No provider key is sent to or stored on this phone.",
-            ProfileRules.generateFooter(ConfigStatus(imageGen = ConfigFlag(configured = true))),
-        )
-        assertEquals(
-            "To generate images, configure the shared image provider in Seira on your " +
-                "computer. Provider keys cannot be added from a phone.",
-            ProfileRules.generateFooter(null),
-        )
+    fun `the art direction is trimmed and capped at 400`() {
+        assertEquals("a fox", ProfileRules.generatePrompt("  a fox\n"))
+        assertEquals(400, ProfileRules.generatePrompt("x".repeat(900)).length)
     }
 
     @Test
@@ -436,34 +430,23 @@ class ProfileRulesTest {
     }
 
     @Test
-    fun `the shape selector offers the four crops in the Swift's order`() {
-        assertEquals(
-            listOf("Mascot", "Circle", "Rounded", "Square"),
-            AvatarCrop.entries.map(ProfileRules::cropLabel),
-        )
-    }
-
-    @Test
     fun `the form starts from the bot the sheet was opened on`() {
         val form = ProfileForm.of(
             bot().copy(
-                avatarCrop = AvatarCrop.ROUNDED,
                 voice = "voice-2",
                 speakReplies = true,
             ),
         )
 
         assertEquals("Scout", form.name)
-        assertEquals(AvatarCrop.ROUNDED, form.crop)
         assertEquals("voice-2", form.voice)
         assertTrue(form.speakReplies)
     }
 
     @Test
-    fun `a bot with no crop and no voice starts on mascot and the empty tag`() {
+    fun `a bot with no voice starts on the empty tag`() {
         val form = ProfileForm.of(bot())
 
-        assertEquals(AvatarCrop.MASCOT, form.crop)
         assertEquals("", form.voice)
         assertFalse(form.speakReplies)
     }

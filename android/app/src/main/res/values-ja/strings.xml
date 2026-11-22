@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">エージェントが複数の %1$s アカウントを使う場合、別名を付けるとどのアカウントか分かりやすくなります。</string>
     <string name="mobile_answered_e0aafffa">回答済み</string>
     <string name="mobile_archived_eddc813f">アーカイブ済み</string>
-    <string name="mobile_art_direction_52d878a2">アートディレクション</string>
     <string name="mobile_back_b52b36b7">戻る</string>
     <string name="mobile_bot_settings_7092a294">ボットの設定</string>
     <string name="mobile_bot_threads_ec81acf2">ボットのスレッド</string>
@@ -487,7 +486,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">クラウド VM の利用状況を確認中…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">PNG、JPEG、GIF、WebP のいずれかの画像を選んでください。</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">このボットのモデルを変更するには、利用可能なプロバイダーを選んでください。</string>
-    <string name="mobile_circle_1cc7820a">円</string>
     <string name="mobile_cloud_vm_26ca291f">クラウド VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">クラウド VM の状態を取得できません</string>
     <string name="mobile_completed_1798b3ba">完了</string>
@@ -506,14 +504,11 @@
     <string name="mobile_explain_steps_b60a9fb6">手順を説明</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio が設定されていません</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">アバターを生成</string>
-    <string name="mobile_generate_on_computer_ff5b7448">コンピューターで生成</string>
     <string name="mobile_hide_diff_120df7c2">差分を隠す</string>
     <string name="mobile_identity_7e5a975b">アイデンティティ</string>
     <string name="mobile_idle_cc1ebdd0">待機中</string>
     <string name="mobile_loading_models_eeade2be">モデルを読み込み中</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">ローカル検出が中断されました。再試行中…</string>
-    <string name="mobile_mascot_e0489488">マスコット</string>
     <string name="mobile_more_4bab2d8f">その他</string>
     <string name="mobile_needs_you_0d9d0df1">要対応</string>
     <string name="mobile_new_task_17b2b838">新しいタスク</string>
@@ -535,7 +530,6 @@
     <string name="mobile_preview_voice_560a6fec">音声をプレビュー</string>
     <string name="mobile_primary_account_32f2184e">メインアカウント</string>
     <string name="mobile_recent_changes_1bfd2320">最近の変更</string>
-    <string name="mobile_rounded_c5aa340f">角丸</string>
     <string name="mobile_routines_a445e5ad">ルーティン</string>
     <string name="mobile_run_all_automated_tests_4032d93f">自動テストをすべて実行</string>
     <string name="mobile_run_receipts_9115568f">実行履歴</string>
@@ -545,7 +539,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">繰り返し、または1回限りのエージェントの作業を予定します。</string>
     <string name="mobile_sending_cf765512">送信中…</string>
     <string name="mobile_show_diff_78016e77">差分を表示</string>
-    <string name="mobile_square_82810cb9">四角</string>
     <string name="mobile_start_dictation_ee00527b">音声入力を開始</string>
     <string name="mobile_stop_dictation_96ad53f1">音声入力を停止</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">モデルを変更する前に、このボットを停止してください。</string>
@@ -556,8 +549,6 @@
     <string name="mobile_this_computer_4ccce6f4">このコンピューター</string>
     <string name="mobile_to_review_066f77ce">確認待ち</string>
     <string name="mobile_unknown_bc7819b3">不明</string>
-    <string name="mobile_upload_image_f35dec5f">画像をアップロード</string>
-    <string name="mobile_use_mascot_0de90a12">マスコットを使う</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">ペアリング済みのコンピューターで、このエージェントに選ばれているモデルとコンピューターの設定を使います。</string>
     <string name="mobile_view_diff_39f85d34">差分を見る</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">フレームを待っています…</string>
@@ -574,9 +565,6 @@
     <string name="mobile_model_busy_note">モデルを変更する前に、このボットを停止してください。</string>
     <string name="mobile_model_unavailable_note">このボットのモデルを変更するには、利用可能なプロバイダーを選んでください。</string>
     <string name="mobile_model_unavailable">利用不可</string>
-    <string name="mobile_profile_avatar_footer">PNG、JPEG、GIF、WebP に対応、10 MB まで。画像はペアリング済みのコンピューターに保存され、このスマホのペアリング情報で読み込まれます。</string>
-    <string name="mobile_profile_generate_ready">生成には、お使いのコンピューターで設定した共有の画像プロバイダーを使います。プロバイダーのキーがこのスマホに送られたり保存されたりすることはありません。</string>
-    <string name="mobile_profile_generate_blocked">画像を生成するには、コンピューターの Seira で共有の画像プロバイダーを設定してください。プロバイダーのキーはスマホからは追加できません。</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs が設定されていません</string>
     <string name="mobile_profile_builtin_voices_unavailable">コンピューターの内蔵音声を利用できません</string>
     <string name="mobile_profile_voice_unconfigured_footer">コンピューターで、このエージェントのプロフィールに共有の ElevenLabs キーを追加してください。キーがこのスマホに送られることはありません。</string>
@@ -811,7 +799,6 @@
     <string name="change_look_title">見た目を変更</string>
     <string name="change_look_close">閉じる</string>
     <string name="change_look_preview">見た目のプレビュー</string>
-    <string name="change_look_cat_characters">キャラクター</string>
     <string name="change_look_cat_hair">髪型</string>
     <string name="change_look_cat_colour">カラー</string>
     <string name="change_look_cat_face">表情</string>
@@ -875,4 +862,16 @@
     <string name="change_look_no_changes">変更はまだありません</string>
     <string name="change_look_offline">保存するには、コンピューターに接続してください。</string>
     <string name="change_look_failed">保存できませんでした。もう一度お試しください。</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">生成</string>
+    <string name="avatar_tab_upload">アップロード</string>
+    <string name="avatar_generate_prompt">画像の内容を入力</string>
+    <string name="avatar_generate_action">画像を生成</string>
+    <string name="avatar_generate_setup">使うには、コンピューターの Seira で画像生成を設定してください。</string>
+    <string name="avatar_generate_failed">画像を作成できませんでした。もう一度お試しください。</string>
+    <string name="avatar_picture_failed">画像を変更できませんでした。もう一度お試しください。</string>
+    <string name="avatar_upload_choose">画像を選ぶ</string>
+    <string name="avatar_upload_hint">PNG、JPEG、GIF、WebP（10 MBまで）。</string>
+    <string name="avatar_upload_use">この画像を使う</string>
+    <string name="avatar_upload_remove">画像を削除</string>
 </resources>
