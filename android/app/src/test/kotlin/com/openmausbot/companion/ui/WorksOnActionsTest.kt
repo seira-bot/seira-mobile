@@ -73,6 +73,8 @@ class WorksOnActionsTest {
                     patches += request.body.readUtf8()
                     json(patchBody, patchStatus)
                 }
+                request.path == "/.well-known/seira/environment" || request.path == "/.well-known/openmausbot/environment" ->
+                    json("""{"environmentId":"environment-1","label":"Fixture"}""")
                 request.path == "/api/config" -> json("""{"phoneWorksOn":$phoneWorksOn,"vps":{"configured":$ownServerConfigured}}""")
                 request.path == "/api/live/call" -> json("""{"call":null}""")
                 request.path?.startsWith("/api/threads/") == true -> json("""{"messages":[],"hasMore":false}""")
