@@ -1403,10 +1403,10 @@ public struct CompanionClient: Sendable {
     public func setWorksOn(botId: String, ownServer: Bool) async throws -> Bot {
         guard Self.validRouteID(botId) else { throw APIError.badURL }
         let body: [String: Any] = ownServer ? ["computer": "cloud", "cloudBackend": "vps"] : ["computer": "off"]
-        return try await send(
-            try makeRequest("PATCH", "/api/bots/\(botId)", body: body),
-            as: BotResponse.self
-        ).bot
+        var request = try makeRequest("PATCH", "/api/bots/\(botId)", body: body)
+        // The server narrows a request that carries it to what a paired phone may change.
+        request.setValue("1", forHTTPHeaderField: "x-seira-companion")
+        return try await send(request, as: BotResponse.self).bot
     }
 
     /// A captured thread uses the task route, which cannot change siblings or

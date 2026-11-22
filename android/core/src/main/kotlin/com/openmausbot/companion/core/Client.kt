@@ -583,9 +583,9 @@ class CompanionClient(
                 put("computer", "off")
             }
         }
-        return send<BotResponse>(
-            makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body),
-        ).bot
+        val request = makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body)
+            .newBuilder().header(PAIRED_DEVICE_HEADER, "1").build()
+        return send<BotResponse>(request).bot
     }
 
     /**
@@ -1329,6 +1329,9 @@ class CompanionClient(
         }
         private val AVATAR_MIME_TYPES = setOf("image/png", "image/jpeg", "image/gif", "image/webp")
         private val JSON_MEDIA_TYPE = "application/json".toMediaType()
+
+        /** The server narrows a request that carries it to what a paired phone may change. */
+        private const val PAIRED_DEVICE_HEADER = "x-seira-companion"
         private val EMPTY_BODY: RequestBody = ByteArray(0).toRequestBody(null)
         private const val HEX_DIGITS = "0123456789ABCDEF"
 

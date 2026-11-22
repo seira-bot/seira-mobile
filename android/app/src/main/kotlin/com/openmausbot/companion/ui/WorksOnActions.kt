@@ -44,6 +44,7 @@ internal fun WorksOnActions(chat: Chat, message: Message) {
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
     val admin = session.canAdminister
+    val connection by session.connection.collectAsState()
     val newest = WorksOnChoice.noticeMessageId(state.transcript(chat.threadId)) == message.id
     val bot = state.bot(chat.bot.id) ?: chat.bot
     val running = bot.forTask(chat.threadId)?.busy == true || state.pendingEdits.containsKey(chat.threadId)
@@ -52,7 +53,7 @@ internal fun WorksOnActions(chat: Chat, message: Message) {
     var changedToOwnServer by rememberSaveable(message.id) { mutableStateOf<Boolean?>(null) }
     var refusal by remember { mutableStateOf<WorksOnRefusal?>(null) }
 
-    val shows = newest && admin
+    val shows = newest && admin && connection?.pairedWithServer == true
     LaunchedEffect(shows) {
         if (shows) config = session.configStatus()
     }

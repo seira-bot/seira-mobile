@@ -161,6 +161,7 @@ class WorksOnClientTest {
         val request = server.takeRequest()
         assertEquals("PATCH", request.method)
         assertEquals("/api/bots/bot-1", request.path)
+        assertEquals("1", request.getHeader("x-seira-companion"))
         val body = CompanionJson.parseToJsonElement(request.body.readUtf8()).jsonObject
         assertEquals(setOf("computer"), body.keys)
         assertEquals("off", body.getValue("computer").jsonPrimitive.content)

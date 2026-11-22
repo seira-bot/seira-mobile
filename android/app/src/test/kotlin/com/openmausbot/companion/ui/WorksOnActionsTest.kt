@@ -88,10 +88,14 @@ class WorksOnActionsTest {
         server.shutdown()
     }
 
-    private fun show(busy: Boolean? = null) {
+    private fun show(busy: Boolean? = null, pairedWithServer: Boolean = true) {
         val bot: Bot = bot(busy = busy).copy(computer = "cloud", messages = listOf(user, notice))
         scene = WiringScene(
-            connection = Connection(id = "fx", name = "Fixture", host = "127.0.0.1", port = server.port),
+            connection = Connection(
+                id = "fx", name = "Fixture", host = "127.0.0.1", port = server.port,
+                serverEnvironmentId = "environment-1".takeIf { pairedWithServer },
+                serverScopes = listOf("admin", "client").takeIf { pairedWithServer },
+            ),
             fleet = Fleet(listOf(bot), emptyList()),
             events = {
                 flow {
@@ -119,6 +123,14 @@ class WorksOnActionsTest {
         show()
         compose.waitUntil(5_000) { count("Use your own server") > 0 }
         compose.onNodeWithText("Work without a computer").assertIsDisplayed()
+    }
+
+    @Test
+    fun nothingShowsForAPhonePairedThroughTheComputer() {
+        show(pairedWithServer = false)
+        compose.waitForIdle()
+        assertEquals(0, count("Work without a computer"))
+        assertEquals(0, count("Use your own server"))
     }
 
     @Test

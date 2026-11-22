@@ -585,7 +585,8 @@ struct ChatView: View {
     }
 
     private func worksOnState(bot: Bot?, noticeId: String?) -> WorksOnState? {
-        guard let bot, let noticeId, session.canAdminister else { return nil }
+        guard let bot, let noticeId, session.canAdminister,
+              session.connection?.pairedWithServer == true else { return nil }
         return WorksOnState(
             noticeId: noticeId, botId: bot.id, computer: bot.computer,
             cloudBackend: bot.cloudBackend, vpsAlias: bot.vpsAlias
