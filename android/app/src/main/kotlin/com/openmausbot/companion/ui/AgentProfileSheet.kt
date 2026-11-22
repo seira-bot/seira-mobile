@@ -2,14 +2,12 @@ package com.openmausbot.companion.ui
 
 import androidx.compose.ui.res.stringResource
 
-import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,9 +16,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,9 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SegmentedButtonDefaults
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -56,7 +49,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
@@ -66,13 +58,8 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.openmausbot.companion.R
 import com.openmausbot.companion.ui.theme.SeiraIcons
-import com.openmausbot.companion.avatar.AvatarImagePicker
-import com.openmausbot.companion.avatar.AvatarImageRules
-import com.openmausbot.companion.avatar.PreparedAvatar
-import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.forTask
-import com.openmausbot.companion.core.BotProfilePatch
 import com.openmausbot.companion.core.BotOverviewGrant
 import com.openmausbot.companion.core.ConfigStatus
 import com.openmausbot.companion.core.Instance
@@ -101,7 +88,6 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     val session = environment.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val player = environment.voicePreview
     // A running Live call holds the audio. A preview asks for transient focus,
@@ -121,7 +107,6 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
     var baseline by rememberSaveable(stateSaver = ProfileFormSaver) {
         mutableStateOf(ProfileForm.of(opened))
     }
-    var prompt by rememberSaveable { mutableStateOf("") }
     var voices by remember { mutableStateOf<List<Voice>>(emptyList()) }
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var busy by remember { mutableStateOf(false) }
@@ -180,36 +165,6 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
         player.playbackErrors.collect { session.actionError = it }
     }
 
-    val pickImage = rememberLauncherForActivityResult(
-        remember { AvatarImagePicker.contract() },
-    ) { uri ->
-        if (uri == null) return@rememberLauncherForActivityResult
-        scope.launch {
-            busy = true
-            try {
-                when (val prepared = AvatarImagePicker.read(context.contentResolver, uri)) {
-                    is PreparedAvatar.Rejected -> session.actionError = prepared.message
-                    is PreparedAvatar.Ready -> {
-                        val intended = AvatarImageRules.intendedUploadCrop(form.crop)
-                        val updated = session.uploadAvatar(
-                            data = prepared.data,
-                            mime = prepared.mime,
-                            forBot = liveBot(),
-                            crop = intended,
-                        )
-                        if (updated != null) {
-                            val crop = updated.avatarCrop ?: intended
-                            form = form.copy(crop = crop)
-                            baseline = baseline.copy(crop = crop)
-                        }
-                    }
-                }
-            } finally {
-                busy = false
-            }
-        }
-    }
-
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         if (changingLook) ChangeLookSheet(bot = current, onDismiss = { changingLook = false })
@@ -242,7 +197,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                         onClick = { onOpenOverview(bot.id) },
                     )
                     ActionRow(
-                        text = stringResource(R.string.change_look_title),
+                        text = stringResource(R.string.mobile_avatar_7631b26e),
                         icon = SeiraIcons.User,
                         onClick = { changingLook = true },
                     )
@@ -305,126 +260,6 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                         savedModel = updated.modelSelection
                                         showModel(updated.modelSelection)
                                     }
-                                } finally {
-                                    busy = false
-                                }
-                            }
-                        },
-                    )
-                }
-
-                FormSection(header = "Avatar", footer = ProfileRules.AVATAR_FOOTER) {
-                    Box(
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        BotAvatar(
-                            bot = current,
-                            size = 112.dp,
-                            state = CharacterMood.HAPPY,
-                            contentDescription = stringResource(R.string.mobile_current_name_avatar_de638954, current.name),
-                        )
-                    }
-
-                    SingleChoiceSegmentedButtonRow(
-                        modifier = Modifier.fillMaxWidth().height(MIN_TOUCH_TARGET),
-                    ) {
-                        AvatarCrop.entries.forEachIndexed { index, option ->
-                            SegmentedButton(
-                                selected = form.crop == option,
-                                onClick = { form = form.copy(crop = option) },
-                                shape = SegmentedButtonDefaults.itemShape(
-                                    index = index,
-                                    count = AvatarCrop.entries.size,
-                                ),
-                            ) {
-                                Text(localizedMobileCopy(ProfileRules.cropLabel(option)))
-                            }
-                        }
-                    }
-
-                    ActionRow(
-                        text = "Upload image",
-                        icon = Icons.Filled.AddCircle,
-                        enabled = !busy,
-                        onClick = { pickImage.launch(AvatarImagePicker.request()) },
-                    )
-
-                    if (current.avatarUrl != null) {
-                        ActionRow(
-                            text = "Use mascot",
-                            icon = Icons.Filled.Delete,
-                            enabled = !busy,
-                            destructive = true,
-                            onClick = {
-                                scope.launch {
-                                    busy = true
-                                    try {
-                                        val updated = session.updateProfile(
-                                            BotProfilePatch(
-                                                avatarUrl = BotProfilePatch.AvatarURL.Clear,
-                                                avatarCrop = AvatarCrop.MASCOT,
-                                            ),
-                                            liveBot(),
-                                        )
-                                        if (updated != null) {
-                                            val crop = updated.avatarCrop ?: AvatarCrop.MASCOT
-                                            form = form.copy(crop = crop)
-                                            baseline = baseline.copy(crop = crop)
-                                        }
-                                    } finally {
-                                        busy = false
-                                    }
-                                }
-                            },
-                        )
-                    }
-                }
-
-                FormSection(
-                    header = "Generate an avatar",
-                    footer = ProfileRules.generateFooter(config),
-                ) {
-                    OutlinedTextField(
-                        value = prompt,
-                        onValueChange = { prompt = it },
-                        label = { Text(stringResource(R.string.mobile_art_direction_52d878a2)) },
-                        minLines = 2,
-                        maxLines = 5,
-                        modifier = Modifier.fillMaxWidth(),
-                    )
-                    ActionRow(
-                        text = "Generate on computer",
-                        painter = R.drawable.ic_sparkles,
-                        enabled = ProfileRules.canGenerate(busy, config, prompt),
-                        onClick = {
-                            scope.launch {
-                                busy = true
-                                try {
-                                    val intended = AvatarImageRules.intendedUploadCrop(form.crop)
-                                    val generated = session.generateAvatar(
-                                        ProfileRules.generatePrompt(prompt),
-                                        liveBot(),
-                                    ) ?: return@launch
-                                    // Generation picks a safe crop server-side;
-                                    // the selector is the user's explicit choice,
-                                    // so persist it against the returned
-                                    // attachment rather than leaving the two out
-                                    // of sync.
-                                    val updated = session.updateProfile(
-                                        BotProfilePatch(avatarCrop = intended),
-                                        generated,
-                                    )
-                                    val crop = if (updated != null) {
-                                        updated.avatarCrop ?: intended
-                                    } else {
-                                        // Generation itself succeeded: reflect its
-                                        // authoritative fallback rather than
-                                        // claiming the requested crop was saved.
-                                        generated.avatarCrop ?: AvatarCrop.MASCOT
-                                    }
-                                    form = form.copy(crop = crop)
-                                    baseline = baseline.copy(crop = crop)
                                 } finally {
                                     busy = false
                                 }
@@ -815,7 +650,6 @@ private val ProfileFormSaver = listSaver<ProfileForm, Any>(
             it.title,
             it.description,
             it.notifications,
-            it.crop.name,
             it.voice,
             it.speakReplies,
         )
@@ -826,9 +660,8 @@ private val ProfileFormSaver = listSaver<ProfileForm, Any>(
             title = it[1] as String,
             description = it[2] as String,
             notifications = it[3] as Boolean,
-            crop = AvatarCrop.valueOf(it[4] as String),
-            voice = it[5] as String,
-            speakReplies = it[6] as Boolean,
+            voice = it[4] as String,
+            speakReplies = it[5] as Boolean,
         )
     },
 )

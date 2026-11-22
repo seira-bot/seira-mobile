@@ -1,6 +1,5 @@
 package com.openmausbot.companion.ui
 
-import com.openmausbot.companion.core.AvatarCrop
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotProfilePatch
 import com.openmausbot.companion.core.BotOverviewGrant
@@ -13,7 +12,7 @@ import com.openmausbot.companion.core.VoiceProvider
  * The paired-safe agent profile, as rules — the decision half of
  * `ios/App/AgentProfileView.swift`.
  *
- * Identity, avatar, notifications and voice preferences, and nothing else: the
+ * Identity, notifications and voice preferences, and nothing else: the
  * shared provider keys stay on the computer, so this form has no field that
  * could carry one.
  */
@@ -22,7 +21,6 @@ data class ProfileForm(
     val title: String,
     val description: String,
     val notifications: Boolean,
-    val crop: AvatarCrop,
     /** Empty is the server's "use the workspace default", not "no value". */
     val voice: String,
     val speakReplies: Boolean,
@@ -34,7 +32,6 @@ data class ProfileForm(
             title = bot.title,
             description = bot.description,
             notifications = bot.notifications,
-            crop = bot.avatarCrop ?: AvatarCrop.MASCOT,
             voice = bot.voice ?: "",
             speakReplies = bot.speakReplies == true,
         )
@@ -66,10 +63,6 @@ object ProfileRules {
     // public and is drawn directly. Adding a second arm to any of those means
     // making it private and giving it a selector, in the same edit.
 
-    const val AVATAR_FOOTER: String =
-        "PNG, JPEG, GIF, or WebP, up to 10 MB. Images are stored on your paired computer " +
-            "and loaded with this phone's pairing token."
-
     // Grants are assigned per bot on the computer (the web grant editor);
     // the phone only reads the overview's summary back. The footer says so,
     // the way the closed voice states explain a repair this form cannot offer.
@@ -84,14 +77,6 @@ object ProfileRules {
 
     /** The record exists but grants nothing — stronger than "no apps connected". */
     const val GRANTS_NONE_ANY: String = "No tools granted on any connected app."
-
-    private const val GENERATE_READY_FOOTER: String =
-        "Generation uses the shared image provider configured on your computer. No provider " +
-            "key is sent to or stored on this phone."
-
-    private const val GENERATE_BLOCKED_FOOTER: String =
-        "To generate images, configure the shared image provider in Seira on your " +
-            "computer. Provider keys cannot be added from a phone."
 
     // The ElevenLabs copy below is what iOS ships and is correct under that
     // engine, so it stays byte-identical. Each string that names the engine or
@@ -204,7 +189,6 @@ object ProfileRules {
             } else {
                 form.notifications
             },
-            avatarCrop = if (form.crop == baseline.crop) null else form.crop,
             voice = if (form.voice == baseline.voice) null else form.voice,
             speakReplies = if (savedSpeakReplies == baseline.speakReplies) {
                 null
@@ -223,9 +207,6 @@ object ProfileRules {
         !busy && imageGenerationReady(config) && prompt.trim().isNotEmpty()
 
     fun generatePrompt(raw: String): String = raw.trim().take(GENERATE_PROMPT_LIMIT)
-
-    fun generateFooter(config: ConfigStatus?): String =
-        if (imageGenerationReady(config)) GENERATE_READY_FOOTER else GENERATE_BLOCKED_FOOTER
 
     /** `config?.canSpeak(agentVoice:) == true` — false while the status is unknown. */
     fun selectedVoiceCanSpeak(config: ConfigStatus?, voice: String): Boolean =
@@ -372,13 +353,6 @@ object ProfileRules {
     ): Pair<ProfileForm, ProfileForm> {
         val cleared = applyLoadedConfig(form.copy(voice = ""), config)
         return cleared to baseline.copy(voice = "")
-    }
-
-    fun cropLabel(crop: AvatarCrop): String = when (crop) {
-        AvatarCrop.MASCOT -> "Mascot"
-        AvatarCrop.CIRCLE -> "Circle"
-        AvatarCrop.ROUNDED -> "Rounded"
-        AvatarCrop.SQUARE -> "Square"
     }
 
     /**

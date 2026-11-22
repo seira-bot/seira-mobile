@@ -82,14 +82,64 @@ class ChangeLookStateTest {
     }
 
     @Test
-    fun `a character pick sets every field`() {
-        val state = state()
-        state.pick(cast.first())
-        assertEquals(cast.first().look, state.look)
+    fun `the Seira tab has Hair, Face, Extras and Colour and no Characters list`() {
         assertEquals(
-            BotLookPatch(color = "blue", mascotBody = "bob", mascotAccessories = listOf("glasses", "earring")),
-            state.patch(),
+            listOf("HAIR", "FACE", "EXTRAS", "COLOUR"),
+            ChangeLookCategory.entries.map { it.name },
         )
+        assertEquals(ChangeLookCategory.HAIR, state().category)
+    }
+
+    @Test
+    fun `save is on for a bot that shows a picture even when the look did not change`() {
+        val state = state()
+        assertFalse(state.canSave(connected = true, showsPicture = false))
+        assertTrue(state.canSave(connected = true, showsPicture = true))
+        assertFalse(state.canSave(connected = false, showsPicture = true))
+    }
+
+    @Test
+    fun `a save for a bot that shows a picture sends the look and then switches to the mascot`() = runBlocking {
+        val state = state()
+        state.setColor("blue")
+        val calls = mutableListOf<String>()
+        val ok = state.save(
+            showsPicture = true,
+            showMascot = { calls += "mascot"; saved },
+            update = { patch -> calls += "look:" + patch.color; saved },
+        )
+        assertTrue(ok)
+        assertEquals(listOf("look:blue", "mascot"), calls)
+    }
+
+    @Test
+    fun `a save with no look change for a bot that shows a picture only switches to the mascot`() = runBlocking {
+        val state = state()
+        val calls = mutableListOf<String>()
+        assertTrue(
+            state.save(
+                showsPicture = true,
+                showMascot = { calls += "mascot"; saved },
+                update = { calls += "look"; saved },
+            ),
+        )
+        assertEquals(listOf("mascot"), calls)
+    }
+
+    @Test
+    fun `a bot that shows the mascot is not switched`() = runBlocking {
+        val state = state()
+        state.setColor("blue")
+        var switched = 0
+        assertTrue(state.save(showsPicture = false, showMascot = { switched++; saved }, update = { saved }))
+        assertEquals(0, switched)
+    }
+
+    @Test
+    fun `a failed switch to the mascot is a failed save`() = runBlocking {
+        val state = state()
+        assertFalse(state.save(showsPicture = true, showMascot = { null }, update = { saved }))
+        assertTrue(state.saveFailed)
     }
 
     @Test
@@ -171,6 +221,16 @@ class ChangeLookStateTest {
         assertEquals(state.patch(), back.patch())
         assertTrue(back.saveFailed)
         assertFalse(back.saving)
+    }
+
+    @Test
+    fun `the saver restores a tab name it does not know as Hair`() {
+        val state = ChangeLookState(SeiraLook.from(saved), cast, Random(1))
+        val saver = ChangeLookState.saver(cast)
+        val stored = (requireNotNull(with(saver) { SaverScope { true }.save(state) }) as List<*>).toMutableList()
+        stored[10] = "CHARACTERS"
+        val back = requireNotNull(saver.restore(stored))
+        assertEquals(ChangeLookCategory.HAIR, back.category)
     }
 
     @Test

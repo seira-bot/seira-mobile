@@ -14,15 +14,15 @@ import com.openmausbot.companion.core.SeiraLook
 import com.openmausbot.companion.core.SeiraLookCatalog
 import kotlin.random.Random
 
-internal enum class ChangeLookCategory { CHARACTERS, HAIR, COLOUR, FACE, EXTRAS }
+internal enum class ChangeLookCategory { HAIR, FACE, EXTRAS, COLOUR }
 
-/** What the "Change look" sheet edits: one look, the choices made so far and the state of the save. */
+/** What the Seira tab of the avatar sheet edits: one look, the choices made so far and the state of the save. */
 internal class ChangeLookState(
     val original: SeiraLook,
     members: List<SeiraCastMember>,
     private val random: Random = Random.Default,
     restoredLook: SeiraLook = original,
-    restoredCategory: ChangeLookCategory = ChangeLookCategory.CHARACTERS,
+    restoredCategory: ChangeLookCategory = ChangeLookCategory.HAIR,
     restoredSaveFailed: Boolean = false,
 ) {
     /** Seira first, then the rest in catalog order. */
@@ -42,9 +42,8 @@ internal class ChangeLookState(
 
     val changed: Boolean get() = look != original
 
-    fun canSave(connected: Boolean): Boolean = connected && changed && !saving
-
-    fun pick(member: SeiraCastMember) = change(member.look)
+    fun canSave(connected: Boolean, showsPicture: Boolean = false): Boolean =
+        connected && (changed || showsPicture) && !saving
 
     fun setHair(id: String) = change(look.copy(hair = id))
 
@@ -72,13 +71,21 @@ internal class ChangeLookState(
 
     fun patch(): BotLookPatch = BotLookPatch.between(original, look)
 
-    /** Sends the patch through [update]; a null answer is a failure. Returns whether the save worked. */
-    suspend fun save(update: suspend (BotLookPatch) -> Bot?): Boolean {
+    /**
+     * Sends the look patch through [update]. A bot that shows a picture also goes back to the mascot
+     * through [showMascot], so the saved look is the one on screen. A null answer is a failure.
+     */
+    suspend fun save(
+        showsPicture: Boolean = false,
+        showMascot: suspend () -> Bot? = { null },
+        update: suspend (BotLookPatch) -> Bot?,
+    ): Boolean {
         if (saving) return false
         saving = true
         saveFailed = false
         val saved = try {
-            update(patch()) != null
+            val patch = patch()
+            (patch.isEmpty || update(patch) != null) && (!showsPicture || showMascot() != null)
         } finally {
             saving = false
         }
@@ -118,7 +125,7 @@ internal class ChangeLookState(
                     original = unpack(values.subList(0, 5)),
                     members = members,
                     restoredLook = unpack(values.subList(5, 10)),
-                    restoredCategory = ChangeLookCategory.valueOf(values[10] as String),
+                    restoredCategory = ChangeLookCategory.entries.firstOrNull { it.name == values[10] } ?: ChangeLookCategory.HAIR,
                     restoredSaveFailed = values[11] as Boolean,
                 )
             },

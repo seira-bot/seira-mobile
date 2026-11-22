@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Псевдоним помогает различать аккаунты, если агент использует несколько аккаунтов %1$s.</string>
     <string name="mobile_answered_e0aafffa">Отвечено</string>
     <string name="mobile_archived_eddc813f">В архиве</string>
-    <string name="mobile_art_direction_52d878a2">Художественное направление</string>
     <string name="mobile_back_b52b36b7">Назад</string>
     <string name="mobile_bot_settings_7092a294">Настройки бота</string>
     <string name="mobile_bot_threads_ec81acf2">Ветки бота</string>
@@ -499,7 +498,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Проверка доступности Cloud VM…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Выберите изображение PNG, JPEG, GIF или WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Выберите доступного провайдера, чтобы сменить модель этого бота.</string>
-    <string name="mobile_circle_1cc7820a">Круг</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Статус Cloud VM недоступен</string>
     <string name="mobile_completed_1798b3ba">Завершено</string>
@@ -518,14 +516,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Объяснить шаги</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio не настроен</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Создать аватар</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Создать на компьютере</string>
     <string name="mobile_hide_diff_120df7c2">Скрыть diff</string>
     <string name="mobile_identity_7e5a975b">Личность</string>
     <string name="mobile_idle_cc1ebdd0">Простаивает</string>
     <string name="mobile_loading_models_eeade2be">Загрузка моделей</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Локальный поиск прервался. Повторяем…</string>
-    <string name="mobile_mascot_e0489488">Талисман</string>
     <string name="mobile_more_4bab2d8f">Ещё</string>
     <string name="mobile_needs_you_0d9d0df1">Нужны вы</string>
     <string name="mobile_new_task_17b2b838">Новая задача</string>
@@ -547,7 +542,6 @@
     <string name="mobile_preview_voice_560a6fec">Прослушать голос</string>
     <string name="mobile_primary_account_32f2184e">Основной аккаунт</string>
     <string name="mobile_recent_changes_1bfd2320">Последние изменения</string>
-    <string name="mobile_rounded_c5aa340f">Скруглённый</string>
     <string name="mobile_routines_a445e5ad">Процедуры</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Запустить все автоматические тесты</string>
     <string name="mobile_run_receipts_9115568f">Квитанции запусков</string>
@@ -557,7 +551,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Планируйте регулярную или разовую работу агента.</string>
     <string name="mobile_sending_cf765512">Отправка…</string>
     <string name="mobile_show_diff_78016e77">Показать diff</string>
-    <string name="mobile_square_82810cb9">Квадратный</string>
     <string name="mobile_start_dictation_ee00527b">Начать диктовку</string>
     <string name="mobile_stop_dictation_96ad53f1">Остановить диктовку</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Остановите этого бота, прежде чем менять его модель.</string>
@@ -568,8 +561,6 @@
     <string name="mobile_this_computer_4ccce6f4">Этот компьютер</string>
     <string name="mobile_to_review_066f77ce">На проверку</string>
     <string name="mobile_unknown_bc7819b3">Неизвестно</string>
-    <string name="mobile_upload_image_f35dec5f">Загрузить изображение</string>
-    <string name="mobile_use_mascot_0de90a12">Использовать талисман</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Использует выбранную модель этого агента и настройку компьютера на подключённом компьютере.</string>
     <string name="mobile_view_diff_39f85d34">Смотреть diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Ожидание кадра…</string>
@@ -586,9 +577,6 @@
     <string name="mobile_model_busy_note">Остановите этого бота, прежде чем менять его модель.</string>
     <string name="mobile_model_unavailable_note">Выберите доступного провайдера, чтобы сменить модель этого бота.</string>
     <string name="mobile_model_unavailable">Недоступно</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF или WebP, до 10 МБ. Изображения хранятся на вашем подключённом компьютере и загружаются с помощью токена подключения этого телефона.</string>
-    <string name="mobile_profile_generate_ready">Для создания используется общий поставщик изображений, настроенный на вашем компьютере. Ключ провайдера не отправляется на этот телефон и не хранится на нём.</string>
-    <string name="mobile_profile_generate_blocked">Чтобы создавать изображения, настройте общий поставщик изображений в Seira на компьютере. Ключи провайдеров нельзя добавить с телефона.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs не настроен</string>
     <string name="mobile_profile_builtin_voices_unavailable">Встроенные голоса вашего компьютера недоступны</string>
     <string name="mobile_profile_voice_unconfigured_footer">Добавьте общий ключ ElevenLabs в профиле этого агента на компьютере. Ключ никогда не передаётся на этот телефон.</string>
@@ -856,7 +844,6 @@
     <string name="change_look_title">Изменить внешность</string>
     <string name="change_look_close">Закрыть</string>
     <string name="change_look_preview">Предпросмотр внешности</string>
-    <string name="change_look_cat_characters">Персонажи</string>
     <string name="change_look_cat_hair">Волосы</string>
     <string name="change_look_cat_colour">Цвет</string>
     <string name="change_look_cat_face">Лицо</string>
@@ -923,4 +910,16 @@
     <string name="change_look_no_changes">Изменений пока нет</string>
     <string name="change_look_offline">Подключитесь к компьютеру, чтобы сохранить.</string>
     <string name="change_look_failed">Не удалось сохранить. Повторите попытку.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Создать</string>
+    <string name="avatar_tab_upload">Загрузить</string>
+    <string name="avatar_generate_prompt">Опишите картинку</string>
+    <string name="avatar_generate_action">Создать картинку</string>
+    <string name="avatar_generate_setup">Чтобы использовать это, настройте создание изображений в Seira на компьютере.</string>
+    <string name="avatar_generate_failed">Не удалось создать картинку. Повторите попытку.</string>
+    <string name="avatar_picture_failed">Не удалось изменить картинку. Повторите попытку.</string>
+    <string name="avatar_upload_choose">Выбрать картинку</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF или WebP, до 10 МБ.</string>
+    <string name="avatar_upload_use">Использовать эту картинку</string>
+    <string name="avatar_upload_remove">Удалить картинку</string>
 </resources>
