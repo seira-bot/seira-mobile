@@ -27,11 +27,7 @@ struct ComputerView: View {
     let bot: Bot
     @EnvironmentObject private var session: Session
     @Environment(\.dismiss) private var dismiss
-    @State private var confirmingDesktop = false
     @State private var showingBrowser = false
-    @State private var openingDesktop = false
-    @State private var desktopURL: URL?
-    @State private var desktopError: String?
     @Environment(\.scenePhase) private var scenePhase
     /// The latest on-demand Local VM still, and when it arrived.
     @State private var polled: (shot: LocalVmScreenshot, at: Date)?
@@ -149,10 +145,6 @@ struct ComputerView: View {
             if polled != nil && vmProblem == nil && control == nil {
                 takeControlBar
             }
-            // A VPS-backed bot is "cloud" too, but the server refuses to mint
-            // an interactive desktop for it — no button beats a dead one. An
-            // older harness never sends cloudBackend, so nil keeps the button.
-            // Minting a desktop session is admin-only on a server, too.
             VStack(spacing: 8) {
                 // Watching is the cheap half and always available; driving
                 // the browser is the half this button leads to.
@@ -167,55 +159,6 @@ struct ComputerView: View {
             }
             .padding(.horizontal, 18)
             .padding(.top, 12)
-
-            if current.computer == "cloud" && current.cloudBackend != "vps" && session.canAdminister {
-                VStack(spacing: 8) {
-                    if let desktopError {
-                        Text(desktopError)
-                            .font(.footnote)
-                            .foregroundStyle(.red)
-                            .multilineTextAlignment(.center)
-                    }
-                    Button {
-                        confirmingDesktop = true
-                    } label: {
-                        if openingDesktop {
-                            ProgressView()
-                                .tint(.white)
-                                .frame(maxWidth: .infinity)
-                        } else {
-                            Label("Open live cloud desktop", systemImage: "display")
-                                .frame(maxWidth: .infinity)
-                        }
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .disabled(openingDesktop)
-                    Text("Interactive VNC session. Access must be enabled for this device in the Mac's Phone settings.")
-                        .font(.caption)
-                        .foregroundStyle(Color.white.opacity(0.6))
-                        .multilineTextAlignment(.center)
-                }
-                .padding(.horizontal, 18)
-                .padding(.vertical, 12)
-                .background(.ultraThinMaterial)
-            }
-            }
-        }
-        .alert("Open live cloud desktop?", isPresented: $confirmingDesktop) {
-            Button("Cancel", role: .cancel) {}
-            Button("Open desktop") { Task { await openDesktop() } }
-        } message: {
-            Text("This gives this device full control of the cloud computer, including anything signed in inside it.")
-        }
-        .sheet(
-            isPresented: Binding(
-                get: { desktopURL != nil },
-                set: { if !$0 { desktopURL = nil } }
-            )
-        ) {
-            if let desktopURL {
-                CloudDesktopBrowser(url: desktopURL)
-                    .ignoresSafeArea()
             }
         }
         .onAppear {
@@ -455,18 +398,6 @@ struct ComputerView: View {
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 32)
             }
-        }
-    }
-
-    @MainActor
-    private func openDesktop() async {
-        openingDesktop = true
-        desktopError = nil
-        defer { openingDesktop = false }
-        do {
-            desktopURL = try await session.cloudDesktop(for: current)
-        } catch {
-            desktopError = error.localizedDescription
         }
     }
 }

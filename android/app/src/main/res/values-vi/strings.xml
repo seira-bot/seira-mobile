@@ -170,7 +170,6 @@
     <string name="mobile_one_time_6fea9e4d">Một lần</string>
     <string name="mobile_open_cf9b7706">Mở</string>
     <string name="mobile_open_settings_134635e9">Mở Cài đặt</string>
-    <string name="mobile_open_desktop_cd6f8218">Mở máy tính</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Mở cuộc trò chuyện để xem SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Mở bản cập nhật</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -448,8 +447,6 @@
     <string name="mobile_overview_failed">Không thể tải phần tổng quan.</string>
     <string name="mobile_profile_connected_apps_footer">Quyền sử dụng công cụ được gán trong Seira trên máy tính của bạn. Điện thoại này chỉ hiển thị ở chế độ chỉ xem.</string>
     <string name="mobile_profile_preview_during_call">Nghe thử giọng nói bị tắt trong cuộc gọi trực tiếp.</string>
-    <string name="mobile_computer_vnc_note">Phiên VNC tương tác. Phải bật quyền truy cập cho điện thoại này trong cài đặt Điện thoại của máy tính.</string>
-    <string name="mobile_computer_confirm_message">Thao tác này trao cho điện thoại này toàn quyền điều khiển máy tính đám mây, bao gồm mọi thứ đã đăng nhập bên trong.</string>
     <string name="mobile_live_call_disclosure">Cuộc gọi trực tiếp gửi giọng nói của bạn đến OpenAI, cùng với các tin nhắn gần đây của cuộc trò chuyện, câu trả lời của bot và chi tiết của mọi phê duyệt mà nó yêu cầu. Khóa OpenAI vẫn ở trên máy tính của bạn.</string>
     <string name="mobile_discovery_access_off">Quyền truy cập mạng cục bộ đang tắt. Hãy bật quyền thiết bị ở gần, hoặc nhập địa chỉ Tailscale bên dưới.</string>
     <string name="mobile_discovery_unavailable">Hiện không thể dùng tính năng phát hiện cục bộ. Hãy nhập địa chỉ hiển thị trong cài đặt Điện thoại ở bên dưới.</string>
@@ -526,8 +523,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Không có gì cần bạn</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Chưa có gì được lên lịch hoặc ghi nhớ.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Chưa có gì để hiển thị</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Mở màn hình đám mây trực tiếp</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Mở màn hình đám mây trực tiếp?</string>
     <string name="mobile_open_task_a1f1752a">Mở tác vụ</string>
     <string name="mobile_open_thread">Mở luồng</string>
     <string name="mobile_opening_b1b8530b">Đang mở…</string>
@@ -637,7 +632,6 @@
     <string name="mobile_chat_thread_update_failed">Không thể cập nhật luồng này. Hãy thử lại.</string>
     <string name="mobile_chat_typing">%1$s đang nhập</string>
     <string name="mobile_chat_attachment_unsupported">%1$s không phải là tệp đính kèm được hỗ trợ. Hãy thử ảnh, PDF, văn bản, tệp Word, Excel hoặc PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">Không thể mở màn hình đám mây.</string>
     <string name="mobile_connected_apps_no_browser">Điện thoại này không có trình duyệt để mở trang cấp quyền.</string>
     <string name="mobile_connected_apps_auth_page_failed">Không thể mở trang cấp quyền. Hãy kiểm tra các hạn chế của trình duyệt rồi thử lại.</string>
     <string name="mobile_file_open_other_computer">Hãy mở liên kết tới tệp của máy tính khác từ tin nhắn gốc.</string>

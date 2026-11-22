@@ -2002,17 +2002,6 @@ public struct CompanionClient: Sendable {
         try await send(request)
     }
 
-    /// Mint a fresh interactive viewer for an existing cloud computer. The
-    /// response URL is a bearer credential: the caller presents it directly
-    /// and never stores it. The sidecar additionally requires this paired
-    /// device's cloud-desktop capability to be enabled on the Mac.
-    public func cloudDesktop(botId: String) async throws -> CloudDesktopSession {
-        try await send(
-            try makeRequest("POST", "/api/bots/\(botId)/computer/join"),
-            as: CloudDesktopSession.self
-        )
-    }
-
     /// A still of the bot's Local VM, whether or not it is working. The phone
     /// always names the thread, so the harness answers 409 when that
     /// conversation is not on the Local VM rather than picturing a computer it

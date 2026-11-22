@@ -172,7 +172,6 @@
     <string name="mobile_one_time_6fea9e4d">One time</string>
     <string name="mobile_open_cf9b7706">Open</string>
     <string name="mobile_open_settings_134635e9">Open Settings</string>
-    <string name="mobile_open_desktop_cd6f8218">Open desktop</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Open the chat to review SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Open updates</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -457,8 +456,6 @@
     <string name="mobile_overview_failed">Couldn\'t load the overview.</string>
     <string name="mobile_profile_connected_apps_footer">Tool grants are assigned in Seira on your computer. This phone shows them read-only.</string>
     <string name="mobile_profile_preview_during_call">Voice preview is off during a Live call.</string>
-    <string name="mobile_computer_vnc_note">Interactive VNC session. Access must be enabled for this phone in the computer\'s Phone settings.</string>
-    <string name="mobile_computer_confirm_message">This gives this phone full control of the cloud computer, including anything signed in inside it.</string>
     <string name="mobile_live_call_disclosure">A Live call sends your voice to OpenAI, along with the chat\'s recent messages, the bot\'s answers and the details of any approval it asks for. The OpenAI key stays on your computer.</string>
     <string name="mobile_discovery_access_off">Local Network access is off. Enable nearby devices permission, or enter a Tailscale address below.</string>
     <string name="mobile_discovery_unavailable">Local discovery isn\'t available right now. Enter the address shown in Phone settings below.</string>
@@ -582,10 +579,6 @@
 
     <string name="mobile_nothing_to_show_yet_95f8d609">Nothing to show yet</string>
 
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Open live cloud desktop</string>
-
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Open live cloud desktop?</string>
-
     <string name="mobile_open_task_a1f1752a">Open task</string>
 
     <string name="mobile_open_thread">Open thread</string>
@@ -667,7 +660,6 @@
     <string name="mobile_what_this_bot_does_7a664f47">What this bot does</string>
 
     <string name="mobile_what_s_next_3d4b36bc">What\'s next?</string>
-
 
     <string name="mobile_where_does_it_run_6e4a5297">Where does it run?</string>
 
@@ -761,7 +753,6 @@
     <string name="mobile_chat_thread_update_failed">Couldn\'t update this thread. Try again.</string>
     <string name="mobile_chat_typing">%1$s is typing</string>
     <string name="mobile_chat_attachment_unsupported">%1$s isn\'t a supported attachment. Try an image, PDF, text, Word, Excel, or PowerPoint file.</string>
-    <string name="mobile_cloud_desktop_open_failed">Could not open the cloud desktop.</string>
     <string name="mobile_connected_apps_no_browser">This phone has no browser available to open the authorization page.</string>
     <string name="mobile_connected_apps_auth_page_failed">The authorization page could not be opened. Check your browser restrictions and try again.</string>
     <string name="mobile_file_open_other_computer">Open links to other computer files from the original message.</string>

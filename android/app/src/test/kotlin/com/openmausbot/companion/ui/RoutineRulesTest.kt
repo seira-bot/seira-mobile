@@ -316,11 +316,9 @@ class RoutineRulesTest {
 
     @Test
     fun `the cloud footers use the product's words`() {
-        // The bot's own model uses its cloud computer as a tool. On My Cloud
-        // the plan includes the computers, so no Boat key is asked for.
+        // The bot's own model uses its cloud computer as a tool.
         for (footer in listOf(RoutineRules.CLOUD_READY_FOOTER, RoutineRules.CLOUD_BLOCKED_FOOTER)) {
             assertTrue(footer.contains("cloud computer"), footer)
-            assertFalse(footer.contains("Boat"), footer)
             assertFalse(footer.contains("agent's"), footer)
         }
     }

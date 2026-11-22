@@ -154,11 +154,11 @@ class AttachmentRulesTest {
     fun `a pending attachment hides the chips the way a draft does`() {
         assertEquals(
             ComposerAccessory.NONE,
-            ComposerAccessories.accessory(hudOpen = false, draft = "", busy = false, pendingApproval = false, hasQuickReplies = true, hasAttachments = true),
+            ComposerAccessories.accessory(hudOpen = false, draft = "", busy = false, pendingApproval = false, hasQuickReplies = true, hasAttachments = true, lastTurnFailed = false),
         )
         assertEquals(
             ComposerAccessory.CHIPS,
-            ComposerAccessories.accessory(hudOpen = false, draft = "", busy = false, pendingApproval = false, hasQuickReplies = true, hasAttachments = false),
+            ComposerAccessories.accessory(hudOpen = false, draft = "", busy = false, pendingApproval = false, hasQuickReplies = true, hasAttachments = false, lastTurnFailed = false),
         )
     }
 

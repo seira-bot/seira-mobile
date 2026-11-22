@@ -4131,28 +4131,6 @@
         }
       }
     },
-    "Interactive VNC session. Access must be enabled for this device in the Mac's Phone settings.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sessão VNC interativa. O acesso precisa estar ativado para este dispositivo nos ajustes de Telefone do Mac."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "交互式 VNC 工作阶段。必须在 Mac 的「手机」设置中激活此设备的访问权。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "互動式 VNC 工作階段。必須在 Mac 的「手機」設定中啟用此裝置的存取權。"
-          }
-        }
-      }
-    },
     "Interrupt": {
       "localizations": {
         "pt-BR": {
@@ -5627,28 +5605,6 @@
         }
       }
     },
-    "Open desktop": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir área de trabalho"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "打开桌面"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開啟桌面"
-          }
-        }
-      }
-    },
     "Open links to other computer files from the original chat message.": {
       "localizations": {
         "pt-BR": {
@@ -5667,50 +5623,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "從原始聊天訊息開啟其他電腦檔案的連結。"
-          }
-        }
-      }
-    },
-    "Open live cloud desktop": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir a área de trabalho na nuvem ao vivo"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "打开即时云端桌面"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "開啟即時雲端桌面"
-          }
-        }
-      }
-    },
-    "Open live cloud desktop?": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir a área de trabalho na nuvem ao vivo?"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要打开即时云端桌面吗？"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "要開啟即時雲端桌面嗎？"
           }
         }
       }
@@ -8907,28 +8819,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "已保留此雲端 VM 選擇，但必須等已配對的電腦有雲端電腦，且此機器人的模型能使用電腦，才能執行。"
-          }
-        }
-      }
-    },
-    "This gives this device full control of the cloud computer, including anything signed in inside it.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Isto dá a este dispositivo controle total do computador na nuvem, incluindo tudo que estiver conectado dentro dele."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "这会让此设备完整控制云端电脑，包括已在其中登录的任何帐户。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "這會讓此裝置完整控制雲端電腦，包括已在其中登入的任何帳戶。"
           }
         }
       }

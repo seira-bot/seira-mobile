@@ -171,7 +171,6 @@
     <string name="mobile_one_time_6fea9e4d">एक बार</string>
     <string name="mobile_open_cf9b7706">खोलें</string>
     <string name="mobile_open_settings_134635e9">सेटिंग्स खोलें</string>
-    <string name="mobile_open_desktop_cd6f8218">डेस्कटॉप खोलें</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">SKILL.md देखने के लिए चैट खोलें</string>
     <string name="mobile_open_updates_2c80d633">अपडेट खोलें</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -452,8 +451,6 @@
     <string name="mobile_overview_failed">सारांश लोड नहीं हो सका।</string>
     <string name="mobile_profile_connected_apps_footer">टूल की अनुमतियाँ आपके कंप्यूटर पर Seira में दी जाती हैं। यह फ़ोन उन्हें सिर्फ़ पढ़ने के लिए दिखाता है।</string>
     <string name="mobile_profile_preview_during_call">लाइव कॉल के दौरान आवाज़ का पूर्वावलोकन बंद रहता है।</string>
-    <string name="mobile_computer_vnc_note">इंटरैक्टिव VNC सत्र। कंप्यूटर की फ़ोन सेटिंग्स में इस फ़ोन के लिए एक्सेस चालू होना ज़रूरी है।</string>
-    <string name="mobile_computer_confirm_message">इससे इस फ़ोन को क्लाउड कंप्यूटर पर पूरा नियंत्रण मिल जाता है, इसमें उसके अंदर साइन इन किया हुआ सब कुछ शामिल है।</string>
     <string name="mobile_live_call_disclosure">लाइव कॉल आपकी आवाज़ को OpenAI तक भेजती है, साथ में चैट के हाल के संदेश, बॉट के जवाब और बॉट जिस मंज़ूरी को माँगे उसका ब्योरा भी। OpenAI की कुंजी आपके कंप्यूटर पर ही रहती है।</string>
     <string name="mobile_discovery_access_off">लोकल नेटवर्क एक्सेस बंद है। आस-पास के डिवाइस की अनुमति चालू करें, या नीचे Tailscale पता दर्ज करें।</string>
     <string name="mobile_discovery_unavailable">लोकल खोज अभी उपलब्ध नहीं है। नीचे फ़ोन सेटिंग्स में दिखने वाला पता दर्ज करें।</string>
@@ -530,8 +527,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">किसी को आपकी ज़रूरत नहीं</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">अभी कुछ शेड्यूल नहीं है और कुछ सीखा नहीं गया।</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">अभी दिखाने के लिए कुछ नहीं</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">लाइव क्लाउड डेस्कटॉप खोलें</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">लाइव क्लाउड डेस्कटॉप खोलें?</string>
     <string name="mobile_open_task_a1f1752a">टास्क खोलें</string>
     <string name="mobile_open_thread">थ्रेड खोलें</string>
     <string name="mobile_opening_b1b8530b">खुल रहा है…</string>
@@ -644,7 +639,6 @@
     <string name="mobile_chat_thread_update_failed">यह थ्रेड अपडेट नहीं हो सका। फिर कोशिश करें।</string>
     <string name="mobile_chat_typing">%1$s लिख रहा है</string>
     <string name="mobile_chat_attachment_unsupported">%1$s समर्थित अटैचमेंट नहीं है। इमेज, PDF, टेक्स्ट, Word, Excel या PowerPoint फ़ाइल आज़माएँ।</string>
-    <string name="mobile_cloud_desktop_open_failed">क्लाउड डेस्कटॉप नहीं खुल सका।</string>
     <string name="mobile_connected_apps_no_browser">इस फ़ोन में अनुमति वाला पेज खोलने के लिए कोई ब्राउज़र उपलब्ध नहीं है।</string>
     <string name="mobile_connected_apps_auth_page_failed">अनुमति वाला पेज नहीं खुल सका। अपने ब्राउज़र की पाबंदियाँ जाँचें और फिर कोशिश करें।</string>
     <string name="mobile_file_open_other_computer">कंप्यूटर की दूसरी फ़ाइलों के लिंक मूल संदेश से खोलें।</string>

@@ -225,12 +225,29 @@ public func failedTurnCause(_ name: String) -> String? {
 /// A failed turn's row. Like a status notice it is never hidden: it is the
 /// only sign the bot did not answer, and desktop always shows it too.
 public func isFailedTurn(_ message: Message) -> Bool {
-    message.kind == .activity && message.tool.flatMap { failedTurnCause($0.name) } != nil
+    message.kind == .activity && message.tool.map { $0.notice != true && failedTurnCause($0.name) != nil } == true
+}
+
+/// A row from a turn that ran and only says what it ran without. Shown, but not a failure.
+public func isTurnNotice(_ message: Message) -> Bool {
+    message.kind == .activity && message.tool?.notice == true
+}
+
+/// The newest turn failed and the bot has not answered since. A turn whose
+/// reply came back (`ToolActivity.partial`) did not fail as a whole.
+public func lastTurnFailed(in messages: [Message]) -> Bool {
+    guard let index = messages.lastIndex(where: { isFailedTurn($0) && $0.tool?.partial != true }) else { return false }
+    return !messages[(index + 1)...].contains { $0.role == .bot && $0.kind == .text }
 }
 
 extension ToolActivity {
+    /// `ok` as the chip and the mascot read it: a notice never counts as a failure.
+    public var statusOk: Bool? { notice == true ? true : ok }
+
     /// What the chip and the roster say: a failed turn's cause, or the step.
-    public var label: String { failedTurnCause(name) ?? name }
+    public var label: String {
+        CloudComputerNotice.matches(self) ? CloudComputerNotice.text : failedTurnCause(name) ?? name
+    }
 }
 
 public func isActivityReceipt(_ message: Message) -> Bool {
@@ -286,7 +303,7 @@ public func transcriptRows(_ messages: [Message], detail: ActivityDetail) -> [Tr
     var startedAt: [String: Double] = [:]
     var lastUserAt: Double?
     var folds: [String: AssistantTurnFold] = [:]
-    var hiddenIDs = Set<String>()
+    var hiddenIDs = CloudComputerNotice.repeatedIds(messages)
     for message in messages {
         if message.role == .user { lastUserAt = message.at }
         guard message.role == .bot, message.kind == .text,
@@ -325,7 +342,7 @@ public func transcriptRows(_ messages: [Message], detail: ActivityDetail) -> [Tr
         }
         if hiddenIDs.contains(message.id) { continue }
         if detail != .full, message.card?.leavesTranscriptWhenSettled == true { continue }
-        if detail == .hidden && isActivityReceipt(message) && !isStatusNotice(message) && !isFailedTurn(message) { continue }
+        if detail == .hidden && isActivityReceipt(message) && !isStatusNotice(message) && !isFailedTurn(message) && !isTurnNotice(message) { continue }
         // A turn that touched nothing leaves a digest with nothing to show;
         // an empty row would still cost the transcript a gap.
         if message.kind == .digest && DigestSummary(text: message.text ?? "").isEmpty { continue }

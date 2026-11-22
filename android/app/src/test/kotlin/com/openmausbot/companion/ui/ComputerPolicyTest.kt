@@ -5,60 +5,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-/**
- * Who gets a join button, and what a still frame is claiming — the rules from
- * `ios/App/ComputerView.swift`.
- */
+/** What a still frame is claiming — the rules from `ios/App/ComputerView.swift`. */
 class ComputerPolicyTest {
-
-    @Test
-    fun `only a cloud bot offers the live desktop`() {
-        assertTrue(ComputerPolicy.showsCloudDesktop(bot(id = "b").copy(computer = "cloud")))
-        // Local VM and "this Mac" show the preview and no join button (§10).
-        assertFalse(ComputerPolicy.showsCloudDesktop(bot(id = "b").copy(computer = "local")))
-        assertFalse(ComputerPolicy.showsCloudDesktop(bot(id = "b").copy(computer = "mac")))
-        assertFalse(ComputerPolicy.showsCloudDesktop(bot(id = "b").copy(computer = null)))
-    }
-
-    @Test
-    fun `a VPS-backed cloud bot gets no button, because the server would refuse`() {
-        assertFalse(
-            ComputerPolicy.showsCloudDesktop(
-                bot(id = "b").copy(computer = "cloud", cloudBackend = "vps"),
-            ),
-        )
-    }
-
-    @Test
-    fun `an older harness that never sends cloudBackend keeps the button`() {
-        assertTrue(
-            ComputerPolicy.showsCloudDesktop(
-                bot(id = "b").copy(computer = "cloud", cloudBackend = null),
-            ),
-        )
-    }
-
-    @Test
-    fun `a non-vps backend keeps the button`() {
-        assertTrue(
-            ComputerPolicy.showsCloudDesktop(
-                bot(id = "b").copy(computer = "cloud", cloudBackend = "fly"),
-            ),
-        )
-    }
-
-    /**
-     * The note tells the person where to switch VNC on, so it has to name the
-     * section the desktop has: Phone (`ios/App/ComputerView.swift:89`).
-     */
-    @Test
-    fun `the VNC note names the desktop section that exists`() {
-        assertEquals(
-            "Interactive VNC session. Access must be enabled for this phone in the computer's " +
-                "Phone settings.",
-            ComputerPolicy.VNC_NOTE,
-        )
-    }
 
     @Test
     fun `the status label says whether the picture is still arriving`() {

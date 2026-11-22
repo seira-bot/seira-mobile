@@ -12,24 +12,6 @@ import com.openmausbot.companion.core.Bot
  */
 object ComputerPolicy {
     const val IDLE_EXPLANATION = "This bot's computer is only captured while it is working."
-    const val CONFIRM_TITLE = "Open live cloud desktop?"
-    const val CONFIRM_MESSAGE =
-        "This gives this phone full control of the cloud computer, including anything " +
-            "signed in inside it."
-    const val VNC_NOTE =
-        "Interactive VNC session. Access must be enabled for this phone in the computer's " +
-            "Phone settings."
-    const val OPEN_DESKTOP = "Open live cloud desktop"
-
-    /**
-     * A VPS-backed bot is `"cloud"` too, but the server refuses to mint an
-     * interactive desktop for it — no button beats a dead one. An older harness
-     * never sends `cloudBackend`, so null keeps the button.
-     *
-     * Local VM and "this Mac" show the preview and no join button at all (§10).
-     */
-    fun showsCloudDesktop(bot: Bot): Boolean =
-        bot.computer == "cloud" && bot.cloudBackend != "vps"
 
     /**
      * Busy is the difference between "the picture is a moment old" and "the

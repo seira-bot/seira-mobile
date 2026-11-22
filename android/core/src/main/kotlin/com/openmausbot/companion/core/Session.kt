@@ -1946,30 +1946,12 @@ class Session(
         }
     }
 
-    suspend fun cloudDesktop(forBot: Bot): URI {
-        val activeClient = client ?: throw APIError.Transport("This computer is offline.")
-        val connectionId = _connection.value?.id
-        return try {
-            activeClient.cloudDesktop(forBot.id).url
-        } catch (error: APIError) {
-            if (error.isUnauthorized) {
-                gate.withLock {
-                    // Only the live computer's 401 may mark this session revoked.
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
-            }
-            throw error
-        }
-    }
-
     // ── Live calls ──
 
     /**
      * Ask the computer for a Live session for this phone's offer. Throws
      * [APIError] so the call bar can show the computer's own words; a 401
-     * marks this session revoked the way [cloudDesktop] does. The private
+     * marks this session revoked the way every other call does. The private
      * `perform {}` helper is deliberately not used here or below: it writes
      * `actionError`, which raises the global "Something went wrong" dialog
      * over a bar that has its own place for errors.

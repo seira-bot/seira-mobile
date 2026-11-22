@@ -77,7 +77,7 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     private func post(_ notification: NotificationFrame, sequence: Int?, avatar: Data?) {
         let content = UNMutableNotificationContent()
         content.title = notification.title
-        content.body = notification.body
+        content.body = CloudComputerNotice.words(notification.body)
         content.sound = .default
         content.categoryIdentifier = notification.isBlocking ? "OPENMAUS_APPROVAL" : "OPENMAUS_UPDATE"
         content.threadIdentifier = "bot.\(notification.botId)"
