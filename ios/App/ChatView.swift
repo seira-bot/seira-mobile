@@ -178,6 +178,8 @@ struct ChatView: View {
         /// out of the transcript and shown as one grey status line instead.
         let live: LiveNarration
         let hasPendingApproval: Bool
+        /// The newest turn failed and nothing has answered since.
+        let lastTurnFailed: Bool
         /// The failed turn that may offer "Switch model", by message id.
         let switchModelOfferId: String?
     }
@@ -202,6 +204,7 @@ struct ChatView: View {
             versions: session.state.userMessageVersions(inThread: threadId),
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
+            lastTurnFailed: lastTurnFailed(in: messages),
             switchModelOfferId: switchModelOfferMessageId(in: messages)
         )
         snapshotMemo.remember(snapshot, for: key, messages: messages, all: all)
@@ -1613,7 +1616,7 @@ struct ChatView: View {
 
             composerNotices
 
-            composerSuggestions(text, pendingApproval: snapshot.hasPendingApproval)
+            composerSuggestions(text, pendingApproval: snapshot.hasPendingApproval, lastTurnFailed: snapshot.lastTurnFailed)
 
             if !attachments.isEmpty {
                 attachmentStrip
@@ -1695,7 +1698,7 @@ struct ChatView: View {
     /// The slash-command HUD while one is being typed, else the Settings
     /// chips while there is nothing to say yet.
     @ViewBuilder
-    private func composerSuggestions(_ text: Binding<String>, pendingApproval: Bool) -> some View {
+    private func composerSuggestions(_ text: Binding<String>, pendingApproval: Bool, lastTurnFailed: Bool) -> some View {
         if showCommandHUD {
             CommandSkillHUDView(
                 text: text,
@@ -1719,7 +1722,7 @@ struct ChatView: View {
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))
         } else if text.wrappedValue.isEmpty && attachments.isEmpty && !current.busy
-                    && !pendingApproval && !storedChips.isEmpty {
+                    && !pendingApproval && !lastTurnFailed && !storedChips.isEmpty {
             PredictiveActionChipsView(chips: storedChips, accentColor: SeiraPalette.color(current.color)) { chip in
                 submit(chip.prompt)
             }
@@ -2411,7 +2414,7 @@ struct ActivityChip: View {
             let output = outputIsProse ? tool.expandableOutput : nil
             let receipt = SkillExecutionReceiptView(
                 skillName: tool.label,
-                status: tool.ok.map { $0 ? "success" : "error" } ?? "running",
+                status: tool.statusOk.map { $0 ? "success" : "error" } ?? "running",
                 output: output ?? "",
                 outputIsProse: outputIsProse
             )

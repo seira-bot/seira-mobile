@@ -169,7 +169,6 @@
     <string name="mobile_one_time_6fea9e4d">單次</string>
     <string name="mobile_open_cf9b7706">開啟</string>
     <string name="mobile_open_settings_134635e9">開啟設定</string>
-    <string name="mobile_open_desktop_cd6f8218">開啟桌面</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">開啟聊天以檢查 SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">開啟更新</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -447,8 +446,6 @@
     <string name="mobile_overview_failed">無法載入概覽。</string>
     <string name="mobile_profile_connected_apps_footer">工具授權由電腦上的 Seira 指派。此手機僅以唯讀方式顯示。</string>
     <string name="mobile_profile_preview_during_call">即時通話期間已關閉語音預覽。</string>
-    <string name="mobile_computer_vnc_note">互動式 VNC 工作階段。必須在電腦的「手機」設定中為此手機啟用存取權。</string>
-    <string name="mobile_computer_confirm_message">這會讓此手機完全控制雲端電腦，包括已在其中登入的任何帳戶。</string>
     <string name="mobile_live_call_disclosure">即時通話會將你的語音連同聊天的近期訊息、機器人的回答，以及它請求的任何核准的詳細資訊一起傳送至 OpenAI。OpenAI 金鑰會保留在你的電腦上。</string>
     <string name="mobile_discovery_access_off">區域網路存取權已關閉。請開啟「鄰近裝置」權限，或在下方輸入 Tailscale 位址。</string>
     <string name="mobile_discovery_unavailable">區域網路探索目前無法使用。請在下方輸入「手機」設定中顯示的位址。</string>
@@ -521,8 +518,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">目前沒有需要你處理的項目</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">尚未排定或學到任何內容。</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">目前沒有內容可顯示</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">開啟即時雲端桌面</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">要開啟即時雲端桌面嗎？</string>
     <string name="mobile_open_task_a1f1752a">開啟任務</string>
     <string name="mobile_open_thread">開啟討論串</string>
     <string name="mobile_opening_b1b8530b">開啟中…</string>
@@ -625,7 +620,6 @@
     <string name="mobile_chat_thread_update_failed">無法更新此對話，請再試一次。</string>
     <string name="mobile_chat_typing">%1$s 正在輸入</string>
     <string name="mobile_chat_attachment_unsupported">%1$s 不是支援的附件格式。請嘗試圖片、PDF、文字、Word、Excel 或 PowerPoint 檔案。</string>
-    <string name="mobile_cloud_desktop_open_failed">無法開啟雲端桌面。</string>
     <string name="mobile_connected_apps_no_browser">此手機沒有可用來開啟授權頁面的瀏覽器。</string>
     <string name="mobile_connected_apps_auth_page_failed">無法開啟授權頁面。請檢查瀏覽器限制後再試一次。</string>
     <string name="mobile_file_open_other_computer">請從原始訊息中開啟指向其他電腦檔案的連結。</string>

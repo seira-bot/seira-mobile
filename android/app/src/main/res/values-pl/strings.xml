@@ -172,7 +172,6 @@
     <string name="mobile_one_time_6fea9e4d">Jednorazowo</string>
     <string name="mobile_open_cf9b7706">Otwórz</string>
     <string name="mobile_open_settings_134635e9">Otwórz ustawienia</string>
-    <string name="mobile_open_desktop_cd6f8218">Otwórz wersję na komputer</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Otwórz czat, aby przejrzeć SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Otwórz aktualizacje</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -459,8 +458,6 @@
     <string name="mobile_overview_failed">Nie udało się wczytać przeglądu.</string>
     <string name="mobile_profile_connected_apps_footer">Uprawnienia do narzędzi przypisuje się w Seira na Twoim komputerze. Ten telefon pokazuje je tylko do odczytu.</string>
     <string name="mobile_profile_preview_during_call">Podgląd głosu jest wyłączony podczas rozmowy na żywo.</string>
-    <string name="mobile_computer_vnc_note">Interaktywna sesja VNC. Dostęp musi być włączony dla tego telefonu w ustawieniach Telefon na komputerze.</string>
-    <string name="mobile_computer_confirm_message">To daje temu telefonowi pełną kontrolę nad komputerem w chmurze, w tym nad wszystkim, gdzie jesteś w nim zalogowany.</string>
     <string name="mobile_live_call_disclosure">Rozmowa na żywo wysyła Twój głos do OpenAI wraz z ostatnimi wiadomościami czatu, odpowiedziami bota i szczegółami każdego zatwierdzenia, o które prosi. Klucz OpenAI pozostaje na Twoim komputerze.</string>
     <string name="mobile_discovery_access_off">Dostęp do sieci lokalnej jest wyłączony. Włącz uprawnienie dla urządzeń w pobliżu albo wpisz poniżej adres Tailscale.</string>
     <string name="mobile_discovery_unavailable">Wykrywanie lokalne jest teraz niedostępne. Wpisz poniżej adres widoczny w ustawieniach Telefon.</string>
@@ -533,8 +530,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Nic Cię nie potrzebuje</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Nic jeszcze nie zaplanowano ani nie poznano.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Na razie nic do pokazania</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Otwórz pulpit chmurowy na żywo</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Otworzyć pulpit chmurowy na żywo?</string>
     <string name="mobile_open_task_a1f1752a">Otwórz zadanie</string>
     <string name="mobile_open_thread">Otwórz wątek</string>
     <string name="mobile_opening_b1b8530b">Otwieranie…</string>
@@ -646,7 +641,6 @@
     <string name="mobile_chat_thread_update_failed">Nie udało się zaktualizować tego wątku. Spróbuj ponownie.</string>
     <string name="mobile_chat_typing">%1$s pisze</string>
     <string name="mobile_chat_attachment_unsupported">%1$s nie jest obsługiwanym załącznikiem. Spróbuj z obrazem, plikiem PDF, tekstowym, Word, Excel lub PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">Nie udało się otworzyć pulpitu chmurowego.</string>
     <string name="mobile_connected_apps_no_browser">Ten telefon nie ma przeglądarki, która mogłaby otworzyć stronę autoryzacji.</string>
     <string name="mobile_connected_apps_auth_page_failed">Nie udało się otworzyć strony autoryzacji. Sprawdź ograniczenia przeglądarki i spróbuj ponownie.</string>
     <string name="mobile_file_open_other_computer">Otwieraj linki do plików na innym komputerze z oryginalnej wiadomości.</string>

@@ -169,7 +169,6 @@
     <string name="mobile_one_time_6fea9e4d">1回のみ</string>
     <string name="mobile_open_cf9b7706">開く</string>
     <string name="mobile_open_settings_134635e9">設定を開く</string>
-    <string name="mobile_open_desktop_cd6f8218">デスクトップを開く</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">チャットを開いて SKILL.md を確認</string>
     <string name="mobile_open_updates_2c80d633">アップデートを開く</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -447,8 +446,6 @@
     <string name="mobile_overview_failed">概要を読み込めませんでした。</string>
     <string name="mobile_profile_connected_apps_footer">ツールの許可は、コンピューターの Seira で設定します。このスマホでは閲覧のみ可能です。</string>
     <string name="mobile_profile_preview_during_call">ライブ通話中は音声プレビューをオフにしています。</string>
-    <string name="mobile_computer_vnc_note">インタラクティブな VNC セッションです。コンピューターの「スマホ」設定で、このスマホのアクセスを有効にする必要があります。</string>
-    <string name="mobile_computer_confirm_message">このスマホに、クラウドコンピューターの完全な操作権限を与えます。中でサインインしているものも操作できます。</string>
     <string name="mobile_live_call_disclosure">ライブ通話では、あなたの音声が OpenAI に送信されます。あわせて、チャットの最近のメッセージ、ボットの回答、ボットが求める承認の詳細も送信されます。OpenAI のキーはコンピューターに残ります。</string>
     <string name="mobile_discovery_access_off">ローカルネットワークへのアクセスがオフです。「付近のデバイス」の権限を有効にするか、下に Tailscale のアドレスを入力してください。</string>
     <string name="mobile_discovery_unavailable">現在、ローカル検出を利用できません。下に、「スマホ」設定に表示されるアドレスを入力してください。</string>
@@ -521,8 +518,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">対応が必要なものはありません</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">予定も学習内容もまだありません。</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">まだ表示するものがありません</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">ライブのクラウドデスクトップを開く</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">ライブのクラウドデスクトップを開きますか？</string>
     <string name="mobile_open_task_a1f1752a">タスクを開く</string>
     <string name="mobile_open_thread">スレッドを開く</string>
     <string name="mobile_opening_b1b8530b">開いています…</string>
@@ -625,7 +620,6 @@
     <string name="mobile_chat_thread_update_failed">このスレッドを更新できませんでした。もう一度お試しください。</string>
     <string name="mobile_chat_typing">%1$s が入力中</string>
     <string name="mobile_chat_attachment_unsupported">%1$s は添付に対応していない形式です。画像、PDF、テキスト、Word、Excel、PowerPoint のファイルをお試しください。</string>
-    <string name="mobile_cloud_desktop_open_failed">クラウドデスクトップを開けませんでした。</string>
     <string name="mobile_connected_apps_no_browser">このスマホには、認証ページを開けるブラウザーがありません。</string>
     <string name="mobile_connected_apps_auth_page_failed">認証ページを開けませんでした。ブラウザーの制限を確認して、もう一度お試しください。</string>
     <string name="mobile_file_open_other_computer">ほかのコンピューターのファイルへのリンクは、元のメッセージから開いてください。</string>

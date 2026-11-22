@@ -170,7 +170,6 @@
     <string name="mobile_one_time_6fea9e4d">Bir kez</string>
     <string name="mobile_open_cf9b7706">Aç</string>
     <string name="mobile_open_settings_134635e9">Ayarları aç</string>
-    <string name="mobile_open_desktop_cd6f8218">Masaüstünü aç</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">SKILL.md dosyasını incelemek için sohbeti açın</string>
     <string name="mobile_open_updates_2c80d633">Güncellemeleri aç</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -451,8 +450,6 @@
     <string name="mobile_overview_failed">Genel bakış yüklenemedi.</string>
     <string name="mobile_profile_connected_apps_footer">Araç izinleri bilgisayarınızdaki Seira\'da atanır. Bu telefon bunları salt okunur gösterir.</string>
     <string name="mobile_profile_preview_during_call">Canlı arama sırasında ses önizlemesi kapalıdır.</string>
-    <string name="mobile_computer_vnc_note">Etkileşimli VNC oturumu. Erişim, bilgisayarın Telefon ayarlarında bu telefon için etkinleştirilmiş olmalıdır.</string>
-    <string name="mobile_computer_confirm_message">Bu, bu telefona bulut bilgisayarın tam denetimini verir; içinde oturum açılmış her şey dahil.</string>
     <string name="mobile_live_call_disclosure">Canlı arama, sesinizi OpenAI\'a gönderir; sohbetin son mesajları, botun yanıtları ve istediği onayların ayrıntıları da gönderilir. OpenAI anahtarı bilgisayarınızda kalır.</string>
     <string name="mobile_discovery_access_off">Yerel ağ erişimi kapalı. Yakındaki cihazlar iznini etkinleştirin ya da aşağıya bir Tailscale adresi girin.</string>
     <string name="mobile_discovery_unavailable">Yerel keşif şu anda kullanılamıyor. Aşağıya Telefon ayarlarında gösterilen adresi girin.</string>
@@ -525,8 +522,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Sizi bekleyen bir şey yok</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Henüz zamanlanmış ya da öğrenilmiş bir şey yok.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Henüz gösterilecek bir şey yok</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Canlı bulut masaüstünü aç</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Canlı bulut masaüstü açılsın mı?</string>
     <string name="mobile_open_task_a1f1752a">Görevi aç</string>
     <string name="mobile_open_thread">Konuyu aç</string>
     <string name="mobile_opening_b1b8530b">Açılıyor…</string>
@@ -632,7 +627,6 @@
     <string name="mobile_chat_thread_update_failed">Bu konu güncellenemedi. Tekrar deneyin.</string>
     <string name="mobile_chat_typing">%1$s yazıyor</string>
     <string name="mobile_chat_attachment_unsupported">%1$s desteklenen bir ek değil. Bir görsel, PDF, metin, Word, Excel veya PowerPoint dosyası deneyin.</string>
-    <string name="mobile_cloud_desktop_open_failed">Bulut masaüstü açılamadı.</string>
     <string name="mobile_connected_apps_no_browser">Bu telefonda yetkilendirme sayfasını açacak bir tarayıcı yok.</string>
     <string name="mobile_connected_apps_auth_page_failed">Yetkilendirme sayfası açılamadı. Tarayıcı kısıtlamalarınızı kontrol edip tekrar deneyin.</string>
     <string name="mobile_file_open_other_computer">Diğer bilgisayardaki dosyalara giden bağlantıları özgün mesajdan açın.</string>

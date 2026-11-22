@@ -190,10 +190,19 @@ fun failedTurnCause(name: String): String? =
  * bot did not answer, and desktop always shows it too.
  */
 fun isFailedTurn(message: Message): Boolean =
-    message.kind == Message.Kind.ACTIVITY && message.tool?.let { failedTurnCause(it.name) } != null
+    message.kind == Message.Kind.ACTIVITY &&
+        message.tool?.let { it.notice != true && failedTurnCause(it.name) != null } == true
+
+/** A row from a turn that ran and only says what it ran without. Shown, but not a failure. */
+fun isTurnNotice(message: Message): Boolean =
+    message.kind == Message.Kind.ACTIVITY && message.tool?.notice == true
+
+/** `ok` as the chip and the mascot read it: a notice never counts as a failure. */
+val ToolActivity.statusOk: Boolean? get() = if (notice == true) true else ok
 
 /** What the chip and the roster say: a failed turn's cause, or the step. */
-val ToolActivity.label: String get() = failedTurnCause(name) ?: name
+val ToolActivity.label: String
+    get() = if (CloudComputerNotice.matches(this)) CloudComputerNotice.TEXT else failedTurnCause(name) ?: name
 
 fun isActivityReceipt(message: Message): Boolean = when (message.kind) {
     Message.Kind.ACTIVITY, Message.Kind.DIGEST, Message.Kind.COMPACTION -> true
@@ -245,7 +254,7 @@ fun transcriptRows(messages: List<Message>, detail: ActivityDetail): List<Transc
     val startedAt = mutableMapOf<String, Double>()
     var lastUserAt: Double? = null
     val folds = mutableMapOf<String, TranscriptRow.AssistantTurn>()
-    val hiddenIds = mutableSetOf<String>()
+    val hiddenIds = CloudComputerNotice.repeatedIds(messages).toMutableSet()
     for (message in messages) {
         if (message.role == Message.Role.USER) lastUserAt = message.at
         val turnId = message.turnId?.takeIf { it.isNotEmpty() } ?: continue
@@ -282,7 +291,8 @@ fun transcriptRows(messages: List<Message>, detail: ActivityDetail): List<Transc
                 add(turn)
             } else if (message.id in hiddenIds ||
                 (detail != ActivityDetail.FULL && message.card?.leavesTranscriptWhenSettled == true) ||
-                (detail == ActivityDetail.HIDDEN && isActivityReceipt(message) && !isStatusNotice(message) && !isFailedTurn(message))) {
+                (detail == ActivityDetail.HIDDEN && isActivityReceipt(message) && !isStatusNotice(message) && !isFailedTurn(message) &&
+                    !isTurnNotice(message))) {
                 // The reversible turn fold owns narration; Hidden owns tools.
             } else if (detail != ActivityDetail.REDUCED || message.kind != Message.Kind.ACTIVITY) {
                 // The digest lands here too: its own row, never a step in a run.

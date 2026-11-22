@@ -161,7 +161,6 @@ class OnboardingScene(
         requestPermissions = { permissions -> record(permissions.toList()) },
         openAppSettings = { record(listOf("settings:app")) },
         shareTranscript = { _, _ -> null },
-        openCloudDesktop = { null },
         shareInbox = ShareInbox(),
         alwaysOnEnabled = MutableStateFlow(false),
         onToggleAlwaysOn = {},

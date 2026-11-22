@@ -251,12 +251,9 @@ dependencies {
     // needs 2.1.0 or later. It ships its own consumer R8 rules.
     implementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    // Chrome Custom Tabs, for the cloud desktop's noVNC viewer — the Android
-    // counterpart of the SFSafariViewController iOS uses. A hardened browser
-    // process with its own visible origin, cookie jar and WebSocket support,
-    // rather than a WebView that would put the provider's session inside this
-    // process and hide the origin from someone about to grant full control of a
-    // cloud machine. ~200 KB, no transitive weight beyond androidx.core.
+    // Chrome Custom Tabs, the Android counterpart of the SFSafariViewController iOS
+    // uses: a hardened browser process with its own visible origin and cookie jar,
+    // for sign-in pages. ~200 KB, no transitive weight beyond androidx.core.
     implementation("androidx.browser:browser:1.9.0")
 
     // The host page that shows a bot's page: a web view whose only bridge is a message listener bound to the

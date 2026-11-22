@@ -611,24 +611,6 @@ class ConnectionTest {
         ).forEach { assertNull(PairingInvite.parse(URI(it)), it) }
     }
 
-    @Test
-    fun acceptsOnlyAnHttpsCloudDesktopSession() {
-        val valid = CompanionJson.decodeFromString<CloudDesktopSession>(
-            """{"joinUrl":"https://desktop.example/session/fresh","state":"ready"}""",
-        )
-        assertEquals("https://desktop.example/session/fresh", valid.url.toString())
-        listOf(
-            "http://desktop.example/session",
-            "javascript:alert(1)",
-            "not a URL",
-            "https:///missing-host",
-        ).forEach { value ->
-            assertFailsWith<SerializationException> {
-                CompanionJson.decodeFromString<CloudDesktopSession>("""{"joinUrl":"$value"}""")
-            }
-        }
-    }
-
     private class RecordingRouteListener : EventListener() {
         val dnsHost = AtomicReference<String>()
         val dnsAddresses = AtomicReference<List<InetAddress>>()

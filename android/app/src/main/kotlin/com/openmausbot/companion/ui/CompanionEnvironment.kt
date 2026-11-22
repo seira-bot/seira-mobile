@@ -9,7 +9,6 @@ import com.openmausbot.companion.avatar.AvatarImageStore
 import com.openmausbot.companion.core.ExportedTranscript
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.dictation.SpeechDictation
-import java.net.URI
 import com.openmausbot.companion.discovery.CompanionDiscovery
 import com.openmausbot.companion.permissions.CompanionPermissions
 import com.openmausbot.companion.sharing.ShareInbox
@@ -134,8 +133,6 @@ class CompanionEnvironment(
     val openAppSettings: () -> Unit,
     /** Hands an exported transcript to the share sheet; null on success. */
     val shareTranscript: (ExportedTranscript, ShareFormat) -> String?,
-    /** Opens a freshly minted cloud-desktop URL in Custom Tabs; null on success. */
-    val openCloudDesktop: (URI) -> String?,
     /** Inbound share copied off the sending app's Intent. */
     val shareInbox: ShareInbox,
     /** Whether [com.openmausbot.companion.lifecycle.AlwaysOnConnectionService] is enabled. */

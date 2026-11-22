@@ -185,8 +185,7 @@ here by simply not having the methods:
 | Interrupt a bot, mark chats read | Reach `/api/internal/*` |
 | File visible bots into one sidebar section | Use general bot or room `PATCH` routes |
 | Fetch screen images on demand | Load the packaged desktop UI |
-| Open an explicitly enabled cloud desktop | Provision, sleep or run shell commands on cloud computers |
-| See an explicitly enabled Local VM, idle or working, and take control of it | |
+| See an explicitly enabled Local VM, idle or working, and take control of it | Provision, sleep or run shell commands on cloud computers |
 | Start and end a Live call, change its voice, typed-reply reading and idle timeout | Read or change the OpenAI key |
 
 Marking a chat read and remembering an approval use purpose-built server
@@ -197,11 +196,6 @@ working directories.
 
 Companion settings stay on the computer on purpose: losing the phone must not
 mean losing the ability to lock it out.
-
-Interactive cloud desktop access is additionally enabled per paired device and
-starts off. The phone asks the Mac to mint a fresh provider URL after an
-explicit warning, validates that it is HTTPS, opens it in an in-app Safari
-sheet, and never persists it.
 
 The same per-device switch (**Allow computer view** in Settings → Remote access)
 lets the phone fetch a still of a bot's Local VM on demand, so the computer view

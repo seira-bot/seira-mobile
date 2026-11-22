@@ -19,23 +19,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -46,7 +40,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
 
 /**
  * A bot's computer, live — the port of `ios/App/ComputerView.swift`.
@@ -62,7 +55,6 @@ import kotlinx.coroutines.launch
 fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) -> Unit = {}) {
     val environment = LocalCompanion.current
     val session = environment.session
-    val scope = rememberCoroutineScope()
     val state by session.state.collectAsState()
 
     val bot = remember(state, botId) { state.bot(botId) }
@@ -82,10 +74,6 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
         watch.watch(botId)
         onDispose { watch.release() }
     }
-
-    var confirming by remember { mutableStateOf(false) }
-    var opening by remember { mutableStateOf(false) }
-    var failure by remember { mutableStateOf<String?>(null) }
 
     val frame = state.screens[botId]
     val image: ImageBitmap? = remember(frame) {
@@ -147,8 +135,6 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
             )
         }
 
-        // A bot's browser is not a cloud-desktop feature: any bot with one
-        // enabled can be watched and driven, so this sits outside that gate.
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -156,91 +142,11 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
                 .padding(horizontal = 18.dp, vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            if (!ComputerPolicy.showsCloudDesktop(bot)) {
-                OutlinedButton(
-                    onClick = { onOpenBrowser(botId) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(localizedMobileCopy("Open browser")) }
-            }
+            OutlinedButton(
+                onClick = { onOpenBrowser(botId) },
+                modifier = Modifier.fillMaxWidth(),
+            ) { Text(localizedMobileCopy("Open browser")) }
         }
-
-        if (ComputerPolicy.showsCloudDesktop(bot)) {
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .background(Color.Black.copy(alpha = 0.55f))
-                    .padding(horizontal = 18.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                failure?.let {
-                    Text(
-                        text = localizedMobileCopy(it),
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.error,
-                        textAlign = TextAlign.Center,
-                    )
-                }
-                OutlinedButton(
-                    onClick = { onOpenBrowser(botId) },
-                    modifier = Modifier.fillMaxWidth(),
-                ) { Text(localizedMobileCopy("Open browser")) }
-                Button(
-                    onClick = { confirming = true },
-                    enabled = !opening,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    if (opening) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            strokeWidth = 2.dp,
-                        )
-                    } else {
-                        Text(localizedMobileCopy(ComputerPolicy.OPEN_DESKTOP))
-                    }
-                }
-                Text(
-                    text = localizedMobileCopy(ComputerPolicy.VNC_NOTE),
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.6f),
-                    textAlign = TextAlign.Center,
-                )
-            }
-        }
-    }
-
-    if (confirming) {
-        AlertDialog(
-            onDismissRequest = { confirming = false },
-            title = { Text(localizedMobileCopy(ComputerPolicy.CONFIRM_TITLE)) },
-            text = { Text(localizedMobileCopy(ComputerPolicy.CONFIRM_MESSAGE)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        confirming = false
-                        opening = true
-                        failure = null
-                        scope.launch {
-                            try {
-                                // Minted per join, handed straight to the browser
-                                // and kept nowhere: no field, no saved state, no
-                                // log. The next join asks the harness again.
-                                failure = environment.openCloudDesktop(session.cloudDesktop(bot))
-                            } catch (error: Throwable) {
-                                if (error is kotlinx.coroutines.CancellationException) throw error
-                                failure = error.message ?: CLOUD_DESKTOP_FAILED
-                            } finally {
-                                opening = false
-                            }
-                        }
-                    },
-                ) { Text(stringResource(R.string.mobile_open_desktop_cd6f8218)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { confirming = false }) { Text(stringResource(R.string.mobile_cancel_77dfd213)) }
-            },
-        )
     }
 }
 
@@ -274,4 +180,3 @@ private fun Waiting(headline: String, explanation: String?) {
 }
 
 // English source; shown through localizedMobileCopy (MOCA-291).
-private const val CLOUD_DESKTOP_FAILED = "Could not open the cloud desktop."
