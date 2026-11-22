@@ -64,6 +64,7 @@ class AvatarSheetTest {
     private val server = MockWebServer()
     private val requests = CopyOnWriteArrayList<Pair<String, JsonObject>>()
     private var scene: WiringScene? = null
+    private val writes get() = requests.filter { it.first != "GET /api/config" }
 
     private val plain = Bot(
         id = "b1", threadId = "thread-b1", name = "Dina Pratama", title = "", description = "",
@@ -215,12 +216,12 @@ class AvatarSheetTest {
         compose.onNodeWithText("Colour").performClick()
         compose.onNodeWithContentDescription("Blue").performClick()
         compose.onNodeWithTag("change-look-save").performClick()
-        compose.waitUntil(10_000) { requests.size == 2 }
-        assertEquals("PATCH /api/bots/b1", requests[0].first)
-        assertEquals(setOf("color"), requests[0].second.keys)
-        assertEquals("PATCH /api/bots/b1/profile", requests[1].first)
-        assertEquals(setOf("avatarCrop"), requests[1].second.keys)
-        assertEquals("mascot", requests[1].second.getValue("avatarCrop").jsonPrimitive.content)
+        compose.waitUntil(10_000) { writes.size == 2 }
+        assertEquals("PATCH /api/bots/b1", writes[0].first)
+        assertEquals(setOf("color"), writes[0].second.keys)
+        assertEquals("PATCH /api/bots/b1/profile", writes[1].first)
+        assertEquals(setOf("avatarCrop"), writes[1].second.keys)
+        assertEquals("mascot", writes[1].second.getValue("avatarCrop").jsonPrimitive.content)
     }
 
     @Test
@@ -229,10 +230,10 @@ class AvatarSheetTest {
         showSheet(hidden)
         compose.onNodeWithTag("avatar-tab-upload").performClick()
         compose.onNodeWithTag("avatar-use").performClick()
-        compose.waitUntil(10_000) { requests.size == 1 }
-        assertEquals("PATCH /api/bots/b1/profile", requests.single().first)
-        assertEquals(setOf("avatarCrop"), requests.single().second.keys)
-        assertEquals("circle", requests.single().second.getValue("avatarCrop").jsonPrimitive.content)
+        compose.waitUntil(10_000) { writes.size == 1 }
+        assertEquals("PATCH /api/bots/b1/profile", writes.single().first)
+        assertEquals(setOf("avatarCrop"), writes.single().second.keys)
+        assertEquals("circle", writes.single().second.getValue("avatarCrop").jsonPrimitive.content)
     }
 
     @Test
@@ -240,8 +241,8 @@ class AvatarSheetTest {
         start(served = shown)
         showSheet(shown)
         compose.onNodeWithTag("avatar-remove").performClick()
-        compose.waitUntil(10_000) { requests.size == 1 }
-        val sent = requests.single().second
+        compose.waitUntil(10_000) { writes.size == 1 }
+        val sent = writes.single().second
         assertEquals(setOf("avatarUrl", "avatarCrop"), sent.keys)
         assertEquals(JsonNull, sent.getValue("avatarUrl"))
         assertEquals("mascot", sent.getValue("avatarCrop").jsonPrimitive.content)
