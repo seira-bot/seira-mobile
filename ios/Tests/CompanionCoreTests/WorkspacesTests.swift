@@ -167,7 +167,8 @@ final class WorkspacesTests: XCTestCase {
 
     func testListsTheWorkspacesWithThePairedToken() async throws {
         WorkspacesStub.responseBody = Data(#"{"workspaces":[{"id":"a","current":true},{"id":"b","name":"Pentest"}]}"#.utf8)
-        let list = try await XCTUnwrapAsync(await client.workspaces())
+        let loaded = try await client.workspaces()
+        let list = try XCTUnwrap(loaded)
         let request = try XCTUnwrap(WorkspacesStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "GET")
         XCTAssertEqual(request.url?.path, "/api/phones/self/workspaces")
@@ -227,9 +228,5 @@ final class WorkspacesTests: XCTestCase {
         } catch {
             XCTFail("unexpected error \(error)")
         }
-    }
-
-    private func XCTUnwrapAsync<T>(_ value: @autoclosure () async throws -> T?, file: StaticString = #filePath, line: UInt = #line) async throws -> T {
-        try XCTUnwrap(try await value(), file: file, line: line)
     }
 }
