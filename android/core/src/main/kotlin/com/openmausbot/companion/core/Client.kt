@@ -571,6 +571,24 @@ class CompanionClient(
         ).bot
 
     /**
+     * Move one bot between no computer and its own server. Exactly one of two
+     * bodies, never a server address or any other field.
+     */
+    suspend fun setWorksOn(botId: String, ownServer: Boolean): Bot {
+        val body = buildJsonObject {
+            if (ownServer) {
+                put("computer", "cloud")
+                put("cloudBackend", "vps")
+            } else {
+                put("computer", "off")
+            }
+        }
+        return send<BotResponse>(
+            makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body),
+        ).bot
+    }
+
+    /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
      */

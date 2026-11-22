@@ -568,6 +568,8 @@ data class Bot(
     val activeLeafId: String? = null,
     val hasMore: Boolean? = null,
     val projects: List<BotProject>? = null,
+    /** Set when the host set up an own server for this bot. Only its presence is read. */
+    val vpsAlias: String? = null,
 )
 
 /** Project only task-local controls; the original fleet record stays profile-global. */
@@ -1018,6 +1020,9 @@ sealed interface LiveCallStart {
 }
 
 @Serializable
+data class VpsStatus(val configured: Boolean? = null)
+
+@Serializable
 data class ConfigStatus(
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
@@ -1026,6 +1031,8 @@ data class ConfigStatus(
     val profile: Profile? = null,
     /** Live-call settings; absent on a harness older than Live calls. */
     val live: LiveSettings? = null,
+    /** Own-server status; absent on a harness older than own servers. */
+    val vps: VpsStatus? = null,
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in
