@@ -5,6 +5,12 @@ public struct WorksOnOffer: Equatable, Sendable {
     public var ownServer: Bool
 }
 
+public enum WorksOnRefusal: Equatable, Sendable {
+    case forbidden
+    case server(String)
+    case failed
+}
+
 /// Where a phone that may administer can move a bot from the cloud-computer notice.
 public enum WorksOnChoice {
     private static let notSetUp = "cc-not-set-up"
@@ -27,9 +33,10 @@ public enum WorksOnChoice {
     }
 
     public static func offer(
-        canAdminister: Bool, running: Bool, computer: String?, cloudBackend: String?, ownServerReady: Bool
+        canAdminister: Bool, running: Bool, computer: String?, cloudBackend: String?, ownServerReady: Bool,
+        phoneWorksOn: Bool?
     ) -> WorksOnOffer? {
-        guard canAdminister, !running else { return nil }
+        guard canAdminister, !running, phoneWorksOn == true else { return nil }
         let onOwnServer = computer == "cloud" && cloudBackend == "vps"
         let offer = WorksOnOffer(
             withoutComputer: computer != "off",
@@ -38,11 +45,10 @@ public enum WorksOnChoice {
         return offer.withoutComputer || offer.ownServer ? offer : nil
     }
 
-    /// The server's own sentence for a refusal; nil when it sent none.
-    public static func refusal(_ error: Error) -> String? {
-        guard let api = error as? APIError, case let .status(_, message) = api,
-              let message, !message.trimmingCharacters(in: .whitespaces).isEmpty
-        else { return nil }
-        return message
+    public static func refusal(_ error: Error) -> WorksOnRefusal {
+        guard let api = error as? APIError, case let .status(code, message) = api else { return .failed }
+        if code == 403 { return .forbidden }
+        guard let message, !message.trimmingCharacters(in: .whitespaces).isEmpty else { return .failed }
+        return .server(message)
     }
 }

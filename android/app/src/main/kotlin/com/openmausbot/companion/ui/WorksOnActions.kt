@@ -26,6 +26,7 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ConfigStatus
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.WorksOnChoice
+import com.openmausbot.companion.core.WorksOnRefusal
 import com.openmausbot.companion.core.WorksOnResult
 import com.openmausbot.companion.core.forTask
 import kotlinx.coroutines.launch
@@ -49,31 +50,27 @@ internal fun WorksOnActions(chat: Chat, message: Message) {
     var config by remember { mutableStateOf<ConfigStatus?>(null) }
     var changing by remember { mutableStateOf(false) }
     var changedToOwnServer by rememberSaveable(message.id) { mutableStateOf<Boolean?>(null) }
-    var refusal by remember { mutableStateOf<String?>(null) }
-    var failed by remember { mutableStateOf(false) }
+    var refusal by remember { mutableStateOf<WorksOnRefusal?>(null) }
 
     val shows = newest && admin
     LaunchedEffect(shows) {
-        if (shows && bot.vpsAlias.isNullOrBlank()) config = session.configStatus()
+        if (shows) config = session.configStatus()
     }
     if (!shows) return
 
     val offer = WorksOnChoice.offer(
         admin, running, bot.computer, bot.cloudBackend, WorksOnChoice.ownServerReady(bot, config),
+        config?.phoneWorksOn,
     )
     if (offer == null && changedToOwnServer == null) return
 
     val change = { ownServer: Boolean ->
         changing = true
         refusal = null
-        failed = false
         scope.launch {
             when (val result = session.setWorksOn(bot, ownServer)) {
                 is WorksOnResult.Changed -> changedToOwnServer = ownServer
-                is WorksOnResult.Refused -> {
-                    refusal = result.sentence
-                    failed = result.sentence == null
-                }
+                is WorksOnResult.Refused -> refusal = result.reason
             }
             changing = false
         }
@@ -91,8 +88,14 @@ internal fun WorksOnActions(chat: Chat, message: Message) {
                 color = secondaryTint,
             )
         }
-        refusal?.let { Text(it, fontSize = 13.sp, color = secondaryTint) }
-        if (failed) Text(stringResource(R.string.chat_works_on_failed), fontSize = 13.sp, color = secondaryTint)
+        refusal?.let {
+            val text = when (it) {
+                WorksOnRefusal.Forbidden -> stringResource(R.string.chat_works_on_forbidden)
+                WorksOnRefusal.Failed -> stringResource(R.string.chat_works_on_failed)
+                is WorksOnRefusal.Server -> it.sentence
+            }
+            Text(text, fontSize = 13.sp, color = secondaryTint)
+        }
         if (offer != null) {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),

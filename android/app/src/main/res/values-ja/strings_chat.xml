@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">コンピューターなしで作業するようになりました。</string>
     <string name="chat_works_on_now_own_server">自分のサーバーで作業するようになりました。</string>
     <string name="chat_works_on_failed">このボットの作業場所を変更できませんでした。もう一度お試しください。</string>
+    <string name="chat_works_on_forbidden">コンピューターで変更してください。</string>
 </resources>

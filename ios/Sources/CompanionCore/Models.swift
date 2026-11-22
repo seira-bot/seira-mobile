@@ -1270,6 +1270,8 @@ public struct ConfigStatus: Codable, Sendable {
     public var live: LiveSettings?
     /// Own-server status; absent on a computer older than own servers.
     public var vps: VpsStatus?
+    /// True only on a server that accepts a change of where a bot works from a phone.
+    public var phoneWorksOn: Bool?
 
     /// Whether synthesis is available on the paired computer. Deliberately
     /// provider-neutral: under ElevenLabs this is a key on file, while under

@@ -1033,6 +1033,8 @@ data class ConfigStatus(
     val live: LiveSettings? = null,
     /** Own-server status; absent on a harness older than own servers. */
     val vps: VpsStatus? = null,
+    /** True only on a server that accepts a change of where a bot works from a phone. */
+    val phoneWorksOn: Boolean? = null,
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in

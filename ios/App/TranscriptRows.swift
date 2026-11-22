@@ -107,8 +107,8 @@ struct TranscriptActions: Equatable {
     func openBotSettings() { navigate(.botSettings) }
 
     @MainActor
-    func ownServerConfigured() async -> Bool {
-        await session.configStatus()?.vps?.configured == true
+    func worksOnConfig() async -> ConfigStatus? {
+        await session.configStatus()
     }
 
     @MainActor

@@ -51,6 +51,7 @@ class WorksOnActionsTest {
     private lateinit var server: MockWebServer
     private lateinit var scene: WiringScene
     private var ownServerConfigured = true
+    private var phoneWorksOn = true
     private var patchStatus = 200
     private var patchBody = BOT_OFF
     private val patches = mutableListOf<String>()
@@ -72,7 +73,7 @@ class WorksOnActionsTest {
                     patches += request.body.readUtf8()
                     json(patchBody, patchStatus)
                 }
-                request.path == "/api/config" -> json("""{"vps":{"configured":$ownServerConfigured}}""")
+                request.path == "/api/config" -> json("""{"phoneWorksOn":$phoneWorksOn,"vps":{"configured":$ownServerConfigured}}""")
                 request.path == "/api/live/call" -> json("""{"call":null}""")
                 request.path?.startsWith("/api/threads/") == true -> json("""{"messages":[],"hasMore":false}""")
                 else -> MockResponse().setResponseCode(404)
@@ -126,6 +127,25 @@ class WorksOnActionsTest {
         show()
         compose.onNodeWithText("Work without a computer").assertIsDisplayed()
         assertEquals(0, count("Use your own server"))
+    }
+
+    @Test
+    fun nothingShowsWhenTheServerDoesNotAcceptTheChange() {
+        phoneWorksOn = false
+        show()
+        compose.waitForIdle()
+        assertEquals(0, count("Work without a computer"))
+    }
+
+    @Test
+    fun aForbiddenAnswerSaysToChangeItOnTheComputer() {
+        patchStatus = 403
+        patchBody = """{"error":"a paired device may change how a bot looks"}"""
+        show()
+        compose.waitUntil(5_000) { count("Work without a computer") > 0 }
+        compose.onNodeWithText("Work without a computer").performClick()
+        compose.waitUntil(5_000) { count("Change this on the computer.") > 0 }
+        assertEquals(0, count("a paired device may change how a bot looks"))
     }
 
     @Test

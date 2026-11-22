@@ -22,8 +22,8 @@ class WorksOnChoiceTest {
         computer = computer, cloudBackend = backend, vpsAlias = vpsAlias,
     )
 
-    private fun offer(admin: Boolean, running: Boolean, bot: Bot, ready: Boolean) =
-        WorksOnChoice.offer(admin, running, bot.computer, bot.cloudBackend, ready)
+    private fun offer(admin: Boolean, running: Boolean, bot: Bot, ready: Boolean, flag: Boolean? = true) =
+        WorksOnChoice.offer(admin, running, bot.computer, bot.cloudBackend, ready, flag)
 
     private fun notice(id: String) = Message(
         id, Message.Role.BOT, Message.Kind.ACTIVITY, 1.0,
@@ -46,6 +46,12 @@ class WorksOnChoiceTest {
     @Test
     fun onlyWithoutAComputerWhenNoOwnServer() {
         assertEquals(WorksOnOffer(true, false), offer(true, false, bot(), false))
+    }
+
+    @Test
+    fun nothingWhenTheServerDoesNotSayItAcceptsTheChange() {
+        assertNull(offer(true, false, bot(), true, flag = null))
+        assertNull(offer(true, false, bot(), true, flag = false))
     }
 
     @Test
@@ -112,14 +118,17 @@ class WorksOnChoiceTest {
         val config = CompanionJson.decodeFromString<ConfigStatus>("""{"vps":{"configured":true}}""")
         assertEquals(true, config.vps?.configured)
         assertNull(CompanionJson.decodeFromString<ConfigStatus>("{}").vps)
+        assertEquals(true, CompanionJson.decodeFromString<ConfigStatus>("""{"phoneWorksOn":true}""").phoneWorksOn)
+        assertNull(CompanionJson.decodeFromString<ConfigStatus>("{}").phoneWorksOn)
         assertNull(CompanionJson.decodeFromString<ConfigStatus>("""{"vps":{}}""").vps?.configured)
     }
 
     @Test
     fun aRefusalKeepsTheServersSentenceWhenThereIsOne() {
-        assertEquals("Set up your own server first.", WorksOnChoice.refusal(APIError.Status(409, "Set up your own server first.")))
-        assertNull(WorksOnChoice.refusal(APIError.Status(403)))
-        assertNull(WorksOnChoice.refusal(APIError.Transport("timeout")))
+        assertEquals(WorksOnRefusal.Server("Set up your own server first."), WorksOnChoice.refusal(APIError.Status(409, "Set up your own server first.")))
+        assertEquals(WorksOnRefusal.Forbidden, WorksOnChoice.refusal(APIError.Status(403, "a paired device may change how a bot looks")))
+        assertEquals(WorksOnRefusal.Failed, WorksOnChoice.refusal(APIError.Status(409)))
+        assertEquals(WorksOnRefusal.Failed, WorksOnChoice.refusal(APIError.Transport("timeout")))
     }
 }
 
@@ -172,6 +181,6 @@ class WorksOnClientTest {
     fun aRefusalCarriesTheServersSentence() = runBlocking {
         server.enqueue(MockResponse().setResponseCode(409).setBody("""{"error":"Set up your own server first."}"""))
         val error = runCatching { client.setWorksOn("bot-1", ownServer = true) }.exceptionOrNull()
-        assertEquals("Set up your own server first.", WorksOnChoice.refusal(error!!))
+        assertEquals(WorksOnRefusal.Server("Set up your own server first."), WorksOnChoice.refusal(error!!))
     }
 }

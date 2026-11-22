@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">現在不使用電腦工作。</string>
     <string name="chat_works_on_now_own_server">現在在你自己的伺服器上工作。</string>
     <string name="chat_works_on_failed">無法變更此機器人的工作位置。請重試。</string>
+    <string name="chat_works_on_forbidden">請在電腦上變更。</string>
 </resources>

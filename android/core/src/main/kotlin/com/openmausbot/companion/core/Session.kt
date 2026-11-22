@@ -2569,7 +2569,7 @@ class Session(
     }
 
     suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
-        val activeClient = client ?: return WorksOnResult.Refused(null)
+        val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)
         return try {
             val updated = activeClient.setWorksOn(bot.id, ownServer)
             currentCoroutineContext().ensureActive()

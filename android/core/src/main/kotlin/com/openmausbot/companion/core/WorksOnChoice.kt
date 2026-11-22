@@ -2,9 +2,15 @@ package com.openmausbot.companion.core
 
 data class WorksOnOffer(val withoutComputer: Boolean, val ownServer: Boolean)
 
+sealed interface WorksOnRefusal {
+    data object Forbidden : WorksOnRefusal
+    data class Server(val sentence: String) : WorksOnRefusal
+    data object Failed : WorksOnRefusal
+}
+
 sealed interface WorksOnResult {
     data class Changed(val bot: Bot) : WorksOnResult
-    data class Refused(val sentence: String?) : WorksOnResult
+    data class Refused(val reason: WorksOnRefusal) : WorksOnResult
 }
 
 /** Where a phone that may administer can move a bot from the cloud-computer notice. */
@@ -31,8 +37,9 @@ object WorksOnChoice {
         computer: String?,
         cloudBackend: String?,
         ownServerReady: Boolean,
+        phoneWorksOn: Boolean?,
     ): WorksOnOffer? {
-        if (!canAdminister || running) return null
+        if (!canAdminister || running || phoneWorksOn != true) return null
         val onOwnServer = computer == "cloud" && cloudBackend == "vps"
         val offer = WorksOnOffer(
             withoutComputer = computer != "off",
@@ -41,7 +48,10 @@ object WorksOnChoice {
         return offer.takeIf { it.withoutComputer || it.ownServer }
     }
 
-    /** The server's own sentence for a refusal; null when it sent none. */
-    fun refusal(error: Throwable): String? =
-        (error as? APIError.Status)?.serverMessage?.takeIf { it.isNotBlank() }
+    fun refusal(error: Throwable): WorksOnRefusal {
+        val status = error as? APIError.Status ?: return WorksOnRefusal.Failed
+        if (status.code == 403) return WorksOnRefusal.Forbidden
+        val sentence = status.serverMessage?.takeIf { it.isNotBlank() } ?: return WorksOnRefusal.Failed
+        return WorksOnRefusal.Server(sentence)
+    }
 }

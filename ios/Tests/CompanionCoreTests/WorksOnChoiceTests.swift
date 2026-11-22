@@ -53,10 +53,10 @@ final class WorksOnChoiceTests: XCTestCase {
         return bot
     }
 
-    private func offer(_ admin: Bool, _ running: Bool, _ bot: Bot, _ ready: Bool) -> WorksOnOffer? {
+    private func offer(_ admin: Bool, _ running: Bool, _ bot: Bot, _ ready: Bool, flag: Bool? = true) -> WorksOnOffer? {
         WorksOnChoice.offer(
             canAdminister: admin, running: running, computer: bot.computer, cloudBackend: bot.cloudBackend,
-            ownServerReady: ready
+            ownServerReady: ready, phoneWorksOn: flag
         )
     }
 
@@ -99,6 +99,18 @@ final class WorksOnChoiceTests: XCTestCase {
             offer(true, false, bot(), false),
             WorksOnOffer(withoutComputer: true, ownServer: false)
         )
+    }
+
+    func testNothingWhenTheServerDoesNotSayItAcceptsTheChange() {
+        XCTAssertNil(offer(true, false, bot(), true, flag: nil))
+        XCTAssertNil(offer(true, false, bot(), true, flag: false))
+    }
+
+    func testTheWireReadsTheOptionalFlag() throws {
+        let on = try JSONDecoder().decode(ConfigStatus.self, from: Data(#"{"phoneWorksOn":true}"#.utf8))
+        let bare = try JSONDecoder().decode(ConfigStatus.self, from: Data("{}".utf8))
+        XCTAssertEqual(on.phoneWorksOn, true)
+        XCTAssertNil(bare.phoneWorksOn)
     }
 
     func testNothingForAPhoneThatMayNotAdminister() {
@@ -160,10 +172,11 @@ final class WorksOnChoiceTests: XCTestCase {
     func testARefusalKeepsTheServersSentenceWhenThereIsOne() {
         XCTAssertEqual(
             WorksOnChoice.refusal(APIError.status(code: 409, message: "Set up your own server first.")),
-            "Set up your own server first."
+            .server("Set up your own server first.")
         )
-        XCTAssertNil(WorksOnChoice.refusal(APIError.status(code: 403, message: nil)))
-        XCTAssertNil(WorksOnChoice.refusal(APIError.transport("timeout")))
+        XCTAssertEqual(WorksOnChoice.refusal(APIError.status(code: 403, message: "raw server text")), .forbidden)
+        XCTAssertEqual(WorksOnChoice.refusal(APIError.status(code: 409, message: nil)), .failed)
+        XCTAssertEqual(WorksOnChoice.refusal(APIError.transport("timeout")), .failed)
     }
 }
 
@@ -224,7 +237,7 @@ final class WorksOnClientTests: XCTestCase {
             _ = try await client.setWorksOn(botId: "bot-1", ownServer: true)
             XCTFail("expected a refusal")
         } catch {
-            XCTAssertEqual(WorksOnChoice.refusal(error), "Set up your own server first.")
+            XCTAssertEqual(WorksOnChoice.refusal(error), .server("Set up your own server first."))
         }
     }
 }

@@ -3,7 +3,7 @@ import SwiftUI
 
 enum WorksOnOutcome {
     case changed
-    case refused(String?)
+    case refused(WorksOnRefusal)
 }
 
 /// The newest cloud-computer notice of a chat and where its bot works now.
@@ -21,16 +21,16 @@ struct WorksOnCard: View {
     let state: WorksOnState
     let busy: Bool
     let actions: TranscriptActions
-    @State private var ownServerConfigured = false
+    @State private var config: ConfigStatus?
     @State private var changing = false
     @State private var changedToOwnServer: Bool?
-    @State private var refusal: String?
-    @State private var failed = false
+    @State private var refusal: WorksOnRefusal?
 
     private var offer: WorksOnOffer? {
         WorksOnChoice.offer(
             canAdminister: true, running: busy, computer: state.computer, cloudBackend: state.cloudBackend,
-            ownServerReady: WorksOnChoice.ownServerReady(vpsAlias: state.vpsAlias, configured: ownServerConfigured)
+            ownServerReady: WorksOnChoice.ownServerReady(vpsAlias: state.vpsAlias, configured: config?.vps?.configured),
+            phoneWorksOn: config?.phoneWorksOn
         )
     }
 
@@ -45,12 +45,14 @@ struct WorksOnCard: View {
                             note("Now works without a computer.")
                         }
                     }
-                    if let refusal {
-                        Text(verbatim: refusal)
+                    switch refusal {
+                    case .forbidden: note("Change this on the computer.")
+                    case let .server(sentence):
+                        Text(verbatim: sentence)
                             .font(.system(size: 14))
                             .foregroundStyle(Color.secondary)
-                    } else if failed {
-                        note("Couldn't change where this bot works. Try again.")
+                    case .failed: note("Couldn't change where this bot works. Try again.")
+                    case nil: EmptyView()
                     }
                     if let offer {
                         HStack(spacing: 8) {
@@ -67,8 +69,7 @@ struct WorksOnCard: View {
             }
         }
         .task(id: state.noticeId) {
-            guard (state.vpsAlias ?? "").isEmpty else { return }
-            ownServerConfigured = await actions.ownServerConfigured()
+            config = await actions.worksOnConfig()
         }
     }
 
@@ -96,16 +97,14 @@ struct WorksOnCard: View {
     private func change(ownServer: Bool) {
         changing = true
         refusal = nil
-        failed = false
         Task {
             let outcome = await actions.setWorksOn(botId: state.botId, ownServer: ownServer)
             guard !Task.isCancelled else { return }
             switch outcome {
             case .changed:
                 changedToOwnServer = ownServer
-            case let .refused(sentence):
-                refusal = sentence
-                failed = sentence == nil
+            case let .refused(reason):
+                refusal = reason
             }
             changing = false
         }

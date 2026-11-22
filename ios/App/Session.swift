@@ -2372,7 +2372,7 @@ final class Session: ObservableObject {
     }
 
     func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
-        guard let client else { return .refused(nil) }
+        guard let client else { return .refused(.failed) }
         do {
             let updated = try await client.setWorksOn(botId: botId, ownServer: ownServer)
             state.apply(.bot(updated))

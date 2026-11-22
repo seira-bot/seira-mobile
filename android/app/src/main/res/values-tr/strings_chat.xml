@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">Artık bilgisayarsız çalışıyor.</string>
     <string name="chat_works_on_now_own_server">Artık kendi sunucunda çalışıyor.</string>
     <string name="chat_works_on_failed">Bu botun nerede çalışacağı değiştirilemedi. Tekrar dene.</string>
+    <string name="chat_works_on_forbidden">Bunu bilgisayarda değiştir.</string>
 </resources>

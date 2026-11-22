@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">अब यह बिना कंप्यूटर के काम करता है।</string>
     <string name="chat_works_on_now_own_server">अब यह आपके अपने सर्वर पर काम करता है।</string>
     <string name="chat_works_on_failed">इस बॉट के काम करने की जगह नहीं बदली जा सकी। फिर से कोशिश करें।</string>
+    <string name="chat_works_on_forbidden">इसे कंप्यूटर पर बदलें।</string>
 </resources>

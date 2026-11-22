@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">이제 컴퓨터 없이 작업해요.</string>
     <string name="chat_works_on_now_own_server">이제 내 서버에서 작업해요.</string>
     <string name="chat_works_on_failed">이 봇의 작업 위치를 바꾸지 못했어요. 다시 시도해 주세요.</string>
+    <string name="chat_works_on_forbidden">컴퓨터에서 변경해 주세요.</string>
 </resources>

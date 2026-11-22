@@ -86,4 +86,5 @@
     <string name="chat_works_on_now_without_computer">Ahora trabaja sin ordenador.</string>
     <string name="chat_works_on_now_own_server">Ahora trabaja en tu propio servidor.</string>
     <string name="chat_works_on_failed">No se pudo cambiar dónde trabaja este bot. Inténtalo de nuevo.</string>
+    <string name="chat_works_on_forbidden">Cámbialo en el ordenador.</string>
 </resources>
