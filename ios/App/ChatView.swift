@@ -182,6 +182,8 @@ struct ChatView: View {
         let lastTurnFailed: Bool
         /// The failed turn that may offer "Switch model", by message id.
         let switchModelOfferId: String?
+        /// The newest cloud-computer notice, by message id.
+        let worksOnNoticeId: String?
     }
 
     /// Reused while the thread, its messages, the bot's busy flag and the
@@ -205,7 +207,8 @@ struct ChatView: View {
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
             lastTurnFailed: lastTurnFailed(in: messages),
-            switchModelOfferId: switchModelOfferMessageId(in: messages)
+            switchModelOfferId: switchModelOfferMessageId(in: messages),
+            worksOnNoticeId: WorksOnChoice.noticeMessageId(in: messages)
         )
         snapshotMemo.remember(snapshot, for: key, messages: messages, all: all)
         return snapshot
@@ -581,6 +584,14 @@ struct ChatView: View {
         let actions: TranscriptActions
     }
 
+    private func worksOnState(bot: Bot?, noticeId: String?) -> WorksOnState? {
+        guard let bot, let noticeId, session.canAdminister else { return nil }
+        return WorksOnState(
+            noticeId: noticeId, botId: bot.id, computer: bot.computer,
+            cloudBackend: bot.cloudBackend, vpsAlias: bot.vpsAlias
+        )
+    }
+
     /// The chat-wide values the rows draw from, read once per render
     /// rather than once per row.
     private func rowContext(_ snapshot: TranscriptSnapshot) -> TranscriptRowContext {
@@ -598,6 +609,7 @@ struct ChatView: View {
             claudeInstanceId: bot?.currentTaskModelSelection.instanceId,
             modelSelection: bot?.currentTaskModelSelection,
             switchModelOfferId: bot != nil && session.canAdminister ? snapshot.switchModelOfferId : nil,
+            worksOn: worksOnState(bot: bot, noticeId: snapshot.worksOnNoticeId),
             credentials: CredentialAccess(
                 connectionId: connection?.id,
                 pairedForSecrets: connection.map { $0.secretPublicKey != nil && $0.companionDeviceId != nil } ?? false,
@@ -2224,6 +2236,9 @@ struct MessageRow: View, Equatable {
             }
             if context.switchModelOfferId == message.id, let selection = context.modelSelection {
                 SwitchModelCard(selection: selection, tint: SeiraPalette.color(context.color), actions: actions)
+            }
+            if let worksOn = context.worksOn, worksOn.noticeId == message.id {
+                WorksOnCard(state: worksOn, busy: context.busy || context.editPending, actions: actions)
             }
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {

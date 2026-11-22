@@ -107,6 +107,16 @@ struct TranscriptActions: Equatable {
     func openBotSettings() { navigate(.botSettings) }
 
     @MainActor
+    func ownServerConfigured() async -> Bool {
+        await session.configStatus()?.vps?.configured == true
+    }
+
+    @MainActor
+    func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
+        await session.setWorksOn(botId: botId, ownServer: ownServer)
+    }
+
+    @MainActor
     func modelLabel(for selection: ModelSelection) async -> String {
         await session.modelLabel(for: selection)
     }
@@ -253,6 +263,9 @@ struct TranscriptRowContext: Equatable {
     /// The failed turn that offers "Switch model": set only when this phone
     /// may change the model and no usage-limit offer is already open.
     let switchModelOfferId: String?
+    /// The newest cloud-computer notice and where its bot works now: set only
+    /// when this phone may administer.
+    let worksOn: WorksOnState?
     let credentials: CredentialAccess
     /// The bot's profile for avatars, in a bot chat; nil in a room.
     let faceBot: Bot?
