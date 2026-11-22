@@ -180,3 +180,21 @@ public func switchModelOfferMessageId(in messages: [Message]) -> String? {
     if messages[index].tool?.claudeUpdate == true { return nil }
     return messages[index].id
 }
+
+/// The failed or stopped turn that offers "Try again": the newest one, while
+/// nothing has been said since and no usage-limit offer is already open. A
+/// cloud-computer notice would only fail again, so it never offers it.
+public func retryOfferMessageId(in messages: [Message]) -> String? {
+    guard let index = messages.lastIndex(where: { isFailedTurn($0) || isStoppedTurn($0) }) else { return nil }
+    if messages[(index + 1)...].contains(where: { $0.kind == .text }) { return nil }
+    if messages.contains(where: { $0.card?.quotaSwitch != nil && $0.card?.isPending == true }) { return nil }
+    if let tool = messages[index].tool {
+        if tool.claudeUpdate == true || CloudComputerNotice.matches(tool) { return nil }
+    }
+    return messages[index].id
+}
+
+/// The person's newest message with text: what "Try again" sends again.
+public func lastUserMessage(in messages: [Message]) -> Message? {
+    messages.last { $0.role == .user && $0.kind == .text && !($0.text ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
+}

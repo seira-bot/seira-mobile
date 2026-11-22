@@ -58,10 +58,99 @@ class FailedTurnActionsTest {
     }
 
     @Test
-    fun aPartialOrUnrelatedFailureOffersNothing() {
-        assertNull(offer(overloaded.copy(partial = true)))
-        assertNull(offer(ToolActivity(name = "error: Disk full.", ok = false)))
+    fun aRowThatIsNotAFailedTurnOffersNothing() {
         assertNull(offer(ToolActivity(name = "Read file")))
+    }
+
+    @Test
+    fun aFailureOfAnyCauseOffersTryAgainOnly() {
+        val diskFull = offer(ToolActivity(name = "error: Disk full.", ok = false))!!
+        assertTrue(diskFull.tryAgain)
+        assertFalse(diskFull.switchModel)
+        assertFalse(diskFull.askOwner)
+        val signedOut = offer(ToolActivity(name = "error: Claude is signed out.", ok = false, setup = true))!!
+        assertTrue(signedOut.tryAgain)
+        assertFalse(signedOut.switchModel)
+    }
+
+    @Test
+    fun aPartialFailureOffersTryAgainButNoSwitch() {
+        val partial = offer(overloaded.copy(partial = true))!!
+        assertTrue(partial.tryAgain)
+        assertFalse(partial.switchModel)
+        assertFalse(partial.askOwner)
+    }
+
+    @Test
+    fun withoutAMessageToSendAgainThereIsNoTryAgain() {
+        val offer = FailedTurnActions.offer(overloaded, false, false, false, canRetry = false)!!
+        assertFalse(offer.tryAgain)
+        assertTrue(offer.switchModel)
+        assertNull(FailedTurnActions.offer(ToolActivity(name = "error: Disk full.", ok = false), false, false, false, canRetry = false))
+    }
+
+    private fun stopped(id: String, name: String = "stopped: You stopped this.") = Message(
+        id, Message.Role.BOT, Message.Kind.ACTIVITY, 1.0, tool = ToolActivity(name = name, ok = true),
+    )
+
+    @Test
+    fun aStoppedTurnOffersTryAgainOnlyWhenNothingRunsAndAMessageExists() {
+        assertTrue(FailedTurnActions.stoppedOffer(turnRunning = false, canRetry = true)!!.tryAgain)
+        assertNull(FailedTurnActions.stoppedOffer(turnRunning = true, canRetry = true))
+        assertNull(FailedTurnActions.stoppedOffer(turnRunning = false, canRetry = false))
+    }
+
+    @Test
+    fun theNewestStoppedTurnCarriesTheOffer() {
+        val messages = listOf(text("u1", Message.Role.USER), stopped("s1"))
+        assertEquals("s1", FailedTurnActions.retryOfferMessageId(messages))
+        assertNull(FailedTurnActions.switchModelOfferMessageId(messages))
+    }
+
+    @Test
+    fun theNewestOfAFailedAndAStoppedTurnCarriesTheOffer() {
+        assertEquals("s1", FailedTurnActions.retryOfferMessageId(listOf(failed("f1"), stopped("s1"))))
+        assertEquals("f2", FailedTurnActions.retryOfferMessageId(listOf(stopped("s1"), failed("f2"))))
+    }
+
+    @Test
+    fun noRetryOfferOnceSomethingWasSaidAfterTheTurn() {
+        assertNull(FailedTurnActions.retryOfferMessageId(listOf(stopped("s1"), text("u2", Message.Role.USER))))
+        assertNull(FailedTurnActions.retryOfferMessageId(listOf(failed("f1"), text("b2", Message.Role.BOT))))
+        assertNull(FailedTurnActions.retryOfferMessageId(listOf(text("u1", Message.Role.USER))))
+        assertNull(FailedTurnActions.retryOfferMessageId(listOf(failed("f1", claudeUpdate = true))))
+    }
+
+    @Test
+    fun aCloudComputerNoticeGetsNoTryAgain() {
+        val older = ToolActivity(
+            name = "error: Bots here can get their own cloud desktops from Boat, a paid service. " +
+                "Connect your Boat account in AI › Other services.",
+            ok = false,
+        )
+        assertTrue(CloudComputerNotice.matches(older))
+        assertNull(offer(older))
+        val message = Message("f1", Message.Role.BOT, Message.Kind.ACTIVITY, 1.0, tool = older)
+        assertNull(FailedTurnActions.retryOfferMessageId(listOf(text("u1", Message.Role.USER), message)))
+    }
+
+    @Test
+    fun aBotBubbleThatIsOnlyTheAbortSentenceIsAStoppedTurn() {
+        val cancelled = Message("b1", Message.Role.BOT, Message.Kind.TEXT, 1.0, text = "The request was cancelled by the client.")
+        assertTrue(isStoppedTurn(cancelled))
+        assertEquals("b1", FailedTurnActions.retryOfferMessageId(listOf(text("u1", Message.Role.USER), cancelled)))
+        assertTrue(isStoppedTurn(cancelled.copy(text = "provider returned a completion error: context canceled")))
+        assertFalse(isStoppedTurn(cancelled.copy(text = "The request was cancelled by the client, so I kept going.")))
+        assertFalse(isStoppedTurn(cancelled.copy(role = Message.Role.USER)))
+        assertFalse(isStoppedTurn(text("b2", Message.Role.BOT)))
+    }
+
+    @Test
+    fun aFailedTurnWhoseCauseIsTheAbortSentenceIsAStoppedTurn() {
+        assertTrue(isStoppedTurn(stopped("s1", name = "error: Operation was aborted.")))
+        assertTrue(isStoppedTurn(stopped("s2", name = "stopped: Stopped")))
+        assertFalse(isStoppedTurn(stopped("s3", name = "error: Disk full while the operation was aborted.")))
+        assertFalse(isStoppedTurn(stopped("s4", name = "Read file")))
     }
 
     private fun text(id: String, role: Message.Role) = Message(id, role, Message.Kind.TEXT, 1.0, text = "hi")
