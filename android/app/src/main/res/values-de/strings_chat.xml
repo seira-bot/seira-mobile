@@ -81,4 +81,9 @@
     <string name="chat_failed_turn_switch_failed">Das Modell konnte nicht gewechselt werden. Versuch es noch einmal.</string>
     <string name="chat_failed_turn_use_model">Dieses Modell verwenden</string>
     <string name="chat_failed_turn_models_unavailable">Die Liste der KI-Modelle ist auf diesem Telefon nicht verfügbar.</string>
+    <string name="chat_works_on_without_computer">Ohne Computer arbeiten</string>
+    <string name="chat_works_on_own_server">Eigenen Server nutzen</string>
+    <string name="chat_works_on_now_without_computer">Arbeitet jetzt ohne Computer.</string>
+    <string name="chat_works_on_now_own_server">Arbeitet jetzt auf deinem eigenen Server.</string>
+    <string name="chat_works_on_failed">Der Arbeitsort dieses Bots konnte nicht geändert werden. Versuch es noch einmal.</string>
 </resources>

@@ -81,4 +81,9 @@
     <string name="chat_failed_turn_switch_failed">モデルを切り替えられませんでした。もう一度お試しください。</string>
     <string name="chat_failed_turn_use_model">このモデルを使う</string>
     <string name="chat_failed_turn_models_unavailable">AI モデルの一覧は、このスマホでは利用できません。</string>
+    <string name="chat_works_on_without_computer">コンピューターなしで作業</string>
+    <string name="chat_works_on_own_server">自分のサーバーを使う</string>
+    <string name="chat_works_on_now_without_computer">コンピューターなしで作業するようになりました。</string>
+    <string name="chat_works_on_now_own_server">自分のサーバーで作業するようになりました。</string>
+    <string name="chat_works_on_failed">このボットの作業場所を変更できませんでした。もう一度お試しください。</string>
 </resources>

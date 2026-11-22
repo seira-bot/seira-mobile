@@ -81,4 +81,9 @@
     <string name="chat_failed_turn_switch_failed">Không thể đổi mô hình. Hãy thử lại.</string>
     <string name="chat_failed_turn_use_model">Dùng mô hình này</string>
     <string name="chat_failed_turn_models_unavailable">Điện thoại này không có danh sách mô hình AI.</string>
+    <string name="chat_works_on_without_computer">Làm việc không cần máy tính</string>
+    <string name="chat_works_on_own_server">Dùng máy chủ của bạn</string>
+    <string name="chat_works_on_now_without_computer">Giờ bot làm việc không cần máy tính.</string>
+    <string name="chat_works_on_now_own_server">Giờ bot làm việc trên máy chủ của bạn.</string>
+    <string name="chat_works_on_failed">Không thể đổi nơi bot này làm việc. Hãy thử lại.</string>
 </resources>

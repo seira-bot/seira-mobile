@@ -484,6 +484,7 @@ private fun MessageContent(
                 ClaudeUpdateCard(messageId = message.id, instanceId = claudeInstance)
             }
             FailedTurnActionRow(chat, message)
+            WorksOnActions(chat, message)
         }
         Message.Kind.COMPACTION -> ReceiptChip(
             label = message.compaction?.chipText ?: message.text.orEmpty(),

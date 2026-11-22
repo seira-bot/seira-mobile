@@ -81,4 +81,9 @@
     <string name="chat_failed_turn_switch_failed">Не вдалося змінити модель. Спробуйте ще раз.</string>
     <string name="chat_failed_turn_use_model">Використати цю модель</string>
     <string name="chat_failed_turn_models_unavailable">Список моделей ШІ недоступний на цьому телефоні.</string>
+    <string name="chat_works_on_without_computer">Працювати без комп\'ютера</string>
+    <string name="chat_works_on_own_server">Використати власний сервер</string>
+    <string name="chat_works_on_now_without_computer">Тепер працює без комп\'ютера.</string>
+    <string name="chat_works_on_now_own_server">Тепер працює на вашому сервері.</string>
+    <string name="chat_works_on_failed">Не вдалося змінити, де працює цей бот. Спробуйте ще раз.</string>
 </resources>

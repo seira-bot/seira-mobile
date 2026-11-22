@@ -81,4 +81,9 @@
     <string name="chat_failed_turn_switch_failed">मॉडल नहीं बदला जा सका। फिर से कोशिश करें।</string>
     <string name="chat_failed_turn_use_model">यह मॉडल उपयोग करें</string>
     <string name="chat_failed_turn_models_unavailable">AI मॉडल की सूची इस फ़ोन पर उपलब्ध नहीं है।</string>
+    <string name="chat_works_on_without_computer">कंप्यूटर के बिना काम करें</string>
+    <string name="chat_works_on_own_server">अपना सर्वर इस्तेमाल करें</string>
+    <string name="chat_works_on_now_without_computer">अब यह बिना कंप्यूटर के काम करता है।</string>
+    <string name="chat_works_on_now_own_server">अब यह आपके अपने सर्वर पर काम करता है।</string>
+    <string name="chat_works_on_failed">इस बॉट के काम करने की जगह नहीं बदली जा सकी। फिर से कोशिश करें।</string>
 </resources>
