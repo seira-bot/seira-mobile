@@ -64,7 +64,7 @@ class AvatarSheetTest {
     private val server = MockWebServer()
     private val requests = CopyOnWriteArrayList<Pair<String, JsonObject>>()
     private var scene: WiringScene? = null
-    private val writes get() = requests.filter { it.first != "GET /api/config" }
+    private val writes get() = requests.filter { !it.first.startsWith("GET ") }
 
     private val plain = Bot(
         id = "b1", threadId = "thread-b1", name = "Dina Pratama", title = "", description = "",
