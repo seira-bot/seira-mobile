@@ -38,28 +38,10 @@ private val AVATAR_IN_TILE = 76.dp
 @Composable
 internal fun ChangeLookPanel(state: ChangeLookState) {
     when (state.category) {
-        ChangeLookCategory.CHARACTERS -> CharactersPanel(state)
         ChangeLookCategory.HAIR -> HairPanel(state)
         ChangeLookCategory.COLOUR -> ColourPanel(state)
         ChangeLookCategory.FACE -> FacePanel(state)
         ChangeLookCategory.EXTRAS -> ExtrasPanel(state)
-    }
-}
-
-@Composable
-private fun CharactersPanel(state: ChangeLookState) {
-    val haptics = rememberHaptics()
-    ChangeLookGrid(state.cast, columns = 3, spacing = 12.dp) { member ->
-        ChangeLookTile(
-            title = member.name,
-            selected = member.look == state.look,
-            onClick = {
-                haptics.play(HapticCue.SELECT)
-                state.pick(member)
-            },
-        ) {
-            CarvedAvatar(look = member.look, size = AVATAR_IN_TILE)
-        }
     }
 }
 
@@ -112,20 +94,19 @@ private fun ColourPanel(state: ChangeLookState) {
     }
 }
 
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun FacePanel(state: ChangeLookState) {
     val haptics = rememberHaptics()
-    FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        ChangeLookState.faceExpressions.forEach { id ->
-            ChangeLookChip(
-                title = changeLookExpressionLabel(id),
-                selected = state.isExpressionSelected(id),
-                onClick = {
-                    haptics.play(HapticCue.SELECT)
-                    state.setExpression(id)
-                },
-            )
+    ChangeLookGrid(ChangeLookState.faceExpressions, columns = 3, spacing = 12.dp) { id ->
+        ChangeLookTile(
+            title = changeLookExpressionLabel(id),
+            selected = state.isExpressionSelected(id),
+            onClick = {
+                haptics.play(HapticCue.SELECT)
+                state.setExpression(id)
+            },
+        ) {
+            CarvedAvatar(look = state.look.copy(expression = id), size = AVATAR_IN_TILE, animated = true)
         }
     }
 }

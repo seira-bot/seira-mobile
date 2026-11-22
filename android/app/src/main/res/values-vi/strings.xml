@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Bí danh giúp phân biệt rõ tài khoản khi một tác nhân dùng nhiều tài khoản %1$s.</string>
     <string name="mobile_answered_e0aafffa">Đã trả lời</string>
     <string name="mobile_archived_eddc813f">Đã lưu trữ</string>
-    <string name="mobile_art_direction_52d878a2">Định hướng nghệ thuật</string>
     <string name="mobile_back_b52b36b7">Quay lại</string>
     <string name="mobile_bot_settings_7092a294">Cài đặt bot</string>
     <string name="mobile_bot_threads_ec81acf2">Luồng của bot</string>
@@ -490,7 +489,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Đang kiểm tra khả năng dùng Cloud VM…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Hãy chọn ảnh PNG, JPEG, GIF hoặc WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Hãy chọn một nhà cung cấp khả dụng để đổi mô hình của bot này.</string>
-    <string name="mobile_circle_1cc7820a">Hình tròn</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Không có thông tin trạng thái Cloud VM</string>
     <string name="mobile_completed_1798b3ba">Đã hoàn tất</string>
@@ -509,14 +507,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Giải thích các bước</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio chưa được cấu hình</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Tạo ảnh đại diện</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Tạo trên máy tính</string>
     <string name="mobile_hide_diff_120df7c2">Ẩn diff</string>
     <string name="mobile_identity_7e5a975b">Danh tính</string>
     <string name="mobile_idle_cc1ebdd0">Nhàn rỗi</string>
     <string name="mobile_loading_models_eeade2be">Đang tải các mô hình</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Tính năng phát hiện cục bộ bị gián đoạn. Đang thử lại…</string>
-    <string name="mobile_mascot_e0489488">Linh vật</string>
     <string name="mobile_more_4bab2d8f">Thêm</string>
     <string name="mobile_needs_you_0d9d0df1">Cần bạn</string>
     <string name="mobile_new_task_17b2b838">Tác vụ mới</string>
@@ -540,7 +535,6 @@
     <string name="mobile_preview_voice_560a6fec">Nghe thử giọng nói</string>
     <string name="mobile_primary_account_32f2184e">Tài khoản chính</string>
     <string name="mobile_recent_changes_1bfd2320">Thay đổi gần đây</string>
-    <string name="mobile_rounded_c5aa340f">Bo tròn góc</string>
     <string name="mobile_routines_a445e5ad">Tác vụ định kỳ</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Chạy tất cả bài kiểm thử tự động</string>
     <string name="mobile_run_receipts_9115568f">Biên nhận chạy</string>
@@ -550,7 +544,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Lên lịch công việc của tác nhân, định kỳ hoặc một lần.</string>
     <string name="mobile_sending_cf765512">Đang gửi…</string>
     <string name="mobile_show_diff_78016e77">Hiện diff</string>
-    <string name="mobile_square_82810cb9">Vuông</string>
     <string name="mobile_start_dictation_ee00527b">Bắt đầu đọc chính tả</string>
     <string name="mobile_stop_dictation_96ad53f1">Dừng đọc chính tả</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Hãy dừng bot này trước khi đổi mô hình.</string>
@@ -561,8 +554,6 @@
     <string name="mobile_this_computer_4ccce6f4">Máy tính này</string>
     <string name="mobile_to_review_066f77ce">Cần xem xét</string>
     <string name="mobile_unknown_bc7819b3">Không rõ</string>
-    <string name="mobile_upload_image_f35dec5f">Tải ảnh lên</string>
-    <string name="mobile_use_mascot_0de90a12">Dùng linh vật</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Dùng mô hình và cài đặt máy tính mà tác nhân này đã chọn trên máy tính đã ghép nối.</string>
     <string name="mobile_view_diff_39f85d34">Xem diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Đang chờ khung hình…</string>
@@ -579,9 +570,6 @@
     <string name="mobile_model_busy_note">Hãy dừng bot này trước khi đổi mô hình.</string>
     <string name="mobile_model_unavailable_note">Hãy chọn một nhà cung cấp khả dụng để đổi mô hình của bot này.</string>
     <string name="mobile_model_unavailable">Không khả dụng</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF hoặc WebP, tối đa 10 MB. Ảnh được lưu trên máy tính đã ghép nối và tải bằng mã ghép nối của điện thoại này.</string>
-    <string name="mobile_profile_generate_ready">Việc tạo ảnh dùng nhà cung cấp ảnh dùng chung đã cấu hình trên máy tính của bạn. Không có khóa nhà cung cấp nào được gửi tới hoặc lưu trên điện thoại này.</string>
-    <string name="mobile_profile_generate_blocked">Để tạo ảnh, hãy cấu hình nhà cung cấp ảnh dùng chung trong Seira trên máy tính của bạn. Không thể thêm khóa nhà cung cấp từ điện thoại.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs chưa được cấu hình</string>
     <string name="mobile_profile_builtin_voices_unavailable">Không có giọng nói tích hợp sẵn của máy tính bạn</string>
     <string name="mobile_profile_voice_unconfigured_footer">Hãy thêm khóa ElevenLabs dùng chung trong hồ sơ của tác nhân này trên máy tính. Khóa không bao giờ được gửi về điện thoại này.</string>
@@ -817,7 +805,6 @@
     <string name="change_look_title">Đổi diện mạo</string>
     <string name="change_look_close">Đóng</string>
     <string name="change_look_preview">Xem trước diện mạo</string>
-    <string name="change_look_cat_characters">Nhân vật</string>
     <string name="change_look_cat_hair">Tóc</string>
     <string name="change_look_cat_colour">Màu</string>
     <string name="change_look_cat_face">Khuôn mặt</string>
@@ -881,4 +868,16 @@
     <string name="change_look_no_changes">Chưa có thay đổi</string>
     <string name="change_look_offline">Hãy kết nối với máy tính của bạn để lưu.</string>
     <string name="change_look_failed">Không thể lưu. Hãy thử lại.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Tạo</string>
+    <string name="avatar_tab_upload">Tải lên</string>
+    <string name="avatar_generate_prompt">Mô tả hình ảnh</string>
+    <string name="avatar_generate_action">Tạo hình ảnh</string>
+    <string name="avatar_generate_setup">Hãy thiết lập tạo hình ảnh trong Seira trên máy tính của bạn để dùng tính năng này.</string>
+    <string name="avatar_generate_failed">Không thể tạo hình ảnh. Hãy thử lại.</string>
+    <string name="avatar_picture_failed">Không thể đổi hình ảnh. Hãy thử lại.</string>
+    <string name="avatar_upload_choose">Chọn hình ảnh</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF hoặc WebP, tối đa 10 MB.</string>
+    <string name="avatar_upload_use">Dùng hình ảnh này</string>
+    <string name="avatar_upload_remove">Xóa hình ảnh</string>
 </resources>

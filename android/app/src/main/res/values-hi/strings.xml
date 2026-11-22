@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">जब कोई एजेंट एक से ज़्यादा %1$s खातों का इस्तेमाल करे, तो उपनाम से खाता साफ़ पहचाना जाता है।</string>
     <string name="mobile_answered_e0aafffa">जवाब दिया गया</string>
     <string name="mobile_archived_eddc813f">संग्रहित</string>
-    <string name="mobile_art_direction_52d878a2">आर्ट डायरेक्शन</string>
     <string name="mobile_back_b52b36b7">वापस</string>
     <string name="mobile_bot_settings_7092a294">बॉट की सेटिंग्स</string>
     <string name="mobile_bot_threads_ec81acf2">बॉट के थ्रेड्स</string>
@@ -494,7 +493,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Cloud VM की उपलब्धता जाँची जा रही है…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">PNG, JPEG, GIF या WebP इमेज चुनें।</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">इस बॉट का मॉडल बदलने के लिए कोई उपलब्ध प्रदाता चुनें।</string>
-    <string name="mobile_circle_1cc7820a">गोल</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Cloud VM की स्थिति उपलब्ध नहीं है</string>
     <string name="mobile_completed_1798b3ba">पूरा हुआ</string>
@@ -513,14 +511,11 @@
     <string name="mobile_explain_steps_b60a9fb6">चरण समझाएँ</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio सेट नहीं है</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">अवतार बनाएँ</string>
-    <string name="mobile_generate_on_computer_ff5b7448">कंप्यूटर पर बनाएँ</string>
     <string name="mobile_hide_diff_120df7c2">Diff छिपाएँ</string>
     <string name="mobile_identity_7e5a975b">पहचान</string>
     <string name="mobile_idle_cc1ebdd0">निष्क्रिय</string>
     <string name="mobile_loading_models_eeade2be">मॉडल लोड हो रहे हैं</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">लोकल खोज रुक गई। फिर कोशिश हो रही है…</string>
-    <string name="mobile_mascot_e0489488">शुभंकर</string>
     <string name="mobile_more_4bab2d8f">और</string>
     <string name="mobile_needs_you_0d9d0df1">आपकी ज़रूरत है</string>
     <string name="mobile_new_task_17b2b838">नया टास्क</string>
@@ -544,7 +539,6 @@
     <string name="mobile_preview_voice_560a6fec">आवाज़ सुनकर देखें</string>
     <string name="mobile_primary_account_32f2184e">मुख्य खाता</string>
     <string name="mobile_recent_changes_1bfd2320">हाल के बदलाव</string>
-    <string name="mobile_rounded_c5aa340f">गोलाकार कोने</string>
     <string name="mobile_routines_a445e5ad">रूटीन</string>
     <string name="mobile_run_all_automated_tests_4032d93f">सभी स्वचालित टेस्ट चलाएँ</string>
     <string name="mobile_run_receipts_9115568f">रन की रसीदें</string>
@@ -554,7 +548,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">बार-बार होने वाला या एक बार का एजेंट का काम शेड्यूल करें।</string>
     <string name="mobile_sending_cf765512">भेजा जा रहा है…</string>
     <string name="mobile_show_diff_78016e77">Diff दिखाएँ</string>
-    <string name="mobile_square_82810cb9">चौकोर</string>
     <string name="mobile_start_dictation_ee00527b">बोलकर लिखना शुरू करें</string>
     <string name="mobile_stop_dictation_96ad53f1">बोलकर लिखना रोकें</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">मॉडल बदलने से पहले इस बॉट को रोकें।</string>
@@ -565,8 +558,6 @@
     <string name="mobile_this_computer_4ccce6f4">यह कंप्यूटर</string>
     <string name="mobile_to_review_066f77ce">देखने के लिए</string>
     <string name="mobile_unknown_bc7819b3">अज्ञात</string>
-    <string name="mobile_upload_image_f35dec5f">इमेज अपलोड करें</string>
-    <string name="mobile_use_mascot_0de90a12">शुभंकर इस्तेमाल करें</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">जुड़े हुए कंप्यूटर पर इस एजेंट का चुना हुआ मॉडल और कंप्यूटर सेटिंग इस्तेमाल करता है।</string>
     <string name="mobile_view_diff_39f85d34">Diff देखें</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">फ़्रेम का इंतज़ार…</string>
@@ -583,9 +574,6 @@
     <string name="mobile_model_busy_note">मॉडल बदलने से पहले इस बॉट को रोकें।</string>
     <string name="mobile_model_unavailable_note">इस बॉट का मॉडल बदलने के लिए कोई उपलब्ध प्रदाता चुनें।</string>
     <string name="mobile_model_unavailable">उपलब्ध नहीं</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF या WebP, 10 MB तक। इमेज आपके जुड़े हुए कंप्यूटर पर रखी जाती हैं और इस फ़ोन की जोड़ने की पहचान से लोड होती हैं।</string>
-    <string name="mobile_profile_generate_ready">इमेज बनाने में आपके कंप्यूटर पर सेट किया गया साझा इमेज प्रदाता इस्तेमाल होता है। कोई प्रदाता कुंजी इस फ़ोन को भेजी या इस पर रखी नहीं जाती।</string>
-    <string name="mobile_profile_generate_blocked">इमेज बनाने के लिए अपने कंप्यूटर पर Seira में साझा इमेज प्रदाता सेट करें। फ़ोन से प्रदाता की कुंजियाँ नहीं जोड़ी जा सकतीं।</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs सेट नहीं है</string>
     <string name="mobile_profile_builtin_voices_unavailable">आपके कंप्यूटर की इनबिल्ट आवाज़ें उपलब्ध नहीं हैं</string>
     <string name="mobile_profile_voice_unconfigured_footer">कंप्यूटर पर इस एजेंट की प्रोफ़ाइल में साझा ElevenLabs कुंजी जोड़ें। कुंजी इस फ़ोन को कभी नहीं भेजी जाती।</string>
@@ -832,7 +820,6 @@
     <string name="change_look_title">लुक बदलें</string>
     <string name="change_look_close">बंद करें</string>
     <string name="change_look_preview">लुक का पूर्वावलोकन</string>
-    <string name="change_look_cat_characters">किरदार</string>
     <string name="change_look_cat_hair">बाल</string>
     <string name="change_look_cat_colour">रंग</string>
     <string name="change_look_cat_face">चेहरा</string>
@@ -897,4 +884,16 @@
     <string name="change_look_no_changes">अभी कोई बदलाव नहीं</string>
     <string name="change_look_offline">सहेजने के लिए अपने कंप्यूटर से कनेक्ट करें।</string>
     <string name="change_look_failed">सहेजा नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">बनाएँ</string>
+    <string name="avatar_tab_upload">अपलोड</string>
+    <string name="avatar_generate_prompt">तस्वीर का वर्णन करें</string>
+    <string name="avatar_generate_action">तस्वीर बनाएँ</string>
+    <string name="avatar_generate_setup">इसका उपयोग करने के लिए अपने कंप्यूटर पर Seira में इमेज जनरेशन सेट अप करें।</string>
+    <string name="avatar_generate_failed">तस्वीर नहीं बन सकी। फिर कोशिश करें।</string>
+    <string name="avatar_picture_failed">तस्वीर बदली नहीं जा सकी। फिर कोशिश करें।</string>
+    <string name="avatar_upload_choose">तस्वीर चुनें</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF या WebP, अधिकतम 10 MB।</string>
+    <string name="avatar_upload_use">यह तस्वीर इस्तेमाल करें</string>
+    <string name="avatar_upload_remove">तस्वीर हटाएँ</string>
 </resources>

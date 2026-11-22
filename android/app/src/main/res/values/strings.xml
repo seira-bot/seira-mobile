@@ -47,7 +47,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">An alias makes the account explicit when an agent uses more than one %1$s account.</string>
     <string name="mobile_answered_e0aafffa">Answered</string>
     <string name="mobile_archived_eddc813f">Archived</string>
-    <string name="mobile_art_direction_52d878a2">Art direction</string>
     <string name="mobile_back_b52b36b7">Back</string>
     <string name="mobile_bot_settings_7092a294">Bot settings</string>
     <string name="mobile_bot_threads_ec81acf2">Bot threads</string>
@@ -510,7 +509,6 @@
 
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Choose an available provider to change this bot\'s model.</string>
 
-    <string name="mobile_circle_1cc7820a">Circle</string>
 
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
 
@@ -548,9 +546,7 @@
 
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio is not configured</string>
 
-    <string name="mobile_generate_an_avatar_01e5cee4">Generate an avatar</string>
 
-    <string name="mobile_generate_on_computer_ff5b7448">Generate on computer</string>
 
     <string name="mobile_hide_diff_120df7c2">Hide Diff</string>
 
@@ -562,7 +558,6 @@
 
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Local discovery was interrupted. Retrying…</string>
 
-    <string name="mobile_mascot_e0489488">Mascot</string>
 
     <string name="mobile_more_4bab2d8f">More</string>
 
@@ -610,7 +605,6 @@
 
     <string name="mobile_recent_changes_1bfd2320">Recent changes</string>
 
-    <string name="mobile_rounded_c5aa340f">Rounded</string>
 
     <string name="mobile_routines_a445e5ad">Routines</string>
 
@@ -630,7 +624,6 @@
 
     <string name="mobile_show_diff_78016e77">Show diff</string>
 
-    <string name="mobile_square_82810cb9">Square</string>
 
     <string name="mobile_start_dictation_ee00527b">Start dictation</string>
 
@@ -652,9 +645,7 @@
 
     <string name="mobile_unknown_bc7819b3">Unknown</string>
 
-    <string name="mobile_upload_image_f35dec5f">Upload image</string>
 
-    <string name="mobile_use_mascot_0de90a12">Use mascot</string>
 
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Uses this agent\'s selected model and computer setting on the paired computer.</string>
 
@@ -684,9 +675,6 @@
     <string name="mobile_model_busy_note">Stop this bot before changing its model.</string>
     <string name="mobile_model_unavailable_note">Choose an available provider to change this bot\'s model.</string>
     <string name="mobile_model_unavailable">Unavailable</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF, or WebP, up to 10 MB. Images are stored on your paired computer and loaded with this phone\'s pairing token.</string>
-    <string name="mobile_profile_generate_ready">Generation uses the shared image provider configured on your computer. No provider key is sent to or stored on this phone.</string>
-    <string name="mobile_profile_generate_blocked">To generate images, configure the shared image provider in Seira on your computer. Provider keys cannot be added from a phone.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs is not configured</string>
     <string name="mobile_profile_builtin_voices_unavailable">Your computer\'s built-in voices are unavailable</string>
     <string name="mobile_profile_voice_unconfigured_footer">Add the shared ElevenLabs key in this agent\'s profile on the computer. The key is never returned to this phone.</string>
@@ -954,7 +942,6 @@
     <string name="change_look_title">Change look</string>
     <string name="change_look_close">Close</string>
     <string name="change_look_preview">Look preview</string>
-    <string name="change_look_cat_characters">Characters</string>
     <string name="change_look_cat_hair">Hair</string>
     <string name="change_look_cat_colour">Colour</string>
     <string name="change_look_cat_face">Face</string>
@@ -1019,4 +1006,16 @@
     <string name="change_look_no_changes">No changes yet</string>
     <string name="change_look_offline">Connect to your computer to save.</string>
     <string name="change_look_failed">Couldn\'t save. Try again.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Generate</string>
+    <string name="avatar_tab_upload">Upload</string>
+    <string name="avatar_generate_prompt">Describe the picture</string>
+    <string name="avatar_generate_action">Generate picture</string>
+    <string name="avatar_generate_setup">Set up image generation in Seira on your computer to use this.</string>
+    <string name="avatar_generate_failed">Couldn\'t make the picture. Try again.</string>
+    <string name="avatar_picture_failed">Couldn\'t change the picture. Try again.</string>
+    <string name="avatar_upload_choose">Choose a picture</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF, or WebP, up to 10 MB.</string>
+    <string name="avatar_upload_use">Use this picture</string>
+    <string name="avatar_upload_remove">Remove picture</string>
 </resources>

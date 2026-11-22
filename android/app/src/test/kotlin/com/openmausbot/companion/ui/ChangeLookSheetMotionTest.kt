@@ -60,7 +60,7 @@ class ChangeLookSheetMotionTest {
     @Test
     fun `the sheet slides out before it reports the dismiss`() {
         open()
-        compose.onNodeWithText("Change look").assertIsDisplayed()
+        compose.onNodeWithText("Avatar").assertIsDisplayed()
         tapClose()
         compose.mainClock.advanceTimeBy(50)
         assertEquals(0, dismissed)

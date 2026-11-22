@@ -110,7 +110,7 @@ class ChangeLookSheetTest {
         pickBlueAndSave()
         compose.waitUntil(10_000) { compose.onAllNodesWithTextCount("Couldn't save. Try again.") > 0 }
         compose.onNodeWithText("Couldn't save. Try again.").assertIsDisplayed()
-        compose.onNodeWithText("Change look").assertIsDisplayed()
+        compose.onNodeWithText("Avatar").assertIsDisplayed()
         assertEquals(false, closed)
         assertEquals(1, patches.size)
     }
