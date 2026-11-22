@@ -1148,28 +1148,6 @@
         }
       }
     },
-    "Art direction": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Direção de arte"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "美术方向"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "美術方向"
-          }
-        }
-      }
-    },
     "Asks for permission to send notifications": {
       "localizations": {
         "pt-BR": {
@@ -1738,28 +1716,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "每個區段最多可選擇 100 個機器人。"
-          }
-        }
-      }
-    },
-    "Circle": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Círculo"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "圆形"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "圓形"
           }
         }
       }
@@ -3801,72 +3757,6 @@
         }
       }
     },
-    "Generate an avatar": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar um avatar"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "产生头像"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "產生頭像"
-          }
-        }
-      }
-    },
-    "Generate on computer": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gerar no computador"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在电脑上产生"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "在電腦上產生"
-          }
-        }
-      }
-    },
-    "Generation uses the shared image provider configured on your computer. No provider key is sent to or stored on this device.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A geração usa o provedor de imagens compartilhado configurado no seu computador. Nenhuma chave de provedor é enviada nem guardada neste dispositivo."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "产生内容时会使用你在电脑上设置的共用图片提供者。提供者密钥不会发送至或保存在此设备上。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "產生內容時會使用你在電腦上設定的共用圖片提供者。提供者金鑰不會傳送至或儲存在此裝置上。"
-          }
-        }
-      }
-    },
     "Get alerts while Seira is open or was recently in the background. Alerts stop after iOS fully suspends or closes the app.": {
       "localizations": {
         "pt-BR": {
@@ -4457,28 +4347,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "連線前，請確認這是你預期連線的電腦。"
-          }
-        }
-      }
-    },
-    "Mascot": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mascote"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "吉祥物"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "吉祥物"
           }
         }
       }
@@ -5938,28 +5806,6 @@
         }
       }
     },
-    "PNG, JPEG, GIF, or WebP, up to 10 MB. Images are stored on your paired computer and loaded with this device's pairing token.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PNG, JPEG, GIF ou WebP, até 10 MB. As imagens ficam no computador pareado e são carregadas com o token de pareamento deste dispositivo."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "支持 PNG、JPEG、GIF 或 WebP，大小上限为 10 MB。图片会保存在已配对的电脑上，并使用此设备的配对权杖加载。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "支援 PNG、JPEG、GIF 或 WebP，大小上限為 10 MB。圖片會儲存在已配對的電腦上，並使用此裝置的配對權杖載入。"
-          }
-        }
-      }
-    },
     "Pair again": {
       "localizations": {
         "pt-BR": {
@@ -6975,28 +6821,6 @@
         }
       }
     },
-    "Rounded": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Arredondado"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "圆角"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "圓角"
-          }
-        }
-      }
-    },
     "Routine name": {
       "localizations": {
         "pt-BR": {
@@ -7679,28 +7503,6 @@
         }
       }
     },
-    "Shape": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Forma"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "形状"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "形狀"
-          }
-        }
-      }
-    },
     "Share as JSON": {
       "localizations": {
         "pt-BR": {
@@ -7961,28 +7763,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "朗讀回覆"
-          }
-        }
-      }
-    },
-    "Square": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quadrado"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "方形"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "方形"
           }
         }
       }
@@ -9131,28 +8911,6 @@
         }
       }
     },
-    "To generate images, configure the shared image provider in Seira on your computer. Provider keys cannot be added from this device.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Para gerar imagens, configure o provedor de imagens compartilhado no Seira no seu computador. Não é possível adicionar chaves de provedor por este dispositivo."
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "若要产生图片，请在电脑上的 Seira 设置共用图片提供者。无法从此设备添加提供者密钥。"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "若要產生圖片，請在電腦上的 Seira 設定共用圖片提供者。無法從此裝置新增提供者金鑰。"
-          }
-        }
-      }
-    },
     "To review": {
       "localizations": {
         "pt-BR": {
@@ -9395,28 +9153,6 @@
         }
       }
     },
-    "Upload image": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Enviar imagem"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上传图片"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "上傳圖片"
-          }
-        }
-      }
-    },
     "Use": {
       "localizations": {
         "pt-BR": {
@@ -9479,28 +9215,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "使用另一部電腦"
-          }
-        }
-      }
-    },
-    "Use mascot": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Usar mascote"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用吉祥物"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "使用吉祥物"
           }
         }
       }
@@ -14753,28 +14467,6 @@
         }
       }
     },
-    "Characters": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personagens"
-          }
-        },
-        "zh-Hans": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "角色"
-          }
-        },
-        "zh-Hant": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "角色"
-          }
-        }
-      }
-    },
     "Hair": {
       "localizations": {
         "pt-BR": {
@@ -16707,6 +16399,204 @@
           "stringUnit": {
             "state": "translated",
             "value": "安全儲存"
+          }
+        }
+      }
+    },
+    "Generate": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gerar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "产生"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "產生"
+          }
+        }
+      }
+    },
+    "Upload": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Enviar"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上传"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "上傳"
+          }
+        }
+      }
+    },
+    "Describe the picture": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Descreva a imagem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述图片"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "描述圖片"
+          }
+        }
+      }
+    },
+    "Choose a picture": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escolher uma imagem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "选择图片"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "選擇圖片"
+          }
+        }
+      }
+    },
+    "Use this picture": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usar esta imagem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此图片"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "使用此圖片"
+          }
+        }
+      }
+    },
+    "Remove picture": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Remover imagem"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除图片"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "移除圖片"
+          }
+        }
+      }
+    },
+    "PNG, JPEG, GIF, or WebP, up to 10 MB.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG, JPEG, GIF ou WebP, até 10 MB."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG、JPEG、GIF 或 WebP，最大 10 MB。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "PNG、JPEG、GIF 或 WebP，最大 10 MB。"
+          }
+        }
+      }
+    },
+    "Set up image generation in Seira on your computer to use this.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Configure a geração de imagens no Seira no seu computador para usar isto."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请先在电脑上的 Seira 中设置图片生成，才能使用此功能。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請先在電腦上的 Seira 中設定圖片產生，才能使用此功能。"
+          }
+        }
+      }
+    },
+    "Couldn't change the avatar. Try again.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Não foi possível mudar o avatar. Tente de novo."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "无法更改头像，请重试。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "無法變更頭像，請重試。"
           }
         }
       }

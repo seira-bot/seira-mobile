@@ -6,29 +6,10 @@ struct ChangeLookPanel: View {
 
     var body: some View {
         switch model.category {
-        case .characters: ChangeLookCharactersPanel(model: model)
         case .hair: ChangeLookHairPanel(model: model)
         case .colour: ChangeLookColourPanel(model: model)
         case .face: ChangeLookFacePanel(model: model)
         case .extras: ChangeLookExtrasPanel(model: model)
-        }
-    }
-}
-
-struct ChangeLookCharactersPanel: View {
-    @ObservedObject var model: ChangeLookModel
-
-    var body: some View {
-        LazyVGrid(columns: ChangeLookMetrics.threeColumns, spacing: 14) {
-            ForEach(model.cast) { member in
-                ChangeLookTile(
-                    title: Text(verbatim: member.name),
-                    selected: member.look == model.look,
-                    action: { model.pick(member) }
-                ) {
-                    SeiraAvatarHead(look: member.look, size: 76, mood: .idle)
-                }
-            }
         }
     }
 }
@@ -92,17 +73,24 @@ struct ChangeLookColourPanel: View {
 struct ChangeLookFacePanel: View {
     @ObservedObject var model: ChangeLookModel
 
-    private let columns = [GridItem(.adaptive(minimum: 92), spacing: 8)]
-
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 0) {
+        LazyVGrid(columns: ChangeLookMetrics.threeColumns, spacing: 14) {
             ForEach(SeiraLookCatalog.faceExpressions, id: \.self) { id in
-                ChangeLookChip(
+                ChangeLookTile(
                     title: Text(ChangeLookLabels.expression(id)),
-                    selected: model.isExpressionSelected(id)
-                ) { model.setExpression(id) }
+                    selected: model.isExpressionSelected(id),
+                    action: { model.setExpression(id) }
+                ) {
+                    SeiraAvatarHead(look: tileLook(id), size: 76, mood: CharacterMood.normalize(id) ?? .idle)
+                }
             }
         }
+    }
+
+    private func tileLook(_ id: String) -> SeiraLook {
+        var look = model.look
+        look.expression = id
+        return look
     }
 }
 
