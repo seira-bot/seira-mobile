@@ -721,11 +721,11 @@
     <string name="mobile_routine_friday_short">Sex</string>
     <string name="mobile_routine_saturday_short">Sáb</string>
     <plurals name="mobile_diff_show_first_lines">
-        <item quantity="one">Mostrar a primeira linha</item>
+        <item quantity="one">Mostrar %1$d linha</item>
         <item quantity="other">Mostrar as primeiras %1$d linhas</item>
     </plurals>
     <plurals name="mobile_diff_show_all_lines">
-        <item quantity="one">Mostrar a única linha</item>
+        <item quantity="one">Mostrar %1$d linha</item>
         <item quantity="other">Mostrar todas as %1$d linhas</item>
     </plurals>
     <plurals name="mobile_steps_count">

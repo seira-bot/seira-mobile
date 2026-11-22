@@ -182,6 +182,10 @@ struct ChatView: View {
         let lastTurnFailed: Bool
         /// The failed turn that may offer "Switch model", by message id.
         let switchModelOfferId: String?
+        /// The failed or stopped turn that may offer "Try again", by message id.
+        let retryOfferId: String?
+        /// The message "Try again" sends again.
+        let retryMessage: Message?
     }
 
     /// Reused while the thread, its messages, the bot's busy flag and the
@@ -205,7 +209,9 @@ struct ChatView: View {
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
             lastTurnFailed: lastTurnFailed(in: messages),
-            switchModelOfferId: switchModelOfferMessageId(in: messages)
+            switchModelOfferId: switchModelOfferMessageId(in: messages),
+            retryOfferId: retryOfferMessageId(in: messages),
+            retryMessage: lastUserMessage(in: messages)
         )
         snapshotMemo.remember(snapshot, for: key, messages: messages, all: all)
         return snapshot
@@ -588,16 +594,19 @@ struct ChatView: View {
         var bot: Bot?
         if case let .bot(value) = chat { bot = value }
         let connection = session.connection
+        let editPending = session.state.pendingEdits[chat.threadId] != nil
         return TranscriptRowContext(
             threadId: chat.threadId,
             name: chat.name,
             color: chat.color,
             botId: bot?.id,
             busy: bot?.busy == true,
-            editPending: session.state.pendingEdits[chat.threadId] != nil,
+            editPending: editPending,
             claudeInstanceId: bot?.currentTaskModelSelection.instanceId,
             modelSelection: bot?.currentTaskModelSelection,
             switchModelOfferId: bot != nil && session.canAdminister ? snapshot.switchModelOfferId : nil,
+            retryOfferId: bot != nil && bot?.busy != true && !editPending ? snapshot.retryOfferId : nil,
+            retryMessage: snapshot.retryMessage,
             credentials: CredentialAccess(
                 connectionId: connection?.id,
                 pairedForSecrets: connection.map { $0.secretPublicKey != nil && $0.companionDeviceId != nil } ?? false,
@@ -2194,10 +2203,26 @@ struct MessageRow: View, Equatable {
     }
 
     @ViewBuilder
+    private var retryCard: some View {
+        let offersSwitch = context.switchModelOfferId == message.id && context.modelSelection != nil
+        let retryMessage = context.retryOfferId == message.id ? context.retryMessage : nil
+        if offersSwitch || retryMessage != nil {
+            SwitchModelCard(
+                selection: context.modelSelection,
+                offersSwitch: offersSwitch,
+                retry: retryMessage.map { target in { Task { await actions.retry(target) } } },
+                tint: SeiraPalette.color(context.color),
+                actions: actions
+            )
+        }
+    }
+
+    @ViewBuilder
     private func content(_ presentation: MessagePresentation) -> some View {
         switch message.kind {
         case .text:
             bubble(presentation)
+            if isStoppedTurn(message) { retryCard }
         case .options:
             // A structured ask draws its own card: its answers are the
             // model's questions, not an allow/deny a tap could stand for.
@@ -2222,9 +2247,7 @@ struct MessageRow: View, Equatable {
             if message.tool?.claudeUpdate == true, let instanceId = context.claudeInstanceId {
                 ClaudeUpdateCard(instanceId: instanceId, tint: SeiraPalette.color(context.color), actions: actions)
             }
-            if context.switchModelOfferId == message.id, let selection = context.modelSelection {
-                SwitchModelCard(selection: selection, tint: SeiraPalette.color(context.color), actions: actions)
-            }
+            retryCard
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {
                 selecting = SelectableText(text: message.compaction?.summary ?? message.text ?? "")

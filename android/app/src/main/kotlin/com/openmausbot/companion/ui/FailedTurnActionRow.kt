@@ -30,18 +30,20 @@ import com.openmausbot.companion.core.FailedTurnActions
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.ModelSelection
 import com.openmausbot.companion.core.forTask
+import com.openmausbot.companion.core.isStoppedTurn
 import kotlinx.coroutines.launch
 
 /**
- * What the person can do under a failed turn: switch the model of this
- * conversation, send the last message again, check the Codex usage page, or
- * continue when the limit resets. Only the newest failure of a bot chat shows
- * it, and never while a turn runs.
+ * What the person can do under a failed or stopped turn: send the last
+ * message again, switch the model of this conversation, check the Codex usage
+ * page, or continue when the limit resets. Only the newest such turn of a bot
+ * chat shows it, and never while a turn runs. Once the model of the
+ * conversation differs from the one it had when the turn ended, the row says
+ * which model is used now and makes Try again the main action.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun FailedTurnActionRow(chat: Chat, message: Message) {
-    val tool = message.tool ?: return
     if (chat !is Chat.BotChat) return
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
@@ -51,19 +53,28 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
     val uriHandler = LocalUriHandler.current
     val task = (state.bot(chat.bot.id) ?: chat.bot).forTask(chat.threadId)
     val running = task?.busy == true || state.pendingEdits.containsKey(chat.threadId)
-    val latest = FailedTurnActions.switchModelOfferMessageId(state.transcript(chat.threadId)) == message.id
+    val transcript = state.transcript(chat.threadId)
+    val latest = FailedTurnActions.retryOfferMessageId(transcript) == message.id
+    val canRetry = FailedTurnActions.lastUserMessage(transcript) != null
+    val currentModel = task?.modelSelection ?: chat.bot.modelSelection
+    val currentModelKey = currentModel?.let { "${it.instanceId}/${it.model}" }
+    val modelWhenTurnEnded by rememberSaveable(message.id) { mutableStateOf(currentModelKey) }
+    val modelChanged = modelWhenTurnEnded != null && currentModelKey != null && modelWhenTurnEnded != currentModelKey
     val admin = session.canAdminister
     var switchedTo by rememberSaveable(message.id) { mutableStateOf<String?>(null) }
     var picking by remember { mutableStateOf(false) }
     var failedModel by remember { mutableStateOf<ModelSelection?>(null) }
-    val offer = if (latest) {
-        FailedTurnActions.offer(tool, running, modelForbidden || !admin, continueForbidden || !admin)
-    } else {
-        null
+    val tool = message.tool
+    val offer = when {
+        !latest -> null
+        isStoppedTurn(message) -> FailedTurnActions.stoppedOffer(running, canRetry)
+        tool == null -> null
+        else -> FailedTurnActions.offer(tool, running, modelForbidden || !admin, continueForbidden || !admin, canRetry)
     }
+    val nowUsing = switchedTo ?: currentModel?.model?.takeIf { modelChanged }
 
-    LaunchedEffect(offer?.tryAgain) {
-        if (offer?.tryAgain == true && admin && !modelForbidden) session.switchableModels()
+    LaunchedEffect(offer?.switchModel) {
+        if (offer?.switchModel == true && admin && !modelForbidden) session.switchableModels()
     }
     if (offer == null) return
 
@@ -71,7 +82,7 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
         modifier = Modifier.padding(start = 4.dp, top = 6.dp),
         verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        switchedTo?.let {
+        nowUsing?.let {
             Text(stringResource(R.string.chat_failed_turn_now_using, it), fontSize = 13.sp, color = secondaryTint)
         }
         if (offer.askOwner) {
@@ -82,7 +93,7 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
             if (offer.tryAgain) {
-                val primary = switchedTo != null
+                val primary = nowUsing != null
                 val send = { scope.launch { session.retryLast(chat) }; Unit }
                 if (primary) {
                     Button(onClick = send, modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET)) {
