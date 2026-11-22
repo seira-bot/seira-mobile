@@ -81,4 +81,10 @@
     <string name="chat_failed_turn_switch_failed">Impossible de changer de modèle. Réessayez.</string>
     <string name="chat_failed_turn_use_model">Utiliser ce modèle</string>
     <string name="chat_failed_turn_models_unavailable">La liste des modèles d’IA n’est pas disponible sur ce téléphone.</string>
+    <string name="chat_works_on_without_computer">Travailler sans ordinateur</string>
+    <string name="chat_works_on_own_server">Utiliser votre propre serveur</string>
+    <string name="chat_works_on_now_without_computer">Travaille maintenant sans ordinateur.</string>
+    <string name="chat_works_on_now_own_server">Travaille maintenant sur votre propre serveur.</string>
+    <string name="chat_works_on_failed">Impossible de changer l\'endroit où ce bot travaille. Réessayez.</string>
+    <string name="chat_works_on_forbidden">Modifiez cela sur l\'ordinateur.</string>
 </resources>

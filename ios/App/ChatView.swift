@@ -182,6 +182,8 @@ struct ChatView: View {
         let lastTurnFailed: Bool
         /// The failed turn that may offer "Switch model", by message id.
         let switchModelOfferId: String?
+        /// The newest cloud-computer notice, by message id.
+        let worksOnNoticeId: String?
         /// The failed or stopped turn that may offer "Try again", by message id.
         let retryOfferId: String?
         /// The message "Try again" sends again.
@@ -210,6 +212,7 @@ struct ChatView: View {
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
             lastTurnFailed: lastTurnFailed(in: messages),
             switchModelOfferId: switchModelOfferMessageId(in: messages),
+            worksOnNoticeId: WorksOnChoice.noticeMessageId(in: messages),
             retryOfferId: retryOfferMessageId(in: messages),
             retryMessage: lastUserMessage(in: messages)
         )
@@ -587,6 +590,15 @@ struct ChatView: View {
         let actions: TranscriptActions
     }
 
+    private func worksOnState(bot: Bot?, noticeId: String?) -> WorksOnState? {
+        guard let bot, let noticeId, session.canAdminister,
+              session.connection?.pairedWithServer == true else { return nil }
+        return WorksOnState(
+            noticeId: noticeId, botId: bot.id, computer: bot.computer,
+            cloudBackend: bot.cloudBackend, vpsAlias: bot.vpsAlias
+        )
+    }
+
     /// The chat-wide values the rows draw from, read once per render
     /// rather than once per row.
     private func rowContext(_ snapshot: TranscriptSnapshot) -> TranscriptRowContext {
@@ -605,6 +617,7 @@ struct ChatView: View {
             claudeInstanceId: bot?.currentTaskModelSelection.instanceId,
             modelSelection: bot?.currentTaskModelSelection,
             switchModelOfferId: bot != nil && session.canAdminister ? snapshot.switchModelOfferId : nil,
+            worksOn: worksOnState(bot: bot, noticeId: snapshot.worksOnNoticeId),
             retryOfferId: bot != nil && bot?.busy != true && !editPending ? snapshot.retryOfferId : nil,
             retryMessage: snapshot.retryMessage,
             credentials: CredentialAccess(
@@ -2248,6 +2261,9 @@ struct MessageRow: View, Equatable {
                 ClaudeUpdateCard(instanceId: instanceId, tint: SeiraPalette.color(context.color), actions: actions)
             }
             retryCard
+            if let worksOn = context.worksOn, worksOn.noticeId == message.id {
+                WorksOnCard(state: worksOn, busy: context.busy || context.editPending, actions: actions)
+            }
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {
                 selecting = SelectableText(text: message.compaction?.summary ?? message.text ?? "")

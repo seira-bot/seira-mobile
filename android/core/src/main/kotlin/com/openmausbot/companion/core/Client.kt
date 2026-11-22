@@ -571,6 +571,24 @@ class CompanionClient(
         ).bot
 
     /**
+     * Move one bot between no computer and its own server. Exactly one of two
+     * bodies, never a server address or any other field.
+     */
+    suspend fun setWorksOn(botId: String, ownServer: Boolean): Bot {
+        val body = buildJsonObject {
+            if (ownServer) {
+                put("computer", "cloud")
+                put("cloudBackend", "vps")
+            } else {
+                put("computer", "off")
+            }
+        }
+        val request = makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body)
+            .newBuilder().header(PAIRED_DEVICE_HEADER, "1").build()
+        return send<BotResponse>(request).bot
+    }
+
+    /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
      */
@@ -1311,6 +1329,9 @@ class CompanionClient(
         }
         private val AVATAR_MIME_TYPES = setOf("image/png", "image/jpeg", "image/gif", "image/webp")
         private val JSON_MEDIA_TYPE = "application/json".toMediaType()
+
+        /** The server narrows a request that carries it to what a paired phone may change. */
+        private const val PAIRED_DEVICE_HEADER = "x-seira-companion"
         private val EMPTY_BODY: RequestBody = ByteArray(0).toRequestBody(null)
         private const val HEX_DIGITS = "0123456789ABCDEF"
 

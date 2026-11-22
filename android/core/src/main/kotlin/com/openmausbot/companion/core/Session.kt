@@ -2568,6 +2568,19 @@ class Session(
         }
     }
 
+    suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
+        val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)
+        return try {
+            val updated = activeClient.setWorksOn(bot.id, ownServer)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            WorksOnResult.Changed(updated)
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            WorksOnResult.Refused(WorksOnChoice.refusal(error))
+        }
+    }
+
     /** This pairing may read the model list and continue at a limit reset. */
     val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false
 

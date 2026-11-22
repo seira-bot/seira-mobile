@@ -613,6 +613,8 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     public var activeLeafId: String?
     /// Paged responses only: there is more transcript above what you got.
     public var hasMore: Bool?
+    /// Set when the host set up an own server for this bot. Only its presence is read.
+    public var vpsAlias: String?
 
     /// Routine results are ordinary tasks; only their per-run executions are hidden.
     public var visibleTasks: [BotTask] {
@@ -1253,6 +1255,10 @@ public struct Profile: Codable, Hashable, Sendable {
     public var email: String
 }
 
+public struct VpsStatus: Codable, Hashable, Sendable {
+    public var configured: Bool?
+}
+
 public struct ConfigStatus: Codable, Sendable {
     public var composio: ConfigFlag?
     public var box: ConfigFlag?
@@ -1262,6 +1268,10 @@ public struct ConfigStatus: Codable, Sendable {
     /// Live-call settings on the paired computer. Absent on a computer older
     /// than Live calls; never carries the key.
     public var live: LiveSettings?
+    /// Own-server status; absent on a computer older than own servers.
+    public var vps: VpsStatus?
+    /// True only on a server that accepts a change of where a bot works from a phone.
+    public var phoneWorksOn: Bool?
 
     /// Whether synthesis is available on the paired computer. Deliberately
     /// provider-neutral: under ElevenLabs this is a key on file, while under

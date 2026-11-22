@@ -81,4 +81,10 @@
     <string name="chat_failed_turn_switch_failed">无法切换模型。请重试。</string>
     <string name="chat_failed_turn_use_model">使用此模型</string>
     <string name="chat_failed_turn_models_unavailable">此手机无法查看 AI 模型列表。</string>
+    <string name="chat_works_on_without_computer">不使用电脑工作</string>
+    <string name="chat_works_on_own_server">使用你自己的服务器</string>
+    <string name="chat_works_on_now_without_computer">现在不使用电脑工作。</string>
+    <string name="chat_works_on_now_own_server">现在在你自己的服务器上工作。</string>
+    <string name="chat_works_on_failed">无法更改此机器人的工作位置。请重试。</string>
+    <string name="chat_works_on_forbidden">请在电脑上更改。</string>
 </resources>

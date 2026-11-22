@@ -107,6 +107,16 @@ struct TranscriptActions: Equatable {
     func openBotSettings() { navigate(.botSettings) }
 
     @MainActor
+    func worksOnConfig() async -> ConfigStatus? {
+        await session.configStatus()
+    }
+
+    @MainActor
+    func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
+        await session.setWorksOn(botId: botId, ownServer: ownServer)
+    }
+
+    @MainActor
     func modelLabel(for selection: ModelSelection) async -> String {
         await session.modelLabel(for: selection)
     }
@@ -258,6 +268,9 @@ struct TranscriptRowContext: Equatable {
     /// The failed turn that offers "Switch model": set only when this phone
     /// may change the model and no usage-limit offer is already open.
     let switchModelOfferId: String?
+    /// The newest cloud-computer notice and where its bot works now: set only
+    /// when this phone may administer.
+    let worksOn: WorksOnState?
     /// The failed or stopped turn that offers "Try again", and the message it
     /// sends again. Nil while the bot works or an edit is on its way.
     let retryOfferId: String?
