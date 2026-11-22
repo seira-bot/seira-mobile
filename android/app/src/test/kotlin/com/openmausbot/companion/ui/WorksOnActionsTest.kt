@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import android.content.Context
+import android.os.Looper
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.GraphicsMode
 
@@ -114,7 +116,11 @@ class WorksOnActionsTest {
             }
         }
         compose.runOnIdle { scene.session.connect() }
-        compose.waitUntil(5_000) { scene.session.state.value.bot(bot.id) != null }
+        compose.waitUntil(5_000) {
+            // Robolectric: waitUntil does not run the main looper, where the session resumes after a network reply.
+            shadowOf(Looper.getMainLooper()).idle()
+            scene.session.state.value.bot(bot.id) != null
+        }
         compose.waitForIdle()
     }
 
