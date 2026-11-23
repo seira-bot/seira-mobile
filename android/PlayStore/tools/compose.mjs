@@ -40,10 +40,10 @@ const title = (text) =>
     .join("");
 
 // A crop of a render, as a positioned window. box is [x, y, w, h] in render pixels.
-const crop = (src, box, k, x, y, cls) => {
+const crop = (src, box, k, x, y, cls, srcW = RAW_W) => {
   const [bx, by, bw, bh] = box;
   return `<div class="${cls}" style="left:${Math.round(x)}px;top:${Math.round(y)}px;width:${Math.round(bw * k)}px;height:${Math.round(bh * k)}px">
-  <img src="${src}" alt="" style="left:${Math.round(-bx * k)}px;top:${Math.round(-by * k)}px;width:${Math.round(RAW_W * k)}px">
+  <img src="${src}" alt="" style="left:${Math.round(-bx * k)}px;top:${Math.round(-by * k)}px;width:${Math.round(srcW * k)}px">
 </div>`;
 };
 
@@ -132,7 +132,7 @@ spec.shots.forEach((shot, i) => {
       const n = shot.notice;
       const k = n.width / n.box[2];
       parts.push(
-        crop(url("raw", n.src), n.box, k, (W - n.width) / 2, n.y, "notice").replace("</div>", `<div class="ring"></div></div>`).replace('class="notice" style="', `class="notice" style="border-radius:${n.radius ?? 44}px;`)
+        crop(url("raw", n.src), n.box, k, (W - n.width) / 2, n.y, "notice", n.sourceWidth ?? RAW_W).replace("</div>", `<div class="ring"></div></div>`).replace('class="notice" style="', `class="notice" style="border-radius:${n.radius ?? 44}px;`)
       );
     }
     if (shot.head) {

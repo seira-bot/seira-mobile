@@ -28,7 +28,7 @@
       "id": "02-approval",
       "plate": "night-a",
       "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" },
-      "card": { "box": [56, 781, 1120, 520], "dy": 40 },
+      "card": { "box": [56, 756, 1120, 572], "dy": 40 },
       "title": {
         "en-US": "When a bot asks,\n{you decide.}",
         "id-ID": "Saat bot bertanya,\n{kamu putuskan.}"
@@ -46,7 +46,7 @@
       "id": "03-glance",
       "plate": "night-b",
       "raw": { "en-US": "store-home-dark.png", "id-ID": "store-home-dark.png" },
-      "notice": { "src": "store-glance-needs-dark.png", "box": [43, 636, 994, 417], "width": 960, "y": 720, "radius": 52 },
+      "notice": { "src": "store-glance-needs-dark.png", "box": [43, 636, 994, 417], "sourceWidth": 1080, "width": 960, "y": 720, "radius": 52 },
       "title": {
         "en-US": "See who {needs you}\nat a glance",
         "id-ID": "Lihat siapa yang\n{perlu kamu}"
@@ -64,7 +64,7 @@
       "id": "04-live",
       "plate": "night-a",
       "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" },
-      "card": { "box": { "en-US": [56, 802, 1120, 278], "id-ID": [56, 736, 1120, 278] }, "dy": 30 },
+      "card": { "box": { "en-US": [56, 780, 1120, 322], "id-ID": [56, 714, 1120, 322] }, "dy": 30 },
       "title": {
         "en-US": "Watch the work\n{come in}",
         "id-ID": "Lihat hasil kerja\n{masuk langsung}"
@@ -125,8 +125,8 @@
       "en-US": "Approve, reply, and keep up with your Seira bots from your phone.",
       "id-ID": "Setujui, balas, dan pantau bot Seira dari ponselmu."
     },
-    "back": { "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" }, "box": { "en-US": [56, 802, 1120, 278], "id-ID": [56, 736, 1120, 278] } },
-    "front": { "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" }, "box": [56, 781, 1120, 520] },
+    "back": { "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" }, "box": { "en-US": [56, 780, 1120, 322], "id-ID": [56, 714, 1120, 322] } },
+    "front": { "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" }, "box": [56, 756, 1120, 572] },
     "head": { "cast": "seira" },
     "alt": {
       "en-US": "Seira: your bots work, you answer. An approval card and a table from a bot chat.",
