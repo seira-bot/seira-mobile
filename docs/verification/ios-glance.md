@@ -23,13 +23,25 @@ with Deny and Open chat, and Allow once is hidden.
 ## Native UI
 
 Run the workflow `ios.yml` with `ui_tests=true` and
-`ui_test_classes=GlanceLiveActivityUITests`. The test launches with
-`-store-preview -approval-preview -glance-preview` and captures four
-screenshots. The job uploads them as the artifact `glance-screenshots`.
+`ui_test_classes=GlanceLiveActivityUITests`. The job creates a simulator of the
+newest numbered iPhone Pro, so the Dynamic Island is there. The test launches
+with `-store-preview -approval-preview -glance-preview`, sends the app home,
+opens the island, and wakes the lock screen. The job uploads the captures as
+the artifact `glance-screenshots`.
 
-## Known limit
+## Screenshots
 
-In the hosted simulator run (CI run 45162909310), the test passed and the
-screenshots were saved. The Live Activity did not draw on the home screen, and
-the lock screen capture was black. The simulator does not show Live Activities
-reliably in this setup. Check the layout on a device before a release.
+The preview bot asks to run `git push origin fix/sidebar-search-collapse`.
+
+| View | What it shows | Image |
+|------|---------------|-------|
+| Lock screen | Name, state word, title, the whole text, Deny, Allow once, Open chat | `images/ios-glance-lock-screen.png` |
+| Expanded island | The text does not fit the island height, so only the title, Deny, and Open chat show | `images/ios-glance-island-expanded.png` |
+| Compact island | Bot head and a state dot, no number | `images/ios-glance-island-compact.png` |
+
+## Needs a real device
+
+1. Allow once on the lock screen asks to unlock first.
+2. Allow once and Deny reach the computer, and the activity updates.
+3. A long approval shows only Deny and Open chat on every view.
+4. The activity stays exact only while the app is alive. There is no push path.
