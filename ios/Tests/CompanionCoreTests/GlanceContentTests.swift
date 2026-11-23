@@ -43,10 +43,10 @@ final class GlanceContentTests: XCTestCase {
     }
 
     func testADetailThatDoesNotFitTheSurfaceCannotBeAllowedButCanBeDenied() {
-        let state = fixture(card: permission(String(repeating: "a", count: 28 * 4 + 1)))
+        let state = fixture(card: permission(String(repeating: "a", count: 28 * 3 + 1)))
         XCTAssertFalse(GlanceContent.canAnswer(state: state, botId: "a", requestId: "r1", allow: true))
         XCTAssertTrue(GlanceContent.canAnswer(state: state, botId: "a", requestId: "r1", allow: false))
-        let fits = fixture(card: permission(String(repeating: "a", count: 28 * 4)))
+        let fits = fixture(card: permission(String(repeating: "a", count: 28 * 3)))
         XCTAssertTrue(GlanceContent.canAnswer(state: fits, botId: "a", requestId: "r1", allow: true))
     }
 
@@ -86,7 +86,7 @@ final class GlanceContentTests: XCTestCase {
     func testAFullSizeContentEncodesUnderFourKilobytes() throws {
         let ask = GlanceAsk(
             kind: .approval, requestId: String(repeating: "r", count: 64), threadId: String(repeating: "t", count: 64),
-            title: String(repeating: "あ", count: Glance.titleLimit), detail: String(repeating: "い", count: Glance.detailLimit), at: 1
+            title: String(repeating: "あ", count: Glance.titleLimit), detail: String(repeating: "i", count: Glance.detailLimit), at: 1
         )
         let bot = GlanceBot(
             botId: String(repeating: "b", count: 64), threadId: String(repeating: "t", count: 64),
