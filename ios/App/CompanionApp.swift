@@ -21,65 +21,72 @@ struct CompanionApp: App {
     @State private var liveActivities = LiveActivityBridge()
     @State private var widgetSync = WidgetSyncBridge.makeAppGroupBridge()
     @AppStorage(PrefKey.language) private var language = AppLanguage.system.rawValue
+    @State private var showsLaunchVisor = true
 
     var body: some Scene {
         WindowGroup {
-            RootView()
-                .liveCallScreen()
-                .appliesAppearance()
-                .environmentObject(session)
-                .environmentObject(liveCall)
-                .environment(\.avatarLoader, AvatarLoader(session: session))
-                // One modifier is the whole language seam. SwiftUI resolves a
-                // `LocalizedStringKey` against the environment's locale, so
-                // every `Text("…")`, `Button("…")`, `Section("…")` and
-                // `navigationTitle("…")` already in the app — including the
-                // ones inside sheets and pushed screens — follows this line
-                // without a call site changing. Following the system means
-                // leaving it on the phone's own locale, which is what an app
-                // with no language setting would use anyway.
-                .environment(\.locale, AppLanguage.resolved(language).locale ?? .autoupdatingCurrent)
-                // A navigation title is drawn by UIKit, which reads its string
-                // once and does not re-read it when the environment changes —
-                // so the body would switch language while the title above it
-                // stayed behind. Re-identifying the tree on the chosen language
-                // rebuilds that chrome. It costs the navigation stack and any
-                // view state below, which is the right trade for something a
-                // person changes deliberately and almost never. `session` lives
-                // on the App, not here, so the connection survives.
-                .id(language)
-                .onAppear {
-                    OpenMausSharedInbox.removeDirectories(olderThan: 60 * 60)
-                    session.connect()
-                    liveActivities.attach(to: session)
-                    widgetSync.attach(to: session)
-                    liveCall.attach(to: session)
-                }
-                .onOpenURL { url in
-                    if let route = AppRouter.route(for: url) {
-                        AppRouter.shared.pending = route
-                    } else {
-                        session.receiveURL(url)
-                    }
-                }
-                .onValueChange(of: scenePhase) { phase in
-                    // Only a true background hangs up (CompanionCore's rule):
-                    // Control Center and the mic prompt pass through .inactive.
-                    // Hang up *before* linger(): the end request rides the same
-                    // ~25 s background window the stream's cursor write uses.
-                    if LiveCallLifecycle.endsCall(on: phase.liveCallPhase) { liveCall.leaveForeground() }
-                    switch phase {
-                    case .active:
+            ZStack {
+                RootView()
+                    .liveCallScreen()
+                    .appliesAppearance()
+                    .environmentObject(session)
+                    .environmentObject(liveCall)
+                    .environment(\.avatarLoader, AvatarLoader(session: session))
+                    // One modifier is the whole language seam. SwiftUI resolves a
+                    // `LocalizedStringKey` against the environment's locale, so
+                    // every `Text("…")`, `Button("…")`, `Section("…")` and
+                    // `navigationTitle("…")` already in the app — including the
+                    // ones inside sheets and pushed screens — follows this line
+                    // without a call site changing. Following the system means
+                    // leaving it on the phone's own locale, which is what an app
+                    // with no language setting would use anyway.
+                    .environment(\.locale, AppLanguage.resolved(language).locale ?? .autoupdatingCurrent)
+                    // A navigation title is drawn by UIKit, which reads its string
+                    // once and does not re-read it when the environment changes —
+                    // so the body would switch language while the title above it
+                    // stayed behind. Re-identifying the tree on the chosen language
+                    // rebuilds that chrome. It costs the navigation stack and any
+                    // view state below, which is the right trade for something a
+                    // person changes deliberately and almost never. `session` lives
+                    // on the App, not here, so the connection survives.
+                    .id(language)
+                    .onAppear {
                         OpenMausSharedInbox.removeDirectories(olderThan: 60 * 60)
                         session.connect()
-                        Task { await session.refreshNotificationAuthorization() }
-                    case .background:
-                        session.linger()
-                        widgetSync.flush(session.state, connectionID: session.connection?.id)
-                    case .inactive: break
-                    @unknown default: break
+                        liveActivities.attach(to: session)
+                        widgetSync.attach(to: session)
+                        liveCall.attach(to: session)
                     }
+                    .onOpenURL { url in
+                        if let route = AppRouter.route(for: url) {
+                            AppRouter.shared.pending = route
+                        } else {
+                            session.receiveURL(url)
+                        }
+                    }
+                    .onValueChange(of: scenePhase) { phase in
+                        // Only a true background hangs up (CompanionCore's rule):
+                        // Control Center and the mic prompt pass through .inactive.
+                        // Hang up *before* linger(): the end request rides the same
+                        // ~25 s background window the stream's cursor write uses.
+                        if LiveCallLifecycle.endsCall(on: phase.liveCallPhase) { liveCall.leaveForeground() }
+                        switch phase {
+                        case .active:
+                            OpenMausSharedInbox.removeDirectories(olderThan: 60 * 60)
+                            session.connect()
+                            Task { await session.refreshNotificationAuthorization() }
+                        case .background:
+                            session.linger()
+                            widgetSync.flush(session.state, connectionID: session.connection?.id)
+                        case .inactive: break
+                        @unknown default: break
+                        }
+                    }
+
+                if showsLaunchVisor {
+                    LaunchVisorView { showsLaunchVisor = false }
                 }
+            }
         }
         // `.defaultSize` is iOS 17 and `SceneBuilder` takes no conditionals,
         // so it is dropped while the app supports 16. It only suggested an
