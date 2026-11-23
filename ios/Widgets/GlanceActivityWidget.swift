@@ -25,8 +25,8 @@ struct GlanceActivityWidget: Widget {
                         .padding(.top, 2)
                 }
                 DynamicIslandExpandedRegion(.bottom) {
-                    GlanceBody(content: context.state)
-                        .padding(.top, 4)
+                    GlanceFittedBody(content: context.state)
+                        .padding(.top, 2)
                 }
             } compactLeading: {
                 GlanceHead(content: context.state, size: 24)
@@ -115,9 +115,11 @@ private struct GlanceHeading: View {
     }
 }
 
-/// The approval's title and its whole text, then the buttons.
+/// The approval's title and its whole text, then the buttons. With `full` false the text is
+/// left out and so is Allow once: a person never allows text that the screen may cut.
 private struct GlanceBody: View {
     let content: GlanceContent
+    var full = true
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -128,7 +130,7 @@ private struct GlanceBody: View {
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            if content.showsDetail {
+            if full && content.showsDetail {
                 Text(content.detail)
                     .font(.system(size: 12, design: .monospaced))
                     .foregroundStyle(.white)
@@ -144,7 +146,32 @@ private struct GlanceBody: View {
                     .foregroundStyle(.white.opacity(0.85))
                     .fixedSize(horizontal: false, vertical: true)
             }
-            GlanceButtons(content: content)
+            GlanceButtons(content: content, allowOnce: full)
+        }
+    }
+}
+
+/// Security: Allow once shows only when the whole text fits the height the system gives. If it
+/// does not, the second layout shows the title and Deny / Open chat.
+private struct GlanceFittedBody: View {
+    let content: GlanceContent
+    var heading = false
+
+    var body: some View {
+        if content.showsAllow {
+            ViewThatFits(in: .vertical) {
+                column(full: true)
+                column(full: false)
+            }
+        } else {
+            column(full: true)
+        }
+    }
+
+    private func column(full: Bool) -> some View {
+        VStack(alignment: .leading, spacing: 6) {
+            if heading { GlanceHeading(content: content) }
+            GlanceBody(content: content, full: full)
         }
     }
 }
@@ -155,12 +182,9 @@ private struct GlanceLockScreen: View {
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
             GlanceHead(content: content, size: 52)
-            VStack(alignment: .leading, spacing: 8) {
-                GlanceHeading(content: content)
-                GlanceBody(content: content)
-            }
+            GlanceFittedBody(content: content, heading: true)
         }
-        .padding(14)
+        .padding(12)
     }
 }
 
@@ -168,10 +192,11 @@ private struct GlanceLockScreen: View {
 /// Below that, and for every ask the chat has to answer, only Open chat shows.
 private struct GlanceButtons: View {
     let content: GlanceContent
+    let allowOnce: Bool
 
     var body: some View {
         if #available(iOS 17.0, *) {
-            GlanceInteractiveButtons(content: content)
+            GlanceInteractiveButtons(content: content, allowOnce: allowOnce)
         } else {
             GlanceOpenChat(content: content)
         }
@@ -181,6 +206,7 @@ private struct GlanceButtons: View {
 @available(iOS 17.0, *)
 private struct GlanceInteractiveButtons: View {
     let content: GlanceContent
+    let allowOnce: Bool
 
     var body: some View {
         HStack(spacing: 8) {
@@ -190,7 +216,7 @@ private struct GlanceInteractiveButtons: View {
                 }
                 .buttonStyle(.plain)
             }
-            if content.showsAllow, let requestId = content.requestId {
+            if allowOnce && content.showsAllow, let requestId = content.requestId {
                 Button(intent: GlanceAllowOnceIntent(botId: content.botId, threadId: content.threadId, requestId: requestId)) {
                     GlancePill(title: "Allow once", fill: content.accent)
                 }
