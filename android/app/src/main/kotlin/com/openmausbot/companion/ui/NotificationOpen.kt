@@ -62,10 +62,16 @@ object NotificationOpen {
         target.pairing?.let { pairing ->
             if (session.connection.value?.id != pairing) {
                 if (session.connections.value.none { it.id == pairing }) {
+                    // The computer was removed after it spoke. Say so; a silent tap reads as a bug.
+                    session.actionError = COMPUTER_GONE_MESSAGE
                     return Result(chat = null, consumed = true)
                 }
                 session.activateComputer(pairing)
-                if (session.connection.value?.id != pairing) return Result(chat = null, consumed = true)
+                if (session.connection.value?.id != pairing) {
+                    // activateComputer already explains a locked or missing credential.
+                    if (session.actionError == null) session.actionError = COMPUTER_UNREACHABLE_MESSAGE
+                    return Result(chat = null, consumed = true)
+                }
             }
         }
         if (!canOpen(session)) {
@@ -78,4 +84,9 @@ object NotificationOpen {
     }
 
     data class Result(val chat: Chat?, val consumed: Boolean)
+
+    const val COMPUTER_GONE_MESSAGE =
+        "That notification came from a computer that is no longer paired on this phone."
+    const val COMPUTER_UNREACHABLE_MESSAGE =
+        "Couldn't switch to the computer that sent this notification. Try switching to it from Chats."
 }
