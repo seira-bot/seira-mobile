@@ -124,7 +124,7 @@ Jumlah tipe per kategori dicek di Console pada 2026-11-19 (langkah 3, "Data type
 | Target audience | 18 and over |
 | App category | Productivity |
 | Contact details | Email dukungan dan situs `https://seira.bot` tersimpan di Store settings |
-| AI-generated content | Label AI ada pada setiap aset listing yang dibuat dengan AI |
+| AI-generated content | Label AI ada pada setiap aset listing yang dibuat dengan AI. Sejak 2026-11-24, 2 feature graphic dan 12 screenshot memakai label AI karena latar malamnya dibuat dengan AI. Ikon 512 tidak memakai label. |
 
 ## App access
 

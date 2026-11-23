@@ -107,13 +107,16 @@ The six shots tell one story, and one red line runs across all of them:
 6. Run `node android/PlayStore/tools/check-listing.mjs`. It also checks the
    captions and the alt texts (140 characters at most).
 
+On 2026-11-24 the Play Console store listing editor had no field for alt text.
+Keep the alt texts in `shots.json` for the web pages and for a later Console field.
+
 Where each part of an image comes from:
 
 | Part | Source |
 | --- | --- |
 | Phone screen and lifted cards | The app render in `raw/`, cropped by the boxes in `shots.json` |
 | Heads | The app's own character renderer (`CastPortraitTest`) |
-| Background | Generated night plates in [graphics/source/bg/](graphics/source/bg/): color and light only, no UI and no text |
+| Background | AI-generated night plates in [graphics/source/bg/](graphics/source/bg/): color and light only, no UI and no text. Play Console labels each image that uses them as AI-edited. |
 | Red line and captions | [tools/compose.mjs](tools/compose.mjs), from `shots.json` |
 
 The feature graphic uses the Lumi head, not the Seira head of the app icon.
