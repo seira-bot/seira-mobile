@@ -111,6 +111,8 @@ commit and artifact being submitted; unchecked items remain release work.
   review on the owner's go.
   Done 2026-11-23 for 1.0.6: Production, all targeted countries, 100% rollout, sent for
   review on the owner's go.
+  Done 2026-11-24 for 1.0.7: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go, together with the store listing changes.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
@@ -128,3 +130,7 @@ commit and artifact being submitted; unchecked items remain release work.
   1.0.5 (10005) was sent for review on 2026-11-21.
   Google approved 1.0.5 (10005): the Console shows it as published on 2026-11-22.
   1.0.6 (10006) was sent for review on 2026-11-23.
+  Google approved 1.0.6 (10006): available on Google Play, 178 countries, released
+  on 2026-11-23.
+  1.0.7 (10007) was sent for review on 2026-11-24 with the new app icon, the new
+  launch screen, and 9 store listing changes.
