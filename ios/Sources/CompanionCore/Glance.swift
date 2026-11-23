@@ -44,13 +44,13 @@ public struct GlanceAsk: Hashable, Sendable {
 
     public var canDeny: Bool { kind == .approval }
 
-    /// Security: Allow once shows only where the surface can show `detail` whole.
+    /// Security: Allow once shows only where the surface can show `title` and `detail` whole.
     public func canAllow(_ budget: GlanceBudget) -> Bool {
-        kind == .approval && budget.fitsWhole(detail)
+        kind == .approval && !detail.isEmpty && budget.fitsWhole(title.isEmpty ? detail : title + "\n" + detail)
     }
 }
 
-/// How much text one Glance surface shows without a cut: wrapped lines of `lineChars` characters.
+/// How much text one Glance surface shows without a cut: `lines` rows of `lineChars` narrow cells.
 public struct GlanceBudget: Hashable, Sendable {
     public var lineChars: Int
     public var lines: Int
@@ -60,13 +60,44 @@ public struct GlanceBudget: Hashable, Sendable {
         self.lines = lines
     }
 
+    /// Security: an overestimate, so a text that fits is never cut on screen. Rows wrap greedily at
+    /// spaces, a longer word breaks at the row end, and a character outside printable ASCII takes 2 cells.
     public func fitsWhole(_ text: String) -> Bool {
         if text.isEmpty || lineChars <= 0 { return false }
-        let wrapped = text.split(separator: "\n", omittingEmptySubsequences: false).reduce(0) { total, line in
-            let count = line.unicodeScalars.count
-            return total + max(1, (count + lineChars - 1) / lineChars)
+        var used = 0
+        for line in text.split(separator: "\n", omittingEmptySubsequences: false) {
+            used += rows(line)
+            if used > lines { return false }
         }
-        return wrapped <= lines
+        return true
+    }
+
+    private func rows(_ line: Substring) -> Int {
+        var rows = 1
+        var column = 0
+        for word in line.split(separator: " ", omittingEmptySubsequences: false) {
+            let width = cells(word)
+            let gap = column == 0 ? 0 : 1
+            if column + gap + width <= lineChars {
+                column += gap + width
+                continue
+            }
+            if column > 0 { rows += 1 }
+            let extra = max(0, width - 1) / lineChars
+            rows += extra
+            column = width - extra * lineChars
+        }
+        return rows
+    }
+
+    private func cells(_ word: Substring) -> Int {
+        word.unicodeScalars.reduce(0) { total, scalar in
+            switch scalar.value {
+            case 0x21...0x7e: return total + 1
+            case 0x09: return total + 8
+            default: return total + 2
+            }
+        }
     }
 }
 
@@ -218,7 +249,10 @@ public enum Glance {
     /// `detailLimit` characters. Empty for every other card and for a longer text.
     public static func approvalDetail(_ card: OptionCard) -> String {
         guard isPlainPermission(card) else { return "" }
-        let text = strip(card.subtitle.replacingOccurrences(of: "\r\n", with: "\n"), keepLines: true)
+        let lines = card.subtitle
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+        let text = dropFormat(strip(lines, keepLines: true))
             .trimmingCharacters(in: .whitespacesAndNewlines)
         let count = text.unicodeScalars.count
         return (1...detailLimit).contains(count) ? text : ""
@@ -240,12 +274,14 @@ public enum Glance {
         guard let last = prose.last(where: { !$0.isEmpty }) else { return "" }
         var plain = replace(listMark, in: last, with: "")
         plain = replace(markup, in: plain, with: "")
-        plain = collapse(strip(plain, keepLines: false))
+        plain = collapse(strip(dropFormat(plain), keepLines: false))
         return clip(plain, limit: lineLimit, fromEnd: true)
     }
 
+    /// Security: the chat's own classifier must also draw the card as an approval; a proposal never qualifies.
     public static func isPlainPermission(_ card: OptionCard) -> Bool {
         card.isPermission
+            && card.presentation == .approval
             && card.requestType != "question"
             && card.skillRequest == nil
             && card.questionRequest == nil
@@ -271,7 +307,7 @@ public enum Glance {
                 return a.offset < b.offset
             }
             .first?.element
-        let name = clip(collapse(strip(bot.name, keepLines: false, replacement: " ")), limit: nameLimit)
+        let name = clip(collapse(strip(dropFormat(bot.name), keepLines: false, replacement: " ")), limit: nameLimit)
         func entry(_ threadId: String, _ state: GlanceState, line: String = "", ask: GlanceAsk? = nil) -> GlanceBot {
             GlanceBot(
                 botId: bot.id, threadId: threadId, name: name, color: bot.color, state: state, line: line, ask: ask,
@@ -327,7 +363,7 @@ public enum Glance {
         let detail = kind == .approval ? approvalDetail(card) : ""
         return GlanceAsk(
             kind: kind, requestId: requestId, threadId: approval.threadId,
-            title: clip(collapse(strip(card.title, keepLines: false, replacement: " ")), limit: titleLimit),
+            title: clip(collapse(strip(dropFormat(card.title), keepLines: false, replacement: " ")), limit: titleLimit),
             detail: detail, at: approval.message.at
         )
     }
@@ -370,6 +406,12 @@ public enum Glance {
                 out.append(scalar)
             }
         }
+        return String(out)
+    }
+
+    private static func dropFormat(_ text: String) -> String {
+        var out = String.UnicodeScalarView()
+        out.append(contentsOf: text.unicodeScalars.filter { $0.properties.generalCategory != .format })
         return String(out)
     }
 

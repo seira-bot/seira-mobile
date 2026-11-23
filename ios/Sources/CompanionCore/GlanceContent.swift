@@ -3,8 +3,9 @@ import Foundation
 /// What the Glance Live Activity shows, as one value the app writes and the widget reads.
 /// ActivityKit limits a content state to 4 KB; the text fields below are all capped by `Glance`.
 public struct GlanceContent: Codable, Hashable, Sendable {
-    /// The Live Activity fits its approval text without a cut at this size.
-    public static let budget = GlanceBudget(lineChars: 36, lines: 4)
+    /// The title and detail wrap to at most this many rows in the narrowest Live Activity view that
+    /// offers Allow once: the lock screen on a 375 pt phone, 12 pt monospaced, with the head beside it.
+    public static let budget = GlanceBudget(lineChars: 28, lines: 5)
 
     public var botId: String
     public var threadId: String

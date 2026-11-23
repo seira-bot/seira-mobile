@@ -236,6 +236,43 @@ final class GlanceTests: XCTestCase {
         XCTAssertFalse(ask(detail: "ls", kind: .question).canAllow(budget))
     }
 
+    func testTheTitleRowsCountAgainstTheBudget() {
+        let budget = GlanceBudget(lineChars: 10, lines: 2)
+        XCTAssertTrue(ask(detail: "ls", title: "Approval").canAllow(budget))
+        XCTAssertFalse(ask(detail: "ls", title: "Approval needed").canAllow(budget))
+    }
+
+    func testTheBudgetWrapsAtSpacesAndCountsWideCharactersTwice() {
+        let budget = GlanceBudget(lineChars: 10, lines: 2)
+        XCTAssertTrue(budget.fitsWhole("aaaaaa bbbbbb ccc"))
+        XCTAssertFalse(budget.fitsWhole("aaaaaaa bbbbbbb ccc"))
+        XCTAssertTrue(budget.fitsWhole("\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}\u{4ef6}\u{5220}\u{9664}\u{5168}\u{90e8}"))
+        XCTAssertFalse(budget.fitsWhole("\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}\u{4ef6}\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}"))
+        XCTAssertTrue(GlanceBudget(lineChars: 10, lines: 1).fitsWhole("a\tb"))
+        XCTAssertFalse(GlanceBudget(lineChars: 10, lines: 1).fitsWhole("a\tbc"))
+    }
+
+    func testALoneCarriageReturnStartsALineAndFormatCharactersGo() {
+        let card = permission("r1", subtitle: "echo a\recho b\u{00AD}\u{2066}c")
+        XCTAssertEqual(Glance.approvalDetail(card), "echo a\necho bc")
+    }
+
+    func testAProposalWithAToolIsNotAPlainPermission() throws {
+        let proposal = OptionCard(
+            title: "Plan ready", subtitle: "Ship the release", options: ["Approve plan", "Reject"],
+            requestId: "p1", tool: "ExitPlanMode"
+        )
+        XCTAssertFalse(Glance.isPlainPermission(proposal))
+        XCTAssertEqual(Glance.approvalDetail(proposal), "")
+        let bot = makeBot("a")
+        var state = CompanionState()
+        state.bots = [bot]
+        state.messages = [bot.threadId: [options("m1", proposal, at: 1)]]
+        let ask = try XCTUnwrap(Glance.bots(state).first?.ask)
+        XCTAssertEqual(ask.kind, .review)
+        XCTAssertFalse(ask.canDeny)
+    }
+
     func testCurrentAskNamesOnlyTheRequestThatStillWaits() {
         let bot = makeBot("a")
         var state = CompanionState()
@@ -259,8 +296,8 @@ final class GlanceTests: XCTestCase {
         )
     }
 
-    private func ask(detail: String, kind: GlanceAskKind = .approval) -> GlanceAsk {
-        GlanceAsk(kind: kind, requestId: "r1", threadId: "t", title: "Approval needed", detail: detail, at: 1)
+    private func ask(detail: String, kind: GlanceAskKind = .approval, title: String = "") -> GlanceAsk {
+        GlanceAsk(kind: kind, requestId: "r1", threadId: "t", title: title, detail: detail, at: 1)
     }
 
     private func makeBot(_ id: String, busy: Bool? = nil, activity: String? = nil, unread: Bool = false) -> Bot {

@@ -3,7 +3,7 @@ import XCTest
 
 final class GlanceContentTests: XCTestCase {
     private func fixture(card: OptionCard) -> CompanionState {
-        var bot = Bot(
+        let bot = Bot(
             id: "a", threadId: "a-thread", name: "Bot a", title: "Helper",
             description: "", notifications: true, color: "blue", unread: false,
             modelSelection: ModelSelection(instanceId: "i", model: "m"), createdAt: 1
@@ -43,10 +43,10 @@ final class GlanceContentTests: XCTestCase {
     }
 
     func testADetailThatDoesNotFitTheSurfaceCannotBeAllowedButCanBeDenied() {
-        let state = fixture(card: permission(String(repeating: "a", count: 36 * 4 + 1)))
+        let state = fixture(card: permission(String(repeating: "a", count: 28 * 4 + 1)))
         XCTAssertFalse(GlanceContent.canAnswer(state: state, botId: "a", requestId: "r1", allow: true))
         XCTAssertTrue(GlanceContent.canAnswer(state: state, botId: "a", requestId: "r1", allow: false))
-        let fits = fixture(card: permission(String(repeating: "a", count: 36 * 4)))
+        let fits = fixture(card: permission(String(repeating: "a", count: 28 * 4)))
         XCTAssertTrue(GlanceContent.canAnswer(state: fits, botId: "a", requestId: "r1", allow: true))
     }
 
