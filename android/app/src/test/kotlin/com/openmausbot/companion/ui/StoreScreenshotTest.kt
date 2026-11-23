@@ -240,7 +240,7 @@ class StoreScreenshotTest {
         val context: Context = RuntimeEnvironment.getApplication()
         context.getSharedPreferences(ChatPreferences.NAME, Context.MODE_PRIVATE).edit().clear().commit()
         scene = WiringScene(
-            connection = Connection(id = "store-home", name = "Fixture", host = "127.0.0.1", port = server.port),
+            connection = Connection(id = "store-home", name = "Dina's MacBook", host = "127.0.0.1", port = server.port),
             fleet = RosterFixture.fleet().let { it.copy(bots = withCastLooks(it.bots)) },
             events = helloOnly(),
         )
@@ -274,7 +274,7 @@ class StoreScreenshotTest {
     private fun chat(name: String, mode: ThemeMode, messages: List<Message>, replies: List<QuickReply>) {
         val scout: Bot = withCastLooks(listOf(bot().copy(color = "cyan", messages = messages))).single()
         scene = WiringScene(
-            connection = Connection(id = "store-chat", name = "Fixture", host = "127.0.0.1", port = server.port),
+            connection = Connection(id = "store-chat", name = "Dina's MacBook", host = "127.0.0.1", port = server.port),
             fleet = Fleet(listOf(scout), emptyList()),
             events = helloOnly(),
         )
