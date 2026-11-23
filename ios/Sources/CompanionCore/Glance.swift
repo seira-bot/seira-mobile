@@ -60,10 +60,15 @@ public struct GlanceBudget: Hashable, Sendable {
         self.lines = lines
     }
 
-    /// Security: an overestimate, so a text that fits is never cut on screen. Rows wrap greedily at
-    /// spaces, a longer word breaks at the row end, and a character outside printable ASCII takes 2 cells.
+    /// Security: an overestimate, so a text that fits is never cut on screen. Only printable ASCII,
+    /// new lines and tabs qualify: other characters can draw much wider than one cell. Rows wrap
+    /// greedily at spaces, a longer word breaks at the row end, and a tab takes 8 cells.
+    /// A surface must still measure its real layout before it offers Allow once.
     public func fitsWhole(_ text: String) -> Bool {
         if text.isEmpty || lineChars <= 0 { return false }
+        guard text.unicodeScalars.allSatisfy({ $0.value == 0x0a || $0.value == 0x09 || (0x20...0x7e).contains($0.value) }) else {
+            return false
+        }
         var used = 0
         for line in text.split(separator: "\n", omittingEmptySubsequences: false) {
             used += rows(line)
@@ -76,7 +81,7 @@ public struct GlanceBudget: Hashable, Sendable {
         var rows = 1
         var column = 0
         for word in line.split(separator: " ", omittingEmptySubsequences: false) {
-            let width = cells(word)
+            let width = word.unicodeScalars.reduce(0) { $0 + ($1.value == 0x09 ? 8 : 1) }
             let gap = column == 0 ? 0 : 1
             if column + gap + width <= lineChars {
                 column += gap + width
@@ -88,16 +93,6 @@ public struct GlanceBudget: Hashable, Sendable {
             column = width - extra * lineChars
         }
         return rows
-    }
-
-    private func cells(_ word: Substring) -> Int {
-        word.unicodeScalars.reduce(0) { total, scalar in
-            switch scalar.value {
-            case 0x21...0x7e: return total + 1
-            case 0x09: return total + 8
-            default: return total + 2
-            }
-        }
     }
 }
 

@@ -242,14 +242,16 @@ final class GlanceTests: XCTestCase {
         XCTAssertFalse(ask(detail: "ls", title: "Approval needed").canAllow(budget))
     }
 
-    func testTheBudgetWrapsAtSpacesAndCountsWideCharactersTwice() {
+    func testTheBudgetWrapsAtSpacesAndTakesOnlyPrintableAscii() {
         let budget = GlanceBudget(lineChars: 10, lines: 2)
         XCTAssertTrue(budget.fitsWhole("aaaaaa bbbbbb ccc"))
         XCTAssertFalse(budget.fitsWhole("aaaaaaa bbbbbbb ccc"))
-        XCTAssertTrue(budget.fitsWhole("\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}\u{4ef6}\u{5220}\u{9664}\u{5168}\u{90e8}"))
-        XCTAssertFalse(budget.fitsWhole("\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}\u{4ef6}\u{5220}\u{9664}\u{5168}\u{90e8}\u{6587}"))
         XCTAssertTrue(GlanceBudget(lineChars: 10, lines: 1).fitsWhole("a\tb"))
         XCTAssertFalse(GlanceBudget(lineChars: 10, lines: 1).fitsWhole("a\tbc"))
+        let roomy = GlanceBudget(lineChars: 100, lines: 10)
+        for text in ["rm \u{5220}", "cat caf\u{e9}", "echo \u{1F600}", "echo \u{FDFD}"] {
+            XCTAssertFalse(roomy.fitsWhole(text), text)
+        }
     }
 
     func testALoneCarriageReturnStartsALineAndFormatCharactersGo() {
