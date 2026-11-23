@@ -150,7 +150,10 @@ class MainActivity : ComponentActivity() {
                     500L
                 }
                 visor.start(offset)
-                provider.view.animate().alpha(0f).setDuration(80).withEndAction { provider.remove() }.start()
+                // The overlay under the splash already draws the same frame. A fade
+                // here stalls half-way while the first screen composes, and shows dim
+                // eyes for several frames.
+                provider.remove()
             }
         }
 
