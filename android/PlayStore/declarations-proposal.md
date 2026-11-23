@@ -14,6 +14,9 @@ Google menyetujui 1.0.4. Rilis "1.0.4" tayang di Play pada 2026-11-21: 178 negar
 rollout 100%.
 Update 1.0.5 (versionCode 10005) dikirim untuk review pada 2026-11-21: Production,
 semua negara target, rollout 100%. Bundle dibangun dari `main` `b5d8186e`.
+Update 1.0.6 (versionCode 10006) membawa Glance (PR #70), Try again di bawah
+setiap giliran gagal (PR #63), sheet tampilan bot dengan tiga tab (PR #64), dan
+pilihan tempat kerja bot dari catatan cloud (PR #65).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -229,6 +232,19 @@ Switch to another paired computer from the Chats screen: tap the computer name. 
 </en-US>
 <id>
 Pindah ke komputer lain yang sudah dipasangkan langsung dari layar Chats: ketuk nama komputer. Pairing server kedua di alamat yang sama tidak lagi menggantikan komputer pertama. Kirim password atau key tidak lagi berhenti saat kartunya tergulir keluar layar.
+</id>
+```
+
+### Catatan rilis update 1.0.6
+
+Isi teks ini saat rilis 1.0.6 dibuat di Console:
+
+```text
+<en-US>
+See what your bots do without opening the app. One notification shows the bot that needs you most, with Deny, Allow once and Open chat. On Android 16 it shows as a Live Update. Try again now shows under every failed or stopped reply. Choose a bot's look from three tabs: Seira, Generate and Upload. An admin can choose where a bot works from the cloud notice.
+</en-US>
+<id>
+Lihat kerja bot tanpa membuka app. Satu notifikasi menampilkan bot yang paling butuh kamu, dengan Deny, Allow once, dan Open chat. Di Android 16 notifikasi ini tampil sebagai Live Update. Try again kini muncul di bawah setiap balasan yang gagal atau berhenti. Pilih tampilan bot dari tiga tab: Seira, Generate, dan Upload. Admin bisa memilih tempat bot bekerja dari catatan cloud.
 </id>
 ```
 
