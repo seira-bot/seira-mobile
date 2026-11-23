@@ -31,6 +31,7 @@ import androidx.lifecycle.lifecycleScope
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.launch.LaunchVisor
 import com.openmausbot.companion.ui.launch.LaunchVisorState
+import com.openmausbot.companion.ui.launch.LaunchVisorTimeline
 import com.openmausbot.companion.ui.theme.NightModeApplier
 import com.openmausbot.companion.ui.theme.resolvesDark
 import kotlinx.coroutines.launch
@@ -140,7 +141,11 @@ class MainActivity : ComponentActivity() {
         if (visor != null) {
             splash.setOnExitAnimationListener { provider ->
                 val offset = if (Build.VERSION.SDK_INT >= 31) {
-                    (SystemClock.uptimeMillis() - provider.iconAnimationStartMillis).coerceIn(0, 800)
+                    LaunchVisorTimeline.splashElapsedMs(
+                        startMs = provider.iconAnimationStartMillis,
+                        wallNowMs = System.currentTimeMillis(),
+                        uptimeNowMs = SystemClock.uptimeMillis(),
+                    )
                 } else {
                     500L
                 }

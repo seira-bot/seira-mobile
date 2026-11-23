@@ -47,7 +47,9 @@ private val LidOrigin = TransformOrigin(0.5f, 0.52125f)
  * blink, then opens a circular hole from the eyes to show the content below.
  *
  * Time comes from frame callbacks, not from animation specs, so the animator
- * duration scale cannot skip the sequence.
+ * duration scale cannot skip the sequence. One frame advances the clock by at
+ * most [LaunchVisorTimeline.MAX_FRAME_STEP_MS]: the first screen composes on
+ * the frame the reveal starts, and a long frame there would skip the reveal.
  */
 @Composable
 fun LaunchVisor(state: LaunchVisorState, ready: Boolean, onFinished: () -> Unit) {
@@ -65,22 +67,22 @@ fun LaunchVisor(state: LaunchVisorState, ready: Boolean, onFinished: () -> Unit)
     LaunchedEffect(state) {
         val startOffset = snapshotFlow { state.startOffsetMs }.filterNotNull().first()
         val fast = state.fast || state.forcedFast
-        val firstFrame = withFrameMillis { it }
-        var revealFrame = NOT_REVEALING
-        var frame = firstFrame
+        var frame = withFrameMillis { it }
+        var clock = 0L
+        var revealClock = NOT_REVEALING
         while (true) {
-            sinceStartMs = frame - firstFrame
-            val t = startOffset + sinceStartMs
-            if (revealFrame == NOT_REVEALING) {
+            sinceStartMs = clock
+            val t = startOffset + clock
+            if (revealClock == NOT_REVEALING) {
                 val go = if (reduced) {
                     fast || readyNow || t >= LaunchVisorTimeline.WAIT_CAP_MS
                 } else {
                     LaunchVisorTimeline.shouldReveal(t, readyNow, fast)
                 }
-                if (go) revealFrame = frame
+                if (go) revealClock = clock
             }
-            if (revealFrame != NOT_REVEALING) {
-                revealMs = frame - revealFrame
+            if (revealClock != NOT_REVEALING) {
+                revealMs = clock - revealClock
                 val total = if (reduced) {
                     LaunchVisorTimeline.REDUCED_FADE_MS
                 } else {
@@ -88,7 +90,9 @@ fun LaunchVisor(state: LaunchVisorState, ready: Boolean, onFinished: () -> Unit)
                 }
                 if (revealMs >= total) break
             }
-            frame = withFrameMillis { it }
+            val next = withFrameMillis { it }
+            clock += LaunchVisorTimeline.frameStep(next - frame)
+            frame = next
         }
         finishedNow()
     }

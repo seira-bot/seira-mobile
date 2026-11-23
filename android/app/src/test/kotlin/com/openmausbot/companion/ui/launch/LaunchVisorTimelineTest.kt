@@ -52,6 +52,31 @@ class LaunchVisorTimelineTest {
     }
 
     @Test
+    fun `splash start in wall-clock time gives the elapsed blink`() {
+        val wall = 1_795_000_000_000L
+        assertEquals(300L, LaunchVisorTimeline.splashElapsedMs(wall - 300, wall, uptimeNowMs = 90_000))
+        assertEquals(800L, LaunchVisorTimeline.splashElapsedMs(wall - 1700, wall, uptimeNowMs = 90_000))
+    }
+
+    @Test
+    fun `splash start in uptime gives the elapsed blink`() {
+        assertEquals(250L, LaunchVisorTimeline.splashElapsedMs(89_750, 1_795_000_000_000L, uptimeNowMs = 90_000))
+    }
+
+    @Test
+    fun `unknown or future splash start stays in the blink`() {
+        assertEquals(800L, LaunchVisorTimeline.splashElapsedMs(0, 1_795_000_000_000L, 90_000))
+        assertEquals(0L, LaunchVisorTimeline.splashElapsedMs(90_500, 1_795_000_000_000L, 90_000))
+    }
+
+    @Test
+    fun `a long frame advances the clock by one step only`() {
+        assertEquals(16L, LaunchVisorTimeline.frameStep(16))
+        assertEquals(LaunchVisorTimeline.MAX_FRAME_STEP_MS, LaunchVisorTimeline.frameStep(600))
+        assertEquals(0L, LaunchVisorTimeline.frameStep(-5))
+    }
+
+    @Test
     fun `state start is idempotent`() {
         val state = LaunchVisorState(fast = false, reduceMotion = false, brandingFromSplash = true)
         state.start(120)

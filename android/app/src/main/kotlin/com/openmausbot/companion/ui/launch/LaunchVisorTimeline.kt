@@ -15,6 +15,10 @@ object LaunchVisorTimeline {
     const val WAIT_CAP_MS = 2000L
     const val FAST_LID_CAP_MS = 500L
     const val WORDMARK_FADE_IN_MS = 300L
+    const val MAX_FRAME_STEP_MS = 34L
+
+    // Epoch milliseconds pass this value in 2001; uptime would need 31 years.
+    private const val WALL_CLOCK_FLOOR_MS = 1_000_000_000_000L
 
     private const val FACE_MS = 250L
     private const val WORDMARK_OUT_MS = 200L
@@ -33,6 +37,20 @@ object LaunchVisorTimeline {
         tMs < BLINK_END_MS -> lerp(LID_CLOSED, 1f, decelerateQuad(fraction(tMs, 720, 800)))
         else -> 1f
     }
+
+    /**
+     * Time since the system splash started the icon animation, capped to the
+     * blink. The platform records the start as wall-clock time (`Instant.now()`),
+     * although the androidx docs say uptime, so both bases are accepted. An
+     * unknown start counts as a finished blink.
+     */
+    fun splashElapsedMs(startMs: Long, wallNowMs: Long, uptimeNowMs: Long): Long = when {
+        startMs <= 0 -> BLINK_END_MS
+        startMs >= WALL_CLOCK_FLOOR_MS -> wallNowMs - startMs
+        else -> uptimeNowMs - startMs
+    }.coerceIn(0, BLINK_END_MS)
+
+    fun frameStep(frameMs: Long): Long = frameMs.coerceIn(0, MAX_FRAME_STEP_MS)
 
     fun shouldReveal(tMs: Long, ready: Boolean, fast: Boolean): Boolean =
         fast || (tMs >= BLINK_END_MS && (ready || tMs >= WAIT_CAP_MS))
