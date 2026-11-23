@@ -33,8 +33,8 @@ from PIL import Image
 
 RED = "#FF2A57"
 RED_RGB = (1.0, 42 / 255, 87 / 255)
-INK = "#0E1116"
-INK_RGB = (14 / 255, 17 / 255, 22 / 255)
+INK = "#151925"
+INK_RGB = (21 / 255, 25 / 255, 37 / 255)
 
 # Mark units to dp (pt). The eye pair centre (89, 93) lands on the centre of
 # the 288 dp splash icon. Android masks that icon to a 192 dp circle.
