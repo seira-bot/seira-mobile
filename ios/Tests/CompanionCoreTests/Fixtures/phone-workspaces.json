@@ -1,0 +1,35 @@
+{
+  "workspaces": [
+    {
+      "id": "local",
+      "name": "This PC",
+      "color": "#112233",
+      "current": true,
+      "state": "ready"
+    },
+    {
+      "id": "ws-a",
+      "name": "Workspace A",
+      "current": false,
+      "state": "ready"
+    },
+    {
+      "id": "ws-b",
+      "name": "Workspace B",
+      "current": false,
+      "state": "waiting",
+      "waitingFor": "Bot Sintetis"
+    },
+    {
+      "id": "ws-c",
+      "name": "Workspace C",
+      "current": false,
+      "state": "unavailable"
+    },
+    {
+      "id": "ws-d",
+      "current": false,
+      "state": "ready"
+    }
+  ]
+}

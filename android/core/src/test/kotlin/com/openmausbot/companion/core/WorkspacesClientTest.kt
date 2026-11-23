@@ -94,4 +94,46 @@ class WorkspacesClientTest {
         assertEquals(404, error.code)
         assertEquals("No such workspace", error.serverMessage)
     }
+
+    @Test
+    fun readsTheListTheServerSends() = runBlocking {
+        server.enqueue(json(fixtureText("phone-workspaces")))
+
+        val list = requireNotNull(client.workspaces())
+
+        assertEquals(listOf("local", "ws-a", "ws-b", "ws-c", "ws-d"), list.map { it.id })
+        assertEquals(listOf(true, false, false, false, false), list.map { it.current })
+        assertEquals(
+            listOf(
+                WorkspaceAvailability.READY,
+                WorkspaceAvailability.READY,
+                WorkspaceAvailability.WAITING,
+                WorkspaceAvailability.UNAVAILABLE,
+                WorkspaceAvailability.READY,
+            ),
+            list.map { it.availability },
+        )
+        assertEquals("Bot Sintetis", list[2].waitingFor)
+        assertEquals("#112233", list[0].color)
+        assertNull(list[4].name)
+    }
+
+    @Test
+    fun aComputerThatAnswersNoRouteGivesNoList() = runBlocking {
+        server.enqueue(json(fixtureText("phone-workspaces-no-route"), 404))
+        assertNull(client.workspaces())
+    }
+
+    @Test
+    fun theServersRefusalsReachTheCaller() = runBlocking {
+        server.enqueue(json(fixtureText("phone-workspaces-not-found"), 404))
+        val missing = assertFailsWith<APIError.Status> { client.switchWorkspace("nope") }
+        assertEquals(404, missing.code)
+        assertEquals("workspace_not_found", missing.serverMessage)
+
+        server.enqueue(json(fixtureText("phone-workspaces-unavailable"), 409))
+        val unavailable = assertFailsWith<APIError.Status> { client.switchWorkspace("ws-c") }
+        assertEquals(409, unavailable.code)
+        assertEquals("workspace_unavailable", unavailable.serverMessage)
+    }
 }

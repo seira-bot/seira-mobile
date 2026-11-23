@@ -229,4 +229,54 @@ final class WorkspacesTests: XCTestCase {
             XCTFail("unexpected error \(error)")
         }
     }
+
+    // MARK: - Responses captured from the server
+
+    private func fixture(_ name: String) throws -> Data {
+        guard let url = Bundle.module.url(forResource: name, withExtension: "json", subdirectory: "Fixtures")
+            ?? Bundle.module.url(forResource: name, withExtension: "json")
+        else { throw CocoaError(.fileNoSuchFile) }
+        return try Data(contentsOf: url)
+    }
+
+    func testReadsTheListTheServerSends() async throws {
+        WorkspacesStub.responseBody = try fixture("phone-workspaces")
+        let loaded = try await client.workspaces()
+        let list = try XCTUnwrap(loaded)
+        XCTAssertEqual(list.map(\.id), ["local", "ws-a", "ws-b", "ws-c", "ws-d"])
+        XCTAssertEqual(list.map(\.current), [true, false, false, false, false])
+        XCTAssertEqual(list.map(\.availability), [.ready, .ready, .waiting, .unavailable, .ready])
+        XCTAssertEqual(list[2].waitingFor, "Bot Sintetis")
+        XCTAssertEqual(list[0].color, "#112233")
+        XCTAssertNil(list[4].name)
+    }
+
+    func testAComputerThatAnswersNoRouteGivesNoList() async throws {
+        WorkspacesStub.statusCode = 404
+        WorkspacesStub.responseBody = try fixture("phone-workspaces-no-route")
+        let loaded = try await client.workspaces()
+        XCTAssertNil(loaded)
+    }
+
+    func testTheServersRefusalsReachTheCaller() async throws {
+        WorkspacesStub.statusCode = 404
+        WorkspacesStub.responseBody = try fixture("phone-workspaces-not-found")
+        do {
+            _ = try await client.switchWorkspace("nope")
+            XCTFail("an unknown workspace must throw")
+        } catch let APIError.status(code, message) {
+            XCTAssertEqual(code, 404)
+            XCTAssertEqual(message, "workspace_not_found")
+        }
+
+        WorkspacesStub.statusCode = 409
+        WorkspacesStub.responseBody = try fixture("phone-workspaces-unavailable")
+        do {
+            _ = try await client.switchWorkspace("ws-c")
+            XCTFail("an unavailable workspace must throw")
+        } catch let APIError.status(code, message) {
+            XCTAssertEqual(code, 409)
+            XCTAssertEqual(message, "workspace_unavailable")
+        }
+    }
 }

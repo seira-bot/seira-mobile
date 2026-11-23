@@ -8,9 +8,8 @@ public enum WorkspaceAvailability: Hashable, Sendable {
 }
 
 /// One workspace of the computer a phone is paired with: the rail of the desktop app, as the
-/// phone's `GET /api/phones/self/workspaces` lists it. The route is not in `seira-bot/seira`
-/// yet, so this shape follows the request for it and moves to the server's fixture once that
-/// lands.
+/// phone's `GET /api/phones/self/workspaces` lists it. The shape is `PhoneWorkspace` of the
+/// server's phone protocol.
 ///
 /// `state` stays the wire string: a state this build has never heard of reads as unavailable
 /// through `availability` instead of failing the whole list.
