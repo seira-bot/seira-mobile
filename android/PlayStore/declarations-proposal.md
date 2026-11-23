@@ -14,9 +14,12 @@ Google menyetujui 1.0.4. Rilis "1.0.4" tayang di Play pada 2026-11-21: 178 negar
 rollout 100%.
 Update 1.0.5 (versionCode 10005) dikirim untuk review pada 2026-11-21: Production,
 semua negara target, rollout 100%. Bundle dibangun dari `main` `b5d8186e`.
+Google menyetujui 1.0.5. Rilis "1.0.5" tayang di Play pada 2026-11-22.
 Update 1.0.6 (versionCode 10006) membawa Glance (PR #70), Try again di bawah
 setiap giliran gagal (PR #63), sheet tampilan bot dengan tiga tab (PR #64), dan
 pilihan tempat kerja bot dari catatan cloud (PR #65).
+Update 1.0.6 dikirim untuk review pada 2026-11-23: Production, semua negara
+target, rollout 100%. Bundle dibangun dari tree yang sama dengan `main` `603020e4`.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
