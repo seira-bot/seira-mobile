@@ -1,5 +1,5 @@
 {
-  "note": "Layout and captions for the Play screenshots and feature graphics. tools/compose.mjs reads this file. Screens come from ../raw/, cast heads from ../raw/cast/, night plates from ../graphics/source/bg/. Crop boxes are in raw pixels [x, y, width, height] of the 1233x2193 render. A card lifts the same box out of the screen at a larger scale, straight, with no rotation. Title lines split on \\n, and the {hl} part takes the accent colour.",
+  "note": "Layout and captions for the Play screenshots and feature graphics. tools/compose.mjs reads this file. Screens come from ../raw/, cast heads from ../raw/cast/, night plates from ../graphics/source/bg/. Crop boxes are in raw pixels [x, y, width, height] of the 1233x2193 render, or one box per language when the layout differs. A card lifts the same box out of the screen at a larger scale, straight, with no rotation. Title lines split on \\n, and the {hl} part takes the accent colour.",
   "size": [1080, 1920],
   "screen": { "x": 150, "y": 500, "width": 780, "radius": 62 },
   "card": { "scale": 0.82, "radius": 40 },
@@ -28,7 +28,7 @@
       "id": "02-approval",
       "plate": "night-a",
       "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" },
-      "card": { "box": [58, 757, 1116, 568], "dy": 40 },
+      "card": { "box": [56, 781, 1120, 520], "dy": 40 },
       "title": {
         "en-US": "When a bot asks,\n{you decide.}",
         "id-ID": "Saat bot bertanya,\n{kamu putuskan.}"
@@ -46,7 +46,7 @@
       "id": "03-glance",
       "plate": "night-b",
       "raw": { "en-US": "store-home-dark.png", "id-ID": "store-home-dark.png" },
-      "notice": { "src": "store-glance-needs-dark.png", "box": [0, 0, 1080, 500], "width": 960, "y": 700 },
+      "notice": { "src": "store-glance-needs-dark.png", "box": [43, 636, 994, 417], "width": 960, "y": 720, "radius": 52 },
       "title": {
         "en-US": "See who {needs you}\nat a glance",
         "id-ID": "Lihat siapa yang\n{perlu kamu}"
@@ -64,7 +64,7 @@
       "id": "04-live",
       "plate": "night-a",
       "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" },
-      "card": { "box": [58, 781, 1116, 318], "dy": 30 },
+      "card": { "box": { "en-US": [56, 802, 1120, 278], "id-ID": [56, 736, 1120, 278] }, "dy": 30 },
       "title": {
         "en-US": "Watch the work\n{come in}",
         "id-ID": "Lihat hasil kerja\n{masuk langsung}"
@@ -125,8 +125,8 @@
       "en-US": "Approve, reply, and keep up with your Seira bots from your phone.",
       "id-ID": "Setujui, balas, dan pantau bot Seira dari ponselmu."
     },
-    "back": { "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" }, "box": [58, 781, 1116, 318] },
-    "front": { "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" }, "box": [58, 757, 1116, 568] },
+    "back": { "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" }, "box": { "en-US": [56, 802, 1120, 278], "id-ID": [56, 736, 1120, 278] } },
+    "front": { "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" }, "box": [56, 781, 1120, 520] },
     "head": { "cast": "seira" },
     "alt": {
       "en-US": "Seira: your bots work, you answer. An approval card and a table from a bot chat.",
