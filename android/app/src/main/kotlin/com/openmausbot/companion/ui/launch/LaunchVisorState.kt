@@ -25,7 +25,15 @@ class LaunchVisorState(
     var finished by mutableStateOf(false)
         private set
 
+    /** The reveal shows the content behind the system bars, so they take the content style. */
+    var barsOverContent by mutableStateOf(false)
+        private set
+
     val started: Boolean get() = startOffsetMs != null
+
+    fun uncoverBars() {
+        barsOverContent = true
+    }
 
     /** Later calls do nothing. */
     fun start(offsetMs: Long, forceFast: Boolean = false) {

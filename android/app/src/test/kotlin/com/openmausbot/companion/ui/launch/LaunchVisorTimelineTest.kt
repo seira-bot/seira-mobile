@@ -70,6 +70,15 @@ class LaunchVisorTimelineTest {
     }
 
     @Test
+    fun `bars take the content style late in the reveal`() {
+        assertFalse(LaunchVisorTimeline.uncoversBars(0, reduced = false))
+        assertFalse(LaunchVisorTimeline.uncoversBars(200, reduced = false))
+        assertTrue(LaunchVisorTimeline.uncoversBars(LaunchVisorTimeline.REVEAL_MS, reduced = false))
+        assertFalse(LaunchVisorTimeline.uncoversBars(50, reduced = true))
+        assertTrue(LaunchVisorTimeline.uncoversBars(100, reduced = true))
+    }
+
+    @Test
     fun `a long frame advances the clock by one step only`() {
         assertEquals(16L, LaunchVisorTimeline.frameStep(16))
         assertEquals(LaunchVisorTimeline.MAX_FRAME_STEP_MS, LaunchVisorTimeline.frameStep(600))

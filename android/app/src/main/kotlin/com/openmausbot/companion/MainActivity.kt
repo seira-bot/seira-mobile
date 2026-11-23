@@ -281,7 +281,7 @@ class MainActivity : ComponentActivity() {
             val themeMode by chatPreferences.themeMode.collectAsState()
             val dark = themeMode.resolvesDark()
             val restoreState by app.session.restoreState.collectAsState()
-            val visorShown = visor != null && !visor.finished
+            val visorShown = visor != null && !visor.finished && !visor.barsOverContent
             DisposableEffect(dark, visorShown) {
                 val style = if (visorShown) {
                     SystemBarStyle.dark(Color.TRANSPARENT)

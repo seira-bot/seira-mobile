@@ -88,6 +88,9 @@ fun LaunchVisor(state: LaunchVisorState, ready: Boolean, onFinished: () -> Unit)
                 } else {
                     LaunchVisorTimeline.REVEAL_MS
                 }
+                if (!state.barsOverContent && LaunchVisorTimeline.uncoversBars(revealMs, reduced)) {
+                    state.uncoverBars()
+                }
                 if (revealMs >= total) break
             }
             val next = withFrameMillis { it }

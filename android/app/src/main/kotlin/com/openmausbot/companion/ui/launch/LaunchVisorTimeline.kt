@@ -25,6 +25,7 @@ object LaunchVisorTimeline {
     private const val LID_CLOSED = 0.1f
     private const val LID_OVERSHOOT = 1.05f
     private const val FACE_ZOOM = 0.25f
+    private const val BARS_HOLE_FRACTION = 0.9f
 
     private val holeEasing = CubicBezierEasing(0.55f, 0f, 0.2f, 1f)
 
@@ -49,6 +50,16 @@ object LaunchVisorTimeline {
         startMs >= WALL_CLOCK_FLOOR_MS -> wallNowMs - startMs
         else -> uptimeNowMs - startMs
     }.coerceIn(0, BLINK_END_MS)
+
+    /**
+     * True once the content shows behind most of the status bar: the circle
+     * passes the top edge at 0.9 of its reach on a tall phone.
+     */
+    fun uncoversBars(revealMs: Long, reduced: Boolean): Boolean = if (reduced) {
+        revealMs * 2 >= REDUCED_FADE_MS
+    } else {
+        holeFraction(revealMs) >= BARS_HOLE_FRACTION
+    }
 
     fun frameStep(frameMs: Long): Long = frameMs.coerceIn(0, MAX_FRAME_STEP_MS)
 
