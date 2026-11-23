@@ -17,7 +17,7 @@ struct GlanceActivityWidget: Widget {
         } dynamicIsland: { context in
             DynamicIsland {
                 DynamicIslandExpandedRegion(.leading) {
-                    GlanceHead(content: context.state, size: 48)
+                    GlanceHead(content: context.state, size: 40)
                         .padding(.leading, 2)
                 }
                 DynamicIslandExpandedRegion(.center) {
@@ -90,25 +90,31 @@ private struct GlanceMinimal: View {
     }
 }
 
-/// The name, then what the bot is doing: its own last line while it works, otherwise the state.
+/// The name, then what the bot is doing: its own last line while it works, otherwise the state
+/// on the same row, so an approval keeps its height for the text it covers.
 private struct GlanceHeading: View {
     let content: GlanceContent
 
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text(content.name)
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.white)
-                .lineLimit(1)
+            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                Text(content.name)
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .lineLimit(1)
+                if !content.showsLine {
+                    Text(content.stateWord)
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundStyle(content.accent)
+                        .lineLimit(1)
+                        .layoutPriority(1)
+                }
+            }
             if content.showsLine {
                 Text(content.line)
                     .font(.system(size: 13))
                     .foregroundStyle(.white.opacity(0.7))
                     .lineLimit(2)
-            } else {
-                Text(content.stateWord)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundStyle(content.accent)
             }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -122,23 +128,24 @@ private struct GlanceBody: View {
     var full = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             if content.showsApproval && !content.title.isEmpty {
                 Text(content.title)
-                    .font(.system(size: 12, weight: .medium))
+                    .font(.system(size: 11, weight: .medium))
                     .foregroundStyle(.white.opacity(0.85))
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
             }
             if full && content.showsDetail {
                 Text(content.detail)
-                    .font(.system(size: 12, design: .monospaced))
+                    .font(.system(size: 11, design: .monospaced))
                     .foregroundStyle(.white)
                     .lineLimit(nil)
                     .fixedSize(horizontal: false, vertical: true)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding(8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(Color.white.opacity(0.12)))
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 5)
+                    .background(RoundedRectangle(cornerRadius: 7).fill(Color.white.opacity(0.12)))
             }
             if content.couldNotSend {
                 Text("Could not send. Open the chat to answer.")
@@ -169,7 +176,7 @@ private struct GlanceFittedBody: View {
     }
 
     private func column(full: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             if heading { GlanceHeading(content: content) }
             GlanceBody(content: content, full: full)
         }
@@ -180,11 +187,12 @@ private struct GlanceLockScreen: View {
     let content: GlanceContent
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            GlanceHead(content: content, size: 52)
+        HStack(alignment: .top, spacing: 10) {
+            GlanceHead(content: content, size: 44)
             GlanceFittedBody(content: content, heading: true)
         }
-        .padding(12)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
     }
 }
 
@@ -245,12 +253,12 @@ private struct GlancePill: View {
 
     var body: some View {
         Text(title)
-            .font(.system(size: 14, weight: .semibold))
+            .font(.system(size: 13, weight: .semibold))
             .foregroundStyle(.white)
             .lineLimit(1)
             .minimumScaleFactor(0.8)
             .frame(maxWidth: .infinity)
-            .frame(height: 34)
+            .frame(height: 30)
             .background(Capsule().fill(fill))
     }
 }

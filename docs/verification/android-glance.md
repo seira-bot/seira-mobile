@@ -23,7 +23,7 @@ ssh <host> 'bash -lc "cd <repo>/android && systemd-run --user --scope -q -p Memo
 | Class | What it proves |
 |-------|----------------|
 | `GlanceNotificationTest` | Title, state word, line, avatar, channel, actions per state, no number, no command text, authentication flag, Live Update request |
-| `GlanceNotifierTest` | One notification only, none while not live, done entry leaves after four seconds |
+| `GlanceNotifierTest` | One notification only, none while not live, done entry leaves after four seconds, a fast line posts at most once a second |
 | `GlanceActionsTest` | Allow and Deny answers, no answer for a changed request, an empty detail, or a long detail, failed send keeps the ask |
 
 Robolectric 4.16.1 does not run SDK 36. The Live Update test runs on SDK 35 and passes the promotion level as a parameter.
