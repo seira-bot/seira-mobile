@@ -33,13 +33,16 @@ final class GlanceLiveActivityUITests: XCTestCase {
 
         XCUIDevice.shared.press(.home)
         pause(1)
-        lockScreen()
+        pressSideButton()
+        pause(2)
+        pressSideButton()
         pause(3)
         capture("Lock screen")
         XCUIDevice.shared.press(.home)
     }
 
-    private func lockScreen() {
+    /// The first press turns the screen off. The second press wakes it on the lock screen.
+    private func pressSideButton() {
         let lock = NSSelectorFromString("pressLockButton")
         if XCUIDevice.shared.responds(to: lock) {
             _ = XCUIDevice.shared.perform(lock)

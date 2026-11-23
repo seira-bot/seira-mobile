@@ -158,8 +158,10 @@ jobs:
           ')
           type_id=$(xcrun simctl list devicetypes -j | python3 -c '
           import json, sys
-          types = [t for t in json.load(sys.stdin)["devicetypes"] if t["name"].startswith("iPhone") and "Pro" in t["name"] and "Max" not in t["name"]]
+          import re
+          types = [t for t in json.load(sys.stdin)["devicetypes"] if re.fullmatch(r"iPhone \d+ Pro", t["name"])]
           if not types: raise SystemExit("No iPhone Pro simulator type is available")
+          types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
           print(types[-1]["identifier"])
           ')
           simulator_id=$(xcrun simctl create "seira-ui-${GITHUB_RUN_ID}" "$type_id" "$runtime_id")
