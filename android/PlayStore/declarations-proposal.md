@@ -20,8 +20,13 @@ setiap giliran gagal (PR #63), sheet tampilan bot dengan tiga tab (PR #64), dan
 pilihan tempat kerja bot dari catatan cloud (PR #65).
 Update 1.0.6 dikirim untuk review pada 2026-11-23: Production, semua negara
 target, rollout 100%. Bundle dibangun dari tree yang sama dengan `main` `603020e4`.
+Google menyetujui 1.0.6. Rilis "1.0.6" tayang di Play pada 2026-11-23: 178 negara.
 Update 1.0.7 (versionCode 10007) membawa ikon app baru "Malam" (PR #73) dan
 layar pembuka "Night visor" (PR #74).
+Update 1.0.7 dikirim untuk review pada 2026-11-24: Production, semua negara
+target, rollout 100%. Bundle dibangun dari `184b500a`. Kode rilisnya sama dengan
+`main` `34e4bb49`. Review yang sama memuat 9 perubahan listing dari PR #75,
+termasuk ikon app 512 px.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
