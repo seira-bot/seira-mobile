@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Không thể phê duyệt. Hãy mở cuộc trò chuyện để xem xét.</string>
     <string name="notification_approve_settled">Đã được trả lời. Hãy mở cuộc trò chuyện để xem.</string>
     <string name="notification_reply_failed">Không thể gửi. Hãy mở cuộc trò chuyện để thử lại.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Hiển thị bot của bạn đang làm gì khi chúng làm việc hoặc chờ bạn.</string>
+    <string name="glance_working">Đang làm việc</string>
+    <string name="glance_needs_you">Cần bạn</string>
+    <string name="glance_question">Có một câu hỏi</string>
+    <string name="glance_failed">Thất bại</string>
+    <string name="glance_finished">Đã xong</string>
+    <string name="glance_open_chat">Mở cuộc trò chuyện</string>
+    <string name="glance_deny">Từ chối</string>
+    <string name="glance_allow_once">Cho phép một lần</string>
+    <string name="glance_could_not_send">Không gửi được. Hãy mở cuộc trò chuyện để trả lời.</string>
     <string name="tile_talk_label">Nói chuyện</string>
     <string name="shortcut_talk_short">Nói chuyện</string>
     <string name="shortcut_talk_long">Nói chuyện với chief of staff của bạn</string>

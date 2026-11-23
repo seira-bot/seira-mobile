@@ -158,8 +158,10 @@ jobs:
           ')
           type_id=$(xcrun simctl list devicetypes -j | python3 -c '
           import json, sys
-          types = [t for t in json.load(sys.stdin)["devicetypes"] if t["name"].startswith("iPhone") and "Pro" in t["name"] and "Max" not in t["name"]]
+          import re
+          types = [t for t in json.load(sys.stdin)["devicetypes"] if re.fullmatch(r"iPhone \d+ Pro", t["name"])]
           if not types: raise SystemExit("No iPhone Pro simulator type is available")
+          types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
           print(types[-1]["identifier"])
           ')
           simulator_id=$(xcrun simctl create "seira-ui-${GITHUB_RUN_ID}" "$type_id" "$runtime_id")
@@ -185,6 +187,24 @@ jobs:
             ${only[@]+"${only[@]}"} \
             CODE_SIGNING_ALLOWED=NO \
             test
+
+      - name: Export the screenshots of the UI tests
+        if: always()
+        run: |
+          set +e
+          out="$RUNNER_TEMP/glance-screenshots"
+          mkdir -p "$out"
+          xcrun xcresulttool export attachments --path "$RUNNER_TEMP/seira-ui-tests.xcresult" --output-path "$out"
+          ls -la "$out"
+
+      - name: Keep the screenshots of the UI tests
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: glance-screenshots
+          path: ${{ runner.temp }}/glance-screenshots
+          if-no-files-found: warn
+          retention-days: 7
 
       - name: Keep the UI test results
         if: failure()

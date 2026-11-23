@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Nie udało się zatwierdzić. Otwórz czat, aby przejrzeć.</string>
     <string name="notification_approve_settled">Już odpowiedziano. Otwórz czat, aby zobaczyć.</string>
     <string name="notification_reply_failed">Nie udało się wysłać. Otwórz czat, aby spróbować ponownie.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Pokazuje, co robią Twoje boty, gdy pracują lub czekają na Ciebie.</string>
+    <string name="glance_working">Pracuje</string>
+    <string name="glance_needs_you">Potrzebuje Ciebie</string>
+    <string name="glance_question">Ma pytanie</string>
+    <string name="glance_failed">Nie udało się</string>
+    <string name="glance_finished">Gotowe</string>
+    <string name="glance_open_chat">Otwórz czat</string>
+    <string name="glance_deny">Odrzuć</string>
+    <string name="glance_allow_once">Zezwól raz</string>
+    <string name="glance_could_not_send">Nie udało się wysłać. Otwórz czat, aby odpowiedzieć.</string>
     <string name="tile_talk_label">Rozmowa</string>
     <string name="shortcut_talk_short">Rozmowa</string>
     <string name="shortcut_talk_long">Porozmawiaj ze swoim szefem sztabu</string>
