@@ -28,19 +28,47 @@ data class GlanceAsk(
 ) {
     val canDeny: Boolean get() = kind == GlanceAskKind.APPROVAL
 
-    /** Security: Allow once shows only where the surface can show [detail] whole. */
-    fun canAllow(budget: GlanceBudget): Boolean = kind == GlanceAskKind.APPROVAL && budget.fitsWhole(detail)
+    /** Security: Allow once shows only where the surface can show [title] and [detail] whole. */
+    fun canAllow(budget: GlanceBudget): Boolean =
+        kind == GlanceAskKind.APPROVAL && detail.isNotEmpty() &&
+            budget.fitsWhole(if (title.isEmpty()) detail else "$title\n$detail")
 }
 
-/** How much text one Glance surface shows without a cut: wrapped lines of [lineChars] characters. */
+/** How much text one Glance surface shows without a cut: [lines] rows of [lineChars] characters. */
 data class GlanceBudget(val lineChars: Int, val lines: Int) {
+    /**
+     * Security: an overestimate, so a text that fits is never cut on screen. Only printable ASCII,
+     * new lines and tabs qualify: other characters can draw much wider than one cell. Rows wrap
+     * greedily at spaces, a longer word breaks at the row end, and a tab takes 8 cells.
+     * A surface must still measure its real layout before it offers Allow once.
+     */
     fun fitsWhole(text: String): Boolean {
         if (text.isEmpty() || lineChars <= 0) return false
-        val wrapped = text.split('\n').sumOf { line ->
-            val count = line.codePointCount(0, line.length)
-            maxOf(1, (count + lineChars - 1) / lineChars)
+        if (!text.all { it == '\n' || it == '\t' || it in ' '..'~' }) return false
+        var used = 0
+        for (line in text.split('\n')) {
+            used += rows(line)
+            if (used > lines) return false
         }
-        return wrapped <= lines
+        return true
+    }
+
+    private fun rows(line: String): Int {
+        var rows = 1
+        var column = 0
+        for (word in line.split(' ')) {
+            val width = word.length + 7 * word.count { it == '\t' }
+            val gap = if (column == 0) 0 else 1
+            if (column + gap + width <= lineChars) {
+                column += gap + width
+                continue
+            }
+            if (column > 0) rows++
+            val extra = maxOf(0, width - 1) / lineChars
+            rows += extra
+            column = width - extra * lineChars
+        }
+        return rows
     }
 }
 
@@ -143,7 +171,12 @@ object Glance {
      */
     fun approvalDetail(card: OptionCard): String {
         if (!isPlainPermission(card)) return ""
-        val text = card.subtitle.replace("\r\n", "\n").replace(CONTROL_KEEP_LINES, "").trim()
+        val text = card.subtitle
+            .replace("\r\n", "\n")
+            .replace('\r', '\n')
+            .replace(CONTROL_KEEP_LINES, "")
+            .replace(FORMAT, "")
+            .trim()
         val count = text.codePointCount(0, text.length)
         return if (count in 1..DETAIL_LIMIT) text else ""
     }
@@ -165,14 +198,17 @@ object Glance {
         val plain = last
             .replace(LIST_MARK, "")
             .replace(MARKUP, "")
+            .replace(FORMAT, "")
             .replace(CONTROL, "")
             .replace(SPACES, " ")
             .trim()
         return clip(plain, LINE_LIMIT, fromEnd = true)
     }
 
+    /** Security: the chat's own classifier must also draw the card as an approval; a proposal never qualifies. */
     fun isPlainPermission(card: OptionCard): Boolean =
         card.isPermission &&
+            card.presentation == CardPresentation.APPROVAL &&
             card.requestType != "question" &&
             card.skillRequest == null &&
             card.questionRequest == null &&
@@ -230,7 +266,7 @@ object Glance {
         return GlanceAsk(kind, requestId, approval.threadId, clip(clean(card.title), TITLE_LIMIT), detail, approval.message.at)
     }
 
-    private fun clean(text: String): String = text.replace(CONTROL, " ").replace(SPACES, " ").trim()
+    private fun clean(text: String): String = text.replace(FORMAT, "").replace(CONTROL, " ").replace(SPACES, " ").trim()
 
     private fun clip(text: String, limit: Int, fromEnd: Boolean = false): String {
         if (text.codePointCount(0, text.length) <= limit) return text
@@ -243,6 +279,7 @@ object Glance {
 
     private val CONTROL = Regex("[\\x00-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u2069\\ufeff]")
     private val CONTROL_KEEP_LINES = Regex("[\\x00-\\x08\\x0b\\x0c\\x0e-\\x1f\\x7f-\\x9f\\u200b-\\u200f\\u2028-\\u202e\\u2060-\\u2069\\ufeff]")
+    private val FORMAT = Regex("\\p{Cf}")
     private val SPACES = Regex("\\s+")
     private val LIST_MARK = Regex("^(?:#{1,6}\\s+|>\\s*|[-*+]\\s+|\\d+[.)]\\s+)")
     private val MARKUP = Regex("\\*+|`+|~~")

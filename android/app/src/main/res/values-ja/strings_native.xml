@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">承認できませんでした。チャットを開いて確認してください。</string>
     <string name="notification_approve_settled">すでに回答済みです。チャットを開いて確認してください。</string>
     <string name="notification_reply_failed">送信できませんでした。チャットを開いて、もう一度お試しください。</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">ボットが作業中やあなたの対応待ちのときの状況を表示します。</string>
+    <string name="glance_working">作業中</string>
+    <string name="glance_needs_you">対応が必要です</string>
+    <string name="glance_question">質問があります</string>
+    <string name="glance_failed">失敗しました</string>
+    <string name="glance_finished">完了</string>
+    <string name="glance_open_chat">チャットを開く</string>
+    <string name="glance_deny">拒否</string>
+    <string name="glance_allow_once">今回のみ許可</string>
+    <string name="glance_could_not_send">送信できませんでした。チャットを開いて回答してください。</string>
     <string name="tile_talk_label">話す</string>
     <string name="shortcut_talk_short">話す</string>
     <string name="shortcut_talk_long">チーフ・オブ・スタッフと話す</string>

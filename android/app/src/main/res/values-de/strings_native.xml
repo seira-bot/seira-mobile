@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Genehmigen fehlgeschlagen. Öffne den Chat zum Prüfen.</string>
     <string name="notification_approve_settled">Bereits beantwortet. Öffne den Chat, um es zu sehen.</string>
     <string name="notification_reply_failed">Senden fehlgeschlagen. Öffne den Chat und versuche es erneut.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Zeigt, was deine Bots tun, während sie arbeiten oder auf dich warten.</string>
+    <string name="glance_working">Arbeitet</string>
+    <string name="glance_needs_you">Braucht dich</string>
+    <string name="glance_question">Hat eine Frage</string>
+    <string name="glance_failed">Fehlgeschlagen</string>
+    <string name="glance_finished">Fertig</string>
+    <string name="glance_open_chat">Chat öffnen</string>
+    <string name="glance_deny">Ablehnen</string>
+    <string name="glance_allow_once">Einmal erlauben</string>
+    <string name="glance_could_not_send">Senden fehlgeschlagen. Öffne den Chat, um zu antworten.</string>
     <string name="tile_talk_label">Sprechen</string>
     <string name="shortcut_talk_short">Sprechen</string>
     <string name="shortcut_talk_long">Mit deinem Chief of Staff sprechen</string>

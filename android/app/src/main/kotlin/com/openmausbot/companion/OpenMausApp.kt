@@ -15,6 +15,8 @@ import com.openmausbot.companion.lifecycle.AlwaysOnConnectionState
 import com.openmausbot.companion.lifecycle.ServiceProcessAnchor
 import com.openmausbot.companion.lifecycle.SessionLingerController
 import com.openmausbot.companion.lifecycle.installSessionLinger
+import com.openmausbot.companion.glance.GlanceActionHandler
+import com.openmausbot.companion.glance.GlanceNotifier
 import com.openmausbot.companion.notifications.LocalNotificationPoster
 import com.openmausbot.companion.notifications.NotificationActionHandler
 import com.openmausbot.companion.push.PushDelivery
@@ -57,6 +59,8 @@ class OpenMausApp : Application() {
     lateinit var notifications: LocalNotificationPoster
         private set
     lateinit var notificationActions: NotificationActionHandler
+        private set
+    lateinit var glanceActions: GlanceActionHandler
         private set
     lateinit var shortcuts: BotShortcuts
         private set
@@ -125,6 +129,9 @@ class OpenMausApp : Application() {
         shortcuts = BotShortcuts(this)
         notifications.bind(session, avatars, shortcuts, appScope)
         notificationActions = NotificationActionHandler(session, notifications)
+        val glance = GlanceNotifier(this, session.state, session.status, avatarFor = { bot -> avatars.bitmapFor(bot) })
+        glanceActions = GlanceActionHandler(this, session, glance, glance::budget)
+        glance.start(appScope)
         pushDelivery = PushDelivery(session, notifications)
         RemotePush(this, session, appScope).start()
         appScope.launch {

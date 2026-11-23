@@ -250,6 +250,53 @@ class GlanceTest {
     }
 
     @Test
+    fun theTitleRowsCountAgainstTheBudget() {
+        val budget = GlanceBudget(lineChars = 10, lines = 2)
+        assertTrue(ask(detail = "ls", title = "Approval").canAllow(budget))
+        assertFalse(ask(detail = "ls", title = "Approval needed").canAllow(budget))
+    }
+
+    @Test
+    fun theBudgetWrapsAtSpacesAndTakesOnlyPrintableAscii() {
+        val budget = GlanceBudget(lineChars = 10, lines = 2)
+        assertTrue(budget.fitsWhole("aaaaaa bbbbbb ccc"))
+        assertFalse(budget.fitsWhole("aaaaaaa bbbbbbb ccc"))
+        assertTrue(GlanceBudget(lineChars = 10, lines = 1).fitsWhole("a\tb"))
+        assertFalse(GlanceBudget(lineChars = 10, lines = 1).fitsWhole("a\tbc"))
+        assertFalse(budget.fitsWhole("rm \u5220"))
+        assertFalse(budget.fitsWhole("cat caf\u00e9"))
+        assertFalse(budget.fitsWhole("echo \ud83d\ude00"))
+        assertFalse(budget.fitsWhole("echo \ufdfd"))
+    }
+
+    @Test
+    fun aLoneCarriageReturnStartsALineAndFormatCharactersGo() {
+        val card = permission("r1", subtitle = "echo a\recho b\u00ad\u2066c")
+        assertEquals("echo a\necho bc", Glance.approvalDetail(card))
+    }
+
+    @Test
+    fun aProposalWithAToolIsNotAPlainPermission() {
+        val proposal = OptionCard(
+            title = "Plan ready",
+            subtitle = "Ship the release",
+            options = listOf("Approve plan", "Reject"),
+            requestId = "p1",
+            tool = "ExitPlanMode",
+        )
+        assertFalse(Glance.isPlainPermission(proposal))
+        assertEquals("", Glance.approvalDetail(proposal))
+        val bot = bot("a")
+        val state = CompanionState(
+            bots = listOf(bot),
+            messages = mapOf(bot.threadId to listOf(options("m1", proposal, at = 1.0))),
+        )
+        val ask = Glance.bots(state).single().ask!!
+        assertEquals(GlanceAskKind.REVIEW, ask.kind)
+        assertFalse(ask.canDeny)
+    }
+
+    @Test
     fun currentAskNamesOnlyTheRequestThatStillWaits() {
         val bot = bot("a")
         val state = CompanionState(
@@ -270,8 +317,8 @@ class GlanceTest {
     private fun entry(id: String, state: GlanceState, line: String = ""): GlanceBot =
         GlanceBot(id, "$id-thread", id, null, state, if (state == GlanceState.WORKING) line else "", null)
 
-    private fun ask(detail: String, kind: GlanceAskKind = GlanceAskKind.APPROVAL): GlanceAsk =
-        GlanceAsk(kind, "r1", "t", "Approval needed", detail, 1.0)
+    private fun ask(detail: String, kind: GlanceAskKind = GlanceAskKind.APPROVAL, title: String = ""): GlanceAsk =
+        GlanceAsk(kind, "r1", "t", title, detail, 1.0)
 
     private fun bot(id: String, busy: Boolean? = null, activity: String? = null, unread: Boolean = false): Bot = Bot(
         id = id, threadId = "$id-thread", name = "Bot $id", title = "Helper",
