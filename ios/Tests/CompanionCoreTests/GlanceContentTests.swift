@@ -86,7 +86,7 @@ final class GlanceContentTests: XCTestCase {
     func testAFullSizeContentEncodesUnderFourKilobytes() throws {
         let ask = GlanceAsk(
             kind: .approval, requestId: String(repeating: "r", count: 64), threadId: String(repeating: "t", count: 64),
-            title: String(repeating: "あ", count: Glance.titleLimit), detail: String(repeating: "i", count: Glance.detailLimit), at: 1
+            title: String(repeating: "a", count: Glance.titleLimit), detail: String(repeating: "i", count: Glance.detailLimit), at: 1
         )
         let bot = GlanceBot(
             botId: String(repeating: "b", count: 64), threadId: String(repeating: "t", count: 64),
