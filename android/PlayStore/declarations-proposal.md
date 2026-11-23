@@ -20,6 +20,8 @@ setiap giliran gagal (PR #63), sheet tampilan bot dengan tiga tab (PR #64), dan
 pilihan tempat kerja bot dari catatan cloud (PR #65).
 Update 1.0.6 dikirim untuk review pada 2026-11-23: Production, semua negara
 target, rollout 100%. Bundle dibangun dari tree yang sama dengan `main` `603020e4`.
+Update 1.0.7 (versionCode 10007) membawa ikon app baru "Malam" (PR #73) dan
+layar pembuka "Night visor" (PR #74).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -248,6 +250,19 @@ See what your bots do without opening the app. One notification shows the bot th
 </en-US>
 <id>
 Lihat kerja bot tanpa membuka app. Satu notifikasi menampilkan bot yang paling butuh kamu, dengan Deny, Allow once, dan Open chat. Di Android 16 notifikasi ini tampil sebagai Live Update. Try again kini muncul di bawah setiap balasan yang gagal atau berhenti. Pilih tampilan bot dari tiga tab: Seira, Generate, dan Upload. Admin bisa memilih tempat bot bekerja dari catatan cloud.
+</id>
+```
+
+### Catatan rilis update 1.0.7
+
+Isi teks ini saat rilis 1.0.7 dibuat di Console:
+
+```text
+<en-US>
+Seira has a new look. The app icon is Seira with a wink on a night tile, and it works with themed icons too. The app now opens on a night screen: Seira's eyes glow, blink once, and a circle opens into the app. No more white flash before a dark screen.
+</en-US>
+<id>
+Seira tampil baru. Ikon app kini Seira yang mengedip di tile malam, dan cocok juga dengan ikon bertema. App kini terbuka di layar malam: mata Seira menyala, berkedip sekali, lalu lingkaran terbuka ke dalam app. Tidak ada lagi kilatan putih sebelum layar gelap.
 </id>
 ```
 
