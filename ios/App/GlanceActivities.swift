@@ -177,10 +177,15 @@ extension CompanionState {
         bots.removeAll { $0.id != "preview-mochi" }
         guard let threadId = bots.first?.threadId,
               let index = messages[threadId]?.lastIndex(where: { $0.card?.isPending == true }) else { return }
-        let card = OptionCard(
-            title: "Approval needed", subtitle: "git push origin fix/sidebar-search-collapse",
-            options: ["Allow", "Deny"], requestId: "preview-glance", tool: "Bash", requestType: "permission"
-        )
+        guard var card = messages[threadId]?[index].card else { return }
+        card.title = "Approval needed"
+        card.subtitle = "git push origin fix/sidebar-search-collapse"
+        card.options = ["Allow", "Deny"]
+        card.requestId = "preview-glance"
+        card.tool = "Bash"
+        card.requestType = "permission"
+        card.questionRequest = nil
+        card.held = nil
         messages[threadId]?[index].card = card
     }
 }
