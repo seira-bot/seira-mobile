@@ -31,7 +31,7 @@
       "card": { "box": [56, 756, 1120, 572], "dy": 40 },
       "title": {
         "en-US": "When a bot asks,\n{you decide.}",
-        "id-ID": "Saat bot bertanya,\n{kamu putuskan.}"
+        "id-ID": "Saat bot minta izin,\n{kamu yang putuskan.}"
       },
       "sub": {
         "en-US": "Allow or deny the step right in the chat.",
@@ -85,11 +85,11 @@
       "card": { "box": [58, 1470, 1118, 410], "dy": -20 },
       "title": {
         "en-US": "Give every bot\n{its own face}",
-        "id-ID": "Beri tiap bot\n{wajah sendiri}"
+        "id-ID": "Beri tiap bot\n{wajahnya sendiri}"
       },
       "sub": {
-        "en-US": "Pick a character and style it, or use your own picture.",
-        "id-ID": "Pilih karakter lalu atur gayanya, atau pakai gambarmu sendiri."
+        "en-US": "Pick a character and style it, or upload your own picture.",
+        "id-ID": "Pilih karakter lalu atur gayanya, atau unggah gambarmu sendiri."
       },
       "alt": {
         "en-US": "The avatar editor: a robot head with pink hair, tabs for Seira, Generate, and Upload, and hair choices.",
@@ -103,7 +103,7 @@
       "card": { "box": [36, 1720, 1160, 420], "dy": -60 },
       "title": {
         "en-US": "Pair with\n{one scan}",
-        "id-ID": "Sambungkan dengan\n{sekali pindai}"
+        "id-ID": "Pasangkan dengan\n{sekali pindai}"
       },
       "sub": {
         "en-US": "Scan the QR code that Seira shows on your computer.",
@@ -122,12 +122,12 @@
       "id-ID": "Bot kamu bekerja.\n{Kamu yang jawab.}"
     },
     "sub": {
-      "en-US": "Approve, reply, and keep up with your Seira bots from your phone.",
-      "id-ID": "Setujui, balas, dan pantau bot Seira dari ponselmu."
+      "en-US": "Reply, allow steps, and keep up with your Seira bots from your phone.",
+      "id-ID": "Balas, izinkan langkah, dan pantau bot Seira dari ponselmu."
     },
     "back": { "raw": { "en-US": "store-chat-table-en-dark.png", "id-ID": "store-chat-table-id-dark.png" }, "box": { "en-US": [56, 780, 1120, 322], "id-ID": [56, 714, 1120, 322] } },
     "front": { "raw": { "en-US": "store-chat-approval-en-dark.png", "id-ID": "store-chat-approval-id-dark.png" }, "box": [56, 756, 1120, 572] },
-    "head": { "cast": "seira" },
+    "head": { "cast": "lumi" },
     "alt": {
       "en-US": "Seira: your bots work, you answer. An approval card and a table from a bot chat.",
       "id-ID": "Seira: bot kamu bekerja, kamu yang jawab. Kartu persetujuan dan tabel dari chat bot."
