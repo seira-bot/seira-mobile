@@ -559,6 +559,26 @@ class CompanionClient(
         ).workspaces,
     )
 
+    /**
+     * Starts a switch and keeps the operation the computer answers with. The identity check of [perform] runs first,
+     * so the request goes only to the server this phone pinned.
+     */
+    suspend fun startWorkspaceSwitch(id: String): PhoneWorkspaceSwitchResponse {
+        val answer = send<PhoneWorkspaceSwitchResponse>(
+            makeRequest("POST", "/api/phones/self/workspaces/switch", body = buildJsonObject { put("id", id) }),
+        )
+        return answer.copy(workspaces = WorkspacePolicy.normalized(answer.workspaces))
+    }
+
+    /** Reads one switch by the operation id. 404 (unknown, expired or not this phone's) gives null. */
+    suspend fun workspaceSwitch(operationId: String): PhoneWorkspaceSwitch? = try {
+        send<PhoneWorkspaceSwitchStatus>(
+            makeRequest("GET", "/api/phones/self/workspaces/switch/${segment(operationId)}"),
+        ).switch
+    } catch (error: APIError.Status) {
+        if (error.code == 404) null else throw error
+    }
+
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 

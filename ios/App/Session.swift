@@ -111,6 +111,8 @@ final class Session: ObservableObject {
     /// dial moves to another stored host. The keychain remains the only place
     /// it is persisted.
     private var token: String?
+    /// A workspace switch this phone started, and the proof it needs before the pin moves.
+    private let workspaceSwitch = WorkspaceSwitchFlow()
     /// Which of the connection's stored hosts the next attempt dials. The
     /// walk advances on address-shaped failures and the winner is promoted —
     /// and persisted — when a stream goes live.
@@ -1304,6 +1306,49 @@ final class Session: ObservableObject {
         restartStream()
         connect()
         return true
+    }
+
+    // MARK: - Workspace switch
+
+    /// Opens `workspaceId` on the computer and, for a pairing with a pinned server identity, moves the pin only as
+    /// `WorkspaceSwitchGuard` allows: the target identity is read from the authenticated list first, the finished
+    /// switch needs a proof from the paired computer, and the bearer never goes to an address that shows another
+    /// identity. A result that is not `.switched` keeps the old pin.
+    @discardableResult
+    func switchWorkspace(_ workspaceId: String) async throws -> WorkspaceSwitchResult {
+        guard let client, let current = connection else { return .needsPairing }
+        let result = try await workspaceSwitch.start(
+            workspaceId: workspaceId,
+            pairingId: current.id,
+            pin: current.serverEnvironmentId,
+            transport: client
+        )
+        return applyWorkspaceSwitch(result, pairingId: current.id)
+    }
+
+    /// Reads the switch that waits, once. Call it again later while it answers `.waiting`.
+    @discardableResult
+    func finishWorkspaceSwitch() async -> WorkspaceSwitchResult {
+        guard let client, let current = connection else { return .needsPairing }
+        let result = await workspaceSwitch.finish(pairingId: current.id, transport: client)
+        return applyWorkspaceSwitch(result, pairingId: current.id)
+    }
+
+    /// The one place the pin moves: one write of the pairing, then a new client and a new stream.
+    private func applyWorkspaceSwitch(_ result: WorkspaceSwitchResult, pairingId: String) -> WorkspaceSwitchResult {
+        guard case let .switched(environmentId) = result else { return result }
+        // The person may have changed pairing while the switch ran: the pin of the old pairing stays.
+        guard var updated = connection, updated.id == pairingId else { return .rejected(.pairingChanged) }
+        updated.serverEnvironmentId = environmentId
+        persistActiveConnection(updated)
+        if let token, let active = client {
+            // The new client keeps the route the old one dialed; only the pin differs.
+            var dialed = active.connection
+            dialed.serverEnvironmentId = environmentId
+            client = CompanionClient(connection: dialed, token: token)
+        }
+        restartStream()
+        return result
     }
 
     // MARK: - Actions

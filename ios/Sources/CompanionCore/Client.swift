@@ -1106,6 +1106,31 @@ public struct CompanionClient: Sendable {
         return WorkspacePolicy.normalized(list.workspaces)
     }
 
+    /// Starts a switch and keeps the operation the computer answers with.
+    public func startWorkspaceSwitch(_ id: String) async throws -> PhoneWorkspaceSwitchResponse {
+        var answer = try await send(
+            try makeRequest("POST", "/api/phones/self/workspaces/switch", body: ["id": id]),
+            as: PhoneWorkspaceSwitchResponse.self
+        )
+        answer.workspaces = WorkspacePolicy.normalized(answer.workspaces)
+        return answer
+    }
+
+    /// Reads one switch by the operation id. 404 (unknown, expired or not this phone's) gives nil.
+    public func workspaceSwitch(_ operationId: String) async throws -> PhoneWorkspaceSwitch? {
+        guard operationId.range(of: "^[A-Za-z0-9_-]{1,64}$", options: .regularExpression) != nil else {
+            throw APIError.badURL
+        }
+        do {
+            return try await send(
+                try makeRequest("GET", "/api/phones/self/workspaces/switch/\(operationId)"),
+                as: PhoneWorkspaceSwitchStatus.self
+            ).switchInFlight
+        } catch let APIError.status(code, _) where code == 404 {
+            return nil
+        }
+    }
+
     /// The image capability is intentionally queried independently from the
     /// general Instance model: older servers omit it, which must mean false
     /// for a share that would otherwise send an unreadable image prompt.
@@ -2212,5 +2237,11 @@ public struct CompanionClient: Sendable {
         // rather than a number in the wrong place.
         streamRequest.timeoutInterval = 90
         return eventStream(request: streamRequest, session: streamingSession ?? Self.streaming)
+    }
+}
+
+extension CompanionClient: WorkspaceSwitchTransport {
+    public func environmentId() async throws -> String {
+        try await environment().environmentId
     }
 }
