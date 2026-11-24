@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">無法核准。請開啟聊天查看。</string>
     <string name="notification_approve_settled">已有人處理。請開啟聊天查看。</string>
     <string name="notification_reply_failed">無法傳送。請開啟聊天重試。</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">顯示機器人在工作或等待你時正在做什麼。</string>
+    <string name="glance_working">工作中</string>
+    <string name="glance_needs_you">需要你</string>
+    <string name="glance_question">有一個問題</string>
+    <string name="glance_failed">失敗</string>
+    <string name="glance_finished">已完成</string>
+    <string name="glance_open_chat">開啟聊天</string>
+    <string name="glance_deny">拒絕</string>
+    <string name="glance_allow_once">允許一次</string>
+    <string name="glance_could_not_send">無法傳送。請開啟聊天來回答。</string>
     <string name="tile_talk_label">通話</string>
     <string name="shortcut_talk_short">通話</string>
     <string name="shortcut_talk_long">與你的幕僚長通話</string>

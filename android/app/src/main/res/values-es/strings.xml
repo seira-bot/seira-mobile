@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Un alias deja clara la cuenta cuando un agente usa más de una cuenta de %1$s.</string>
     <string name="mobile_answered_e0aafffa">Respondida</string>
     <string name="mobile_archived_eddc813f">Archivado</string>
-    <string name="mobile_art_direction_52d878a2">Dirección de arte</string>
     <string name="mobile_back_b52b36b7">Atrás</string>
     <string name="mobile_bot_settings_7092a294">Ajustes del bot</string>
     <string name="mobile_bot_threads_ec81acf2">Hilos del bot</string>
@@ -171,7 +170,6 @@
     <string name="mobile_one_time_6fea9e4d">Una vez</string>
     <string name="mobile_open_cf9b7706">Abrir</string>
     <string name="mobile_open_settings_134635e9">Abrir Ajustes</string>
-    <string name="mobile_open_desktop_cd6f8218">Abrir escritorio</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Abre el chat para revisar SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Abrir actualizaciones</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -452,8 +450,6 @@
     <string name="mobile_overview_failed">No se pudo cargar el resumen.</string>
     <string name="mobile_profile_connected_apps_footer">Los permisos de herramientas se asignan en Seira, en tu ordenador. Este teléfono solo los muestra.</string>
     <string name="mobile_profile_preview_during_call">La vista previa de voz está desactivada durante una llamada en vivo.</string>
-    <string name="mobile_computer_vnc_note">Sesión VNC interactiva. El acceso debe estar activado para este teléfono en los ajustes de Teléfono del ordenador.</string>
-    <string name="mobile_computer_confirm_message">Esto da a este teléfono el control total del ordenador en la nube, incluido todo lo que tenga con la sesión iniciada.</string>
     <string name="mobile_live_call_disclosure">Una llamada en vivo envía tu voz a OpenAI, junto con los mensajes recientes del chat, las respuestas del bot y los detalles de cualquier aprobación que pida. La clave de OpenAI se queda en tu ordenador.</string>
     <string name="mobile_discovery_access_off">El acceso a la red local está desactivado. Activa el permiso de dispositivos cercanos o escribe abajo una dirección de Tailscale.</string>
     <string name="mobile_discovery_unavailable">La detección local no está disponible ahora. Escribe abajo la dirección que aparece en los ajustes de Teléfono.</string>
@@ -494,7 +490,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Comprobando la disponibilidad de la VM en la nube…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Elige una imagen PNG, JPEG, GIF o WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Elige un proveedor disponible para cambiar el modelo de este bot.</string>
-    <string name="mobile_circle_1cc7820a">Círculo</string>
     <string name="mobile_cloud_vm_26ca291f">VM en la nube</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">El estado de la VM en la nube no está disponible</string>
     <string name="mobile_completed_1798b3ba">Completada</string>
@@ -513,14 +508,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Explicar los pasos</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio no está configurado</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Generar un avatar</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Generar en el ordenador</string>
     <string name="mobile_hide_diff_120df7c2">Ocultar diff</string>
     <string name="mobile_identity_7e5a975b">Identidad</string>
     <string name="mobile_idle_cc1ebdd0">Inactivo</string>
     <string name="mobile_loading_models_eeade2be">Cargando modelos</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">La detección local se interrumpió. Reintentando…</string>
-    <string name="mobile_mascot_e0489488">Mascota</string>
     <string name="mobile_more_4bab2d8f">Más</string>
     <string name="mobile_needs_you_0d9d0df1">Te necesita</string>
     <string name="mobile_new_task_17b2b838">Tarea nueva</string>
@@ -530,8 +522,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Nada te necesita</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Aún no hay nada programado ni aprendido.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Aún no hay nada que mostrar</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Abrir escritorio en la nube en vivo</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">¿Abrir el escritorio en la nube en vivo?</string>
     <string name="mobile_open_task_a1f1752a">Abrir tarea</string>
     <string name="mobile_open_thread">Abrir hilo</string>
     <string name="mobile_opening_b1b8530b">Abriendo…</string>
@@ -544,7 +534,6 @@
     <string name="mobile_preview_voice_560a6fec">Escuchar la voz</string>
     <string name="mobile_primary_account_32f2184e">Cuenta principal</string>
     <string name="mobile_recent_changes_1bfd2320">Cambios recientes</string>
-    <string name="mobile_rounded_c5aa340f">Redondeado</string>
     <string name="mobile_routines_a445e5ad">Rutinas</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Ejecutar todas las pruebas automáticas</string>
     <string name="mobile_run_receipts_9115568f">Comprobantes de ejecución</string>
@@ -554,7 +543,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Programa trabajo del agente recurrente o de una sola vez.</string>
     <string name="mobile_sending_cf765512">Enviando…</string>
     <string name="mobile_show_diff_78016e77">Mostrar diff</string>
-    <string name="mobile_square_82810cb9">Cuadrado</string>
     <string name="mobile_start_dictation_ee00527b">Iniciar dictado</string>
     <string name="mobile_stop_dictation_96ad53f1">Detener dictado</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Detén este bot antes de cambiar su modelo.</string>
@@ -565,8 +553,6 @@
     <string name="mobile_this_computer_4ccce6f4">Este ordenador</string>
     <string name="mobile_to_review_066f77ce">Por revisar</string>
     <string name="mobile_unknown_bc7819b3">Desconocido</string>
-    <string name="mobile_upload_image_f35dec5f">Subir imagen</string>
-    <string name="mobile_use_mascot_0de90a12">Usar mascota</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Usa el modelo seleccionado de este agente y su ajuste de ordenador en el ordenador vinculado.</string>
     <string name="mobile_view_diff_39f85d34">Ver diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Esperando un fotograma…</string>
@@ -583,9 +569,6 @@
     <string name="mobile_model_busy_note">Detén este bot antes de cambiar su modelo.</string>
     <string name="mobile_model_unavailable_note">Elige un proveedor disponible para cambiar el modelo de este bot.</string>
     <string name="mobile_model_unavailable">No disponible</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF o WebP, de hasta 10 MB. Las imágenes se guardan en tu ordenador vinculado y se cargan con el código de vinculación de este teléfono.</string>
-    <string name="mobile_profile_generate_ready">La generación usa el proveedor de imágenes compartido configurado en tu ordenador. No se envía ninguna clave de proveedor a este teléfono ni se guarda en él.</string>
-    <string name="mobile_profile_generate_blocked">Para generar imágenes, configura el proveedor de imágenes compartido en Seira, en tu ordenador. Las claves de proveedores no se pueden añadir desde un teléfono.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs no está configurado</string>
     <string name="mobile_profile_builtin_voices_unavailable">Las voces integradas de tu ordenador no están disponibles</string>
     <string name="mobile_profile_voice_unconfigured_footer">Añade la clave compartida de ElevenLabs en el perfil de este agente, en el ordenador. La clave nunca se envía a este teléfono.</string>
@@ -644,7 +627,6 @@
     <string name="mobile_chat_thread_update_failed">No se pudo actualizar este hilo. Inténtalo de nuevo.</string>
     <string name="mobile_chat_typing">%1$s está escribiendo</string>
     <string name="mobile_chat_attachment_unsupported">%1$s no es un adjunto compatible. Prueba con una imagen, un PDF o un archivo de texto, Word, Excel o PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">No se pudo abrir el escritorio en la nube.</string>
     <string name="mobile_connected_apps_no_browser">Este teléfono no tiene ningún navegador disponible para abrir la página de autorización.</string>
     <string name="mobile_connected_apps_auth_page_failed">No se pudo abrir la página de autorización. Revisa las restricciones de tu navegador e inténtalo de nuevo.</string>
     <string name="mobile_file_open_other_computer">Abre los enlaces a archivos de otro ordenador desde el mensaje original.</string>
@@ -832,7 +814,6 @@
     <string name="change_look_title">Cambiar aspecto</string>
     <string name="change_look_close">Cerrar</string>
     <string name="change_look_preview">Vista previa del aspecto</string>
-    <string name="change_look_cat_characters">Personajes</string>
     <string name="change_look_cat_hair">Pelo</string>
     <string name="change_look_cat_colour">Color</string>
     <string name="change_look_cat_face">Cara</string>
@@ -897,4 +878,16 @@
     <string name="change_look_no_changes">Aún sin cambios</string>
     <string name="change_look_offline">Conéctate a tu ordenador para guardar.</string>
     <string name="change_look_failed">No se pudo guardar. Inténtalo de nuevo.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Generar</string>
+    <string name="avatar_tab_upload">Subir</string>
+    <string name="avatar_generate_prompt">Describe la imagen</string>
+    <string name="avatar_generate_action">Generar imagen</string>
+    <string name="avatar_generate_setup">Configura la generación de imágenes en Seira en tu ordenador para usarla.</string>
+    <string name="avatar_generate_failed">No se pudo crear la imagen. Inténtalo de nuevo.</string>
+    <string name="avatar_picture_failed">No se pudo cambiar la imagen. Inténtalo de nuevo.</string>
+    <string name="avatar_upload_choose">Elegir una imagen</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF o WebP, de hasta 10 MB.</string>
+    <string name="avatar_upload_use">Usar esta imagen</string>
+    <string name="avatar_upload_remove">Quitar imagen</string>
 </resources>

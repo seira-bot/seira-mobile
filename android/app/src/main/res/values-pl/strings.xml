@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Alias pozwala jednoznacznie wskazać konto, gdy agent używa więcej niż jednego konta %1$s.</string>
     <string name="mobile_answered_e0aafffa">Odpowiedziano</string>
     <string name="mobile_archived_eddc813f">Zarchiwizowane</string>
-    <string name="mobile_art_direction_52d878a2">Kierunek artystyczny</string>
     <string name="mobile_back_b52b36b7">Wstecz</string>
     <string name="mobile_bot_settings_7092a294">Ustawienia bota</string>
     <string name="mobile_bot_threads_ec81acf2">Wątki bota</string>
@@ -173,7 +172,6 @@
     <string name="mobile_one_time_6fea9e4d">Jednorazowo</string>
     <string name="mobile_open_cf9b7706">Otwórz</string>
     <string name="mobile_open_settings_134635e9">Otwórz ustawienia</string>
-    <string name="mobile_open_desktop_cd6f8218">Otwórz wersję na komputer</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Otwórz czat, aby przejrzeć SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Otwórz aktualizacje</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -460,8 +458,6 @@
     <string name="mobile_overview_failed">Nie udało się wczytać przeglądu.</string>
     <string name="mobile_profile_connected_apps_footer">Uprawnienia do narzędzi przypisuje się w Seira na Twoim komputerze. Ten telefon pokazuje je tylko do odczytu.</string>
     <string name="mobile_profile_preview_during_call">Podgląd głosu jest wyłączony podczas rozmowy na żywo.</string>
-    <string name="mobile_computer_vnc_note">Interaktywna sesja VNC. Dostęp musi być włączony dla tego telefonu w ustawieniach Telefon na komputerze.</string>
-    <string name="mobile_computer_confirm_message">To daje temu telefonowi pełną kontrolę nad komputerem w chmurze, w tym nad wszystkim, gdzie jesteś w nim zalogowany.</string>
     <string name="mobile_live_call_disclosure">Rozmowa na żywo wysyła Twój głos do OpenAI wraz z ostatnimi wiadomościami czatu, odpowiedziami bota i szczegółami każdego zatwierdzenia, o które prosi. Klucz OpenAI pozostaje na Twoim komputerze.</string>
     <string name="mobile_discovery_access_off">Dostęp do sieci lokalnej jest wyłączony. Włącz uprawnienie dla urządzeń w pobliżu albo wpisz poniżej adres Tailscale.</string>
     <string name="mobile_discovery_unavailable">Wykrywanie lokalne jest teraz niedostępne. Wpisz poniżej adres widoczny w ustawieniach Telefon.</string>
@@ -502,7 +498,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Sprawdzanie dostępności Cloud VM…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Wybierz obraz PNG, JPEG, GIF lub WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Wybierz dostępnego dostawcę, aby zmienić model tego bota.</string>
-    <string name="mobile_circle_1cc7820a">Koło</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Stan Cloud VM jest niedostępny</string>
     <string name="mobile_completed_1798b3ba">Ukończone</string>
@@ -521,14 +516,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Wyjaśniaj kroki</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio nie jest skonfigurowany</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Wygeneruj awatar</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Wygeneruj na komputerze</string>
     <string name="mobile_hide_diff_120df7c2">Ukryj diff</string>
     <string name="mobile_identity_7e5a975b">Tożsamość</string>
     <string name="mobile_idle_cc1ebdd0">Bezczynny</string>
     <string name="mobile_loading_models_eeade2be">Wczytywanie modeli</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Wykrywanie lokalne zostało przerwane. Ponawianie…</string>
-    <string name="mobile_mascot_e0489488">Maskotka</string>
     <string name="mobile_more_4bab2d8f">Więcej</string>
     <string name="mobile_needs_you_0d9d0df1">Potrzebuje Ciebie</string>
     <string name="mobile_new_task_17b2b838">Nowe zadanie</string>
@@ -538,8 +530,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Nic Cię nie potrzebuje</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Nic jeszcze nie zaplanowano ani nie poznano.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Na razie nic do pokazania</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Otwórz pulpit chmurowy na żywo</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Otworzyć pulpit chmurowy na żywo?</string>
     <string name="mobile_open_task_a1f1752a">Otwórz zadanie</string>
     <string name="mobile_open_thread">Otwórz wątek</string>
     <string name="mobile_opening_b1b8530b">Otwieranie…</string>
@@ -552,7 +542,6 @@
     <string name="mobile_preview_voice_560a6fec">Odsłuchaj głos</string>
     <string name="mobile_primary_account_32f2184e">Konto główne</string>
     <string name="mobile_recent_changes_1bfd2320">Ostatnie zmiany</string>
-    <string name="mobile_rounded_c5aa340f">Zaokrąglony</string>
     <string name="mobile_routines_a445e5ad">Rutyny</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Uruchom wszystkie testy automatyczne</string>
     <string name="mobile_run_receipts_9115568f">Potwierdzenia uruchomień</string>
@@ -562,7 +551,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Planuj cykliczne lub jednorazowe zadania agenta.</string>
     <string name="mobile_sending_cf765512">Wysyłanie…</string>
     <string name="mobile_show_diff_78016e77">Pokaż diff</string>
-    <string name="mobile_square_82810cb9">Kwadrat</string>
     <string name="mobile_start_dictation_ee00527b">Rozpocznij dyktowanie</string>
     <string name="mobile_stop_dictation_96ad53f1">Zakończ dyktowanie</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Zatrzymaj tego bota przed zmianą jego modelu.</string>
@@ -573,8 +561,6 @@
     <string name="mobile_this_computer_4ccce6f4">Ten komputer</string>
     <string name="mobile_to_review_066f77ce">Do przejrzenia</string>
     <string name="mobile_unknown_bc7819b3">Nieznane</string>
-    <string name="mobile_upload_image_f35dec5f">Prześlij obraz</string>
-    <string name="mobile_use_mascot_0de90a12">Użyj maskotki</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Używa wybranego modelu tego agenta i ustawienia komputera na sparowanym komputerze.</string>
     <string name="mobile_view_diff_39f85d34">Zobacz diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Oczekiwanie na klatkę…</string>
@@ -591,9 +577,6 @@
     <string name="mobile_model_busy_note">Zatrzymaj tego bota przed zmianą jego modelu.</string>
     <string name="mobile_model_unavailable_note">Wybierz dostępnego dostawcę, aby zmienić model tego bota.</string>
     <string name="mobile_model_unavailable">Niedostępne</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF lub WebP, do 10 MB. Obrazy są przechowywane na sparowanym komputerze i wczytywane tokenem parowania tego telefonu.</string>
-    <string name="mobile_profile_generate_ready">Generowanie używa wspólnego dostawcy obrazów skonfigurowanego na Twoim komputerze. Żaden klucz dostawcy nie jest wysyłany na ten telefon ani na nim przechowywany.</string>
-    <string name="mobile_profile_generate_blocked">Aby generować obrazy, skonfiguruj wspólnego dostawcę obrazów w Seira na komputerze. Kluczy dostawców nie można dodawać z telefonu.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs nie jest skonfigurowany</string>
     <string name="mobile_profile_builtin_voices_unavailable">Wbudowane głosy Twojego komputera są niedostępne</string>
     <string name="mobile_profile_voice_unconfigured_footer">Dodaj wspólny klucz ElevenLabs w profilu tego agenta na komputerze. Klucz nigdy nie trafia na ten telefon.</string>
@@ -658,7 +641,6 @@
     <string name="mobile_chat_thread_update_failed">Nie udało się zaktualizować tego wątku. Spróbuj ponownie.</string>
     <string name="mobile_chat_typing">%1$s pisze</string>
     <string name="mobile_chat_attachment_unsupported">%1$s nie jest obsługiwanym załącznikiem. Spróbuj z obrazem, plikiem PDF, tekstowym, Word, Excel lub PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">Nie udało się otworzyć pulpitu chmurowego.</string>
     <string name="mobile_connected_apps_no_browser">Ten telefon nie ma przeglądarki, która mogłaby otworzyć stronę autoryzacji.</string>
     <string name="mobile_connected_apps_auth_page_failed">Nie udało się otworzyć strony autoryzacji. Sprawdź ograniczenia przeglądarki i spróbuj ponownie.</string>
     <string name="mobile_file_open_other_computer">Otwieraj linki do plików na innym komputerze z oryginalnej wiadomości.</string>
@@ -862,7 +844,6 @@
     <string name="change_look_title">Zmień wygląd</string>
     <string name="change_look_close">Zamknij</string>
     <string name="change_look_preview">Podgląd wyglądu</string>
-    <string name="change_look_cat_characters">Postacie</string>
     <string name="change_look_cat_hair">Włosy</string>
     <string name="change_look_cat_colour">Kolor</string>
     <string name="change_look_cat_face">Twarz</string>
@@ -929,4 +910,16 @@
     <string name="change_look_no_changes">Brak zmian</string>
     <string name="change_look_offline">Połącz się z komputerem, aby zapisać.</string>
     <string name="change_look_failed">Nie udało się zapisać. Spróbuj ponownie.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Generuj</string>
+    <string name="avatar_tab_upload">Prześlij</string>
+    <string name="avatar_generate_prompt">Opisz obraz</string>
+    <string name="avatar_generate_action">Generuj obraz</string>
+    <string name="avatar_generate_setup">Aby z tego korzystać, skonfiguruj generowanie obrazów w Seira na komputerze.</string>
+    <string name="avatar_generate_failed">Nie udało się utworzyć obrazu. Spróbuj ponownie.</string>
+    <string name="avatar_picture_failed">Nie udało się zmienić obrazu. Spróbuj ponownie.</string>
+    <string name="avatar_upload_choose">Wybierz obraz</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF lub WebP, do 10 MB.</string>
+    <string name="avatar_upload_use">Użyj tego obrazu</string>
+    <string name="avatar_upload_remove">Usuń obraz</string>
 </resources>

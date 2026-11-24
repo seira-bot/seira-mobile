@@ -63,6 +63,31 @@ object FailedTurnActions {
         return messages[index].id
     }
 
+    /**
+     * The failed or stopped turn that shows Try again: the newest one, while
+     * nothing has been said since and no usage-limit offer is open.
+     */
+    fun retryOfferMessageId(messages: List<Message>): String? {
+        val index = messages.indexOfLast { isFailedTurn(it) || isStoppedTurn(it) }
+        if (index < 0) return null
+        if (messages.drop(index + 1).any { it.kind == Message.Kind.TEXT }) return null
+        if (messages.any { it.card?.quotaSwitch != null && it.card.isPending }) return null
+        val tool = messages[index].tool
+        if (tool?.claudeUpdate == true) return null
+        if (tool != null && CloudComputerNotice.matches(tool)) return null
+        return messages[index].id
+    }
+
+    /**
+     * The newest turn failed and the bot has not answered since. A turn whose
+     * reply came back ([ToolActivity.partial]) did not fail as a whole.
+     */
+    fun lastTurnFailed(messages: List<Message>): Boolean {
+        val index = messages.indexOfLast { isFailedTurn(it) && it.tool?.partial != true }
+        if (index < 0) return false
+        return messages.drop(index + 1).none { it.role == Message.Role.BOT && it.kind == Message.Kind.TEXT }
+    }
+
     /** "3:40 PM" for a reset today, "Fri 3:40 PM" further out. */
     fun continueTime(
         resetsAtMs: Double,
@@ -88,18 +113,29 @@ object FailedTurnActions {
         turnRunning: Boolean,
         modelListForbidden: Boolean,
         continueForbidden: Boolean,
+        canRetry: Boolean = true,
     ): FailedTurnOffer? {
         if (turnRunning || failedTurnCause(tool.name) == null) return null
         val fixable = settingFix(tool) == SettingFix.MODEL && tool.partial != true
         val offer = FailedTurnOffer(
             switchModel = fixable && !modelListForbidden,
-            tryAgain = fixable,
+            tryAgain = canRetry && !CloudComputerNotice.matches(tool),
             checkUsage = tool.isCodexUsageLimit(),
             continueAt = tool.limitResetsAt?.takeIf { !continueForbidden },
             askOwner = fixable && modelListForbidden,
         )
         return offer.takeIf { it.any }
     }
+
+    /** What a stopped turn offers: Try again, when the person has a message to send again. */
+    fun stoppedOffer(turnRunning: Boolean, canRetry: Boolean): FailedTurnOffer? =
+        FailedTurnOffer(
+            switchModel = false,
+            tryAgain = canRetry,
+            checkUsage = false,
+            continueAt = null,
+            askOwner = false,
+        ).takeIf { !turnRunning && it.any }
 }
 
 sealed interface ModelListResult {

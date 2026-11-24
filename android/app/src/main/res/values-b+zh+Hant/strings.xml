@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">當代理程式使用多個 %1$s 帳戶時，別名可明確標示所用帳戶。</string>
     <string name="mobile_answered_e0aafffa">已回答</string>
     <string name="mobile_archived_eddc813f">已封存</string>
-    <string name="mobile_art_direction_52d878a2">美術方向</string>
     <string name="mobile_back_b52b36b7">返回</string>
     <string name="mobile_bot_settings_7092a294">機器人設定</string>
     <string name="mobile_bot_threads_ec81acf2">機器人對話</string>
@@ -170,7 +169,6 @@
     <string name="mobile_one_time_6fea9e4d">單次</string>
     <string name="mobile_open_cf9b7706">開啟</string>
     <string name="mobile_open_settings_134635e9">開啟設定</string>
-    <string name="mobile_open_desktop_cd6f8218">開啟桌面</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">開啟聊天以檢查 SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">開啟更新</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -448,8 +446,6 @@
     <string name="mobile_overview_failed">無法載入概覽。</string>
     <string name="mobile_profile_connected_apps_footer">工具授權由電腦上的 Seira 指派。此手機僅以唯讀方式顯示。</string>
     <string name="mobile_profile_preview_during_call">即時通話期間已關閉語音預覽。</string>
-    <string name="mobile_computer_vnc_note">互動式 VNC 工作階段。必須在電腦的「手機」設定中為此手機啟用存取權。</string>
-    <string name="mobile_computer_confirm_message">這會讓此手機完全控制雲端電腦，包括已在其中登入的任何帳戶。</string>
     <string name="mobile_live_call_disclosure">即時通話會將你的語音連同聊天的近期訊息、機器人的回答，以及它請求的任何核准的詳細資訊一起傳送至 OpenAI。OpenAI 金鑰會保留在你的電腦上。</string>
     <string name="mobile_discovery_access_off">區域網路存取權已關閉。請開啟「鄰近裝置」權限，或在下方輸入 Tailscale 位址。</string>
     <string name="mobile_discovery_unavailable">區域網路探索目前無法使用。請在下方輸入「手機」設定中顯示的位址。</string>
@@ -490,7 +486,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">正在檢查雲端 VM 是否可用…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">請選擇 PNG、JPEG、GIF 或 WebP 圖片。</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">選擇可用的提供者以變更此機器人的模型。</string>
-    <string name="mobile_circle_1cc7820a">圓形</string>
     <string name="mobile_cloud_vm_26ca291f">雲端 VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">無法取得雲端 VM 狀態</string>
     <string name="mobile_completed_1798b3ba">已完成</string>
@@ -509,14 +504,11 @@
     <string name="mobile_explain_steps_b60a9fb6">說明步驟</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">尚未設定 Fish Audio</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">產生頭像</string>
-    <string name="mobile_generate_on_computer_ff5b7448">在電腦上產生</string>
     <string name="mobile_hide_diff_120df7c2">隱藏差異</string>
     <string name="mobile_identity_7e5a975b">身分</string>
     <string name="mobile_idle_cc1ebdd0">閒置</string>
     <string name="mobile_loading_models_eeade2be">正在載入模型</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">區域網路探索已中斷。正在重試…</string>
-    <string name="mobile_mascot_e0489488">吉祥物</string>
     <string name="mobile_more_4bab2d8f">更多</string>
     <string name="mobile_needs_you_0d9d0df1">需要你處理</string>
     <string name="mobile_new_task_17b2b838">新增任務</string>
@@ -526,8 +518,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">目前沒有需要你處理的項目</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">尚未排定或學到任何內容。</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">目前沒有內容可顯示</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">開啟即時雲端桌面</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">要開啟即時雲端桌面嗎？</string>
     <string name="mobile_open_task_a1f1752a">開啟任務</string>
     <string name="mobile_open_thread">開啟討論串</string>
     <string name="mobile_opening_b1b8530b">開啟中…</string>
@@ -540,7 +530,6 @@
     <string name="mobile_preview_voice_560a6fec">預覽語音</string>
     <string name="mobile_primary_account_32f2184e">主要帳戶</string>
     <string name="mobile_recent_changes_1bfd2320">近期變更</string>
-    <string name="mobile_rounded_c5aa340f">圓角</string>
     <string name="mobile_routines_a445e5ad">例行工作</string>
     <string name="mobile_run_all_automated_tests_4032d93f">執行所有自動化測試</string>
     <string name="mobile_run_receipts_9115568f">執行回執</string>
@@ -550,7 +539,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">排定週期性或單次的機器人工作。</string>
     <string name="mobile_sending_cf765512">傳送中…</string>
     <string name="mobile_show_diff_78016e77">顯示差異</string>
-    <string name="mobile_square_82810cb9">方形</string>
     <string name="mobile_start_dictation_ee00527b">開始語音輸入</string>
     <string name="mobile_stop_dictation_96ad53f1">停止語音輸入</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">變更模型前請先停止此機器人。</string>
@@ -561,8 +549,6 @@
     <string name="mobile_this_computer_4ccce6f4">此電腦</string>
     <string name="mobile_to_review_066f77ce">待檢查</string>
     <string name="mobile_unknown_bc7819b3">未知</string>
-    <string name="mobile_upload_image_f35dec5f">上傳圖片</string>
-    <string name="mobile_use_mascot_0de90a12">使用吉祥物</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">使用已配對電腦上此機器人所選的模型與電腦設定。</string>
     <string name="mobile_view_diff_39f85d34">檢視差異</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">正在等待畫面…</string>
@@ -579,9 +565,6 @@
     <string name="mobile_model_busy_note">變更模型前請先停止此機器人。</string>
     <string name="mobile_model_unavailable_note">選擇可用的提供者來變更此機器人的模型。</string>
     <string name="mobile_model_unavailable">無法使用</string>
-    <string name="mobile_profile_avatar_footer">支援 PNG、JPEG、GIF 或 WebP，最大 10 MB。圖片會儲存在已配對的電腦上，並透過此手機的配對權杖載入。</string>
-    <string name="mobile_profile_generate_ready">圖像生成會使用電腦上設定的共用圖像提供者。此手機不會傳送或儲存提供者金鑰。</string>
-    <string name="mobile_profile_generate_blocked">如要產生圖像，請在電腦上的 Seira 中設定共用圖像提供者。無法透過手機新增提供者金鑰。</string>
     <string name="mobile_profile_elevenlabs_unconfigured">尚未設定 ElevenLabs</string>
     <string name="mobile_profile_builtin_voices_unavailable">電腦的內建語音無法使用</string>
     <string name="mobile_profile_voice_unconfigured_footer">請在電腦上此代理程式的個人檔案中新增共用 ElevenLabs 金鑰。該金鑰不會傳回此手機。</string>
@@ -637,7 +620,6 @@
     <string name="mobile_chat_thread_update_failed">無法更新此對話，請再試一次。</string>
     <string name="mobile_chat_typing">%1$s 正在輸入</string>
     <string name="mobile_chat_attachment_unsupported">%1$s 不是支援的附件格式。請嘗試圖片、PDF、文字、Word、Excel 或 PowerPoint 檔案。</string>
-    <string name="mobile_cloud_desktop_open_failed">無法開啟雲端桌面。</string>
     <string name="mobile_connected_apps_no_browser">此手機沒有可用來開啟授權頁面的瀏覽器。</string>
     <string name="mobile_connected_apps_auth_page_failed">無法開啟授權頁面。請檢查瀏覽器限制後再試一次。</string>
     <string name="mobile_file_open_other_computer">請從原始訊息中開啟指向其他電腦檔案的連結。</string>
@@ -817,7 +799,6 @@
     <string name="change_look_title">更換形象</string>
     <string name="change_look_close">關閉</string>
     <string name="change_look_preview">形象預覽</string>
-    <string name="change_look_cat_characters">角色</string>
     <string name="change_look_cat_hair">髮型</string>
     <string name="change_look_cat_colour">顏色</string>
     <string name="change_look_cat_face">表情</string>
@@ -881,4 +862,16 @@
     <string name="change_look_no_changes">還沒有變更</string>
     <string name="change_look_offline">連線到你的電腦後才能儲存。</string>
     <string name="change_look_failed">無法儲存，請重試。</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">生成</string>
+    <string name="avatar_tab_upload">上傳</string>
+    <string name="avatar_generate_prompt">描述圖片</string>
+    <string name="avatar_generate_action">生成圖片</string>
+    <string name="avatar_generate_setup">要使用此功能，請在你的電腦上的 Seira 中設定圖片生成。</string>
+    <string name="avatar_generate_failed">無法生成圖片，請重試。</string>
+    <string name="avatar_picture_failed">無法更換圖片，請重試。</string>
+    <string name="avatar_upload_choose">選擇圖片</string>
+    <string name="avatar_upload_hint">PNG、JPEG、GIF 或 WebP，最大 10 MB。</string>
+    <string name="avatar_upload_use">使用這張圖片</string>
+    <string name="avatar_upload_remove">移除圖片</string>
 </resources>

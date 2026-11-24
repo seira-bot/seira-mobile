@@ -10,6 +10,7 @@ import WidgetKit
 @main
 struct OpenMausWidgets: WidgetBundle {
     var body: some Widget {
+        GlanceActivityWidget()
         BotActivityWidget()
         NeedsYouWidget()
         UpdatesDigestWidget()

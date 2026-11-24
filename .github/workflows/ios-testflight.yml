@@ -1,0 +1,253 @@
+name: iOS TestFlight
+
+# Archives the Release iOS app on a macOS runner. With the four App Store
+# Connect secrets (ASC_KEY_P8_BASE64, ASC_KEY_ID, ASC_ISSUER_ID, APPLE_TEAM_ID)
+# in the environment `app-store`, it signs the app and uploads it to
+# TestFlight. With none of them, it makes an unsigned archive and uploads
+# nothing. It starts only by hand: gh workflow run ios-testflight.yml
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Branch, tag or commit to build"
+        type: string
+        required: true
+        default: main
+      build_number:
+        description: "Build number. Empty uses <project build number>.<run number>."
+        type: string
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-testflight
+  cancel-in-progress: false
+
+env:
+  HOMEBREW_NO_AUTO_UPDATE: "1"
+  HOMEBREW_NO_INSTALL_CLEANUP: "1"
+
+jobs:
+  archive:
+    name: Archive and upload
+    runs-on: macos-latest
+    timeout-minutes: 60
+    environment: app-store
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Check which secrets are set
+        id: mode
+        env:
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set_names=""
+          missing=""
+          for name in ASC_KEY_P8_BASE64 ASC_KEY_ID ASC_ISSUER_ID APPLE_TEAM_ID; do
+            if [ -n "${!name}" ]; then set_names="$set_names $name"; else missing="$missing $name"; fi
+          done
+          if [ -z "$missing" ]; then
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+          elif [ -z "$set_names" ]; then
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No App Store Connect secret is set. The build is NOT UPLOADED. This run only archives the app without code signing."
+          else
+            echo "::error::Some App Store Connect secrets are set, but these are missing:${missing}. Set all four or none."
+            exit 1
+          fi
+
+      - name: Check the ref
+        env:
+          REF: ${{ inputs.ref }}
+        run: |
+          case "$REF" in
+            ""|-*|*..*|*[!A-Za-z0-9._/-]*)
+              echo "::error::The ref is not valid."
+              exit 1 ;;
+          esac
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+
+      - name: Select Xcode 26 or newer
+        # App Store Connect accepts only uploads built with Xcode 26 or newer (since 2026-04-28).
+        run: |
+          latest=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$latest" ]; then sudo xcode-select -s "$latest/Contents/Developer"; fi
+          xcodebuild -version
+          major=$(xcodebuild -version | awk '/^Xcode/ { split($2, v, "."); print v[1]; exit }')
+          if [ -z "$major" ] || [ "$major" -lt 26 ]; then
+            echo "::error::Xcode 26 or newer is required. App Store Connect rejects uploads from older versions."
+            exit 1
+          fi
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Set the version and the build number
+        id: version
+        env:
+          INPUT_BUILD_NUMBER: ${{ inputs.build_number }}
+          RUN_NUMBER: ${{ github.run_number }}
+        run: |
+          field() {
+            awk -v key="$1" '
+              /PRODUCT_BUNDLE_IDENTIFIER: bot\.seira\.app[[:space:]]*$/ { found = 1 }
+              found && $1 == key ":" { gsub(/"/, "", $2); print $2; exit }
+            ' ios/project.yml
+          }
+          marketing=$(field MARKETING_VERSION)
+          project_build=$(field CURRENT_PROJECT_VERSION)
+          if [ -n "$INPUT_BUILD_NUMBER" ]; then
+            build="$INPUT_BUILD_NUMBER"
+          else
+            build="${project_build}.${RUN_NUMBER}"
+          fi
+          if ! printf '%s' "$build" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}$'; then
+            echo "::error::The build number must be 1 to 3 numbers separated by dots."
+            exit 1
+          fi
+          if ! printf '%s' "$marketing" | grep -Eq '^[0-9]+(\.[0-9]+){0,2}$'; then
+            echo "::error::The app version in ios/project.yml is not valid."
+            exit 1
+          fi
+          echo "marketing=$marketing" >> "$GITHUB_OUTPUT"
+          echo "build=$build" >> "$GITHUB_OUTPUT"
+          echo "Version $marketing, build $build"
+
+      - name: Archive without code signing
+        if: steps.mode.outputs.signed != 'true'
+        env:
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          set -o pipefail
+          cd ios
+          xcodebuild archive \
+            -project OpenMausCompanion.xcodeproj \
+            -scheme OpenMausCompanion \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Seira.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/derived-data" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-packages" \
+            CURRENT_PROJECT_VERSION="$BUILD" \
+            CODE_SIGNING_ALLOWED=NO > "$RUNNER_TEMP/xcodebuild.log" 2>&1 \
+            || { grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild.log" | sed -E 's#^.*/ios/#ios/#' | sort -u | head -200; tail -40 "$RUNNER_TEMP/xcodebuild.log"; exit 1; }
+          tail -5 "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Check the unsigned archive
+        if: steps.mode.outputs.signed != 'true'
+        env:
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          apps=("$RUNNER_TEMP"/Seira.xcarchive/Products/Applications/*.app)
+          app="${apps[0]}"
+          [ -d "$app" ] || { echo "::error::The archive has no app."; exit 1; }
+          for appex in OpenMausShareExtension OpenMausCompanionWidgets; do
+            found=$(find "$app/PlugIns" -maxdepth 1 -name '*.appex' | grep -c "$appex" || true)
+            if [ "$found" -ne 1 ]; then
+              ls "$app/PlugIns" || true
+              echo "::error::The archive has no $appex extension."
+              exit 1
+            fi
+          done
+          ls "$app/PlugIns"
+          actual=$(/usr/libexec/PlistBuddy -c "Print :CFBundleVersion" "$app/Info.plist")
+          if [ "$actual" != "$BUILD" ]; then
+            echo "::error::CFBundleVersion is $actual, but the build number is $BUILD."
+            exit 1
+          fi
+          echo "CFBundleVersion is $actual."
+
+      - name: Archive with code signing
+        if: steps.mode.outputs.signed == 'true'
+        env:
+          BUILD: ${{ steps.version.outputs.build }}
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          ( umask 077; printf '%s' "$ASC_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/asc.p8" )
+          cd ios
+          xcodebuild archive \
+            -project OpenMausCompanion.xcodeproj \
+            -scheme OpenMausCompanion \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath "$RUNNER_TEMP/Seira.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/derived-data" \
+            -clonedSourcePackagesDirPath "$RUNNER_TEMP/spm-packages" \
+            CURRENT_PROJECT_VERSION="$BUILD" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" > "$RUNNER_TEMP/xcodebuild.log" 2>&1 \
+            || { grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild.log" | sed -E 's#^.*/ios/#ios/#' | sort -u | head -200; tail -40 "$RUNNER_TEMP/xcodebuild.log"; exit 1; }
+          tail -5 "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: Upload to App Store Connect
+        if: steps.mode.outputs.signed == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          set -o pipefail
+          cp ios/ExportOptions.plist "$RUNNER_TEMP/ExportOptions.plist"
+          /usr/libexec/PlistBuddy -c "Set :teamID $APPLE_TEAM_ID" "$RUNNER_TEMP/ExportOptions.plist"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/Seira.xcarchive" \
+            -exportOptionsPlist "$RUNNER_TEMP/ExportOptions.plist" \
+            -exportPath "$RUNNER_TEMP/export" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$RUNNER_TEMP/asc.p8" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" > "$RUNNER_TEMP/export.log" 2>&1 \
+            || { grep -E '(error|fatal error):' "$RUNNER_TEMP/export.log" | sort -u | head -100; tail -40 "$RUNNER_TEMP/export.log"; exit 1; }
+          tail -5 "$RUNNER_TEMP/export.log"
+
+      - name: Delete the API key file
+        if: always()
+        run: rm -f "$RUNNER_TEMP/asc.p8"
+
+      - name: Write the run summary
+        if: always()
+        env:
+          SIGNED: ${{ steps.mode.outputs.signed }}
+          REF: ${{ inputs.ref }}
+          MARKETING: ${{ steps.version.outputs.marketing }}
+          BUILD: ${{ steps.version.outputs.build }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$SIGNED" = "true" ] && [ "$JOB_STATUS" = "success" ]; then
+            mode="Uploaded to App Store Connect"
+          else
+            mode="NOT UPLOADED"
+          fi
+          {
+            echo "### iOS TestFlight"
+            echo
+            echo "| Item | Value |"
+            echo "|------|-------|"
+            echo "| Mode | $mode |"
+            echo "| Ref | \`$REF\` |"
+            echo "| Commit | \`$(git rev-parse HEAD 2>/dev/null || echo unknown)\` |"
+            echo "| Version | ${MARKETING:-unknown} |"
+            echo "| Build number | ${BUILD:-unknown} |"
+            echo "| Xcode | $(xcodebuild -version 2>/dev/null | tr '\n' ' ') |"
+          } >> "$GITHUB_STEP_SUMMARY"

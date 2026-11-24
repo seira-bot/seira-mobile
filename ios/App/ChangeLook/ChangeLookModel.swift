@@ -2,17 +2,16 @@ import CompanionCore
 import SwiftUI
 
 enum ChangeLookCategory: CaseIterable, Identifiable {
-    case characters, hair, colour, face, extras
+    case hair, face, extras, colour
 
     var id: Self { self }
 
     var title: LocalizedStringKey {
         switch self {
-        case .characters: return "Characters"
         case .hair: return "Hair"
-        case .colour: return "Colour"
         case .face: return "Face"
         case .extras: return "Extras"
+        case .colour: return "Colour"
         }
     }
 }
@@ -25,7 +24,7 @@ final class ChangeLookModel: ObservableObject {
     @Published var look: SeiraLook {
         didSet { if saveFailed { saveFailed = false } }
     }
-    @Published var category = ChangeLookCategory.characters
+    @Published var category = ChangeLookCategory.hair
     @Published private(set) var celebrating = false
     @Published var saving = false
     @Published var saveFailed = false
@@ -57,10 +56,6 @@ final class ChangeLookModel: ObservableObject {
               let members = try? SeiraCast.decode(data)
         else { return [] }
         return members.filter { $0.id == "seira" } + members.filter { $0.id != "seira" }
-    }
-
-    func pick(_ member: SeiraCastMember) {
-        look = member.look
     }
 
     func setHair(_ id: String) {

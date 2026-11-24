@@ -1423,6 +1423,17 @@ public struct CompanionClient: Sendable {
         ).bot
     }
 
+    /// Moves one bot between no computer and its own server. Exactly one of two
+    /// bodies, never a server address or any other field.
+    public func setWorksOn(botId: String, ownServer: Bool) async throws -> Bot {
+        guard Self.validRouteID(botId) else { throw APIError.badURL }
+        let body: [String: Any] = ownServer ? ["computer": "cloud", "cloudBackend": "vps"] : ["computer": "off"]
+        var request = try makeRequest("PATCH", "/api/bots/\(botId)", body: body)
+        // The server narrows a request that carries it to what a paired phone may change.
+        request.setValue("1", forHTTPHeaderField: "x-seira-companion")
+        return try await send(request, as: BotResponse.self).bot
+    }
+
     /// A captured thread uses the task route, which cannot change siblings or
     /// the profile default. Omitting it retains the legacy narrow model API.
     public func updateModel(botId: String, selection: ModelSelection, threadId: String? = nil) async throws -> Bot {
@@ -2025,17 +2036,6 @@ public struct CompanionClient: Sendable {
         // longer than the normal twenty-second chat API timeout.
         request.timeoutInterval = 115
         try await send(request)
-    }
-
-    /// Mint a fresh interactive viewer for an existing cloud computer. The
-    /// response URL is a bearer credential: the caller presents it directly
-    /// and never stores it. The sidecar additionally requires this paired
-    /// device's cloud-desktop capability to be enabled on the Mac.
-    public func cloudDesktop(botId: String) async throws -> CloudDesktopSession {
-        try await send(
-            try makeRequest("POST", "/api/bots/\(botId)/computer/join"),
-            as: CloudDesktopSession.self
-        )
     }
 
     /// A still of the bot's Local VM, whether or not it is working. The phone

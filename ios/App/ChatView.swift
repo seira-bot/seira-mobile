@@ -178,8 +178,16 @@ struct ChatView: View {
         /// out of the transcript and shown as one grey status line instead.
         let live: LiveNarration
         let hasPendingApproval: Bool
+        /// The newest turn failed and nothing has answered since.
+        let lastTurnFailed: Bool
         /// The failed turn that may offer "Switch model", by message id.
         let switchModelOfferId: String?
+        /// The newest cloud-computer notice, by message id.
+        let worksOnNoticeId: String?
+        /// The failed or stopped turn that may offer "Try again", by message id.
+        let retryOfferId: String?
+        /// The message "Try again" sends again.
+        let retryMessage: Message?
     }
 
     /// Reused while the thread, its messages, the bot's busy flag and the
@@ -202,7 +210,11 @@ struct ChatView: View {
             versions: session.state.userMessageVersions(inThread: threadId),
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
-            switchModelOfferId: switchModelOfferMessageId(in: messages)
+            lastTurnFailed: lastTurnFailed(in: messages),
+            switchModelOfferId: switchModelOfferMessageId(in: messages),
+            worksOnNoticeId: WorksOnChoice.noticeMessageId(in: messages),
+            retryOfferId: retryOfferMessageId(in: messages),
+            retryMessage: lastUserMessage(in: messages)
         )
         snapshotMemo.remember(snapshot, for: key, messages: messages, all: all)
         return snapshot
@@ -578,6 +590,15 @@ struct ChatView: View {
         let actions: TranscriptActions
     }
 
+    private func worksOnState(bot: Bot?, noticeId: String?) -> WorksOnState? {
+        guard let bot, let noticeId, session.canAdminister,
+              session.connection?.pairedWithServer == true else { return nil }
+        return WorksOnState(
+            noticeId: noticeId, botId: bot.id, computer: bot.computer,
+            cloudBackend: bot.cloudBackend, vpsAlias: bot.vpsAlias
+        )
+    }
+
     /// The chat-wide values the rows draw from, read once per render
     /// rather than once per row.
     private func rowContext(_ snapshot: TranscriptSnapshot) -> TranscriptRowContext {
@@ -585,16 +606,20 @@ struct ChatView: View {
         var bot: Bot?
         if case let .bot(value) = chat { bot = value }
         let connection = session.connection
+        let editPending = session.state.pendingEdits[chat.threadId] != nil
         return TranscriptRowContext(
             threadId: chat.threadId,
             name: chat.name,
             color: chat.color,
             botId: bot?.id,
             busy: bot?.busy == true,
-            editPending: session.state.pendingEdits[chat.threadId] != nil,
+            editPending: editPending,
             claudeInstanceId: bot?.currentTaskModelSelection.instanceId,
             modelSelection: bot?.currentTaskModelSelection,
             switchModelOfferId: bot != nil && session.canAdminister ? snapshot.switchModelOfferId : nil,
+            worksOn: worksOnState(bot: bot, noticeId: snapshot.worksOnNoticeId),
+            retryOfferId: bot != nil && bot?.busy != true && !editPending ? snapshot.retryOfferId : nil,
+            retryMessage: snapshot.retryMessage,
             credentials: CredentialAccess(
                 connectionId: connection?.id,
                 pairedForSecrets: connection.map { $0.secretPublicKey != nil && $0.companionDeviceId != nil } ?? false,
@@ -1613,7 +1638,7 @@ struct ChatView: View {
 
             composerNotices
 
-            composerSuggestions(text, pendingApproval: snapshot.hasPendingApproval)
+            composerSuggestions(text, pendingApproval: snapshot.hasPendingApproval, lastTurnFailed: snapshot.lastTurnFailed)
 
             if !attachments.isEmpty {
                 attachmentStrip
@@ -1695,7 +1720,7 @@ struct ChatView: View {
     /// The slash-command HUD while one is being typed, else the Settings
     /// chips while there is nothing to say yet.
     @ViewBuilder
-    private func composerSuggestions(_ text: Binding<String>, pendingApproval: Bool) -> some View {
+    private func composerSuggestions(_ text: Binding<String>, pendingApproval: Bool, lastTurnFailed: Bool) -> some View {
         if showCommandHUD {
             CommandSkillHUDView(
                 text: text,
@@ -1719,7 +1744,7 @@ struct ChatView: View {
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))
         } else if text.wrappedValue.isEmpty && attachments.isEmpty && !current.busy
-                    && !pendingApproval && !storedChips.isEmpty {
+                    && !pendingApproval && !lastTurnFailed && !storedChips.isEmpty {
             PredictiveActionChipsView(chips: storedChips, accentColor: SeiraPalette.color(current.color)) { chip in
                 submit(chip.prompt)
             }
@@ -2191,10 +2216,26 @@ struct MessageRow: View, Equatable {
     }
 
     @ViewBuilder
+    private var retryCard: some View {
+        let offersSwitch = context.switchModelOfferId == message.id && context.modelSelection != nil
+        let retryMessage = context.retryOfferId == message.id ? context.retryMessage : nil
+        if offersSwitch || retryMessage != nil {
+            SwitchModelCard(
+                selection: context.modelSelection,
+                offersSwitch: offersSwitch,
+                retry: retryMessage.map { target in { Task { await actions.retry(target) } } },
+                tint: SeiraPalette.color(context.color),
+                actions: actions
+            )
+        }
+    }
+
+    @ViewBuilder
     private func content(_ presentation: MessagePresentation) -> some View {
         switch message.kind {
         case .text:
             bubble(presentation)
+            if isStoppedTurn(message) { retryCard }
         case .options:
             // A structured ask draws its own card: its answers are the
             // model's questions, not an allow/deny a tap could stand for.
@@ -2219,8 +2260,9 @@ struct MessageRow: View, Equatable {
             if message.tool?.claudeUpdate == true, let instanceId = context.claudeInstanceId {
                 ClaudeUpdateCard(instanceId: instanceId, tint: SeiraPalette.color(context.color), actions: actions)
             }
-            if context.switchModelOfferId == message.id, let selection = context.modelSelection {
-                SwitchModelCard(selection: selection, tint: SeiraPalette.color(context.color), actions: actions)
+            retryCard
+            if let worksOn = context.worksOn, worksOn.noticeId == message.id {
+                WorksOnCard(state: worksOn, busy: context.busy || context.editPending, actions: actions)
             }
         case .compaction:
             ReceiptChip(icon: "square.3.layers.3d", label: message.compaction?.chipText ?? message.text ?? "") {
@@ -2411,7 +2453,7 @@ struct ActivityChip: View {
             let output = outputIsProse ? tool.expandableOutput : nil
             let receipt = SkillExecutionReceiptView(
                 skillName: tool.label,
-                status: tool.ok.map { $0 ? "success" : "error" } ?? "running",
+                status: tool.statusOk.map { $0 ? "success" : "error" } ?? "running",
                 output: output ?? "",
                 outputIsProse: outputIsProse
             )

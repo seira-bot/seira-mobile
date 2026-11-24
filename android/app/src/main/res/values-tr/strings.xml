@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Bir ajan birden fazla %1$s hesabı kullandığında, takma ad hesabı belirgin kılar.</string>
     <string name="mobile_answered_e0aafffa">Yanıtlandı</string>
     <string name="mobile_archived_eddc813f">Arşivlendi</string>
-    <string name="mobile_art_direction_52d878a2">Sanat yönetimi</string>
     <string name="mobile_back_b52b36b7">Geri</string>
     <string name="mobile_bot_settings_7092a294">Bot ayarları</string>
     <string name="mobile_bot_threads_ec81acf2">Bot konuları</string>
@@ -171,7 +170,6 @@
     <string name="mobile_one_time_6fea9e4d">Bir kez</string>
     <string name="mobile_open_cf9b7706">Aç</string>
     <string name="mobile_open_settings_134635e9">Ayarları aç</string>
-    <string name="mobile_open_desktop_cd6f8218">Masaüstünü aç</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">SKILL.md dosyasını incelemek için sohbeti açın</string>
     <string name="mobile_open_updates_2c80d633">Güncellemeleri aç</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -452,8 +450,6 @@
     <string name="mobile_overview_failed">Genel bakış yüklenemedi.</string>
     <string name="mobile_profile_connected_apps_footer">Araç izinleri bilgisayarınızdaki Seira\'da atanır. Bu telefon bunları salt okunur gösterir.</string>
     <string name="mobile_profile_preview_during_call">Canlı arama sırasında ses önizlemesi kapalıdır.</string>
-    <string name="mobile_computer_vnc_note">Etkileşimli VNC oturumu. Erişim, bilgisayarın Telefon ayarlarında bu telefon için etkinleştirilmiş olmalıdır.</string>
-    <string name="mobile_computer_confirm_message">Bu, bu telefona bulut bilgisayarın tam denetimini verir; içinde oturum açılmış her şey dahil.</string>
     <string name="mobile_live_call_disclosure">Canlı arama, sesinizi OpenAI\'a gönderir; sohbetin son mesajları, botun yanıtları ve istediği onayların ayrıntıları da gönderilir. OpenAI anahtarı bilgisayarınızda kalır.</string>
     <string name="mobile_discovery_access_off">Yerel ağ erişimi kapalı. Yakındaki cihazlar iznini etkinleştirin ya da aşağıya bir Tailscale adresi girin.</string>
     <string name="mobile_discovery_unavailable">Yerel keşif şu anda kullanılamıyor. Aşağıya Telefon ayarlarında gösterilen adresi girin.</string>
@@ -494,7 +490,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Cloud VM\'in kullanılabilirliği denetleniyor…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Bir PNG, JPEG, GIF veya WebP görseli seçin.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Bu botun modelini değiştirmek için kullanılabilir bir sağlayıcı seçin.</string>
-    <string name="mobile_circle_1cc7820a">Daire</string>
     <string name="mobile_cloud_vm_26ca291f">Cloud VM</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Cloud VM durumu kullanılamıyor</string>
     <string name="mobile_completed_1798b3ba">Tamamlandı</string>
@@ -513,14 +508,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Adımları açıkla</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio yapılandırılmadı</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Avatar oluştur</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Bilgisayarda oluştur</string>
     <string name="mobile_hide_diff_120df7c2">Diff\'i gizle</string>
     <string name="mobile_identity_7e5a975b">Kimlik</string>
     <string name="mobile_idle_cc1ebdd0">Boşta</string>
     <string name="mobile_loading_models_eeade2be">Modeller yükleniyor</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Yerel keşif kesintiye uğradı. Yeniden deneniyor…</string>
-    <string name="mobile_mascot_e0489488">Maskot</string>
     <string name="mobile_more_4bab2d8f">Daha fazla</string>
     <string name="mobile_needs_you_0d9d0df1">Sizi bekliyor</string>
     <string name="mobile_new_task_17b2b838">Yeni görev</string>
@@ -530,8 +522,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Sizi bekleyen bir şey yok</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Henüz zamanlanmış ya da öğrenilmiş bir şey yok.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Henüz gösterilecek bir şey yok</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Canlı bulut masaüstünü aç</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Canlı bulut masaüstü açılsın mı?</string>
     <string name="mobile_open_task_a1f1752a">Görevi aç</string>
     <string name="mobile_open_thread">Konuyu aç</string>
     <string name="mobile_opening_b1b8530b">Açılıyor…</string>
@@ -544,7 +534,6 @@
     <string name="mobile_preview_voice_560a6fec">Sesi önizle</string>
     <string name="mobile_primary_account_32f2184e">Birincil hesap</string>
     <string name="mobile_recent_changes_1bfd2320">Son değişiklikler</string>
-    <string name="mobile_rounded_c5aa340f">Yuvarlak köşeli</string>
     <string name="mobile_routines_a445e5ad">Rutinler</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Tüm otomatik testleri çalıştır</string>
     <string name="mobile_run_receipts_9115568f">Çalıştırma makbuzları</string>
@@ -554,7 +543,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Yinelenen veya tek seferlik ajan işi zamanlayın.</string>
     <string name="mobile_sending_cf765512">Gönderiliyor…</string>
     <string name="mobile_show_diff_78016e77">Diff\'i göster</string>
-    <string name="mobile_square_82810cb9">Kare</string>
     <string name="mobile_start_dictation_ee00527b">Dikteyi başlat</string>
     <string name="mobile_stop_dictation_96ad53f1">Dikteyi durdur</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Modelini değiştirmeden önce bu botu durdurun.</string>
@@ -565,8 +553,6 @@
     <string name="mobile_this_computer_4ccce6f4">Bu bilgisayar</string>
     <string name="mobile_to_review_066f77ce">İncelenecek</string>
     <string name="mobile_unknown_bc7819b3">Bilinmiyor</string>
-    <string name="mobile_upload_image_f35dec5f">Görsel yükle</string>
-    <string name="mobile_use_mascot_0de90a12">Maskotu kullan</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Eşlenen bilgisayarda bu ajanın seçili modelini ve bilgisayar ayarını kullanır.</string>
     <string name="mobile_view_diff_39f85d34">Diff\'i görüntüle</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Bir kare bekleniyor…</string>
@@ -583,9 +569,6 @@
     <string name="mobile_model_busy_note">Modelini değiştirmeden önce bu botu durdurun.</string>
     <string name="mobile_model_unavailable_note">Bu botun modelini değiştirmek için kullanılabilir bir sağlayıcı seçin.</string>
     <string name="mobile_model_unavailable">Kullanılamıyor</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF veya WebP, en fazla 10 MB. Görseller eşlenen bilgisayarınızda saklanır ve bu telefonun eşleme anahtarıyla yüklenir.</string>
-    <string name="mobile_profile_generate_ready">Oluşturma, bilgisayarınızda yapılandırılmış ortak görsel sağlayıcısını kullanır. Bu telefona hiçbir sağlayıcı anahtarı gönderilmez veya kaydedilmez.</string>
-    <string name="mobile_profile_generate_blocked">Görsel oluşturmak için bilgisayarınızdaki Seira\'da ortak görsel sağlayıcısını yapılandırın. Sağlayıcı anahtarları telefondan eklenemez.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs yapılandırılmadı</string>
     <string name="mobile_profile_builtin_voices_unavailable">Bilgisayarınızın yerleşik sesleri kullanılamıyor</string>
     <string name="mobile_profile_voice_unconfigured_footer">Ortak ElevenLabs anahtarını bilgisayarda bu ajanın profiline ekleyin. Anahtar bu telefona asla gönderilmez.</string>
@@ -644,7 +627,6 @@
     <string name="mobile_chat_thread_update_failed">Bu konu güncellenemedi. Tekrar deneyin.</string>
     <string name="mobile_chat_typing">%1$s yazıyor</string>
     <string name="mobile_chat_attachment_unsupported">%1$s desteklenen bir ek değil. Bir görsel, PDF, metin, Word, Excel veya PowerPoint dosyası deneyin.</string>
-    <string name="mobile_cloud_desktop_open_failed">Bulut masaüstü açılamadı.</string>
     <string name="mobile_connected_apps_no_browser">Bu telefonda yetkilendirme sayfasını açacak bir tarayıcı yok.</string>
     <string name="mobile_connected_apps_auth_page_failed">Yetkilendirme sayfası açılamadı. Tarayıcı kısıtlamalarınızı kontrol edip tekrar deneyin.</string>
     <string name="mobile_file_open_other_computer">Diğer bilgisayardaki dosyalara giden bağlantıları özgün mesajdan açın.</string>
@@ -832,7 +814,6 @@
     <string name="change_look_title">Görünümü değiştir</string>
     <string name="change_look_close">Kapat</string>
     <string name="change_look_preview">Görünüm önizlemesi</string>
-    <string name="change_look_cat_characters">Karakterler</string>
     <string name="change_look_cat_hair">Saç</string>
     <string name="change_look_cat_colour">Renk</string>
     <string name="change_look_cat_face">Yüz</string>
@@ -897,4 +878,16 @@
     <string name="change_look_no_changes">Henüz değişiklik yok</string>
     <string name="change_look_offline">Kaydetmek için bilgisayarınıza bağlanın.</string>
     <string name="change_look_failed">Kaydedilemedi. Tekrar deneyin.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Oluştur</string>
+    <string name="avatar_tab_upload">Yükle</string>
+    <string name="avatar_generate_prompt">Resmi tarif edin</string>
+    <string name="avatar_generate_action">Resim oluştur</string>
+    <string name="avatar_generate_setup">Kullanmak için bilgisayarınızdaki Seira’da görsel oluşturmayı ayarlayın.</string>
+    <string name="avatar_generate_failed">Resim oluşturulamadı. Tekrar deneyin.</string>
+    <string name="avatar_picture_failed">Resim değiştirilemedi. Tekrar deneyin.</string>
+    <string name="avatar_upload_choose">Resim seç</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF veya WebP, en fazla 10 MB.</string>
+    <string name="avatar_upload_use">Bu resmi kullan</string>
+    <string name="avatar_upload_remove">Resmi kaldır</string>
 </resources>

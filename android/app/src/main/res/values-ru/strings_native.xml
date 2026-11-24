@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Не удалось одобрить. Откройте чат, чтобы посмотреть.</string>
     <string name="notification_approve_settled">Уже отвечено. Откройте чат, чтобы посмотреть.</string>
     <string name="notification_reply_failed">Не удалось отправить. Откройте чат и повторите попытку.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Показывает, что делают ваши боты, пока они работают или ждут вас.</string>
+    <string name="glance_working">Работает</string>
+    <string name="glance_needs_you">Нужен ваш ответ</string>
+    <string name="glance_question">Есть вопрос</string>
+    <string name="glance_failed">Не удалось</string>
+    <string name="glance_finished">Готово</string>
+    <string name="glance_open_chat">Открыть чат</string>
+    <string name="glance_deny">Отклонить</string>
+    <string name="glance_allow_once">Разрешить один раз</string>
+    <string name="glance_could_not_send">Не удалось отправить. Откройте чат, чтобы ответить.</string>
     <string name="tile_talk_label">Говорить</string>
     <string name="shortcut_talk_short">Говорить</string>
     <string name="shortcut_talk_long">Поговорить с руководителем аппарата</string>

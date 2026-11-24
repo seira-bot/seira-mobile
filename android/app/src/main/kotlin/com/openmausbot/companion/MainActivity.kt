@@ -1,6 +1,7 @@
 package com.openmausbot.companion
 
 import android.Manifest
+import android.animation.ValueAnimator
 import android.app.UiModeManager
 import android.graphics.Color
 import android.content.Intent
@@ -9,20 +10,28 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.LocaleList
+import android.os.SystemClock
 import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.openmausbot.companion.core.Session
+import com.openmausbot.companion.ui.launch.LaunchVisor
+import com.openmausbot.companion.ui.launch.LaunchVisorState
+import com.openmausbot.companion.ui.launch.LaunchVisorTimeline
 import com.openmausbot.companion.ui.theme.NightModeApplier
 import com.openmausbot.companion.ui.theme.resolvesDark
 import kotlinx.coroutines.launch
@@ -33,7 +42,6 @@ import com.openmausbot.companion.notifications.notificationTarget
 import com.openmausbot.companion.tile.TalkIntents
 import com.openmausbot.companion.tile.TalkRequestHandler
 import com.openmausbot.companion.ui.LiveCallUi
-import com.openmausbot.companion.browser.CloudDesktopBrowser
 import com.openmausbot.companion.sharing.TranscriptSharing
 import android.os.PowerManager
 import com.openmausbot.companion.ui.CameraPermissionController
@@ -117,9 +125,37 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
+        val visor = if (savedInstanceState == null) {
+            LaunchVisorState(
+                fast = !(intent.action == Intent.ACTION_MAIN && intent.hasCategory(Intent.CATEGORY_LAUNCHER)),
+                reduceMotion = !ValueAnimator.areAnimatorsEnabled(),
+                brandingFromSplash = Build.VERSION.SDK_INT >= 31,
+            )
+        } else {
+            null
+        }
+        if (visor != null) {
+            splash.setOnExitAnimationListener { provider ->
+                val offset = if (Build.VERSION.SDK_INT >= 31) {
+                    LaunchVisorTimeline.splashElapsedMs(
+                        startMs = provider.iconAnimationStartMillis,
+                        wallNowMs = System.currentTimeMillis(),
+                        uptimeNowMs = SystemClock.uptimeMillis(),
+                    )
+                } else {
+                    500L
+                }
+                visor.start(offset)
+                // The overlay under the splash already draws the same frame. A fade
+                // here stalls half-way while the first screen composes, and shows dim
+                // eyes for several frames.
+                provider.remove()
+            }
+        }
 
         notificationNavigation = PendingThreadNavigation(
             savedInstanceState?.getString(STATE_CONSUMED_NOTIFICATION),
@@ -196,7 +232,6 @@ class MainActivity : ComponentActivity() {
         chatDrafts = ChatDraftHolder()
 
         val sharing = TranscriptSharing(this)
-        val browser = CloudDesktopBrowser(this)
 
         val chatPreferences = app.chatPreferences
         val nightMode = NightModeApplier.forSystem(getSystemService(UiModeManager::class.java))
@@ -233,7 +268,6 @@ class MainActivity : ComponentActivity() {
             requestPermissions = { permissions -> permissionRequests.request(permissions) },
             openAppSettings = ::openAppSettings,
             shareTranscript = sharing::share,
-            openCloudDesktop = browser::open,
             shareInbox = app.shareInbox,
             alwaysOnEnabled = app.alwaysOn.enabled,
             onToggleAlwaysOn = ::toggleAlwaysOn,
@@ -246,16 +280,31 @@ class MainActivity : ComponentActivity() {
             val pendingTarget by notificationNavigation.pending.collectAsState()
             val themeMode by chatPreferences.themeMode.collectAsState()
             val dark = themeMode.resolvesDark()
-            DisposableEffect(dark) {
-                val style = SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark }
+            val restoreState by app.session.restoreState.collectAsState()
+            val visorShown = visor != null && !visor.finished && !visor.barsOverContent
+            DisposableEffect(dark, visorShown) {
+                val style = if (visorShown) {
+                    SystemBarStyle.dark(Color.TRANSPARENT)
+                } else {
+                    SystemBarStyle.auto(Color.TRANSPARENT, Color.TRANSPARENT) { dark }
+                }
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose {}
             }
             CompositionLocalProvider(LocalCompanion provides environment) {
-                CompanionRoot(
-                    pendingNotification = pendingTarget,
-                    onPendingTargetConsumed = notificationNavigation::consume,
-                )
+                Box(Modifier.fillMaxSize()) {
+                    CompanionRoot(
+                        pendingNotification = pendingTarget,
+                        onPendingTargetConsumed = notificationNavigation::consume,
+                    )
+                    if (visor != null && !visor.finished) {
+                        LaunchVisor(
+                            state = visor,
+                            ready = restoreState !is Session.RestoreState.Pending,
+                            onFinished = visor::finish,
+                        )
+                    }
+                }
             }
         }
     }

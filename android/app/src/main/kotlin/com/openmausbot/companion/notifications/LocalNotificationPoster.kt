@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.LocusIdCompat
 import com.openmausbot.companion.R
 import com.openmausbot.companion.avatar.AvatarImageStore
+import com.openmausbot.companion.core.CloudComputerNotice
 import com.openmausbot.companion.core.NotificationFrame
 import com.openmausbot.companion.core.NotificationSink
 import com.openmausbot.companion.core.PushAlert
@@ -120,7 +121,7 @@ class LocalNotificationPoster(
         // The shade is SystemUI's window, so the app's reading-direction policy
         // has to travel inside the string. See NotificationText.
         val title = NotificationText.anchored(notification.title)
-        val body = NotificationText.anchored(notification.body)
+        val body = NotificationText.anchored(CloudComputerNotice.words(notification.body))
         return NotificationCompat.Builder(appContext, channelId)
             // The app's own mark, monochrome as the status bar requires.
             .setSmallIcon(R.drawable.ic_seira_mark)
@@ -197,7 +198,7 @@ class LocalNotificationPoster(
         if (shortcutId != null && computerId != null) bound.shortcuts.push(computerId, identity, avatar)
 
         val style = NotificationCompat.MessagingStyle(userPerson())
-            .addMessage(NotificationText.anchored(notification.body), System.currentTimeMillis(), person)
+            .addMessage(NotificationText.anchored(CloudComputerNotice.words(notification.body)), System.currentTimeMillis(), person)
         val builder = baseBuilder(notification)
             .setStyle(style)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)

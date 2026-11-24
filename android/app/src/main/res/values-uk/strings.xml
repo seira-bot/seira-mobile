@@ -46,7 +46,6 @@
     <string name="mobile_an_alias_makes_the_account_explici_725873b3">Псевдонім робить обліковий запис однозначним, коли агент використовує кілька облікових записів %1$s.</string>
     <string name="mobile_answered_e0aafffa">З відповіддю</string>
     <string name="mobile_archived_eddc813f">В архіві</string>
-    <string name="mobile_art_direction_52d878a2">Художній напрям</string>
     <string name="mobile_back_b52b36b7">Назад</string>
     <string name="mobile_bot_settings_7092a294">Налаштування бота</string>
     <string name="mobile_bot_threads_ec81acf2">Гілки бота</string>
@@ -173,7 +172,6 @@
     <string name="mobile_one_time_6fea9e4d">Одноразово</string>
     <string name="mobile_open_cf9b7706">Відкрити</string>
     <string name="mobile_open_settings_134635e9">Відкрити налаштування</string>
-    <string name="mobile_open_desktop_cd6f8218">Відкрити на комп’ютері</string>
     <string name="mobile_open_the_chat_to_review_skill_md_6225775b">Відкрийте чат, щоб переглянути SKILL.md</string>
     <string name="mobile_open_updates_2c80d633">Відкрити оновлення</string>
     <string name="mobile_openmausbot_befe710d">Seira</string>
@@ -460,8 +458,6 @@
     <string name="mobile_overview_failed">Не вдалося завантажити огляд.</string>
     <string name="mobile_profile_connected_apps_footer">Дозволи на інструменти призначаються в Seira на вашому комп’ютері. Цей телефон показує їх лише для перегляду.</string>
     <string name="mobile_profile_preview_during_call">Прослуховування голосу вимкнено під час живого дзвінка.</string>
-    <string name="mobile_computer_vnc_note">Інтерактивний сеанс VNC. Доступ потрібно ввімкнути для цього телефона в налаштуваннях телефона на комп’ютері.</string>
-    <string name="mobile_computer_confirm_message">Це дає цьому телефону повний контроль над хмарним комп’ютером, зокрема над усім, що відкрито в ньому під вашим обліковим записом.</string>
     <string name="mobile_live_call_disclosure">Живий дзвінок надсилає ваш голос в OpenAI разом з останніми повідомленнями чату, відповідями бота та подробицями будь-якого підтвердження, яке він запитує. Ключ OpenAI залишається на вашому комп’ютері.</string>
     <string name="mobile_discovery_access_off">Доступ до локальної мережі вимкнено. Дозвольте доступ до пристроїв поблизу або введіть адресу Tailscale нижче.</string>
     <string name="mobile_discovery_unavailable">Локальний пошук зараз недоступний. Введіть нижче адресу з налаштувань телефона.</string>
@@ -502,7 +498,6 @@
     <string name="mobile_checking_cloud_vm_availability_b07ff23f">Перевірка доступності хмарної віртуальної машини…</string>
     <string name="mobile_choose_a_png_jpeg_gif_or_webp_image_1f68957d">Виберіть зображення PNG, JPEG, GIF або WebP.</string>
     <string name="mobile_choose_an_available_provider_to_change_t_a1efc697">Виберіть доступного постачальника, щоб змінити модель цього бота.</string>
-    <string name="mobile_circle_1cc7820a">Коло</string>
     <string name="mobile_cloud_vm_26ca291f">Хмарна віртуальна машина</string>
     <string name="mobile_cloud_vm_status_is_unavailable_32c78491">Стан хмарної віртуальної машини недоступний</string>
     <string name="mobile_completed_1798b3ba">Завершено</string>
@@ -521,14 +516,11 @@
     <string name="mobile_explain_steps_b60a9fb6">Пояснити кроки</string>
     <string name="mobile_fish_audio_d3c00ff4">Fish Audio</string>
     <string name="mobile_fish_audio_is_not_configured_4aa1ef09">Fish Audio не налаштовано</string>
-    <string name="mobile_generate_an_avatar_01e5cee4">Створити аватар</string>
-    <string name="mobile_generate_on_computer_ff5b7448">Створити на комп’ютері</string>
     <string name="mobile_hide_diff_120df7c2">Сховати Diff</string>
     <string name="mobile_identity_7e5a975b">Ідентичність</string>
     <string name="mobile_idle_cc1ebdd0">Простоює</string>
     <string name="mobile_loading_models_eeade2be">Завантаження моделей</string>
     <string name="mobile_local_discovery_was_interrupted_retrying_4f231b2f">Локальний пошук перервано. Повторна спроба…</string>
-    <string name="mobile_mascot_e0489488">Талісман</string>
     <string name="mobile_more_4bab2d8f">Ще</string>
     <string name="mobile_needs_you_0d9d0df1">Потрібні ви</string>
     <string name="mobile_new_task_17b2b838">Нове завдання</string>
@@ -538,8 +530,6 @@
     <string name="mobile_nothing_needs_you_c7649c9b">Ніщо не потребує вас</string>
     <string name="mobile_nothing_scheduled_or_learned_yet_a497b19f">Поки нічого не заплановано й не засвоєно.</string>
     <string name="mobile_nothing_to_show_yet_95f8d609">Поки нічого показувати</string>
-    <string name="mobile_open_live_cloud_desktop_88662ef7">Відкрити живий хмарний робочий стіл</string>
-    <string name="mobile_open_live_cloud_desktop_f2746abf">Відкрити живий хмарний робочий стіл?</string>
     <string name="mobile_open_task_a1f1752a">Відкрити завдання</string>
     <string name="mobile_open_thread">Відкрити гілку</string>
     <string name="mobile_opening_b1b8530b">Відкриття…</string>
@@ -552,7 +542,6 @@
     <string name="mobile_preview_voice_560a6fec">Прослухати голос</string>
     <string name="mobile_primary_account_32f2184e">Основний обліковий запис</string>
     <string name="mobile_recent_changes_1bfd2320">Останні зміни</string>
-    <string name="mobile_rounded_c5aa340f">Округлий</string>
     <string name="mobile_routines_a445e5ad">Рутини</string>
     <string name="mobile_run_all_automated_tests_4032d93f">Запустити всі автоматичні тести</string>
     <string name="mobile_run_receipts_9115568f">Підтвердження запусків</string>
@@ -562,7 +551,6 @@
     <string name="mobile_schedule_recurring_or_one_time_agent_wor_3c7526bf">Плануйте регулярну або одноразову роботу агента.</string>
     <string name="mobile_sending_cf765512">Надсилання…</string>
     <string name="mobile_show_diff_78016e77">Показати diff</string>
-    <string name="mobile_square_82810cb9">Квадратний</string>
     <string name="mobile_start_dictation_ee00527b">Почати диктування</string>
     <string name="mobile_stop_dictation_96ad53f1">Зупинити диктування</string>
     <string name="mobile_stop_this_bot_before_changing_its_model_df92a917">Зупиніть цього бота, перш ніж змінювати його модель.</string>
@@ -573,8 +561,6 @@
     <string name="mobile_this_computer_4ccce6f4">Цей комп’ютер</string>
     <string name="mobile_to_review_066f77ce">На перегляд</string>
     <string name="mobile_unknown_bc7819b3">Невідомо</string>
-    <string name="mobile_upload_image_f35dec5f">Завантажити зображення</string>
-    <string name="mobile_use_mascot_0de90a12">Використати талісман</string>
     <string name="mobile_uses_this_agent_s_selected_model_and_com_a3de7cdb">Використовує вибрану модель цього агента та налаштування комп’ютера на під’єднаному комп’ютері.</string>
     <string name="mobile_view_diff_39f85d34">Переглянути diff</string>
     <string name="mobile_waiting_for_a_frame_a772baa4">Очікування кадру…</string>
@@ -591,9 +577,6 @@
     <string name="mobile_model_busy_note">Зупиніть цього бота, перш ніж змінювати його модель.</string>
     <string name="mobile_model_unavailable_note">Виберіть доступного постачальника, щоб змінити модель цього бота.</string>
     <string name="mobile_model_unavailable">Недоступно</string>
-    <string name="mobile_profile_avatar_footer">PNG, JPEG, GIF або WebP, до 10 МБ. Зображення зберігаються на під’єднаному комп’ютері й завантажуються за допомогою ключа підключення цього телефона.</string>
-    <string name="mobile_profile_generate_ready">Створення використовує спільного постачальника зображень, налаштованого на вашому комп’ютері. Ключ постачальника не надсилається на цей телефон і не зберігається на ньому.</string>
-    <string name="mobile_profile_generate_blocked">Щоб створювати зображення, налаштуйте спільного постачальника зображень у Seira на комп’ютері. Ключі постачальників не можна додати з телефона.</string>
     <string name="mobile_profile_elevenlabs_unconfigured">ElevenLabs не налаштовано</string>
     <string name="mobile_profile_builtin_voices_unavailable">Вбудовані голоси вашого комп’ютера недоступні</string>
     <string name="mobile_profile_voice_unconfigured_footer">Додайте спільний ключ ElevenLabs у профілі цього агента на комп’ютері. Ключ ніколи не передається на цей телефон.</string>
@@ -658,7 +641,6 @@
     <string name="mobile_chat_thread_update_failed">Не вдалося оновити цю гілку. Спробуйте знову.</string>
     <string name="mobile_chat_typing">%1$s друкує</string>
     <string name="mobile_chat_attachment_unsupported">«%1$s» не підтримується як вкладення. Спробуйте зображення, PDF, текстовий файл, Word, Excel або PowerPoint.</string>
-    <string name="mobile_cloud_desktop_open_failed">Не вдалося відкрити хмарний робочий стіл.</string>
     <string name="mobile_connected_apps_no_browser">На цьому телефоні немає браузера, щоб відкрити сторінку авторизації.</string>
     <string name="mobile_connected_apps_auth_page_failed">Не вдалося відкрити сторінку авторизації. Перевірте обмеження браузера й спробуйте знову.</string>
     <string name="mobile_file_open_other_computer">Відкривайте посилання на файли з іншого комп’ютера з початкового повідомлення.</string>
@@ -862,7 +844,6 @@
     <string name="change_look_title">Змінити вигляд</string>
     <string name="change_look_close">Закрити</string>
     <string name="change_look_preview">Попередній перегляд вигляду</string>
-    <string name="change_look_cat_characters">Персонажі</string>
     <string name="change_look_cat_hair">Волосся</string>
     <string name="change_look_cat_colour">Колір</string>
     <string name="change_look_cat_face">Обличчя</string>
@@ -929,4 +910,16 @@
     <string name="change_look_no_changes">Змін поки немає</string>
     <string name="change_look_offline">Підключіться до комп’ютера, щоб зберегти.</string>
     <string name="change_look_failed">Не вдалося зберегти. Спробуйте знову.</string>
+    <string name="avatar_tab_seira">Seira</string>
+    <string name="avatar_tab_generate">Створити</string>
+    <string name="avatar_tab_upload">Завантажити</string>
+    <string name="avatar_generate_prompt">Опишіть зображення</string>
+    <string name="avatar_generate_action">Створити зображення</string>
+    <string name="avatar_generate_setup">Щоб користуватися цим, налаштуйте створення зображень у Seira на комп’ютері.</string>
+    <string name="avatar_generate_failed">Не вдалося створити зображення. Спробуйте знову.</string>
+    <string name="avatar_picture_failed">Не вдалося змінити зображення. Спробуйте знову.</string>
+    <string name="avatar_upload_choose">Вибрати зображення</string>
+    <string name="avatar_upload_hint">PNG, JPEG, GIF або WebP, до 10 МБ.</string>
+    <string name="avatar_upload_use">Використати це зображення</string>
+    <string name="avatar_upload_remove">Видалити зображення</string>
 </resources>

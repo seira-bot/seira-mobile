@@ -117,7 +117,9 @@ import com.openmausbot.companion.core.OptionCard
 import com.openmausbot.companion.core.ThreadRef
 import com.openmausbot.companion.core.ToolActivity
 import com.openmausbot.companion.core.forTask
+import com.openmausbot.companion.core.isStoppedTurn
 import com.openmausbot.companion.core.label
+import com.openmausbot.companion.core.statusOk
 import com.openmausbot.companion.core.routineExecutionRef
 import com.openmausbot.companion.core.TranscriptCard
 import com.openmausbot.companion.core.TranscriptCards
@@ -464,7 +466,10 @@ private fun MessageContent(
     runRef: ThreadRef?,
 ) {
     when (message.kind) {
-        Message.Kind.TEXT -> TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+        Message.Kind.TEXT -> {
+            TextBubble(chat, message, startsRun, replyBot, openLink, openAttachment)
+            if (isStoppedTurn(message)) FailedTurnActionRow(chat, message)
+        }
         // A structured ask draws its own card: its answers are the model's
         // questions, not an allow/deny a tap could stand for.
         Message.Kind.OPTIONS -> if (QuestionCardRules.drawsQuestionCard(message)) {
@@ -483,6 +488,7 @@ private fun MessageContent(
                 ClaudeUpdateCard(messageId = message.id, instanceId = claudeInstance)
             }
             FailedTurnActionRow(chat, message)
+            WorksOnActions(chat, message)
         }
         Message.Kind.COMPACTION -> ReceiptChip(
             label = message.compaction?.chipText ?: message.text.orEmpty(),
@@ -1158,7 +1164,7 @@ private fun ActivityChip(
     teammateReport: Boolean = false,
 ) {
     if (tool == null) return
-    val status = ActivityReceipt.status(tool.ok)
+    val status = ActivityReceipt.status(tool.statusOk)
     val tint = when (status) {
         ActivityStatus.RUNNING -> MaterialTheme.colorScheme.tertiary
         ActivityStatus.SUCCESS -> secondaryTint

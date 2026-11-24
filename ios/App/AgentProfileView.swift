@@ -1,5 +1,4 @@
 import CompanionCore
-import PhotosUI
 import SwiftUI
 
 /// The paired-safe subset of bot settings. Shared provider keys remain on the
@@ -14,11 +13,8 @@ struct AgentProfileView: View {
     @State private var title: String
     @State private var description: String
     @State private var notifications: Bool
-    @State private var crop: AvatarCrop
     @State private var voice: String
     @State private var speakReplies: Bool
-    @State private var photo: PhotosPickerItem?
-    @State private var prompt = ""
     @State private var voices: [Voice] = []
     @State private var config: ConfigStatus?
     @State private var engine: VoiceProvider = .elevenlabs
@@ -47,7 +43,6 @@ struct AgentProfileView: View {
         _title = State(initialValue: bot.title)
         _description = State(initialValue: bot.description)
         _notifications = State(initialValue: bot.notifications)
-        _crop = State(initialValue: bot.avatarCrop ?? .mascot)
         _voice = State(initialValue: bot.voice ?? "")
         _speakReplies = State(initialValue: bot.speakReplies == true)
         _selectedInstanceID = State(initialValue: bot.currentTaskModelSelection.instanceId)
@@ -58,7 +53,6 @@ struct AgentProfileView: View {
     }
 
     private var current: Bot { session.state.bot(bot.id)?.projected(forThread: bot.threadId) ?? bot }
-    private var imageGenerationReady: Bool { config?.imageGen?.configured == true }
     private var voiceConfigured: Bool { config?.isTTSConfigured == true }
     private var hasWorkspaceDefaultVoice: Bool { config?.hasWorkspaceDefaultVoice == true }
     private var selectedVoiceCanSpeak: Bool { config?.canSpeak(agentVoice: voice) == true }
@@ -122,15 +116,12 @@ struct AgentProfileView: View {
     var body: some View {
         NavigationStack {
             Form {
-                // Changing the model and generating avatars need the admin scope
-                // on a server; a chat-only phone is not shown either.
+                // Changing the model needs the admin scope on a server; a
+                // chat-only phone is not shown either.
                 if session.canAdminister {
                     modelSection
                 }
                 avatarSection
-                if session.canAdminister {
-                    generateSection
-                }
                 identitySection
                 voiceSection
                 Section {
@@ -146,10 +137,6 @@ struct AgentProfileView: View {
             .overlay { if busy { ProgressView().controlSize(.large) } }
             .task { await loadProfile() }
             .task { await loadUsage() }
-            .onValueChange(of: photo) { item in
-                guard let item else { return }
-                Task { await upload(item) }
-            }
             .onValueChange(of: engine) { selected in
                 Task { await switchEngine(to: selected) }
             }
@@ -240,54 +227,17 @@ struct AgentProfileView: View {
 
     private var avatarSection: some View {
         Section {
-            HStack {
-                Spacer()
-                BotAvatarView(bot: current, size: 112, state: .happy)
-                Spacer()
-            }
-            .listRowBackground(Color.clear)
-
-            Button("Change look", systemImage: "sparkles") { showingChangeLook = true }
-
-            Picker("Shape", selection: $crop) {
-                ForEach(AvatarCrop.allCases, id: \.self) { shape in
-                    Text(shape.label).tag(shape)
+            Button { showingChangeLook = true } label: {
+                HStack(spacing: 14) {
+                    BotAvatarView(bot: current, size: 44, state: .idle)
+                    Text("Avatar")
+                        .foregroundStyle(Color.primary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.tertiary)
                 }
             }
-            .pickerStyle(.segmented)
-
-            PhotosPicker(selection: $photo, matching: .images) {
-                Label("Upload image", systemImage: "photo.badge.plus")
-            }
-            .disabled(busy)
-
-            if current.avatarUrl != nil {
-                Button("Use mascot", systemImage: "trash", role: .destructive) {
-                    Task { await clearImage() }
-                }
-                .disabled(busy)
-            }
-        } header: {
-            Text("Avatar")
-        } footer: {
-            Text("PNG, JPEG, GIF, or WebP, up to 10 MB. Images are stored on your paired computer and loaded with this device's pairing token.")
-        }
-    }
-
-    private var generateSection: some View {
-        Section {
-            TextField("Art direction", text: $prompt, axis: .vertical)
-                .lineLimit(2...5)
-            Button("Generate on computer", systemImage: "sparkles") {
-                Task { await generateImage() }
-            }
-            .disabled(busy || !imageGenerationReady || prompt.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
-        } header: {
-            Text("Generate an avatar")
-        } footer: {
-            Text(imageGenerationReady
-                 ? "Generation uses the shared image provider configured on your computer. No provider key is sent to or stored on this device."
-                 : "To generate images, configure the shared image provider in Seira on your computer. Provider keys cannot be added from this device.")
         }
     }
 
@@ -523,7 +473,6 @@ struct AgentProfileView: View {
             description: description == baseline.description
                 ? nil : description.trimmingCharacters(in: .whitespacesAndNewlines),
             notifications: notifications == baseline.notifications ? nil : notifications,
-            avatarCrop: crop == baseline.crop ? nil : crop,
             // Empty is the server's explicit "use workspace default" value;
             // nil would mean the voice field is not part of this patch.
             voice: voice == baseline.voice ? nil : voice,
@@ -603,82 +552,6 @@ struct AgentProfileView: View {
         }
     }
 
-    private func clearImage() async {
-        busy = true
-        defer { busy = false }
-        if let updated = await session.updateProfile(
-            BotProfilePatch(avatarUrl: .clear, avatarCrop: .mascot),
-            for: current
-        ) {
-            crop = updated.avatarCrop ?? .mascot
-            baseline.crop = crop
-        }
-    }
-
-    private func upload(_ item: PhotosPickerItem) async {
-        busy = true
-        defer { busy = false; photo = nil }
-        guard let data = try? await item.loadTransferable(type: Data.self),
-              let mime = Self.imageMIME(data)
-        else {
-            session.actionError = "Choose a PNG, JPEG, GIF, or WebP image."
-            return
-        }
-        if data.count > 10 * 1_024 * 1_024 {
-            session.actionError = "That image is larger than 10 MB."
-            return
-        }
-        let intendedCrop = crop == .mascot ? AvatarCrop.circle : crop
-        if let updated = await session.uploadAvatar(data, mime: mime, for: current, crop: intendedCrop) {
-            crop = updated.avatarCrop ?? intendedCrop
-            baseline.crop = crop
-        }
-    }
-
-    private func generateImage() async {
-        busy = true
-        defer { busy = false }
-        // What the selector said when the request went out. The desktop
-        // compares the same way (`latestCrop === cropAtStart` in
-        // `src/components/BotProfileAvatarCard.tsx`) so a selector moved
-        // mid-flight still wins over the server's pick.
-        let cropAtStart = crop
-        guard let generated = await session.generateAvatar(
-            prompt: String(prompt.trimmingCharacters(in: .whitespacesAndNewlines).prefix(400)),
-            for: current
-        ) else { return }
-
-        // `AvatarCrop.afterGenerating` is the shared decision: the server's
-        // pick unless the selector moved while the request was in flight, in
-        // which case that newer explicit choice wins.
-        let resolved = AvatarCrop.afterGenerating(
-            cropAtStart: cropAtStart,
-            latestCrop: crop,
-            serverCrop: generated.avatarCrop
-        )
-
-        guard crop != cropAtStart else {
-            crop = resolved
-            baseline.crop = crop
-            return
-        }
-
-        // The user moved the selector while the image was generating: an
-        // explicit choice made after the request, so persist it against the
-        // returned attachment rather than leaving UI and server out of sync.
-        if let updated = await session.updateProfile(BotProfilePatch(avatarCrop: resolved), for: generated) {
-            crop = updated.avatarCrop ?? resolved
-        } else {
-            // Generation itself succeeded. Reflect its authoritative result
-            // rather than claiming the requested crop was persisted. A `nil`
-            // crop here matches `afterGenerating`'s own fallback: `.circle`,
-            // not `.mascot`, which would throw away the picture just
-            // generated.
-            crop = generated.avatarCrop ?? .circle
-        }
-        baseline.crop = crop
-    }
-
     private func previewVoice() async {
         guard selectedVoiceCanSpeak else {
             session.actionError = "Pick an agent voice or configure a workspace default on your computer first."
@@ -716,23 +589,11 @@ struct AgentProfileView: View {
         }
     }
 
-    private static func imageMIME(_ data: Data) -> String? {
-        let bytes = [UInt8](data.prefix(12))
-        if bytes.starts(with: [0x89, 0x50, 0x4e, 0x47]) { return "image/png" }
-        if bytes.starts(with: [0xff, 0xd8, 0xff]) { return "image/jpeg" }
-        if bytes.starts(with: Array("GIF8".utf8)) { return "image/gif" }
-        if bytes.count >= 12,
-           String(bytes: bytes[0..<4], encoding: .ascii) == "RIFF",
-           String(bytes: bytes[8..<12], encoding: .ascii) == "WEBP" { return "image/webp" }
-        return nil
-    }
-
     private func synchronizeForm(with bot: Bot) {
         name = bot.name
         title = bot.title
         description = bot.description
         notifications = bot.notifications
-        crop = bot.avatarCrop ?? .mascot
         voice = bot.voice ?? ""
         speakReplies = bot.speakReplies == true
         baseline = ProfileFormSnapshot(bot: bot)
@@ -749,7 +610,6 @@ private struct ProfileFormSnapshot {
     var title: String
     var description: String
     var notifications: Bool
-    var crop: AvatarCrop
     var voice: String
     var speakReplies: Bool
 
@@ -758,19 +618,7 @@ private struct ProfileFormSnapshot {
         title = bot.title
         description = bot.description
         notifications = bot.notifications
-        crop = bot.avatarCrop ?? .mascot
         voice = bot.voice ?? ""
         speakReplies = bot.speakReplies == true
-    }
-}
-
-private extension AvatarCrop {
-    var label: LocalizedStringKey {
-        switch self {
-        case .mascot: "Mascot"
-        case .circle: "Circle"
-        case .rounded: "Rounded"
-        case .square: "Square"
-        }
     }
 }

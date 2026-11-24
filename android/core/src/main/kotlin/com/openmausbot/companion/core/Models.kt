@@ -209,7 +209,15 @@ data class ToolActivity(
     val nameParams: JsonObject? = null,
     /** A failed turn whose reply came back; only a step it ran failed. */
     val partial: Boolean? = null,
+    /** A failed turn: the place it could not use. Older computers omit it. */
+    val place: FailedPlace? = null,
+    /** The turn ran; this row only says what it ran without. Not a failure. */
+    val notice: Boolean? = null,
 )
+
+/** `PlaceRow` of `failed-turn.ts` in `seira-bot/seira`; the phone reads the state only. */
+@Serializable
+data class FailedPlace(val state: String? = null)
 
 /**
  * A compaction record: from this message on, rebuilds of the thread's
@@ -560,6 +568,8 @@ data class Bot(
     val activeLeafId: String? = null,
     val hasMore: Boolean? = null,
     val projects: List<BotProject>? = null,
+    /** Set when the host set up an own server for this bot. Only its presence is read. */
+    val vpsAlias: String? = null,
 )
 
 /** Project only task-local controls; the original fleet record stays profile-global. */
@@ -838,29 +848,6 @@ object CompanionConnectionMetadataSerializer : KSerializer<CompanionConnectionMe
     }
 }
 
-@Serializable(with = CloudDesktopSessionSerializer::class)
-data class CloudDesktopSession(val url: URI)
-
-object CloudDesktopSessionSerializer : KSerializer<CloudDesktopSession> {
-    @Serializable
-    private data class Wire(@SerialName("joinUrl") val joinUrl: String)
-
-    override val descriptor: SerialDescriptor = Wire.serializer().descriptor
-
-    override fun deserialize(decoder: Decoder): CloudDesktopSession {
-        val raw = Wire.serializer().deserialize(decoder).joinUrl
-        val parsed = runCatching { URI(raw) }.getOrNull()
-        if (parsed == null || !parsed.scheme.equals("https", ignoreCase = true) || parsed.host.isNullOrEmpty()) {
-            throw SerializationException("Cloud desktop URL must be HTTPS with a host")
-        }
-        return CloudDesktopSession(parsed)
-    }
-
-    override fun serialize(encoder: Encoder, value: CloudDesktopSession) {
-        Wire.serializer().serialize(encoder, Wire(value.url.toASCIIString()))
-    }
-}
-
 @Serializable
 data class ProviderSnapshot(
     val state: String,
@@ -1033,6 +1020,9 @@ sealed interface LiveCallStart {
 }
 
 @Serializable
+data class VpsStatus(val configured: Boolean? = null)
+
+@Serializable
 data class ConfigStatus(
     val composio: ConfigFlag? = null,
     val box: ConfigFlag? = null,
@@ -1041,6 +1031,10 @@ data class ConfigStatus(
     val profile: Profile? = null,
     /** Live-call settings; absent on a harness older than Live calls. */
     val live: LiveSettings? = null,
+    /** Own-server status; absent on a harness older than own servers. */
+    val vps: VpsStatus? = null,
+    /** True only on a server that accepts a change of where a bot works from a phone. */
+    val phoneWorksOn: Boolean? = null,
 ) {
     /**
      * "This engine can speak", not "a key is on file" — under the built-in

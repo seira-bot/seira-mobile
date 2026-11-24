@@ -711,11 +711,12 @@ object ComposerAccessories {
 
     /**
      * The HUD wins when it is open; otherwise the chips, but only on an empty
-     * draft, only while the bot is idle, and only with nothing waiting to be
-     * approved. All three matter: a chip sends immediately, so offering one
-     * beside half a sentence would throw the sentence away, offering one to a
-     * busy bot earns a 409, and offering one over a pending approval buries the
-     * question the screen exists to ask.
+     * draft, only while the bot is idle, only with nothing waiting to be
+     * approved, and not right after a failed turn. A chip sends immediately, so
+     * offering one beside half a sentence would throw the sentence away,
+     * offering one to a busy bot earns a 409, offering one over a pending
+     * approval buries the question the screen exists to ask, and offering one
+     * under a failure reads as if the turn had worked.
      *
      * [hasQuickReplies] carries no default for the same reason [PredictiveChipsRow]
      * no longer does: the reader can empty the row, and a call site that forgot
@@ -729,9 +730,11 @@ object ComposerAccessories {
         hasQuickReplies: Boolean,
         /** A pending attachment is half a message too; a chip would send without it. */
         hasAttachments: Boolean,
+        lastTurnFailed: Boolean,
     ): ComposerAccessory = when {
         hudOpen -> ComposerAccessory.HUD
-        draft.isEmpty() && !hasAttachments && !busy && !pendingApproval && hasQuickReplies -> ComposerAccessory.CHIPS
+        draft.isEmpty() && !hasAttachments && !busy && !pendingApproval && !lastTurnFailed && hasQuickReplies ->
+            ComposerAccessory.CHIPS
         else -> ComposerAccessory.NONE
     }
 }

@@ -60,7 +60,6 @@ import com.openmausbot.companion.ui.theme.rememberReducedMotion
 @Composable
 internal fun changeLookCategoryTitle(category: ChangeLookCategory): String = stringResource(
     when (category) {
-        ChangeLookCategory.CHARACTERS -> R.string.change_look_cat_characters
         ChangeLookCategory.HAIR -> R.string.change_look_cat_hair
         ChangeLookCategory.COLOUR -> R.string.change_look_cat_colour
         ChangeLookCategory.FACE -> R.string.change_look_cat_face

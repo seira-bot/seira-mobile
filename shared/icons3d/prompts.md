@@ -47,9 +47,27 @@ A single 3D icon for a mobile app. Style: cute collectible vinyl designer-toy re
 `pair` and `not-connected` use one reference image: an earlier render of the same laptop and phone on green. This keeps the devices the same in both icons. Use the raw image of the other icon as the reference when you remake one of them.
 Pink means "connected". The broken link in `not-connected` is off-white, so it shows on light and dark backgrounds.
 
-## App icon candidates
+## App icon
 
-The app icon uses `candidate-1-light`. Run `python3 scripts/export-app-icon.py` to make the iOS, Android and Play Store icons from it.
+The app icon is direction "Malam": the 3D head, tilted, with one eye in a wink, on an ink tile with red light from the visor.
+The source is `app-icon/head-tilt.png`: the head with the visor switched off.
+The export script draws the face on the visor with the `face.js` geometry of the brand kit.
+
+1. Make the head with the prompt below at 1024x1024. Use one reference image: the front base frame of the 3D character (`brand/mascot/art/bases/out/seira/front.png` in `seira-bot/seira`) on flat `#00FF00`.
+2. Key out the green. The current head uses `key_green` from `brand/mascot/art/bases/tools/process.py` in `seira-bot/seira`, at the raw size (1254 px).
+3. Make the master and the monochrome vector: `python3 scripts/export-app-icon.py --render`.
+4. Export the icons: `python3 scripts/export-app-icon.py`. Then check: `python3 scripts/export-app-icon.py --check`.
+5. Look at the icon in circle, squircle and themed masks at 48 dp, and on iOS at 29 pt. Reject a head that is not readable there.
+
+Model: gpt-image-2.6. Raw size: 1254x1254 RGB.
+
+```text
+App icon hero render of the robot mascot in the reference image: front view of the head only, the head tilted about 10 degrees to its left in a friendly, curious pose, centered, the head fills about 70 percent of the square image. Keep this exact character from the reference image: same white matte head shell, same silver-white hair shell with a straight fringe split into 4 panels and two long smooth side panels, same glossy near-black screen visor. The visor screen is switched off: plain glossy black glass with soft studio reflections, no face, no eyes, no mouth, no light on the screen. Premium soft-touch materials, pearl-white with subtle subsurface glow, soft large studio key light from upper left, gentle rim light. Background: perfectly flat solid pure chroma green #00FF00 over the whole image, no floor, no cast shadow, no gradient, no vignette, no green reflections on the character. No text, no letters, no watermark.
+```
+
+## Earlier app icon candidates
+
+The app icon used `candidate-1-light` until 2026-11-24. These candidates stay for reference.
 
 These prompts use two reference images: the flat Seira mark, and the front view of the 3D character.
 The candidates are opaque full-bleed squares. The OS applies the corner mask.

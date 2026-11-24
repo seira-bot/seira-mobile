@@ -30,12 +30,6 @@ specific computer and receives no universal Seira account credential.
 The reviewer may use any email inbox they control. This optional path uses an
 Seira-managed Cloudflare Tunnel and does not require Tailscale.
 
-Optional cloud-desktop review requires a boat.dev Boat configured on the
-computer. For the paired phone, enable **Cloud desktop** under **Settings →
-Phone**, open a bot configured for **Cloud boat**, choose its computer
-preview on iPhone, and confirm **Open live cloud desktop**. The app requests a
-fresh HTTPS viewer session and does not use or store the provider API key.
-
 For the direct remote alternative, both devices may be signed into the same
 Tailscale network and the reviewer may enter the computer's `.ts.net` MagicDNS
 name. No purchase or subscription is required. The computer is the source of

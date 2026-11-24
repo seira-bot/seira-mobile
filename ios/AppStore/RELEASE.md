@@ -31,4 +31,45 @@ The app is native Swift and uses XcodeGen; EAS commands do not apply.
 - Privacy policy URL: TBD: Seira privacy policy URL (must be public before store submission)
 - Choose manual release for 1.0; enable a phased release after the first production build is stable.
 
-The unsigned simulator CI proves compilation, not distribution signing. A TestFlight upload cannot be automated until the Apple team, App Store Connect record, and protected signing/API-key secrets exist.
+The unsigned simulator CI proves compilation, not distribution signing. Use the workflow below to upload a signed build.
+
+## Upload from CI (no Mac needed)
+
+The workflow `ios-testflight.yml` archives the app on a GitHub macOS runner. It signs the app and uploads it to TestFlight.
+
+### One-time setup
+
+1. Finish the Apple setup above. The App Store Connect app record must exist before the first upload.
+2. Create the GitHub environment `app-store`. Set its deployment branch policy to `main` only.
+3. Create an App Store Connect API key with the Admin role. Automatic signing needs this role to create the cloud-managed distribution certificate.
+4. Download the `.p8` file once. Apple does not show it again.
+5. Set the four secrets in the environment. Encode the `.p8` file as base64 first.
+
+```bash
+gh secret set ASC_KEY_P8_BASE64 --env app-store --repo seira-bot/seira-mobile < <(base64 < AuthKey_XXXX.p8 | tr -d '\n')
+gh secret set ASC_KEY_ID --env app-store --repo seira-bot/seira-mobile
+gh secret set ASC_ISSUER_ID --env app-store --repo seira-bot/seira-mobile
+gh secret set APPLE_TEAM_ID --env app-store --repo seira-bot/seira-mobile
+```
+
+### Run it
+
+```bash
+gh workflow run ios-testflight.yml --repo seira-bot/seira-mobile -f ref=main
+```
+
+- With all four secrets set, the workflow signs the app and uploads it.
+- With no secret set, the workflow makes an unsigned archive. It uploads nothing and shows a NOT UPLOADED warning.
+- With only some secrets set, the workflow stops and names the missing secrets.
+- The run uses Xcode 26 or newer. App Store Connect rejects uploads from older versions.
+
+### Build number
+
+- The workflow uses the input `build_number` when you set it.
+- Otherwise it uses `<CURRENT_PROJECT_VERSION in project.yml>.<run number>`, for example `6.14`.
+- The app and both extensions get the same build number.
+- The app version comes from `MARKETING_VERSION` in `project.yml`.
+
+### After the upload
+
+App Store Connect processes the build for several minutes. Testers then install the build from TestFlight on a real iPhone. Run the real-iPhone pass from the list above.

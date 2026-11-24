@@ -15,6 +15,7 @@ class ChatPreferencesUiPolicyTest {
                 pendingApproval = false,
                 hasQuickReplies = false,
                 hasAttachments = false,
+                lastTurnFailed = false,
             ),
         )
         assertEquals(
@@ -26,6 +27,7 @@ class ChatPreferencesUiPolicyTest {
                 pendingApproval = false,
                 hasQuickReplies = false,
                 hasAttachments = false,
+                lastTurnFailed = false,
             ),
         )
     }

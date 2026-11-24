@@ -262,6 +262,7 @@ class ComposerAccessoriesTest {
                 pendingApproval = false,
                 hasQuickReplies = true,
                 hasAttachments = false,
+                lastTurnFailed = false,
             ),
         )
     }
@@ -285,6 +286,13 @@ class ComposerAccessoriesTest {
     }
 
     @Test
+    fun `a failed turn takes the chips away but not the slash hud`() {
+        assertEquals(ComposerAccessory.NONE, accessory(lastTurnFailed = true))
+        assertEquals(ComposerAccessory.HUD, accessory(hudOpen = true, lastTurnFailed = true))
+        assertEquals(ComposerAccessory.CHIPS, accessory(lastTurnFailed = false))
+    }
+
+    @Test
     fun `the HUD wins over the chips wherever both could apply`() {
         assertEquals(ComposerAccessory.HUD, accessory(hudOpen = true))
         assertEquals(
@@ -296,6 +304,7 @@ class ComposerAccessoriesTest {
                 pendingApproval = true,
                 hasQuickReplies = true,
                 hasAttachments = false,
+                lastTurnFailed = false,
             ),
         )
     }
@@ -319,7 +328,8 @@ class ComposerAccessoriesTest {
         pendingApproval: Boolean = false,
         hasQuickReplies: Boolean = true,
         hasAttachments: Boolean = false,
-    ) = ComposerAccessories.accessory(hudOpen, draft, busy, pendingApproval, hasQuickReplies, hasAttachments)
+        lastTurnFailed: Boolean = false,
+    ) = ComposerAccessories.accessory(hudOpen, draft, busy, pendingApproval, hasQuickReplies, hasAttachments, lastTurnFailed)
 
     private fun card(pending: Boolean): Message = Message(
         id = if (pending) "pending" else "answered",

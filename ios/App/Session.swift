@@ -281,6 +281,7 @@ final class Session: ObservableObject {
                 fleet.bots[pepper].name = "Pepper, the Quarterly Planning Assistant"
             }
             state.hydrate(fleet)
+            if arguments.contains("-glance-preview") { state.applyGlancePreview() }
             if arguments.contains("-live-call-room-preview"),
                let room = try? JSONDecoder().decode(Room.self, from: Data(LiveCallPreviewProtocol.room.utf8)) {
                 // A room beside Pepper, to show the call banner in.
@@ -1984,18 +1985,6 @@ final class Session: ObservableObject {
         }
     }
 
-    /// Ask for one fresh cloud viewer URL. Unlike ordinary actions this
-    /// returns the value to a browser sheet and never writes it to app state.
-    func cloudDesktop(for bot: Bot) async throws -> URL {
-        guard let client else { throw APIError.transport("This computer is offline.") }
-        do {
-            return try await client.cloudDesktop(botId: bot.id).url
-        } catch let error as APIError where error.isUnauthorized {
-            status = .unauthorized
-            throw error
-        }
-    }
-
     /// Run one call against the active computer, marking the pairing
     /// unauthorized when the computer says so.
     private func withClient<T>(_ call: (CompanionClient) async throws -> T) async throws -> T {
@@ -2380,6 +2369,17 @@ final class Session: ObservableObject {
         } catch {
             if !Task.isCancelled { actionError = error.localizedDescription }
             return nil
+        }
+    }
+
+    func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
+        guard let client else { return .refused(.failed) }
+        do {
+            let updated = try await client.setWorksOn(botId: botId, ownServer: ownServer)
+            state.apply(.bot(updated))
+            return .changed
+        } catch {
+            return .refused(WorksOnChoice.refusal(error))
         }
     }
 
