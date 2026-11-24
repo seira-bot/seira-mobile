@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">승인하지 못했어요. 채팅을 열어 검토하세요.</string>
     <string name="notification_approve_settled">이미 답변했어요. 채팅을 열어 확인하세요.</string>
     <string name="notification_reply_failed">보내지 못했어요. 채팅을 열어 다시 시도하세요.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">봇이 작업 중이거나 내 응답을 기다릴 때 상황을 보여줘요.</string>
+    <string name="glance_working">작업 중</string>
+    <string name="glance_needs_you">확인이 필요해요</string>
+    <string name="glance_question">질문이 있어요</string>
+    <string name="glance_failed">실패</string>
+    <string name="glance_finished">완료</string>
+    <string name="glance_open_chat">채팅 열기</string>
+    <string name="glance_deny">거부</string>
+    <string name="glance_allow_once">한 번 허용</string>
+    <string name="glance_could_not_send">보내지 못했어요. 채팅을 열어 답해 주세요.</string>
     <string name="tile_talk_label">대화</string>
     <string name="shortcut_talk_short">대화</string>
     <string name="shortcut_talk_long">비서실장과 대화</string>

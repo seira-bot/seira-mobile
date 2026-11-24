@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ plays the icon; `windowSplashScreenAnimationDuration` is what
+         SplashScreenViewProvider reports back to the launch overlay. -->
+    <style name="Theme.Seira.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/seira_visor_ink</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_seira_splash_animated</item>
+        <item name="windowSplashScreenAnimationDuration">800</item>
+        <item name="android:windowSplashScreenBrandingImage">@drawable/seira_splash_branding</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="postSplashScreenTheme">@style/Theme.OpenMausMobile</item>
+    </style>
+</resources>

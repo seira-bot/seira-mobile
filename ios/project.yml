@@ -118,13 +118,16 @@ targets:
           - INSendMessageIntent
         # REQUIRED, and easy to lose. Without a launch screen iOS runs the
         # app in compatibility scaling: letterboxed inside black bars, with
-        # everything drawn oversized, on every modern iPhone. An empty
-        # dictionary is enough — it just has to exist.
+        # everything drawn oversized, on every modern iPhone. The key just
+        # has to exist. The colour and image are the first frame that
+        # LaunchVisorView continues.
         #
         # This cannot be an INFOPLIST_KEY_* build setting. Those are only
         # read when Xcode generates the Info.plist itself, and this target
         # supplies one, so they are silently ignored.
-        UILaunchScreen: {}
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: LaunchEyes
         UISupportedInterfaceOrientations:
           - UIInterfaceOrientationPortrait
           - UIInterfaceOrientationLandscapeLeft

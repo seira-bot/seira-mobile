@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Не вдалося підтвердити. Відкрийте чат, щоб переглянути.</string>
     <string name="notification_approve_settled">Уже відповіли. Відкрийте чат, щоб переглянути.</string>
     <string name="notification_reply_failed">Не вдалося надіслати. Відкрийте чат, щоб спробувати знову.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Показує, що роблять ваші боти, поки вони працюють або чекають на вас.</string>
+    <string name="glance_working">Працює</string>
+    <string name="glance_needs_you">Потрібна ваша відповідь</string>
+    <string name="glance_question">Має запитання</string>
+    <string name="glance_failed">Не вдалося</string>
+    <string name="glance_finished">Готово</string>
+    <string name="glance_open_chat">Відкрити чат</string>
+    <string name="glance_deny">Відхилити</string>
+    <string name="glance_allow_once">Дозволити один раз</string>
+    <string name="glance_could_not_send">Не вдалося надіслати. Відкрийте чат, щоб відповісти.</string>
     <string name="tile_talk_label">Говорити</string>
     <string name="shortcut_talk_short">Говорити</string>
     <string name="shortcut_talk_long">Поговорити зі своїм Chief of Staff</string>

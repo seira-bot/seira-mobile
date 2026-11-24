@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Onaylanamadı. İncelemek için sohbeti açın.</string>
     <string name="notification_approve_settled">Zaten yanıtlandı. Görmek için sohbeti aç.</string>
     <string name="notification_reply_failed">Gönderilemedi. Tekrar denemek için sohbeti açın.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Botların çalışırken veya seni beklerken ne yaptığını gösterir.</string>
+    <string name="glance_working">Çalışıyor</string>
+    <string name="glance_needs_you">Sana ihtiyacı var</string>
+    <string name="glance_question">Bir sorusu var</string>
+    <string name="glance_failed">Başarısız</string>
+    <string name="glance_finished">Bitti</string>
+    <string name="glance_open_chat">Sohbeti aç</string>
+    <string name="glance_deny">Reddet</string>
+    <string name="glance_allow_once">Bir kez izin ver</string>
+    <string name="glance_could_not_send">Gönderilemedi. Yanıtlamak için sohbeti aç.</string>
     <string name="tile_talk_label">Konuş</string>
     <string name="shortcut_talk_short">Konuş</string>
     <string name="shortcut_talk_long">Kurmay başkanınızla konuşun</string>

@@ -61,8 +61,9 @@ commit and artifact being submitted; unchecked items remain release work.
 - [x] Use only the framed screenshots in `frames/<language>/`. Phone images must
   be 9:16 or 16:9, each side 320–3840 px, at most 8 MB, 2 to 8 per language
   (Console rules, read 2026-11-19). Show no call entry point.
-- [x] Render the screenshots again on the release UI (see README, "Screenshots"),
-  then run `python3 android/PlayStore/tools/frame.py`.
+- [x] Render the screenshots again on the release UI (see README, "Screenshots
+  and feature graphics"), then run `bash android/PlayStore/tools/render-store.sh`.
+  Done 2026-11-24: the night set, six shots per language, from main after Android 1.0.6.
 - [x] Confirm the release build has the Seira character heads and the Change
   look sheet. Screenshot 2 and the listing line about each bot's look need them.
   Done: in `main` through the 1.0.0 release candidate merge.
@@ -108,6 +109,10 @@ commit and artifact being submitted; unchecked items remain release work.
   review on the owner's go.
   Done 2026-11-21 for 1.0.5: Production, all targeted countries, 100% rollout, sent for
   review on the owner's go.
+  Done 2026-11-23 for 1.0.6: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go.
+  Done 2026-11-24 for 1.0.7: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go, together with the store listing changes.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
@@ -123,3 +128,9 @@ commit and artifact being submitted; unchecked items remain release work.
   Google approved 1.0.4 (10004) on 2026-11-21: available on Google Play, 178
   countries, 100% rollout.
   1.0.5 (10005) was sent for review on 2026-11-21.
+  Google approved 1.0.5 (10005): the Console shows it as published on 2026-11-22.
+  1.0.6 (10006) was sent for review on 2026-11-23.
+  Google approved 1.0.6 (10006): available on Google Play, 178 countries, released
+  on 2026-11-23.
+  1.0.7 (10007) was sent for review on 2026-11-24 with the new app icon, the new
+  launch screen, and 9 store listing changes.

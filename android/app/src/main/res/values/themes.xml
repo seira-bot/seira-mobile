@@ -5,7 +5,7 @@
     </style>
 
     <style name="Theme.Seira.Starting" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/seira_app</item>
+        <item name="windowSplashScreenBackground">@color/seira_visor_ink</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_seira_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.OpenMausMobile</item>
     </style>

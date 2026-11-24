@@ -14,6 +14,19 @@ Google menyetujui 1.0.4. Rilis "1.0.4" tayang di Play pada 2026-11-21: 178 negar
 rollout 100%.
 Update 1.0.5 (versionCode 10005) dikirim untuk review pada 2026-11-21: Production,
 semua negara target, rollout 100%. Bundle dibangun dari `main` `b5d8186e`.
+Google menyetujui 1.0.5. Rilis "1.0.5" tayang di Play pada 2026-11-22.
+Update 1.0.6 (versionCode 10006) membawa Glance (PR #70), Try again di bawah
+setiap giliran gagal (PR #63), sheet tampilan bot dengan tiga tab (PR #64), dan
+pilihan tempat kerja bot dari catatan cloud (PR #65).
+Update 1.0.6 dikirim untuk review pada 2026-11-23: Production, semua negara
+target, rollout 100%. Bundle dibangun dari tree yang sama dengan `main` `603020e4`.
+Google menyetujui 1.0.6. Rilis "1.0.6" tayang di Play pada 2026-11-23: 178 negara.
+Update 1.0.7 (versionCode 10007) membawa ikon app baru "Malam" (PR #73) dan
+layar pembuka "Night visor" (PR #74).
+Update 1.0.7 dikirim untuk review pada 2026-11-24: Production, semua negara
+target, rollout 100%. Bundle dibangun dari `184b500a`. Kode rilisnya sama dengan
+`main` `34e4bb49`. Review yang sama memuat 9 perubahan listing dari PR #75,
+termasuk ikon app 512 px.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -118,7 +131,7 @@ Jumlah tipe per kategori dicek di Console pada 2026-11-19 (langkah 3, "Data type
 | Target audience | 18 and over |
 | App category | Productivity |
 | Contact details | Email dukungan dan situs `https://seira.bot` tersimpan di Store settings |
-| AI-generated content | Label AI ada pada setiap aset listing yang dibuat dengan AI |
+| AI-generated content | Label AI ada pada setiap aset listing yang dibuat dengan AI. Sejak 2026-11-24, 2 feature graphic dan 12 screenshot memakai label AI karena latar malamnya dibuat dengan AI. Ikon 512 tidak memakai label. |
 
 ## App access
 
@@ -229,6 +242,32 @@ Switch to another paired computer from the Chats screen: tap the computer name. 
 </en-US>
 <id>
 Pindah ke komputer lain yang sudah dipasangkan langsung dari layar Chats: ketuk nama komputer. Pairing server kedua di alamat yang sama tidak lagi menggantikan komputer pertama. Kirim password atau key tidak lagi berhenti saat kartunya tergulir keluar layar.
+</id>
+```
+
+### Catatan rilis update 1.0.6
+
+Isi teks ini saat rilis 1.0.6 dibuat di Console:
+
+```text
+<en-US>
+See what your bots do without opening the app. One notification shows the bot that needs you most, with Deny, Allow once and Open chat. On Android 16 it shows as a Live Update. Try again now shows under every failed or stopped reply. Choose a bot's look from three tabs: Seira, Generate and Upload. An admin can choose where a bot works from the cloud notice.
+</en-US>
+<id>
+Lihat kerja bot tanpa membuka app. Satu notifikasi menampilkan bot yang paling butuh kamu, dengan Deny, Allow once, dan Open chat. Di Android 16 notifikasi ini tampil sebagai Live Update. Try again kini muncul di bawah setiap balasan yang gagal atau berhenti. Pilih tampilan bot dari tiga tab: Seira, Generate, dan Upload. Admin bisa memilih tempat bot bekerja dari catatan cloud.
+</id>
+```
+
+### Catatan rilis update 1.0.7
+
+Isi teks ini saat rilis 1.0.7 dibuat di Console:
+
+```text
+<en-US>
+Seira has a new look. The app icon is Seira with a wink on a night tile, and it works with themed icons too. The app now opens on a night screen: Seira's eyes glow, blink once, and a circle opens into the app. No more white flash before a dark screen.
+</en-US>
+<id>
+Seira tampil baru. Ikon app kini Seira yang mengedip di tile malam, dan cocok juga dengan ikon bertema. App kini terbuka di layar malam: mata Seira menyala, berkedip sekali, lalu lingkaran terbuka ke dalam app. Tidak ada lagi kilatan putih sebelum layar gelap.
 </id>
 ```
 

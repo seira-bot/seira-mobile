@@ -15,6 +15,7 @@
         android:name="android.hardware.wifi"
         android:required="false" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
     <!--
       Opt-in "always on" background connection (Settings toggle, default off).
       FOREGROUND_SERVICE_CONNECTED_DEVICE rather than dataSync: this service
@@ -266,6 +267,11 @@
         -->
         <receiver
             android:name=".notifications.NotificationActionReceiver"
+            android:exported="false" />
+
+        <!-- Deny and Allow once buttons of the Glance notification. Not exported. -->
+        <receiver
+            android:name=".glance.GlanceActionReceiver"
             android:exported="false" />
 
         <!--

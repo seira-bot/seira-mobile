@@ -2,9 +2,9 @@
 
 Status: draft for the release owner to review. Paste each text block into
 Play Console exactly as written. `node android/PlayStore/tools/check-listing.mjs`
-checks the Console length limits.
+checks the Console length limits, the screenshot captions, and the alt texts.
 
-Screenshot captions live in [`../frames/captions.json`](../frames/captions.json).
+Screenshot captions and alt texts live in [`../frames/shots.json`](../frames/shots.json).
 
 ## App name
 
@@ -15,26 +15,28 @@ Seira: AI bot companion
 ## Short description
 
 ```text
-Answer your Seira bots from your phone while they work on your computer.
+Your Seira bots work on your computer. Answer and allow their steps from here.
 ```
 
 ## Full description
 
 ```text
-Your Seira bots work on your computer. When a bot needs an answer, you might be away from your desk. With Seira for Android, you answer from your phone and the bot continues its work.
+Your Seira bots work on your computer. When you step away from your desk, you can keep up with them from your phone: read their replies, answer their questions, and allow the steps that matter.
 
 What you can do
-• See all your bots in one list. Bots that need your attention come first.
-• Give each bot its own look: a character, hair, color, and extras.
-• Read each conversation as the reply comes in, with tables and formatted text.
-• Allow or deny a request when a bot asks before it acts.
+• See every bot on one screen. Chats that need you come first.
+• Allow or deny a step when a bot asks before it acts.
+• Read replies while the bot writes them, with tables and formatted text.
+• While Seira is open, one notification shows the bot that needs you most. You can answer some requests right from it.
+• Add the Updates widget to your home screen to see the chats that need you.
+• Give each bot its own face: pick a Seira character and change its hair, face, extras, and color, or upload your own picture.
 • Send a message or a new task. Type it, or use dictation.
 • Share a link, a photo, or a document from another app to a bot.
-• Pair more than one computer and choose the one to use.
+• Pair more than one computer and switch between them.
 • Use the light or the dark theme.
 
 Before you start
-Seira for Android is a companion to the Seira desktop app. It does not run bots by itself.
+Seira for Android is a companion to Seira on your computer. It does not run bots by itself.
 • Install Seira on your computer and set up at least one bot.
 • Your phone must reach that computer: on the same Wi-Fi network, through Tailscale, or at a secure address that Seira shows.
 • Android 8.0 or later.
@@ -49,31 +51,37 @@ Your bots stay on your computer. Your phone shows their work and sends your answ
 
 ## Release notes
 
+The release owner writes the notes for each version in
+[`../declarations-proposal.md`](../declarations-proposal.md). This block is the
+fallback text for a release that has no notes of its own.
+
 ```text
-First release of Seira for Android. Pair your phone with Seira on your computer, then read and answer your bots from your phone.
+Seira for Android: pair your phone with Seira on your computer, then read and answer your bots from your phone.
 ```
 
 ## Claims and their source
 
-Each feature claim above maps to code in the release candidate: `main` with
-the redesign (PR #3, merged as `c7b84a4`) plus the Seira character work
-(`claude/android-character` and `claude/android-character-sheet`). The
-screenshots also come from that combined code. Do not submit until the two
-character branches are in the release build. Verify each claim again on the signed release build.
+Each claim maps to code in `main` after Android 1.0.6 (PR #70, #64, #49, and
+the redesign). The screenshots come from the same code (`StoreScreenshotTest`
+and the Glance demo receiver in debug builds). Verify each claim again on the
+signed release build.
 
 | Claim | Where it is in the app |
 | --- | --- |
-| Bots that need attention come first | Home roster, "Needs attention" group |
-| Each bot its own look | Change look sheet (`ChangeLookSheet.kt`): Characters, Hair, Colour, Face, Extras |
-| Reply appears as it comes in, tables, formatted text | Chat screen, streamed Markdown replies |
-| Allow or deny a request | Chat approval card ("Needs your OK") |
+| Chats that need you come first | Home, "Needs attention" group |
+| Allow or deny a step | Chat approval card ("Needs your OK", Allow, Deny) |
+| Replies while the bot writes them, tables, formatted text | Chat screen, streamed Markdown replies |
+| One notification while Seira is open, answer some requests from it | Glance (FR-105, FR-107): one notification while a bot is active and the session is live; Deny, Allow once, Open chat when the text fits |
+| Updates widget | `UpdatesWidgetReceiver` in the release manifest, label "Updates" |
+| Own face for each bot | Avatar sheet: tabs Seira, Generate, Upload; chips Hair, Face, Extras, Colour |
 | Dictation | Composer dictation button |
 | Share from another app | Release manifest `SEND` / `SEND_MULTIPLE` targets (text, images, PDF, office files) |
-| More than one computer | Settings, "Connect another computer", "Use %1$s" |
+| More than one computer, switch | Settings "Connect another computer"; computer switch in the Chats heading |
 | Light and dark theme | Settings theme choice |
 | Pairing path | App hint "On your computer, open Seira → Settings → Phone." |
 | Wi-Fi, Tailscale, secure address | Pairing screen hints |
 | Android 8.0 or later | `minSdk 26` |
 
 Not claimed on purpose: live calls, the voice key, watching the bot's computer,
-notifications while the app is closed, and anything about Seira Cloud.
+notifications while the app is closed, picture generation (it needs setup on the
+computer), and anything about Seira Cloud.

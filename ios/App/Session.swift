@@ -281,6 +281,7 @@ final class Session: ObservableObject {
                 fleet.bots[pepper].name = "Pepper, the Quarterly Planning Assistant"
             }
             state.hydrate(fleet)
+            if arguments.contains("-glance-preview") { state.applyGlancePreview() }
             if arguments.contains("-live-call-room-preview"),
                let room = try? JSONDecoder().decode(Room.self, from: Data(LiveCallPreviewProtocol.room.utf8)) {
                 // A room beside Pepper, to show the call banner in.

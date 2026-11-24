@@ -8,6 +8,17 @@
     <string name="notification_approve_failed">Couldn\'t approve. Open the chat to review.</string>
     <string name="notification_approve_settled">Already answered. Open the chat to see it.</string>
     <string name="notification_reply_failed">Couldn\'t send. Open the chat to try again.</string>
+    <string name="glance_channel_name">Glance</string>
+    <string name="glance_channel_description">Shows what your bots are doing while they work or wait for you.</string>
+    <string name="glance_working">Working</string>
+    <string name="glance_needs_you">Needs you</string>
+    <string name="glance_question">Has a question</string>
+    <string name="glance_failed">Failed</string>
+    <string name="glance_finished">Finished</string>
+    <string name="glance_open_chat">Open chat</string>
+    <string name="glance_deny">Deny</string>
+    <string name="glance_allow_once">Allow once</string>
+    <string name="glance_could_not_send">Could not send. Open the chat to answer.</string>
     <string name="tile_talk_label">Talk</string>
     <string name="shortcut_talk_short">Talk</string>
     <string name="shortcut_talk_long">Talk with your chief of staff</string>
