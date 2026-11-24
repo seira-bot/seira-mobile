@@ -194,6 +194,8 @@ class ConversationNotificationTest {
     @Test
     fun `the receiver reports an empty reply as a failure`() {
         val app = context as OpenMausApp
+        // A banner always carries the computer that posted it; a request without one is refused before any text check.
+        pairing = "computer-a"
         val intent = NotificationActions.replyIntent(context, request())
 
         NotificationActionReceiver().onReceive(app, intent)
