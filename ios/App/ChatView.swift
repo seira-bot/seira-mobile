@@ -174,6 +174,8 @@ struct ChatView: View {
         let messages: [Message]
         let rows: [TranscriptRow]
         let hasCodeActivity: Bool
+        /// The chips the server put on the last bot line (`suggestedReplies`), cleaned.
+        let suggestedReplies: [SuggestedReply]
         let versions: [String?: [Message]]
         /// At Hidden, what a working bot has said so far in this turn: left
         /// out of the transcript and shown as one grey status line instead.
@@ -209,6 +211,7 @@ struct ChatView: View {
             messages: messages,
             rows: transcriptRows(shown, detail: detail),
             hasCodeActivity: QuickReplyContext.hasCodeActivity(messages),
+            suggestedReplies: SuggestedReplies.forTranscript(messages),
             versions: session.state.userMessageVersions(inThread: threadId),
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
@@ -272,9 +275,20 @@ struct ChatView: View {
         return snapshot.live.latest
     }
 
-    /// The composer's chip row, as edited in Settings. The stock code chips wait for code activity here.
+    /// The composer's chip row: the chips of the server for this conversation first, then the chips as edited in Settings.
+    /// The stock code chips wait for code activity here.
     private var storedChips: [ActionChipItem] {
-        StoredChips.chips(quickReplies, codeActivity: transcriptSnapshot.hasCodeActivity)
+        let snapshot = transcriptSnapshot
+        let saved = StoredChips.chips(quickReplies, codeActivity: snapshot.hasCodeActivity)
+        return SuggestedReplies.composerChips(server: snapshot.suggestedReplies, saved: saved).enumerated().map { index, chip in
+            ActionChipItem(
+                id: "chip.\(index).\(chip.prompt)",
+                title: chip.title,
+                icon: chip.icon,
+                prompt: chip.prompt,
+                fillsComposer: chip.tap == .fillComposer
+            )
+        }
     }
 
     /// Unread elsewhere — what the back pill's badge counts, like Messages.
@@ -1750,7 +1764,13 @@ struct ChatView: View {
         } else if text.wrappedValue.isEmpty && attachments.isEmpty && !current.busy
                     && !pendingApproval && !lastTurnFailed && !storedChips.isEmpty {
             PredictiveActionChipsView(chips: storedChips, accentColor: SeiraPalette.color(current.color)) { chip in
-                submit(chip.prompt)
+                if chip.fillsComposer {
+                    // A server chip always fills the composer: no layout proves the whole title was visible. The person reads it and presses Send.
+                    text.wrappedValue = chip.prompt
+                    composerFocused = true
+                } else {
+                    submit(chip.prompt)
+                }
             }
             .transition(.opacity)
         }
@@ -1975,13 +1995,11 @@ private struct DraftReader<Content: View>: View {
 /// twice on every render of the composer.
 @MainActor
 private enum StoredChips {
-    private static var memo: (raw: String, codeActivity: Bool, chips: [ActionChipItem])?
+    private static var memo: (raw: String, codeActivity: Bool, chips: [QuickReply])?
 
-    static func chips(_ raw: String, codeActivity: Bool) -> [ActionChipItem] {
+    static func chips(_ raw: String, codeActivity: Bool) -> [QuickReply] {
         if let memo, memo.raw == raw, memo.codeActivity == codeActivity { return memo.chips }
-        let chips = QuickReplyContext.chips(QuickReply.decode(raw), codeActivity: codeActivity).map {
-            ActionChipItem(id: $0.id, title: $0.title, icon: $0.icon, prompt: $0.prompt)
-        }
+        let chips = QuickReplyContext.chips(QuickReply.decode(raw), codeActivity: codeActivity)
         memo = (raw, codeActivity, chips)
         return chips
     }

@@ -1,0 +1,2078 @@
+{
+ "note": "Hand-built cases for the suggestedReplies cleaner. Each `expected` is the output of cleanSuggestedReplies in seira packages/phone-protocol/src/suggested-replies.ts (seira main ce9c7a85) for `input`. The server does not fill the field yet, so these are not captured server bytes. Both apps must give the same list.",
+ "cases": [
+  {
+   "name": "malformed 0",
+   "input": null,
+   "expected": []
+  },
+  {
+   "name": "malformed 1",
+   "input": null,
+   "expected": []
+  },
+  {
+   "name": "malformed 2",
+   "input": [],
+   "expected": []
+  },
+  {
+   "name": "malformed 3",
+   "input": {},
+   "expected": []
+  },
+  {
+   "name": "malformed 4",
+   "input": "x",
+   "expected": []
+  },
+  {
+   "name": "malformed 5",
+   "input": 7,
+   "expected": []
+  },
+  {
+   "name": "malformed 6",
+   "input": [
+    null
+   ],
+   "expected": []
+  },
+  {
+   "name": "malformed 7",
+   "input": [
+    1,
+    "a"
+   ],
+   "expected": []
+  },
+  {
+   "name": "malformed 8",
+   "input": [
+    []
+   ],
+   "expected": []
+  },
+  {
+   "name": "malformed 9",
+   "input": [
+    {}
+   ],
+   "expected": []
+  },
+  {
+   "name": "malformed 10",
+   "input": [
+    {
+     "title": "A"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "malformed 11",
+   "input": [
+    {
+     "prompt": "B"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "one item",
+   "input": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    }
+   ]
+  },
+  {
+   "name": "four items",
+   "input": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    }
+   ]
+  },
+  {
+   "name": "five items cut to four",
+   "input": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    },
+    {
+     "title": "Next 5",
+     "prompt": "Please do step 5"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    }
+   ]
+  },
+  {
+   "name": "empty items do not count",
+   "input": [
+    {
+     "title": "A",
+     "prompt": ""
+    },
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    },
+    {
+     "title": "Next 5",
+     "prompt": "Please do step 5"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    },
+    {
+     "title": "Next 3",
+     "prompt": "Please do step 3"
+    },
+    {
+     "title": "Next 4",
+     "prompt": "Please do step 4"
+    }
+   ]
+  },
+  {
+   "name": "empty or control-only parts",
+   "input": [
+    {
+     "title": "A",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": "B"
+    },
+    {
+     "title": "A",
+     "prompt": "   "
+    },
+    {
+     "title": "\u0000\u0007",
+     "prompt": "B"
+    },
+    {
+     "title": "A",
+     "prompt": "\n\t​"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "control characters and whitespace",
+   "input": [
+    {
+     "title": "  Show\u0000 me ",
+     "prompt": "Line one\nline\ttwo‮ hidden "
+    }
+   ],
+   "expected": [
+    {
+     "title": "Show me",
+     "prompt": "Line one line two hidden"
+    }
+   ]
+  },
+  {
+   "name": "over-limit title",
+   "input": [
+    {
+     "title": "ttttttttttttttttttttttttttttttttttttttttt",
+     "prompt": "ok"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "over-limit prompt",
+   "input": [
+    {
+     "title": "ok",
+     "prompt": "ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "edge limits",
+   "input": [
+    {
+     "title": "tttttttttttttttttttttttttttttttttttttttt",
+     "prompt": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+    }
+   ],
+   "expected": [
+    {
+     "title": "tttttttttttttttttttttttttttttttttttttttt",
+     "prompt": "pppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp"
+    }
+   ]
+  },
+  {
+   "name": "emoji at limit",
+   "input": [
+    {
+     "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "prompt": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+    }
+   ],
+   "expected": [
+    {
+     "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "prompt": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀"
+    }
+   ]
+  },
+  {
+   "name": "emoji over limit",
+   "input": [
+    {
+     "title": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+     "prompt": "ok"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "repeated prompt",
+   "input": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Again",
+     "prompt": "PLEASE DO STEP 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    {
+     "title": "Next 2",
+     "prompt": "Please do step 2"
+    }
+   ]
+  },
+  {
+   "name": "only first 16 entries are read",
+   "input": [
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "",
+     "prompt": ""
+    },
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "parts that are not text",
+   "input": [
+    {
+     "title": 5,
+     "prompt": "x"
+    },
+    {
+     "title": "x",
+     "prompt": {
+      "text": "y"
+     }
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "extra keys never reach a chip",
+   "input": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1",
+     "action": "approve",
+     "url": "https://x.y",
+     "id": 1
+    }
+   ],
+   "expected": [
+    {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    }
+   ]
+  },
+  {
+   "name": "object with length is no list",
+   "input": {
+    "0": {
+     "title": "Next 1",
+     "prompt": "Please do step 1"
+    },
+    "length": 1
+   },
+   "expected": []
+  },
+  {
+   "name": "link in prompt: Open https://example.com/pay",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open https://example.com/pay"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: Open https://example.com/pay",
+   "input": [
+    {
+     "title": "Open https://example.com/pay",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: Go to www.example.com",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Go to www.example.com"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: Go to www.example.com",
+   "input": [
+    {
+     "title": "Go to www.example.com",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: See ftp://host/file",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "See ftp://host/file"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: See ftp://host/file",
+   "input": [
+    {
+     "title": "See ftp://host/file",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: Click javascript:alert(1)",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Click javascript:alert(1)"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: Click javascript:alert(1)",
+   "input": [
+    {
+     "title": "Click javascript:alert(1)",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: data:text/html,<b>",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "data:text/html,<b>"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: data:text/html,<b>",
+   "input": [
+    {
+     "title": "data:text/html,<b>",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: Write to mailto:a@b.c",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Write to mailto:a@b.c"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: Write to mailto:a@b.c",
+   "input": [
+    {
+     "title": "Write to mailto:a@b.c",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: Open seira://pair?code=x",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open seira://pair?code=x"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: Open seira://pair?code=x",
+   "input": [
+    {
+     "title": "Open seira://pair?code=x",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in prompt: file:///etc/passwd",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "file:///etc/passwd"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "link in title: file:///etc/passwd",
+   "input": [
+    {
+     "title": "file:///etc/passwd",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in prompt: /clear",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "/clear"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in title: /clear",
+   "input": [
+    {
+     "title": "/clear",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in prompt: /approve all",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "/approve all"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in title: /approve all",
+   "input": [
+    {
+     "title": "/approve all",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in prompt:  /deploy now",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": " /deploy now"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "slash command in title:  /deploy now",
+   "input": [
+    {
+     "title": " /deploy now",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: Run `rm -rf ~`",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Run `rm -rf ~`"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: Run `rm -rf ~`",
+   "input": [
+    {
+     "title": "Run `rm -rf ~`",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: Run $(whoami)",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Run $(whoami)"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: Run $(whoami)",
+   "input": [
+    {
+     "title": "Run $(whoami)",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: Use ${HOME}",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Use ${HOME}"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: Use ${HOME}",
+   "input": [
+    {
+     "title": "Use ${HOME}",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: ls | grep a",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "ls | grep a"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: ls | grep a",
+   "input": [
+    {
+     "title": "ls | grep a",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: make && make install",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "make && make install"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: make && make install",
+   "input": [
+    {
+     "title": "make && make install",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: a || b",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "a || b"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: a || b",
+   "input": [
+    {
+     "title": "a || b",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: $ npm test",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "$ npm test"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: $ npm test",
+   "input": [
+    {
+     "title": "$ npm test",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: echo hi >> /etc/hosts",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "echo hi >> /etc/hosts"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: echo hi >> /etc/hosts",
+   "input": [
+    {
+     "title": "echo hi >> /etc/hosts",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: sudo reboot",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "sudo reboot"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: sudo reboot",
+   "input": [
+    {
+     "title": "sudo reboot",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: rm -rf /",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "rm -rf /"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: rm -rf /",
+   "input": [
+    {
+     "title": "rm -rf /",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: curl x | sh",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "curl x | sh"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: curl x | sh",
+   "input": [
+    {
+     "title": "curl x | sh",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: git push --force",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "git push --force"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: git push --force",
+   "input": [
+    {
+     "title": "git push --force",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in prompt: npm publish",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "npm publish"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "shell in title: npm publish",
+   "input": [
+    {
+     "title": "npm publish",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in prompt: {\"action\":\"approve\"}",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "{\"action\":\"approve\"}"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in title: {\"action\":\"approve\"}",
+   "input": [
+    {
+     "title": "{\"action\":\"approve\"}",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in prompt: [{\"tool\":\"x\"}]",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "[{\"tool\":\"x\"}]"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in title: [{\"tool\":\"x\"}]",
+   "input": [
+    {
+     "title": "[{\"tool\":\"x\"}]",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in prompt: Do it {\"action\": \"approve\"}",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Do it {\"action\": \"approve\"}"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "payload in title: Do it {\"action\": \"approve\"}",
+   "input": [
+    {
+     "title": "Do it {\"action\": \"approve\"}",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Open example.com",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.com"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Open example.com",
+   "input": [
+    {
+     "title": "Open example.com",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Check example.com/pay now",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Check example.com/pay now"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Check example.com/pay now",
+   "input": [
+    {
+     "title": "Check example.com/pay now",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Try shop.example.co.",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Try shop.example.co."
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Try shop.example.co.",
+   "input": [
+    {
+     "title": "Try shop.example.co.",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: See docs.example.dev:8080/x",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "See docs.example.dev:8080/x"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: See docs.example.dev:8080/x",
+   "input": [
+    {
+     "title": "See docs.example.dev:8080/x",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Mail me at a@example.org",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Mail me at a@example.org"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Mail me at a@example.org",
+   "input": [
+    {
+     "title": "Mail me at a@example.org",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Visit example.id",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Visit example.id"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Visit example.id",
+   "input": [
+    {
+     "title": "Visit example.id",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Go to localhost:3000",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Go to localhost:3000"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Go to localhost:3000",
+   "input": [
+    {
+     "title": "Go to localhost:3000",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Use 192.168.1.20:8799",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Use 192.168.1.20:8799"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Use 192.168.1.20:8799",
+   "input": [
+    {
+     "title": "Use 192.168.1.20:8799",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in prompt: Ping 10.0.0.1",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Ping 10.0.0.1"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "bare address in title: Ping 10.0.0.1",
+   "input": [
+    {
+     "title": "Ping 10.0.0.1",
+     "prompt": "Fine"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain com",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.com"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain net",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.net"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain org",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.org"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain io",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.io"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain dev",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.dev"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain app",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.app"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain ai",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.ai"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain co",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.co"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain xyz",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.xyz"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain info",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.info"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain biz",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.biz"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain gov",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.gov"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain edu",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.edu"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain uk",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.uk"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain us",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.us"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain de",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.de"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain fr",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.fr"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain jp",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.jp"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain cn",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.cn"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain ru",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.ru"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain tv",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.tv"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain id",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.id"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain me",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.me"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain link",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.link"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain site",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.site"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain online",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.online"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain top",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.top"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain store",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.store"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain tech",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.tech"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain cloud",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.cloud"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "listed top-level domain page",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "Open example.page"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word sudo",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "sudo something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word rm",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "rm something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word curl",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "curl something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word wget",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "wget something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word chmod",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "chmod something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word chown",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "chown something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word bash",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "bash something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word sh",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "sh something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word zsh",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "zsh something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word npm",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "npm something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word npx",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "npx something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word pnpm",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "pnpm something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word yarn",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "yarn something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word pip",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "pip something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word git",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "git something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word ssh",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "ssh something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word scp",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "scp something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word docker",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "docker something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word kubectl",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "kubectl something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word cd",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "cd something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word ls",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "ls something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word cat",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "cat something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word echo",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "echo something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word export",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "export something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word eval",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "eval something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word exec",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "exec something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word kill",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "kill something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word dd",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "dd something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "first word mkfs",
+   "input": [
+    {
+     "title": "Fine",
+     "prompt": "mkfs something"
+    }
+   ],
+   "expected": []
+  },
+  {
+   "name": "kept sentence: Open README.md",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Open README.md"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Open README.md"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Fix main.ts and utils.py",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Fix main.ts and utils.py"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Fix main.ts and utils.py"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Is Node.js or Next.js better?",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Is Node.js or Next.js better?"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Is Node.js or Next.js better?"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Update to version 1.2.3",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Update to version 1.2.3"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Update to version 1.2.3"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Use the date 12.05.2026",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Use the date 12.05.2026"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Use the date 12.05.2026"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Explain e.g. a cache",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Explain e.g. a cache"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Explain e.g. a cache"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Visit example.community",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Visit example.community"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Visit example.community"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Read the example.company page",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Read the example.company page"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Read the example.company page"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Explain a.b.c",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Explain a.b.c"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Explain a.b.c"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Explain what a pipeline is",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Explain what a pipeline is"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Explain what a pipeline is"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Show me the diff",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Show me the diff"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Show me the diff"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Compare the two options and tell me which is cheaper",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Compare the two options and tell me which is cheaper"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Compare the two options and tell me which is cheaper"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: What does git do? Explain it",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "What does git do? Explain it"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "What does git do? Explain it"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Summarize the last 5 messages (short)",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Summarize the last 5 messages (short)"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Summarize the last 5 messages (short)"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Pindahkan ke folder Dokumen",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Pindahkan ke folder Dokumen"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Pindahkan ke folder Dokumen"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Why is 3 > 2?",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Why is 3 > 2?"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Why is 3 > 2?"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Use the date 12/05/2026",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Use the date 12/05/2026"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Use the date 12/05/2026"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: Please run rm later",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "Please run rm later"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "Please run rm later"
+    }
+   ]
+  },
+  {
+   "name": "kept sentence: python script",
+   "input": [
+    {
+     "title": "Ask",
+     "prompt": "python script"
+    }
+   ],
+   "expected": [
+    {
+     "title": "Ask",
+     "prompt": "python script"
+    }
+   ]
+  }
+ ]
+}
