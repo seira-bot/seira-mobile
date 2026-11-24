@@ -7,6 +7,7 @@
     <string name="notification_approved">Підтверджено</string>
     <string name="notification_approve_failed">Не вдалося підтвердити. Відкрийте чат, щоб переглянути.</string>
     <string name="notification_approve_settled">Уже відповіли. Відкрийте чат, щоб переглянути.</string>
+    <string name="notification_action_unavailable">Це сповіщення застаріло, і відповісти на нього звідси не можна. Відкрийте чат, щоб продовжити.</string>
     <string name="notification_reply_failed">Не вдалося надіслати. Відкрийте чат, щоб спробувати знову.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Показує, що роблять ваші боти, поки вони працюють або чекають на вас.</string>

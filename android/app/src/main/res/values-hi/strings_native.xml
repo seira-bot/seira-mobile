@@ -7,6 +7,7 @@
     <string name="notification_approved">मंज़ूर किया गया</string>
     <string name="notification_approve_failed">मंज़ूर नहीं हो सका। देखने के लिए चैट खोलें।</string>
     <string name="notification_approve_settled">जवाब दिया जा चुका है। देखने के लिए चैट खोलें।</string>
+    <string name="notification_action_unavailable">यह नोटिफ़िकेशन पुराना है, इसलिए यहाँ से जवाब नहीं दिया जा सकता। आगे बढ़ने के लिए चैट खोलें।</string>
     <string name="notification_reply_failed">भेजा नहीं जा सका। फिर कोशिश करने के लिए चैट खोलें।</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">आपके बॉट काम करते समय या आपका इंतज़ार करते समय क्या कर रहे हैं, यह दिखाता है।</string>

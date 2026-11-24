@@ -7,6 +7,7 @@
     <string name="notification_approved">Zatwierdzono</string>
     <string name="notification_approve_failed">Nie udało się zatwierdzić. Otwórz czat, aby przejrzeć.</string>
     <string name="notification_approve_settled">Już odpowiedziano. Otwórz czat, aby zobaczyć.</string>
+    <string name="notification_action_unavailable">To powiadomienie jest nieaktualne i nie można na nie odpowiedzieć stąd. Otwórz czat, aby kontynuować.</string>
     <string name="notification_reply_failed">Nie udało się wysłać. Otwórz czat, aby spróbować ponownie.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Pokazuje, co robią Twoje boty, gdy pracują lub czekają na Ciebie.</string>

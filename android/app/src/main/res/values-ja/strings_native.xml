@@ -7,6 +7,7 @@
     <string name="notification_approved">承認しました</string>
     <string name="notification_approve_failed">承認できませんでした。チャットを開いて確認してください。</string>
     <string name="notification_approve_settled">すでに回答済みです。チャットを開いて確認してください。</string>
+    <string name="notification_action_unavailable">この通知は古いため、ここからは操作できません。チャットを開いて続けてください。</string>
     <string name="notification_reply_failed">送信できませんでした。チャットを開いて、もう一度お試しください。</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">ボットが作業中やあなたの対応待ちのときの状況を表示します。</string>

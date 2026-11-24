@@ -7,6 +7,7 @@
     <string name="notification_approved">Одобрено</string>
     <string name="notification_approve_failed">Не удалось одобрить. Откройте чат, чтобы посмотреть.</string>
     <string name="notification_approve_settled">Уже отвечено. Откройте чат, чтобы посмотреть.</string>
+    <string name="notification_action_unavailable">Это уведомление устарело, и ответить на него отсюда нельзя. Откройте чат, чтобы продолжить.</string>
     <string name="notification_reply_failed">Не удалось отправить. Откройте чат и повторите попытку.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Показывает, что делают ваши боты, пока они работают или ждут вас.</string>

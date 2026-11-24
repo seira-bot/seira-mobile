@@ -7,6 +7,7 @@
     <string name="notification_approved">Genehmigt</string>
     <string name="notification_approve_failed">Genehmigen fehlgeschlagen. Öffne den Chat zum Prüfen.</string>
     <string name="notification_approve_settled">Bereits beantwortet. Öffne den Chat, um es zu sehen.</string>
+    <string name="notification_action_unavailable">Diese Benachrichtigung ist veraltet und kann hier nicht beantwortet werden. Öffne den Chat, um fortzufahren.</string>
     <string name="notification_reply_failed">Senden fehlgeschlagen. Öffne den Chat und versuche es erneut.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Zeigt, was deine Bots tun, während sie arbeiten oder auf dich warten.</string>
