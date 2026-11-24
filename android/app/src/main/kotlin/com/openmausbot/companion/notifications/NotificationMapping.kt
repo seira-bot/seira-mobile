@@ -34,10 +34,14 @@ object NotificationMapping {
     fun channelId(alert: PushAlert): String =
         alert.channelId?.takeIf { it in KNOWN_CHANNELS } ?: channelIdForKind(alert.kind)
 
-    /** Matches iOS: `openmaus.{threadId}.{seq}` (title fallback when seq is null). */
-    fun dedupeId(notification: NotificationFrame, sequence: Int?): String {
+    /**
+     * Matches iOS: `openmaus.{threadId}.{seq}` (title fallback when seq is null).
+     * Two computers can send the same thread id and sequence, so a banner from a
+     * known computer adds `@{pairing}`.
+     */
+    fun dedupeId(notification: NotificationFrame, sequence: Int?, pairing: String? = null): String {
         val suffix = sequence?.toString() ?: notification.title
-        return "openmaus.${notification.threadId}.$suffix"
+        return "openmaus.${notification.threadId}.$suffix" + (pairing?.let { "@$it" } ?: "")
     }
 
     fun isHighImportance(notification: NotificationFrame): Boolean = notification.isBlocking

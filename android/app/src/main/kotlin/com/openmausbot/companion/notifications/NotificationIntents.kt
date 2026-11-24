@@ -50,11 +50,13 @@ object NotificationIntents {
     fun contentIntent(
         packageContext: android.content.Context,
         notification: NotificationFrame,
+        pairing: String? = null,
     ): Intent = openIntent(
         packageContext,
         notification.botId,
         notification.threadId,
         notification.kind,
+        pairing,
     )
 
     fun openIntent(
