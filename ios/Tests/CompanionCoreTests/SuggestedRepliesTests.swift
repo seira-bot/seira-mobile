@@ -86,12 +86,31 @@ final class SuggestedRepliesTests: XCTestCase {
         XCTAssertEqual(SuggestedReplies.forTranscript([chips, try line("absent")]), [])
     }
 
-    func testATapSendsOnlyWhenTheTitleIsTheWholePromptOtherwiseItFillsTheComposer() {
-        XCTAssertEqual(SuggestedReplies.tap(reply("Is it safe?", "Is it safe?")), .send)
+    func testATapOnAServerChipAlwaysFillsTheComposerForAnyTitlePromptOrLength() {
+        XCTAssertEqual(SuggestedReplies.tap(reply("Is it safe?", "Is it safe?")), .fillComposer)
         XCTAssertEqual(SuggestedReplies.tap(reply("Explain", "Explain what you changed")), .fillComposer)
         XCTAssertEqual(SuggestedReplies.tap(reply("Safe", "safe")), .fillComposer)
-        let long = String(repeating: "x", count: SuggestedReplies.titleMax + 1)
-        XCTAssertEqual(SuggestedReplies.tap(reply(long, long)), .fillComposer)
+        XCTAssertEqual(SuggestedReplies.tap(reply("Yes", "Yes")), .fillComposer)
+        let longTitle = String(repeating: "x", count: SuggestedReplies.titleMax)
+        XCTAssertEqual(SuggestedReplies.tap(reply(longTitle, longTitle)), .fillComposer)
+        let longPrompt = String(repeating: "word ", count: SuggestedReplies.promptMax / 5 - 1)
+            .trimmingCharacters(in: .whitespaces)
+        XCTAssertEqual(SuggestedReplies.tap(reply("Long", longPrompt)), .fillComposer)
+    }
+
+    func testNoServerChipInTheRowSendsHoweverTheTitleAndThePromptMatch() throws {
+        let server = SuggestedReplies.clean(try list("""
+        [
+          {"title":"Yes","prompt":"Yes"},
+          {"title":"Is it safe?","prompt":"Is it safe?"},
+          {"title":"Explain","prompt":"Explain what you changed"},
+          {"title":"\(String(repeating: "x", count: SuggestedReplies.titleMax))","prompt":"\(String(repeating: "x", count: SuggestedReplies.titleMax))"}
+        ]
+        """))
+        XCTAssertEqual(server.count, 4)
+        let row = SuggestedReplies.composerChips(server: server, saved: QuickReply.defaults)
+        XCTAssertTrue(row.prefix(server.count).allSatisfy { $0.tap == .fillComposer })
+        XCTAssertTrue(row.dropFirst(server.count).allSatisfy { $0.tap == .send })
     }
 
     func testNoChipTapsIntoAnythingButTheComposerTextOrAPlainSend() throws {

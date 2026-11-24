@@ -1765,7 +1765,7 @@ struct ChatView: View {
                     && !pendingApproval && !lastTurnFailed && !storedChips.isEmpty {
             PredictiveActionChipsView(chips: storedChips, accentColor: SeiraPalette.color(current.color)) { chip in
                 if chip.fillsComposer {
-                    // The chip cannot show the whole text: the person reads it, edits it and presses Send.
+                    // A server chip always fills the composer: no layout proves the whole title was visible. The person reads it and presses Send.
                     text.wrappedValue = chip.prompt
                     composerFocused = true
                 } else {

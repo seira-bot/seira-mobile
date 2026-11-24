@@ -6,6 +6,9 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ChatSummary
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.CompanionState
+import com.openmausbot.companion.core.QuickReply
+import com.openmausbot.companion.core.SuggestedReplies
+import com.openmausbot.companion.core.SuggestedReply
 import com.openmausbot.companion.core.GroupResponder
 import com.openmausbot.companion.core.Message
 import com.openmausbot.companion.core.RoutineRunCard
@@ -694,5 +697,18 @@ class MessageActionsTest {
         assertEquals("Try this again", MessageActions.editableText(plain))
         assertNull(MessageActions.editableText(attached))
         assertNull(MessageActions.editableText(plain.copy(role = Message.Role.BOT)))
+    }
+
+    @Test
+    fun `every server chip on the row fills the composer, even when the title is the whole prompt`() {
+        val server = listOf(
+            SuggestedReply("Yes", "Yes"),
+            SuggestedReply("Explain", "Explain what you changed"),
+            SuggestedReply("x".repeat(SuggestedReplies.TITLE_MAX), "x".repeat(SuggestedReplies.TITLE_MAX)),
+        )
+        val row = PredictiveChip.row(SuggestedReplies.composerChips(server, QuickReply.DEFAULTS))
+        assertTrue(row.take(server.size).all { it.fillsComposer })
+        assertTrue(row.drop(server.size).none { it.fillsComposer })
+        assertEquals(server.size + QuickReply.DEFAULTS.size, row.size)
     }
 }

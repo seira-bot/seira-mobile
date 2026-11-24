@@ -13,7 +13,7 @@ public struct SuggestedReply: Hashable, Sendable {
 
 /// What a tap on a chip does.
 public enum ChipTap: Hashable, Sendable {
-    /// The chip shows the exact full text, so the tap sends it as any saved chip.
+    /// The tap sends the text at once. Only the chips the person saved have it: a chip from a model never does.
     case send
     /// The tap puts the full text in the composer. The person reads it, edits it and presses Send.
     case fillComposer
@@ -79,7 +79,9 @@ public struct SuggestedReplyList: Codable, Hashable, Sendable {
 /// The `suggestedReplies` field on the last bot line of a finished turn (seira#527, `suggested-replies.ts`).
 ///
 /// The text comes from a model, so the phone runs the same cleaner as the computer before a chip exists. The filter is
-/// best effort. The boundary is `tap`: a chip never sends text the person cannot see in full.
+/// best effort. The boundary is `tap`: a chip from the server never sends anything. A chip row can clip a title (a
+/// narrow screen, large text, a row that scrolls), so no layout proves that the person saw the whole text. The tap puts
+/// the full text in the composer, where the person reads it and presses Send.
 /// Port of Android `SuggestedReplies`.
 public enum SuggestedReplies {
     public static let maxChips = 4
@@ -167,10 +169,10 @@ public enum SuggestedReplies {
         return clean(last.suggestedReplies)
     }
 
-    /// A tap sends only when the chip shows the exact text that goes out: the title is the prompt. A title that differs, or a
-    /// prompt that the chip cannot show in full, fills the composer, and the person presses Send.
+    /// A tap on a chip from the server always fills the composer, for every title and prompt, whatever the screen shows.
+    /// The person reads the full text there and presses Send.
     public static func tap(_ reply: SuggestedReply) -> ChipTap {
-        reply.title == reply.prompt && reply.prompt.unicodeScalars.count <= titleMax ? .send : .fillComposer
+        .fillComposer
     }
 
     /// The composer row: the chips of the server first, then the saved chips. A saved chip with the prompt of a server chip

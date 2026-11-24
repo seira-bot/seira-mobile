@@ -1,5 +1,7 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.core.ChipTap
+import com.openmausbot.companion.core.ComposerChip
 import com.openmausbot.companion.core.AttachedMessageContent
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Chat
@@ -685,10 +687,16 @@ object SlashCommands {
 }
 
 /**
- * One chip above an empty composer. A server chip whose title is not its whole prompt has [fillsComposer]: a tap puts the
- * text in the composer and the person presses Send.
+ * One chip above an empty composer. A server chip always has [fillsComposer]: no layout proves the person saw its whole
+ * title, so a tap puts the text in the composer and the person presses Send. Only a saved chip sends on the tap.
  */
-data class PredictiveChip(val title: String, val prompt: String, val icon: String? = null, val fillsComposer: Boolean = false)
+data class PredictiveChip(val title: String, val prompt: String, val icon: String? = null, val fillsComposer: Boolean = false) {
+    companion object {
+        /** The chip row as the screen draws it: one chip for each [ComposerChip], with the tap the core decided. */
+        fun row(chips: List<ComposerChip>): List<PredictiveChip> =
+            chips.map { PredictiveChip(it.title, it.prompt, it.icon, fillsComposer = it.tap == ChipTap.FILL_COMPOSER) }
+    }
+}
 
 /**
  * The port of `PredictiveActionChipsView` in

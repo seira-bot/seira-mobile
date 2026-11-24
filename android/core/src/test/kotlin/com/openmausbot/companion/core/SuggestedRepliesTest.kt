@@ -81,12 +81,31 @@ class SuggestedRepliesTest {
     }
 
     @Test
-    fun `a tap sends only when the title is the whole prompt, otherwise it fills the composer`() {
-        assertEquals(ChipTap.SEND, SuggestedReplies.tap(reply("Is it safe?", "Is it safe?")))
+    fun `a tap on a server chip always fills the composer, for any title, prompt or length`() {
+        assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply("Is it safe?", "Is it safe?")))
         assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply("Explain", "Explain what you changed")))
         assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply("Safe", "safe")))
-        val long = "x".repeat(SuggestedReplies.TITLE_MAX + 1)
-        assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply(long, long)))
+        assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply("Yes", "Yes")))
+        val longTitle = "x".repeat(SuggestedReplies.TITLE_MAX)
+        assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply(longTitle, longTitle)))
+        val longPrompt = "word ".repeat(SuggestedReplies.PROMPT_MAX / 5 - 1).trim()
+        assertEquals(ChipTap.FILL_COMPOSER, SuggestedReplies.tap(reply("Long", longPrompt)))
+    }
+
+    @Test
+    fun `no server chip in the row sends, however the title and the prompt match`() {
+        val server = SuggestedReplies.clean(
+            buildJsonArray {
+                add(entry("Yes", "Yes"))
+                add(entry("Is it safe?", "Is it safe?"))
+                add(entry("Explain", "Explain what you changed"))
+                add(entry("x".repeat(SuggestedReplies.TITLE_MAX), "x".repeat(SuggestedReplies.TITLE_MAX)))
+            },
+        )
+        assertEquals(4, server.size)
+        val row = SuggestedReplies.composerChips(server, QuickReply.DEFAULTS)
+        assertTrue(row.take(server.size).all { it.tap == ChipTap.FILL_COMPOSER })
+        assertTrue(row.drop(server.size).all { it.tap == ChipTap.SEND })
     }
 
     @Test
