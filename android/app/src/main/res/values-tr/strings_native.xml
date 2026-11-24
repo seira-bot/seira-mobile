@@ -7,6 +7,7 @@
     <string name="notification_approved">Onaylandı</string>
     <string name="notification_approve_failed">Onaylanamadı. İncelemek için sohbeti açın.</string>
     <string name="notification_approve_settled">Zaten yanıtlandı. Görmek için sohbeti aç.</string>
+    <string name="notification_action_unavailable">Bu bildirim güncel değil, buradan yanıtlanamaz. Devam etmek için sohbeti açın.</string>
     <string name="notification_reply_failed">Gönderilemedi. Tekrar denemek için sohbeti açın.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Botların çalışırken veya seni beklerken ne yaptığını gösterir.</string>

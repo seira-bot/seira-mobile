@@ -7,6 +7,7 @@
     <string name="notification_approved">Approved</string>
     <string name="notification_approve_failed">Couldn\'t approve. Open the chat to review.</string>
     <string name="notification_approve_settled">Already answered. Open the chat to see it.</string>
+    <string name="notification_action_unavailable">This notification is out of date, so it can\'t be answered from here. Open the chat to continue.</string>
     <string name="notification_reply_failed">Couldn\'t send. Open the chat to try again.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Shows what your bots are doing while they work or wait for you.</string>

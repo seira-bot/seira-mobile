@@ -305,6 +305,28 @@ class LocalNotificationPoster(
         post(request.tag, builder.build())
     }
 
+    /**
+     * Replaces a banner whose Approve or Reply cannot run because it names no computer.
+     * Without this the tap does nothing and reads as a bug. The banner opens its chat
+     * when it knows one.
+     */
+    fun showActionUnavailable(action: UnrunnableAction) {
+        if (!canPost()) return
+        val text = NotificationText.anchored(appContext.getString(R.string.notification_action_unavailable))
+        val builder = NotificationCompat.Builder(appContext, NotificationMapping.CHANNEL_DONE)
+            .setSmallIcon(R.drawable.ic_seira_mark)
+            .setContentTitle(NotificationText.anchored(action.title.ifBlank { appContext.getString(R.string.app_name) }))
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setAutoCancel(true)
+            .setOnlyAlertOnce(true)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
+        if (action.botId != null && action.threadId != null) {
+            builder.setContentIntent(NotificationIntents.openPending(appContext, action.botId, action.threadId))
+        }
+        post(action.tag ?: UNAVAILABLE_TAG, builder.build())
+    }
+
     private fun outcomeBuilder(
         channelId: String,
         title: String,
@@ -464,6 +486,9 @@ class LocalNotificationPoster(
         const val EXTRA_BOT_ID = "openmaus.botId"
         const val EXTRA_KIND = "openmaus.kind"
         const val EXTRA_PAIRING = "openmaus.pairing"
+
+        /** Where the message goes when the tapped banner carried no tag to replace. */
+        const val UNAVAILABLE_TAG = "openmaus.action-unavailable"
 
         private const val KIND_APPROVAL = "approval"
         private const val KIND_QUESTION = "question"

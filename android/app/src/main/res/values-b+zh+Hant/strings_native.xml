@@ -7,6 +7,7 @@
     <string name="notification_approved">已核准</string>
     <string name="notification_approve_failed">無法核准。請開啟聊天查看。</string>
     <string name="notification_approve_settled">已有人處理。請開啟聊天查看。</string>
+    <string name="notification_action_unavailable">此通知已過期，無法在這裡處理。請開啟聊天繼續。</string>
     <string name="notification_reply_failed">無法傳送。請開啟聊天重試。</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">顯示機器人在工作或等待你時正在做什麼。</string>

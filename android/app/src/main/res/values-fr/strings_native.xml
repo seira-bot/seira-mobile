@@ -7,6 +7,7 @@
     <string name="notification_approved">Approuvé</string>
     <string name="notification_approve_failed">Impossible d’approuver. Ouvrez le chat pour examiner.</string>
     <string name="notification_approve_settled">Déjà répondu. Ouvrez le chat pour le voir.</string>
+    <string name="notification_action_unavailable">Cette notification est périmée et ne peut pas recevoir de réponse ici. Ouvrez le chat pour continuer.</string>
     <string name="notification_reply_failed">Impossible d’envoyer. Ouvrez le chat pour réessayer.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Affiche ce que font vos bots pendant qu’ils travaillent ou vous attendent.</string>

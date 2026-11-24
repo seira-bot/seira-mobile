@@ -7,6 +7,7 @@
     <string name="notification_approved">已批准</string>
     <string name="notification_approve_failed">无法批准。请打开聊天查看。</string>
     <string name="notification_approve_settled">已有人处理。请打开聊天查看。</string>
+    <string name="notification_action_unavailable">此通知已过期，无法在这里处理。请打开聊天继续。</string>
     <string name="notification_reply_failed">无法发送。请打开聊天重试。</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">显示机器人在工作或等待你时正在做什么。</string>

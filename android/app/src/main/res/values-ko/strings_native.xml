@@ -7,6 +7,7 @@
     <string name="notification_approved">승인됨</string>
     <string name="notification_approve_failed">승인하지 못했어요. 채팅을 열어 검토하세요.</string>
     <string name="notification_approve_settled">이미 답변했어요. 채팅을 열어 확인하세요.</string>
+    <string name="notification_action_unavailable">이 알림은 오래되어 여기서는 처리할 수 없어요. 채팅을 열어 계속하세요.</string>
     <string name="notification_reply_failed">보내지 못했어요. 채팅을 열어 다시 시도하세요.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">봇이 작업 중이거나 내 응답을 기다릴 때 상황을 보여줘요.</string>

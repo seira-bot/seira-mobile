@@ -16,7 +16,9 @@ import kotlinx.coroutines.withTimeoutOrNull
  * (see [NotificationApproval]).
  *
  * Security invariant: an action runs only against the computer that posted its
- * banner. When that computer is gone or cannot be activated, nothing is sent.
+ * banner. When that computer is gone or cannot be activated, nothing is sent and
+ * the banner says why. A banner that names no computer cannot run either; it says
+ * so too, instead of doing nothing.
  */
 class NotificationActionHandler(
     private val session: Session,
@@ -25,10 +27,16 @@ class NotificationActionHandler(
 ) {
     suspend fun handle(intent: Intent) {
         when (intent.action) {
-            NotificationActions.ACTION_APPROVE ->
-                NotificationActions.approveRequest(intent)?.let { approve(it) }
+            NotificationActions.ACTION_APPROVE -> {
+                val request = NotificationActions.approveRequest(intent)
+                if (request == null) poster.showActionUnavailable(NotificationActions.unrunnable(intent)) else approve(request)
+            }
             NotificationActions.ACTION_REPLY -> {
-                val request = NotificationActions.replyRequest(intent) ?: return
+                val request = NotificationActions.replyRequest(intent)
+                if (request == null) {
+                    poster.showActionUnavailable(NotificationActions.unrunnable(intent))
+                    return
+                }
                 val text = NotificationActions.replyText(intent)
                 if (text == null) poster.showReplyFailed(request) else reply(request, text)
             }

@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.Application
 import android.app.Notification
 import android.app.NotificationManager
+import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.ConnectionRegistry
 import com.openmausbot.companion.core.ConnectionRegistryRestore
@@ -174,6 +175,64 @@ class NotificationActionComputerTest {
         assertNull(NotificationActions.replyRequest(intent))
     }
 
+    @Test
+    fun `Approve on a banner that names no computer sends nothing and says it is out of date`() = runTest {
+        val session = bind()
+        val request = ApproveRequest("openmaus.$THREAD_ID.2@old", BOT_ID, THREAD_ID, REQUEST_ID, "Approval needed", "alpha")
+        val intent = NotificationActions.approveIntent(context, request).apply { removeExtra(LocalNotificationPoster.EXTRA_PAIRING) }
+
+        NotificationActionHandler(session, poster).handle(intent)
+
+        assertEquals(0, alphaAnswers.answers.size)
+        assertEquals(0, betaAnswers.answers.size)
+        assertEquals(context.getString(R.string.notification_action_unavailable), text(request.tag))
+        assertEquals("Approval needed", title(request.tag))
+        assertEquals(alpha.id, session.connection.value?.id)
+    }
+
+    @Test
+    fun `Reply on a banner that names no computer sends nothing and says it is out of date`() = runTest {
+        val session = bind()
+        val request = ReplyRequest("openmaus.$THREAD_ID.1@old", BOT_ID, THREAD_ID, "Scout", "alpha")
+        val intent = NotificationActions.replyIntent(context, request).apply { removeExtra(LocalNotificationPoster.EXTRA_PAIRING) }
+
+        NotificationActionHandler(session, poster).handle(intent)
+
+        assertEquals(0, alphaAnswers.answers.size)
+        assertEquals(0, betaAnswers.answers.size)
+        assertEquals(context.getString(R.string.notification_action_unavailable), text(request.tag))
+        assertEquals("Scout", title(request.tag))
+    }
+
+    @Test
+    fun `an action with no computer and no tag still says it is out of date`() = runTest {
+        val session = bind()
+        val intent = NotificationActions.approveIntent(
+            context,
+            ApproveRequest("tag", BOT_ID, THREAD_ID, REQUEST_ID, "", "alpha"),
+        ).apply {
+            removeExtra(LocalNotificationPoster.EXTRA_PAIRING)
+            removeExtra("openmaus.notificationTag")
+        }
+
+        NotificationActionHandler(session, poster).handle(intent)
+
+        assertEquals(0, alphaAnswers.answers.size)
+        assertEquals(context.getString(R.string.notification_action_unavailable), text(LocalNotificationPoster.UNAVAILABLE_TAG))
+    }
+
+    @Test
+    fun `a tapped action from a removed computer says so through the receiver path`() = runTest {
+        val session = bind()
+        val request = ApproveRequest("openmaus.$THREAD_ID.2@gone", BOT_ID, THREAD_ID, REQUEST_ID, "Approval needed", "gone")
+
+        NotificationActionHandler(session, poster).handle(NotificationActions.approveIntent(context, request))
+
+        assertEquals(0, alphaAnswers.answers.size)
+        assertEquals(0, betaAnswers.answers.size)
+        assertEquals(NotificationOpen.COMPUTER_GONE_MESSAGE, text(request.tag))
+    }
+
     private fun doneFrame() = NotificationFrame(
         kind = "done",
         botId = BOT_ID,
@@ -198,6 +257,9 @@ class NotificationActionComputerTest {
 
     private fun text(tag: String): String =
         assertNotNull(shadowOf(manager).getNotification(tag, 0)).extras.getCharSequence(Notification.EXTRA_TEXT).toString()
+
+    private fun title(tag: String): String =
+        assertNotNull(shadowOf(manager).getNotification(tag, 0)).extras.getCharSequence(Notification.EXTRA_TITLE).toString()
 
     private fun approveIntent(notification: Notification) =
         shadowOf(notification.actions.first { it.title.toString() == "Approve" }.actionIntent).savedIntent

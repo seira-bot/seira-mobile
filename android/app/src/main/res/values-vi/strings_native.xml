@@ -7,6 +7,7 @@
     <string name="notification_approved">Đã phê duyệt</string>
     <string name="notification_approve_failed">Không thể phê duyệt. Hãy mở cuộc trò chuyện để xem xét.</string>
     <string name="notification_approve_settled">Đã được trả lời. Hãy mở cuộc trò chuyện để xem.</string>
+    <string name="notification_action_unavailable">Thông báo này đã cũ nên không thể trả lời từ đây. Hãy mở cuộc trò chuyện để tiếp tục.</string>
     <string name="notification_reply_failed">Không thể gửi. Hãy mở cuộc trò chuyện để thử lại.</string>
     <string name="glance_channel_name">Glance</string>
     <string name="glance_channel_description">Hiển thị bot của bạn đang làm gì khi chúng làm việc hoặc chờ bạn.</string>

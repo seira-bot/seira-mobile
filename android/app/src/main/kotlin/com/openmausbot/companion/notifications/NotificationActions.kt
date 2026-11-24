@@ -26,6 +26,12 @@ data class ReplyRequest(
     val pairing: String,
 )
 
+/**
+ * An Approve or Reply tap whose banner names no computer, as banners posted before
+ * the computer was recorded do. It cannot run; it only carries what is needed to say so.
+ */
+data class UnrunnableAction(val tag: String?, val botId: String?, val threadId: String?, val title: String)
+
 object NotificationActions {
     const val ACTION_APPROVE = "bot.seira.companion.action.APPROVE"
     const val ACTION_REPLY = "bot.seira.companion.action.REPLY"
@@ -75,6 +81,14 @@ object NotificationActions {
         val pairing = intent.getStringExtra(LocalNotificationPoster.EXTRA_PAIRING)?.takeIf { it.isNotBlank() } ?: return null
         return ReplyRequest(tag, botId, threadId, intent.getStringExtra(EXTRA_BOT_NAME).orEmpty(), pairing)
     }
+
+    /** What to show for an action that [approveRequest] or [replyRequest] could not read. */
+    fun unrunnable(intent: Intent): UnrunnableAction = UnrunnableAction(
+        tag = intent.getStringExtra(EXTRA_TAG)?.takeIf { it.isNotBlank() },
+        botId = intent.getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID)?.takeIf { it.isNotBlank() },
+        threadId = intent.getStringExtra(LocalNotificationPoster.EXTRA_THREAD_ID)?.takeIf { it.isNotBlank() },
+        title = intent.getStringExtra(EXTRA_TITLE).orEmpty().ifBlank { intent.getStringExtra(EXTRA_BOT_NAME).orEmpty() },
+    )
 
     fun replyText(intent: Intent): String? =
         RemoteInput.getResultsFromIntent(intent)?.getCharSequence(KEY_REPLY)?.toString()?.trim()
