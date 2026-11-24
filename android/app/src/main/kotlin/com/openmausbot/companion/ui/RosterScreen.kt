@@ -86,6 +86,8 @@ import com.openmausbot.companion.core.RosterRowStatus
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.SearchHit
 import com.openmausbot.companion.core.Session
+import com.openmausbot.companion.core.WorkspacePicker
+import com.openmausbot.companion.core.WorkspacePickerModel
 import com.openmausbot.companion.core.chat
 import com.openmausbot.companion.core.chatSummaries
 import com.openmausbot.companion.core.forTask
@@ -158,6 +160,12 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
     var changingLookId by rememberSaveable { mutableStateOf<String?>(null) }
     var showingNewChat by remember { mutableStateOf(false) }
     var showingComputers by remember { mutableStateOf(false) }
+    var showingWorkspaces by remember { mutableStateOf(false) }
+    val workspaceUnnamed = stringResource(R.string.workspace_unnamed)
+    val workspacePicker = remember(session) {
+        WorkspacePickerModel(session.workspaceSource) { WorkspacePicker.canOpen(session.connection.value) }
+    }
+    val workspaces by workspacePicker.state.collectAsState()
     var teamExpanded by rememberSaveable { mutableStateOf(false) }
     var profile by remember { mutableStateOf<Profile?>(null) }
     val liveCall by environment.liveCalls.state.collectAsState()
@@ -172,6 +180,19 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
         if (status == Session.Status.Live) {
             session.configStatus()?.profile?.let { profile = it }
         }
+    }
+
+    // The list is read again when the computer comes back, and every few seconds while a switch waits or the sheet is open.
+    LaunchedEffect(connection?.id, status, showingWorkspaces, workspaces.polling) {
+        if (status != Session.Status.Live) return@LaunchedEffect
+        workspacePicker.refresh()
+        while (showingWorkspaces || workspaces.polling) {
+            delay(WORKSPACE_POLL_MILLIS)
+            workspacePicker.refresh()
+        }
+    }
+    LaunchedEffect(workspaces.visible) {
+        if (!workspaces.visible) showingWorkspaces = false
     }
 
     // Local filtering is always on; the computer is only asked past two
@@ -454,6 +475,12 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                                     haptics.play(HapticCue.SELECT)
                                     showingComputers = true
                                 },
+                                workspaceName = workspaces.current?.takeIf { workspaces.visible }
+                                    ?.let { WorkspaceSheetRules.name(it) ?: workspaceUnnamed },
+                                onWorkspace = {
+                                    haptics.play(HapticCue.SELECT)
+                                    showingWorkspaces = true
+                                },
                                 // The text sits 28 dp under the rail (6 dp of its own, and
                                 // half of the 48 dp row around "Chats").
                                 modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),
@@ -664,6 +691,20 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
         )
     }
 
+    if (showingWorkspaces && workspaces.visible) {
+        WorkspaceSheet(
+            state = workspaces,
+            onAction = { action, id ->
+                haptics.play(HapticCue.SELECT)
+                scope.launch { workspacePicker.perform(action, id) }
+            },
+            onDismiss = {
+                showingWorkspaces = false
+                workspacePicker.dismissNotice()
+            },
+        )
+    }
+
     if (showingComputers) {
         ComputerSwitchSheet(
             computers = computers,
@@ -763,6 +804,9 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
         )
     }
 }
+
+/** How often the workspace list is read again while a switch waits or the sheet is open. */
+private const val WORKSPACE_POLL_MILLIS = 3_000L
 
 /** Clear space between the last row and the floating bar, once scrolled to the end. */
 private val LIST_END_MARGIN = 16.dp

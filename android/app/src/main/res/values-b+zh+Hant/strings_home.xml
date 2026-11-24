@@ -31,4 +31,20 @@
     <string name="home_empty_back_to_chats">返回聊天</string>
     <string name="home_computers_title">電腦</string>
     <string name="home_switch_computer">切換電腦。目前：%1$s</string>
+    <string name="workspace_sheet_title">工作區</string>
+    <string name="workspace_chip_description">切換工作區。目前：%1$s</string>
+    <string name="workspace_unnamed">未命名的工作區</string>
+    <string name="workspace_opening">正在開啟…</string>
+    <string name="workspace_status_open">已開啟</string>
+    <string name="workspace_status_waiting">正在等待%1$s完成</string>
+    <string name="workspace_status_waiting_generic">正在等待工作完成</string>
+    <string name="workspace_status_unavailable">無法使用</string>
+    <string name="workspace_status_pair_again">請重新配對這支手機以開啟此工作區</string>
+    <string name="workspace_action_open_now">立即開啟</string>
+    <string name="workspace_action_cancel">取消</string>
+    <string name="workspace_notice_turned_off">這支手機無法開啟其他工作區。請在電腦的設定中為這支手機開啟此功能。</string>
+    <string name="workspace_notice_unavailable">此工作區目前無法開啟。</string>
+    <string name="workspace_notice_gone">此工作區已不在這台電腦上。</string>
+    <string name="workspace_notice_failed">無法連線到電腦。請再試一次。</string>
+    <string name="workspace_notice_needs_pairing">若要開啟其他工作區，請將這支手機與電腦重新配對。</string>
 </resources>

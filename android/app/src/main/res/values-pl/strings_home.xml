@@ -34,4 +34,20 @@
     <string name="home_empty_back_to_chats">Wróć do czatów</string>
     <string name="home_computers_title">Komputery</string>
     <string name="home_switch_computer">Zmień komputer. Teraz: %1$s</string>
+    <string name="workspace_sheet_title">Obszary robocze</string>
+    <string name="workspace_chip_description">Zmień obszar roboczy. Teraz: %1$s</string>
+    <string name="workspace_unnamed">Obszar roboczy bez nazwy</string>
+    <string name="workspace_opening">Otwieranie…</string>
+    <string name="workspace_status_open">Otwarty</string>
+    <string name="workspace_status_waiting">Czekam, aż %1$s skończy</string>
+    <string name="workspace_status_waiting_generic">Czekam na zakończenie pracy</string>
+    <string name="workspace_status_unavailable">Niedostępny</string>
+    <string name="workspace_status_pair_again">Sparuj ten telefon ponownie, aby otworzyć ten obszar roboczy</string>
+    <string name="workspace_action_open_now">Otwórz teraz</string>
+    <string name="workspace_action_cancel">Anuluj</string>
+    <string name="workspace_notice_turned_off">Ten telefon nie może otwierać innych obszarów roboczych. Włącz to dla tego telefonu w Ustawieniach na komputerze.</string>
+    <string name="workspace_notice_unavailable">Ten obszar roboczy nie może teraz zostać otwarty.</string>
+    <string name="workspace_notice_gone">Tego obszaru roboczego nie ma już na tym komputerze.</string>
+    <string name="workspace_notice_failed">Nie można połączyć się z komputerem. Spróbuj ponownie.</string>
+    <string name="workspace_notice_needs_pairing">Aby otworzyć inny obszar roboczy, sparuj ten telefon z komputerem ponownie.</string>
 </resources>

@@ -230,6 +230,32 @@ final class WorkspacesTests: XCTestCase {
         }
     }
 
+    func testOpenNowSendsTheHurryFlagAndAPlainOpenDoesNot() async throws {
+        WorkspacesStub.responseBody = Data(#"{"workspaces":[{"id":"a"},{"id":"b","current":true}]}"#.utf8)
+
+        _ = try await client.openWorkspace("b", now: true)
+        let hurried = try JSONSerialization.jsonObject(with: try XCTUnwrap(WorkspacesStub.capturedBody)) as? [String: AnyHashable]
+        XCTAssertEqual(hurried, ["id": "b", "now": true])
+
+        _ = try await client.openWorkspace("a")
+        let plain = try JSONSerialization.jsonObject(with: try XCTUnwrap(WorkspacesStub.capturedBody)) as? [String: AnyHashable]
+        XCTAssertEqual(plain, ["id": "a"])
+        XCTAssertEqual(WorkspacesStub.capturedRequest?.url?.path, "/api/phones/self/workspaces/switch")
+    }
+
+    func testASwitchTheOwnerTurnedOffGives403() async {
+        WorkspacesStub.statusCode = 403
+        WorkspacesStub.responseBody = Data(#"{"error":"This phone cannot open other workspaces."}"#.utf8)
+        do {
+            _ = try await client.openWorkspace("b")
+            XCTFail("a switch the owner turned off must throw")
+        } catch let APIError.status(code, _) {
+            XCTAssertEqual(code, 403)
+        } catch {
+            XCTFail("unexpected error \(error)")
+        }
+    }
+
     // MARK: - Responses captured from the server
 
     private func fixture(_ name: String) throws -> Data {

@@ -88,6 +88,27 @@ class WorkspacesClientTest {
     }
 
     @Test
+    fun openNowSendsTheHurryFlagAndAPlainOpenDoesNot() = runBlocking {
+        server.enqueue(json("""{"workspaces":[{"id":"a"},{"id":"b","current":true}]}"""))
+        server.enqueue(json("""{"workspaces":[{"id":"a"},{"id":"b","current":true}]}"""))
+
+        client.openWorkspace("b", now = true)
+        client.openWorkspace("a")
+
+        assertEquals("""{"id":"b","now":true}""", server.takeRequest().body.readUtf8())
+        assertEquals("""{"id":"a"}""", server.takeRequest().body.readUtf8())
+    }
+
+    @Test
+    fun aSwitchTheOwnerTurnedOffGives403AndAnUnavailableOneGives409() = runBlocking {
+        server.enqueue(json("""{"error":"This phone cannot open other workspaces."}""", 403))
+        server.enqueue(json("""{"error":"workspace_unavailable"}""", 409))
+
+        assertEquals(403, assertFailsWith<APIError.Status> { client.openWorkspace("b") }.code)
+        assertEquals(409, assertFailsWith<APIError.Status> { client.openWorkspace("b") }.code)
+    }
+
+    @Test
     fun aRefusedSwitchSurfacesTheServersWords() = runBlocking {
         server.enqueue(json("""{"error":"No such workspace"}""", 404))
         val error = assertFailsWith<APIError.Status> { client.switchWorkspace("gone") }

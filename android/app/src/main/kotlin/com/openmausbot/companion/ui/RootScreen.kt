@@ -373,6 +373,17 @@ private fun PairedScreen(
 ) {
     val navigator = rememberCompanionNavigator(bondGeneration)
 
+    // The computer moved to another workspace: a chat of the old one has no meaning here, so the app goes back to the roster.
+    val session = LocalCompanion.current.session
+    val workspaceEpoch by session.workspaceEpoch.collectAsState()
+    var seenWorkspaceEpoch by rememberSaveable { mutableIntStateOf(workspaceEpoch) }
+    LaunchedEffect(workspaceEpoch) {
+        if (workspaceEpoch != seenWorkspaceEpoch) {
+            seenWorkspaceEpoch = workspaceEpoch
+            navigator.resetToRoster()
+        }
+    }
+
     // Session already resolved the exact task; the coordinator records the
     // stack and consumes in one commit — keyed on generation so a superseded
     // tap cannot run against a newer pending target.

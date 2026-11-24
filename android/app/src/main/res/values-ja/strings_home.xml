@@ -31,4 +31,20 @@
     <string name="home_empty_back_to_chats">チャットに戻る</string>
     <string name="home_computers_title">コンピュータ</string>
     <string name="home_switch_computer">コンピュータを切り替え。現在: %1$s</string>
+    <string name="workspace_sheet_title">ワークスペース</string>
+    <string name="workspace_chip_description">ワークスペースを切り替える。現在: %1$s</string>
+    <string name="workspace_unnamed">名前のないワークスペース</string>
+    <string name="workspace_opening">開いています…</string>
+    <string name="workspace_status_open">開いています</string>
+    <string name="workspace_status_waiting">%1$s の作業が終わるのを待っています</string>
+    <string name="workspace_status_waiting_generic">作業が終わるのを待っています</string>
+    <string name="workspace_status_unavailable">利用できません</string>
+    <string name="workspace_status_pair_again">このワークスペースを開くには、この電話をもう一度ペアリングしてください</string>
+    <string name="workspace_action_open_now">今すぐ開く</string>
+    <string name="workspace_action_cancel">キャンセル</string>
+    <string name="workspace_notice_turned_off">この電話は他のワークスペースを開けません。コンピューターの設定で、この電話に対してオンにしてください。</string>
+    <string name="workspace_notice_unavailable">このワークスペースは今は開けません。</string>
+    <string name="workspace_notice_gone">このワークスペースはこのコンピューターにありません。</string>
+    <string name="workspace_notice_failed">コンピューターに接続できませんでした。もう一度お試しください。</string>
+    <string name="workspace_notice_needs_pairing">別のワークスペースを開くには、この電話をコンピューターともう一度ペアリングしてください。</string>
 </resources>

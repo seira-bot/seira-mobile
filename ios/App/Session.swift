@@ -747,6 +747,65 @@ final class Session: ObservableObject {
         connect()
     }
 
+    // MARK: - Workspaces
+
+    /// Counts the times the computer moved to another workspace; the roster leaves the chats of the
+    /// old one when it changes.
+    @Published private(set) var workspaceEpoch = 0
+
+    /// The workspace picker. It reads and asks through the active client, holds no pin and does not
+    /// move one: `WorkspacePicker.canOpen` keeps a pinned pairing from starting a switch.
+    private(set) lazy var workspacePicker = WorkspacePickerModel(
+        source: WorkspaceSessionSource(session: self),
+        canOpen: { [unowned self] in WorkspacePicker.canOpen(self.connection) }
+    )
+
+    private final class WorkspaceSessionSource: WorkspaceSource {
+        private unowned let session: Session
+
+        init(session: Session) {
+            self.session = session
+        }
+
+        func workspaces() async throws -> [PhoneWorkspace]? {
+            try await session.client?.workspaces()
+        }
+
+        func requestOpen(id: String, now: Bool) async throws -> [PhoneWorkspace] {
+            guard let client = session.client else {
+                throw APIError.transport("This phone is not connected to a computer.")
+            }
+            return try await client.openWorkspace(id, now: now)
+        }
+
+        func workspaceChanged() async {
+            session.reloadAfterWorkspaceChange()
+        }
+    }
+
+    /// The computer now serves another workspace. Forget the bots, threads, unread count and prepared
+    /// sends of the old one, read the new one from the start, and tell the screens through
+    /// `workspaceEpoch`.
+    func reloadAfterWorkspaceChange() {
+        guard client != nil else { return }
+        leavingComputer.send()
+        resetCredentialEntry()
+        preparedPhoneCredentials.removeAll()
+        runtimeGeneration += 1
+        steeringInstanceIds = []
+        streamResume = StreamResume()
+        state = CompanionState()
+        resetAvatarCache()
+        resetAttachmentCache()
+        attachmentSendIDs.removeAll()
+        NotificationCoordinator.shared.setBadge(0)
+        workspaceEpoch += 1
+        streamGeneration += 1
+        streamTask?.cancel()
+        streamTask = nil
+        connect()
+    }
+
     func forgetConnection(id: String) {
         guard let forgotten = registry.connection(id: id) else { return }
         let wasActive = registry.activeConnectionID == id

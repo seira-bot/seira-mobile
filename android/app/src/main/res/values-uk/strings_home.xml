@@ -34,4 +34,20 @@
     <string name="home_empty_back_to_chats">До чатів</string>
     <string name="home_computers_title">Комп’ютери</string>
     <string name="home_switch_computer">Змінити комп’ютер. Зараз: %1$s</string>
+    <string name="workspace_sheet_title">Робочі простори</string>
+    <string name="workspace_chip_description">Змінити робочий простір. Зараз: %1$s</string>
+    <string name="workspace_unnamed">Робочий простір без назви</string>
+    <string name="workspace_opening">Відкривається…</string>
+    <string name="workspace_status_open">Відкрито</string>
+    <string name="workspace_status_waiting">Очікуємо, поки %1$s завершить</string>
+    <string name="workspace_status_waiting_generic">Очікуємо завершення роботи</string>
+    <string name="workspace_status_unavailable">Недоступно</string>
+    <string name="workspace_status_pair_again">З’єднайте цей телефон із комп’ютером знову, щоб відкрити цей робочий простір</string>
+    <string name="workspace_action_open_now">Відкрити зараз</string>
+    <string name="workspace_action_cancel">Скасувати</string>
+    <string name="workspace_notice_turned_off">Цей телефон не може відкривати інші робочі простори. Увімкніть це для телефона в налаштуваннях на комп’ютері.</string>
+    <string name="workspace_notice_unavailable">Цей робочий простір зараз не можна відкрити.</string>
+    <string name="workspace_notice_gone">Цього робочого простору більше немає на цьому комп’ютері.</string>
+    <string name="workspace_notice_failed">Не вдалося зв’язатися з комп’ютером. Спробуйте ще раз.</string>
+    <string name="workspace_notice_needs_pairing">Щоб відкрити інший робочий простір, з’єднайте цей телефон із комп’ютером знову.</string>
 </resources>

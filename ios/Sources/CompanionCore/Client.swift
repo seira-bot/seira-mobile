@@ -1081,6 +1081,18 @@ public struct CompanionClient: Sendable {
         }
     }
 
+    /// Asks the computer to open `id`; with `now` a workspace that waits opens at once. Asking for
+    /// the open workspace while a switch waits cancels that switch. The answer is the list a moment later.
+    public func openWorkspace(_ id: String, now: Bool = false) async throws -> [PhoneWorkspace] {
+        var body: [String: Any] = ["id": id]
+        if now { body["now"] = true }
+        let list = try await send(
+            try makeRequest("POST", "/api/phones/self/workspaces/switch", body: body),
+            as: PhoneWorkspaceList.self
+        )
+        return WorkspacePolicy.normalized(list.workspaces)
+    }
+
     /// The workspaces of the computer this phone is paired with. A computer that does not serve
     /// the list, or a pairing that may not read it, answers 404 or 403: that gives nil, and the
     /// app shows no picker.

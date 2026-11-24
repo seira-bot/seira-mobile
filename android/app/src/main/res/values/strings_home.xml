@@ -32,4 +32,20 @@
     <string name="home_empty_back_to_chats">Back to chats</string>
     <string name="home_computers_title">Computers</string>
     <string name="home_switch_computer">Switch computer. Now: %1$s</string>
+    <string name="workspace_sheet_title">Workspaces</string>
+    <string name="workspace_chip_description">Switch workspace. Now: %1$s</string>
+    <string name="workspace_unnamed">Unnamed workspace</string>
+    <string name="workspace_opening">Opening…</string>
+    <string name="workspace_status_open">Open</string>
+    <string name="workspace_status_waiting">Waiting for %1$s to finish</string>
+    <string name="workspace_status_waiting_generic">Waiting for work to finish</string>
+    <string name="workspace_status_unavailable">Not available</string>
+    <string name="workspace_status_pair_again">Pair this phone again to open this workspace</string>
+    <string name="workspace_action_open_now">Open now</string>
+    <string name="workspace_action_cancel">Cancel</string>
+    <string name="workspace_notice_turned_off">This phone can\'t open other workspaces. Turn it on for this phone in Settings on the computer.</string>
+    <string name="workspace_notice_unavailable">That workspace can\'t be opened right now.</string>
+    <string name="workspace_notice_gone">That workspace is no longer on this computer.</string>
+    <string name="workspace_notice_failed">Couldn\'t reach the computer. Try again.</string>
+    <string name="workspace_notice_needs_pairing">To open another workspace, pair this phone with the computer again.</string>
 </resources>

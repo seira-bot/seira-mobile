@@ -32,4 +32,20 @@
     <string name="home_empty_back_to_chats">Torna alle chat</string>
     <string name="home_computers_title">Computer</string>
     <string name="home_switch_computer">Cambia computer. Ora: %1$s</string>
+    <string name="workspace_sheet_title">Spazi di lavoro</string>
+    <string name="workspace_chip_description">Cambia spazio di lavoro. Ora: %1$s</string>
+    <string name="workspace_unnamed">Spazio di lavoro senza nome</string>
+    <string name="workspace_opening">Apertura…</string>
+    <string name="workspace_status_open">Aperto</string>
+    <string name="workspace_status_waiting">In attesa che %1$s finisca</string>
+    <string name="workspace_status_waiting_generic">In attesa che il lavoro finisca</string>
+    <string name="workspace_status_unavailable">Non disponibile</string>
+    <string name="workspace_status_pair_again">Collega di nuovo questo telefono per aprire questo spazio di lavoro</string>
+    <string name="workspace_action_open_now">Apri ora</string>
+    <string name="workspace_action_cancel">Annulla</string>
+    <string name="workspace_notice_turned_off">Questo telefono non può aprire altri spazi di lavoro. Attivalo per questo telefono nelle Impostazioni sul computer.</string>
+    <string name="workspace_notice_unavailable">Questo spazio di lavoro non può essere aperto in questo momento.</string>
+    <string name="workspace_notice_gone">Questo spazio di lavoro non è più su questo computer.</string>
+    <string name="workspace_notice_failed">Impossibile raggiungere il computer. Riprova.</string>
+    <string name="workspace_notice_needs_pairing">Per aprire un altro spazio di lavoro, collega di nuovo questo telefono al computer.</string>
 </resources>

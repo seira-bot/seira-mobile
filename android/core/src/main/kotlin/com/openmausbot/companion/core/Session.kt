@@ -1040,6 +1040,45 @@ class Session(
         }
     }
 
+    private val _workspaceEpoch = MutableStateFlow(0)
+
+    /** Counts the times the computer moved to another workspace; a screen that shows the old one leaves when it changes. */
+    val workspaceEpoch: StateFlow<Int> = _workspaceEpoch.asStateFlow()
+
+    /** The picker reads and asks through this; it holds no pin and does not move one. */
+    val workspaceSource: WorkspaceSource = object : WorkspaceSource {
+        override suspend fun workspaces(): List<PhoneWorkspace>? = client?.workspaces()
+
+        override suspend fun requestOpen(id: String, now: Boolean): List<PhoneWorkspace> =
+            (client ?: throw APIError.Transport("This phone is not connected to a computer.")).openWorkspace(id, now)
+
+        override suspend fun workspaceChanged() = reloadAfterWorkspaceChange()
+    }
+
+    /**
+     * The computer now serves another workspace. Forget the bots, threads, unread count and prepared sends of the old
+     * one, read the new one from the start, and tell the screens through [workspaceEpoch].
+     */
+    suspend fun reloadAfterWorkspaceChange() {
+        gate.withLock {
+            if (client == null) return@withLock
+            forgetPreparedCredentials { true }
+            _credentialResetGeneration.update { it + 1 }
+            attachmentDownloads.clear()
+            emptyResumes = 0
+            _steeringInstanceIds.value = emptySet()
+            _state.value = CompanionState()
+            notificationSink.setBadge(0)
+            _workspaceEpoch.update { it + 1 }
+            streamJob?.cancel()
+            reconnectDelaySeconds = 0
+            streamGeneration += 1
+            val generation = streamGeneration
+            _status.value = Status.Connecting
+            streamJob = launchStream(generation)
+        }
+    }
+
     private fun restartStream() {
         scope.launch {
             gate.withLock { restartStreamLocked() }
