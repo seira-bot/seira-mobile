@@ -173,6 +173,7 @@ struct ChatView: View {
         /// The visible branch the rows were folded from.
         let messages: [Message]
         let rows: [TranscriptRow]
+        let hasCodeActivity: Bool
         let versions: [String?: [Message]]
         /// At Hidden, what a working bot has said so far in this turn: left
         /// out of the transcript and shown as one grey status line instead.
@@ -207,6 +208,7 @@ struct ChatView: View {
         let snapshot = TranscriptSnapshot(
             messages: messages,
             rows: transcriptRows(shown, detail: detail),
+            hasCodeActivity: QuickReplyContext.hasCodeActivity(messages),
             versions: session.state.userMessageVersions(inThread: threadId),
             live: live,
             hasPendingApproval: messages.contains { $0.card?.isPending == true },
@@ -270,8 +272,10 @@ struct ChatView: View {
         return snapshot.live.latest
     }
 
-    /// The composer's chip row, as edited in Settings.
-    private var storedChips: [ActionChipItem] { StoredChips.chips(quickReplies) }
+    /// The composer's chip row, as edited in Settings. The stock code chips wait for code activity here.
+    private var storedChips: [ActionChipItem] {
+        StoredChips.chips(quickReplies, codeActivity: transcriptSnapshot.hasCodeActivity)
+    }
 
     /// Unread elsewhere — what the back pill's badge counts, like Messages.
     private var unreadElsewhere: Int {
@@ -1971,14 +1975,14 @@ private struct DraftReader<Content: View>: View {
 /// twice on every render of the composer.
 @MainActor
 private enum StoredChips {
-    private static var memo: (raw: String, chips: [ActionChipItem])?
+    private static var memo: (raw: String, codeActivity: Bool, chips: [ActionChipItem])?
 
-    static func chips(_ raw: String) -> [ActionChipItem] {
-        if let memo, memo.raw == raw { return memo.chips }
-        let chips = QuickReply.decode(raw).map {
+    static func chips(_ raw: String, codeActivity: Bool) -> [ActionChipItem] {
+        if let memo, memo.raw == raw, memo.codeActivity == codeActivity { return memo.chips }
+        let chips = QuickReplyContext.chips(QuickReply.decode(raw), codeActivity: codeActivity).map {
             ActionChipItem(id: $0.id, title: $0.title, icon: $0.icon, prompt: $0.prompt)
         }
-        memo = (raw, chips)
+        memo = (raw, codeActivity, chips)
         return chips
     }
 }
