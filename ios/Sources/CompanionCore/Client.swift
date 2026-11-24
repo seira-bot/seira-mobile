@@ -1081,6 +1081,31 @@ public struct CompanionClient: Sendable {
         }
     }
 
+    /// The workspaces of the computer this phone is paired with. A computer that does not serve
+    /// the list, or a pairing that may not read it, answers 404 or 403: that gives nil, and the
+    /// app shows no picker.
+    public func workspaces() async throws -> [PhoneWorkspace]? {
+        do {
+            let list = try await send(
+                try makeRequest("GET", "/api/phones/self/workspaces"),
+                as: PhoneWorkspaceList.self
+            )
+            return WorkspacePolicy.normalized(list.workspaces)
+        } catch let APIError.status(code, _) where code == 403 || code == 404 {
+            return nil
+        }
+    }
+
+    /// Asks the computer to open `id`; the answer is the list again, with a workspace that must
+    /// wait marked so.
+    public func switchWorkspace(_ id: String) async throws -> [PhoneWorkspace] {
+        let list = try await send(
+            try makeRequest("POST", "/api/phones/self/workspaces/switch", body: ["id": id]),
+            as: PhoneWorkspaceList.self
+        )
+        return WorkspacePolicy.normalized(list.workspaces)
+    }
+
     /// The image capability is intentionally queried independently from the
     /// general Instance model: older servers omit it, which must mean false
     /// for a share that would otherwise send an unreadable image prompt.
