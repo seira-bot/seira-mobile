@@ -60,19 +60,7 @@ object NotificationOpen {
             return Result(chat = null, consumed = false)
         }
         target.pairing?.let { pairing ->
-            if (session.connection.value?.id != pairing) {
-                if (session.connections.value.none { it.id == pairing }) {
-                    // The computer was removed after it spoke. Say so; a silent tap reads as a bug.
-                    session.actionError = COMPUTER_GONE_MESSAGE
-                    return Result(chat = null, consumed = true)
-                }
-                session.activateComputer(pairing)
-                if (session.connection.value?.id != pairing) {
-                    // activateComputer already explains a locked or missing credential.
-                    if (session.actionError == null) session.actionError = COMPUTER_UNREACHABLE_MESSAGE
-                    return Result(chat = null, consumed = true)
-                }
-            }
+            if (!bindComputer(session, pairing)) return Result(chat = null, consumed = true)
         }
         if (!canOpen(session)) {
             // Unpaired / unauthorized: do not carry a stale destination into a
@@ -81,6 +69,24 @@ object NotificationOpen {
         }
         val chat = session.openNotification(target)
         return Result(chat = chat, consumed = true)
+    }
+
+    /**
+     * Makes the computer that posted a notification the active one.
+     * @return false when it cannot be; [Session.actionError] then says why.
+     */
+    suspend fun bindComputer(session: Session, pairing: String): Boolean {
+        if (session.connection.value?.id == pairing) return true
+        if (session.connections.value.none { it.id == pairing }) {
+            // The computer was removed after it spoke. Say so; a silent tap reads as a bug.
+            session.actionError = COMPUTER_GONE_MESSAGE
+            return false
+        }
+        session.activateComputer(pairing)
+        if (session.connection.value?.id == pairing) return true
+        // activateComputer already explains a locked or missing credential.
+        if (session.actionError == null) session.actionError = COMPUTER_UNREACHABLE_MESSAGE
+        return false
     }
 
     data class Result(val chat: Chat?, val consumed: Boolean)

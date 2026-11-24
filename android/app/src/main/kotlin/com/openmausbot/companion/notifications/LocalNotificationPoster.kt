@@ -58,12 +58,12 @@ class LocalNotificationPoster(
 
     override fun deliver(notification: NotificationFrame, sequence: Int?) {
         if (!canPost()) return
-        val tag = NotificationMapping.dedupeId(notification, sequence)
         val bound = integration
         // The frame came from the computer on screen right now. Read it here, before
         // anything waits: the person may switch computers before the banner is tapped,
         // and the tap has to return to the computer that spoke.
         val pairing = bound?.session?.connection?.value?.id
+        val tag = NotificationMapping.dedupeId(notification, sequence, pairing)
         if (bound != null && NotificationMapping.channelId(notification) == NotificationMapping.CHANNEL_DONE) {
             bound.scope.launch { postConversation(bound, notification, tag, pairing) }
             return
@@ -164,12 +164,12 @@ class LocalNotificationPoster(
             )
         }
         val requestId = found?.card?.requestId
-        if (found != null && requestId != null) {
+        if (found != null && requestId != null && pairing != null) {
             builder.addAction(
                 NotificationActions.approveAction(
                     appContext,
                     appContext.getString(R.string.notification_action_approve),
-                    ApproveRequest(tag, notification.botId, notification.threadId, requestId, notification.title),
+                    ApproveRequest(tag, notification.botId, notification.threadId, requestId, notification.title, pairing),
                 ),
             )
         }
@@ -213,13 +213,15 @@ class LocalNotificationPoster(
         val builder = baseBuilder(notification, pairing)
             .setStyle(style)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .addAction(
+        if (pairing != null) {
+            builder.addAction(
                 NotificationActions.replyAction(
                     appContext,
                     appContext.getString(R.string.notification_action_reply),
-                    ReplyRequest(tag, notification.botId, notification.threadId, identity.name),
+                    ReplyRequest(tag, notification.botId, notification.threadId, identity.name, pairing),
                 ),
             )
+        }
         if (shortcutId != null) {
             builder.setShortcutId(shortcutId).setLocusId(LocusIdCompat(shortcutId))
         }
@@ -229,12 +231,12 @@ class LocalNotificationPoster(
     private fun userPerson(): Person =
         Person.Builder().setName(appContext.getString(R.string.notification_sender_you)).build()
 
-    fun showApprovalOutcome(request: ApproveRequest, outcome: ApprovalOutcome) {
+    fun showApprovalOutcome(request: ApproveRequest, outcome: ApprovalOutcome, failure: String? = null) {
         if (!canPost()) return
         val builder = outcomeBuilder(
             NotificationMapping.CHANNEL_BLOCKING,
             request.title.ifBlank { appContext.getString(R.string.app_name) },
-            appContext.getString(
+            failure?.takeIf { outcome == ApprovalOutcome.FAILED } ?: appContext.getString(
                 when (outcome) {
                     ApprovalOutcome.APPROVED -> R.string.notification_approved
                     ApprovalOutcome.SETTLED -> R.string.notification_approve_settled
@@ -244,6 +246,7 @@ class LocalNotificationPoster(
             request.botId,
             request.threadId,
             KIND_APPROVAL,
+            request.pairing,
         )
         if (outcome == ApprovalOutcome.APPROVED) {
             builder.setTimeoutAfter(OUTCOME_TIMEOUT_MS)
@@ -255,6 +258,7 @@ class LocalNotificationPoster(
                     request.botId,
                     request.threadId,
                     KIND_APPROVAL,
+                    request.pairing,
                 ),
             )
         }
@@ -273,7 +277,7 @@ class LocalNotificationPoster(
             .setContentText(NotificationText.anchored(text))
             .setStyle(style)
             .setCategory(NotificationCompat.CATEGORY_MESSAGE)
-            .setContentIntent(NotificationIntents.openPending(appContext, request.botId, request.threadId))
+            .setContentIntent(NotificationIntents.openPending(appContext, request.botId, request.threadId, pairing = request.pairing))
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .addAction(
@@ -287,15 +291,16 @@ class LocalNotificationPoster(
         post(request.tag, builder.build())
     }
 
-    fun showReplyFailed(request: ReplyRequest) {
+    fun showReplyFailed(request: ReplyRequest, failure: String? = null) {
         if (!canPost()) return
         val builder = outcomeBuilder(
             NotificationMapping.CHANNEL_DONE,
             request.botName.ifBlank { appContext.getString(R.string.app_name) },
-            appContext.getString(R.string.notification_reply_failed),
+            failure ?: appContext.getString(R.string.notification_reply_failed),
             request.botId,
             request.threadId,
             null,
+            request.pairing,
         )
         post(request.tag, builder.build())
     }
@@ -307,6 +312,7 @@ class LocalNotificationPoster(
         botId: String,
         threadId: String,
         kind: String?,
+        pairing: String,
     ): NotificationCompat.Builder {
         val anchoredText = NotificationText.anchored(text)
         return NotificationCompat.Builder(appContext, channelId)
@@ -314,7 +320,7 @@ class LocalNotificationPoster(
             .setContentTitle(NotificationText.anchored(title))
             .setContentText(anchoredText)
             .setStyle(NotificationCompat.BigTextStyle().bigText(anchoredText))
-            .setContentIntent(NotificationIntents.openPending(appContext, botId, threadId, kind))
+            .setContentIntent(NotificationIntents.openPending(appContext, botId, threadId, kind, pairing))
             .setAutoCancel(true)
             .setOnlyAlertOnce(true)
             .setCategory(NotificationCompat.CATEGORY_STATUS)

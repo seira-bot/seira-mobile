@@ -111,7 +111,7 @@ class NotificationServerIdentityTest {
         runCurrent()
         poster.deliver(frame("done"), sequence = 3)
         runCurrent()
-        val fromBeta = assertNotNull(shadowOf(posted("done", sequence = 3).contentIntent).savedIntent)
+        val fromBeta = assertNotNull(shadowOf(posted("done", sequence = 3, pairing = beta.id).contentIntent).savedIntent)
 
         assertEquals(beta.id, fromBeta.notificationTarget()?.pairing)
         assertNotEquals(fromAlpha.data, fromBeta.data)
@@ -158,8 +158,12 @@ class NotificationServerIdentityTest {
         requestId = if (kind == "approval") "request-1" else null,
     )
 
-    private fun posted(kind: String, sequence: Int = if (kind == "approval") 2 else 1): Notification =
-        assertNotNull(shadowOf(manager).getNotification(NotificationMapping.dedupeId(frame(kind), sequence), 0))
+    private fun posted(
+        kind: String,
+        sequence: Int = if (kind == "approval") 2 else 1,
+        pairing: String = alpha.id,
+    ): Notification =
+        assertNotNull(shadowOf(manager).getNotification(NotificationMapping.dedupeId(frame(kind), sequence, pairing), 0))
 
     private suspend fun TestScope.bind(): Session {
         val session = twoComputers()

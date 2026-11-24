@@ -349,8 +349,11 @@ class ApprovalNotificationTest {
         emptyList(),
     )
 
+    private var pairing = ""
+
     private suspend fun TestScope.bind(fleet: Fleet): Session {
         val session = liveSession(server, fleet)
+        pairing = requireNotNull(session.connection.value).id
         poster.bind(session, AvatarImageStore(fetch = { null }), BotShortcuts(context), backgroundScope)
         runCurrent()
         return session
@@ -379,15 +382,16 @@ class ApprovalNotificationTest {
     }
 
     private fun request() = ApproveRequest(
-        tag = NotificationMapping.dedupeId(approvalFrame(), 1),
+        tag = NotificationMapping.dedupeId(approvalFrame(), 1, pairing),
         botId = BOT_ID,
         threadId = THREAD_ID,
         requestId = REQUEST_ID,
         title = "Approval needed",
+        pairing = pairing,
     )
 
     private fun posted(frame: NotificationFrame, sequence: Int): Notification =
-        assertNotNull(shadowOf(manager).getNotification(NotificationMapping.dedupeId(frame, sequence), 0))
+        assertNotNull(shadowOf(manager).getNotification(NotificationMapping.dedupeId(frame, sequence, pairing), 0))
 
     private fun text(notification: Notification): String =
         notification.extras.getCharSequence(Notification.EXTRA_TEXT).toString()

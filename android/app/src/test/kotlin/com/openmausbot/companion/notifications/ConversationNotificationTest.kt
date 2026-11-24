@@ -205,9 +205,12 @@ class ConversationNotificationTest {
         )
     }
 
+    private var pairing = ""
+
     private suspend fun TestScope.bind(): Session {
         val fleet = Fleet(listOf(NotificationFixture.bot()), emptyList())
         val session = liveSession(server, fleet)
+        pairing = requireNotNull(session.connection.value).id
         poster.bind(session, AvatarImageStore(fetch = { null }), shortcuts, backgroundScope)
         return session
     }
@@ -225,10 +228,11 @@ class ConversationNotificationTest {
     )
 
     private fun request() = ReplyRequest(
-        tag = NotificationMapping.dedupeId(frame(), 1),
+        tag = NotificationMapping.dedupeId(frame(), 1, pairing),
         botId = BOT_ID,
         threadId = THREAD_ID,
         botName = "Scout",
+        pairing = pairing,
     )
 
     private fun posted(): Notification =

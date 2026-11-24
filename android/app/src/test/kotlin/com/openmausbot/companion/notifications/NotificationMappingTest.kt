@@ -3,6 +3,7 @@ package com.openmausbot.companion.notifications
 import com.openmausbot.companion.core.NotificationFrame
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -32,6 +33,15 @@ class NotificationMappingTest {
         val notification = frame("approval", threadId = "thread-9", title = "Allow?")
         assertEquals("openmaus.thread-9.42", NotificationMapping.dedupeId(notification, 42))
         assertEquals("openmaus.thread-9.Allow?", NotificationMapping.dedupeId(notification, null))
+    }
+
+    @Test
+    fun dedupeIdSeparatesTwoComputersWithTheSameThreadAndSequence() {
+        val notification = frame("done", threadId = "thread-9")
+        val fromAlpha = NotificationMapping.dedupeId(notification, 7, pairing = "alpha")
+        val fromBeta = NotificationMapping.dedupeId(notification, 7, pairing = "beta")
+        assertEquals("openmaus.thread-9.7@alpha", fromAlpha)
+        assertNotEquals(fromAlpha, fromBeta)
     }
 
     private fun frame(

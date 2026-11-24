@@ -14,6 +14,8 @@ data class ApproveRequest(
     val threadId: String,
     val requestId: String,
     val title: String,
+    /** The computer that posted the banner. The action runs against this one, never the one on screen. */
+    val pairing: String,
 )
 
 data class ReplyRequest(
@@ -21,6 +23,7 @@ data class ReplyRequest(
     val botId: String,
     val threadId: String,
     val botName: String,
+    val pairing: String,
 )
 
 object NotificationActions {
@@ -42,6 +45,7 @@ object NotificationActions {
             putExtra(LocalNotificationPoster.EXTRA_THREAD_ID, request.threadId)
             putExtra(EXTRA_REQUEST_ID, request.requestId)
             putExtra(EXTRA_TITLE, request.title)
+            putExtra(LocalNotificationPoster.EXTRA_PAIRING, request.pairing)
         }
 
     fun replyIntent(context: Context, request: ReplyRequest): Intent =
@@ -52,6 +56,7 @@ object NotificationActions {
             putExtra(LocalNotificationPoster.EXTRA_BOT_ID, request.botId)
             putExtra(LocalNotificationPoster.EXTRA_THREAD_ID, request.threadId)
             putExtra(EXTRA_BOT_NAME, request.botName)
+            putExtra(LocalNotificationPoster.EXTRA_PAIRING, request.pairing)
         }
 
     fun approveRequest(intent: Intent): ApproveRequest? {
@@ -59,14 +64,16 @@ object NotificationActions {
         val botId = intent.getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID)?.takeIf { it.isNotBlank() } ?: return null
         val threadId = intent.getStringExtra(LocalNotificationPoster.EXTRA_THREAD_ID)?.takeIf { it.isNotBlank() } ?: return null
         val requestId = intent.getStringExtra(EXTRA_REQUEST_ID)?.takeIf { it.isNotBlank() } ?: return null
-        return ApproveRequest(tag, botId, threadId, requestId, intent.getStringExtra(EXTRA_TITLE).orEmpty())
+        val pairing = intent.getStringExtra(LocalNotificationPoster.EXTRA_PAIRING)?.takeIf { it.isNotBlank() } ?: return null
+        return ApproveRequest(tag, botId, threadId, requestId, intent.getStringExtra(EXTRA_TITLE).orEmpty(), pairing)
     }
 
     fun replyRequest(intent: Intent): ReplyRequest? {
         val tag = intent.getStringExtra(EXTRA_TAG)?.takeIf { it.isNotBlank() } ?: return null
         val botId = intent.getStringExtra(LocalNotificationPoster.EXTRA_BOT_ID)?.takeIf { it.isNotBlank() } ?: return null
         val threadId = intent.getStringExtra(LocalNotificationPoster.EXTRA_THREAD_ID)?.takeIf { it.isNotBlank() } ?: return null
-        return ReplyRequest(tag, botId, threadId, intent.getStringExtra(EXTRA_BOT_NAME).orEmpty())
+        val pairing = intent.getStringExtra(LocalNotificationPoster.EXTRA_PAIRING)?.takeIf { it.isNotBlank() } ?: return null
+        return ReplyRequest(tag, botId, threadId, intent.getStringExtra(EXTRA_BOT_NAME).orEmpty(), pairing)
     }
 
     fun replyText(intent: Intent): String? =
