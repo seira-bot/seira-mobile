@@ -81,6 +81,7 @@ import com.openmausbot.companion.core.TypedAnswerResult
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.LocalMessageLink
 import com.openmausbot.companion.core.PendingMessageAttachment
+import com.openmausbot.companion.core.QuickReplyContext
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Dictation
 import com.openmausbot.companion.core.DisplayedMessageAttachment
@@ -502,8 +503,10 @@ private fun LoadedChat(
     }
     var expandedTurns by remember(threadId) { mutableStateOf(emptySet<String>()) }
     var revealedTurnMessageId by remember(threadId) { mutableStateOf<String?>(null) }
-    val predictiveChips = remember(quickReplies) {
-        quickReplies.map { PredictiveChip(title = it.title, prompt = it.prompt, icon = it.icon) }
+    val codeActivity = remember(rawTranscript) { QuickReplyContext.hasCodeActivity(rawTranscript) }
+    val predictiveChips = remember(quickReplies, codeActivity) {
+        QuickReplyContext.chips(quickReplies, codeActivity)
+            .map { PredictiveChip(title = it.title, prompt = it.prompt, icon = it.icon) }
     }
     val streaming = state.streaming[threadId]
     val reasoning = state.reasoning[threadId]
