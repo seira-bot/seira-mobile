@@ -1,0 +1,23 @@
+{
+  "note": "Hand-written bot lines for the suggestedReplies field (seira#527). The server does not fill the field yet, so these are not captured server bytes.",
+  "withChips": {
+    "id": "line-chips", "at": 1786742441016, "role": "bot", "kind": "text", "text": "Done. The tests pass.",
+    "suggestedReplies": [
+      { "title": "Next step", "prompt": "Please do the next step" },
+      { "title": "Explain", "prompt": "Explain what you changed" },
+      { "title": "Is it safe?", "prompt": "Is it safe?" }
+    ]
+  },
+  "absent": { "id": "line-none", "at": 1786742441017, "role": "bot", "kind": "text", "text": "Done." },
+  "mixed": {
+    "id": "line-mixed", "at": 1786742441018, "role": "bot", "kind": "text", "text": "Done.",
+    "suggestedReplies": [
+      7, null, "text", [1], { "title": 5, "prompt": "x" },
+      { "title": "Open it", "prompt": "Open https://example.com/pay" },
+      { "title": "Run it", "prompt": "rm -rf /" },
+      { "title": "Fine", "prompt": "Show me the diff", "action": "approve", "url": "https://x.y" }
+    ]
+  },
+  "notAList": { "id": "line-object", "at": 1786742441019, "role": "bot", "kind": "text", "text": "Done.", "suggestedReplies": { "title": "A", "prompt": "B" } },
+  "notAListText": { "id": "line-string", "at": 1786742441020, "role": "bot", "kind": "text", "text": "Done.", "suggestedReplies": "chips" }
+}

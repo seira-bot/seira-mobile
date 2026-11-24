@@ -684,8 +684,11 @@ object SlashCommands {
     fun draftAfterClose(draft: String): String = if (draft == "/") "" else draft
 }
 
-/** One of the four standing prompts under an empty composer. */
-data class PredictiveChip(val title: String, val prompt: String, val icon: String? = null)
+/**
+ * One chip above an empty composer. A server chip whose title is not its whole prompt has [fillsComposer]: a tap puts the
+ * text in the composer and the person presses Send.
+ */
+data class PredictiveChip(val title: String, val prompt: String, val icon: String? = null, val fillsComposer: Boolean = false)
 
 /**
  * The port of `PredictiveActionChipsView` in

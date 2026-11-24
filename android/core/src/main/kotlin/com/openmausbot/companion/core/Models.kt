@@ -328,6 +328,11 @@ data class Message(
     val signIn: SignInRequestCardData? = null,
     /** `kind == SECRET`: what the credential card asks for. Never carries the value. */
     val secret: SecretRequestCardData? = null,
+    /**
+     * The chips of a finished bot turn. Kept as JSON so a malformed entry never breaks decoding of the line;
+     * [SuggestedReplies.clean] reads it. Absent: the phone keeps its saved chips.
+     */
+    val suggestedReplies: JsonElement? = null,
 ) {
     @Serializable(with = MessageKindSerializer::class)
     enum class Kind {

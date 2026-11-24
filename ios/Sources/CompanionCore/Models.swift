@@ -352,6 +352,8 @@ public struct Message: Codable, Hashable, Identifiable, Sendable {
     /// `kind == .app`: the page's row. A payload this build cannot read
     /// decodes as an app that cannot open, so the text still shows.
     public var app: ChatApp?
+    /// The chips of a finished bot turn (`SuggestedReplies`). Absent: the phone keeps its saved chips.
+    public var suggestedReplies: SuggestedReplyList?
 
     public var date: Date { Date(timeIntervalSince1970: at / 1000) }
 

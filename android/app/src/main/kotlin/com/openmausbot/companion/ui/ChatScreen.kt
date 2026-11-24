@@ -81,7 +81,9 @@ import com.openmausbot.companion.core.TypedAnswerResult
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.LocalMessageLink
 import com.openmausbot.companion.core.PendingMessageAttachment
+import com.openmausbot.companion.core.ChipTap
 import com.openmausbot.companion.core.QuickReplyContext
+import com.openmausbot.companion.core.SuggestedReplies
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Dictation
 import com.openmausbot.companion.core.DisplayedMessageAttachment
@@ -504,9 +506,10 @@ private fun LoadedChat(
     var expandedTurns by remember(threadId) { mutableStateOf(emptySet<String>()) }
     var revealedTurnMessageId by remember(threadId) { mutableStateOf<String?>(null) }
     val codeActivity = remember(rawTranscript) { QuickReplyContext.hasCodeActivity(rawTranscript) }
-    val predictiveChips = remember(quickReplies, codeActivity) {
-        QuickReplyContext.chips(quickReplies, codeActivity)
-            .map { PredictiveChip(title = it.title, prompt = it.prompt, icon = it.icon) }
+    val suggestedReplies = remember(rawTranscript) { SuggestedReplies.forTranscript(rawTranscript) }
+    val predictiveChips = remember(quickReplies, codeActivity, suggestedReplies) {
+        SuggestedReplies.composerChips(suggestedReplies, QuickReplyContext.chips(quickReplies, codeActivity))
+            .map { PredictiveChip(title = it.title, prompt = it.prompt, icon = it.icon, fillsComposer = it.tap == ChipTap.FILL_COMPOSER) }
     }
     val streaming = state.streaming[threadId]
     val reasoning = state.reasoning[threadId]
@@ -1246,8 +1249,16 @@ private fun LoadedChat(
                     closeHud()
                 },
                 onSelectCommand = { selectCommand(it) },
-                // A chip is the whole message, sent on the tap.
-                onSelectChip = { submit(it.prompt) },
+                // A saved chip is the whole message, sent on the tap. A server chip sends only when its title is the whole
+                // text; otherwise it fills the composer and the person presses Send.
+                onSelectChip = { chip ->
+                    if (chip.fillsComposer) {
+                        composer.onTypedChange(chip.prompt)
+                        publishFrom(composer)
+                    } else {
+                        submit(chip.prompt)
+                    }
+                },
                 callAction = callAction,
                 onCall = ::callOrOpen,
             )

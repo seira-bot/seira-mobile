@@ -8,12 +8,15 @@ public struct ActionChipItem: Identifiable {
     public let title: String
     public let icon: String
     public let prompt: String
+    /// A tap puts the prompt in the composer instead of sending it: the chip does not show the whole text.
+    public let fillsComposer: Bool
 
-    public init(id: String = UUID().uuidString, title: String, icon: String, prompt: String) {
+    public init(id: String = UUID().uuidString, title: String, icon: String, prompt: String, fillsComposer: Bool = false) {
         self.id = id
         self.title = title
         self.icon = icon
         self.prompt = prompt
+        self.fillsComposer = fillsComposer
     }
 }
 
