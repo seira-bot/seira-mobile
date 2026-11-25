@@ -31,7 +31,7 @@ Use a disposable simulator:
    `seira://pair?address=127.0.0.1:PORT&code=CODE` in the simulator with
    the printed address and code, then tap **Connect**.
 3. Open Vee, then its computer. With computer access off (the default), the view
-   says to turn on **Allow computer view** in Settings → Remote access.
+   says to turn on **Allow computer view** on this phone's row in Settings → Phone & devices.
 4. Enable it from the printed control address:
    `curl -X POST http://127.0.0.1:CONTROL/devices/DEVICE_ID/cloud-desktop`
    (`GET /state` on the same address lists the device id). The sidecar drops

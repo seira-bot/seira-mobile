@@ -681,7 +681,7 @@ internal fun SettingsScreen(
                     onClick = {
                         confirmingUnpair = false
                         // Local token and connection only. Revoking the device
-                        // itself is Settings → Phone on the computer (§6).
+                        // itself is Settings → Phone & devices on the computer (§6).
                         session.signOut()
                     },
                 ) {

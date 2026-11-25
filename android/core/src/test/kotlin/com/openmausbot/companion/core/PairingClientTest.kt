@@ -108,8 +108,8 @@ class PairingClientTest {
                 "same Wi-Fi as the computer. If it already is, the computer's firewall may be " +
                 "blocking Seira: on a Windows PC, set its network to Private; on Linux, run the " +
                 "firewall command that Seira shows on the computer. Or open " +
-                "Settings → Remote access on the computer and sign in so the phone can connect " +
-                "from anywhere.",
+                "Settings → Phone & devices → Pair a phone on the computer, choose Anywhere, through " +
+                "Seira, and sign in so the phone can connect from anywhere.",
             error.message,
         )
     }

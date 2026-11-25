@@ -78,7 +78,7 @@ signed release build.
 | Share from another app | Release manifest `SEND` / `SEND_MULTIPLE` targets (text, images, PDF, office files) |
 | More than one computer, switch | Settings "Connect another computer"; computer switch in the Chats heading |
 | Light and dark theme | Settings theme choice |
-| Pairing path | App hint "On your computer, open Seira → Settings → Phone." |
+| Pairing path | App hint "On your computer, open Seira → Settings → Phone & devices." |
 | Wi-Fi, Tailscale, secure address | Pairing screen hints |
 | Android 8.0 or later | `minSdk 26` |
 

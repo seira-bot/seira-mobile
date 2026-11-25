@@ -1862,7 +1862,7 @@ class Session(
         val endpoints = saved.automaticEndpoints
         if (endpoints.isEmpty()) {
             throw APIError.Transport(
-                "Couldn't reach ${saved.name}. Keep Seira open and Phone access on, then try again.",
+                "Couldn't reach ${saved.name}. Keep Seira open on the computer, then try again.",
             )
         }
         var lastError: Throwable? = null
@@ -1878,7 +1878,7 @@ class Session(
             }
         }
         throw lastError ?: APIError.Transport(
-            "Couldn't reach ${saved.name}. Keep Seira open and Phone access on, then try again.",
+            "Couldn't reach ${saved.name}. Keep Seira open on the computer, then try again.",
         )
     }
 

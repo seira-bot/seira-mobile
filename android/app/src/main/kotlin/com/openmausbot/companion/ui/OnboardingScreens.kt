@@ -62,7 +62,7 @@ object OnboardingCopy {
     const val UNPAIRED_HOME_BODY =
         "Pair this phone with Seira to see your chats and respond to your bots."
     const val UNPAIRED_HOME_HINT =
-        "On your computer, open Seira → Settings → Phone."
+        "On your computer, open Seira → Settings → Phone & devices."
     const val UNPAIRED_HOME_CONNECT = "Connect computer"
 
     const val NOTIFICATIONS_TITLE = "Stay in the loop"

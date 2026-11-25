@@ -459,7 +459,7 @@ public struct PairingOutcome: Sendable {
 /// valid and the UI can offer Retry without making someone scan it again.
 ///
 /// The message names the one next step that fits the routes tried — same
-/// Wi-Fi, the computer's firewall, or Remote access when only local addresses
+/// Wi-Fi, the computer's firewall, or Anywhere, through Seira when only local addresses
 /// were tried, the tailnet when only Tailscale was, a sleeping computer when
 /// even HTTPS failed — and lists the routes on a line of their own. Mirrors
 /// Android's `PairingRouteError`.
@@ -494,12 +494,13 @@ public struct PairingRouteError: Error, LocalizedError, Equatable, Sendable {
             // Same Wi-Fi first; then the firewall, because a phone already on that
             // Wi-Fi is most often stopped by Windows Firewall on a network Windows
             // calls Public, or by ufw or firewalld dropping inbound connections on
-            // Linux; then Remote access, which connects outward.
+            // Linux; then Anywhere, through Seira, which connects outward.
             advice = "Your phone couldn’t reach \(computer) on this network. Put the phone on the same Wi-Fi " +
                 "as the computer. If it already is, the computer’s firewall may be blocking " +
                 "Seira: on a Windows PC, set its network to Private; on Linux, run the firewall " +
                 "command that Seira shows on the computer. Or open Settings → " +
-                "Remote access on the computer and sign in so the phone can connect from anywhere."
+                "Phone & devices → Pair a phone on the computer, choose Anywhere, through Seira, " +
+                "and sign in so the phone can connect from anywhere."
         }
         return attemptedHosts.isEmpty
             ? advice

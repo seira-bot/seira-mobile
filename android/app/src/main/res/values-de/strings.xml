@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Öffne Seira → Einstellungen → Telefon</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Wähle „Telefon einrichten“</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Öffne Seira → Einstellungen → Telefon &amp; Geräte</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Wähle „Telefon koppeln“</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Ein Bild vom Computer dieses Bots</string>
     <string name="mobile_account_alias_8cf27ca0">Kontoalias</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Kontodetails sind bei diesem Anbieter nicht verfügbar. Aktualisiere, sobald die Autorisierung abgeschlossen ist.</string>
@@ -348,7 +348,7 @@
     <string name="mobile_settings_not_here">Nicht hier</string>
     <string name="mobile_settings_notifications_footer">Freigaben und erledigte Arbeit erscheinen, solange Seira verbunden ist, auch Bilder, die nach einer kurzen Hintergrundpause nachgeliefert werden. Push bei geschlossener App braucht eine eigene Push-Relay-Version, die es noch nicht gibt.</string>
     <string name="mobile_settings_workspace_footer">Routinepläne kannst du hier sicher verwalten. Anbieter-Schlüssel, Webhook-Geheimnisse, Kopplung, Widerruf, Local VM und die Ausführungsrichtlinie für Agents bleiben auf deinem Computer.</string>
-    <string name="mobile_settings_unpair_footer">Entfernt die Kopplung nur von diesem Telefon. Damit es den Computer gar nicht mehr erreicht, entferne das Gerät unter Seira → Einstellungen → Telefon.</string>
+    <string name="mobile_settings_unpair_footer">Entfernt die Kopplung nur von diesem Telefon. Damit es den Computer gar nicht mehr erreicht, entferne das Gerät unter Seira → Einstellungen → Telefon &amp; Geräte.</string>
     <string name="mobile_settings_not_here_body">API-Schlüssel, Kopplung und die Local VM werden auf dem Computer verwaltet. Dieses Telefon darf sie absichtlich nicht ändern.</string>
     <string name="mobile_settings_unpair_confirm_title">Dieses Telefon entkoppeln?</string>
     <string name="mobile_settings_unpair_confirm_message">Du brauchst einen neuen Kopplungscode, um dich wieder zu verbinden.</string>
@@ -375,7 +375,7 @@
     <string name="mobile_onboarding_not_now">Nicht jetzt</string>
     <string name="mobile_onboarding_unpaired_title">Verbinde dich, wenn du bereit bist</string>
     <string name="mobile_onboarding_unpaired_body">Koppel dieses Telefon mit Seira, um deine Chats zu sehen und auf deine Bots zu antworten.</string>
-    <string name="mobile_onboarding_unpaired_hint">Öffne auf deinem Computer Seira → Einstellungen → Telefon.</string>
+    <string name="mobile_onboarding_unpaired_hint">Öffne auf deinem Computer Seira → Einstellungen → Telefon &amp; Geräte.</string>
     <string name="mobile_onboarding_connect_computer">Computer verbinden</string>
     <string name="mobile_onboarding_notifications_title">Bleib auf dem Laufenden</string>
     <string name="mobile_onboarding_notifications_approvals">Freigaben, die auf dich warten</string>
@@ -646,7 +646,7 @@
     <string name="mobile_share_not_paired">Öffne die Seira-App nach dem Update einmal. Wenn dieses Telefon dann immer noch nicht verbunden ist, koppel es vor dem Teilen.</string>
     <string name="mobile_share_no_destinations">Es gibt noch keine Bots oder Kanäle, an die du das senden kannst. Erstelle zuerst einen auf deinem Computer.</string>
     <string name="mobile_share_image_support_unavailable">Aktualisiere Seira auf diesem Computer, bevor du Bilder teilst.</string>
-    <string name="mobile_share_offline">%1$s war nicht erreichbar. Lass Seira geöffnet und den Telefonzugriff eingeschaltet, dann versuche es erneut.</string>
+    <string name="mobile_share_offline">%1$s war nicht erreichbar. Lass Seira auf dem Computer geöffnet, dann versuche es erneut.</string>
     <string name="mobile_share_nothing_supported">Es gibt keinen Text, Link, kein Bild und kein unterstütztes Dokument zum Senden.</string>
     <string name="mobile_share_too_many_items">Sende höchstens 4 Elemente auf einmal.</string>
     <string name="mobile_share_too_much_text">Dieser Text ist zu groß zum Teilen. Sende eine kürzere Auswahl.</string>

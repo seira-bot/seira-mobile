@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Otwórz Seira → Ustawienia → Telefon</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Wybierz Skonfiguruj telefon</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Otwórz Seira → Ustawienia → Telefon i urządzenia</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Wybierz Połącz telefon</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Klatka z komputera tego bota</string>
     <string name="mobile_account_alias_8cf27ca0">Alias konta</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Szczegóły konta są niedostępne u tego dostawcy. Odśwież po zakończeniu autoryzacji.</string>
@@ -354,7 +354,7 @@
     <string name="mobile_settings_not_here">Nie tutaj</string>
     <string name="mobile_settings_notifications_footer">Zatwierdzenia i zakończone zadania pojawiają się, gdy Seira jest połączona, także klatki odtworzone po krótkiej przerwie w tle. Powiadomienia przy zamkniętej aplikacji wymagają osobnego wydania przekaźnika push, którego jeszcze nie ma.</string>
     <string name="mobile_settings_workspace_footer">Harmonogramami rutyn możesz bezpiecznie zarządzać tutaj. Klucze dostawców, sekrety webhooków, parowanie, unieważnianie, Local VM i zasady wykonywania agenta pozostają na Twoim komputerze.</string>
-    <string name="mobile_settings_unpair_footer">Usuwa parowanie tylko z tego telefonu. Aby całkiem odciąć mu dostęp do komputera, usuń urządzenie w Seira → Ustawienia → Telefon.</string>
+    <string name="mobile_settings_unpair_footer">Usuwa parowanie tylko z tego telefonu. Aby całkiem odciąć mu dostęp do komputera, usuń urządzenie w Seira → Ustawienia → Telefon i urządzenia.</string>
     <string name="mobile_settings_not_here_body">Kluczami API, parowaniem i Local VM zarządza się na komputerze. Ten telefon celowo nie może ich zmieniać.</string>
     <string name="mobile_settings_unpair_confirm_title">Rozłączyć parowanie tego telefonu?</string>
     <string name="mobile_settings_unpair_confirm_message">Aby połączyć się ponownie, potrzebny będzie nowy kod parowania.</string>
@@ -381,7 +381,7 @@
     <string name="mobile_onboarding_not_now">Nie teraz</string>
     <string name="mobile_onboarding_unpaired_title">Połącz, gdy będziesz gotowy</string>
     <string name="mobile_onboarding_unpaired_body">Sparuj ten telefon z Seira, aby widzieć swoje czaty i odpowiadać botom.</string>
-    <string name="mobile_onboarding_unpaired_hint">Na komputerze otwórz Seira → Ustawienia → Telefon.</string>
+    <string name="mobile_onboarding_unpaired_hint">Na komputerze otwórz Seira → Ustawienia → Telefon i urządzenia.</string>
     <string name="mobile_onboarding_connect_computer">Połącz komputer</string>
     <string name="mobile_onboarding_notifications_title">Bądź na bieżąco</string>
     <string name="mobile_onboarding_notifications_approvals">Zatwierdzenia, które czekają na Ciebie</string>
@@ -660,7 +660,7 @@
     <string name="mobile_share_not_paired">Po aktualizacji otwórz aplikację Seira raz. Jeśli telefon nadal nie jest połączony, sparuj go przed udostępnianiem.</string>
     <string name="mobile_share_no_destinations">Nie ma jeszcze żadnych botów ani kanałów, do których można to wysłać. Najpierw utwórz jeden na komputerze.</string>
     <string name="mobile_share_image_support_unavailable">Zaktualizuj Seira na tym komputerze, zanim zaczniesz udostępniać obrazy.</string>
-    <string name="mobile_share_offline">Nie udało się połączyć z: %1$s. Pozostaw Seira otwartą i dostęp telefonu włączony, po czym spróbuj ponownie.</string>
+    <string name="mobile_share_offline">Nie udało się połączyć z: %1$s. Pozostaw Seira otwartą na komputerze, po czym spróbuj ponownie.</string>
     <string name="mobile_share_nothing_supported">Nie ma tekstu, linku, obrazu ani obsługiwanego dokumentu do wysłania.</string>
     <string name="mobile_share_too_many_items">Wysyłaj do 4 elementów naraz.</string>
     <string name="mobile_share_too_much_text">Ten tekst jest zbyt duży, by go udostępnić. Wyślij krótszy fragment.</string>

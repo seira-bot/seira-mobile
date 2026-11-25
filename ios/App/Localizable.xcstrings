@@ -5319,46 +5319,46 @@
         }
       }
     },
-    "On your computer, open Seira → Settings → Phone.": {
+    "On your computer, open Seira → Settings → Phone & devices.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "No seu computador, abra Seira → Ajustes → Telefone."
+            "value": "No seu computador, abra Seira → Ajustes → Celular e dispositivos."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在电脑上打开 Seira →「设置」→「手机」。"
+            "value": "请在电脑上打开 Seira →「设置」→「手机和设备」。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在電腦上開啟 Seira →「設定」→「手機」。"
+            "value": "請在電腦上開啟 Seira →「設定」→「手機和裝置」。"
           }
         }
       }
     },
-    "On your computer, open Settings → Phone → Set up a phone.": {
+    "On your computer, open Settings → Phone & devices → Pair a phone.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "No seu computador, abra Ajustes → Telefone → Configurar um telefone."
+            "value": "No seu computador, abra Ajustes → Celular e dispositivos → Parear um celular."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在电脑上打开「设置」→「手机」→「设置手机」。"
+            "value": "请在电脑上打开「设置」→「手机和设备」→「配对手机」。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在電腦上開啟「設定」→「手機」→「設定手機」。"
+            "value": "請在電腦上開啟「設定」→「手機和裝置」→「配對手機」。"
           }
         }
       }
@@ -8669,24 +8669,24 @@
         }
       }
     },
-    "This removes the connection from this device only. It does not revoke this device on your Mac. To remove Mac-side access, open Seira → Settings → Phone and remove it there.": {
+    "This removes the connection from this device only. It does not revoke this device on your Mac. To remove Mac-side access, open Seira → Settings → Phone & devices and remove it there.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Isto remove a conexão apenas deste dispositivo. Não revoga este dispositivo no seu Mac. Para remover o acesso do lado do Mac, abra Seira → Ajustes → Telefone e remova por lá."
+            "value": "Isto remove a conexão apenas deste dispositivo. Não revoga este dispositivo no seu Mac. Para remover o acesso do lado do Mac, abra Seira → Ajustes → Celular e dispositivos e remova por lá."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "这只会从此设备移除连接，不会撤销 Mac 上此设备的访问权。若要移除 Mac 端的访问权，请在 Mac 上打开 Seira →「设置」→「手机」，并从该处移除。"
+            "value": "这只会从此设备移除连接，不会撤销 Mac 上此设备的访问权。若要移除 Mac 端的访问权，请在 Mac 上打开 Seira →「设置」→「手机和设备」，并从该处移除。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "這只會從此裝置移除連線，不會撤銷 Mac 上此裝置的存取權。若要移除 Mac 端的存取權，請在 Mac 上開啟 Seira →「設定」→「手機」，並從該處移除。"
+            "value": "這只會從此裝置移除連線，不會撤銷 Mac 上此裝置的存取權。若要移除 Mac 端的存取權，請在 Mac 上開啟 Seira →「設定」→「手機和裝置」，並從該處移除。"
           }
         }
       }
@@ -9879,24 +9879,24 @@
         }
       }
     },
-    "Turn on Allow computer view for this phone in Seira → Settings → Remote access on your computer.": {
+    "Turn on Allow computer view for this phone in Seira → Settings → Phone & devices on your computer.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ative Permitir ver o computador para este celular em Seira → Configurações → Acesso remoto no seu computador."
+            "value": "Ative Permitir ver o computador para este celular em Seira → Ajustes → Celular e dispositivos no seu computador."
           }
         },
         "zh-Hans": {
           "stringUnit": {
             "state": "translated",
-            "value": "请在电脑上打开 Seira →「设置」→「远程访问」，为此手机打开「允许查看电脑」。"
+            "value": "请在电脑上打开 Seira →「设置」→「手机和设备」，为此手机打开「允许查看电脑」。"
           }
         },
         "zh-Hant": {
           "stringUnit": {
             "state": "translated",
-            "value": "請在電腦上開啟 Seira →「設定」→「遠端存取」，為此手機開啟「允許存取電腦畫面」。"
+            "value": "請在電腦上開啟 Seira →「設定」→「手機和裝置」，為此手機開啟「允許存取電腦畫面」。"
           }
         }
       }

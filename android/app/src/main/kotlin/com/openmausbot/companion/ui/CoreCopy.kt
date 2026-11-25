@@ -53,13 +53,13 @@ private val patternCoreCopy: List<Pair<Regex, (MatchResult) -> CopyPart>> = list
     Regex("""^Your phone couldn't reach (.+) on this network\. Put the phone on the same Wi-Fi as the """ +
         """computer\. If it already is, the computer's firewall may be blocking Seira: on a Windows PC, """ +
         """set its network to Private; on Linux, run the firewall command that Seira shows on the computer\. """ +
-        """Or open Settings → Remote access on the computer and sign in so """ +
-        """the phone can connect from anywhere\.$""") to
+        """Or open Settings → Phone & devices → Pair a phone on the computer, choose Anywhere, """ +
+        """through Seira, and sign in so the phone can connect from anywhere\.$""") to
         { m -> CopyPart(R.string.core_route_same_network, listOf(m.groupValues[1])) },
     Regex("""^“(.+)” didn't resolve\. If that's a Tailscale name, this phone may not be on the tailnet\.$""") to
         { m -> CopyPart(R.string.core_advice_host_unresolved, listOf(m.groupValues[1])) },
-    Regex("""^Reached your computer, but Phone access isn't answering on port (\d+) — open Seira → """ +
-        """Settings → Phone\.$""") to
+    Regex("""^Reached your computer, but Seira isn't answering on port (\d+) — open Seira → """ +
+        """Settings → Phone & devices\.$""") to
         { m -> CopyPart(R.string.core_advice_port_closed, listOf(m.groupValues[1].toInt())) },
     Regex("""^No route to your computer at (.+) — different network, or a firewall\.$""") to
         { m -> CopyPart(R.string.core_advice_no_route, listOf(m.groupValues[1])) },

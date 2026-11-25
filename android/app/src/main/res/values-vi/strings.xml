@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Mở Seira → Cài đặt → Điện thoại</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Chọn Thiết lập điện thoại</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Mở Seira → Cài đặt → Điện thoại và thiết bị</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Chọn Ghép nối điện thoại</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Một khung hình từ máy tính của bot này</string>
     <string name="mobile_account_alias_8cf27ca0">Bí danh tài khoản</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Nhà cung cấp này không cung cấp thông tin tài khoản. Hãy làm mới sau khi quá trình cấp quyền hoàn tất.</string>
@@ -345,7 +345,7 @@
     <string name="mobile_settings_not_here">Không ở đây</string>
     <string name="mobile_settings_notifications_footer">Phê duyệt và công việc đã hoàn tất sẽ hiển thị khi Seira đang kết nối, kể cả các khung phát lại sau một khoảng tạm dừng ngắn ở nền. Thông báo đẩy khi đã đóng ứng dụng cần một bản phát hành chuyển tiếp thông báo riêng, hiện chưa có.</string>
     <string name="mobile_settings_workspace_footer">Bạn có thể quản lý lịch tác vụ định kỳ ngay tại đây. Khóa nhà cung cấp, bí mật webhook, ghép nối, thu hồi, Local VM và chính sách thực thi của tác nhân vẫn nằm trên máy tính của bạn.</string>
-    <string name="mobile_settings_unpair_footer">Chỉ gỡ ghép nối khỏi điện thoại này. Để ngăn hoàn toàn việc kết nối tới máy tính, hãy gỡ thiết bị trong Seira → Cài đặt → Điện thoại.</string>
+    <string name="mobile_settings_unpair_footer">Chỉ gỡ ghép nối khỏi điện thoại này. Để ngăn hoàn toàn việc kết nối tới máy tính, hãy gỡ thiết bị trong Seira → Cài đặt → Điện thoại và thiết bị.</string>
     <string name="mobile_settings_not_here_body">Khóa API, ghép nối và Local VM được quản lý trên máy tính. Điện thoại này cố ý không được phép thay đổi chúng.</string>
     <string name="mobile_settings_unpair_confirm_title">Hủy ghép nối điện thoại này?</string>
     <string name="mobile_settings_unpair_confirm_message">Bạn sẽ cần mã ghép nối mới để kết nối lại.</string>
@@ -372,7 +372,7 @@
     <string name="mobile_onboarding_not_now">Để sau</string>
     <string name="mobile_onboarding_unpaired_title">Kết nối khi bạn sẵn sàng</string>
     <string name="mobile_onboarding_unpaired_body">Ghép nối điện thoại này với Seira để xem các cuộc trò chuyện và phản hồi bot của bạn.</string>
-    <string name="mobile_onboarding_unpaired_hint">Trên máy tính của bạn, hãy mở Seira → Cài đặt → Điện thoại.</string>
+    <string name="mobile_onboarding_unpaired_hint">Trên máy tính của bạn, hãy mở Seira → Cài đặt → Điện thoại và thiết bị.</string>
     <string name="mobile_onboarding_connect_computer">Kết nối máy tính</string>
     <string name="mobile_onboarding_notifications_title">Luôn nắm bắt kịp thời</string>
     <string name="mobile_onboarding_notifications_approvals">Các phê duyệt đang chờ bạn</string>
@@ -639,7 +639,7 @@
     <string name="mobile_share_not_paired">Hãy mở ứng dụng Seira một lần sau khi cập nhật. Nếu điện thoại này vẫn chưa kết nối, hãy ghép nối trước khi chia sẻ.</string>
     <string name="mobile_share_no_destinations">Chưa có bot hay kênh nào để gửi nội dung này. Hãy tạo một cái trên máy tính của bạn trước.</string>
     <string name="mobile_share_image_support_unavailable">Hãy cập nhật Seira trên máy tính này trước khi chia sẻ ảnh.</string>
-    <string name="mobile_share_offline">Không thể kết nối tới %1$s. Hãy để Seira mở và bật quyền truy cập Điện thoại, rồi thử lại.</string>
+    <string name="mobile_share_offline">Không thể kết nối tới %1$s. Hãy để Seira mở trên máy tính, rồi thử lại.</string>
     <string name="mobile_share_nothing_supported">Không có văn bản, liên kết, ảnh hoặc tài liệu được hỗ trợ nào để gửi.</string>
     <string name="mobile_share_too_many_items">Mỗi lần gửi tối đa 4 mục.</string>
     <string name="mobile_share_too_much_text">Văn bản đó quá lớn để chia sẻ. Hãy gửi một đoạn ngắn hơn.</string>

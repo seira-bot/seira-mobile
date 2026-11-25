@@ -219,8 +219,8 @@ class FailoverTest {
         // naming a Companion section would send them to a screen that is not
         // there (`ios/Sources/CompanionCore/Failover.swift:156`).
         assertEquals(
-            "Reached your computer, but Phone access isn't answering on port 8810 — " +
-                "open Seira → Settings → Phone. The app keeps retrying automatically.",
+            "Reached your computer, but Seira isn't answering on port 8810 — " +
+                "open Seira → Settings → Phone & devices. The app keeps retrying automatically.",
             message,
         )
     }
