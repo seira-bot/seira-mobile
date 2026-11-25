@@ -113,6 +113,8 @@ commit and artifact being submitted; unchecked items remain release work.
   review on the owner's go.
   Done 2026-11-24 for 1.0.7: Production, all targeted countries, 100% rollout, sent for
   review on the owner's go, together with the store listing changes.
+  Done 2026-11-25 for 1.0.8: Production, all targeted countries, 100% rollout, sent for
+  review on the owner's go.
 - [ ] Preserve the submitted copy, declarations, artifact identity, and test
   evidence. Monitor review feedback and release health after submission.
   Preserved 2026-11-20 in `declarations-proposal.md`. Google approved 1.0.1 on
@@ -134,3 +136,7 @@ commit and artifact being submitted; unchecked items remain release work.
   on 2026-11-23.
   1.0.7 (10007) was sent for review on 2026-11-24 with the new app icon, the new
   launch screen, and 9 store listing changes.
+  Google approved 1.0.7 (10007) and the listing changes: available on Google Play,
+  178 countries, published on 2026-11-24.
+  1.0.8 (10008) was sent for review on 2026-11-25 with the Connected Apps fix for
+  seira-bot/seira#443.

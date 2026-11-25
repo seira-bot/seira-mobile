@@ -27,9 +27,14 @@ Update 1.0.7 dikirim untuk review pada 2026-11-24: Production, semua negara
 target, rollout 100%. Bundle dibangun dari `184b500a`. Kode rilisnya sama dengan
 `main` `34e4bb49`. Review yang sama memuat 9 perubahan listing dari PR #75,
 termasuk ikon app 512 px.
+Google menyetujui 1.0.7 dan perubahan listing. Rilis "1.0.7" tayang di Play pada
+2026-11-24: 178 negara.
 Update 1.0.8 (versionCode 10008) membawa perbaikan kartu Connected Apps untuk app
 tanpa login (seira-bot/seira#443, PR #89), perbaikan notifikasi (PR #69, #81),
 chip kode yang menunggu kode pertama (PR #79), dan pemilih workspace (PR #88).
+Update 1.0.8 dikirim untuk review pada 2026-11-25: Production, semua negara
+target, rollout 100%. Bundle dibangun dari `5145e987`. Tree-nya sama dengan
+`main` `ac77e71d`.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
