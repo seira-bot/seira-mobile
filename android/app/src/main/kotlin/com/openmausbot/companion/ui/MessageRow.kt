@@ -637,9 +637,11 @@ private fun TextBubble(
             // Bots get markdown, you do not — the same split the desktop makes.
             // Markdown you did not intend is worse than markdown you did: a
             // message about `**` should show the asterisks.
-            // Settled text is selectable, so a command, a URL or a paragraph can
-            // be copied — as it can on iOS. The live bubble below is deliberately
-            // left out: selecting text that is still growing fights the reader.
+            // The bubble's long press opens the message menu (reactions, Copy,
+            // Select text). The text is deliberately not in a SelectionContainer:
+            // that would start Android's own selection on the same long press and
+            // stack its toolbar on the menu. A command, a URL or a paragraph is
+            // copied with Copy, or selected in part from "Select text".
             when (card) {
                 is TranscriptCard.Diff -> DiffCard(card)
                 is TranscriptCard.Table -> DataTableCard(card, from = replyBot?.name ?: message.from?.name)
@@ -656,22 +658,18 @@ private fun TextBubble(
                             )
                         }
                         if (attached.text.isNotEmpty()) {
-                            SelectionContainer {
-                                Text(
-                                    text = attached.text,
-                                    style = SeiraType.body,
-                                    color = colors.ink,
-                                )
-                            }
+                            Text(
+                                text = attached.text,
+                                style = SeiraType.body,
+                                color = colors.ink,
+                            )
                         }
                     }
                 } else {
-                    SelectionContainer {
-                        MarkdownText(
-                            source = message.text.orEmpty(),
-                            openLink = openLink?.let { open -> { url -> open(url, message) } },
-                        )
-                    }
+                    MarkdownText(
+                        source = message.text.orEmpty(),
+                        openLink = openLink?.let { open -> { url -> open(url, message) } },
+                    )
                 }
             }
         }
