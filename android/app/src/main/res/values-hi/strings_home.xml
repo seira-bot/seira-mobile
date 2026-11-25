@@ -33,19 +33,10 @@
     <string name="home_computers_title">कंप्यूटर</string>
     <string name="home_switch_computer">कंप्यूटर बदलें। अभी: %1$s</string>
     <string name="workspace_sheet_title">वर्कस्पेस</string>
-    <string name="workspace_chip_description">वर्कस्पेस बदलें। अभी: %1$s</string>
+    <string name="workspace_chip_description">वर्कस्पेस। अभी: %1$s</string>
     <string name="workspace_unnamed">बिना नाम का वर्कस्पेस</string>
-    <string name="workspace_opening">खुल रहा है…</string>
     <string name="workspace_status_open">खुला है</string>
     <string name="workspace_status_waiting">%1$s के काम पूरा करने का इंतज़ार है</string>
     <string name="workspace_status_waiting_generic">काम पूरा होने का इंतज़ार है</string>
     <string name="workspace_status_unavailable">उपलब्ध नहीं</string>
-    <string name="workspace_status_pair_again">इस वर्कस्पेस को खोलने के लिए इस फ़ोन को दोबारा पेयर करें</string>
-    <string name="workspace_action_open_now">अभी खोलें</string>
-    <string name="workspace_action_cancel">रद्द करें</string>
-    <string name="workspace_notice_turned_off">यह फ़ोन दूसरे वर्कस्पेस नहीं खोल सकता। कंप्यूटर की सेटिंग में इस फ़ोन के लिए इसे चालू करें।</string>
-    <string name="workspace_notice_unavailable">यह वर्कस्पेस अभी नहीं खोला जा सकता।</string>
-    <string name="workspace_notice_gone">यह वर्कस्पेस अब इस कंप्यूटर पर नहीं है।</string>
-    <string name="workspace_notice_failed">कंप्यूटर तक नहीं पहुँचा जा सका। फिर कोशिश करें।</string>
-    <string name="workspace_notice_needs_pairing">दूसरा वर्कस्पेस खोलने के लिए इस फ़ोन को कंप्यूटर के साथ दोबारा पेयर करें।</string>
 </resources>

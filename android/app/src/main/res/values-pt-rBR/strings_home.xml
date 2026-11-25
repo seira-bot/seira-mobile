@@ -33,19 +33,10 @@
     <string name="home_computers_title">Computadores</string>
     <string name="home_switch_computer">Trocar de computador. Agora: %1$s</string>
     <string name="workspace_sheet_title">Espaços de trabalho</string>
-    <string name="workspace_chip_description">Trocar de espaço de trabalho. Agora: %1$s</string>
+    <string name="workspace_chip_description">Espaços de trabalho. Agora: %1$s</string>
     <string name="workspace_unnamed">Espaço de trabalho sem nome</string>
-    <string name="workspace_opening">Abrindo…</string>
     <string name="workspace_status_open">Aberto</string>
     <string name="workspace_status_waiting">Aguardando %1$s terminar</string>
     <string name="workspace_status_waiting_generic">Aguardando o trabalho terminar</string>
     <string name="workspace_status_unavailable">Indisponível</string>
-    <string name="workspace_status_pair_again">Pareie este celular de novo para abrir este espaço de trabalho</string>
-    <string name="workspace_action_open_now">Abrir agora</string>
-    <string name="workspace_action_cancel">Cancelar</string>
-    <string name="workspace_notice_turned_off">Este celular não pode abrir outros espaços de trabalho. Ative isso para este celular nos Ajustes do computador.</string>
-    <string name="workspace_notice_unavailable">Esse espaço de trabalho não pode ser aberto agora.</string>
-    <string name="workspace_notice_gone">Esse espaço de trabalho não está mais neste computador.</string>
-    <string name="workspace_notice_failed">Não foi possível acessar o computador. Tente de novo.</string>
-    <string name="workspace_notice_needs_pairing">Para abrir outro espaço de trabalho, pareie este celular com o computador de novo.</string>
 </resources>

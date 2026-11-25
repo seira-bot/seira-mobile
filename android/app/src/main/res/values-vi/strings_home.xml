@@ -32,19 +32,10 @@
     <string name="home_computers_title">Máy tính</string>
     <string name="home_switch_computer">Đổi máy tính. Hiện tại: %1$s</string>
     <string name="workspace_sheet_title">Không gian làm việc</string>
-    <string name="workspace_chip_description">Đổi không gian làm việc. Hiện tại: %1$s</string>
+    <string name="workspace_chip_description">Không gian làm việc. Hiện tại: %1$s</string>
     <string name="workspace_unnamed">Không gian làm việc chưa đặt tên</string>
-    <string name="workspace_opening">Đang mở…</string>
     <string name="workspace_status_open">Đang mở</string>
     <string name="workspace_status_waiting">Đang chờ %1$s hoàn tất</string>
     <string name="workspace_status_waiting_generic">Đang chờ công việc hoàn tất</string>
     <string name="workspace_status_unavailable">Không khả dụng</string>
-    <string name="workspace_status_pair_again">Hãy ghép nối lại điện thoại này để mở không gian làm việc này</string>
-    <string name="workspace_action_open_now">Mở ngay</string>
-    <string name="workspace_action_cancel">Hủy</string>
-    <string name="workspace_notice_turned_off">Điện thoại này không thể mở không gian làm việc khác. Hãy bật tính năng này cho điện thoại trong Cài đặt trên máy tính.</string>
-    <string name="workspace_notice_unavailable">Hiện chưa thể mở không gian làm việc đó.</string>
-    <string name="workspace_notice_gone">Không gian làm việc đó không còn trên máy tính này.</string>
-    <string name="workspace_notice_failed">Không kết nối được với máy tính. Hãy thử lại.</string>
-    <string name="workspace_notice_needs_pairing">Để mở không gian làm việc khác, hãy ghép nối lại điện thoại này với máy tính.</string>
 </resources>

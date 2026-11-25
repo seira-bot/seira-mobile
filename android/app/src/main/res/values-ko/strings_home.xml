@@ -32,19 +32,10 @@
     <string name="home_computers_title">컴퓨터</string>
     <string name="home_switch_computer">컴퓨터 전환. 현재: %1$s</string>
     <string name="workspace_sheet_title">워크스페이스</string>
-    <string name="workspace_chip_description">워크스페이스 전환. 현재: %1$s</string>
+    <string name="workspace_chip_description">워크스페이스. 현재: %1$s</string>
     <string name="workspace_unnamed">이름 없는 워크스페이스</string>
-    <string name="workspace_opening">여는 중…</string>
     <string name="workspace_status_open">열림</string>
     <string name="workspace_status_waiting">%1$s의 작업이 끝나기를 기다리는 중</string>
     <string name="workspace_status_waiting_generic">작업이 끝나기를 기다리는 중</string>
     <string name="workspace_status_unavailable">사용할 수 없음</string>
-    <string name="workspace_status_pair_again">이 워크스페이스를 열려면 이 휴대폰을 다시 연결하세요</string>
-    <string name="workspace_action_open_now">지금 열기</string>
-    <string name="workspace_action_cancel">취소</string>
-    <string name="workspace_notice_turned_off">이 휴대폰은 다른 워크스페이스를 열 수 없어요. 컴퓨터의 설정에서 이 휴대폰에 대해 켜 주세요.</string>
-    <string name="workspace_notice_unavailable">지금은 그 워크스페이스를 열 수 없어요.</string>
-    <string name="workspace_notice_gone">그 워크스페이스는 더 이상 이 컴퓨터에 없어요.</string>
-    <string name="workspace_notice_failed">컴퓨터에 연결하지 못했어요. 다시 시도해 주세요.</string>
-    <string name="workspace_notice_needs_pairing">다른 워크스페이스를 열려면 이 휴대폰을 컴퓨터와 다시 연결하세요.</string>
 </resources>

@@ -25,7 +25,7 @@ struct WorkspaceChip: View {
         }
         .buttonStyle(.plain)
         .frame(maxWidth: 240, alignment: .leading)
-        .accessibilityLabel("Switch workspace. Now: \(name)")
+        .accessibilityLabel("Workspaces. Now: \(name)")
         .accessibilityIdentifier("home-workspace")
     }
 }
