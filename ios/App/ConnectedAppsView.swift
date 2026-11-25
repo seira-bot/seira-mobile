@@ -42,10 +42,7 @@ struct ConnectedAppsView: View {
                 Section {
                     Label("Accounts could not be re-checked", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.orange)
-                    if card.noAuth == true {
-                Label("Connected", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(Color.green)
-            } else if statuses == nil {
+                    if statuses == nil {
                         Text("Your computer could not open its credential store, so it cannot say which accounts are connected. Nothing has been disconnected — restarting Seira on your computer usually clears this.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -120,7 +117,10 @@ struct ConnectedAppsView: View {
         let isPending = status?.pending == true
 
         Section {
-            if statuses == nil {
+            if card.noAuth == true {
+                Label("Connected", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(Color.green)
+            } else if statuses == nil {
                 // No inventory has ever been confirmed, so this app's state is
                 // not known. "Connect" would assert that it is disconnected —
                 // the one claim we are in no position to make.
