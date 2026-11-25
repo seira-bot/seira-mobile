@@ -1089,6 +1089,7 @@ data class ConnectorCard(
     val blurb: String,
     val logo: String? = null,
     val domain: String? = null,
+    val noAuth: Boolean = false,
 ) {
     val id: String get() = slug
 }

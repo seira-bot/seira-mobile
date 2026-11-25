@@ -117,13 +117,16 @@ struct ConnectedAppsView: View {
         let isPending = status?.pending == true
 
         Section {
-            if statuses == nil {
+            if card.noAuth == true {
+                Label("Connected", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(Color.green)
+            } else if statuses == nil {
                 // No inventory has ever been confirmed, so this app's state is
                 // not known. "Connect" would assert that it is disconnected —
                 // the one claim we are in no position to make.
                 Label("Connection unknown", systemImage: "questionmark.circle")
                     .foregroundStyle(.secondary)
-            } else if accounts.isEmpty, !isConnected, !isPending {
+            } else if card.offersConnect(status: status) {
                 Button("Connect \(card.label)", systemImage: "plus.circle") {
                     Task { await authorize(card, alias: nil) }
                 }

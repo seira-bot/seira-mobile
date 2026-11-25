@@ -1612,7 +1612,13 @@ public struct ConnectorCard: Codable, Hashable, Identifiable, Sendable {
     public var blurb: String
     public var logo: String?
     public var domain: String?
+    public var noAuth: Bool?
     public var id: String { slug }
+
+    /// A toolkit that needs no sign-in has nothing to authorize, so it never offers Connect.
+    public func offersConnect(status: ConnectorStatus?) -> Bool {
+        noAuth != true && (status?.accounts ?? []).isEmpty && status?.connected != true && status?.pending != true
+    }
 }
 
 public struct ConnectorAccount: Codable, Hashable, Identifiable, Sendable {
