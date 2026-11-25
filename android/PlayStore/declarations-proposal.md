@@ -27,6 +27,9 @@ Update 1.0.7 dikirim untuk review pada 2026-11-24: Production, semua negara
 target, rollout 100%. Bundle dibangun dari `184b500a`. Kode rilisnya sama dengan
 `main` `34e4bb49`. Review yang sama memuat 9 perubahan listing dari PR #75,
 termasuk ikon app 512 px.
+Update 1.0.8 (versionCode 10008) membawa perbaikan kartu Connected Apps untuk app
+tanpa login (seira-bot/seira#443, PR #89), perbaikan notifikasi (PR #69, #81),
+chip kode yang menunggu kode pertama (PR #79), dan pemilih workspace (PR #88).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -268,6 +271,19 @@ Seira has a new look. The app icon is Seira with a wink on a night tile, and it 
 </en-US>
 <id>
 Seira tampil baru. Ikon app kini Seira yang mengedip di tile malam, dan cocok juga dengan ikon bertema. App kini terbuka di layar malam: mata Seira menyala, berkedip sekali, lalu lingkaran terbuka ke dalam app. Tidak ada lagi kilatan putih sebelum layar gelap.
+</id>
+```
+
+### Catatan rilis update 1.0.8
+
+Isi teks ini saat rilis 1.0.8 dibuat di Console:
+
+```text
+<en-US>
+Fixes: Connected Apps no longer shows a Connect button for an app that needs no sign-in, such as Composio. A tap on a notification opens the computer it came from. When a notification action has no computer, the app now says so. The Show diff and Run tests chips show only after the chat has run code.
+</en-US>
+<id>
+Perbaikan: Connected Apps tidak lagi menampilkan tombol Connect untuk app yang tidak butuh login, seperti Composio. Ketukan pada notifikasi membuka komputer asal notifikasi itu. Saat aksi notifikasi tidak punya komputer, app kini memberi tahu. Chip Show diff dan Run tests baru muncul setelah chat menjalankan kode.
 </id>
 ```
 
