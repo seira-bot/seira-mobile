@@ -57,10 +57,10 @@ final class WorkspaceSwitchFlowTests: XCTestCase {
     }
 
     private func flow(proof: (@Sendable (PhoneWorkspaceSwitch) -> WorkspaceSwitchCompletion?)? = nil) -> WorkspaceSwitchFlow {
-        WorkspaceSwitchFlow(seams: WorkspaceSwitchSeams(
-            now: { 1_000 },
-            proof: { _, switchInFlight in proof?(switchInFlight) }
-        ))
+        // No closure means no proof capability: the flow is inert.
+        var seamProof: (@Sendable (any WorkspaceSwitchTransport, PhoneWorkspaceSwitch) async -> WorkspaceSwitchCompletion?)?
+        if let proof { seamProof = { _, switchInFlight in proof(switchInFlight) } }
+        return WorkspaceSwitchFlow(seams: WorkspaceSwitchSeams(now: { 1_000 }, proof: seamProof))
     }
 
     nonisolated private static func signed(_ sw: PhoneWorkspaceSwitch, authenticated: Bool = true) -> WorkspaceSwitchCompletion {
@@ -87,9 +87,25 @@ final class WorkspaceSwitchFlowTests: XCTestCase {
         assertNoBearerToTheNewIdentity()
     }
 
-    func testWithoutAProofTheOldPinStaysAndTheNewIdentityGetsNoBearer() async throws {
+    func testWithoutAProofCapabilityNoSwitchRequestLeavesThePhone() async throws {
         computer.accepted?.state = "done"
-        let result = try await start(flow())
+        let inert = flow()
+        let started = try await start(inert)
+        XCTAssertEqual(started, .inactive)
+        let finished = await inert.finish(pairingId: Ids.pairing, transport: computer)
+        XCTAssertEqual(finished, .inactive)
+        // Not even the public identity read goes out.
+        XCTAssertEqual(computer.bearerCalls, [])
+        XCTAssertEqual(computer.identityProbes, 0)
+    }
+
+    func testTheSeamsHaveNoProofCapabilityByDefault() {
+        XCTAssertNil(WorkspaceSwitchSeams().proof)
+    }
+
+    func testAProofThatReturnsNothingKeepsTheOldPinAndTheNewIdentityGetsNoBearer() async throws {
+        computer.accepted?.state = "done"
+        let result = try await start(flow(proof: { _ in nil }))
         XCTAssertEqual(result, .rejected(.verificationFailed))
         assertNoBearerToTheNewIdentity()
     }
@@ -209,10 +225,9 @@ final class WorkspaceSwitchFlowTests: XCTestCase {
     }
 
     func testAPairingWithNoPinDoesNotStartAndSendsNoBearer() async throws {
-        let result = try await start(flow(), pin: nil)
+        let result = try await start(flow(proof: { Self.signed($0) }), pin: nil)
         XCTAssertEqual(result, .needsPairing)
         XCTAssertEqual(computer.bearerCalls, [])
         XCTAssertEqual(computer.identityProbes, 0)
     }
 }
-

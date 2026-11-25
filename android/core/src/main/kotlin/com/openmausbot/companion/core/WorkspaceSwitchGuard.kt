@@ -24,7 +24,7 @@ sealed interface WorkspaceSwitchStart {
 sealed interface WorkspaceSwitchOutcome {
     data class Repinned(val environmentId: String) : WorkspaceSwitchOutcome
 
-    /** The pin stays as it was and no bearer goes to the target. */
+    /** The pin stays as it was. */
     data class Rejected(val reason: Reason) : WorkspaceSwitchOutcome
 
     enum class Reason {
@@ -40,8 +40,9 @@ sealed interface WorkspaceSwitchOutcome {
 }
 
 /**
- * The pin of one pairing: the server identity the phone sends its bearer to. A different identity at
- * the same address stops the connection, as it does without this class. The pin moves only after a
+ * The pin of one pairing: the server identity the phone expects at the address. A different identity at
+ * the same address stops the connection, as it does without this class. Reading the identity is a check at
+ * one moment. It does not authenticate the peer, so it does not guarantee where a later request goes. The pin moves only after a
  * switch that this phone started, bound to this pairing and this target, finishes with an
  * authenticated completion for the same operation. Every pending switch is used once, whatever the
  * result. The caller stores the new pin in one write.
@@ -120,7 +121,7 @@ class WorkspaceSwitchGuard(
 
     fun cancel() = synchronized(lock) { pending = null }
 
-    /** The one gate before a bearer leaves the phone: the identity read at the address must be the pin. */
+    /** True when the identity read at the address is the pin. A check at one moment, not authentication of the peer. */
     fun bearerAllowed(observedEnvironmentId: String): Boolean =
         synchronized(lock) { observedEnvironmentId == currentPin }
 

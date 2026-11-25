@@ -110,22 +110,30 @@ sealed interface WorkspaceSwitchResult {
     /** The switch finished and the phone now pins [environmentId], in one write. */
     data class Switched(val environmentId: String) : WorkspaceSwitchResult
 
-    /** The pairing has no pinned identity, or the phone did not know the target identity in advance: nothing started and no bearer went out. The person pairs again. */
+    /** The pairing has no pinned identity, or the phone did not know the target identity in advance: nothing started. The person pairs again. */
     data object NeedsPairing : WorkspaceSwitchResult
 
-    /** The check failed. The old pin stays and no bearer went to the target. */
+    /**
+     * The switch path is off: this build has no proof from the paired computer's key. Nothing started and no request
+     * of the switch left the phone.
+     */
+    data object Inactive : WorkspaceSwitchResult
+
+    /** The check failed. The old pin stays. */
     data class Rejected(val reason: WorkspaceSwitchOutcome.Reason) : WorkspaceSwitchResult
 }
 
 /**
  * Test and app seams of a phone-started switch.
  *
- * [proof] reads how the computer proves, after the switch, that it is the one the phone paired with. It returns a
- * completion whose `authenticatedByPairing` is true only for an answer that a server at the same address cannot forge
- * (a proof from the paired computer's key). The contract of seira#525 has no such proof yet, so the default returns null
- * and a switch keeps the old pin. An address, a redirect or an identity probe is not a proof.
+ * [proof] is the capability that turns the switch path on. It reads how the computer proves, after the switch, that it
+ * is the one the phone paired with, and it returns a completion whose `authenticatedByPairing` is true only for an
+ * answer that a server at the same address cannot forge (a proof from the paired computer's key). The contract of
+ * seira#525 has no such proof, and the transport has no authenticated peer yet (seira#540, seira#546). So the default
+ * is null: the path is inert, and `Session.switchWorkspace` sends no request of the switch. An address, a redirect or
+ * an identity probe is not a proof.
  */
 class WorkspaceSwitchSeams(
     val now: () -> Long = System::currentTimeMillis,
-    val proof: suspend (CompanionClient, PhoneWorkspaceSwitch) -> WorkspaceSwitchCompletion? = { _, _ -> null },
+    val proof: (suspend (CompanionClient, PhoneWorkspaceSwitch) -> WorkspaceSwitchCompletion?)? = null,
 )

@@ -1310,11 +1310,12 @@ final class Session: ObservableObject {
 
     // MARK: - Workspace switch
 
-    /// Opens `workspaceId` on the computer. A pairing with no pinned server identity does not start: it has no trust
-    /// anchor, so the result is `.needsPairing` and no bearer is sent. The pin moves only as
-    /// `WorkspaceSwitchGuard` allows: the target identity is read from the authenticated list first, the finished
-    /// switch needs a proof from the paired computer, and the bearer never goes to an address that shows another
-    /// identity. A result that is not `.switched` keeps the old pin.
+    /// Opens `workspaceId` on the computer. The path is inert until the app gives the flow a proof of the paired
+    /// computer's key: without it the result is `.inactive` and no request leaves the phone. This slice is
+    /// plumbing. It does not guarantee that a bearer reaches the pinned computer: the identity read before a
+    /// request is a check at one moment, not authentication of the peer (seira#540, seira#546). A pairing with no
+    /// pinned server identity does not start: the result is `.needsPairing`. The pin moves only as
+    /// `WorkspaceSwitchGuard` allows. A result that is not `.switched` keeps the old pin.
     @discardableResult
     func switchWorkspace(_ workspaceId: String) async throws -> WorkspaceSwitchResult {
         guard let client, let current = connection else { return .needsPairing }

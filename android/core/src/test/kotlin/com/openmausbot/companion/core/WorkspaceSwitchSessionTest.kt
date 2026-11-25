@@ -42,8 +42,27 @@ class WorkspaceSwitchSessionTest {
     }
 
     @Test
-    fun withoutAProofTheOldPinStaysAndTheNewIdentityGetsNoBearer() = runBlocking<Unit> {
+    fun withoutAProofCapabilityNoSwitchRequestLeavesThePhone() = runBlocking<Unit> {
         Fixture().use { f ->
+            f.start()
+            val before = f.requests.size
+            assertEquals(WorkspaceSwitchResult.Inactive, f.session.switchWorkspace("trading"))
+            assertEquals(WorkspaceSwitchResult.Inactive, f.session.finishWorkspaceSwitch())
+            assertTrue(f.requests.drop(before).isEmpty(), "no request leaves the phone without a proof capability")
+            assertEquals(OLD, f.store.saved?.serverEnvironmentId)
+            assertEquals(OLD, f.session.connection.value?.serverEnvironmentId)
+            assertEquals(1, f.streamStarts)
+        }
+    }
+
+    @Test
+    fun theSeamsHaveNoProofCapabilityByDefault() {
+        assertEquals(null, WorkspaceSwitchSeams().proof)
+    }
+
+    @Test
+    fun aProofThatReturnsNothingKeepsTheOldPinAndTheNewIdentityGetsNoBearer() = runBlocking<Unit> {
+        Fixture(proof = { _, _ -> null }).use { f ->
             f.start()
             val result = f.session.switchWorkspace("trading")
             assertEquals(WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.VERIFICATION_FAILED), result)
@@ -101,7 +120,10 @@ class WorkspaceSwitchSessionTest {
 
     @Test
     fun aListWithoutTheTargetIdentityStartsNothingAndAsksForPairing() = runBlocking<Unit> {
-        Fixture(listed = """{"workspaces":[{"id":"default","current":true,"state":"ready"},{"id":"trading","current":false,"state":"ready"}]}""")
+        Fixture(
+            listed = """{"workspaces":[{"id":"default","current":true,"state":"ready"},{"id":"trading","current":false,"state":"ready"}]}""",
+            proof = { _, sw -> proofFor(sw) },
+        )
             .use { f ->
                 f.start()
                 assertEquals(WorkspaceSwitchResult.NeedsPairing, f.session.switchWorkspace("trading"))
@@ -207,7 +229,7 @@ class WorkspaceSwitchSessionTest {
 
     @Test
     fun aPairingWithNoPinDoesNotStartAndSendsNoBearer() = runBlocking<Unit> {
-        Fixture(pinned = false).use { f ->
+        Fixture(pinned = false, proof = { _, sw -> proofFor(sw) }).use { f ->
             f.start()
             val before = f.requests.size
             assertIs<WorkspaceSwitchResult.NeedsPairing>(f.session.switchWorkspace("trading"))
@@ -220,7 +242,7 @@ class WorkspaceSwitchSessionTest {
         WorkspaceSwitchCompletion(sw.id, sw.workspaceId, sw.environmentId.orEmpty(), authenticated)
 
     private class Fixture(
-        val proof: suspend (CompanionClient, PhoneWorkspaceSwitch) -> WorkspaceSwitchCompletion? = { _, _ -> null },
+        val proof: (suspend (CompanionClient, PhoneWorkspaceSwitch) -> WorkspaceSwitchCompletion?)? = null,
         val listed: String = """{"workspaces":[{"id":"default","environmentId":"$OLD","current":true,"state":"ready"},{"id":"trading","environmentId":"$NEW","current":false,"state":"ready"}]}""",
         val answer: String = """{"workspaces":[],"switch":{"id":"$OPERATION","workspaceId":"trading","environmentId":"$NEW","state":"done"}}""",
         val flipOnSwitch: Boolean = true,

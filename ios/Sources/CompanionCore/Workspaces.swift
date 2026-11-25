@@ -139,9 +139,12 @@ public enum WorkspaceSwitchResult: Equatable, Sendable {
     /// The switch finished and the phone now pins `environmentId`. The caller stores it in one write.
     case switched(environmentId: String)
     /// The phone has no pinned server identity for this pairing, or did not know the target identity in advance,
-    /// so it did not start and sent no bearer. The person pairs again.
+    /// so it did not start. The person pairs again.
     case needsPairing
-    /// The check failed. The old pin stays and no bearer went to the target.
+    /// The switch path is off: this build has no proof from the paired computer's key. Nothing started and no
+    /// request of the switch left the phone.
+    case inactive
+    /// The check failed. The old pin stays.
     case rejected(WorkspaceSwitchRejection)
 }
 
@@ -155,28 +158,35 @@ public protocol WorkspaceSwitchTransport: Sendable {
     func workspaceSwitch(_ operationId: String) async throws -> PhoneWorkspaceSwitch?
 }
 
-/// What the app gives the flow: the clock, and the proof of a switch the phone starts. `proof` reads how the
-/// computer proves, after the switch, that it is the one the phone paired with. It returns a completion whose
-/// `authenticatedByPairing` is true only for an answer that a server at the same address cannot forge (a proof
-/// from the paired computer's key). The contract of seira#525 has no such proof yet, so the default returns nil
-/// and a switch keeps the old pin. An address, a redirect or an identity probe is not a proof.
+/// What the app gives the flow: the clock, and the proof of a switch the phone starts.
+///
+/// `proof` is the capability that turns the switch path on. It reads how the computer proves, after the switch,
+/// that it is the one the phone paired with, and it returns a completion whose `authenticatedByPairing` is true
+/// only for an answer that a server at the same address cannot forge (a proof from the paired computer's key).
+/// The contract of seira#525 has no such proof, and the transport has no authenticated peer yet (seira#540,
+/// seira#546). So the default is nil: the path is inert, and `WorkspaceSwitchFlow` sends no request of the
+/// switch. An address, a redirect or an identity probe is not a proof.
 public struct WorkspaceSwitchSeams: Sendable {
     public var now: @Sendable () -> Int64
-    public var proof: @Sendable (any WorkspaceSwitchTransport, PhoneWorkspaceSwitch) async -> WorkspaceSwitchCompletion?
+    public var proof: (@Sendable (any WorkspaceSwitchTransport, PhoneWorkspaceSwitch) async -> WorkspaceSwitchCompletion?)?
 
     public init(
         now: @escaping @Sendable () -> Int64 = { Int64(Date().timeIntervalSince1970 * 1000) },
-        proof: @escaping @Sendable (any WorkspaceSwitchTransport, PhoneWorkspaceSwitch) async -> WorkspaceSwitchCompletion? = { _, _ in nil }
+        proof: (@Sendable (any WorkspaceSwitchTransport, PhoneWorkspaceSwitch) async -> WorkspaceSwitchCompletion?)? = nil
     ) {
         self.now = now
         self.proof = proof
     }
 }
 
-/// A workspace switch the phone starts, for a pairing with a pinned server identity. The flow never sends a
-/// bearer to an address whose public identity is not the pin: the phone reads the identity first, and a switch
-/// changes the identity at the address, so the status of a finished switch is read only with a proof from the
-/// paired computer. The caller stores a `switched` result in one write and starts a new stream.
+/// A workspace switch the phone starts, for a pairing with a pinned server identity.
+///
+/// This is plumbing, and it is inert until the app gives the seams a proof capability: without one, `start` and
+/// `finish` return `.inactive` on their first line, before any request leaves the phone. The flow does not
+/// guarantee that a bearer reaches the pinned computer. The identity read before a request is a check at one
+/// moment, not authentication of the peer; that needs the proof of the paired computer's key (seira#540,
+/// seira#546). The pin moves only with that proof. The caller stores a `switched` result in one write and starts
+/// a new stream.
 @MainActor
 public final class WorkspaceSwitchFlow {
     private struct Attempt {
@@ -192,8 +202,8 @@ public final class WorkspaceSwitchFlow {
         self.seams = seams
     }
 
-    /// Opens `workspaceId`. A pairing with no pinned identity has no trust anchor, so no switch starts and no
-    /// bearer is sent: the person pairs again.
+    /// Opens `workspaceId`. Without a proof capability nothing starts and no request is sent (`.inactive`). A
+    /// pairing with no pinned identity has no trust anchor, so no switch starts: the person pairs again.
     public func start(
         workspaceId: String,
         pairingId: String,
@@ -201,8 +211,10 @@ public final class WorkspaceSwitchFlow {
         transport: any WorkspaceSwitchTransport
     ) async throws -> WorkspaceSwitchResult {
         attempt = nil
+        // The capability is checked before any request, including the public identity read.
+        guard seams.proof != nil else { return .inactive }
         guard let pin else { return .needsPairing }
-        // The pin is checked before the bearer of the list and of the switch leaves the phone.
+        // The identity is read before the list and the switch. It is a check at one moment, not authentication.
         guard (try? await transport.environmentId()) == pin else { return .rejected(.verificationFailed) }
         guard let listed = try await transport.workspaces() else { return .needsPairing }
         let pinGuard = WorkspaceSwitchGuard(initialPin: pin, now: seams.now)
@@ -242,14 +254,15 @@ public final class WorkspaceSwitchFlow {
         pairingId: String,
         transport: any WorkspaceSwitchTransport
     ) async -> WorkspaceSwitchResult {
+        guard seams.proof != nil else { return .inactive }
         guard let waiting = attempt else { return .rejected(.noPendingSwitch) }
         guard waiting.pairingId == pairingId else {
             attempt = nil
             waiting.guardState.cancel()
             return .rejected(.pairingChanged)
         }
-        // The bearer goes only to the identity the phone pinned. After a finished switch the address shows
-        // the new identity, so a read that fails the pin gate ends as "not verified", with the pin kept.
+        // After a finished switch the address shows the new identity, so a read that fails this check ends as
+        // "not verified", with the pin kept.
         guard (try? await transport.environmentId()) == waiting.guardState.pin else {
             return await end(waiting, with: .verificationFailed)
         }
@@ -291,7 +304,8 @@ public final class WorkspaceSwitchFlow {
         pairingId: String
     ) async -> WorkspaceSwitchResult {
         attempt = nil
-        let completion = await seams.proof(transport, finished.switchInFlight)
+        guard let proof = seams.proof else { return .inactive }
+        let completion = await proof(transport, finished.switchInFlight)
         let pairing = finished.pairingId == pairingId ? finished.pairingId : "changed"
         switch finished.guardState.complete(pairingId: pairing, completion: completion) {
         case let .rejected(reason): return .rejected(reason)

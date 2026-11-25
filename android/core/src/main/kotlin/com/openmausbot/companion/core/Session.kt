@@ -1406,11 +1406,17 @@ class Session(
     // MARK: - Workspace switch
 
     /**
-     * Opens [workspaceId] on the computer and moves the pin only as the guard allows. A pairing with no pin has no
-     * trust anchor: nothing starts, no bearer is sent, and the person pairs again. The target identity is read from
-     * the authenticated list before anything starts.
+     * Opens [workspaceId] on the computer and moves the pin only as the guard allows.
+     *
+     * The path is inert until the app gives the session a proof of the paired computer's key
+     * ([WorkspaceSwitchSeams.proof]). Without it the first line returns [WorkspaceSwitchResult.Inactive] and no request
+     * leaves the phone. This slice is plumbing: it does not guarantee that a bearer reaches the pinned computer. The
+     * identity read before a request is only a check at one moment, not authentication of the peer; that needs the
+     * proof of seira#540 and seira#546. A pairing with no pin has no trust anchor: nothing starts and the person pairs
+     * again. The target identity is read from the authenticated list before anything starts.
      */
     suspend fun switchWorkspace(workspaceId: String): WorkspaceSwitchResult {
+        if (workspaceSwitch.proof == null) return WorkspaceSwitchResult.Inactive
         val active = client ?: return WorkspaceSwitchResult.NeedsPairing
         val current = _connection.value ?: return WorkspaceSwitchResult.NeedsPairing
         val pin = current.serverEnvironmentId ?: return WorkspaceSwitchResult.NeedsPairing
@@ -1445,6 +1451,7 @@ class Session(
 
     /** Reads the switch that waits once. Call it again later while it answers [WorkspaceSwitchResult.Waiting]. */
     suspend fun finishWorkspaceSwitch(): WorkspaceSwitchResult {
+        if (workspaceSwitch.proof == null) return WorkspaceSwitchResult.Inactive
         val active = client ?: return WorkspaceSwitchResult.NeedsPairing
         val attempt = switchAttempt ?: return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.NO_PENDING_SWITCH)
         // A pairing change ends the pending switch before any status request leaves the phone.
@@ -1458,7 +1465,7 @@ class Session(
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {
-            // The identity check of the client refuses a server that is not the pin, and sends no bearer to it.
+            // A failed read, including a client that refuses an address that shows another identity, ends the switch.
             switchAttempt = null
             attempt.guard.cancel()
             return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.VERIFICATION_FAILED)
@@ -1473,8 +1480,9 @@ class Session(
 
     private suspend fun finishSwitch(active: CompanionClient, attempt: SwitchAttempt): WorkspaceSwitchResult {
         switchAttempt = null
+        val proof = workspaceSwitch.proof ?: return WorkspaceSwitchResult.Inactive
         val completion = try {
-            workspaceSwitch.proof(active, attempt.switch)
+            proof(active, attempt.switch)
         } catch (error: CancellationException) {
             throw error
         } catch (_: Exception) {

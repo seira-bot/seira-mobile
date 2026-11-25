@@ -36,12 +36,13 @@ public enum WorkspaceSwitchRejection: Equatable, Sendable {
 
 public enum WorkspaceSwitchOutcome: Equatable, Sendable {
     case repinned(environmentId: String)
-    /// The pin stays as it was and no bearer goes to the target.
+    /// The pin stays as it was.
     case rejected(WorkspaceSwitchRejection)
 }
 
-/// The pin of one pairing: the server identity the phone sends its bearer to. A different identity at
-/// the same address stops the connection, as it does without this class. The pin moves only after a
+/// The pin of one pairing: the server identity the phone expects at the address. A different identity at
+/// the same address stops the connection, as it does without this class. Reading the identity is a check at
+/// one moment. It does not authenticate the peer, so it does not guarantee where a later request goes. The pin moves only after a
 /// switch that this phone started, bound to this pairing and this target, finishes with an
 /// authenticated completion for the same operation. Every pending switch is used once, whatever the
 /// result. The caller stores the new pin in one write.
@@ -146,7 +147,7 @@ public final class WorkspaceSwitchGuard: @unchecked Sendable {
         pending = nil
     }
 
-    /// The one gate before a bearer leaves the phone: the identity read at the address must be the pin.
+    /// True when the identity read at the address is the pin. A check at one moment, not authentication of the peer.
     public func bearerAllowed(observedEnvironmentId: String) -> Bool {
         lock.lock()
         defer { lock.unlock() }
