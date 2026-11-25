@@ -29,7 +29,7 @@ object SettingsPolicy {
 
     const val UNPAIR_FOOTER =
         "Removes the pairing from this phone only. To stop it reaching the computer at all, " +
-            "remove the device in Seira → Settings → Phone."
+            "remove the device in Seira → Settings → Phone & devices."
 
     const val NOT_HERE =
         "API keys, pairing and the Local VM are managed on the computer. This phone is " +

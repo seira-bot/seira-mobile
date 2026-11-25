@@ -84,8 +84,8 @@ pnpm dev                  # 127.0.0.1:5199
 pnpm dev:desktop          # Electron starts the harness
 ```
 
-In the app: **Settings → Phone → Advanced & troubleshooting**. Turn on
-**Phone access**. You should see either
+In the app: **Settings → Phone & devices → Pair a phone**. Choose
+**Same Wi-Fi**. You should see either
 
 - *"Your phone will find this computer as …"* — Bonjour is advertising, or
 - *"Listening on 192.168.x.x:8810 — enter that on your phone."* — it is not.
@@ -177,7 +177,7 @@ paid account is required to run on your own phone.
 
 On the phone, in order:
 
-1. **Pair.** In Seira → Settings → Phone, choose **Pair a phone**.
+1. **Pair.** In Seira → Settings → Phone & devices, choose **Pair a phone**.
    Scan the QR code with the phone's Camera, open Seira,
    confirm that the computer and six-digit code are filled in, then tap
    **Connect**. The computer should also appear by name for the manual path:
@@ -234,7 +234,7 @@ On the phone, in order:
    and the result should remain editable before sending. The first attempt
    requests Microphone and Speech Recognition access. Locking or
    backgrounding the phone mid-sentence must release the mic.
-8. **Revoke.** Remove the device in Settings → Phone on the computer. The
+8. **Revoke.** Remove the device in Settings → Phone & devices on the computer. The
    phone should land on "This phone was unpaired" rather than silently failing.
 
 ---
@@ -256,10 +256,9 @@ so this is also how the phone reaches the Mac over cellular.
    App Store build) and sign in.
 2. **On the phone:** install Tailscale from the App Store, sign in to the *same*
    account, and turn the VPN on.
-3. **In Seira → Settings → Phone:** with Phone access on, the panel now
-   shows a separate **Tailscale pairing** card. Choose **Turn on phone access &
-   check** (or **Check again** when Phone access is already on); it should
-   report a tailnet name such as `macbook.tail1234.ts.net`. If it
+3. **In Seira → Settings → Phone & devices → Pair a phone:** with the
+   Tailscale route available, the panel shows a separate **Tailscale pairing**
+   card. Choose **Check again**; it should report a tailnet name such as `macbook.tail1234.ts.net`. If it
    finds Tailscale without a name, verify that MagicDNS is on and choose
    **Check again**. This check refreshes a running sidecar, so restarting the
    desktop app or dropping existing phone connections is not required.
@@ -354,7 +353,7 @@ interruptions.
 12. **No key.** Remove the key on the Mac (desktop call bar → gear → Remove
     key) and tap the phone icon: "Set up Live calls on your computer first."
 13. **Unpaired mid-call.** On a call, remove this phone on the Mac
-    (Settings → Phone). The call ends at once, and the "This device was
+    (Settings → Phone & devices). The call ends at once, and the "This device was
     unpaired" screen says "Call ended: you were signed out." with no Try
     again.
 14. **Try again.** Set Hang up after silence to 1 minute and stay silent:

@@ -631,7 +631,7 @@ final class ShareViewModel: ObservableObject {
                 return "This phone's pairing has expired. Open Seira and pair it again."
             }
             if isAmbiguousTransport(error) {
-                return "Couldn't reach your computer. Keep Seira open and Phone access on, then try again."
+                return "Couldn't reach your computer. Keep Seira open on the computer, then try again."
             }
         }
         return (error as? LocalizedError)?.errorDescription
@@ -712,7 +712,7 @@ private enum ShareExtensionError: LocalizedError {
         case .imageSupportUnavailable:
             return "Update Seira on this computer before sharing images."
         case let .offline(name):
-            return "Couldn't reach \(name). Keep Seira open and Phone access on, then try again."
+            return "Couldn't reach \(name). Keep Seira open on the computer, then try again."
         case .sendTimedOut:
             return "Sending took too long. Check your connection and try again."
         }

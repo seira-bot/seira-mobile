@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Откройте Seira → «Настройки» → «Телефон»</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Выберите «Настроить телефон»</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Откройте Seira → «Настройки» → «Телефон и устройства»</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Выберите «Подключить телефон»</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Кадр с компьютера этого бота</string>
     <string name="mobile_account_alias_8cf27ca0">Псевдоним аккаунта</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Сведения об аккаунте недоступны у этого провайдера. Обновите после завершения авторизации.</string>
@@ -354,7 +354,7 @@
     <string name="mobile_settings_not_here">Не здесь</string>
     <string name="mobile_settings_notifications_footer">Согласования и завершённая работа появляются, пока Seira подключена, включая кадры, воспроизведённые после короткой паузы в фоне. Для пуш-уведомлений при закрытом приложении нужен отдельный релиз ретранслятора, которого пока нет.</string>
     <string name="mobile_settings_workspace_footer">Расписания процедур можно безопасно менять здесь. Ключи провайдеров, секреты вебхуков, подключение устройств, отзыв доступа, Local VM и политика выполнения агентов остаются на вашем компьютере.</string>
-    <string name="mobile_settings_unpair_footer">Подключение удаляется только с этого телефона. Чтобы полностью закрыть ему доступ к компьютеру, удалите устройство в Seira → «Настройки» → «Телефон».</string>
+    <string name="mobile_settings_unpair_footer">Подключение удаляется только с этого телефона. Чтобы полностью закрыть ему доступ к компьютеру, удалите устройство в Seira → «Настройки» → «Телефон и устройства».</string>
     <string name="mobile_settings_not_here_body">Ключи API, подключение устройств и Local VM настраиваются на компьютере. Этому телефону намеренно запрещено их менять.</string>
     <string name="mobile_settings_unpair_confirm_title">Отключить этот телефон?</string>
     <string name="mobile_settings_unpair_confirm_message">Чтобы подключиться снова, понадобится новый код подключения.</string>
@@ -381,7 +381,7 @@
     <string name="mobile_onboarding_not_now">Не сейчас</string>
     <string name="mobile_onboarding_unpaired_title">Подключитесь, когда будете готовы</string>
     <string name="mobile_onboarding_unpaired_body">Подключите этот телефон к Seira, чтобы видеть свои чаты и отвечать ботам.</string>
-    <string name="mobile_onboarding_unpaired_hint">На компьютере откройте Seira → «Настройки» → «Телефон».</string>
+    <string name="mobile_onboarding_unpaired_hint">На компьютере откройте Seira → «Настройки» → «Телефон и устройства».</string>
     <string name="mobile_onboarding_connect_computer">Подключить компьютер</string>
     <string name="mobile_onboarding_notifications_title">Будьте в курсе</string>
     <string name="mobile_onboarding_notifications_approvals">Согласования, которые ждут вас</string>
@@ -660,7 +660,7 @@
     <string name="mobile_share_not_paired">Один раз откройте приложение Seira после обновления. Если телефон всё ещё не подключён, подключите его, прежде чем делиться.</string>
     <string name="mobile_share_no_destinations">Пока нет ботов или каналов, куда это можно отправить. Сначала создайте их на компьютере.</string>
     <string name="mobile_share_image_support_unavailable">Обновите Seira на этом компьютере, прежде чем делиться изображениями.</string>
-    <string name="mobile_share_offline">Не удалось связаться с %1$s. Оставьте Seira открытой и доступ для телефона включённым, затем повторите попытку.</string>
+    <string name="mobile_share_offline">Не удалось связаться с %1$s. Оставьте Seira открытой на компьютере, затем повторите попытку.</string>
     <string name="mobile_share_nothing_supported">Нет ни текста, ни ссылки, ни изображения, ни поддерживаемого документа для отправки.</string>
     <string name="mobile_share_too_many_items">Отправляйте не более 4 элементов за раз.</string>
     <string name="mobile_share_too_much_text">Этот текст слишком большой, чтобы им поделиться. Отправьте фрагмент покороче.</string>

@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Ouvrez Seira → Paramètres → Téléphone</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Choisissez Configurer un téléphone</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Ouvrez Seira → Paramètres → Téléphone et appareils</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Choisissez Associer un téléphone</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Une image de l’ordinateur de ce bot</string>
     <string name="mobile_account_alias_8cf27ca0">Alias du compte</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Les détails du compte ne sont pas disponibles auprès de ce fournisseur. Actualisez une fois l’autorisation terminée.</string>
@@ -348,7 +348,7 @@
     <string name="mobile_settings_not_here">Pas ici</string>
     <string name="mobile_settings_notifications_footer">Les approbations et le travail terminé s’affichent tant que Seira est connectée, y compris les messages rejoués après une courte pause en arrière-plan. Les notifications push avec l’app fermée nécessitent une version séparée du relais push, qui n’existe pas encore.</string>
     <string name="mobile_settings_workspace_footer">Vous pouvez gérer les planifications de routines ici. Les clés des fournisseurs, les secrets de webhook, l’association, la révocation, la VM locale et la politique d’exécution des agents restent sur votre ordinateur.</string>
-    <string name="mobile_settings_unpair_footer">Supprime l’association de ce téléphone uniquement. Pour l’empêcher complètement d’accéder à l’ordinateur, retirez l’appareil dans Seira → Paramètres → Téléphone.</string>
+    <string name="mobile_settings_unpair_footer">Supprime l’association de ce téléphone uniquement. Pour l’empêcher complètement d’accéder à l’ordinateur, retirez l’appareil dans Seira → Paramètres → Téléphone et appareils.</string>
     <string name="mobile_settings_not_here_body">Les clés API, l’association et la VM locale se gèrent sur l’ordinateur. Ce téléphone n’a volontairement pas le droit de les modifier.</string>
     <string name="mobile_settings_unpair_confirm_title">Dissocier ce téléphone ?</string>
     <string name="mobile_settings_unpair_confirm_message">Il vous faudra un nouveau code d’association pour vous reconnecter.</string>
@@ -375,7 +375,7 @@
     <string name="mobile_onboarding_not_now">Pas maintenant</string>
     <string name="mobile_onboarding_unpaired_title">Connectez-vous quand vous voulez</string>
     <string name="mobile_onboarding_unpaired_body">Associez ce téléphone à Seira pour voir vos chats et répondre à vos bots.</string>
-    <string name="mobile_onboarding_unpaired_hint">Sur votre ordinateur, ouvrez Seira → Paramètres → Téléphone.</string>
+    <string name="mobile_onboarding_unpaired_hint">Sur votre ordinateur, ouvrez Seira → Paramètres → Téléphone et appareils.</string>
     <string name="mobile_onboarding_connect_computer">Connecter l’ordinateur</string>
     <string name="mobile_onboarding_notifications_title">Restez informé</string>
     <string name="mobile_onboarding_notifications_approvals">Les approbations qui vous attendent</string>
@@ -646,7 +646,7 @@
     <string name="mobile_share_not_paired">Ouvrez l’app Seira une fois après la mise à jour. Si ce téléphone n’est toujours pas connecté, associez-le avant de partager.</string>
     <string name="mobile_share_no_destinations">Il n’y a pas encore de bot ni de canal où envoyer ceci. Créez-en un d’abord sur votre ordinateur.</string>
     <string name="mobile_share_image_support_unavailable">Mettez à jour Seira sur cet ordinateur avant de partager des images.</string>
-    <string name="mobile_share_offline">Impossible de joindre %1$s. Gardez Seira ouverte et l’accès du téléphone activé, puis réessayez.</string>
+    <string name="mobile_share_offline">Impossible de joindre %1$s. Gardez Seira ouverte sur l’ordinateur, puis réessayez.</string>
     <string name="mobile_share_nothing_supported">Il n’y a aucun texte, lien, image ni document pris en charge à envoyer.</string>
     <string name="mobile_share_too_many_items">Envoyez jusqu’à 4 éléments à la fois.</string>
     <string name="mobile_share_too_much_text">Ce texte est trop volumineux pour être partagé. Envoyez une sélection plus courte.</string>

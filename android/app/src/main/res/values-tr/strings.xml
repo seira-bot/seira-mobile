@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → Ayarlar → Telefon bölümünü açın</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Telefon kur seçeneğini seçin</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → Ayarlar → Telefon ve cihazlar bölümünü açın</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Telefon eşle seçeneğini seçin</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Bu botun bilgisayarından bir kare</string>
     <string name="mobile_account_alias_8cf27ca0">Hesap takma adı</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Hesap ayrıntılarına bu sağlayıcıdan ulaşılamıyor. Yetkilendirme bittikten sonra yenileyin.</string>
@@ -348,7 +348,7 @@
     <string name="mobile_settings_not_here">Burada değil</string>
     <string name="mobile_settings_notifications_footer">Onaylar ve biten işler, kısa bir arka plan duraklamasından sonra yeniden oynatılan kareler dahil, Seira bağlıyken görünür. Uygulama kapalıyken anlık bildirim için ayrı bir bildirim aktarıcı sürümü gerekir; bu henüz yok.</string>
     <string name="mobile_settings_workspace_footer">Rutin zamanlamalarını burada güvenle yönetebilirsiniz. Sağlayıcı anahtarları, webhook sırları, eşleme, erişimi iptal etme, Yerel VM ve ajan yürütme ilkesi bilgisayarınızda kalır.</string>
-    <string name="mobile_settings_unpair_footer">Eşlemeyi yalnızca bu telefondan kaldırır. Bilgisayara hiç ulaşamamasını sağlamak için cihazı Seira → Ayarlar → Telefon bölümünden kaldırın.</string>
+    <string name="mobile_settings_unpair_footer">Eşlemeyi yalnızca bu telefondan kaldırır. Bilgisayara hiç ulaşamamasını sağlamak için cihazı Seira → Ayarlar → Telefon ve cihazlar bölümünden kaldırın.</string>
     <string name="mobile_settings_not_here_body">API anahtarları, eşleme ve Yerel VM bilgisayarda yönetilir. Bu telefonun bunları değiştirmesine bilerek izin verilmez.</string>
     <string name="mobile_settings_unpair_confirm_title">Bu telefonun eşlemesi kaldırılsın mı?</string>
     <string name="mobile_settings_unpair_confirm_message">Yeniden bağlanmak için yeni bir eşleme koduna ihtiyacınız olacak.</string>
@@ -375,7 +375,7 @@
     <string name="mobile_onboarding_not_now">Şimdi değil</string>
     <string name="mobile_onboarding_unpaired_title">Hazır olduğunuzda bağlanın</string>
     <string name="mobile_onboarding_unpaired_body">Sohbetlerinizi görmek ve botlarınıza yanıt vermek için bu telefonu Seira ile eşleyin.</string>
-    <string name="mobile_onboarding_unpaired_hint">Bilgisayarınızda Seira → Ayarlar → Telefon bölümünü açın.</string>
+    <string name="mobile_onboarding_unpaired_hint">Bilgisayarınızda Seira → Ayarlar → Telefon ve cihazlar bölümünü açın.</string>
     <string name="mobile_onboarding_connect_computer">Bilgisayarı bağla</string>
     <string name="mobile_onboarding_notifications_title">Gelişmelerden haberdar olun</string>
     <string name="mobile_onboarding_notifications_approvals">Sizi bekleyen onaylar</string>
@@ -646,7 +646,7 @@
     <string name="mobile_share_not_paired">Güncellemeden sonra Seira uygulamasını bir kez açın. Bu telefon hâlâ bağlı değilse paylaşmadan önce eşleyin.</string>
     <string name="mobile_share_no_destinations">Bunu göndereceğiniz bir bot veya kanal henüz yok. Önce bilgisayarınızda bir tane oluşturun.</string>
     <string name="mobile_share_image_support_unavailable">Görsel paylaşmadan önce bu bilgisayarda Seira\'yı güncelleyin.</string>
-    <string name="mobile_share_offline">%1$s adlı bilgisayara ulaşılamadı. Seira\'yı açık ve Telefon erişimini etkin tutup tekrar deneyin.</string>
+    <string name="mobile_share_offline">%1$s adlı bilgisayara ulaşılamadı. Seira\'yı bilgisayarda açık tutup tekrar deneyin.</string>
     <string name="mobile_share_nothing_supported">Gönderilecek metin, bağlantı, görsel ya da desteklenen belge yok.</string>
     <string name="mobile_share_too_many_items">Bir seferde en fazla 4 öğe gönderin.</string>
     <string name="mobile_share_too_much_text">Bu metin paylaşmak için çok büyük. Daha kısa bir seçim gönderin.</string>

@@ -197,7 +197,7 @@ working directories.
 Companion settings stay on the computer on purpose: losing the phone must not
 mean losing the ability to lock it out.
 
-The same per-device switch (**Allow computer view** in Settings → Remote access)
+The same per-device switch (**Allow computer view** on the phone's row in Settings → Phone & devices)
 lets the phone fetch a still of a bot's Local VM on demand, so the computer view
 shows it even while the bot is idle: every 30 seconds while the view is open,
 every 3 while the bot works and its streamed frames have gone quiet. It is a

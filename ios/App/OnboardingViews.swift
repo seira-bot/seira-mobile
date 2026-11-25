@@ -135,7 +135,7 @@ struct UnpairedHomeView: View {
                             .fixedSize(horizontal: false, vertical: true)
                     }
 
-                    Text("On your computer, open Seira → Settings → Phone.")
+                    Text("On your computer, open Seira → Settings → Phone & devices.")
                         .font(.footnote)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)

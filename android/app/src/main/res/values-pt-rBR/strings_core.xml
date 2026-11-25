@@ -7,9 +7,9 @@
     <string name="core_route_local_network_blocked">O Android bloqueou este app de acessar sua rede local. Permita o acesso à rede local para ele nas Configurações do celular e tente de novo.</string>
     <string name="core_route_secure_failed">Verifique se o computador está ativo com o Seira aberto e tente de novo.</string>
     <string name="core_route_tailscale_only">Seu celular não conseguiu alcançar %1$s pelo Tailscale. Ative o Tailscale neste celular, conectado à mesma tailnet do computador, e tente de novo.</string>
-    <string name="core_route_same_network">Seu celular não conseguiu alcançar %1$s nesta rede. Coloque o celular no mesmo Wi-Fi do computador. Se já estiver, o firewall do computador pode estar bloqueando o Seira: em um PC com Windows, defina a rede como Privada; no Linux, execute o comando de firewall que o Seira mostra no computador. Ou abra Configurações → Acesso remoto no computador e entre para que o celular possa se conectar de qualquer lugar.</string>
+    <string name="core_route_same_network">Seu celular não conseguiu alcançar %1$s nesta rede. Coloque o celular no mesmo Wi-Fi do computador. Se já estiver, o firewall do computador pode estar bloqueando o Seira: em um PC com Windows, defina a rede como Privada; no Linux, execute o comando de firewall que o Seira mostra no computador. Ou abra Configurações → Celular e dispositivos → Parear um celular no computador, escolha “De qualquer lugar, pelo Seira” e entre para que o celular possa se conectar de qualquer lugar.</string>
     <string name="core_advice_host_unresolved">“%1$s” não foi resolvido. Se for um nome do Tailscale, este celular pode não estar na tailnet.</string>
-    <string name="core_advice_port_closed">Chegou ao seu computador, mas o acesso do Celular não responde na porta %1$d — abra Seira → Configurações → Celular.</string>
+    <string name="core_advice_port_closed">Chegou ao seu computador, mas o Seira não responde na porta %1$d — abra Seira → Configurações → Celular e dispositivos.</string>
     <string name="core_advice_no_route">Sem rota para o seu computador em %1$s — rede diferente ou firewall.</string>
     <string name="core_advice_offline">Você está offline.</string>
     <string name="core_advice_could_not_reach_host">Não foi possível alcançar %1$s.</string>

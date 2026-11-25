@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Відкрийте Seira → Налаштування → Телефон</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Виберіть «Налаштувати телефон»</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Відкрийте Seira → Налаштування → Телефон і пристрої</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. Виберіть «Під’єднати телефон»</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">Кадр із комп’ютера цього бота</string>
     <string name="mobile_account_alias_8cf27ca0">Псевдонім облікового запису</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Цей постачальник не надає відомостей про обліковий запис. Оновіть після завершення авторизації.</string>
@@ -354,7 +354,7 @@
     <string name="mobile_settings_not_here">Не тут</string>
     <string name="mobile_settings_notifications_footer">Підтвердження й завершені завдання з’являються, поки Seira підключена, зокрема кадри, відтворені після короткої паузи у фоні. Push-сповіщення із закритим застосунком потребують окремого випуску push-ретранслятора, якого ще не існує.</string>
     <string name="mobile_settings_workspace_footer">Розклади рутин тут можна безпечно змінювати. Ключі постачальників, секрети вебхуків, підключення, відкликання, локальна віртуальна машина й політика виконання агентів залишаються на вашому комп’ютері.</string>
-    <string name="mobile_settings_unpair_footer">Вилучає підключення лише з цього телефона. Щоб узагалі закрити йому доступ до комп’ютера, вилучіть пристрій у Seira → Налаштування → Телефон.</string>
+    <string name="mobile_settings_unpair_footer">Вилучає підключення лише з цього телефона. Щоб узагалі закрити йому доступ до комп’ютера, вилучіть пристрій у Seira → Налаштування → Телефон і пристрої.</string>
     <string name="mobile_settings_not_here_body">Ключі API, підключення й локальна віртуальна машина керуються на комп’ютері. Цьому телефону свідомо заборонено їх змінювати.</string>
     <string name="mobile_settings_unpair_confirm_title">Від’єднати цей телефон?</string>
     <string name="mobile_settings_unpair_confirm_message">Щоб підключитися знову, знадобиться новий код підключення.</string>
@@ -381,7 +381,7 @@
     <string name="mobile_onboarding_not_now">Не зараз</string>
     <string name="mobile_onboarding_unpaired_title">Підключіться, коли будете готові</string>
     <string name="mobile_onboarding_unpaired_body">Під’єднайте цей телефон до Seira, щоб бачити свої чати й відповідати ботам.</string>
-    <string name="mobile_onboarding_unpaired_hint">На комп’ютері відкрийте Seira → Налаштування → Телефон.</string>
+    <string name="mobile_onboarding_unpaired_hint">На комп’ютері відкрийте Seira → Налаштування → Телефон і пристрої.</string>
     <string name="mobile_onboarding_connect_computer">Підключити комп’ютер</string>
     <string name="mobile_onboarding_notifications_title">Будьте в курсі</string>
     <string name="mobile_onboarding_notifications_approvals">Підтвердження, що чекають на вас</string>
@@ -660,7 +660,7 @@
     <string name="mobile_share_not_paired">Один раз відкрийте застосунок Seira після оновлення. Якщо телефон усе ще не підключено, під’єднайте його перед надсиланням.</string>
     <string name="mobile_share_no_destinations">Поки немає ботів чи каналів, куди це можна надіслати. Спершу створіть їх на комп’ютері.</string>
     <string name="mobile_share_image_support_unavailable">Оновіть Seira на цьому комп’ютері, перш ніж надсилати зображення.</string>
-    <string name="mobile_share_offline">Не вдалося зв’язатися з %1$s. Залиште Seira відкритою й доступ для телефона ввімкненим, потім спробуйте знову.</string>
+    <string name="mobile_share_offline">Не вдалося зв’язатися з %1$s. Залиште Seira відкритою на комп’ютері, потім спробуйте знову.</string>
     <string name="mobile_share_nothing_supported">Немає тексту, посилання, зображення чи підтримуваного документа для надсилання.</string>
     <string name="mobile_share_too_many_items">Надсилайте до 4 елементів за раз.</string>
     <string name="mobile_share_too_much_text">Цей текст завеликий для надсилання. Надішліть коротший фрагмент.</string>

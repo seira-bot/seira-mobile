@@ -240,7 +240,7 @@ object SharePolicy {
             return api.detail
         }
         if (api != null && isAmbiguousTransport(api)) {
-            return computerName?.let(::offline) ?: "Couldn't reach your computer. Keep Seira open and Phone access on, then try again."
+            return computerName?.let(::offline) ?: "Couldn't reach your computer. Keep Seira open on the computer, then try again."
         }
         // Mirror ShareViewModel: raw exception text never reaches the sheet.
         return generic()
@@ -251,7 +251,7 @@ object SharePolicy {
             detail == "This saved connection is no longer available on this phone. Remove it and pair again." ||
             (
                 detail.startsWith("Couldn't reach ") &&
-                    detail.endsWith(". Keep Seira open and Phone access on, then try again.")
+                    detail.endsWith(". Keep Seira open on the computer, then try again.")
                 )
 
     private fun isAmbiguousTransport(error: APIError): Boolean = when (error) {
@@ -270,7 +270,7 @@ object SharePolicy {
         "Update Seira on this computer before sharing images."
 
     fun offline(name: String): String =
-        "Couldn't reach $name. Keep Seira open and Phone access on, then try again."
+        "Couldn't reach $name. Keep Seira open on the computer, then try again."
 
     fun nothingSupported(): String =
         "There isn't any text, link, image, or supported document to send."

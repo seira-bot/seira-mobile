@@ -7,9 +7,9 @@
     <string name="core_route_local_network_blocked">Android가 이 앱의 로컬 네트워크 접근을 차단했어요. 휴대폰 설정에서 이 앱의 로컬 네트워크 접근을 허용한 뒤 다시 시도하세요.</string>
     <string name="core_route_secure_failed">컴퓨터가 켜져 있고 Seira가 열려 있는지 확인한 뒤 다시 시도하세요.</string>
     <string name="core_route_tailscale_only">휴대폰이 Tailscale을 통해 %1$s에 연결하지 못했어요. 이 휴대폰에서 컴퓨터와 같은 tailnet에 로그인한 상태로 Tailscale을 켠 뒤 다시 시도하세요.</string>
-    <string name="core_route_same_network">휴대폰이 이 네트워크에서 %1$s에 연결하지 못했어요. 휴대폰을 컴퓨터와 같은 Wi-Fi에 연결하세요. 이미 같은 Wi-Fi라면 컴퓨터의 방화벽이 Seira를 차단하고 있을 수 있어요. Windows PC에서는 네트워크를 프라이빗으로 설정하세요. Linux에서는 Seira가 컴퓨터에 표시하는 방화벽 명령을 실행하세요. 또는 컴퓨터에서 설정 → 원격 접근을 열고 로그인하면 어디서든 휴대폰이 연결할 수 있어요.</string>
+    <string name="core_route_same_network">휴대폰이 이 네트워크에서 %1$s에 연결하지 못했어요. 휴대폰을 컴퓨터와 같은 Wi-Fi에 연결하세요. 이미 같은 Wi-Fi라면 컴퓨터의 방화벽이 Seira를 차단하고 있을 수 있어요. Windows PC에서는 네트워크를 프라이빗으로 설정하세요. Linux에서는 Seira가 컴퓨터에 표시하는 방화벽 명령을 실행하세요. 또는 컴퓨터에서 설정 → 휴대폰 및 기기 → 휴대폰 연결을 열고 “Seira를 통해 어디서나”를 선택한 뒤 로그인하면 어디서든 휴대폰이 연결할 수 있어요.</string>
     <string name="core_advice_host_unresolved">“%1$s”을(를) 찾지 못했어요. Tailscale 이름이라면 이 휴대폰이 tailnet에 연결되어 있지 않을 수 있어요.</string>
-    <string name="core_advice_port_closed">컴퓨터에는 연결됐지만 휴대폰 접근이 포트 %1$d에서 응답하지 않아요. Seira → 설정 → 휴대폰을 여세요.</string>
+    <string name="core_advice_port_closed">컴퓨터에는 연결됐지만 Seira가 포트 %1$d에서 응답하지 않아요. Seira → 설정 → 휴대폰 및 기기를 여세요.</string>
     <string name="core_advice_no_route">%1$s에서 컴퓨터로 가는 경로가 없어요. 네트워크가 다르거나 방화벽 때문일 수 있어요.</string>
     <string name="core_advice_offline">오프라인 상태예요.</string>
     <string name="core_advice_could_not_reach_host">%1$s에 연결할 수 없어요.</string>

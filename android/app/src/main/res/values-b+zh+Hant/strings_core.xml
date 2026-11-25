@@ -7,9 +7,9 @@
     <string name="core_route_local_network_blocked">Android 已阻止此應用程式存取你的本機網路。請在手機「設定」中允許它存取本機網路，然後再試一次。</string>
     <string name="core_route_secure_failed">請確認電腦處於喚醒狀態且 Seira 已開啟，然後再試一次。</string>
     <string name="core_route_tailscale_only">你的手機無法透過 Tailscale 連線至 %1$s。請在此手機上開啟 Tailscale，並登入與電腦相同的 tailnet，然後再試一次。</string>
-    <string name="core_route_same_network">你的手機無法在此網路上連線至 %1$s。請讓手機連上與電腦相同的 Wi-Fi。如果已經相同，可能是電腦的防火牆封鎖了 Seira：在 Windows 電腦上，請將該網路設為「私人」；在 Linux 上，請執行 Seira 在電腦上顯示的防火牆指令。或者在電腦上開啟設定 → 遠端存取並登入，這樣手機就能從任何地方連線。</string>
+    <string name="core_route_same_network">你的手機無法在此網路上連線至 %1$s。請讓手機連上與電腦相同的 Wi-Fi。如果已經相同，可能是電腦的防火牆封鎖了 Seira：在 Windows 電腦上，請將該網路設為「私人」；在 Linux 上，請執行 Seira 在電腦上顯示的防火牆指令。或者在電腦上開啟設定 → 手機和裝置 → 配對手機，選擇「透過 Seira 隨處連線」並登入，這樣手機就能從任何地方連線。</string>
     <string name="core_advice_host_unresolved">「%1$s」無法解析。如果這是 Tailscale 名稱，此手機可能未加入該 tailnet。</string>
-    <string name="core_advice_port_closed">已連線至你的電腦，但手機存取沒有在連接埠 %1$d 上回應，請開啟 Seira → 設定 → 手機。</string>
+    <string name="core_advice_port_closed">已連線至你的電腦，但 Seira 沒有在連接埠 %1$d 上回應，請開啟 Seira → 設定 → 手機和裝置。</string>
     <string name="core_advice_no_route">無法透過 %1$s 找到你的電腦，可能是網路不同，或被防火牆封鎖。</string>
     <string name="core_advice_offline">你已離線。</string>
     <string name="core_advice_could_not_reach_host">無法連線至 %1$s。</string>

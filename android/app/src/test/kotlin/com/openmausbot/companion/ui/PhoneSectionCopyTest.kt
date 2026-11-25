@@ -44,8 +44,8 @@ class PhoneSectionCopyTest {
         // and keep the canonical English text explicit in the default catalog.
         assertTrue(
             source.contains("R.string.mobile_open_openmausbot_settings_phone_38cfc5bb") &&
-                english.contains("1.  Open Seira → Settings → Phone"),
-            "the setup steps must use the localized Settings → Phone copy",
+                english.contains("1.  Open Seira → Settings → Phone &amp; devices"),
+            "the setup steps must use the localized Settings → Phone & devices copy",
         )
         assertTrue(
             source.contains("R.string.mobile_pairing_no_address") &&

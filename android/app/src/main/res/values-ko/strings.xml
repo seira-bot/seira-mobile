@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → 설정 → 휴대폰을 여세요</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. 휴대폰 설정을 선택하세요</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → 설정 → 휴대폰 및 기기를 여세요</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. 휴대폰 연결을 선택하세요</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">이 봇의 컴퓨터 화면 한 장면</string>
     <string name="mobile_account_alias_8cf27ca0">계정 별칭</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">이 제공업체에서는 계정 정보를 볼 수 없어요. 인증이 끝난 뒤 새로고침하세요.</string>
@@ -345,7 +345,7 @@
     <string name="mobile_settings_not_here">여기서는 불가</string>
     <string name="mobile_settings_notifications_footer">Seira가 연결되어 있는 동안 승인 요청과 완료된 작업이 표시돼요. 잠시 백그라운드에 있다가 돌아올 때 다시 전달된 항목도 포함돼요. 앱을 닫은 상태의 푸시 알림은 별도의 푸시 릴레이 릴리스가 필요한데, 아직 없어요.</string>
     <string name="mobile_settings_workspace_footer">루틴 일정은 여기서 안전하게 관리할 수 있어요. 제공업체 키, 웹훅 시크릿, 연결, 해제, 로컬 VM, 에이전트 실행 정책은 컴퓨터에서 관리해요.</string>
-    <string name="mobile_settings_unpair_footer">이 휴대폰에서만 연결을 제거해요. 컴퓨터 접근 자체를 완전히 막으려면 Seira → 설정 → 휴대폰에서 기기를 제거하세요.</string>
+    <string name="mobile_settings_unpair_footer">이 휴대폰에서만 연결을 제거해요. 컴퓨터 접근 자체를 완전히 막으려면 Seira → 설정 → 휴대폰 및 기기에서 기기를 제거하세요.</string>
     <string name="mobile_settings_not_here_body">API 키, 연결, 로컬 VM은 컴퓨터에서 관리해요. 이 휴대폰에서는 의도적으로 변경할 수 없어요.</string>
     <string name="mobile_settings_unpair_confirm_title">이 휴대폰의 연결을 해제할까요?</string>
     <string name="mobile_settings_unpair_confirm_message">다시 연결하려면 새 연결 코드가 필요해요.</string>
@@ -372,7 +372,7 @@
     <string name="mobile_onboarding_not_now">나중에</string>
     <string name="mobile_onboarding_unpaired_title">준비되면 연결하세요</string>
     <string name="mobile_onboarding_unpaired_body">이 휴대폰을 Seira와 연결하면 채팅을 보고 봇에게 응답할 수 있어요.</string>
-    <string name="mobile_onboarding_unpaired_hint">컴퓨터에서 Seira → 설정 → 휴대폰을 여세요.</string>
+    <string name="mobile_onboarding_unpaired_hint">컴퓨터에서 Seira → 설정 → 휴대폰 및 기기를 여세요.</string>
     <string name="mobile_onboarding_connect_computer">컴퓨터 연결</string>
     <string name="mobile_onboarding_notifications_title">놓치지 말고 확인하세요</string>
     <string name="mobile_onboarding_notifications_approvals">나를 기다리는 승인 요청</string>
@@ -639,7 +639,7 @@
     <string name="mobile_share_not_paired">업데이트 후 Seira 앱을 한 번 여세요. 그래도 이 휴대폰이 연결되지 않으면 공유하기 전에 연결하세요.</string>
     <string name="mobile_share_no_destinations">아직 보낼 수 있는 봇이나 채널이 없어요. 먼저 컴퓨터에서 만드세요.</string>
     <string name="mobile_share_image_support_unavailable">이미지를 공유하기 전에 이 컴퓨터의 Seira를 업데이트하세요.</string>
-    <string name="mobile_share_offline">%1$s에 연결할 수 없어요. Seira를 열어 두고 휴대폰 접근을 켠 상태에서 다시 시도하세요.</string>
+    <string name="mobile_share_offline">%1$s에 연결할 수 없어요. 컴퓨터에서 Seira를 열어 둔 채로 다시 시도하세요.</string>
     <string name="mobile_share_nothing_supported">보낼 수 있는 텍스트, 링크, 이미지 또는 지원되는 문서가 없어요.</string>
     <string name="mobile_share_too_many_items">한 번에 최대 4개까지 보낼 수 있어요.</string>
     <string name="mobile_share_too_much_text">텍스트가 너무 커서 공유할 수 없어요. 더 짧게 선택해서 보내세요.</string>

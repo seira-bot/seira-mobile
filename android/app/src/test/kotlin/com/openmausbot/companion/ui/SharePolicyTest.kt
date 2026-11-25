@@ -133,7 +133,7 @@ class SharePolicyTest {
             SharePolicy.friendlyMessage(APIError.Status(401, "revoked"), "Air"),
         )
         assertEquals(
-            "Couldn't reach Air. Keep Seira open and Phone access on, then try again.",
+            "Couldn't reach Air. Keep Seira open on the computer, then try again.",
             SharePolicy.friendlyMessage(APIError.Transport("timeout"), "Air"),
         )
         assertEquals(

@@ -180,8 +180,8 @@ final class PairingTests: XCTestCase {
                     "Wi-Fi as the computer. If it already is, the computer’s firewall may be blocking " +
                     "Seira: on a Windows PC, set its network to Private; on Linux, run the firewall " +
                     "command that Seira shows on the computer. Or open Settings → " +
-                    "Remote access on the computer and sign in so the phone can connect from " +
-                    "anywhere.\nTried: http://172.19.96.1:8810, " +
+                    "Phone & devices → Pair a phone on the computer, choose Anywhere, through Seira, " +
+                    "and sign in so the phone can connect from anywhere.\nTried: http://172.19.96.1:8810, " +
                     "http://172.27.208.1:8810, http://192.168.1.34:8810"
             )
         }

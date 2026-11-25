@@ -9,7 +9,7 @@ not present a login screen.
 To review the primary flow:
 
 1. Install and start Seira on a Mac, Windows, or Linux computer.
-2. Open **Settings → Phone**, enable Companion, and choose **Start pairing**.
+2. Open **Settings → Phone & devices**, then choose **Pair a phone**.
 3. On the iPhone, choose **Scan QR Code**, scan the code shown by the desktop,
    review the computer and address, and confirm pairing.
 4. If the camera is unavailable, select the discovered computer or enter the

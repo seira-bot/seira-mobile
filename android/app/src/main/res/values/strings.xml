@@ -26,8 +26,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1.  Open Seira → Settings → Phone</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2.  Choose Set up a phone</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1.  Open Seira → Settings → Phone &amp; devices</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2.  Choose Pair a phone</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">A frame of this bot\'s computer</string>
     <string name="mobile_account_alias_8cf27ca0">Account alias</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">Account details are unavailable from this provider. Refresh after authorization finishes.</string>
@@ -350,7 +350,7 @@
     <string name="mobile_settings_not_here">Not here</string>
     <string name="mobile_settings_notifications_footer">Approvals and finished work appear while Seira is connected, including frames replayed after a short background pause. Closed-app push needs a separate push-relay release that does not exist yet.</string>
     <string name="mobile_settings_workspace_footer">Routine schedules are safe to manage here. Provider keys, webhook secrets, pairing, revocation, Local VM, and agent execution policy stay on your computer.</string>
-    <string name="mobile_settings_unpair_footer">Removes the pairing from this phone only. To stop it reaching the computer at all, remove the device in Seira → Settings → Phone.</string>
+    <string name="mobile_settings_unpair_footer">Removes the pairing from this phone only. To stop it reaching the computer at all, remove the device in Seira → Settings → Phone &amp; devices.</string>
     <string name="mobile_settings_not_here_body">API keys, pairing and the Local VM are managed on the computer. This phone is deliberately not allowed to change them.</string>
     <string name="mobile_settings_unpair_confirm_title">Unpair this phone?</string>
     <string name="mobile_settings_unpair_confirm_message">You\'ll need a new pairing code to connect again.</string>
@@ -377,7 +377,7 @@
     <string name="mobile_onboarding_not_now">Not now</string>
     <string name="mobile_onboarding_unpaired_title">Connect when you\'re ready</string>
     <string name="mobile_onboarding_unpaired_body">Pair this phone with Seira to see your chats and respond to your bots.</string>
-    <string name="mobile_onboarding_unpaired_hint">On your computer, open Seira → Settings → Phone.</string>
+    <string name="mobile_onboarding_unpaired_hint">On your computer, open Seira → Settings → Phone &amp; devices.</string>
     <string name="mobile_onboarding_connect_computer">Connect computer</string>
     <string name="mobile_onboarding_notifications_title">Stay in the loop</string>
     <string name="mobile_onboarding_notifications_approvals">Approvals that are waiting for you</string>
@@ -760,7 +760,7 @@
     <string name="mobile_share_not_paired">Open the Seira app once after updating. If this phone still isn\'t connected, pair it before sharing.</string>
     <string name="mobile_share_no_destinations">There aren\'t any bots or channels to send this to yet. Create one on your computer first.</string>
     <string name="mobile_share_image_support_unavailable">Update Seira on this computer before sharing images.</string>
-    <string name="mobile_share_offline">Couldn\'t reach %1$s. Keep Seira open and Phone access on, then try again.</string>
+    <string name="mobile_share_offline">Couldn\'t reach %1$s. Keep Seira open on the computer, then try again.</string>
     <string name="mobile_share_nothing_supported">There isn\'t any text, link, image, or supported document to send.</string>
     <string name="mobile_share_too_many_items">Send up to 4 items at a time.</string>
     <string name="mobile_share_too_much_text">That text is too large to share. Send a shorter selection.</string>

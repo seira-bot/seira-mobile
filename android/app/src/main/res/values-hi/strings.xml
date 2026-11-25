@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → सेटिंग्स → फ़ोन खोलें</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. \"फ़ोन सेट करें\" चुनें</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira → सेटिंग्स → फ़ोन और डिवाइस खोलें</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. \"फ़ोन जोड़ें\" चुनें</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">इस बॉट के कंप्यूटर का एक फ़्रेम</string>
     <string name="mobile_account_alias_8cf27ca0">खाते का उपनाम</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">इस प्रदाता से खाते का ब्योरा उपलब्ध नहीं है। अनुमति पूरी होने के बाद रिफ़्रेश करें।</string>
@@ -348,7 +348,7 @@
     <string name="mobile_settings_not_here">यहाँ नहीं</string>
     <string name="mobile_settings_notifications_footer">जब तक Seira कनेक्ट है, मंज़ूरियाँ और पूरे हुए काम दिखते हैं, इसमें थोड़ी देर बैकग्राउंड में रहने के बाद दोबारा भेजे गए फ़्रेम भी शामिल हैं। ऐप बंद होने पर पुश सूचना के लिए अलग पुश-रिले रिलीज़ चाहिए, जो अभी मौजूद नहीं है।</string>
     <string name="mobile_settings_workspace_footer">रूटीन के शेड्यूल यहाँ से सुरक्षित रूप से संभाले जा सकते हैं। प्रदाता की कुंजियाँ, वेबहुक के सीक्रेट, जोड़ना, पहुँच रद्द करना, Local VM और एजेंट के चलने की नीति आपके कंप्यूटर पर ही रहती हैं।</string>
-    <string name="mobile_settings_unpair_footer">जोड़ा सिर्फ़ इस फ़ोन से हटता है। इसे कंप्यूटर तक पहुँचने से पूरी तरह रोकने के लिए Seira → सेटिंग्स → फ़ोन में डिवाइस हटाएँ।</string>
+    <string name="mobile_settings_unpair_footer">जोड़ा सिर्फ़ इस फ़ोन से हटता है। इसे कंप्यूटर तक पहुँचने से पूरी तरह रोकने के लिए Seira → सेटिंग्स → फ़ोन और डिवाइस में डिवाइस हटाएँ।</string>
     <string name="mobile_settings_not_here_body">API कुंजियाँ, जोड़ना और Local VM कंप्यूटर पर ही संभाले जाते हैं। इस फ़ोन को इन्हें बदलने की अनुमति जानबूझकर नहीं दी गई है।</string>
     <string name="mobile_settings_unpair_confirm_title">इस फ़ोन का जोड़ा हटाएँ?</string>
     <string name="mobile_settings_unpair_confirm_message">दोबारा कनेक्ट करने के लिए आपको नया जोड़ने का कोड चाहिए होगा।</string>
@@ -375,7 +375,7 @@
     <string name="mobile_onboarding_not_now">अभी नहीं</string>
     <string name="mobile_onboarding_unpaired_title">तैयार हों तब कनेक्ट करें</string>
     <string name="mobile_onboarding_unpaired_body">अपनी चैट देखने और बॉट को जवाब देने के लिए इस फ़ोन को Seira से जोड़ें।</string>
-    <string name="mobile_onboarding_unpaired_hint">अपने कंप्यूटर पर Seira → सेटिंग्स → फ़ोन खोलें।</string>
+    <string name="mobile_onboarding_unpaired_hint">अपने कंप्यूटर पर Seira → सेटिंग्स → फ़ोन और डिवाइस खोलें।</string>
     <string name="mobile_onboarding_connect_computer">कंप्यूटर कनेक्ट करें</string>
     <string name="mobile_onboarding_notifications_title">हर बात की खबर रखें</string>
     <string name="mobile_onboarding_notifications_approvals">आपका इंतज़ार कर रही मंज़ूरियाँ</string>
@@ -646,7 +646,7 @@
     <string name="mobile_share_not_paired">अपडेट के बाद Seira ऐप एक बार खोलें। अगर यह फ़ोन फिर भी कनेक्ट नहीं है, तो साझा करने से पहले इसे जोड़ें।</string>
     <string name="mobile_share_no_destinations">अभी इसे भेजने के लिए कोई बॉट या चैनल नहीं है। पहले अपने कंप्यूटर पर एक बनाएँ।</string>
     <string name="mobile_share_image_support_unavailable">इमेज साझा करने से पहले इस कंप्यूटर पर Seira अपडेट करें।</string>
-    <string name="mobile_share_offline">%1$s तक नहीं पहुँचा जा सका। Seira खुला रखें और फ़ोन एक्सेस चालू रखें, फिर कोशिश करें।</string>
+    <string name="mobile_share_offline">%1$s तक नहीं पहुँचा जा सका। कंप्यूटर पर Seira खुला रखें, फिर कोशिश करें।</string>
     <string name="mobile_share_nothing_supported">भेजने के लिए कोई टेक्स्ट, लिंक, इमेज या समर्थित दस्तावेज़ नहीं है।</string>
     <string name="mobile_share_too_many_items">एक बार में ज़्यादा से ज़्यादा 4 आइटम भेजें।</string>
     <string name="mobile_share_too_much_text">वह टेक्स्ट साझा करने के लिए बहुत बड़ा है। छोटा हिस्सा भेजें।</string>

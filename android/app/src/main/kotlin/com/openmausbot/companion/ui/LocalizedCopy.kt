@@ -67,9 +67,9 @@ private val localizedCopyResources = mapOf(
     "/steer" to R.string.mobile_steer_72f3f4c7,
     "/threads" to R.string.mobile_threads_3e761c97,
     "000000" to R.string.mobile_text_c984aed0,
-    "1.  Open Seira → Settings → Phone" to R.string.mobile_open_openmausbot_settings_phone_38cfc5bb,
+    "1.  Open Seira → Settings → Phone & devices" to R.string.mobile_open_openmausbot_settings_phone_38cfc5bb,
     "100 selected — that’s the section limit." to R.string.mobile_section_at_limit,
-    "2.  Choose Set up a phone" to R.string.mobile_choose_set_up_a_phone_8fd474a9,
+    "2.  Choose Pair a phone" to R.string.mobile_choose_set_up_a_phone_8fd474a9,
     "6-digit or ABCD-EFGH-JKLM code" to R.string.mobile_pairing_code_placeholder,
     "A frame of this bot's computer" to R.string.mobile_a_frame_of_this_bot_s_computer_39b6a5bb,
     "A section can have one Chief. Go back and choose one Chief, or use a section without one." to R.string.mobile_section_chief_conflict,
@@ -179,7 +179,7 @@ private val localizedCopyResources = mapOf(
     "Couldn't add that attachment." to R.string.mobile_chat_add_attachment_failed,
     "Couldn't create this thread. Try again." to R.string.mobile_chat_create_thread_failed,
     "Couldn't open that file. Try again." to R.string.mobile_chat_open_file_failed,
-    "Couldn't reach %1\$s. Keep Seira open and Phone access on, then try again." to R.string.mobile_share_offline,
+    "Couldn't reach %1\$s. Keep Seira open on the computer, then try again." to R.string.mobile_share_offline,
     "Couldn't send this message. Try again." to R.string.mobile_chat_send_failed,
     "Couldn't start the microphone." to R.string.mobile_couldn_t_start_the_microphone_320ceafa,
     "Couldn't transcribe that." to R.string.mobile_couldn_t_transcribe_that_f440f144,
@@ -318,7 +318,7 @@ private val localizedCopyResources = mapOf(
     "OK" to R.string.mobile_ok_9ce3bd42,
     "On this network" to R.string.mobile_on_this_network_4c9f524a,
     "On your computer" to R.string.mobile_on_your_computer_9a621537,
-    "On your computer, open Seira → Settings → Phone." to R.string.mobile_onboarding_unpaired_hint,
+    "On your computer, open Seira → Settings → Phone & devices." to R.string.mobile_onboarding_unpaired_hint,
     "One time" to R.string.mobile_one_time_6fea9e4d,
     "One time · date unavailable" to R.string.mobile_routine_date_unavailable,
     "Only continue if this is the computer whose QR code you just scanned. Confirming establishes an authenticated companion connection. Use a trusted Wi-Fi network or a tailnet; Seira does not encrypt local Wi-Fi traffic." to R.string.mobile_pairing_notice_scan,
@@ -390,7 +390,7 @@ private val localizedCopyResources = mapOf(
     "Refreshing…" to R.string.mobile_refreshing_96141178,
     "Remove" to R.string.mobile_remove_e963907d,
     "Remove this computer" to R.string.mobile_settings_remove_this_computer,
-    "Removes the pairing from this phone only. To stop it reaching the computer at all, remove the device in Seira → Settings → Phone." to R.string.mobile_settings_unpair_footer,
+    "Removes the pairing from this phone only. To stop it reaching the computer at all, remove the device in Seira → Settings → Phone & devices." to R.string.mobile_settings_unpair_footer,
     "Rename %1\$s" to R.string.mobile_rename_taskrules_title_task_054bec52,
     "Rename thread" to R.string.mobile_rename_thread,
     "Repeat interval, %1\$s minutes" to R.string.mobile_a11y_repeat_interval,
@@ -688,7 +688,7 @@ internal fun localizedMobileCopy(source: String): String {
         .matchEntire(source)?.let { return stringResource(R.string.mobile_attachment_too_large, it.groupValues[1], it.groupValues[2]) }
     Regex("""^Seira couldn't read (.+)\. Try exporting it to Files first\.$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_share_unreadable, it.groupValues[1]) }
-    Regex("""^Couldn't reach (.+)\. Keep Seira open and Phone access on, then try again\.$""")
+    Regex("""^Couldn't reach (.+)\. Keep Seira open on the computer, then try again\.$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_share_offline, it.groupValues[1]) }
     Regex("""^(.+) isn't a supported document\. Try PDF, text, Word, Excel, or PowerPoint\.$""")
         .matchEntire(source)?.let { return stringResource(R.string.mobile_share_unsupported_document, it.groupValues[1]) }

@@ -25,8 +25,8 @@
     <string name="mobile_steer_72f3f4c7">/steer</string>
     <string name="mobile_threads_3e761c97">/threads</string>
     <string name="mobile_text_c984aed0">000000</string>
-    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira の「設定」→「スマホ」を開く</string>
-    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. 「スマホを設定」を選ぶ</string>
+    <string name="mobile_open_openmausbot_settings_phone_38cfc5bb">1. Seira の「設定」→「スマホとデバイス」を開く</string>
+    <string name="mobile_choose_set_up_a_phone_8fd474a9">2. 「スマホをペアリング」を選ぶ</string>
     <string name="mobile_a_frame_of_this_bot_s_computer_39b6a5bb">このボットのコンピューターの1コマ</string>
     <string name="mobile_account_alias_8cf27ca0">アカウントの別名</string>
     <string name="mobile_account_details_are_unavailable_fr_d9d62172">このプロバイダーからはアカウントの詳細を取得できません。認証が終わってから更新してください。</string>
@@ -345,7 +345,7 @@
     <string name="mobile_settings_not_here">ここでは設定できません</string>
     <string name="mobile_settings_notifications_footer">承認と完了した作業は、Seira に接続しているあいだ表示されます。短時間バックグラウンドにしていた間のフレームも再表示されます。アプリを閉じているときのプッシュ通知には、別途プッシュリレーのリリースが必要ですが、まだありません。</string>
     <string name="mobile_settings_workspace_footer">ルーティンのスケジュールはここで安全に管理できます。プロバイダーのキー、Webhook のシークレット、ペアリング、失効、ローカル VM、エージェントの実行ポリシーは、お使いのコンピューターで管理します。</string>
-    <string name="mobile_settings_unpair_footer">このスマホのペアリングだけを削除します。コンピューターへのアクセスを完全に止めるには、Seira の「設定」→「スマホ」でデバイスを削除してください。</string>
+    <string name="mobile_settings_unpair_footer">このスマホのペアリングだけを削除します。コンピューターへのアクセスを完全に止めるには、Seira の「設定」→「スマホとデバイス」でデバイスを削除してください。</string>
     <string name="mobile_settings_not_here_body">API キー、ペアリング、ローカル VM はコンピューターで管理します。このスマホからは変更できないようにしています。</string>
     <string name="mobile_settings_unpair_confirm_title">このスマホのペアリングを解除しますか？</string>
     <string name="mobile_settings_unpair_confirm_message">再び接続するには、新しいペアリングコードが必要です。</string>
@@ -372,7 +372,7 @@
     <string name="mobile_onboarding_not_now">今はしない</string>
     <string name="mobile_onboarding_unpaired_title">準備ができたら接続</string>
     <string name="mobile_onboarding_unpaired_body">このスマホを Seira とペアリングすると、チャットを見たり、ボットに返答したりできます。</string>
-    <string name="mobile_onboarding_unpaired_hint">コンピューターで Seira の「設定」→「スマホ」を開いてください。</string>
+    <string name="mobile_onboarding_unpaired_hint">コンピューターで Seira の「設定」→「スマホとデバイス」を開いてください。</string>
     <string name="mobile_onboarding_connect_computer">コンピューターを接続</string>
     <string name="mobile_onboarding_notifications_title">最新の状況を逃さない</string>
     <string name="mobile_onboarding_notifications_approvals">あなたの対応を待っている承認</string>
@@ -639,7 +639,7 @@
     <string name="mobile_share_not_paired">アップデート後に一度、Seira アプリを開いてください。それでもこのスマホが接続されない場合は、共有する前にペアリングしてください。</string>
     <string name="mobile_share_no_destinations">送信先のボットやチャンネルがまだありません。先にコンピューターで作成してください。</string>
     <string name="mobile_share_image_support_unavailable">画像を共有する前に、このコンピューターの Seira をアップデートしてください。</string>
-    <string name="mobile_share_offline">%1$s に接続できませんでした。Seira を開いたままにして、「スマホ」のアクセスをオンにしてから、もう一度お試しください。</string>
+    <string name="mobile_share_offline">%1$s に接続できませんでした。コンピューターで Seira を開いたままにして、もう一度お試しください。</string>
     <string name="mobile_share_nothing_supported">送信できるテキスト、リンク、画像、対応ドキュメントがありません。</string>
     <string name="mobile_share_too_many_items">一度に送信できるのは最大4件です。</string>
     <string name="mobile_share_too_much_text">そのテキストは大きすぎて共有できません。もっと短い範囲を送信してください。</string>
