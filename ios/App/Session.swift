@@ -753,12 +753,9 @@ final class Session: ObservableObject {
     /// old one when it changes.
     @Published private(set) var workspaceEpoch = 0
 
-    /// The workspace picker. It reads and asks through the active client, holds no pin and does not
-    /// move one: `WorkspacePicker.canOpen` keeps a pinned pairing from starting a switch.
-    private(set) lazy var workspacePicker = WorkspacePickerModel(
-        source: WorkspaceSessionSource(session: self),
-        canOpen: { [unowned self] in WorkspacePicker.canOpen(self.connection) }
-    )
+    /// The workspace picker. It is read-only: it reads the list through the active client of the pairing it is bound
+    /// to, holds no pin, moves none, and starts no switch.
+    private(set) lazy var workspacePicker = WorkspacePickerModel(source: WorkspaceSessionSource(session: self))
 
     private final class WorkspaceSessionSource: WorkspaceSource {
         private unowned let session: Session
@@ -767,18 +764,20 @@ final class Session: ObservableObject {
             self.session = session
         }
 
-        func workspaces() async throws -> [PhoneWorkspace]? {
-            try await session.client?.workspaces()
-        }
+        var activePairingID: String? { session.connection?.id }
 
-        func requestOpen(id: String, now: Bool) async throws -> [PhoneWorkspace] {
-            guard let client = session.client else {
-                throw APIError.transport("This phone is not connected to a computer.")
+        func workspaces(pairingID: String) async throws -> [PhoneWorkspace]? {
+            guard session.connection?.id == pairingID, let client = session.client else {
+                throw APIError.transport("The computer changed.")
             }
-            return try await client.openWorkspace(id, now: now)
+            let list = try await client.workspaces()
+            // The pairing may have changed while the read ran: the list of the old computer is dropped.
+            guard session.connection?.id == pairingID else { throw APIError.transport("The computer changed.") }
+            return list
         }
 
-        func workspaceChanged() async {
+        func workspaceChanged(pairingID: String) async {
+            guard session.connection?.id == pairingID else { return }
             session.reloadAfterWorkspaceChange()
         }
     }

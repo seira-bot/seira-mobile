@@ -1,7 +1,6 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
@@ -35,8 +32,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.PhoneWorkspace
-import com.openmausbot.companion.core.WorkspaceAction
-import com.openmausbot.companion.core.WorkspaceNotice
 import com.openmausbot.companion.core.WorkspacePicker
 import com.openmausbot.companion.core.WorkspacePickerState
 import com.openmausbot.companion.core.WorkspaceRow
@@ -56,22 +51,10 @@ internal object WorkspaceSheetRules {
     fun name(workspace: PhoneWorkspace): String? = workspace.name?.trim()?.takeIf { it.isNotEmpty() }
 }
 
-@Composable
-internal fun workspaceNoticeText(notice: WorkspaceNotice): String = stringResource(
-    when (notice) {
-        WorkspaceNotice.TURNED_OFF -> R.string.workspace_notice_turned_off
-        WorkspaceNotice.UNAVAILABLE -> R.string.workspace_notice_unavailable
-        WorkspaceNotice.GONE -> R.string.workspace_notice_gone
-        WorkspaceNotice.FAILED -> R.string.workspace_notice_failed
-        WorkspaceNotice.NEEDS_PAIRING -> R.string.workspace_notice_needs_pairing
-    },
-)
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WorkspaceSheet(
     state: WorkspacePickerState,
-    onAction: (WorkspaceAction, String) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val colors = Seira.colors
@@ -94,55 +77,26 @@ internal fun WorkspaceSheet(
                         .semantics { heading() },
                 )
             }
-            state.notice?.let { notice ->
-                item(key = "notice") {
-                    Text(
-                        text = workspaceNoticeText(notice),
-                        style = SeiraType.callout,
-                        color = colors.warningText,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 20.dp, vertical = 6.dp)
-                            .testTag("workspace-notice"),
-                    )
-                }
-            }
             items(state.rows, key = { "workspace-${it.workspace.id}" }) { row ->
-                WorkspaceRowView(row = row, busy = state.busyId == row.workspace.id, locked = state.busyId != null, onAction = onAction)
+                WorkspaceRowView(row = row)
             }
         }
     }
 }
 
+/** A row only shows a workspace. It has no tap and no button: the picker is read-only. */
 @Composable
-private fun WorkspaceRowView(
-    row: WorkspaceRow,
-    busy: Boolean,
-    locked: Boolean,
-    onAction: (WorkspaceAction, String) -> Unit,
-) {
+private fun WorkspaceRowView(row: WorkspaceRow) {
     val colors = Seira.colors
     val workspace = row.workspace
     val title = WorkspaceSheetRules.name(workspace) ?: stringResource(R.string.workspace_unnamed)
-    val subtitle = when {
-        busy -> stringResource(R.string.workspace_opening)
-        else -> workspaceStatusText(row)
-    }
+    val subtitle = workspaceStatusText(row)
     val dot = WorkspaceSheetRules.parseColor(workspace.color)?.let { Color(it) } ?: colors.control
-    // A row that offers nothing still answers a tap when it only needs the pairing again, so the notice explains why.
-    val rowAction = row.tap ?: WorkspaceAction.OPEN.takeIf { row.status == WorkspaceStatus.PAIR_AGAIN }
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("workspace-row.${workspace.id}")
             .semantics { selected = workspace.current }
-            .then(
-                if (rowAction != null && !locked) {
-                    Modifier.clickable(role = Role.Button) { onAction(rowAction, workspace.id) }
-                } else {
-                    Modifier
-                },
-            )
             .heightIn(min = 60.dp)
             .padding(horizontal = 20.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -157,20 +111,7 @@ private fun WorkspaceRowView(
                 Text(subtitle, style = SeiraType.caption, color = colors.ink3, maxLines = 2, overflow = TextOverflow.Ellipsis)
             }
         }
-        val button = row.button
-        if (button != null) {
-            TextButton(
-                onClick = { onAction(button, workspace.id) },
-                enabled = !locked,
-                modifier = Modifier.testTag("workspace-button.${workspace.id}"),
-            ) {
-                Text(
-                    stringResource(
-                        if (button == WorkspaceAction.CANCEL_WAIT) R.string.workspace_action_cancel else R.string.workspace_action_open_now,
-                    ),
-                )
-            }
-        } else if (workspace.current) {
+        if (workspace.current) {
             Icon(SeiraIcons.Check, contentDescription = null, tint = colors.ink, modifier = Modifier.size(18.dp))
         }
     }
@@ -181,7 +122,6 @@ private fun workspaceStatusText(row: WorkspaceRow): String? = when (row.status) 
     WorkspaceStatus.NONE -> null
     WorkspaceStatus.OPEN -> stringResource(R.string.workspace_status_open)
     WorkspaceStatus.UNAVAILABLE -> stringResource(R.string.workspace_status_unavailable)
-    WorkspaceStatus.PAIR_AGAIN -> stringResource(R.string.workspace_status_pair_again)
     WorkspaceStatus.WAITING -> WorkspacePicker.waitingFor(row.workspace)
         ?.let { stringResource(R.string.workspace_status_waiting, it) }
         ?: stringResource(R.string.workspace_status_waiting_generic)

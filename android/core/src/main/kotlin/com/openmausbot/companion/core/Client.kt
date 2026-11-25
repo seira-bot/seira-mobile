@@ -538,23 +538,6 @@ class CompanionClient(
     }
 
     /**
-     * Asks the computer to open [id]; with [now] a workspace that waits opens at once. Asking for the open workspace while a
-     * switch waits cancels that switch. The answer is the list a moment later.
-     */
-    suspend fun openWorkspace(id: String, now: Boolean = false): List<PhoneWorkspace> = WorkspacePolicy.normalized(
-        send<PhoneWorkspaceList>(
-            makeRequest(
-                "POST",
-                "/api/phones/self/workspaces/switch",
-                body = buildJsonObject {
-                    put("id", id)
-                    if (now) put("now", true)
-                },
-            ),
-        ).workspaces,
-    )
-
-    /**
      * The workspaces of the computer this phone is paired with. A computer that does not serve
      * the list, or a pairing that may not read it, answers 404 or 403: that gives null, and the
      * app shows no picker.

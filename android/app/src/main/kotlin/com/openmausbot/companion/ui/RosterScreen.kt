@@ -86,7 +86,6 @@ import com.openmausbot.companion.core.RosterRowStatus
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.SearchHit
 import com.openmausbot.companion.core.Session
-import com.openmausbot.companion.core.WorkspacePicker
 import com.openmausbot.companion.core.WorkspacePickerModel
 import com.openmausbot.companion.core.chat
 import com.openmausbot.companion.core.chatSummaries
@@ -162,8 +161,10 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
     var showingComputers by remember { mutableStateOf(false) }
     var showingWorkspaces by remember { mutableStateOf(false) }
     val workspaceUnnamed = stringResource(R.string.workspace_unnamed)
-    val workspacePicker = remember(session) {
-        WorkspacePickerModel(session.workspaceSource) { WorkspacePicker.canOpen(session.connection.value) }
+    // One read-only model per pairing: a new computer starts from an empty list, and an answer that arrives for the old
+    // one is dropped by the model itself.
+    val workspacePicker = remember(session, connection?.id) {
+        WorkspacePickerModel(connection?.id.orEmpty(), session.workspaceSource) { session.connection.value?.id }
     }
     val workspaces by workspacePicker.state.collectAsState()
     var teamExpanded by rememberSaveable { mutableStateOf(false) }
@@ -184,7 +185,7 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
 
     // The list is read again when the computer comes back, and every few seconds while a switch waits or the sheet is open.
     LaunchedEffect(connection?.id, status, showingWorkspaces, workspaces.polling) {
-        if (status != Session.Status.Live) return@LaunchedEffect
+        if (status != Session.Status.Live || connection == null) return@LaunchedEffect
         workspacePicker.refresh()
         while (showingWorkspaces || workspaces.polling) {
             delay(WORKSPACE_POLL_MILLIS)
@@ -694,14 +695,7 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
     if (showingWorkspaces && workspaces.visible) {
         WorkspaceSheet(
             state = workspaces,
-            onAction = { action, id ->
-                haptics.play(HapticCue.SELECT)
-                scope.launch { workspacePicker.perform(action, id) }
-            },
-            onDismiss = {
-                showingWorkspaces = false
-                workspacePicker.dismissNotice()
-            },
+            onDismiss = { showingWorkspaces = false },
         )
     }
 

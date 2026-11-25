@@ -65,29 +65,30 @@ struct WorkspaceStrip: View {
             Color.clear
                 .frame(width: 0, height: 0)
                 .task(id: Reading(computerID: computerID, live: live, sheet: showingSheet, polling: model.state.polling)) {
-                    guard live else { return }
-                    await model.refresh()
+                    // A new pairing empties the picker, even when the computer is not live yet.
+                    guard live else {
+                        await model.refresh(pairingID: nil)
+                        return
+                    }
+                    await model.refresh(pairingID: computerID)
                     while showingSheet || model.state.polling {
                         try? await Task.sleep(for: .seconds(Self.pollSeconds))
                         if Task.isCancelled { return }
-                        await model.refresh()
+                        await model.refresh(pairingID: computerID)
                     }
                 }
                 .onValueChange(of: model.state.visible) { visible in
                     if !visible { showingSheet = false }
                 }
                 .sheet(isPresented: $showingSheet) {
-                    WorkspaceSheet(model: model) {
-                        showingSheet = false
-                        model.dismissNotice()
-                    }
+                    WorkspaceSheet(model: model) { showingSheet = false }
                 }
         }
     }
 }
 
-/// The workspaces of the computer. A row of a workspace that is ready opens it; a workspace that waits
-/// for a bot to finish offers "Open now"; the open workspace offers "Cancel" while a switch waits.
+/// The workspaces of the computer, read-only: a row shows a workspace and what it waits for, and nothing in the
+/// sheet starts, hurries or cancels a switch.
 struct WorkspaceSheet: View {
     @ObservedObject var model: WorkspacePickerModel
     let dismiss: () -> Void
@@ -95,20 +96,9 @@ struct WorkspaceSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                if let notice = model.state.notice {
-                    Section {
-                        Text(Self.text(for: notice))
-                            .font(.seira(14, relativeTo: .subheadline))
-                            .foregroundStyle(Color.seiraWarningText)
-                            .accessibilityIdentifier("workspace-notice")
-                    }
-                }
                 Section {
                     ForEach(model.state.rows, id: \.workspace.id) { row in
-                        WorkspaceRowView(row: row, busy: model.state.busyID == row.workspace.id, locked: model.state.busyID != nil) { action in
-                            Haptics.selection()
-                            Task { await model.perform(action, id: row.workspace.id) }
-                        }
+                        WorkspaceRowView(row: row)
                     }
                 }
             }
@@ -122,30 +112,13 @@ struct WorkspaceSheet: View {
         }
         .presentationDetents([.medium, .large])
     }
-
-    private static func text(for notice: WorkspaceNotice) -> LocalizedStringKey {
-        switch notice {
-        case .turnedOff:
-            return "This phone can't open other workspaces. Turn it on for this phone in Settings on the computer."
-        case .unavailable: return "That workspace can't be opened right now."
-        case .gone: return "That workspace is no longer on this computer."
-        case .failed: return "Couldn't reach the computer. Try again."
-        case .needsPairing: return "To open another workspace, pair this phone with the computer again."
-        }
-    }
 }
 
 private struct WorkspaceRowView: View {
     let row: WorkspaceRow
-    let busy: Bool
-    let locked: Bool
-    let perform: (WorkspaceAction) -> Void
 
     var body: some View {
-        // A row that offers nothing still answers a tap when it only needs the pairing again, so the
-        // notice explains why.
-        let rowAction = row.tap ?? (row.status == .pairAgain ? WorkspaceAction.open : nil)
-        let content = HStack(spacing: 12) {
+        HStack(spacing: 12) {
             Circle()
                 .fill(dotColor)
                 .frame(width: 12, height: 12)
@@ -160,20 +133,15 @@ private struct WorkspaceRowView: View {
                     .foregroundStyle(Color.seiraInk3)
             }
             Spacer(minLength: 8)
-            trailing
-        }
-        .frame(minHeight: 44)
-        .contentShape(Rectangle())
-
-        Group {
-            if let rowAction {
-                Button { perform(rowAction) } label: { content }
-                    .buttonStyle(.plain)
-                    .disabled(locked)
-            } else {
-                content
+            if row.workspace.current {
+                Image(systemName: "checkmark")
+                    .font(.system(size: 14, weight: .semibold))
+                    .foregroundStyle(Color.seiraInk2)
+                    .accessibilityHidden(true)
             }
         }
+        .frame(minHeight: 44)
+        .accessibilityElement(children: .combine)
         .accessibilityIdentifier("workspace-row.\(row.workspace.id)")
         .accessibilityAddTraits(row.workspace.current ? .isSelected : [])
     }
@@ -194,7 +162,6 @@ private struct WorkspaceRowView: View {
     }
 
     private var status: Text {
-        if busy { return Text("Opening…") }
         switch row.status {
         case .none: return Text(verbatim: "")
         case .open: return Text("Open")
@@ -202,29 +169,6 @@ private struct WorkspaceRowView: View {
             if let who = WorkspacePicker.waitingFor(row.workspace) { return Text("Waiting for \(who) to finish") }
             return Text("Waiting for work to finish")
         case .unavailable: return Text("Not available")
-        case .pairAgain: return Text("Pair this phone again to open this workspace")
-        }
-    }
-
-    @ViewBuilder private var trailing: some View {
-        if busy {
-            ProgressView()
-        } else if let button = row.button {
-            Button { perform(button) } label: {
-                switch button {
-                case .openNow: Text("Open now")
-                case .cancelWait: Text("Cancel")
-                case .open: Text("Open now")
-                }
-            }
-            .buttonStyle(.bordered)
-            .controlSize(.small)
-            .disabled(locked)
-        } else if row.workspace.current {
-            Image(systemName: "checkmark")
-                .font(.system(size: 14, weight: .semibold))
-                .foregroundStyle(Color.seiraInk2)
-                .accessibilityHidden(true)
         }
     }
 }
