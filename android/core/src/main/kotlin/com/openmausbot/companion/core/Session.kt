@@ -92,6 +92,8 @@ class Session(
     private val routeChoiceFn: (suspend (Connection) -> RouteChoice)? = null,
     /** What each computer accepted for push. Durable in the app, so a restart does not register again. */
     private val pushStore: PushRegistrationStore = InMemoryPushRegistrationStore(),
+    /** The clock and the proof of a switch the phone starts. */
+    private val workspaceSwitch: WorkspaceSwitchSeams = WorkspaceSwitchSeams(),
 ) {
     sealed interface Status {
         data object Unpaired : Status
@@ -154,6 +156,10 @@ class Session(
 
     private var registry = ConnectionRegistry()
     private var client: CompanionClient? = null
+
+    /** The one switch this phone started and has not finished. Used once, whatever its result. */
+    private class SwitchAttempt(val guard: WorkspaceSwitchGuard, val connectionId: String, val switch: PhoneWorkspaceSwitch)
+    private var switchAttempt: SwitchAttempt? = null
 
     /**
      * A browser-live transport on the route the session is already using.
@@ -1440,6 +1446,107 @@ class Session(
             restartStreamLocked()
         }
         return true
+    }
+
+    // MARK: - Workspace switch
+
+    /**
+     * Opens [workspaceId] on the computer and moves the pin only as the guard allows.
+     *
+     * The path is inert until the app gives the session a proof of the paired computer's key
+     * ([WorkspaceSwitchSeams.proof]). Without it the first line returns [WorkspaceSwitchResult.Inactive] and no request
+     * leaves the phone. This slice is plumbing: it does not guarantee that a bearer reaches the pinned computer. The
+     * identity read before a request is only a check at one moment, not authentication of the peer; that needs the
+     * proof of seira#540 and seira#546. A pairing with no pin has no trust anchor: nothing starts and the person pairs
+     * again. The target identity is read from the authenticated list before anything starts.
+     */
+    suspend fun switchWorkspace(workspaceId: String): WorkspaceSwitchResult {
+        if (workspaceSwitch.proof == null) return WorkspaceSwitchResult.Inactive
+        val active = client ?: return WorkspaceSwitchResult.NeedsPairing
+        val current = _connection.value ?: return WorkspaceSwitchResult.NeedsPairing
+        val pin = current.serverEnvironmentId ?: return WorkspaceSwitchResult.NeedsPairing
+        switchAttempt = null
+        val listed = active.workspaces() ?: return WorkspaceSwitchResult.NeedsPairing
+        val guard = WorkspaceSwitchGuard(pin, workspaceSwitch.now)
+        val target = listed.firstOrNull { it.id == workspaceId }?.environmentId
+        if (guard.begin(current.id, workspaceId, target) is WorkspaceSwitchStart.NeedsPairing) {
+            return WorkspaceSwitchResult.NeedsPairing
+        }
+        try {
+            val response = active.startWorkspaceSwitch(workspaceId)
+            val accepted = response.switch
+            if (accepted == null || !guard.bind(current.id, accepted.id, accepted.workspaceId, accepted.environmentId)) {
+                guard.cancel()
+                return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.WRONG_OPERATION)
+            }
+            val attempt = SwitchAttempt(guard, current.id, accepted)
+            return when {
+                accepted.isEnded -> { guard.cancel(); WorkspaceSwitchResult.Ended(accepted.state) }
+                accepted.isDone -> finishSwitch(active, attempt)
+                else -> {
+                    switchAttempt = attempt
+                    WorkspaceSwitchResult.Waiting(response.workspaces)
+                }
+            }
+        } catch (error: Throwable) {
+            guard.cancel()
+            throw error
+        }
+    }
+
+    /** Reads the switch that waits once. Call it again later while it answers [WorkspaceSwitchResult.Waiting]. */
+    suspend fun finishWorkspaceSwitch(): WorkspaceSwitchResult {
+        if (workspaceSwitch.proof == null) return WorkspaceSwitchResult.Inactive
+        val active = client ?: return WorkspaceSwitchResult.NeedsPairing
+        val attempt = switchAttempt ?: return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.NO_PENDING_SWITCH)
+        // A pairing change ends the pending switch before any status request leaves the phone.
+        if (_connection.value?.id != attempt.connectionId) {
+            switchAttempt = null
+            attempt.guard.cancel()
+            return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.PAIRING_CHANGED)
+        }
+        val status = try {
+            active.workspaceSwitch(attempt.switch.id)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            // A failed read, including a client that refuses an address that shows another identity, ends the switch.
+            switchAttempt = null
+            attempt.guard.cancel()
+            return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.VERIFICATION_FAILED)
+        }
+        return when {
+            status == null -> { switchAttempt = null; attempt.guard.cancel(); WorkspaceSwitchResult.Ended("expired") }
+            status.isEnded -> { switchAttempt = null; attempt.guard.cancel(); WorkspaceSwitchResult.Ended(status.state) }
+            status.isDone -> finishSwitch(active, SwitchAttempt(attempt.guard, attempt.connectionId, status))
+            else -> WorkspaceSwitchResult.Waiting(emptyList())
+        }
+    }
+
+    private suspend fun finishSwitch(active: CompanionClient, attempt: SwitchAttempt): WorkspaceSwitchResult {
+        switchAttempt = null
+        val proof = workspaceSwitch.proof ?: return WorkspaceSwitchResult.Inactive
+        val completion = try {
+            proof(active, attempt.switch)
+        } catch (error: CancellationException) {
+            throw error
+        } catch (_: Exception) {
+            null
+        }
+        return gate.withLock {
+            val current = _connection.value
+            val pairing = if (current?.id == attempt.connectionId) attempt.connectionId else "changed"
+            when (val outcome = attempt.guard.complete(pairing, completion)) {
+                is WorkspaceSwitchOutcome.Rejected -> WorkspaceSwitchResult.Rejected(outcome.reason)
+                is WorkspaceSwitchOutcome.Repinned -> {
+                    val updated = checkNotNull(current).copy(serverEnvironmentId = outcome.environmentId)
+                    persistActiveConnectionLocked(updated)
+                    token?.let { client = clientFactory(updated, it) }
+                    restartStreamLocked()
+                    WorkspaceSwitchResult.Switched(outcome.environmentId)
+                }
+            }
+        }
     }
 
     // MARK: - Actions
