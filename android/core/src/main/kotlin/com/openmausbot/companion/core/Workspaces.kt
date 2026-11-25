@@ -101,9 +101,6 @@ object WorkspacePolicy {
 
 /** What a switch the person asked for on this phone came to. Only [Switched] changes what the phone trusts. */
 sealed interface WorkspaceSwitchResult {
-    /** A pairing with no pinned server identity has nothing to guard: the switch ran as it always did. */
-    data class Opened(val workspaces: List<PhoneWorkspace>) : WorkspaceSwitchResult
-
     /** The computer started it, but it waits (for a bot to finish its turn). Call `finishWorkspaceSwitch` later. */
     data class Waiting(val workspaces: List<PhoneWorkspace>) : WorkspaceSwitchResult
 
@@ -113,7 +110,7 @@ sealed interface WorkspaceSwitchResult {
     /** The switch finished and the phone now pins [environmentId], in one write. */
     data class Switched(val environmentId: String) : WorkspaceSwitchResult
 
-    /** The phone did not know the target identity in advance, so it did not start. The person pairs again. */
+    /** The pairing has no pinned identity, or the phone did not know the target identity in advance: nothing started and no bearer went out. The person pairs again. */
     data object NeedsPairing : WorkspaceSwitchResult
 
     /** The check failed. The old pin stays and no bearer went to the target. */

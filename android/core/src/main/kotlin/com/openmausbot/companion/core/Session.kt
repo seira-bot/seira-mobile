@@ -1406,15 +1406,14 @@ class Session(
     // MARK: - Workspace switch
 
     /**
-     * Opens [workspaceId] on the computer and, for a pinned pairing, moves the pin only as the guard allows.
-     * The target identity is read from the authenticated list before anything starts. A pairing with no pin has
-     * nothing to guard.
+     * Opens [workspaceId] on the computer and moves the pin only as the guard allows. A pairing with no pin has no
+     * trust anchor: nothing starts, no bearer is sent, and the person pairs again. The target identity is read from
+     * the authenticated list before anything starts.
      */
     suspend fun switchWorkspace(workspaceId: String): WorkspaceSwitchResult {
         val active = client ?: return WorkspaceSwitchResult.NeedsPairing
         val current = _connection.value ?: return WorkspaceSwitchResult.NeedsPairing
-        val pin = current.serverEnvironmentId
-            ?: return WorkspaceSwitchResult.Opened(active.switchWorkspace(workspaceId))
+        val pin = current.serverEnvironmentId ?: return WorkspaceSwitchResult.NeedsPairing
         switchAttempt = null
         val listed = active.workspaces() ?: return WorkspaceSwitchResult.NeedsPairing
         val guard = WorkspaceSwitchGuard(pin, workspaceSwitch.now)
@@ -1448,6 +1447,12 @@ class Session(
     suspend fun finishWorkspaceSwitch(): WorkspaceSwitchResult {
         val active = client ?: return WorkspaceSwitchResult.NeedsPairing
         val attempt = switchAttempt ?: return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.NO_PENDING_SWITCH)
+        // A pairing change ends the pending switch before any status request leaves the phone.
+        if (_connection.value?.id != attempt.connectionId) {
+            switchAttempt = null
+            attempt.guard.cancel()
+            return WorkspaceSwitchResult.Rejected(WorkspaceSwitchOutcome.Reason.PAIRING_CHANGED)
+        }
         val status = try {
             active.workspaceSwitch(attempt.switch.id)
         } catch (error: CancellationException) {

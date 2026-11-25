@@ -206,11 +206,13 @@ class WorkspaceSwitchSessionTest {
     }
 
     @Test
-    fun aPairingWithNoPinSwitchesAsItAlwaysDid() = runBlocking<Unit> {
+    fun aPairingWithNoPinDoesNotStartAndSendsNoBearer() = runBlocking<Unit> {
         Fixture(pinned = false).use { f ->
             f.start()
-            assertIs<WorkspaceSwitchResult.Opened>(f.session.switchWorkspace("trading"))
+            val before = f.requests.size
+            assertIs<WorkspaceSwitchResult.NeedsPairing>(f.session.switchWorkspace("trading"))
             assertEquals(null, f.store.saved?.serverEnvironmentId)
+            assertTrue(f.requests.drop(before).isEmpty(), "no request leaves the phone without a pin")
         }
     }
 

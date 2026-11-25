@@ -1310,7 +1310,8 @@ final class Session: ObservableObject {
 
     // MARK: - Workspace switch
 
-    /// Opens `workspaceId` on the computer and, for a pairing with a pinned server identity, moves the pin only as
+    /// Opens `workspaceId` on the computer. A pairing with no pinned server identity does not start: it has no trust
+    /// anchor, so the result is `.needsPairing` and no bearer is sent. The pin moves only as
     /// `WorkspaceSwitchGuard` allows: the target identity is read from the authenticated list first, the finished
     /// switch needs a proof from the paired computer, and the bearer never goes to an address that shows another
     /// identity. A result that is not `.switched` keeps the old pin.

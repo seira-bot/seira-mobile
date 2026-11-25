@@ -208,10 +208,10 @@ final class WorkspaceSwitchFlowTests: XCTestCase {
         XCTAssertEqual(result, .rejected(.noPendingSwitch))
     }
 
-    func testAPairingWithNoPinSwitchesAsItAlwaysDid() async throws {
+    func testAPairingWithNoPinDoesNotStartAndSendsNoBearer() async throws {
         let result = try await start(flow(), pin: nil)
-        XCTAssertEqual(result, .opened([]))
-        XCTAssertEqual(computer.bearerCalls, ["switch@\(Ids.old)"])
+        XCTAssertEqual(result, .needsPairing)
+        XCTAssertEqual(computer.bearerCalls, [])
         XCTAssertEqual(computer.identityProbes, 0)
     }
 }

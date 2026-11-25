@@ -132,15 +132,14 @@ struct PhoneWorkspaceSwitchStatus: Decodable, Sendable {
 
 /// What a switch the person asked for on this phone came to. Only `switched` changes what the phone trusts.
 public enum WorkspaceSwitchResult: Equatable, Sendable {
-    /// A pairing with no pinned server identity has nothing to guard: the switch ran as it always did.
-    case opened([PhoneWorkspace])
     /// The computer started it, but it waits (for a bot to finish its turn). Call `finish` later.
     case waiting([PhoneWorkspace])
     /// The computer ended the switch without opening the workspace. The pin stayed.
     case ended(String)
     /// The switch finished and the phone now pins `environmentId`. The caller stores it in one write.
     case switched(environmentId: String)
-    /// The phone did not know the target identity in advance, so it did not start. The person pairs again.
+    /// The phone has no pinned server identity for this pairing, or did not know the target identity in advance,
+    /// so it did not start and sent no bearer. The person pairs again.
     case needsPairing
     /// The check failed. The old pin stays and no bearer went to the target.
     case rejected(WorkspaceSwitchRejection)
@@ -193,7 +192,8 @@ public final class WorkspaceSwitchFlow {
         self.seams = seams
     }
 
-    /// Opens `workspaceId`. `pin` is nil for a pairing with no pinned identity: nothing to guard.
+    /// Opens `workspaceId`. A pairing with no pinned identity has no trust anchor, so no switch starts and no
+    /// bearer is sent: the person pairs again.
     public func start(
         workspaceId: String,
         pairingId: String,
@@ -201,7 +201,7 @@ public final class WorkspaceSwitchFlow {
         transport: any WorkspaceSwitchTransport
     ) async throws -> WorkspaceSwitchResult {
         attempt = nil
-        guard let pin else { return .opened(try await transport.switchWorkspace(workspaceId)) }
+        guard let pin else { return .needsPairing }
         // The pin is checked before the bearer of the list and of the switch leaves the phone.
         guard (try? await transport.environmentId()) == pin else { return .rejected(.verificationFailed) }
         guard let listed = try await transport.workspaces() else { return .needsPairing }
