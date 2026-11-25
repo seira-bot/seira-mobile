@@ -148,6 +148,8 @@ internal fun ChatsHeading(
     modifier: Modifier = Modifier,
     computerName: String? = null,
     onComputer: () -> Unit = {},
+    workspaceName: String? = null,
+    onWorkspace: () -> Unit = {},
 ) {
     val colors = Seira.colors
     var menuOpen by remember { mutableStateOf(false) }
@@ -166,6 +168,9 @@ internal fun ChatsHeading(
                 .weight(1f)
                 .semantics { heading() },
         )
+        if (workspaceName != null) {
+            WorkspaceChip(name = workspaceName, onClick = onWorkspace)
+        }
         if (computerName != null) {
             ComputerChip(name = computerName, onClick = onComputer)
         }
@@ -209,6 +214,35 @@ internal fun ChatsHeading(
     }
 }
 
+/** The open workspace of the computer; it shows only when the computer lists more than one. */
+@Composable
+private fun WorkspaceChip(name: String, onClick: () -> Unit) {
+    val colors = Seira.colors
+    val label = stringResource(R.string.workspace_chip_description, name)
+    Row(
+        modifier = Modifier
+            .testTag("home-workspace")
+            .heightIn(min = MIN_TOUCH_TARGET)
+            .widthIn(max = WORKSPACE_CHIP_MAX_WIDTH)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = label }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = name,
+            style = SeiraType.callout,
+            color = colors.ink2,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f, fill = false),
+        )
+        Icon(SeiraIcons.ChevronDown, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(14.dp))
+    }
+}
+
 @Composable
 private fun ComputerChip(name: String, onClick: () -> Unit) {
     val colors = Seira.colors
@@ -240,6 +274,7 @@ private fun ComputerChip(name: String, onClick: () -> Unit) {
 
 private val PROFILE_CIRCLE = 40.dp
 private val COMPUTER_CHIP_MAX_WIDTH = 180.dp
+private val WORKSPACE_CHIP_MAX_WIDTH = 120.dp
 
 /** Three dots in the theme's stroke weight; the theme has no ellipsis of its own. */
 private val EllipsisIcon: ImageVector = ImageVector.Builder(

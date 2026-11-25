@@ -32,4 +32,11 @@
     <string name="home_empty_back_to_chats">चैट पर वापस</string>
     <string name="home_computers_title">कंप्यूटर</string>
     <string name="home_switch_computer">कंप्यूटर बदलें। अभी: %1$s</string>
+    <string name="workspace_sheet_title">वर्कस्पेस</string>
+    <string name="workspace_chip_description">वर्कस्पेस। अभी: %1$s</string>
+    <string name="workspace_unnamed">बिना नाम का वर्कस्पेस</string>
+    <string name="workspace_status_open">खुला है</string>
+    <string name="workspace_status_waiting">%1$s के काम पूरा करने का इंतज़ार है</string>
+    <string name="workspace_status_waiting_generic">काम पूरा होने का इंतज़ार है</string>
+    <string name="workspace_status_unavailable">उपलब्ध नहीं</string>
 </resources>

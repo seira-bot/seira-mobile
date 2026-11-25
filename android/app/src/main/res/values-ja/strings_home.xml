@@ -31,4 +31,11 @@
     <string name="home_empty_back_to_chats">チャットに戻る</string>
     <string name="home_computers_title">コンピュータ</string>
     <string name="home_switch_computer">コンピュータを切り替え。現在: %1$s</string>
+    <string name="workspace_sheet_title">ワークスペース</string>
+    <string name="workspace_chip_description">ワークスペース。現在: %1$s</string>
+    <string name="workspace_unnamed">名前のないワークスペース</string>
+    <string name="workspace_status_open">開いています</string>
+    <string name="workspace_status_waiting">%1$s の作業が終わるのを待っています</string>
+    <string name="workspace_status_waiting_generic">作業が終わるのを待っています</string>
+    <string name="workspace_status_unavailable">利用できません</string>
 </resources>

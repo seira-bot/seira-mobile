@@ -62,6 +62,11 @@ struct ChatListView: View {
             GeometryReader { geo in
             VStack(spacing: 0) {
                 HomeHeader(profileName: session.connection?.name ?? "You") { showingCalendar = true }
+                WorkspaceStrip(
+                    model: session.workspacePicker,
+                    computerID: session.connection?.id,
+                    live: session.status == .live
+                )
                 StatusBanner()
                 LiveCallBanner { target in
                     if let bot = session.state.bot(target.botId)?.projected(forThread: target.threadId) {
@@ -92,6 +97,12 @@ struct ChatListView: View {
                 guard let chat else { return }
                 path.append(chat)
                 session.consumeNotificationChat()
+            }
+            // The computer moved to another workspace: a chat of the old one has no meaning here.
+            .onValueChange(of: session.workspaceEpoch) { _ in
+                path = NavigationPath()
+                managingThreads = nil
+                changingLook = nil
             }
             .onValueChange(of: session.pendingChat) { chat in
                 guard let chat else { return }

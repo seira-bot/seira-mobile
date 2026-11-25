@@ -32,4 +32,11 @@
     <string name="home_empty_back_to_chats">Back to chats</string>
     <string name="home_computers_title">Computers</string>
     <string name="home_switch_computer">Switch computer. Now: %1$s</string>
+    <string name="workspace_sheet_title">Workspaces</string>
+    <string name="workspace_chip_description">Workspaces. Now: %1$s</string>
+    <string name="workspace_unnamed">Unnamed workspace</string>
+    <string name="workspace_status_open">Open</string>
+    <string name="workspace_status_waiting">Waiting for %1$s to finish</string>
+    <string name="workspace_status_waiting_generic">Waiting for work to finish</string>
+    <string name="workspace_status_unavailable">Not available</string>
 </resources>

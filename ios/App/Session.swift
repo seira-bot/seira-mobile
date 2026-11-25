@@ -747,6 +747,64 @@ final class Session: ObservableObject {
         connect()
     }
 
+    // MARK: - Workspaces
+
+    /// Counts the times the computer moved to another workspace; the roster leaves the chats of the
+    /// old one when it changes.
+    @Published private(set) var workspaceEpoch = 0
+
+    /// The workspace picker. It is read-only: it reads the list through the active client of the pairing it is bound
+    /// to, holds no pin, moves none, and starts no switch.
+    private(set) lazy var workspacePicker = WorkspacePickerModel(source: WorkspaceSessionSource(session: self))
+
+    private final class WorkspaceSessionSource: WorkspaceSource {
+        private unowned let session: Session
+
+        init(session: Session) {
+            self.session = session
+        }
+
+        var activePairingID: String? { session.connection?.id }
+
+        func workspaces(pairingID: String) async throws -> [PhoneWorkspace]? {
+            guard session.connection?.id == pairingID, let client = session.client else {
+                throw APIError.transport("The computer changed.")
+            }
+            let list = try await client.workspaces()
+            // The pairing may have changed while the read ran: the list of the old computer is dropped.
+            guard session.connection?.id == pairingID else { throw APIError.transport("The computer changed.") }
+            return list
+        }
+
+        func workspaceChanged(pairingID: String) async {
+            guard session.connection?.id == pairingID else { return }
+            session.reloadAfterWorkspaceChange()
+        }
+    }
+
+    /// The computer now serves another workspace. Forget the bots, threads, unread count and prepared
+    /// sends of the old one, read the new one from the start, and tell the screens through
+    /// `workspaceEpoch`.
+    func reloadAfterWorkspaceChange() {
+        guard client != nil else { return }
+        leavingComputer.send()
+        resetCredentialEntry()
+        preparedPhoneCredentials.removeAll()
+        runtimeGeneration += 1
+        steeringInstanceIds = []
+        streamResume = StreamResume()
+        state = CompanionState()
+        resetAvatarCache()
+        resetAttachmentCache()
+        attachmentSendIDs.removeAll()
+        NotificationCoordinator.shared.setBadge(0)
+        workspaceEpoch += 1
+        streamGeneration += 1
+        streamTask?.cancel()
+        streamTask = nil
+        connect()
+    }
+
     func forgetConnection(id: String) {
         guard let forgotten = registry.connection(id: id) else { return }
         let wasActive = registry.activeConnectionID == id

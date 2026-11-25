@@ -1040,6 +1040,51 @@ class Session(
         }
     }
 
+    private val _workspaceEpoch = MutableStateFlow(0)
+
+    /** Counts the times the computer moved to another workspace; a screen that shows the old one leaves when it changes. */
+    val workspaceEpoch: StateFlow<Int> = _workspaceEpoch.asStateFlow()
+
+    /** The picker reads through this and nothing else: it holds no pin, moves none, and starts no switch. */
+    val workspaceSource: WorkspaceSource = object : WorkspaceSource {
+        override suspend fun workspaces(pairingId: String): List<PhoneWorkspace>? {
+            val active = client?.takeIf { _connection.value?.id == pairingId } ?: throw StalePairing()
+            val list = active.workspaces()
+            // The pairing may have changed while the read ran: the list of the old computer is dropped.
+            if (_connection.value?.id != pairingId || client !== active) throw StalePairing()
+            return list
+        }
+
+        override suspend fun workspaceChanged(pairingId: String) = reloadAfterWorkspaceChange(pairingId)
+    }
+
+    private class StalePairing : Exception("The computer changed while the list was read.")
+
+    /**
+     * The computer now serves another workspace. Forget the bots, threads, unread count and prepared sends of the old
+     * one, read the new one from the start, and tell the screens through [workspaceEpoch].
+     */
+    suspend fun reloadAfterWorkspaceChange(pairingId: String) {
+        gate.withLock {
+            // Only the pairing that saw the change may reload: a stale picker never resets another computer.
+            if (client == null || _connection.value?.id != pairingId) return@withLock
+            forgetPreparedCredentials { true }
+            _credentialResetGeneration.update { it + 1 }
+            attachmentDownloads.clear()
+            emptyResumes = 0
+            _steeringInstanceIds.value = emptySet()
+            _state.value = CompanionState()
+            notificationSink.setBadge(0)
+            _workspaceEpoch.update { it + 1 }
+            streamJob?.cancel()
+            reconnectDelaySeconds = 0
+            streamGeneration += 1
+            val generation = streamGeneration
+            _status.value = Status.Connecting
+            streamJob = launchStream(generation)
+        }
+    }
+
     private fun restartStream() {
         scope.launch {
             gate.withLock { restartStreamLocked() }

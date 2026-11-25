@@ -34,4 +34,11 @@
     <string name="home_empty_back_to_chats">К чатам</string>
     <string name="home_computers_title">Компьютеры</string>
     <string name="home_switch_computer">Сменить компьютер. Сейчас: %1$s</string>
+    <string name="workspace_sheet_title">Рабочие пространства</string>
+    <string name="workspace_chip_description">Рабочие пространства. Сейчас: %1$s</string>
+    <string name="workspace_unnamed">Рабочее пространство без названия</string>
+    <string name="workspace_status_open">Открыто</string>
+    <string name="workspace_status_waiting">Ждём, пока %1$s закончит</string>
+    <string name="workspace_status_waiting_generic">Ждём, пока закончится работа</string>
+    <string name="workspace_status_unavailable">Недоступно</string>
 </resources>
