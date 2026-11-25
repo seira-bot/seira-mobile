@@ -326,8 +326,9 @@ private fun ConnectorCardView(
             }
 
             when {
+                card.noAuth -> Text(stringResource(R.string.mobile_connected_c2f9b7b4))
                 !hasAuthoritativeInventory -> Text(stringResource(R.string.mobile_connection_unknown_973b0484), color = secondaryTint)
-                accounts.isEmpty() && !connected && !pending -> Button(onClick = onConnect, enabled = configured) {
+                ConnectedAppsPolicy.offersConnect(card, status) -> Button(onClick = onConnect, enabled = configured) {
                     Text(stringResource(R.string.mobile_connect_card_label_c9e612b4, card.label))
                 }
                 accounts.isEmpty() -> {
@@ -389,6 +390,10 @@ object ConnectedAppsPolicy {
         status.replace('_', ' ').split(' ').joinToString(" ") { word ->
             word.lowercase().replaceFirstChar(Char::uppercaseChar)
         }
+
+    /** A toolkit that needs no sign-in has nothing to authorize, so it never offers Connect. */
+    fun offersConnect(card: ConnectorCard, status: ConnectorStatus?): Boolean =
+        !card.noAuth && status?.accounts.orEmpty().isEmpty() && status?.connected != true && status?.pending != true
 
     fun showSetupNotice(catalog: ConnectorCatalog?, credentialStoreUnreadable: Boolean): Boolean =
         catalog?.configured == false && !credentialStoreUnreadable

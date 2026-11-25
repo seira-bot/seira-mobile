@@ -42,7 +42,10 @@ struct ConnectedAppsView: View {
                 Section {
                     Label("Accounts could not be re-checked", systemImage: "exclamationmark.triangle")
                         .foregroundStyle(.orange)
-                    if statuses == nil {
+                    if card.noAuth == true {
+                Label("Connected", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(Color.green)
+            } else if statuses == nil {
                         Text("Your computer could not open its credential store, so it cannot say which accounts are connected. Nothing has been disconnected — restarting Seira on your computer usually clears this.")
                             .font(.caption)
                             .foregroundStyle(.secondary)
@@ -123,7 +126,7 @@ struct ConnectedAppsView: View {
                 // the one claim we are in no position to make.
                 Label("Connection unknown", systemImage: "questionmark.circle")
                     .foregroundStyle(.secondary)
-            } else if accounts.isEmpty, !isConnected, !isPending {
+            } else if card.offersConnect(status: status) {
                 Button("Connect \(card.label)", systemImage: "plus.circle") {
                     Task { await authorize(card, alias: nil) }
                 }

@@ -88,4 +88,26 @@ class ConnectedAppsPolicyTest {
         assertEquals(listOf(slack), ConnectedAppsPolicy.filterCards(listOf(gmail, calendar, slack), "sla"))
         assertEquals(listOf(gmail, calendar, slack), ConnectedAppsPolicy.filterCards(listOf(gmail, calendar, slack), "  "))
     }
+
+    @Test
+    fun `a no-auth toolkit never offers Connect`() {
+        val composio = ConnectorCard("composio", "Composio", "Built in", noAuth = true)
+        val gmail = ConnectorCard("gmail", "Gmail", "Mail")
+
+        assertFalse(ConnectedAppsPolicy.offersConnect(composio, null))
+        assertFalse(ConnectedAppsPolicy.offersConnect(composio, ConnectorStatus(connected = false)))
+        assertTrue(ConnectedAppsPolicy.offersConnect(gmail, ConnectorStatus(connected = false)))
+        assertFalse(ConnectedAppsPolicy.offersConnect(gmail, ConnectorStatus(connected = true)))
+        assertFalse(ConnectedAppsPolicy.offersConnect(gmail, ConnectorStatus(connected = false, pending = true)))
+    }
+
+    @Test
+    fun `the catalog wire field noAuth is read, and absent means false`() {
+        val cards = com.openmausbot.companion.core.CompanionJson.decodeFromString<ConnectorCatalog>(
+            """{"configured":true,"cards":[{"slug":"composio","label":"Composio","blurb":"b","noAuth":true},{"slug":"gmail","label":"Gmail","blurb":"b"}]}""",
+        ).cards
+
+        assertTrue(cards[0].noAuth)
+        assertFalse(cards[1].noAuth)
+    }
 }

@@ -128,4 +128,15 @@ final class ConnectedAppsClientTests: XCTestCase {
             XCTFail("unexpected error: \(error)", file: file, line: line)
         }
     }
+
+    func testNoAuthCardNeverOffersConnect() throws {
+        let json = #"{"configured":true,"cards":[{"slug":"composio","label":"Composio","blurb":"b","noAuth":true},{"slug":"gmail","label":"Gmail","blurb":"b"}]}"#
+        let cards = try JSONDecoder().decode(ConnectorCatalog.self, from: Data(json.utf8)).cards
+        let idle = ConnectorStatus(connected: false, pending: nil, status: nil, accounts: nil)
+
+        XCTAssertFalse(cards[0].offersConnect(status: nil))
+        XCTAssertFalse(cards[0].offersConnect(status: idle))
+        XCTAssertTrue(cards[1].offersConnect(status: idle))
+        XCTAssertFalse(cards[1].offersConnect(status: ConnectorStatus(connected: true, pending: nil, status: nil, accounts: nil)))
+    }
 }
