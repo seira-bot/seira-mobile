@@ -32,7 +32,7 @@
         <item quantity="one">%1$d outil</item>
         <item quantity="other">%1$d outils</item>
     </plurals>
-    <string name="profile_model_note">Les comptes de fournisseur et les clés d’API restent sur votre ordinateur. Par défaut n’envoie aucun niveau de raisonnement.</string>
+    <string name="profile_model_note">Les comptes de fournisseur et les clés d’API restent sur votre ordinateur. Par défaut laisse le modèle choisir.</string>
     <string name="profile_reply_style">Style de réponse</string>
     <string name="profile_reply_default">Par défaut</string>
     <string name="profile_reply_conversational">Conversationnel</string>

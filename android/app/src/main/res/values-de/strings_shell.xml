@@ -24,4 +24,6 @@
     </plurals>
     <string name="shell_bot_profile_title">Bot-Profil</string>
     <string name="shell_switch_computer">Computer wechseln</string>
+    <string name="shell_error_queued_steer_unsupported">Dieser Computer ist zu alt, um eine Nachricht aus der Warteschlange in einen laufenden Durchgang zu senden. Aktualisiere Seira darauf.</string>
+    <string name="shell_error_reload_memory">Lade diese Erinnerung neu und versuche es erneut.</string>
 </resources>

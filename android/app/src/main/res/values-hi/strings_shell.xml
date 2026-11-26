@@ -24,4 +24,6 @@
     </plurals>
     <string name="shell_bot_profile_title">बॉट प्रोफ़ाइल</string>
     <string name="shell_switch_computer">कंप्यूटर बदलें</string>
+    <string name="shell_error_queued_steer_unsupported">यह कंप्यूटर कतार में लगे संदेश को चल रहे टर्न में भेजने के लिए बहुत पुराना है। इस पर Seira अपडेट करें।</string>
+    <string name="shell_error_reload_memory">इस मेमोरी को फिर से लोड करें और दोबारा कोशिश करें।</string>
 </resources>

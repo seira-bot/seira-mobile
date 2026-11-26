@@ -21,4 +21,6 @@
     </plurals>
     <string name="shell_bot_profile_title">機器人資料</string>
     <string name="shell_switch_computer">切換電腦</string>
+    <string name="shell_error_queued_steer_unsupported">這台電腦太舊，無法將排隊的訊息傳送到執行中的輪次。請在這台電腦上更新 Seira。</string>
+    <string name="shell_error_reload_memory">請重新載入此記憶後再試。</string>
 </resources>

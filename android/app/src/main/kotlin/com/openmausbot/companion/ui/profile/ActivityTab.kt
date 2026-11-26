@@ -24,7 +24,6 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.Routine
 import com.openmausbot.companion.ui.LocalCompanion
-import com.openmausbot.companion.ui.RoutineRules
 import com.openmausbot.companion.ui.TaskSheet
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -116,7 +115,7 @@ internal fun ActivityTab(bot: Bot, onOpenChat: (ChatTarget) -> Unit) {
                 if (index > 0) CardDivider()
                 ProfileRow(
                     title = routine.name,
-                    subtitle = RoutineRules.scheduleSummary(routine.schedule),
+                    subtitle = localizedScheduleSummary(routine.schedule),
                 )
             }
         }

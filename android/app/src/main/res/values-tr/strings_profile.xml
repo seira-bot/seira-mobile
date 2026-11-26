@@ -32,7 +32,7 @@
         <item quantity="one">%1$d araç</item>
         <item quantity="other">%1$d araç</item>
     </plurals>
-    <string name="profile_model_note">Sağlayıcı hesapları ve API anahtarları bilgisayarında kalır. Varsayılan, akıl yürütme düzeyi göndermez.</string>
+    <string name="profile_model_note">Sağlayıcı hesapları ve API anahtarları bilgisayarında kalır. Varsayılan, seçimi modele bırakır.</string>
     <string name="profile_reply_style">Yanıt tarzı</string>
     <string name="profile_reply_default">Varsayılan</string>
     <string name="profile_reply_conversational">Sohbet havasında</string>

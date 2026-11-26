@@ -21,4 +21,6 @@
     </plurals>
     <string name="shell_bot_profile_title">ボットのプロフィール</string>
     <string name="shell_switch_computer">コンピューターを切り替える</string>
+    <string name="shell_error_queued_steer_unsupported">このコンピューターは古すぎるため、待機中のメッセージを実行中のターンに送れません。このコンピューターで Seira を更新してください。</string>
+    <string name="shell_error_reload_memory">このメモリを再読み込みして、もう一度お試しください。</string>
 </resources>

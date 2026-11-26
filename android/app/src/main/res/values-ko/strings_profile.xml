@@ -31,7 +31,7 @@
     <plurals name="profile_apps_tools">
         <item quantity="other">도구 %1$d개</item>
     </plurals>
-    <string name="profile_model_note">제공업체 계정과 API 키는 컴퓨터에 남습니다. 기본값은 추론 수준을 보내지 않습니다.</string>
+    <string name="profile_model_note">제공업체 계정과 API 키는 컴퓨터에 남습니다. 기본값은 모델이 선택합니다.</string>
     <string name="profile_reply_style">답변 스타일</string>
     <string name="profile_reply_default">기본</string>
     <string name="profile_reply_conversational">대화체</string>

@@ -32,7 +32,7 @@
         <item quantity="one">%1$d herramienta</item>
         <item quantity="other">%1$d herramientas</item>
     </plurals>
-    <string name="profile_model_note">Las cuentas de proveedor y las claves de API se quedan en tu computadora. Predeterminado no envía nivel de razonamiento.</string>
+    <string name="profile_model_note">Las cuentas de proveedor y las claves de API se quedan en tu computadora. Predeterminado deja que el modelo decida.</string>
     <string name="profile_reply_style">Estilo de respuesta</string>
     <string name="profile_reply_default">Predeterminado</string>
     <string name="profile_reply_conversational">Conversacional</string>
