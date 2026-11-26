@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">グループにメッセージ</string>
+    <string name="composer_mode_title">承認</string>
+    <string name="composer_mode_unset">承認</string>
+    <string name="composer_mode_chip_a11y">承認モード: %1$s。タップして変更します。</string>
+    <string name="composer_mode_selected">選択中</string>
+    <string name="composer_mode_ask">確認</string>
+    <string name="composer_mode_edits">編集</string>
+    <string name="composer_mode_auto">自動</string>
+    <string name="composer_mode_full">フル</string>
+    <string name="composer_mode_custom">カスタム</string>
+    <string name="composer_mode_ask_sub">何かを変更する前に確認します</string>
+    <string name="composer_mode_edits_sub">ファイルの編集は自動で行い、それ以外は確認します</string>
+    <string name="composer_mode_auto_sub">自分で作業し、リスクのある手順だけ確認します</string>
+    <string name="composer_mode_full_sub">確認しません。コンピューターで何でもできます</string>
+    <string name="composer_mode_custom_sub">デスクトップアプリで設定します</string>
+    <string name="composer_mode_refused_full">共有の会社ワークスペースではフルアクセスは使えません。</string>
+    <string name="composer_mode_refused_leave_custom">カスタムを終了するには、デスクトップアプリを使ってください。</string>
+    <string name="composer_mode_refused_custom">カスタムはデスクトップアプリで設定します。</string>
+    <string name="composer_mode_refused_owner">変更できるのはオーナーだけです。</string>
+    <string name="composer_mode_refused_provider">このボットはそのレベルでは動作できません。</string>
+    <string name="composer_mode_refused_confirming">前回の変更がまだ処理中です。少ししてからもう一度お試しください。</string>
+    <string name="composer_mode_refused_other">承認モードを変更できませんでした。もう一度お試しください。</string>
+    <string name="composer_mode_confirm_title">自動をオンにしますか？</string>
+    <string name="composer_mode_confirm_body">自動モードでは、ボットがこのコンピューターで自分で作業し、リスクのある手順だけ確認します。</string>
+    <string name="composer_mode_confirm_yes">自動をオンにする</string>
+    <string name="composer_mode_confirm_no">今はしない</string>
+    <string name="composer_goal_chip">目標: %1$s</string>
+    <string name="composer_steer_waiting">まだこのターンに加われません。キューに残ります。</string>
+    <string name="composer_slash_goal">目標を決めて、終わるまで作業させます</string>
+    <string name="composer_slash_learn">次回のために覚えておくことを保存します</string>
+    <string name="composer_slash_setup">スキルやツールを設定します</string>
+    <string name="composer_slash_burst">複数のタスクを同時に実行します</string>
+    <string name="composer_plus_goal">終わるまで作業</string>
+    <string name="composer_plus_goal_sub">目標を与えて、続けさせます</string>
+</resources>

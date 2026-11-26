@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Message au groupe</string>
+    <string name="composer_mode_title">Approbations</string>
+    <string name="composer_mode_unset">Approbations</string>
+    <string name="composer_mode_chip_a11y">Mode d\'approbation : %1$s. Touchez pour changer.</string>
+    <string name="composer_mode_selected">Sélectionné</string>
+    <string name="composer_mode_ask">Demander</string>
+    <string name="composer_mode_edits">Modifications</string>
+    <string name="composer_mode_auto">Auto</string>
+    <string name="composer_mode_full">Complet</string>
+    <string name="composer_mode_custom">Personnalisé</string>
+    <string name="composer_mode_ask_sub">Demande avant de changer quoi que ce soit</string>
+    <string name="composer_mode_edits_sub">Modifie les fichiers seul et demande avant le reste</string>
+    <string name="composer_mode_auto_sub">Travaille seul et ne demande que pour les étapes risquées</string>
+    <string name="composer_mode_full_sub">Ne demande jamais. Peut tout faire sur l\'ordinateur</string>
+    <string name="composer_mode_custom_sub">Configuré dans l\'app de bureau</string>
+    <string name="composer_mode_refused_full">L\'accès complet n\'est pas disponible dans un espace de travail d\'entreprise partagé.</string>
+    <string name="composer_mode_refused_leave_custom">Pour quitter Personnalisé, utilisez l\'app de bureau.</string>
+    <string name="composer_mode_refused_custom">Personnalisé se configure dans l\'app de bureau.</string>
+    <string name="composer_mode_refused_owner">Seul le propriétaire peut modifier cela.</string>
+    <string name="composer_mode_refused_provider">Ce bot ne peut pas travailler à ce niveau.</string>
+    <string name="composer_mode_refused_confirming">Le dernier changement est encore en cours. Réessayez dans un instant.</string>
+    <string name="composer_mode_refused_other">Impossible de changer le mode d\'approbation. Réessayez.</string>
+    <string name="composer_mode_confirm_title">Activer Auto ?</string>
+    <string name="composer_mode_confirm_body">En mode Auto, le bot travaille seul sur cet ordinateur et ne demande que pour les étapes risquées.</string>
+    <string name="composer_mode_confirm_yes">Activer Auto</string>
+    <string name="composer_mode_confirm_no">Pas maintenant</string>
+    <string name="composer_goal_chip">Objectif : %1$s</string>
+    <string name="composer_steer_waiting">Il ne peut pas encore rejoindre ce tour. Il reste dans la file.</string>
+    <string name="composer_slash_goal">Fixer un objectif et le laisser travailler jusqu\'au bout</string>
+    <string name="composer_slash_learn">Enregistrer quelque chose à retenir pour la prochaine fois</string>
+    <string name="composer_slash_setup">Configurer une compétence ou un outil</string>
+    <string name="composer_slash_burst">Lancer plusieurs tâches à la fois</string>
+    <string name="composer_plus_goal">Travailler jusqu\'au bout</string>
+    <string name="composer_plus_goal_sub">Donnez-lui un objectif et laissez-le continuer</string>
+</resources>
