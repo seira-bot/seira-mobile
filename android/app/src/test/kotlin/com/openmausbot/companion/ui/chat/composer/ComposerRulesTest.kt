@@ -153,7 +153,7 @@ class QueuedSteeringTest {
             asked += s to c
             SteerResult.Steered(listOf("q1"))
         }
-        assertEquals(listOf(send to chat), asked)
+        assertEquals<List<Pair<QueuedSend, Chat>>>(listOf(send to chat), asked)
         assertEquals(SteerOutcome.DONE, outcome)
     }
 
