@@ -26,50 +26,68 @@ private func seiraDynamic(_ light: UInt32, _ dark: UInt32) -> Color {
 }
 
 extension Color {
-    static let seiraApp = seiraDynamic(0xFFFFFF, 0x111113)
-    static let seiraTint = seiraDynamic(0xF4F4F6, 0x1B1B1E)
-    static let seiraInk = seiraDynamic(0x141417, 0xF2F2F3)
-    static let seiraInk2 = seiraDynamic(
-        SeiraRGBA(hex: 0x141417, alpha: 0.68), SeiraRGBA(hex: 0xF2F2F3, alpha: 0.68))
-    static let seiraInk3 = seiraDynamic(
-        SeiraRGBA(hex: 0x141417, alpha: 0.60), SeiraRGBA(hex: 0xF2F2F3, alpha: 0.50))
-    static let seiraHairline = seiraDynamic(
-        SeiraRGBA(hex: 0x141417, alpha: 0.08), SeiraRGBA(hex: 0xF2F2F3, alpha: 0.08))
-    static let seiraChatHairline = seiraDynamic(
-        SeiraRGBA(hex: 0x141417, alpha: 0.09), SeiraRGBA(hex: 0xF2F2F3, alpha: 0.09))
+    static let seiraBg = seiraDynamic(0xF4F4F6, 0x0B0C0E)
+    static let seiraS1 = seiraDynamic(0xFFFFFF, 0x15171B)
+    static let seiraS2 = seiraDynamic(0xE9EAEE, 0x1F2228)
+    static let seiraS3 = seiraDynamic(0xD9DBE1, 0x2C3038)
+    static let seiraLine = seiraDynamic(
+        SeiraRGBA(hex: 0x0A0B0D, alpha: 0.10), SeiraRGBA(hex: 0xFFFFFF, alpha: 0.08))
+    static let seiraLine2 = seiraDynamic(
+        SeiraRGBA(hex: 0x0A0B0D, alpha: 0.20), SeiraRGBA(hex: 0xFFFFFF, alpha: 0.17))
+    static let seiraFg = seiraDynamic(0x121317, 0xEDEEF0)
+    static let seiraMut = seiraDynamic(0x454A53, 0xA8ADB5)
+    static let seiraDim = seiraDynamic(0x5C626D, 0x8B919B)
+    static let seiraAcc = seiraDynamic(0xC42A4D, 0xFF3D67)
+    static let seiraAccFg = seiraDynamic(0xA81E3D, 0xFF7D98)
+    static let seiraAccSoft = seiraDynamic(
+        SeiraRGBA(hex: 0xC42A4D, alpha: 0.10), SeiraRGBA(hex: 0xFF3D67, alpha: 0.16))
+    static let seiraOnAcc = seiraDynamic(0xFFFFFF, 0x1B0409)
+    static let seiraOk = seiraDynamic(0x0A6A44, 0x3DDC97)
+    static let seiraWarn = seiraDynamic(0x7D4E00, 0xFFB547)
+    static let seiraBad = seiraDynamic(0xB3261E, 0xFF8A80)
+    static let seiraInv = seiraDynamic(0x121317, 0xF2F3F5)
+    static let seiraOnInv = seiraDynamic(0xFFFFFF, 0x0B0C0E)
 
-    static let seiraPrimary = seiraDynamic(0x141417, 0xF2F2F3)
-    static let seiraOnPrimary = seiraDynamic(0xFFFFFF, 0x111113)
+    static let seiraApp = seiraBg
+    static let seiraTint = seiraS1
+    static let seiraInk = seiraFg
+    static let seiraInk2 = seiraMut
+    static let seiraInk3 = seiraDim
+    static let seiraHairline = seiraLine
+    static let seiraChatHairline = seiraLine
 
-    static let seiraAccent = seiraDynamic(0x2563EB, 0x4F8DFF)
-    static let seiraAccentText = seiraDynamic(0x1D4FD0, 0x8CB5FF)
-    static let seiraSuccess = seiraDynamic(0x13834F, 0x3CCF8E)
-    static let seiraWarning = seiraDynamic(0xD98A00, 0xF5A524)
-    static let seiraWarningText = seiraDynamic(0xA35F00, 0xF5B04A)
-    static let seiraDangerText = seiraDynamic(0xC4232D, 0xFF6B70)
-    static let seiraName = seiraDynamic(0xC81E4A, 0xFF7A95)
+    static let seiraPrimary = seiraInv
+    static let seiraOnPrimary = seiraOnInv
+
+    static let seiraAccent = seiraAcc
+    static let seiraAccentText = seiraAccFg
+    static let seiraSuccess = seiraOk
+    static let seiraWarning = seiraDynamic(0xB8740A, 0xFFB547)
+    static let seiraWarningText = seiraWarn
+    static let seiraDangerText = seiraBad
+    static let seiraName = seiraAccFg
 
     static let seiraGlass = seiraDynamic(
-        SeiraRGBA(hex: 0xFFFFFF, alpha: 0.78), SeiraRGBA(hex: 0x1E1E22, alpha: 0.72))
-    static let seiraControl = seiraDynamic(0xEBEBEE, 0x26262A)
-    static let seiraComposer = seiraDynamic(0xFFFFFF, 0x1C1C1F)
-    static let seiraSheet = seiraDynamic(0xFFFFFF, 0x1C1C1F)
-    static let seiraBubble = seiraDynamic(0xF0F0F2, 0x26262B)
+        SeiraRGBA(hex: 0xFFFFFF, alpha: 0.78), SeiraRGBA(hex: 0x15171B, alpha: 0.72))
+    static let seiraControl = seiraS2
+    static let seiraComposer = seiraS1
+    static let seiraSheet = seiraS1
+    static let seiraBubble = seiraS2
     static let seiraGrabber = seiraDynamic(
         SeiraRGBA(hex: 0x101016, alpha: 0.16), SeiraRGBA(hex: 0xFFFFFF, alpha: 0.18))
     static let seiraSuccessSoft = seiraDynamic(
-        SeiraRGBA(hex: 0x13834F, alpha: 0.10), SeiraRGBA(hex: 0x3CCF8E, alpha: 0.14))
+        SeiraRGBA(hex: 0x0A6A44, alpha: 0.10), SeiraRGBA(hex: 0x3DDC97, alpha: 0.14))
     static let seiraWarningSoft = seiraDynamic(
-        SeiraRGBA(hex: 0xD98A00, alpha: 0.12), SeiraRGBA(hex: 0xF5A524, alpha: 0.14))
+        SeiraRGBA(hex: 0x7D4E00, alpha: 0.12), SeiraRGBA(hex: 0xFFB547, alpha: 0.14))
     static let seiraScrim = seiraDynamic(
-        SeiraRGBA(hex: 0x101016, alpha: 0.24), SeiraRGBA(hex: 0x000000, alpha: 0.55))
+        SeiraRGBA(hex: 0x000000, alpha: 0.62), SeiraRGBA(hex: 0x000000, alpha: 0.62))
 
-    static let seiraCallApp = seiraDynamic(0xFFFFFF, 0x0D0D0F)
-    static let seiraCallControl = seiraDynamic(0xEFEFF1, 0x232327)
-    static let seiraInverse = seiraDynamic(0x141417, 0xF2F2F3)
-    static let seiraOnInverse = seiraDynamic(0xFFFFFF, 0x111113)
+    static let seiraCallApp = seiraDynamic(0xF4F4F6, 0x070809)
+    static let seiraCallControl = seiraDynamic(0xE9EAEE, 0x232327)
+    static let seiraInverse = seiraInv
+    static let seiraOnInverse = seiraOnInv
     static let seiraDangerFill = seiraDynamic(0xE5383B, 0xFF4D5E)
-    static let seiraLiveDot = seiraDynamic(0x13834F, 0x3CCF8E)
+    static let seiraLiveDot = seiraOk
     static let seiraRing1 = seiraDynamic(
         SeiraRGBA(hex: 0xFF3D64, alpha: 0.07), SeiraRGBA(hex: 0xFF3D64, alpha: 0.10))
     static let seiraRing2 = seiraDynamic(
@@ -77,15 +95,15 @@ extension Color {
     static let seiraRing3 = seiraDynamic(
         SeiraRGBA(hex: 0xFF3D64, alpha: 0.10), SeiraRGBA(hex: 0xFF3D64, alpha: 0.12))
 
-    static let seiraSegment = seiraDynamic(0xE8E8EB, 0x26262A)
-    static let seiraThumb = seiraDynamic(0xFFFFFF, 0x3A3A40)
+    static let seiraSegment = seiraS2
+    static let seiraThumb = seiraS3
     static let seiraTrackOff = seiraDynamic(
-        SeiraRGBA(hex: 0x141417, alpha: 0.14), SeiraRGBA(hex: 0xF2F2F3, alpha: 0.18))
-    static let seiraKnobOn = seiraDynamic(0xFFFFFF, 0x111113)
-    static let seiraKnobOff = seiraDynamic(0xFFFFFF, 0xF2F2F3)
+        SeiraRGBA(hex: 0x121317, alpha: 0.14), SeiraRGBA(hex: 0xEDEEF0, alpha: 0.18))
+    static let seiraKnobOn = seiraDynamic(0xFFFFFF, 0x0B0C0E)
+    static let seiraKnobOff = seiraDynamic(0xFFFFFF, 0xF2F3F5)
 
     static let seiraPairSuccessSoft = seiraDynamic(
-        SeiraRGBA(hex: 0x13834F, alpha: 0.12), SeiraRGBA(hex: 0x3CCF8E, alpha: 0.16))
+        SeiraRGBA(hex: 0x0A6A44, alpha: 0.12), SeiraRGBA(hex: 0x3DDC97, alpha: 0.16))
 
     private static let seiraPostTilesLight: [UInt32] = [0xF3E8EE, 0xE3F1F0, 0xF4ECDF]
     private static let seiraPostTilesDark: [UInt32] = [0x2A2430, 0x20302F, 0x30291F]
