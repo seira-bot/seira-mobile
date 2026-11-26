@@ -71,6 +71,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -1402,9 +1403,32 @@ private val ACTIVITY_DOT = 7.dp
 @Composable
 private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
     val card = message.card ?: return
+    val answeringState = remember(message.id) { mutableStateOf(false) }
+    // A swipe only asks; this is the side waiting for Confirm.
+    val armedState = remember(message.id) { mutableStateOf<SwipeSide?>(null) }
+    SwipeableCardFrame(
+        enabled = CardSwipe.isSwipeable(card) && !answeringState.value && armedState.value == null,
+        shape = RoundedCornerShape(22.dp),
+        onThreshold = { haptics.play(TactileAction.SWIPE_THRESHOLD) },
+        onDecision = { armedState.value = it },
+    ) {
+        CardContent(chat, message, haptics, answeringState, armedState)
+    }
+}
+
+@Composable
+private fun CardContent(
+    chat: Chat,
+    message: Message,
+    haptics: Haptics,
+    answeringState: MutableState<Boolean>,
+    armedState: MutableState<SwipeSide?>,
+) {
+    val card = message.card ?: return
     val session = LocalCompanion.current.session
     val scope = rememberCoroutineScope()
-    var answering by remember(message.id) { mutableStateOf(false) }
+    var answering by answeringState
+    var armed by armedState
     // The full request behind a short card, collapsed until asked for.
     var showingDetails by remember(message.id) { mutableStateOf(false) }
     // A question's answer in the person's own words.
@@ -1553,6 +1577,25 @@ private fun CardView(chat: Chat, message: Message, haptics: Haptics) {
         }
 
         if (card.isPending) {
+            armed?.let { side ->
+                val choice = CardSwipe.choiceFor(card, side)
+                if (choice != null) {
+                    SwipeConfirmRow(
+                        side = side,
+                        enabled = !answering,
+                        onConfirm = {
+                            haptics.play(TactileAction.CHOOSE_APPROVAL)
+                            answering = true
+                            armed = null
+                            scope.launch {
+                                ApprovalAnswers.choose(session, chat, card, choice)
+                                answering = false
+                            }
+                        },
+                        onCancel = { armed = null },
+                    )
+                }
+            }
             // The buttons are the card's own options, never a string invented
             // here. Session maps the choice to allow/deny/answer.
             val optionButton: @Composable (String, Modifier) -> Unit = { option, buttonModifier ->
