@@ -149,7 +149,7 @@ private fun localizedUpdatesCount(updates: List<ChatUpdate>): String =
     else pluralStringResource(R.plurals.mobile_updates_active_count, updates.size, updates.size)
 
 @Composable
-private fun localizedUpdateLine(line: String): String {
+internal fun localizedUpdateLine(line: String): String {
     if (line == "Queued — waiting for an available slot") {
         return stringResource(R.string.mobile_updates_queued_waiting)
     }

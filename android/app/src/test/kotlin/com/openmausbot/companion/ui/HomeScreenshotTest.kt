@@ -19,6 +19,7 @@ import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.Frame
 import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.StreamFrame
+import com.openmausbot.companion.ui.home.HomeShell
 import com.openmausbot.companion.storage.ChatPreferences
 import com.openmausbot.companion.ui.theme.ThemeMode
 import kotlin.test.assertTrue
@@ -143,7 +144,7 @@ class HomeScreenshotTest {
             LocalCompanion provides scene.environment,
             LocalHomeHour provides { 9 },
         ) {
-            if (state.bots.isNotEmpty()) RosterScreen(navigator)
+            if (state.bots.isNotEmpty()) HomeShell(navigator)
         }
     }
 }

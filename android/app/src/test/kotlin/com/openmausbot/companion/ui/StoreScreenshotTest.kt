@@ -32,6 +32,7 @@ import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.SeiraCast
 import com.openmausbot.companion.core.SeiraCastMember
 import com.openmausbot.companion.core.StreamFrame
+import com.openmausbot.companion.ui.home.HomeShell
 import com.openmausbot.companion.storage.ChatPreferences
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.ThemeMode
@@ -265,7 +266,7 @@ class StoreScreenshotTest {
                 LocalCompanion provides scene.environment,
                 LocalHomeHour provides { 9 },
             ) {
-                if (state.bots.isNotEmpty()) RosterScreen(navigator, callsEnabled = false)
+                if (state.bots.isNotEmpty()) HomeShell(navigator, callsEnabled = false)
             }
         }
         assertTrue(file.length() > 0)

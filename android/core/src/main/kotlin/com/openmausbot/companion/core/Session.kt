@@ -2830,12 +2830,12 @@ class Session(
         pinned: Boolean? = null,
         accept: Boolean = false,
     ): TeamMemoryEdit? = mutateTask(null) { client ->
-        val revision = entry.revision ?: throw APIError.Status(428, "Reload this memory and try again.")
+        val revision = entry.revision ?: throw APIError.Status(428, RELOAD_MEMORY_MESSAGE)
         client.updateTeamMemory(section, entry.id, revision, name, detail, aliases, kind, pinned, accept)
     }
 
     suspend fun deleteTeamMemory(section: String, entry: TeamMemoryEntry): TeamMemoryEdit? = mutateTask(null) { client ->
-        val revision = entry.revision ?: throw APIError.Status(428, "Reload this memory and try again.")
+        val revision = entry.revision ?: throw APIError.Status(428, RELOAD_MEMORY_MESSAGE)
         client.deleteTeamMemory(section, entry.id, revision)
     }
 
@@ -3270,6 +3270,9 @@ class Session(
             "That pairing invitation is not valid. Start pairing again on your computer."
         const val THREAD_GONE_MESSAGE = "That thread is no longer on your computer."
         const val OFFLINE_MESSAGE = "This computer is offline."
+        const val RELOAD_MEMORY_MESSAGE = "Reload this memory and try again."
+        const val QUEUED_STEER_UNSUPPORTED_MESSAGE =
+            "This computer is too old to send a queued message into a running turn. Update Seira on it."
 
         /** Empty resumes in a row before the stream starts over without a cursor. */
         internal const val EMPTY_RESUMES_BEFORE_FRESH_START = 2

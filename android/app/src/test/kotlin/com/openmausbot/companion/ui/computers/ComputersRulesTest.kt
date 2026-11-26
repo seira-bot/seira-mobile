@@ -61,4 +61,13 @@ class ComputersRulesTest {
         val both = bot("both").copy(computer = "cloud", busy = true, waitingOnTeammate = true)
         assertEquals(BotScreenState.WORKING, ComputersRules.botScreens(listOf(both)).single().state)
     }
+
+    @Test
+    fun `AI usage shows only with a page, a paired computer and no hidden mark`() {
+        assertTrue(ComputersRules.showsAiUsage(true, "laptop", null))
+        assertTrue(ComputersRules.showsAiUsage(true, "laptop", "studio"))
+        assertEquals(false, ComputersRules.showsAiUsage(true, "laptop", "laptop"))
+        assertEquals(false, ComputersRules.showsAiUsage(true, null, null))
+        assertEquals(false, ComputersRules.showsAiUsage(false, "laptop", null))
+    }
 }

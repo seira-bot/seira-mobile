@@ -65,6 +65,7 @@ import com.openmausbot.companion.ui.WorkspaceSheetRules
 import com.openmausbot.companion.ui.forChat
 import com.openmausbot.companion.ui.homeGreetingText
 import com.openmausbot.companion.ui.localizedMobileCopy
+import com.openmausbot.companion.ui.localizedUpdateLine
 import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import com.openmausbot.companion.ui.rememberPhoneOnline
@@ -252,7 +253,7 @@ internal fun ChatsScreen(
                         if (update.line.isBlank()) {
                             stringResource(R.string.chats_hero_waiting_bare, update.chat.name)
                         } else {
-                            stringResource(R.string.chats_hero_waiting, update.chat.name, update.line)
+                            stringResource(R.string.chats_hero_waiting, update.chat.name, localizedUpdateLine(update.line))
                         }
                     } ?: stringResource(R.string.chats_hero_quiet)
                     ChatsHero(

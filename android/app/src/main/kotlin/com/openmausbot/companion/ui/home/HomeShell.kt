@@ -29,6 +29,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import com.openmausbot.companion.BuildConfig
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.CompanionNavigator
@@ -50,7 +51,7 @@ import com.openmausbot.companion.ui.updates
 
 /** Home after pairing: top bar, the three tabs, the floating tab bar and the left drawer. */
 @Composable
-internal fun HomeShell(navigator: CompanionNavigator) {
+internal fun HomeShell(navigator: CompanionNavigator, callsEnabled: Boolean = BuildConfig.LIVE_CALLS) {
     val colors = Seira.colors
     val environment = LocalCompanion.current
     val session = environment.session
@@ -178,7 +179,7 @@ internal fun HomeShell(navigator: CompanionNavigator) {
                 )
                 Box(modifier = Modifier.weight(1f)) {
                     when (navigator.homeTab) {
-                        HomeTab.Chats -> ChatsTab(navigator, sectionFilter, onNewChat = { showNewChat = true })
+                        HomeTab.Chats -> ChatsTab(navigator, sectionFilter, onNewChat = { showNewChat = true }, callsEnabled = callsEnabled)
                         HomeTab.Inbox -> InboxTab(navigator)
                         HomeTab.Automations -> AutomationsTab(navigator)
                     }

@@ -17,17 +17,26 @@ internal enum class TeamStatus { WORKING, WAITING }
 internal object TeamMapRules {
     /**
      * The Chief of Staff first, then each department with its own chiefs ahead
-     * of its bots, then the bots that belong to no department.
+     * of its bots, then the bots that belong to no department. A pinned bot stays
+     * in its department, and the Chief of Staff appears only once.
      */
     fun layout(state: CompanionState): TeamLayout {
-        val chief = state.unsectionedChief ?: state.bots.firstOrNull { it.hidden != true && it.chiefOfStaff == true }
-        val sections = state.sidebarSections
-            .map { TeamGroup(it.name, it.chiefs + it.bots) }
+        val visible = state.bots.filter { it.hidden != true }
+        val chief = state.unsectionedChief ?: visible.firstOrNull { it.chiefOfStaff == true }
+        val members = visible.filter { it.id != chief?.id }
+        val names = (state.sidebarSections.map { it.name } + members.mapNotNull { departmentOf(it) }).distinct()
+        val sections = names
+            .map { name ->
+                val inside = members.filter { departmentOf(it) == name }
+                TeamGroup(name, inside.filter { it.chiefOfStaff == true } + inside.filter { it.chiefOfStaff != true })
+            }
             .filter { it.bots.isNotEmpty() }
-        val general = state.unsectionedBots
+        val general = members.filter { it.chiefOfStaff != true && departmentOf(it) == null }
         val groups = sections + if (general.isEmpty()) emptyList() else listOf(TeamGroup(null, general))
         return TeamLayout(chief = chief, groups = groups)
     }
+
+    private fun departmentOf(bot: Bot): String? = bot.section?.trim()?.takeIf(String::isNotEmpty)
 
     fun status(map: TeamMap?, botId: String): TeamStatus? = when {
         map == null -> null
