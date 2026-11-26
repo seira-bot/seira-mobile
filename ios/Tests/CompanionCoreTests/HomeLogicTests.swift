@@ -90,9 +90,12 @@ final class HomeLogicTests: XCTestCase {
         }
     }
 
-    func testAQuestionIsAnsweredInTheChat() {
+    func testAQuestionShowsItsOwnOptions() {
         let question = OptionCard(title: "Which?", subtitle: "", options: ["First", "Second"], requestId: "q1")
-        XCTAssertEqual(InboxLogic.action(for: question), .answerInChat)
+        XCTAssertEqual(InboxLogic.action(for: question), .options(labels: ["First", "Second"], primary: nil))
+    }
+
+    func testAnUpdateWithoutACardGoesToTheChat() {
         XCTAssertEqual(InboxLogic.action(for: nil), .answerInChat)
     }
 
