@@ -33,7 +33,7 @@ env:
 jobs:
   archive:
     name: Archive and upload
-    runs-on: macos-latest
+    runs-on: xcode-27
     timeout-minutes: 60
     environment: app-store
     defaults:
@@ -78,15 +78,13 @@ jobs:
           ref: ${{ inputs.ref }}
           persist-credentials: false
 
-      - name: Select Xcode 26 or newer
-        # App Store Connect accepts only uploads built with Xcode 26 or newer (since 2026-04-28).
+      - name: Check that Xcode is 27 or newer
+        # App Store Connect requires the iOS 27 SDK (Xcode 27) for uploads from April 2027 (ITMS-90725).
         run: |
-          latest=$(ls -d /Applications/Xcode_26*.app 2>/dev/null | sort -V | tail -1 || true)
-          if [ -n "$latest" ]; then sudo xcode-select -s "$latest/Contents/Developer"; fi
           xcodebuild -version
           major=$(xcodebuild -version | awk '/^Xcode/ { split($2, v, "."); print v[1]; exit }')
-          if [ -z "$major" ] || [ "$major" -lt 26 ]; then
-            echo "::error::Xcode 26 or newer is required. App Store Connect rejects uploads from older versions."
+          if [ -z "$major" ] || [ "$major" -lt 27 ]; then
+            echo "::error::Xcode 27 or newer is required. App Store Connect rejects uploads built with an older iOS SDK."
             exit 1
           fi
 

@@ -61,7 +61,7 @@ gh workflow run ios-testflight.yml --repo seira-bot/seira-mobile -f ref=main
 - With all four secrets set, the workflow signs the app and uploads it.
 - With no secret set, the workflow makes an unsigned archive. It uploads nothing and shows a NOT UPLOADED warning.
 - With only some secrets set, the workflow stops and names the missing secrets.
-- The run uses Xcode 26 or newer. App Store Connect rejects uploads from older versions.
+- The run uses the `xcode-27` runner image. From April 2027 App Store Connect rejects uploads built with an iOS SDK older than 27.
 
 ### Build number
 
