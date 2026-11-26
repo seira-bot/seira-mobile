@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · पता, पेयरिंग, दोबारा कनेक्ट</string>
+    <string name="settings2_theme_label">थीम</string>
+    <string name="settings2_sign_out_title">साइन आउट करें?</string>
+    <string name="settings2_sign_out_note">यह पेयरिंग सिर्फ़ इस फ़ोन से हटाता है। अपने कंप्यूटर पर दिखे कोड से दोबारा पेयर करें।</string>
+    <string name="settings2_sign_out_footer">यह पेयरिंग सिर्फ़ इस फ़ोन से हटाता है। फ़ोन को कंप्यूटर तक पहुँचने से पूरी तरह रोकने के लिए, अपने कंप्यूटर पर फ़ोन हटाएँ।</string>
+    <string name="settings2_apps_remove_title">%2$s से %1$s हटाएँ?</string>
+    <string name="settings2_apps_remove_note">आपके बॉट इस खाते की पहुँच खो देंगे। आप इसे बाद में फिर जोड़ सकते हैं।</string>
+    <string name="settings2_apps_remove_content">%2$s से %1$s हटाएँ</string>
+    <string name="settings2_apps_remove_failed">खाता हटाया नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="settings2_apps_no_match">आपकी खोज से कोई ऐप मेल नहीं खाता।</string>
+    <string name="settings2_usage_left">%1$d%% बचा</string>
+    <string name="settings2_usage_resets">%1$s पर रीसेट होगा</string>
+    <string name="computers_paired_title">पेयर किए गए कंप्यूटर</string>
+    <string name="computers_tap_to_switch">बदलने के लिए टैप करें</string>
+    <string name="computers_save_address">पता सहेजें</string>
+    <string name="computers_bot_screens_title">बॉट स्क्रीन</string>
+    <string name="computers_bot_screens_note">किसी स्क्रीन को देखने या नियंत्रित करने के लिए इस फ़ोन को कंप्यूटर की पहुँच चाहिए।</string>
+    <string name="computers_bot_cloud_desktop">क्लाउड डेस्कटॉप</string>
+    <string name="computers_bot_working">काम कर रहा है</string>
+    <string name="computers_bot_waiting">साथी का इंतज़ार</string>
+    <string name="computers_bot_idle">निष्क्रिय</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

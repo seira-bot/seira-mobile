@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · 位址、配對、重新連線</string>
+    <string name="settings2_theme_label">主題</string>
+    <string name="settings2_sign_out_title">登出?</string>
+    <string name="settings2_sign_out_note">僅從這支手機移除配對。請用電腦上的代碼重新配對。</string>
+    <string name="settings2_sign_out_footer">僅從這支手機移除配對。若要徹底阻止它連線電腦,請在電腦上移除這支手機。</string>
+    <string name="settings2_apps_remove_title">從%2$s移除%1$s?</string>
+    <string name="settings2_apps_remove_note">你的機器人將無法再使用此帳號。你可以稍後重新新增。</string>
+    <string name="settings2_apps_remove_content">從%2$s移除%1$s</string>
+    <string name="settings2_apps_remove_failed">無法移除帳號。請再試一次。</string>
+    <string name="settings2_apps_no_match">沒有符合搜尋的應用程式。</string>
+    <string name="settings2_usage_left">剩餘 %1$d%%</string>
+    <string name="settings2_usage_resets">%1$s重置</string>
+    <string name="computers_paired_title">已配對的電腦</string>
+    <string name="computers_tap_to_switch">點一下切換</string>
+    <string name="computers_save_address">儲存位址</string>
+    <string name="computers_bot_screens_title">機器人螢幕</string>
+    <string name="computers_bot_screens_note">檢視或控制螢幕需要這支手機擁有電腦存取權。</string>
+    <string name="computers_bot_cloud_desktop">雲端桌面</string>
+    <string name="computers_bot_working">工作中</string>
+    <string name="computers_bot_waiting">等待隊友</string>
+    <string name="computers_bot_idle">閒置</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

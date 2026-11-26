@@ -42,7 +42,8 @@ class AiUsageScreenTest {
         }
         compose.onNodeWithText("Claude").assertIsDisplayed()
         compose.onNodeWithText("5-hour limit").assertIsDisplayed()
-        compose.onNodeWithText("60% left · resets 3:40 PM").assertIsDisplayed()
+        compose.onNodeWithText("60% left").assertIsDisplayed()
+        compose.onNodeWithText("Resets 3:40 PM").assertIsDisplayed()
         compose.onNodeWithText("Other limit").assertIsDisplayed()
         compose.onNodeWithText("5% left").assertIsDisplayed()
     }

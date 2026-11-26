@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · dirección, vinculación, reconexión</string>
+    <string name="settings2_theme_label">Tema</string>
+    <string name="settings2_sign_out_title">¿Cerrar sesión?</string>
+    <string name="settings2_sign_out_note">Quita la vinculación solo de este teléfono. Vuelve a vincularlo con el código de tu computadora.</string>
+    <string name="settings2_sign_out_footer">Quita la vinculación solo de este teléfono. Para que deje de llegar a la computadora por completo, quita el teléfono en tu computadora.</string>
+    <string name="settings2_apps_remove_title">¿Quitar %1$s de %2$s?</string>
+    <string name="settings2_apps_remove_note">Tus bots pierden el acceso a esta cuenta. Puedes volver a añadirla más tarde.</string>
+    <string name="settings2_apps_remove_content">Quitar %1$s de %2$s</string>
+    <string name="settings2_apps_remove_failed">No se pudo quitar la cuenta. Inténtalo de nuevo.</string>
+    <string name="settings2_apps_no_match">Ninguna app coincide con tu búsqueda.</string>
+    <string name="settings2_usage_left">Queda el %1$d%%</string>
+    <string name="settings2_usage_resets">Se restablece %1$s</string>
+    <string name="computers_paired_title">Computadoras vinculadas</string>
+    <string name="computers_tap_to_switch">Toca para cambiar</string>
+    <string name="computers_save_address">Guardar dirección</string>
+    <string name="computers_bot_screens_title">Pantallas de bots</string>
+    <string name="computers_bot_screens_note">Ver o controlar una pantalla requiere acceso a la computadora desde este teléfono.</string>
+    <string name="computers_bot_cloud_desktop">Escritorio en la nube</string>
+    <string name="computers_bot_working">Trabajando</string>
+    <string name="computers_bot_waiting">Esperando a un compañero</string>
+    <string name="computers_bot_idle">Inactivo</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

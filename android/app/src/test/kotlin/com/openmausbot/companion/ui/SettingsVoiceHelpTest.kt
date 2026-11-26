@@ -69,7 +69,6 @@ class SettingsVoiceHelpTest {
     @Test
     fun `a paired phone shows voice and calls with a voice row`() {
         mount(mac)
-        compose.onNodeWithText("Voice and calls").performScrollTo()
         compose.onNodeWithText("Voice").performScrollTo()
         assertNoIcon3d()
     }
@@ -100,7 +99,6 @@ class SettingsVoiceHelpTest {
     @Test
     fun `a build without calls hides voice and calls on a paired phone`() {
         mount(mac, callsEnabled = false)
-        compose.onAllNodesWithText("Voice and calls").assertCountEquals(0)
         compose.onAllNodesWithText("Live captions").assertCountEquals(0)
         compose.onNodeWithText("Help").performScrollTo()
     }
@@ -122,7 +120,6 @@ class SettingsVoiceHelpTest {
     @Test
     fun `an unpaired phone has no voice and calls but still has help`() {
         mount(null)
-        compose.onAllNodesWithText("Voice and calls").assertCountEquals(0)
         compose.onAllNodesWithText("Live captions").assertCountEquals(0)
         compose.onNodeWithText("Help").performScrollTo()
         assertNoIcon3d()

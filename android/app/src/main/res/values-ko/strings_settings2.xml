@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · 주소, 페어링, 다시 연결</string>
+    <string name="settings2_theme_label">테마</string>
+    <string name="settings2_sign_out_title">로그아웃할까요?</string>
+    <string name="settings2_sign_out_note">이 휴대전화에서만 페어링을 해제합니다. 컴퓨터에 표시된 코드로 다시 페어링하세요.</string>
+    <string name="settings2_sign_out_footer">이 휴대전화에서만 페어링을 해제합니다. 컴퓨터 접속을 완전히 막으려면 컴퓨터에서 이 휴대전화를 삭제하세요.</string>
+    <string name="settings2_apps_remove_title">%2$s에서 %1$s을(를) 제거할까요?</string>
+    <string name="settings2_apps_remove_note">봇이 이 계정에 접근할 수 없게 됩니다. 나중에 다시 추가할 수 있습니다.</string>
+    <string name="settings2_apps_remove_content">%2$s에서 %1$s 제거</string>
+    <string name="settings2_apps_remove_failed">계정을 제거하지 못했습니다. 다시 시도하세요.</string>
+    <string name="settings2_apps_no_match">검색과 일치하는 앱이 없습니다.</string>
+    <string name="settings2_usage_left">%1$d%% 남음</string>
+    <string name="settings2_usage_resets">%1$s에 초기화</string>
+    <string name="computers_paired_title">페어링된 컴퓨터</string>
+    <string name="computers_tap_to_switch">탭하여 전환</string>
+    <string name="computers_save_address">주소 저장</string>
+    <string name="computers_bot_screens_title">봇 화면</string>
+    <string name="computers_bot_screens_note">화면을 보거나 제어하려면 이 휴대전화에 컴퓨터 접근 권한이 필요합니다.</string>
+    <string name="computers_bot_cloud_desktop">클라우드 데스크톱</string>
+    <string name="computers_bot_working">작업 중</string>
+    <string name="computers_bot_waiting">팀원 대기 중</string>
+    <string name="computers_bot_idle">대기</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · адрес, сопряжение, повторное подключение</string>
+    <string name="settings2_theme_label">Тема</string>
+    <string name="settings2_sign_out_title">Выйти?</string>
+    <string name="settings2_sign_out_note">Сопряжение удаляется только с этого телефона. Сопрягите снова с помощью кода на компьютере.</string>
+    <string name="settings2_sign_out_footer">Сопряжение удаляется только с этого телефона. Чтобы он совсем не мог подключаться к компьютеру, удалите телефон на компьютере.</string>
+    <string name="settings2_apps_remove_title">Удалить %1$s из %2$s?</string>
+    <string name="settings2_apps_remove_note">Ваши боты потеряют доступ к этому аккаунту. Позже его можно добавить снова.</string>
+    <string name="settings2_apps_remove_content">Удалить %1$s из %2$s</string>
+    <string name="settings2_apps_remove_failed">Не удалось удалить аккаунт. Повторите попытку.</string>
+    <string name="settings2_apps_no_match">Ни одно приложение не подходит под запрос.</string>
+    <string name="settings2_usage_left">Осталось %1$d%%</string>
+    <string name="settings2_usage_resets">Сброс: %1$s</string>
+    <string name="computers_paired_title">Сопряжённые компьютеры</string>
+    <string name="computers_tap_to_switch">Нажмите, чтобы переключить</string>
+    <string name="computers_save_address">Сохранить адрес</string>
+    <string name="computers_bot_screens_title">Экраны ботов</string>
+    <string name="computers_bot_screens_note">Чтобы смотреть или управлять экраном, этому телефону нужен доступ к компьютеру.</string>
+    <string name="computers_bot_cloud_desktop">Облачный рабочий стол</string>
+    <string name="computers_bot_working">Работает</string>
+    <string name="computers_bot_waiting">Ждёт коллегу</string>
+    <string name="computers_bot_idle">Простаивает</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>
