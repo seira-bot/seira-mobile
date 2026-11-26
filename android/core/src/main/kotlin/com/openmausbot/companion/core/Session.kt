@@ -1601,6 +1601,36 @@ class Session(
     }
 
     /**
+     * Send a held queued message into the turn that is running, in place of
+     * stopping the turn. A steered or vanished entry leaves the queue here;
+     * one the turn cannot take stays and is reported as [SteerResult.StillQueued].
+     * Null when offline or when the computer refused (the reason is the action error).
+     */
+    suspend fun steerQueued(send: QueuedSend, chat: Chat): SteerResult? {
+        val activeClient = client ?: return null
+        val destination = when (chat) {
+            is Chat.BotChat -> MessageDestination.Bot(chat.bot.id, chat.threadId)
+            is Chat.RoomChat -> MessageDestination.Room(chat.room.id, chat.threadId)
+        }
+        try {
+            val result = activeClient.steerQueued(send.queueId, destination)
+            if (client !== activeClient) return null
+            if (result !is SteerResult.StillQueued) {
+                val gone = (result as? SteerResult.Steered)?.queueIds.orEmpty() + send.queueId
+                _state.update { state -> gone.fold(state) { next, id -> next.forgetQueued(id, chat.threadId) } }
+            }
+            return result
+        } catch (error: CancellationException) {
+            throw error
+        } catch (error: APIError) {
+            if (client !== activeClient) return null
+            if (error.isUnauthorized) _status.value = Status.Unauthorized
+            _actionError.value = error.message
+            return null
+        }
+    }
+
+    /**
      * Update Claude Code for the engine a failed turn ran on. The answer is
      * for the card that asked, not the app-wide error banner: it shows the
      * version on success and the harness's own words (already written for a
@@ -1978,16 +2008,24 @@ class Session(
         perform { it.alwaysAllow(bot.id, key, bot.threadId) }
     }
 
-    suspend fun createBot(): Bot? {
+    suspend fun createBot(spec: NewBot = NewBot()): Bot? {
         val activeClient = client ?: return null
         return try {
-            val bot = activeClient.createBot()
+            val bot = activeClient.createBot(spec)
             _state.update { it.apply(Frame.Bot(bot)) }
             bot
         } catch (error: Throwable) {
+            if (error is CancellationException) throw error
             _actionError.value = error.message
             null
         }
+    }
+
+    /** True once the computer removed the bot; the bot leaves the list at once. */
+    suspend fun deleteBot(bot: Bot): Boolean = mutateTask(false) { client ->
+        client.deleteBot(bot.id)
+        _state.update { it.apply(Frame.BotDeleted(bot.id)) }
+        true
     }
 
     suspend fun createRoom(name: String?, memberIds: List<String>): Room? {
@@ -2732,6 +2770,90 @@ class Session(
             WorksOnResult.Refused(WorksOnChoice.refusal(error))
         }
     }
+
+    /**
+     * Change how much one conversation may do before it asks. A refusal comes
+     * back typed so the screen can answer in words; it is not the app-wide error.
+     */
+    suspend fun setApprovalMode(
+        bot: Bot,
+        threadId: String,
+        mode: ApprovalMode,
+        acknowledgeLocalAuto: Boolean = false,
+    ): ApprovalModeResult {
+        val activeClient = client
+            ?: return ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
+        return try {
+            val updated = activeClient.setApprovalMode(bot.id, threadId, mode, acknowledgeLocalAuto)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            ApprovalModeResult.Changed(updated, updated.approvalModeIn(threadId))
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            ApprovalModeResult.Refused(ApprovalModeRefusal.from(error))
+        }
+    }
+
+    /** The level a conversation runs at now, from what the phone already holds. */
+    fun approvalMode(bot: Bot, threadId: String): ApprovalMode? =
+        (_state.value.bot(bot.id) ?: bot).approvalModeIn(threadId)
+
+    suspend fun botActivity(bot: Bot, limit: Int? = null): List<ActivityRow>? =
+        mutateTask(null) { it.activity(bot.id, limit) }
+
+    suspend fun botSkills(bot: Bot): List<BotSkill>? = mutateTask(null) { it.skills(bot.id) }
+
+    suspend fun botData(bot: Bot): BotData? = mutateTask(null) { it.botData(bot.id) }
+
+    suspend fun botDataPage(bot: Bot, request: DataPageRequest): DataPage? =
+        mutateTask(null) { it.dataPage(bot.id, request) }
+
+    suspend fun teamMap(): TeamMap? = mutateTask(null) { it.teamMap() }
+
+    suspend fun teamMemory(section: String): TeamMemoryPage? = mutateTask(null) { it.teamMemory(section) }
+
+    suspend fun addTeamMemory(
+        section: String,
+        kind: TeamMemoryKind,
+        name: String,
+        detail: String = "",
+        aliases: List<String>? = null,
+    ): TeamMemoryEdit? = mutateTask(null) { it.addTeamMemory(section, kind, name, detail, aliases) }
+
+    suspend fun updateTeamMemory(
+        section: String,
+        entry: TeamMemoryEntry,
+        name: String? = null,
+        detail: String? = null,
+        aliases: List<String>? = null,
+        kind: TeamMemoryKind? = null,
+        pinned: Boolean? = null,
+        accept: Boolean = false,
+    ): TeamMemoryEdit? = mutateTask(null) { client ->
+        val revision = entry.revision ?: throw APIError.Status(428, "Reload this memory and try again.")
+        client.updateTeamMemory(section, entry.id, revision, name, detail, aliases, kind, pinned, accept)
+    }
+
+    suspend fun deleteTeamMemory(section: String, entry: TeamMemoryEntry): TeamMemoryEdit? = mutateTask(null) { client ->
+        val revision = entry.revision ?: throw APIError.Status(428, "Reload this memory and try again.")
+        client.deleteTeamMemory(section, entry.id, revision)
+    }
+
+    suspend fun deleteConnectorAccount(connectorId: String, accountId: String): Boolean = mutateTask(false) { client ->
+        client.deleteConnectorAccount(connectorId, accountId)
+        true
+    }
+
+    suspend fun computerControl(bot: Bot, threadId: String? = null): ComputerControlState? =
+        mutateTask(null) { it.computerControl(bot.id, threadId) }
+
+    suspend fun controlComputer(
+        bot: Bot,
+        action: ComputerControlAction,
+        leaseId: String? = null,
+        threadId: String? = null,
+        target: String? = null,
+    ): ComputerControlState? = mutateTask(null) { it.computerControl(bot.id, action, leaseId, threadId, target) }
 
     /** This pairing may read the model list and continue at a limit reset. */
     val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false

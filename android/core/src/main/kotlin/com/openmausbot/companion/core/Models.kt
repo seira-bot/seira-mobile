@@ -1161,6 +1161,8 @@ data class BotProfilePatch(
     val avatarCrop: AvatarCrop? = null,
     val voice: String? = null,
     val speakReplies: Boolean? = null,
+    val soul: String? = null,
+    val replyStyle: ReplyStyle? = null,
 ) {
     sealed interface AvatarURL {
         data class Set(val path: String) : AvatarURL
@@ -1178,6 +1180,8 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
         "avatarCrop",
         "voice",
         "speakReplies",
+        "soul",
+        "replyStyle",
     )
 
     override val descriptor = buildClassSerialDescriptor("BotProfilePatch") {
@@ -1189,6 +1193,8 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
         element<String>("avatarCrop", isOptional = true)
         element<String>("voice", isOptional = true)
         element<Boolean>("speakReplies", isOptional = true)
+        element<String>("soul", isOptional = true)
+        element<String>("replyStyle", isOptional = true)
     }
 
     override fun serialize(encoder: Encoder, value: BotProfilePatch) {
@@ -1207,6 +1213,8 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
             value.avatarCrop?.let { put("avatarCrop", it.name.lowercase()) }
             value.voice?.let { put("voice", it) }
             value.speakReplies?.let { put("speakReplies", it) }
+            value.soul?.let { put("soul", it) }
+            value.replyStyle?.let { put("replyStyle", it.wire) }
         })
     }
 
@@ -1254,6 +1262,11 @@ object BotProfilePatchSerializer : KSerializer<BotProfilePatch> {
             avatarCrop = crop,
             voice = string("voice"),
             speakReplies = boolean("speakReplies"),
+            soul = string("soul"),
+            replyStyle = string("replyStyle")?.let { raw ->
+                ReplyStyle.entries.firstOrNull { it.wire == raw }
+                    ?: throw SerializationException("replyStyle must be default or conversational")
+            },
         )
     }
 }
