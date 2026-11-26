@@ -72,6 +72,7 @@ final class Session: ObservableObject {
     /// used while notification settings are still loading at launch.
     @Published private(set) var notificationAuthorizationResolved = false
     @Published private(set) var steeringInstanceIds: Set<String> = []
+    @Published private(set) var agentInstanceIds: Set<String> = []
     /// A short-lived desktop handoff waiting for PairingView to present it.
     @Published private(set) var pairingInvite: PairingInvite?
     /// Why the last pairing link could not be used. PairingView shows it
@@ -794,6 +795,7 @@ final class Session: ObservableObject {
         preparedPhoneCredentials.removeAll()
         runtimeGeneration += 1
         steeringInstanceIds = []
+        agentInstanceIds = []
         streamResume = StreamResume()
         state = CompanionState()
         resetAvatarCache()
@@ -907,6 +909,7 @@ final class Session: ObservableObject {
         resetCredentialEntry()
         runtimeGeneration += 1
         steeringInstanceIds = []
+        agentInstanceIds = []
         streamGeneration += 1
         streamTask?.cancel()
         streamTask = nil
@@ -1197,6 +1200,7 @@ final class Session: ObservableObject {
                 let engines = (try? await client.instances()) ?? []
                 guard let self, self.runtimeGeneration == runtime else { return }
                 self.steeringInstanceIds = Set(engines.filter { $0.capabilities?.queueing == true }.map(\.instanceId))
+                self.agentInstanceIds = Set(engines.filter { $0.capabilities?.agentsMcp == true }.map(\.instanceId))
             }
             // Nor must the line: run() waits for this hydrate before it folds
             // another frame, so awaiting the lookup here held the whole

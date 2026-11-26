@@ -1224,11 +1224,16 @@ public struct InstanceCapabilities: Codable, Hashable, Sendable {
     public var queueing: Bool?
     /// The engine has computer tools, so it can work on a cloud computer.
     public var computerMcp: Bool?
+    /// The engine can run other bots as agents, which /setup and /burst need.
+    public var agentsMcp: Bool?
 
-    public init(effortLevels: [String]? = nil, queueing: Bool? = nil, computerMcp: Bool? = nil) {
+    public init(
+        effortLevels: [String]? = nil, queueing: Bool? = nil, computerMcp: Bool? = nil, agentsMcp: Bool? = nil
+    ) {
         self.effortLevels = effortLevels
         self.queueing = queueing
         self.computerMcp = computerMcp
+        self.agentsMcp = agentsMcp
     }
 }
 

@@ -8,10 +8,9 @@ public enum ProfileTab: String, CaseIterable, Sendable {
     }
 }
 
-/// What the Settings tab edits. The computer does not send a bot's
-/// instructions or reply style to the phone, so those two start empty and
-/// leave with a save only after the person changes them. A blank field never
-/// replaces a value the person cannot see.
+/// What the Settings tab edits. Instructions and reply style start from what
+/// the computer sent, and leave with a save only after the person changes
+/// them. A blank field never replaces a stored value.
 public struct ProfileDraft: Equatable, Sendable {
     public var name: String
     public var title: String

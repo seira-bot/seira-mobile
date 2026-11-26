@@ -1,3 +1,4 @@
+import CompanionCore
 import SwiftUI
 
 public struct CommandSkillItem: Identifiable {
@@ -15,6 +16,26 @@ public struct CommandSkillItem: Identifiable {
         self.iconName = iconName
         self.brandColor = brandColor
         self.command = command
+    }
+}
+
+extension CommandSkillItem {
+    init(command: SlashCommand) {
+        let look: (String, String)
+        switch command.id {
+        case .computer: look = ("desktopcomputer", "#38BDF8")
+        case .threads: look = ("square.stack.fill", "#A855F7")
+        case .diff: look = ("arrow.triangle.pull", "#22C55E")
+        case .retry: look = ("arrow.clockwise", "#EAB308")
+        case .steer: look = ("steeringwheel", "#F97316")
+        case .learn: look = ("graduationcap", "#EC4899")
+        case .setup: look = ("wand.and.stars", "#14B8A6")
+        case .burst: look = ("bolt.fill", "#6366F1")
+        }
+        self.init(
+            id: command.id.rawValue, title: command.title, description: command.description,
+            iconName: look.0, brandColor: Color(hex: look.1), command: command.title
+        )
     }
 }
 

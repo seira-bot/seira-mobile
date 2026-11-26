@@ -215,7 +215,7 @@ struct ChatView: View {
         let shown = live.hiddenIds.isEmpty ? messages : messages.filter { !live.hiddenIds.contains($0.id) }
         let snapshot = TranscriptSnapshot(
             messages: messages,
-            rows: transcriptRows(shown, detail: detail),
+            rows: WorkFold.rows(shown, detail: detail),
             hasCodeActivity: QuickReplyContext.hasCodeActivity(messages),
             suggestedReplies: SuggestedReplies.forTranscript(messages),
             versions: session.state.userMessageVersions(inThread: threadId),
@@ -1413,12 +1413,26 @@ struct ChatView: View {
     }
 
     private func steerQueued(pendingApproval: Bool) -> (() -> Void)? {
-        guard current.busy, !pendingApproval, case let .bot(bot) = current else { return nil }
+        guard current.busy, !pendingApproval, let first = heldSends.first else { return nil }
         return {
             steering = true
             dictation.stop()
             Haptics.impact(.medium)
-            Task { await session.interrupt(bot: bot) }
+            let target = current
+            let thread = threadId
+            Task {
+                let result = await session.steerQueued(first, threadId: thread, in: target)
+                switch QueuedSteering.outcome(of: result) {
+                case .done:
+                    break
+                case .waiting:
+                    attachmentError = String(localized: "It can't join this turn yet. It stays in the queue.")
+                case .failed:
+                    session.actionError = nil
+                    attachmentError = String(localized: "Couldn't steer this message. Try again.")
+                }
+                steering = false
+            }
         }
     }
 
@@ -1433,8 +1447,14 @@ struct ChatView: View {
         // Only the typed line answers; a chip or a command is its own ask.
         let question = explicitText == nil ? composerQuestion : nil
         // A reply quotes the message above the typed words, in the same text.
-        let quoted = explicitText == nil && question == nil && !typed.isEmpty
-        let text = quoted ? ReplyQuote.wrap(replyTarget?.text, text: typed) : typed
+        let outgoing = explicitText == nil
+            ? ComposerReply.outgoing(
+                replied: replyTarget?.text, typed: typed,
+                hasAttachments: !outgoingAttachments.isEmpty, answersQuestion: question != nil
+            )
+            : ComposerOutgoing(text: typed, clearsReply: false)
+        let quoted = outgoing.clearsReply
+        let text = outgoing.text
         guard !text.isEmpty || !outgoingAttachments.isEmpty,
               !preparingAttachments,
               !sendingMessage
@@ -1807,6 +1827,14 @@ struct ChatView: View {
 
             composerNotices
 
+            if !showCommandHUD, ModeChip.visible(current), let bot = currentBot {
+                HStack {
+                    ComposerModeChip(bot: bot, threadId: threadId)
+                    Spacer(minLength: 0)
+                }
+                .padding(.horizontal, 4)
+            }
+
             composerSuggestions(text, pendingApproval: snapshot.hasPendingApproval, lastTurnFailed: snapshot.lastTurnFailed)
 
             if !attachments.isEmpty {
@@ -1891,24 +1919,26 @@ struct ChatView: View {
     @ViewBuilder
     private func composerSuggestions(_ text: Binding<String>, pendingApproval: Bool, lastTurnFailed: Bool) -> some View {
         if showCommandHUD {
+            let commands = slashCommands
             CommandSkillHUDView(
                 text: text,
                 isVisible: $showCommandHUD,
-                commands: current.isBot
-                    ? CommandSkillHUDView.defaultCommands
-                    : CommandSkillHUDView.defaultCommands.filter {
-                        $0.id != "computer" && (current.supportsTasks || $0.id != "tasks")
-                    },
+                commands: commands.map(CommandSkillItem.init(command:)),
                 accentColor: SeiraPalette.color(current.color)
-            ) { command in
-                switch command.id {
-                case "computer":
+            ) { item in
+                guard let command = commands.first(where: { $0.id.rawValue == item.id }) else { return }
+                switch command.effect {
+                case .openComputer:
                     draft = ""
                     showingComputer = true
-                case "tasks":
+                case .openThreads:
                     draft = ""
                     showingTasks = true
-                default: submit(command.command)
+                case let .send(prompt):
+                    submit(prompt)
+                case let .insert(prefix):
+                    draft = prefix
+                    composerFocused = true
                 }
             }
             .transition(.move(edge: .bottom).combined(with: .opacity))
@@ -1925,6 +1955,11 @@ struct ChatView: View {
             }
             .transition(.opacity)
         }
+    }
+
+    private var slashCommands: [SlashCommand] {
+        let supportsAgents = currentBot.map { session.agentInstanceIds.contains($0.modelSelection.instanceId) } ?? false
+        return SlashCommands.available(SlashGate(chat: current, supportsAgents: supportsAgents))
     }
 
     private var attachmentStrip: some View {
@@ -2049,7 +2084,7 @@ struct ChatView: View {
             )
             .onValueChange(of: text.wrappedValue) { value in
                 withAnimation(.easeInOut(duration: 0.15)) {
-                    showCommandHUD = value.hasPrefix("/")
+                    showCommandHUD = SlashCommands.opensOnDraft(value)
                 }
             }
             // The software keyboard's Return inserts a newline,
@@ -2247,6 +2282,7 @@ struct MessageRow: View, Equatable {
     @State private var showingEdit = false
     /// The text being selected, and the sheet's presentation in one value.
     @State private var selecting: SelectableText?
+    @State private var showingActions = false
     /// A digest chip's parts, and its sheet's presentation.
     @State private var digest: DigestSummary?
 
@@ -2291,11 +2327,23 @@ struct MessageRow: View, Equatable {
                 reactionButtons(reactions)
             }
 
+            if !isPendingEdit, MessageActionRules.showsRow(message), !presentation.visibleText.isEmpty {
+                MessageActionRow(
+                    onCopy: { PlatformBridge.copyToPasteboard(presentation.visibleText) },
+                    onReply: { actions.reply(messageId: message.id) },
+                    onMore: { showingActions = true }
+                )
+            }
+
             if versions.count > 1, let index = versions.firstIndex(where: { $0.id == message.id }), context.isBot {
                 versionSwitcher(at: index)
             }
         }
-        .contextMenu { menu(presentation) }
+        .onLongPressGesture(minimumDuration: 0.4) {
+            Haptics.selection()
+            showingActions = true
+        }
+        .sheet(isPresented: $showingActions) { actionsSheet(presentation) }
         .alert("Edit and retry", isPresented: $showingEdit) {
             TextField("Message", text: $editingText)
             Button("Cancel", role: .cancel) {}
@@ -2346,49 +2394,44 @@ struct MessageRow: View, Equatable {
         .foregroundStyle(Color.secondary)
     }
 
-    @ViewBuilder
-    private func menu(_ presentation: MessagePresentation) -> some View {
-        if !isPendingEdit {
-            ForEach(Self.reactionChoices, id: \.self) { emoji in
-                Button(emoji) {
-                    Haptics.selection()
-                    Task { await actions.react(to: message, emoji: emoji) }
-                }
-            }
-        }
+    private func actionsSheet(_ presentation: MessagePresentation) -> some View {
         let visibleText = presentation.visibleText
-        if !visibleText.isEmpty {
-            Divider()
-            Button("Copy", systemImage: "doc.on.doc") {
-                PlatformBridge.copyToPasteboard(visibleText)
-            }
-            Button("Reply", systemImage: "arrowshape.turn.up.left") {
-                actions.reply(messageId: message.id)
-            }
-        }
-        // Copy above takes the whole reply. Selection happens in a sheet
-        // because long-press on the bubble already opens this menu.
-        if !visibleText.isEmpty {
-            Button("Select Text", systemImage: "selection.pin.in.out") {
-                selecting = SelectableText(text: visibleText)
-            }
-        }
+        let hasText = !visibleText.isEmpty
         // An attachment edit cannot faithfully reconstruct the upload.
         // Hiding this action is safer than silently dropping the file or
         // sending its computer-local transport path back as prose.
-        if message.role == .user,
-           message.kind == .text,
-           presentation.webhook == nil,
-           presentation.attached.attachments.isEmpty,
-           !isPendingEdit,
-           context.isBot {
-            Divider()
-            Button("Edit and retry", systemImage: "pencil") {
-                editingText = message.text ?? ""
-                showingEdit = true
-            }
-            .disabled(context.busy || context.editPending)
-        }
+        let canEdit = message.role == .user
+            && message.kind == .text
+            && presentation.webhook == nil
+            && presentation.attached.attachments.isEmpty
+            && !isPendingEdit
+            && context.isBot
+        return MessageActionsSheet(
+            reactions: Self.reactionChoices,
+            onReact: isPendingEdit ? nil : { emoji in
+                Haptics.selection()
+                Task { await actions.react(to: message, emoji: emoji) }
+            },
+            onReply: hasText ? { actions.reply(messageId: message.id) } : nil,
+            onCopy: hasText ? { PlatformBridge.copyToPasteboard(visibleText) } : nil,
+            onSelectText: hasText ? {
+                Task {
+                    try? await Task.sleep(nanoseconds: 400_000_000)
+                    selecting = SelectableText(text: visibleText)
+                }
+            } : nil,
+            onEdit: canEdit ? {
+                Task {
+                    try? await Task.sleep(nanoseconds: 400_000_000)
+                    editingText = message.text ?? ""
+                    showingEdit = true
+                }
+            } : nil,
+            editEnabled: !(context.busy || context.editPending),
+            dismiss: { showingActions = false }
+        )
+        .presentationDetents([.medium, .large])
+        .presentationDragIndicator(.visible)
     }
 
     @ViewBuilder
@@ -3426,16 +3469,17 @@ struct CardView: View {
     /// A question's answers are sentences: one under another, full width,
     /// wrapping. Allow and Deny share a row.
     @ViewBuilder private func optionButtons(_ card: OptionCard) -> some View {
+        let shown = ApprovalButtons.options(card, showsAlwaysButton: showsAlwaysAllow(card))
         if card.stacksOptions {
             VStack(spacing: 8) {
-                ForEach(card.options, id: \.self) { option in
+                ForEach(shown, id: \.self) { option in
                     optionButton(option, card: card, stacked: true, leading: option == affirmative(card))
                 }
             }
             .accessibilityIdentifier("card-options-stacked")
         } else {
             HStack(spacing: 8) {
-                ForEach(card.options, id: \.self) { option in
+                ForEach(shown, id: \.self) { option in
                     optionButton(option, card: card, stacked: false, leading: option == affirmative(card))
                 }
             }
@@ -3446,8 +3490,12 @@ struct CardView: View {
     /// so it cannot permit something subtly wider than the computer would
     /// have. The same goes for the answer: it is one of the options the card
     /// offered, never a string invented here.
+    private func showsAlwaysAllow(_ card: OptionCard) -> Bool {
+        card.allowKey != nil && allowChoice != nil && context.isBot
+    }
+
     @ViewBuilder private func alwaysAllowButton(_ card: OptionCard) -> some View {
-        if card.allowKey != nil, let allow = allowChoice, context.isBot {
+        if showsAlwaysAllow(card), let allow = allowChoice {
             Button("Always allow this tool") {
                 Haptics.selection()
                 answering = true
@@ -3828,7 +3876,7 @@ private struct QueuedSendList: View {
                             .font(.system(size: 14, weight: .medium))
                             .buttonStyle(.bordered)
                             .disabled(steering)
-                            .accessibilityHint("Stops the current turn so the queued messages run now")
+                            .accessibilityHint("Sends the queued messages into the running turn")
                     }
                     Button {
                         edit(send)
