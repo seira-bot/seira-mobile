@@ -45,15 +45,17 @@ object ComposerSuggestions {
         }
         val answer = texts.last().text.orEmpty().trim()
 
-        val options = answer.lines().mapNotNull { OPTION_LINE.find(it) }
+        val lines = answer.lines()
+        val asks = lines.any { OPTION_LINE.find(it) == null && (it.contains('?') || it.contains('？')) }
+        val options = lines.mapNotNull { OPTION_LINE.find(it) }
             .mapNotNull { m ->
                 val n = m.groupValues[1].toIntOrNull() ?: return@mapNotNull null
                 val label = m.groupValues[2].replace(MARKUP, "").trim()
                 if (label.isEmpty()) null else Suggestion(SuggestionKind.OPTION, n, label)
             }
-        if (options.size >= 2) return options.take(MAX_SUGGESTIONS)
+        if (asks && options.size >= 2) return options.take(MAX_SUGGESTIONS)
 
-        val lastLine = answer.lines().lastOrNull { it.isNotBlank() }.orEmpty().trim().trimEnd('*', '_', '`', '"', ')', ' ')
+        val lastLine = lines.lastOrNull { it.isNotBlank() }.orEmpty().trim().trimEnd('*', '_', '`', '"', ')', ' ')
         if (lastLine.endsWith("?") || lastLine.endsWith("？")) {
             return listOf(
                 Suggestion(SuggestionKind.YES),

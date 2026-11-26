@@ -54,12 +54,26 @@ class ComposerSuggestionsTest {
 
     @Test
     fun `options give one suggestion each, at most three`() {
-        val answer = "Pick one:\n1. Fast path\n2) **Safe path** that takes a lot longer than the other\n3. Skip\n4. Cancel"
+        val answer = "Which one should I take?\n1. Fast path\n2) **Safe path** that takes a lot longer than the other\n3. Skip\n4. Cancel"
         val result = ComposerSuggestions.suggest(listOf(person("help"), bot(answer)), false, false)
         assertEquals(3, result.size)
         assertEquals(listOf(1, 2, 3), result.map { it.number })
         assertEquals("Safe path that takes a lot longer than the other", result[1].text)
         assertEquals("2. Safe path that takes a l…", ComposerSuggestions.optionTitle(2, result[1].text.orEmpty()))
+    }
+
+    @Test
+    fun `numbered steps without a question are not options`() {
+        assertEquals(
+            listOf(SuggestionKind.WHATS_NEXT, SuggestionKind.EXPLAIN),
+            kinds(listOf(person("how"), bot("To set it up:\n1. Install the tool\n2. Run it once\n3. Restart"))),
+        )
+    }
+
+    @Test
+    fun `a question after the list makes it options`() {
+        val result = ComposerSuggestions.suggest(listOf(person("help"), bot("1. Keep it\n2. Remove it\nWhich one?")), false, false)
+        assertEquals(listOf(SuggestionKind.OPTION, SuggestionKind.OPTION), result.map { it.kind })
     }
 
     @Test
