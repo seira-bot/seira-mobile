@@ -48,6 +48,7 @@ import com.openmausbot.companion.ui.SettingsPolicy
 import com.openmausbot.companion.ui.TactileAction
 import com.openmausbot.companion.ui.TouchTarget
 import com.openmausbot.companion.ui.computerStatusPhrase
+import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import com.openmausbot.companion.ui.settings.Chevron
 import com.openmausbot.companion.ui.settings.ConfirmSheet

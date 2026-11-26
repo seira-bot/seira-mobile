@@ -260,7 +260,7 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
     }
 
     removing?.let { target ->
-        val accountName = ConnectedAppsRules.trimmedAlias(target.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
+        val accountName = ConnectedAppsPolicy.accountAlias(target.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
         ConfirmSheet(
             title = stringResource(R.string.settings2_apps_remove_title, accountName, target.label),
             note = stringResource(R.string.settings2_apps_remove_note),
@@ -415,7 +415,7 @@ private fun ConnectorCardView(
 @Composable
 private fun ConnectorAccountRow(account: ConnectorAccount, appLabel: String, onRemove: () -> Unit) {
     val colors = Seira.colors
-    val name = ConnectedAppsRules.trimmedAlias(account.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
+    val name = ConnectedAppsPolicy.accountAlias(account.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
     DesignRow(
         title = name,
         subtitle = if (account.isActive) null else localizedMobileCopy(ConnectedAppsPolicy.statusLabel(account.status)),
@@ -444,6 +444,10 @@ data class ConnectedAppsInventory(
 )
 
 object ConnectedAppsPolicy {
+    /** The name a person gave an account; null for the primary account, which has none. */
+    fun accountAlias(alias: String?): String? =
+        alias?.trim { it.isWhitespace() }?.takeIf { it.isNotEmpty() }
+
     fun accept(previous: ConnectedAppsInventory, response: ConnectorStatuses): ConnectedAppsInventory =
         if (response.isAuthoritative) {
             ConnectedAppsInventory(statuses = response.services)
