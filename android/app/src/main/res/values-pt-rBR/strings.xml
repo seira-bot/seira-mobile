@@ -158,6 +158,12 @@
     <string name="mobile_card_send_to_app">Enviar para %1$s?</string>
     <string name="mobile_card_send_on_your_behalf">Enviar em seu nome?</string>
     <string name="mobile_card_details">Detalhes</string>
+    <string name="mobile_card_swipe_allow">Permitir</string>
+    <string name="mobile_card_swipe_deny">Negar</string>
+    <string name="mobile_card_confirm_allow">Permitir esta solicitação?</string>
+    <string name="mobile_card_confirm_deny">Negar esta solicitação?</string>
+    <string name="mobile_card_confirm">Confirmar</string>
+    <string name="mobile_card_cancel_swipe">Cancelar</string>
     <string name="mobile_card_allowed">Permitido</string>
     <string name="mobile_card_denied">Negado</string>
     <string name="mobile_card_no_longer_available">Não está mais disponível</string>
