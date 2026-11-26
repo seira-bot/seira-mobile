@@ -8,7 +8,6 @@ struct SettingsView: View {
     @EnvironmentObject private var session: Session
     @State private var enablingNotifications = false
     @State private var confirmingSignOut = false
-    @State private var usageReport: EngineLimitsReport?
     @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
     @AppStorage(PrefKey.islandIntro) private var islandIntro = IslandIntro.oncePerBot.rawValue
     @AppStorage(PrefKey.language) private var language = AppLanguage.system.rawValue
@@ -34,7 +33,6 @@ struct SettingsView: View {
                 Group {
                     languageSection
                     workspaceSection
-                    privacySection
                     helpSection
                     signOutButton
                     SettingsFooter()
@@ -52,7 +50,6 @@ struct SettingsView: View {
         .toolbarBackground(Color.seiraApp, for: .navigationBar)
         .background(SwipeBackBridge())
         .task { await session.refreshNotificationAuthorization() }
-        .task { await loadUsageSupport() }
         .confirmationDialog(
             "Remove this connection?",
             isPresented: $confirmingSignOut,
@@ -312,34 +309,6 @@ struct SettingsView: View {
                         SettingsLinkLabel(symbol: "calendar.badge.clock", title: "Threads & Routines")
                     }
                     .buttonStyle(SettingsRowButtonStyle())
-
-                    if session.canAdminister, let usageReport {
-                        SettingsDivider()
-                        NavigationLink {
-                            UsageView(initial: usageReport)
-                        } label: {
-                            SettingsLinkLabel(symbol: "chart.bar", title: "AI usage")
-                        }
-                        .buttonStyle(SettingsRowButtonStyle())
-                    }
-                }
-            }
-        }
-    }
-
-    /// Connecting apps needs the admin scope; a chat-only server session
-    /// leaves it to the owner, in the server's own interface.
-    @ViewBuilder private var privacySection: some View {
-        if session.connection != nil, session.canAdminister {
-            VStack(spacing: 0) {
-                SettingsSectionHeader(title: "Privacy")
-                SettingsCard {
-                    NavigationLink {
-                        ConnectedAppsView()
-                    } label: {
-                        SettingsLinkLabel(symbol: "link", title: "Connected apps")
-                    }
-                    .buttonStyle(SettingsRowButtonStyle())
                 }
             }
         }
@@ -365,18 +334,6 @@ struct SettingsView: View {
             SettingsLinkLabel(symbol: symbol, title: title)
         }
         .buttonStyle(SettingsRowButtonStyle())
-    }
-
-    private func loadUsageSupport() async {
-        guard session.canAdminister, session.connection != nil else {
-            usageReport = nil
-            return
-        }
-        if case let .report(loaded) = await session.loadEngineLimits() {
-            usageReport = loaded
-        } else {
-            usageReport = nil
-        }
     }
 
     @ViewBuilder private var signOutButton: some View {
@@ -499,6 +456,7 @@ private struct ComputerSettingsRow: View {
 struct ConnectedComputersView: View {
     @EnvironmentObject private var session: Session
     @State private var pendingRemoval: Connection?
+    @State private var usageReport: EngineLimitsReport?
 
     /// The dialog interpolates the computer's own name. With no name there is
     /// copy to fall back to, rather than an English word inside a translated
@@ -506,6 +464,18 @@ struct ConnectedComputersView: View {
     private var removalTitle: LocalizedStringKey {
         guard let name = pendingRemoval?.name else { return "Remove this computer?" }
         return "Remove \(name)?"
+    }
+
+    fileprivate func loadUsageSupport() async {
+        guard session.canAdminister, session.connection != nil else {
+            usageReport = nil
+            return
+        }
+        if case let .report(loaded) = await session.loadEngineLimits() {
+            usageReport = loaded
+        } else {
+            usageReport = nil
+        }
     }
 
     private var otherComputers: [Connection] {
@@ -577,8 +547,14 @@ struct ConnectedComputersView: View {
                 Text("Each computer is paired separately. Only the selected computer is active at a time.")
             }
             .listRowBackground(Color.seiraTint)
+
+            if session.connection != nil {
+                botScreensSection
+                toolsSection
+            }
         }
         .settingsListChrome()
+        .task { await loadUsageSupport() }
         .navigationTitle("Computers")
         .navigationBarTitleDisplayMode(.inline)
         .confirmationDialog(
@@ -597,6 +573,66 @@ struct ConnectedComputersView: View {
             Button("Cancel", role: .cancel) { pendingRemoval = nil }
         } message: {
             Text("This removes the saved connection from this device only.")
+        }
+    }
+}
+
+extension ConnectedComputersView {
+    @ViewBuilder fileprivate var botScreensSection: some View {
+        let screens = ComputersRules.botScreens(session.state.bots)
+        if !screens.isEmpty {
+            Section("Bot screens") {
+                ForEach(screens) { entry in
+                    NavigationLink {
+                        ComputerView(bot: entry.bot)
+                    } label: {
+                        HStack(spacing: 12) {
+                            SeiraAvatar(bot: entry.bot, size: 32)
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(verbatim: entry.bot.name)
+                                    .font(.seira(16, .medium))
+                                    .foregroundStyle(Color.seiraInk)
+                                    .lineLimit(1)
+                                Text(entry.state.label)
+                                    .font(.seira(13, .regular, relativeTo: .subheadline))
+                                    .foregroundStyle(Color.seiraInk2)
+                            }
+                        }
+                    }
+                    .accessibilityIdentifier("bot-screen.\(entry.bot.id)")
+                }
+            }
+            .listRowBackground(Color.seiraTint)
+        }
+    }
+
+    @ViewBuilder fileprivate var toolsSection: some View {
+        if session.canAdminister {
+            Section {
+                if let usageReport {
+                    NavigationLink {
+                        UsageView(initial: usageReport)
+                    } label: {
+                        Label("AI usage", systemImage: "chart.bar")
+                    }
+                }
+                NavigationLink {
+                    ConnectedAppsView()
+                } label: {
+                    Label("Connected apps", systemImage: "link")
+                }
+            }
+            .listRowBackground(Color.seiraTint)
+        }
+    }
+}
+
+extension ComputerScreenState {
+    var label: LocalizedStringKey {
+        switch self {
+        case .working: return "Working now"
+        case .waiting: return "Waiting for a teammate"
+        case .idle: return "Idle"
         }
     }
 }

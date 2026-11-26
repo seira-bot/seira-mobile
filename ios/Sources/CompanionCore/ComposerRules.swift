@@ -200,6 +200,11 @@ public struct ComposerOutgoing: Equatable, Sendable {
     public var text: String
     /// The reply strip closes only when the quote went out with the message.
     public var clearsReply: Bool
+
+    public init(text: String, clearsReply: Bool) {
+        self.text = text
+        self.clearsReply = clearsReply
+    }
 }
 
 public enum ComposerReply {
