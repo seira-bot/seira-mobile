@@ -23,6 +23,13 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">No se puede conectar con tu ordenador</string>
     <string name="settings_reconnect">Reconectar</string>
+    <string name="update_banner_downloading">Descargando actualización…</string>
+    <string name="update_banner_ready">Actualización lista. Reinicia Seira</string>
+    <string name="update_banner_restart">Reiniciar</string>
+    <string name="settings_check_updates">Buscar actualizaciones</string>
+    <string name="settings_update_checking">Comprobando…</string>
+    <string name="settings_update_found">Descargando actualización</string>
+    <string name="settings_update_current">Actualizado</string>
     <string name="ai_usage_title">Uso de IA</string>
     <string name="ai_usage_window_five_hour">Límite de 5 horas</string>
     <string name="ai_usage_window_weekly">Límite semanal</string>
@@ -41,11 +48,4 @@
     <string name="ai_usage_conversation_tokens_one_turn">%1$s tokens en 1 turno</string>
     <string name="ai_usage_conversation_cost">%1$s · unos %2$s</string>
     <string name="ai_usage_conversation_context">Contexto %1$s de %2$s</string>
-    <string name="update_banner_downloading">Descargando actualización…</string>
-    <string name="update_banner_ready">Actualización lista. Reinicia Seira</string>
-    <string name="update_banner_restart">Reiniciar</string>
-    <string name="settings_check_updates">Buscar actualizaciones</string>
-    <string name="settings_update_checking">Comprobando…</string>
-    <string name="settings_update_found">Descargando actualización</string>
-    <string name="settings_update_current">Actualizado</string>
 </resources>

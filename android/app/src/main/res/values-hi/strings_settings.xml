@@ -23,6 +23,13 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">आपके कंप्यूटर तक नहीं पहुँचा जा सकता</string>
     <string name="settings_reconnect">फिर से कनेक्ट करें</string>
+    <string name="update_banner_downloading">अपडेट डाउनलोड हो रहा है…</string>
+    <string name="update_banner_ready">अपडेट तैयार है। Seira फिर से शुरू करें</string>
+    <string name="update_banner_restart">रीस्टार्ट करें</string>
+    <string name="settings_check_updates">अपडेट जाँचें</string>
+    <string name="settings_update_checking">जाँच हो रही है…</string>
+    <string name="settings_update_found">अपडेट डाउनलोड हो रहा है</string>
+    <string name="settings_update_current">अप टू डेट</string>
     <string name="ai_usage_title">AI उपयोग</string>
     <string name="ai_usage_window_five_hour">5 घंटे की सीमा</string>
     <string name="ai_usage_window_weekly">साप्ताहिक सीमा</string>
@@ -41,11 +48,4 @@
     <string name="ai_usage_conversation_tokens_one_turn">%1$s टोकन · 1 टर्न</string>
     <string name="ai_usage_conversation_cost">%1$s · लगभग %2$s</string>
     <string name="ai_usage_conversation_context">संदर्भ: %2$s में से %1$s</string>
-    <string name="update_banner_downloading">अपडेट डाउनलोड हो रहा है…</string>
-    <string name="update_banner_ready">अपडेट तैयार है। Seira फिर से शुरू करें</string>
-    <string name="update_banner_restart">रीस्टार्ट करें</string>
-    <string name="settings_check_updates">अपडेट जाँचें</string>
-    <string name="settings_update_checking">जाँच हो रही है…</string>
-    <string name="settings_update_found">अपडेट डाउनलोड हो रहा है</string>
-    <string name="settings_update_current">अप टू डेट</string>
 </resources>
