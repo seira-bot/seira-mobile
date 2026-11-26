@@ -17,6 +17,7 @@ struct TeamMemoryView: View {
     @State private var draftDetail = ""
     @State private var editingEntry: TeamMemoryEntry?
     @State private var editDetail = ""
+    @State private var removing: TeamMemoryEntry?
     @State private var loadGeneration = 0
 
     private static let kinds: [(kind: String, title: LocalizedStringKey)] = [
@@ -68,7 +69,7 @@ struct TeamMemoryView: View {
                                     .tint(.accentColor)
                                     .disabled(busyID != nil)
                                     Button(role: .destructive) {
-                                        Task { await remove(entry) }
+                                        removing = entry
                                     } label: {
                                         Label("Remove", systemImage: "trash")
                                     }
@@ -117,6 +118,15 @@ struct TeamMemoryView: View {
             await load()
         }
         .refreshable { await load() }
+        .confirmationDialog(
+            "Remove this entry?", isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+            titleVisibility: .visible, presenting: removing
+        ) { entry in
+            Button("Remove", role: .destructive) { Task { await remove(entry) } }
+            Button("Cancel", role: .cancel) {}
+        } message: { entry in
+            Text(verbatim: entry.name)
+        }
         .sheet(item: $editingEntry) { entry in
             NavigationStack {
                 Form {

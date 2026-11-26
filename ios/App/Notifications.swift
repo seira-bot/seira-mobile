@@ -70,7 +70,12 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
     }
 
     private func isEnabled(for notification: NotificationFrame) -> Bool {
-        let key = notification.isBlocking ? PrefKey.notifyApprovals : PrefKey.notifyUpdates
+        let key: String
+        if notification.kind == "routine-failed" {
+            key = PrefKey.notifyRoutines
+        } else {
+            key = notification.isBlocking ? PrefKey.notifyApprovals : PrefKey.notifyUpdates
+        }
         return UserDefaults.standard.object(forKey: key) as? Bool ?? true
     }
 

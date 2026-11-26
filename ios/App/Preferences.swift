@@ -24,6 +24,7 @@ enum PrefKey {
     static let notifyApprovals = "companion.prefs.notifyApprovals"
     /// Alerts when a bot finishes a job or sends an update. Default on.
     static let notifyUpdates = "companion.prefs.notifyUpdates"
+    static let notifyRoutines = "companion.prefs.notifyRoutines"
     /// Captions on the Live call screen. Default on.
     static let liveCaptions = "companion.prefs.liveCaptions"
 }

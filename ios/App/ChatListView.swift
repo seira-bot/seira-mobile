@@ -65,7 +65,9 @@ struct ChatListView: View {
             .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Chat.self) { ChatView(chat: $0) }
-            .navigationDestination(for: HomeRoute.self) { routePage($0) }
+            .navigationDestination(for: HomeRoute.self) { route in
+                routePage(route).environment(\.returnToChats, { path = NavigationPath() })
+            }
             .onValueChange(of: session.notificationChat) { chat in
                 guard let chat else { return }
                 path.append(chat)

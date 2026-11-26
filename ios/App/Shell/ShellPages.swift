@@ -2,50 +2,70 @@ import CompanionCore
 import SwiftUI
 import UIKit
 
+private struct ReturnToChatsKey: EnvironmentKey {
+    static var defaultValue: () -> Void { {} }
+}
+
+extension EnvironmentValues {
+    /// Goes back to the Chats tab, past every page pushed on top of it.
+    var returnToChats: () -> Void {
+        get { self[ReturnToChatsKey.self] }
+        set { self[ReturnToChatsKey.self] = newValue }
+    }
+}
+
 struct TeamMapPage: View {
     @EnvironmentObject private var session: Session
+    @Environment(\.returnToChats) private var returnToChats
     @State private var map: TeamMap?
 
-    private var state: CompanionState { session.state }
-
     var body: some View {
+        let layout = TeamMapRules.layout(session.state)
         List {
-            if let chief = state.unsectionedChief {
-                Section("Seira") { botRow(chief) }
+            if layout.isEmpty {
+                Text("No one on the team yet.").foregroundStyle(Color.seiraMut)
             }
-            ForEach(state.sidebarSections) { section in
+            if let chief = layout.chief {
+                Section { botRow(chief) } header: { Text("Seira") }
+            }
+            ForEach(layout.groups) { group in
                 Section {
-                    ForEach(section.chiefs + section.bots) { botRow($0) }
-                    ForEach(section.channels) { Label($0.name, systemImage: "person.2") }
+                    ForEach(group.bots) { botRow($0) }
                 } header: {
-                    Text(verbatim: section.name)
-                }
-            }
-            let others = state.unsectionedBots + state.pinnedBots
-            if !others.isEmpty {
-                Section("Bots") { ForEach(others) { botRow($0) } }
-            }
-            if let map, !map.running.isEmpty || !map.queued.isEmpty {
-                Section("Working together") {
-                    Text("\(map.running.count) running")
-                    Text("\(map.queued.count) waiting")
+                    if let name = group.name { Text(verbatim: name) } else { Text("Bots") }
                 }
             }
         }
         .navigationTitle("Team map")
         .navigationBarTitleDisplayMode(.inline)
         .task { map = await session.teamMap() }
+        .refreshable { map = await session.teamMap() }
     }
 
     private func botRow(_ bot: Bot) -> some View {
-        HStack(spacing: 12) {
-            SeiraAvatar(bot: bot, size: 36)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: bot.name).font(.headline)
-                if !bot.title.isEmpty {
-                    Text(verbatim: bot.title).font(.caption).foregroundStyle(.secondary)
+        NavigationLink {
+            BotProfilePage(botId: bot.id, onDeleted: returnToChats)
+        } label: {
+            HStack(spacing: 12) {
+                SeiraAvatar(bot: bot, size: 36)
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(verbatim: bot.name).font(.headline)
+                    if !bot.title.isEmpty {
+                        Text(verbatim: bot.title).font(.caption).foregroundStyle(.secondary)
+                    }
                 }
+                Spacer(minLength: 0)
+                statusLabel(TeamMapRules.status(map, botId: bot.id))
             }
+        }
+    }
+
+    @ViewBuilder
+    private func statusLabel(_ status: TeamStatus?) -> some View {
+        switch status {
+        case .working: Text("Working").font(.caption).foregroundStyle(Color.seiraOk)
+        case .waiting: Text("Waiting").font(.caption).foregroundStyle(Color.seiraWarn)
+        case nil: EmptyView()
         }
     }
 }
@@ -97,6 +117,16 @@ struct ComputersPage: View {
                     Button("Try reconnecting") { session.connect() }
                 }
             }
+            if session.canAdminister {
+                Section {
+                    NavigationLink { UsageView() } label: {
+                        Label("AI usage", systemImage: "chart.bar")
+                    }
+                    NavigationLink { ConnectedAppsView() } label: {
+                        Label("Connected apps", systemImage: "link")
+                    }
+                }
+            }
             let bots = session.state.bots.filter { $0.hidden != true }
             if !bots.isEmpty {
                 Section("Bot screens") {
@@ -132,10 +162,11 @@ struct ComputersPage: View {
 
 struct BotProfilesPage: View {
     @EnvironmentObject private var session: Session
+    @Environment(\.returnToChats) private var returnToChats
 
     var body: some View {
         List(session.state.bots.filter { $0.hidden != true }) { bot in
-            NavigationLink { AgentProfileView(bot: bot) } label: {
+            NavigationLink { BotProfilePage(botId: bot.id, onDeleted: returnToChats) } label: {
                 HStack(spacing: 12) {
                     SeiraAvatar(bot: bot, size: 40)
                     VStack(alignment: .leading, spacing: 2) {

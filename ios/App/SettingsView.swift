@@ -15,6 +15,7 @@ struct SettingsView: View {
     @AppStorage(PrefKey.rosterDensity) private var rosterDensity = RosterDensity.default.rawValue
     @AppStorage(PrefKey.notifyApprovals) private var notifyApprovals = true
     @AppStorage(PrefKey.notifyUpdates) private var notifyUpdates = true
+    @AppStorage(PrefKey.notifyRoutines) private var notifyRoutines = true
     @AppStorage(PrefKey.liveCaptions) private var liveCaptions = true
     private let onConnect: (() -> Void)?
 
@@ -26,15 +27,15 @@ struct SettingsView: View {
         ScrollView {
             VStack(spacing: 0) {
                 title
-                appearanceSection
                 computerSection
+                appearanceSection
                 notificationsSection
                 chatSection
                 Group {
-                    densitySection
                     languageSection
-                    voiceSection
                     workspaceSection
+                    privacySection
+                    helpSection
                     signOutButton
                     SettingsFooter()
                 }
@@ -168,6 +169,13 @@ struct SettingsView: View {
                 subtitle: "When a bot is done with a job",
                 isOn: $notifyUpdates
             )
+            SettingsDivider()
+            SettingsToggleRow(
+                symbol: "exclamationmark.arrow.circlepath",
+                title: "Routine problems",
+                subtitle: "When a scheduled job fails",
+                isOn: $notifyRoutines
+            )
         }
         .disabled(!notificationsAreEnabled)
         .opacity(notificationsAreEnabled ? 1 : 0.5)
@@ -214,6 +222,17 @@ struct SettingsView: View {
                     SettingsLinkLabel(symbol: "bolt", title: "Quick replies")
                 }
                 .buttonStyle(SettingsRowButtonStyle())
+                SettingsDivider()
+                densityRow
+                if session.connection != nil {
+                    SettingsDivider()
+                    SettingsToggleRow(
+                        symbol: "captions.bubble",
+                        title: "Live captions",
+                        subtitle: "Show the words during a call",
+                        isOn: $liveCaptions
+                    )
+                }
             }
             SettingsCaption(text: Text(LocalizedStringKey(currentActivity.caption)))
         }
@@ -247,25 +266,19 @@ struct SettingsView: View {
         }
     }
 
-    private var densitySection: some View {
-        VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Lists")
-            SettingsCard {
-                SettingsMenuRow(
-                    symbol: "list.bullet",
-                    title: "List density",
-                    value: Text(LocalizedStringKey(currentDensity.label))
-                ) {
-                    Picker("List density", selection: densityBinding) {
-                        ForEach(RosterDensity.allCases, id: \.self) { density in
-                            Text(LocalizedStringKey(density.label)).tag(density)
-                        }
-                    }
+    private var densityRow: some View {
+        SettingsMenuRow(
+            symbol: "list.bullet",
+            title: "List density",
+            value: Text(LocalizedStringKey(currentDensity.label))
+        ) {
+            Picker("List density", selection: densityBinding) {
+                ForEach(RosterDensity.allCases, id: \.self) { density in
+                    Text(LocalizedStringKey(density.label)).tag(density)
                 }
-                .accessibilityIdentifier("list-density")
             }
-            SettingsCaption(text: Text(LocalizedStringKey(currentDensity.caption)))
         }
+        .accessibilityIdentifier("list-density")
     }
 
     private var languageSection: some View {
@@ -288,20 +301,6 @@ struct SettingsView: View {
         }
     }
 
-    private var voiceSection: some View {
-        VStack(spacing: 0) {
-            SettingsSectionHeader(title: "Voice and calls")
-            SettingsCard {
-                SettingsToggleRow(
-                    symbol: "captions.bubble",
-                    title: "Live captions",
-                    subtitle: "Show the words during a call",
-                    isOn: $liveCaptions
-                )
-            }
-        }
-    }
-
     @ViewBuilder private var workspaceSection: some View {
         if session.connection != nil {
             VStack(spacing: 0) {
@@ -313,18 +312,6 @@ struct SettingsView: View {
                         SettingsLinkLabel(symbol: "calendar.badge.clock", title: "Threads & Routines")
                     }
                     .buttonStyle(SettingsRowButtonStyle())
-
-                    // Connecting apps needs the admin scope; a chat-only
-                    // server session leaves it to the owner, in the server's UI.
-                    if session.canAdminister {
-                        SettingsDivider()
-                        NavigationLink {
-                            ConnectedAppsView()
-                        } label: {
-                            SettingsLinkLabel(symbol: "link", title: "Connected apps")
-                        }
-                        .buttonStyle(SettingsRowButtonStyle())
-                    }
 
                     if session.canAdminister, let usageReport {
                         SettingsDivider()
@@ -338,6 +325,46 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+
+    /// Connecting apps needs the admin scope; a chat-only server session
+    /// leaves it to the owner, in the server's own interface.
+    @ViewBuilder private var privacySection: some View {
+        if session.connection != nil, session.canAdminister {
+            VStack(spacing: 0) {
+                SettingsSectionHeader(title: "Privacy")
+                SettingsCard {
+                    NavigationLink {
+                        ConnectedAppsView()
+                    } label: {
+                        SettingsLinkLabel(symbol: "link", title: "Connected apps")
+                    }
+                    .buttonStyle(SettingsRowButtonStyle())
+                }
+            }
+        }
+    }
+
+    private var helpSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Help")
+            SettingsCard {
+                helpLink(symbol: "questionmark.circle", title: "Questions and answers", url: "https://seira.bot/#faq")
+                SettingsDivider()
+                helpLink(symbol: "doc.text", title: "Report a problem", url: "https://github.com/seira-bot/seira/issues")
+                SettingsDivider()
+                helpLink(symbol: "hand.raised", title: "Privacy policy", url: "https://seira.bot/privacy")
+            }
+        }
+    }
+
+    private func helpLink(symbol: String, title: LocalizedStringKey, url: String) -> some View {
+        Button {
+            if let target = URL(string: url) { UIApplication.shared.open(target) }
+        } label: {
+            SettingsLinkLabel(symbol: symbol, title: title)
+        }
+        .buttonStyle(SettingsRowButtonStyle())
     }
 
     private func loadUsageSupport() async {
