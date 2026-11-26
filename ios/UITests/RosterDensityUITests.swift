@@ -172,7 +172,7 @@ final class RosterDensityUITests: XCTestCase {
         for density in ["compact", "comfortable"] {
             let app = launchRoster(density: density)
             let list = app.scrollViews["roster-list"]
-            let settings = app.buttons["Settings"]
+            let settings = app.buttons["home-profile"]
             let title = app.staticTexts.matching(NSPredicate(format: "label ==[c] %@", "Needs attention")).firstMatch
             XCTAssertTrue(title.waitForExistence(timeout: 10), density)
             XCTAssertTrue(list.exists, density)
@@ -212,7 +212,7 @@ final class RosterDensityUITests: XCTestCase {
 
     @MainActor
     private func chooseDensity(_ label: String, in app: XCUIApplication) {
-        app.buttons["Settings"].tap()
+        app.buttons["home-profile"].tap()
         let picker = app.buttons["list-density"]
         XCTAssertTrue(picker.waitForExistence(timeout: 5))
         picker.tap()

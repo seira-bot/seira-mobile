@@ -135,6 +135,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
         let scroll = app.descendants(matching: .any)["message-preview-gmail-grid-scroll"]
         XCTAssertTrue(scroll.waitForExistence(timeout: 5))
+        dragBelowHeader(token, in: app)
         let before = token.frame.origin.x
         token.swipeLeft()
         XCTAssertLessThan(token.frame.origin.x, before)
@@ -363,6 +364,21 @@ final class ThreadNavigationUITests: XCTestCase {
         // Thread headers settle late on a loaded CI runner; 5s timed out on
         // PRs 1576 and 1615 while the switch itself was correct.
         XCTAssertEqual(XCTWaiter.wait(for: [appeared], timeout: 10), .completed)
+    }
+
+    /// The chat opens at its end. A row under the floating header or the
+    /// status bar does not get a swipe that starts on it.
+    @MainActor
+    private func dragBelowHeader(_ element: XCUIElement, in app: XCUIApplication) {
+        let header = app.buttons["chat-menu"]
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        for _ in 0..<6 where element.frame.minY < header.frame.maxY + 12 {
+            start.press(
+                forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 150)),
+                withVelocity: .slow, thenHoldForDuration: 0.3
+            )
+        }
+        XCTAssertGreaterThan(element.frame.minY, header.frame.maxY)
     }
 
     @MainActor

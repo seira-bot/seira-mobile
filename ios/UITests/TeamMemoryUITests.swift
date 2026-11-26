@@ -39,25 +39,24 @@ final class TeamMemoryUITests: XCTestCase {
         continueAfterFailure = false
         let app = XCUIApplication()
         app.terminate()
-        app.launchArguments = ["-store-preview", "-threads-preview", "-memory-preview", "-open-profile",
+        app.launchArguments = ["-store-preview", "-memory-preview",
                                "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
                                "-companion.prefs.islandIntro", "never", "-companion.prefs.rosterDensity", "comfortable",
                                "-companion.onboarding.welcomeSeen", "YES", "-companion.onboarding.notificationsSeen", "YES"]
         if stale { app.launchArguments.append("-memory-stale-preview") }
         app.launch()
-        let threads = app.buttons["threads-toggle.preview-pepper"]
+        let menu = app.buttons["home-menu"]
         // Match the existing offline tests: a prewarmed/restored simulator
         // scene can retain its previous navigation on the first launch.
-        if !threads.waitForExistence(timeout: 10) { app.terminate(); app.launch() }
-        XCTAssertTrue(threads.waitForExistence(timeout: 10))
-        threads.tap()
-        app.buttons["thread.preview-gmail"].tap()
-        let memory = app.buttons["Team memory"]
-        if !memory.waitForExistence(timeout: 3) {
-            app.swipeUp()
-        }
+        if !menu.waitForExistence(timeout: 10) { app.terminate(); app.launch() }
+        XCTAssertTrue(menu.waitForExistence(timeout: 10))
+        menu.tap()
+        let memory = app.buttons["Department memory"]
         XCTAssertTrue(memory.waitForExistence(timeout: 5))
         memory.tap()
+        let general = app.buttons["General"]
+        XCTAssertTrue(general.waitForExistence(timeout: 5))
+        general.tap()
         XCTAssertTrue(app.staticTexts["Original HQ"].waitForExistence(timeout: 5))
         return app
     }

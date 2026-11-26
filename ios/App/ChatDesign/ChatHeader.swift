@@ -122,8 +122,53 @@ struct ChatHeaderBar: View {
     }
 
     private var menuButton: some View {
+        ChatMenuButton(
+            conversation: chat.conversationID, threadTitle: chat.threadTitle,
+            items: menuItems, onMenu: onMenu
+        )
+        .equatable()
+    }
+
+    private var computerButton: some View {
+        roundButton("display", action: onComputer)
+            .accessibilityLabel("Watch \(chat.name)'s computer")
+    }
+
+    private var callButton: some View {
+        roundButton("phone", action: onCall)
+            .accessibilityLabel("Start a Live call with \(chat.name)")
+            .accessibilityIdentifier("live-call-start")
+    }
+
+    private func roundButton(_ symbol: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(Color.seiraInk)
+                .frame(width: 46, height: 46)
+                .contentShape(Circle())
+        }
+        .buttonStyle(.plain)
+        .glassCapsule()
+    }
+}
+
+/// On iOS 26.5 every rebuild of an open `Menu` animates into the open menu,
+/// and a streaming fleet redraws the chat many times a second. The menu
+/// redraws only when what it lists changes.
+private struct ChatMenuButton: View, Equatable {
+    let conversation: String
+    let threadTitle: String
+    let items: [ChatMenuItem]
+    let onMenu: (ChatMenuItem) -> Void
+
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.conversation == rhs.conversation && lhs.threadTitle == rhs.threadTitle && lhs.items == rhs.items
+    }
+
+    var body: some View {
         Menu {
-            ForEach(menuItems, id: \.self) { item in
+            ForEach(items, id: \.self) { item in
                 Button { onMenu(item) } label: { Label(title(of: item), systemImage: symbol(of: item)) }
                     .accessibilityIdentifier("menu-\(item.rawValue)")
             }
@@ -136,7 +181,7 @@ struct ChatHeaderBar: View {
         }
         .glassCapsule()
         .accessibilityLabel("More")
-        .accessibilityValue(Text(verbatim: chat.threadTitle))
+        .accessibilityValue(Text(verbatim: threadTitle))
         .accessibilityIdentifier("chat-menu")
     }
 
@@ -162,28 +207,5 @@ struct ChatHeaderBar: View {
         case .botScreen: return "display"
         case .share: return "square.and.arrow.up"
         }
-    }
-
-    private var computerButton: some View {
-        roundButton("display", action: onComputer)
-            .accessibilityLabel("Watch \(chat.name)'s computer")
-    }
-
-    private var callButton: some View {
-        roundButton("phone", action: onCall)
-            .accessibilityLabel("Start a Live call with \(chat.name)")
-            .accessibilityIdentifier("live-call-start")
-    }
-
-    private func roundButton(_ symbol: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            Image(systemName: symbol)
-                .font(.system(size: 17, weight: .medium))
-                .foregroundStyle(Color.seiraInk)
-                .frame(width: 46, height: 46)
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .glassCapsule()
     }
 }
