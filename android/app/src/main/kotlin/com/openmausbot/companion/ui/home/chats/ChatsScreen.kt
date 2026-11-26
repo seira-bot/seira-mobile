@@ -62,6 +62,7 @@ import com.openmausbot.companion.ui.TeamMember
 import com.openmausbot.companion.ui.TeamRail
 import com.openmausbot.companion.ui.WorkspaceSheet
 import com.openmausbot.companion.ui.WorkspaceSheetRules
+import com.openmausbot.companion.ui.forChat
 import com.openmausbot.companion.ui.homeGreetingText
 import com.openmausbot.companion.ui.localizedMobileCopy
 import com.openmausbot.companion.ui.play
