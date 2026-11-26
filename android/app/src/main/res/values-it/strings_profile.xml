@@ -32,7 +32,7 @@
         <item quantity="one">%1$d strumento</item>
         <item quantity="other">%1$d strumenti</item>
     </plurals>
-    <string name="profile_model_note">Gli account dei provider e le chiavi API restano sul tuo computer. Predefinito non invia alcun livello di ragionamento.</string>
+    <string name="profile_model_note">Gli account dei provider e le chiavi API restano sul tuo computer. Predefinito lascia scegliere al modello.</string>
     <string name="profile_reply_style">Stile di risposta</string>
     <string name="profile_reply_default">Predefinito</string>
     <string name="profile_reply_conversational">Conversazionale</string>

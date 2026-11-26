@@ -24,4 +24,6 @@
     </plurals>
     <string name="shell_bot_profile_title">Bot profile</string>
     <string name="shell_switch_computer">Switch computer</string>
+    <string name="shell_error_queued_steer_unsupported">This computer is too old to send a queued message into a running turn. Update Seira on it.</string>
+    <string name="shell_error_reload_memory">Reload this memory and try again.</string>
 </resources>

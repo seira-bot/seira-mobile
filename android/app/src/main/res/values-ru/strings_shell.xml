@@ -30,4 +30,6 @@
     </plurals>
     <string name="shell_bot_profile_title">Профиль бота</string>
     <string name="shell_switch_computer">Сменить компьютер</string>
+    <string name="shell_error_queued_steer_unsupported">Этот компьютер слишком старый, чтобы передать сообщение из очереди в текущий ход. Обновите на нём Seira.</string>
+    <string name="shell_error_reload_memory">Перезагрузите эту память и повторите попытку.</string>
 </resources>

@@ -575,6 +575,10 @@ data class Bot(
     val projects: List<BotProject>? = null,
     /** Set when the host set up an own server for this bot. Only its presence is read. */
     val vpsAlias: String? = null,
+    /** The bot's instructions, when the computer sends them. */
+    val soul: String? = null,
+    /** The wire name of the reply style, when the computer sends it; see [ReplyStyle.wire]. */
+    val replyStyle: String? = null,
 )
 
 /** Project only task-local controls; the original fleet record stays profile-global. */

@@ -24,4 +24,6 @@
     </plurals>
     <string name="shell_bot_profile_title">Perfil do bot</string>
     <string name="shell_switch_computer">Trocar de computador</string>
+    <string name="shell_error_queued_steer_unsupported">Este computador é antigo demais para enviar uma mensagem em fila a um turno em andamento. Atualize o Seira nele.</string>
+    <string name="shell_error_reload_memory">Recarregue esta memória e tente de novo.</string>
 </resources>

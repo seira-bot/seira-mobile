@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">5 saatlik sınır</string>
     <string name="ai_usage_window_weekly">Haftalık sınır</string>
     <string name="ai_usage_window_other">Diğer sınır</string>
-    <string name="ai_usage_window_row">%1$d%% kaldı · sıfırlanma: %2$s</string>
-    <string name="ai_usage_window_row_no_reset">%1$d%% kaldı</string>
     <string name="ai_usage_paused_until">%1$s tarihine kadar duraklatıldı</string>
     <string name="ai_usage_paused">Duraklatıldı</string>
     <string name="ai_usage_near_limit">Sınıra yaklaşıldı</string>

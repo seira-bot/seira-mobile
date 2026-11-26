@@ -21,4 +21,6 @@
     </plurals>
     <string name="shell_bot_profile_title">봇 프로필</string>
     <string name="shell_switch_computer">컴퓨터 전환</string>
+    <string name="shell_error_queued_steer_unsupported">이 컴퓨터는 너무 오래되어 대기 중인 메시지를 진행 중인 턴으로 보낼 수 없습니다. 이 컴퓨터에서 Seira를 업데이트하세요.</string>
+    <string name="shell_error_reload_memory">이 메모리를 다시 불러온 다음 다시 시도하세요.</string>
 </resources>

@@ -93,6 +93,7 @@ internal fun NewChatHost(
                                 onDismiss()
                                 navigator.open(Chat.BotChat(bot))
                             } else {
+                                session.actionError = null
                                 botFailed = true
                             }
                         } finally {

@@ -272,6 +272,7 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                     if (session.deleteConnectorAccount(target.slug, target.accountId)) {
                         refresh()
                     } else {
+                        session.actionError = null
                         removeError = removeFailed
                     }
                 }

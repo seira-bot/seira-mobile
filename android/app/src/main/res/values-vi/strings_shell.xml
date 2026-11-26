@@ -21,4 +21,6 @@
     </plurals>
     <string name="shell_bot_profile_title">Hồ sơ bot</string>
     <string name="shell_switch_computer">Đổi máy tính</string>
+    <string name="shell_error_queued_steer_unsupported">Máy tính này quá cũ để gửi tin nhắn đang xếp hàng vào một lượt đang chạy. Hãy cập nhật Seira trên máy tính đó.</string>
+    <string name="shell_error_reload_memory">Hãy tải lại bộ nhớ này rồi thử lại.</string>
 </resources>

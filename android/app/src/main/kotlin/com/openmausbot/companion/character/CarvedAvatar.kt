@@ -10,7 +10,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
@@ -36,6 +38,7 @@ internal fun CarvedAvatar(
     mood: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = false,
     sway: Boolean = false,
+    eyeColor: Color? = null,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -48,12 +51,13 @@ internal fun CarvedAvatar(
         mood = shown,
         animated = animated,
         sway = sway,
+        eyeColor = eyeColor,
         contentDescription = contentDescription,
         modifier = modifier,
     )
 }
 
-/** The carved Seira avatar. It stays still unless [animated] or [sway] is true and the system has animations on. */
+/** The carved Seira avatar. [eyeColor] replaces the eye colour of the body when set. It stays still unless [animated] or [sway] is true and the system has animations on. */
 @Composable
 internal fun CarvedAvatar(
     hair: String?,
@@ -63,6 +67,7 @@ internal fun CarvedAvatar(
     mood: CharacterMood = CharacterMood.IDLE,
     animated: Boolean = false,
     sway: Boolean = false,
+    eyeColor: Color? = null,
     contentDescription: String? = null,
     modifier: Modifier = Modifier,
 ) {
@@ -114,6 +119,7 @@ internal fun CarvedAvatar(
         drawIntoCanvas { canvas ->
             CarvedAvatarRenderer.draw(
                 canvas.nativeCanvas, assets, look, color, if (live) pose.value else restPose, this.size.minDimension, angle,
+                eyeColor?.toArgb(),
             )
         }
     }

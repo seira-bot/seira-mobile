@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">Limite de 5 horas</string>
     <string name="ai_usage_window_weekly">Limite semanal</string>
     <string name="ai_usage_window_other">Outro limite</string>
-    <string name="ai_usage_window_row">%1$d%% restante · renova %2$s</string>
-    <string name="ai_usage_window_row_no_reset">%1$d%% restante</string>
     <string name="ai_usage_paused_until">Pausado até %1$s</string>
     <string name="ai_usage_paused">Pausado</string>
     <string name="ai_usage_near_limit">Quase no limite</string>

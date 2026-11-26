@@ -34,7 +34,7 @@
         <item quantity="many">%1$d інструментів</item>
         <item quantity="other">%1$d інструменту</item>
     </plurals>
-    <string name="profile_model_note">Облікові записи провайдерів і ключі API залишаються на вашому комп’ютері. За замовчуванням рівень міркування не надсилається.</string>
+    <string name="profile_model_note">Облікові записи провайдерів і ключі API залишаються на вашому комп’ютері. За замовчуванням модель обирає сама.</string>
     <string name="profile_reply_style">Стиль відповідей</string>
     <string name="profile_reply_default">За замовчуванням</string>
     <string name="profile_reply_conversational">Розмовний</string>

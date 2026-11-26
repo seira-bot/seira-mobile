@@ -117,13 +117,6 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
     }
 }
 
-/**
- * The picture of a bot's computer, with the "waiting" state when none has come.
- *
- * Enter asks the stream for screens, leave asks it to stop and drops the
- * frame. Backgrounding does not pass through here: the stream is torn down
- * whole and resumes with screens still on, which is what iOS does.
- */
 @Composable
 internal fun ComputerFrame(bot: Bot, modifier: Modifier = Modifier) {
     val session = LocalCompanion.current.session

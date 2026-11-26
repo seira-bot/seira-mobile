@@ -446,7 +446,7 @@ private fun PairedScreen(
                     onBack = navigator::pop,
                     onOpenAiUsage = { navigator.push(Destination.AiUsage) },
                     onOpenConnectedApps = { navigator.push(Destination.ConnectedApps) },
-                    onOpenBotScreen = { navigator.push(Destination.Browser(it)) },
+                    onOpenBotScreen = { navigator.push(Destination.Computer(it)) },
                 )
                 is Destination.BotProfile -> BotProfileScreen(
                     botId = destination.botId,
@@ -526,7 +526,7 @@ private fun ActionErrorDialog(session: Session) {
     AlertDialog(
         onDismissRequest = { session.actionError = null },
         title = { Text(stringResource(R.string.mobile_something_went_wrong_8d886c0b)) },
-        text = { Text(localizedMobileCopy(text)) },
+        text = { Text(localizedActionError(text)) },
         confirmButton = {
             TextButton(onClick = { session.actionError = null }) { Text(stringResource(R.string.mobile_ok_9ce3bd42)) }
         },

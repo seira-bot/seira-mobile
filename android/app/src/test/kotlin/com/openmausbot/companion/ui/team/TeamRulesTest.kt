@@ -100,4 +100,28 @@ class TeamRulesTest {
         assertTrue(TeamMemoryRules.changedSince(mine, listOf(entry("a", revision = "2"))))
         assertTrue(TeamMemoryRules.changedSince(mine, emptyList()))
     }
+
+    @Test
+    fun `a pinned bot stays in its department`() {
+        val state = CompanionState(
+            bots = listOf(bot("lead", section = "Ops", chief = true), bot("p", section = "Ops").copy(pinned = true)),
+        )
+        val layout = TeamMapRules.layout(state)
+        assertEquals(listOf("Ops"), layout.groups.map { it.name })
+        assertEquals(listOf("p"), layout.groups[0].bots.map { it.id })
+    }
+
+    @Test
+    fun `a pinned bot without a department joins the general group`() {
+        val state = CompanionState(bots = listOf(bot("chief", chief = true), bot("p").copy(pinned = true)))
+        assertEquals(listOf("p"), TeamMapRules.layout(state).groups.single().bots.map { it.id })
+    }
+
+    @Test
+    fun `a chief with a department shows once, at the top`() {
+        val state = CompanionState(bots = listOf(bot("lead", section = "Ops", chief = true), bot("a", section = "Ops")))
+        val layout = TeamMapRules.layout(state)
+        assertEquals("lead", layout.chief?.id)
+        assertEquals(listOf("a"), layout.groups.single().bots.map { it.id })
+    }
 }

@@ -114,7 +114,6 @@ internal fun ValueWithChevron(value: String) {
     }
 }
 
-/** A row of pill choices. The chosen one is filled, the others outlined. */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ChipChoiceRow(
@@ -161,13 +160,12 @@ internal fun ChipChoiceRow(
     }
 }
 
-/** The one action on the right of a page bar, such as Refresh. */
 @Composable
 internal fun PageActionPill(text: String, onClick: () -> Unit, modifier: Modifier = Modifier, enabled: Boolean = true) {
     val colors = Seira.colors
     Box(
         modifier = modifier
-            .heightIn(min = 46.dp)
+            .heightIn(min = MIN_TOUCH_TARGET)
             .clip(CircleShape)
             .background(colors.s1, CircleShape)
             .border(1.dp, colors.hairline, CircleShape)
@@ -289,7 +287,6 @@ internal fun SheetTextButton(text: String, onClick: () -> Unit) {
     }
 }
 
-/** A question with one clear way forward and one way out. */
 @Composable
 internal fun ConfirmSheet(
     title: String,
@@ -306,7 +303,6 @@ internal fun ConfirmSheet(
     }
 }
 
-/** One choice from a short list, each with the line that explains it. */
 @Composable
 internal fun <T> ChoiceSheet(
     title: String,

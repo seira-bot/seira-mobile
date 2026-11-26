@@ -34,7 +34,7 @@
         <item quantity="many">%1$d инструментов</item>
         <item quantity="other">%1$d инструмента</item>
     </plurals>
-    <string name="profile_model_note">Аккаунты провайдеров и ключи API остаются на вашем компьютере. По умолчанию уровень рассуждений не передаётся.</string>
+    <string name="profile_model_note">Аккаунты провайдеров и ключи API остаются на вашем компьютере. По умолчанию модель выбирает сама.</string>
     <string name="profile_reply_style">Стиль ответов</string>
     <string name="profile_reply_default">По умолчанию</string>
     <string name="profile_reply_conversational">Разговорный</string>

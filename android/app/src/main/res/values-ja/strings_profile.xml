@@ -31,7 +31,7 @@
     <plurals name="profile_apps_tools">
         <item quantity="other">%1$d 個のツール</item>
     </plurals>
-    <string name="profile_model_note">プロバイダーのアカウントと API キーはコンピューターに残ります。デフォルトでは推論レベルを送りません。</string>
+    <string name="profile_model_note">プロバイダーのアカウントと API キーはコンピューターに残ります。デフォルトではモデルが選びます。</string>
     <string name="profile_reply_style">返信スタイル</string>
     <string name="profile_reply_default">デフォルト</string>
     <string name="profile_reply_conversational">会話調</string>

@@ -32,7 +32,7 @@
         <item quantity="one">%1$d tool</item>
         <item quantity="other">%1$d tools</item>
     </plurals>
-    <string name="profile_model_note">Provider accounts and API keys stay on your computer. Default sends no reasoning level.</string>
+    <string name="profile_model_note">Provider accounts and API keys stay on your computer. Default lets the model choose.</string>
     <string name="profile_reply_style">Reply style</string>
     <string name="profile_reply_default">Default</string>
     <string name="profile_reply_conversational">Conversational</string>

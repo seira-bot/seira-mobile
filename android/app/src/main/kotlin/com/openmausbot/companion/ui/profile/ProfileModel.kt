@@ -30,9 +30,8 @@ internal enum class ProfileTab(val key: String) {
 internal enum class ComputerView { SCREEN, BROWSER, DATA }
 
 /**
- * What the Settings tab edits. The computer does not send a bot's instructions
- * or reply style to the phone, so those two start empty and are sent only
- * after the person changes them.
+ * What the Settings tab edits. The instructions and the reply style start from what the
+ * computer sent, or empty when it sent none, and are sent only after the person changes them.
  */
 internal data class ProfileDraft(
     val name: String,
@@ -46,8 +45,8 @@ internal data class ProfileDraft(
             name = bot.name,
             title = bot.title,
             description = bot.description,
-            soul = "",
-            replyStyle = null,
+            soul = bot.soul.orEmpty(),
+            replyStyle = ReplyStyle.entries.firstOrNull { it.wire == bot.replyStyle },
         )
     }
 }

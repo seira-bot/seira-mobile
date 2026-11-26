@@ -34,7 +34,7 @@
         <item quantity="many">%1$d narzędzi</item>
         <item quantity="other">%1$d narzędzia</item>
     </plurals>
-    <string name="profile_model_note">Konta dostawców i klucze API zostają na komputerze. Domyślny nie wysyła poziomu rozumowania.</string>
+    <string name="profile_model_note">Konta dostawców i klucze API zostają na komputerze. Domyślny pozwala wybrać modelowi.</string>
     <string name="profile_reply_style">Styl odpowiedzi</string>
     <string name="profile_reply_default">Domyślny</string>
     <string name="profile_reply_conversational">Konwersacyjny</string>

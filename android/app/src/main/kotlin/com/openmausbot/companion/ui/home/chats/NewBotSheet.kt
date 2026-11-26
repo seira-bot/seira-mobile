@@ -65,7 +65,7 @@ internal fun NewBotSheet(
     val colors = Seira.colors
     var name by rememberSaveable { mutableStateOf("") }
     var job by rememberSaveable { mutableStateOf("") }
-    val retryKey = remember(name.trim(), job.trim()) { NewBotRules.newRetryKey() }
+    val retryKey = rememberSaveable(name.trim(), job.trim()) { NewBotRules.newRetryKey() }
     val canCreate = NewBotRules.canCreate(name, creating)
 
     ModalBottomSheet(

@@ -645,10 +645,7 @@ class CompanionClient(
         } catch (error: APIError.Status) {
             if (error.code != 404) throw error
             if (error.serverMessage?.contains(ALREADY_DRAINED, ignoreCase = true) == true) return SteerResult.Gone
-            throw APIError.Status(
-                404,
-                "This computer is too old to send a queued message into a running turn. Update Seira on it.",
-            )
+            throw APIError.Status(404, Session.QUEUED_STEER_UNSUPPORTED_MESSAGE)
         }
     }
 

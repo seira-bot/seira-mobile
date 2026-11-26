@@ -32,7 +32,7 @@
         <item quantity="one">%1$d टूल</item>
         <item quantity="other">%1$d टूल</item>
     </plurals>
-    <string name="profile_model_note">प्रदाता खाते और API कुंजियाँ आपके कंप्यूटर पर ही रहती हैं। डिफ़ॉल्ट में रीज़निंग स्तर नहीं भेजा जाता।</string>
+    <string name="profile_model_note">प्रदाता खाते और API कुंजियाँ आपके कंप्यूटर पर ही रहती हैं। डिफ़ॉल्ट में मॉडल खुद चुनता है।</string>
     <string name="profile_reply_style">उत्तर की शैली</string>
     <string name="profile_reply_default">डिफ़ॉल्ट</string>
     <string name="profile_reply_conversational">बातचीत जैसी</string>

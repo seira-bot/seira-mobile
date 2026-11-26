@@ -31,7 +31,7 @@
     <plurals name="profile_apps_tools">
         <item quantity="other">%1$d công cụ</item>
     </plurals>
-    <string name="profile_model_note">Tài khoản nhà cung cấp và khóa API ở lại trên máy tính của bạn. Mặc định không gửi mức suy luận.</string>
+    <string name="profile_model_note">Tài khoản nhà cung cấp và khóa API ở lại trên máy tính của bạn. Mặc định để mô hình tự chọn.</string>
     <string name="profile_reply_style">Phong cách trả lời</string>
     <string name="profile_reply_default">Mặc định</string>
     <string name="profile_reply_conversational">Hội thoại</string>

@@ -32,7 +32,7 @@
         <item quantity="one">%1$d ferramenta</item>
         <item quantity="other">%1$d ferramentas</item>
     </plurals>
-    <string name="profile_model_note">Contas de provedor e chaves de API ficam no seu computador. Padrão não envia nível de raciocínio.</string>
+    <string name="profile_model_note">Contas de provedor e chaves de API ficam no seu computador. Padrão deixa o modelo escolher.</string>
     <string name="profile_reply_style">Estilo de resposta</string>
     <string name="profile_reply_default">Padrão</string>
     <string name="profile_reply_conversational">Conversacional</string>

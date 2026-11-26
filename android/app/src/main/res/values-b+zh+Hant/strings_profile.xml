@@ -31,7 +31,7 @@
     <plurals name="profile_apps_tools">
         <item quantity="other">%1$d 個工具</item>
     </plurals>
-    <string name="profile_model_note">服務供應商帳號和 API 金鑰保留在你的電腦上。預設不傳送推理等級。</string>
+    <string name="profile_model_note">服務供應商帳號和 API 金鑰保留在你的電腦上。預設由模型自行選擇。</string>
     <string name="profile_reply_style">回覆風格</string>
     <string name="profile_reply_default">預設</string>
     <string name="profile_reply_conversational">對話式</string>

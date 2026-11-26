@@ -37,6 +37,23 @@ class ProfileModelTest {
     private fun row(at: String) = ActivityRow(at = at, threadId = "t", tool = "Bash", label = "Ran", outcome = "ran")
 
     @Test
+    fun `the draft starts from the instructions and reply style the computer sent`() {
+        val draft = ProfileDraft.of(bot().copy(soul = "Be brief.", replyStyle = "conversational"))
+        assertEquals("Be brief.", draft.soul)
+        assertEquals(ReplyStyle.CONVERSATIONAL, draft.replyStyle)
+        assertEquals(ProfileDraft.of(bot()).soul, "")
+    }
+
+    @Test
+    fun `an untouched soul is not sent`() {
+        val base = ProfileDraft.of(bot().copy(soul = "Be brief.", replyStyle = "conversational"))
+        val patch = ProfileDraftRules.patch(base.copy(title = "Lead"), base)
+        assertEquals(BotProfilePatch(title = "Lead"), patch)
+        assertNull(patch.soul)
+        assertNull(patch.replyStyle)
+    }
+
+    @Test
     fun `tab keys round trip and unknown keys fall back to activity`() {
         ProfileTab.entries.forEach { assertEquals(it, ProfileTab.fromKey(it.key)) }
         assertEquals(ProfileTab.ACTIVITY, ProfileTab.fromKey("nope"))

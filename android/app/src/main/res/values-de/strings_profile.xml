@@ -32,7 +32,7 @@
         <item quantity="one">%1$d Tool</item>
         <item quantity="other">%1$d Tools</item>
     </plurals>
-    <string name="profile_model_note">Anbieterkonten und API-Schlüssel bleiben auf deinem Computer. Standard sendet keine Denkstufe.</string>
+    <string name="profile_model_note">Anbieterkonten und API-Schlüssel bleiben auf deinem Computer. Standard überlässt die Wahl dem Modell.</string>
     <string name="profile_reply_style">Antwortstil</string>
     <string name="profile_reply_default">Standard</string>
     <string name="profile_reply_conversational">Gesprächig</string>

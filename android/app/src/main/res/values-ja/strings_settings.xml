@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">5時間の上限</string>
     <string name="ai_usage_window_weekly">週間の上限</string>
     <string name="ai_usage_window_other">その他の上限</string>
-    <string name="ai_usage_window_row">残り%1$d%% · %2$sにリセット</string>
-    <string name="ai_usage_window_row_no_reset">残り%1$d%%</string>
     <string name="ai_usage_paused_until">%1$sまで一時停止中</string>
     <string name="ai_usage_paused">一時停止中</string>
     <string name="ai_usage_near_limit">上限に近づいています</string>

@@ -21,6 +21,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,6 +86,11 @@ internal fun ComputersScreen(
     val connections by session.connections.collectAsState()
     val status by session.status.collectAsState()
     val state by session.state.collectAsState()
+    val aiUsageHiddenFor by session.aiUsageHiddenFor.collectAsState()
+    val showsAiUsage = ComputersRules.showsAiUsage(onOpenAiUsage != null, connection?.id, aiUsageHiddenFor)
+    LaunchedEffect(connection?.id, status, onOpenAiUsage != null) {
+        if (onOpenAiUsage != null && connection != null && status == Session.Status.Live) session.aiUsage()
+    }
     val scope = rememberCoroutineScope()
     val clipboard = LocalClipboard.current
     val haptics = rememberHaptics()
@@ -353,10 +359,10 @@ internal fun ComputersScreen(
                 GroupNote(stringResource(R.string.computers_bot_screens_note))
             }
 
-            if (onOpenAiUsage != null || onOpenConnectedApps != null) {
+            if (showsAiUsage || onOpenConnectedApps != null) {
                 Box(modifier = Modifier.padding(top = 24.dp))
                 GroupCard {
-                    if (onOpenAiUsage != null) {
+                    if (showsAiUsage && onOpenAiUsage != null) {
                         DesignRow(
                             title = stringResource(R.string.ai_usage_title),
                             icon = SeiraIcons.Gauge,
@@ -364,7 +370,7 @@ internal fun ComputersScreen(
                             trailing = { Chevron() },
                         )
                     }
-                    if (onOpenAiUsage != null && onOpenConnectedApps != null) RowDivider(50.dp)
+                    if (showsAiUsage && onOpenConnectedApps != null) RowDivider(50.dp)
                     if (onOpenConnectedApps != null) {
                         DesignRow(
                             title = stringResource(R.string.settings_connected_apps),

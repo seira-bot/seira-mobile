@@ -222,7 +222,6 @@ private fun UsageRowView(row: UsageRow, now: Instant, zone: ZoneId, locale: Loca
     }
 }
 
-/** What is left of a window, as a rounded bar. */
 @Composable
 private fun UsageBar(left: Int, color: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier) {
     val track = Seira.colors.hairline
