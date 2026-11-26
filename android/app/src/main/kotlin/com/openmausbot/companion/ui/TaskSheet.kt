@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -44,6 +45,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraType
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.BotTask
 import com.openmausbot.companion.core.Chat
@@ -160,9 +163,10 @@ fun TaskSheet(
         properties = DialogProperties(usePlatformDefaultWidth = true),
     ) {
         Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
+            shape = RoundedCornerShape(28.dp),
+            color = Seira.colors.sheet,
+            contentColor = Seira.colors.ink,
+            tonalElevation = 0.dp,
         ) {
             Column(modifier = Modifier.padding(vertical = 16.dp)) {
                 Row(
@@ -173,8 +177,8 @@ fun TaskSheet(
                 ) {
                     Text(
                         text = stringResource(R.string.mobile_current_name_s_threads_d34c7ce0, current.name),
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        style = SeiraType.title3,
+                        color = Seira.colors.ink,
                         modifier = Modifier.weight(1f),
                     )
                     Icon(

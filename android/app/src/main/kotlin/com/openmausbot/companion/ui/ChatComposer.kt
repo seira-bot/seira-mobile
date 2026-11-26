@@ -14,6 +14,10 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.windowInsetsPadding
 import com.openmausbot.companion.ui.chat.ReplyStrip
+import com.openmausbot.companion.ui.chat.composer.ComposerChipRow
+import com.openmausbot.companion.ui.chat.composer.ComposerRound
+import com.openmausbot.companion.ui.chat.composer.RoundButton
+import com.openmausbot.companion.core.ApprovalMode
 import com.openmausbot.companion.ui.chat.ReplyTarget
 import com.openmausbot.companion.ui.theme.ControlCircleButton
 import com.openmausbot.companion.ui.theme.Seira
@@ -211,7 +215,7 @@ internal fun ChatComposer(
     questionAsker: String?,
     queuedSends: List<QueuedSend>,
     steering: Boolean,
-    onSteer: (() -> Unit)?,
+    onSteer: ((QueuedSend) -> Unit)?,
     onCancelQueued: (QueuedSend) -> Unit,
     onEditQueued: (QueuedSend) -> Unit,
     openingFileName: String?,
@@ -228,6 +232,11 @@ internal fun ChatComposer(
     onCall: () -> Unit = {},
     reply: ReplyTarget? = null,
     onClearReply: () -> Unit = {},
+    isGroup: Boolean = false,
+    showMode: Boolean = false,
+    mode: ApprovalMode? = null,
+    onMode: () -> Unit = {},
+    goal: String? = null,
 ) {
     val colors = Seira.colors
     val canSend = AttachmentImportRules.canSend(draft, attachments.size, preparing, sending)
@@ -307,7 +316,7 @@ internal fun ChatComposer(
         queuedSends.forEach { queued ->
             QueuedSendRow(
                 send = queued,
-                onSteer = onSteer,
+                onSteer = onSteer?.let { steer -> { steer(queued) } },
                 steering = steering,
                 onEdit = { onEditQueued(queued) },
                 onCancel = { onCancelQueued(queued) },
@@ -332,25 +341,27 @@ internal fun ChatComposer(
             }
         }
         if (reply != null) ReplyStrip(target = reply, onClose = onClearReply)
-        // One or the other, never both: the HUD is what the composer is doing
-        // right now, and a row of send-immediately chips under it would be a
-        // second thing to tap by accident.
-        when (accessory) {
-            ComposerAccessory.HUD -> CommandSkillHud(
+        if (accessory == ComposerAccessory.HUD) {
+            CommandSkillHud(
                 commands = commands,
                 draft = draft,
                 onSelect = onSelectCommand,
                 onClose = onCloseHud,
             )
-
-            ComposerAccessory.CHIPS -> PredictiveChipsRow(chips = chips, onSelect = onSelectChip)
-
-            ComposerAccessory.NONE -> Unit
+        } else {
+            ComposerChipRow(
+                showMode = showMode,
+                mode = mode,
+                onMode = onMode,
+                goal = goal,
+                chips = if (accessory == ComposerAccessory.CHIPS) chips else emptyList(),
+                onSelectChip = onSelectChip,
+            )
         }
 
         val showSlash = draft.isEmpty() || accessory == ComposerAccessory.HUD
         val hint = if (!busy && questionAsker == null && !sending && !dictationListening) {
-            stringResource(R.string.chat_composer_hint, name)
+            if (isGroup) stringResource(R.string.composer_hint_group) else stringResource(R.string.chat_composer_hint, name)
         } else {
             localizedMobileCopy(ComposerPromise.placeholder(
                 name = name,
@@ -452,24 +463,7 @@ internal fun ChatComposer(
                 }
             }
 
-            // Stop sits in the bar while the turn runs, in the mic's slot. A
-            // dictation already running keeps its mic so it can be stopped.
-            if (stoppable) {
-                TouchTarget(onClick = onStop, contentDescription = stringResource(R.string.mobile_action_stop_turn)) {
-                    Box(
-                        modifier = Modifier.size(32.dp).background(colors.control, CircleShape),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(11.dp)
-                                .background(colors.ink, RoundedCornerShape(2.dp)),
-                        )
-                    }
-                }
-            }
-
-            if (!stoppable || dictationListening) TouchTarget(
+            TouchTarget(
                 onClick = onToggleDictation,
                 contentDescription = stringResource(
                     if (dictationListening) R.string.chat_composer_dictate_stop else R.string.chat_composer_dictate,
@@ -490,30 +484,43 @@ internal fun ChatComposer(
                 }
             }
 
-            // One ink circle with two jobs: Send once there is something to send,
-            // otherwise the live call, when this chat can have one.
-            val talks = !canSend && callAction != ChatCallAction.NONE
+            val round = ComposerRound.of(hasContent = canSend, working = stoppable, callAvailable = callAction != ChatCallAction.NONE)
+            val roundEnabled = ComposerRound.enabled(round, canSend)
             TouchTarget(
-                onClick = if (talks) onCall else onSend,
-                enabled = canSend || talks,
+                onClick = when (round) {
+                    RoundButton.CALL -> onCall
+                    RoundButton.SEND -> onSend
+                    RoundButton.STOP -> onStop
+                },
+                enabled = roundEnabled,
                 contentDescription = when {
-                    talks -> stringResource(R.string.chat_composer_talk, name)
+                    round == RoundButton.CALL -> stringResource(R.string.chat_composer_talk, name)
+                    round == RoundButton.STOP -> stringResource(R.string.mobile_action_stop_turn)
                     questionAsker != null -> stringResource(R.string.mobile_submit_answer_bf80bc31)
                     else -> stringResource(R.string.mobile_send_9bc2575c)
                 },
+                modifier = Modifier.testTag("composer-round-" + round.name.lowercase()),
             ) {
                 Box(
                     modifier = Modifier
                         .size(40.dp)
-                        .background(colors.primary.copy(alpha = if (canSend || talks) 1f else 0.4f), CircleShape),
+                        .background(colors.primary.copy(alpha = if (roundEnabled) 1f else 0.4f), CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
-                    Icon(
-                        imageVector = if (talks) SeiraIcons.AudioLines else Icons.AutoMirrored.Filled.Send,
-                        contentDescription = null,
-                        tint = colors.onPrimary,
-                        modifier = Modifier.size(20.dp),
-                    )
+                    if (round == RoundButton.STOP) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(colors.onPrimary, RoundedCornerShape(2.dp)),
+                        )
+                    } else {
+                        Icon(
+                            imageVector = if (round == RoundButton.CALL) SeiraIcons.AudioLines else Icons.AutoMirrored.Filled.Send,
+                            contentDescription = null,
+                            tint = colors.onPrimary,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }

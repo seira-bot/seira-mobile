@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">समूह को संदेश</string>
+    <string name="composer_mode_title">अनुमोदन</string>
+    <string name="composer_mode_unset">अनुमोदन</string>
+    <string name="composer_mode_chip_a11y">अनुमोदन मोड: %1$s। बदलने के लिए टैप करें।</string>
+    <string name="composer_mode_selected">चुना गया</string>
+    <string name="composer_mode_ask">पूछें</string>
+    <string name="composer_mode_edits">संपादन</string>
+    <string name="composer_mode_auto">ऑटो</string>
+    <string name="composer_mode_full">पूर्ण</string>
+    <string name="composer_mode_custom">कस्टम</string>
+    <string name="composer_mode_ask_sub">कुछ भी बदलने से पहले पूछता है</string>
+    <string name="composer_mode_edits_sub">फ़ाइलें अपने आप संपादित करता है और बाकी सब से पहले पूछता है</string>
+    <string name="composer_mode_auto_sub">अपने आप काम करता है और केवल जोखिम वाले चरणों पर पूछता है</string>
+    <string name="composer_mode_full_sub">कभी नहीं पूछता। कंप्यूटर पर कुछ भी कर सकता है</string>
+    <string name="composer_mode_custom_sub">डेस्कटॉप ऐप में सेट होता है</string>
+    <string name="composer_mode_refused_full">साझा कंपनी वर्कस्पेस में पूर्ण एक्सेस उपलब्ध नहीं है।</string>
+    <string name="composer_mode_refused_leave_custom">कस्टम से बाहर आने के लिए डेस्कटॉप ऐप का उपयोग करें।</string>
+    <string name="composer_mode_refused_custom">कस्टम डेस्कटॉप ऐप में सेट होता है।</string>
+    <string name="composer_mode_refused_owner">इसे केवल मालिक बदल सकता है।</string>
+    <string name="composer_mode_refused_provider">यह बॉट उस स्तर पर काम नहीं कर सकता।</string>
+    <string name="composer_mode_refused_confirming">पिछला बदलाव अभी लागू हो रहा है। थोड़ी देर बाद फिर कोशिश करें।</string>
+    <string name="composer_mode_refused_other">अनुमोदन मोड नहीं बदला जा सका। फिर कोशिश करें।</string>
+    <string name="composer_mode_confirm_title">ऑटो चालू करें?</string>
+    <string name="composer_mode_confirm_body">ऑटो में बॉट इस कंप्यूटर पर अपने आप काम करता है और केवल जोखिम वाले चरणों पर पूछता है।</string>
+    <string name="composer_mode_confirm_yes">ऑटो चालू करें</string>
+    <string name="composer_mode_confirm_no">अभी नहीं</string>
+    <string name="composer_goal_chip">लक्ष्य: %1$s</string>
+    <string name="composer_steer_waiting">यह अभी इस टर्न में शामिल नहीं हो सकता। यह कतार में रहता है।</string>
+    <string name="composer_slash_goal">एक लक्ष्य तय करें और पूरा होने तक काम करने दें</string>
+    <string name="composer_slash_learn">अगली बार के लिए कुछ याद रखने को सहेजें</string>
+    <string name="composer_slash_setup">कोई स्किल या टूल सेट करें</string>
+    <string name="composer_slash_burst">एक साथ कई काम चलाएँ</string>
+    <string name="composer_plus_goal">पूरा होने तक काम करें</string>
+    <string name="composer_plus_goal_sub">इसे लक्ष्य दें और काम जारी रखने दें</string>
+</resources>

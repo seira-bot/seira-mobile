@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">그룹에 메시지 보내기</string>
+    <string name="composer_mode_title">승인</string>
+    <string name="composer_mode_unset">승인</string>
+    <string name="composer_mode_chip_a11y">승인 모드: %1$s. 눌러서 변경하세요.</string>
+    <string name="composer_mode_selected">선택됨</string>
+    <string name="composer_mode_ask">묻기</string>
+    <string name="composer_mode_edits">편집</string>
+    <string name="composer_mode_auto">자동</string>
+    <string name="composer_mode_full">전체</string>
+    <string name="composer_mode_custom">사용자 지정</string>
+    <string name="composer_mode_ask_sub">무언가를 바꾸기 전에 먼저 묻습니다</string>
+    <string name="composer_mode_edits_sub">파일은 스스로 편집하고 그 외에는 먼저 묻습니다</string>
+    <string name="composer_mode_auto_sub">스스로 작업하고 위험한 단계에서만 묻습니다</string>
+    <string name="composer_mode_full_sub">묻지 않습니다. 컴퓨터에서 무엇이든 할 수 있습니다</string>
+    <string name="composer_mode_custom_sub">데스크톱 앱에서 설정합니다</string>
+    <string name="composer_mode_refused_full">공유 회사 작업 공간에서는 전체 접근을 사용할 수 없습니다.</string>
+    <string name="composer_mode_refused_leave_custom">사용자 지정에서 나가려면 데스크톱 앱을 사용하세요.</string>
+    <string name="composer_mode_refused_custom">사용자 지정은 데스크톱 앱에서 설정합니다.</string>
+    <string name="composer_mode_refused_owner">소유자만 변경할 수 있습니다.</string>
+    <string name="composer_mode_refused_provider">이 봇은 해당 수준에서 작업할 수 없습니다.</string>
+    <string name="composer_mode_refused_confirming">이전 변경이 아직 처리 중입니다. 잠시 후 다시 시도하세요.</string>
+    <string name="composer_mode_refused_other">승인 모드를 변경하지 못했습니다. 다시 시도하세요.</string>
+    <string name="composer_mode_confirm_title">자동 모드를 켤까요?</string>
+    <string name="composer_mode_confirm_body">자동 모드에서는 봇이 이 컴퓨터에서 스스로 작업하고 위험한 단계에서만 묻습니다.</string>
+    <string name="composer_mode_confirm_yes">자동 켜기</string>
+    <string name="composer_mode_confirm_no">나중에</string>
+    <string name="composer_goal_chip">목표: %1$s</string>
+    <string name="composer_steer_waiting">아직 이 턴에 참여할 수 없습니다. 대기열에 남아 있습니다.</string>
+    <string name="composer_slash_goal">목표를 정하고 끝날 때까지 작업하게 합니다</string>
+    <string name="composer_slash_learn">다음에 기억할 내용을 저장합니다</string>
+    <string name="composer_slash_setup">스킬이나 도구를 설정합니다</string>
+    <string name="composer_slash_burst">여러 작업을 한 번에 실행합니다</string>
+    <string name="composer_plus_goal">끝날 때까지 작업</string>
+    <string name="composer_plus_goal_sub">목표를 주고 계속 진행하게 합니다</string>
+</resources>

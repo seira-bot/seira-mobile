@@ -83,6 +83,7 @@ import com.openmausbot.companion.core.TypedAnswerResult
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.LocalMessageLink
 import com.openmausbot.companion.core.PendingMessageAttachment
+import com.openmausbot.companion.core.QueuedSend
 import com.openmausbot.companion.core.QuickReplyContext
 import com.openmausbot.companion.core.SuggestedReplies
 import com.openmausbot.companion.core.CompanionState
@@ -113,6 +114,13 @@ import com.openmausbot.companion.ui.chat.LocalFindHighlights
 import com.openmausbot.companion.ui.chat.LocalReplyHandler
 import com.openmausbot.companion.ui.chat.ReplyQuote
 import com.openmausbot.companion.ui.chat.ReplyTarget
+import com.openmausbot.companion.ui.chat.composer.ApprovalModeSheet
+import com.openmausbot.companion.ui.chat.composer.ComposerPlus
+import com.openmausbot.companion.ui.chat.composer.GoalChip
+import com.openmausbot.companion.ui.chat.composer.ModeChip
+import com.openmausbot.companion.ui.chat.composer.QueuedSteering
+import com.openmausbot.companion.ui.chat.composer.SteerOutcome
+import com.openmausbot.companion.core.approvalModeIn
 import com.openmausbot.companion.ui.chat.WorkFold
 import java.util.Locale
 import kotlinx.coroutines.CancellationException
@@ -282,14 +290,6 @@ private fun LoadedChat(
             steering = false
         }
     }
-    val steerNow: (() -> Unit)? = steerTarget?.let { target ->
-        {
-            haptics.play(HapticCue.SELECT)
-            dictation.stop()
-            steering = true
-            scope.launch { session.interrupt(target) }
-        }
-    }
     var showingTasks by remember { mutableStateOf(false) }
     var showingSchedule by remember(chatId) { mutableStateOf(false) }
     var creatingThread by remember(chatId) { mutableStateOf(false) }
@@ -297,6 +297,7 @@ private fun LoadedChat(
     // what was typed into it — the sheet has to come back for that to matter.
     var showingProfile by rememberSaveable { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
+    var showingMode by remember(threadId) { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -309,6 +310,20 @@ private fun LoadedChat(
     var preparingAttachments by attachmentDraft.preparing
     var sendingMessage by attachmentDraft.sending
     var attachmentError by attachmentDraft.error
+    val steerWaitingText = LocalContext.current.resources.getString(R.string.composer_steer_waiting)
+    val steerNow: (QueuedSend) -> Unit = { queued ->
+        haptics.play(HapticCue.SELECT)
+        dictation.stop()
+        steering = true
+        scope.launch {
+            val outcome = try {
+                QueuedSteering.steer(queued, chat, session::steerQueued)
+            } finally {
+                steering = false
+            }
+            if (outcome == SteerOutcome.WAITING) attachmentError = steerWaitingText
+        }
+    }
     // A notification can change owners while the system picker is open.
     // Its result still belongs to the draft that launched it.
     var pickerDraft by remember { mutableStateOf(attachmentDraft) }
@@ -863,6 +878,10 @@ private fun LoadedChat(
             ChatActionId.SHARE_MARKDOWN -> share(scope, environment, threadId, ShareFormat.MARKDOWN)
             ChatActionId.SHARE_JSON -> share(scope, environment, threadId, ShareFormat.JSON)
             ChatActionId.INTERRUPT -> if (bot != null) scope.launch { session.interrupt(bot) }
+            ChatActionId.WORK_UNTIL_DONE -> {
+                composer.onTypedChange("/goal ")
+                publishFrom(composer)
+            }
         }
         Unit
     }
@@ -997,6 +1016,11 @@ private fun LoadedChat(
             }
 
             is SlashEffect.Send -> submit(effect.prompt)
+
+            is SlashEffect.Insert -> {
+                composer.onTypedChange(effect.text)
+                publishFrom(composer)
+            }
         }
         hudOpen = false
     }
@@ -1287,6 +1311,15 @@ private fun LoadedChat(
                 queuedSends = queuedSends,
                 steering = steering,
                 onSteer = steerNow,
+                isGroup = chat is Chat.RoomChat,
+                showMode = ModeChip.visible(chat),
+                mode = bot?.approvalModeIn(threadId),
+                onMode = {
+                    dictation.stop()
+                    focusManager.clearFocus()
+                    showingMode = true
+                },
+                goal = remember(rawTranscript) { GoalChip.text(rawTranscript) },
                 onCancelQueued = { queued ->
                     scope.launch { session.cancelQueued(queued, chat) }
                 },
@@ -1383,13 +1416,12 @@ private fun LoadedChat(
         ChatPlusSheet(
             open = showingPlus,
             chat = chat,
-            actions = remember(chat, pendingApproval, canAddAttachment, hasCamera, callAction) {
-                ChatActions.sheet(
+            actions = remember(chat, pendingApproval, canAddAttachment, hasCamera) {
+                ComposerPlus.actions(
                     chat,
                     hasPendingApproval = pendingApproval,
                     canAddAttachment = canAddAttachment,
                     hasCamera = hasCamera,
-                    offersCall = callAction != ChatCallAction.NONE,
                     offersSchedule = bot != null,
                 )
             },
@@ -1398,6 +1430,14 @@ private fun LoadedChat(
                 showingPlus = false
                 onAction(it)
             },
+        )
+    }
+
+    if (showingMode && bot != null) {
+        ApprovalModeSheet(
+            current = bot.approvalModeIn(threadId),
+            change = { mode, acknowledged -> session.setApprovalMode(bot, threadId, mode, acknowledged) },
+            onDismiss = { showingMode = false },
         )
     }
 

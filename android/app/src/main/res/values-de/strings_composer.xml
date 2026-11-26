@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Nachricht an die Gruppe</string>
+    <string name="composer_mode_title">Freigaben</string>
+    <string name="composer_mode_unset">Freigaben</string>
+    <string name="composer_mode_chip_a11y">Freigabemodus: %1$s. Zum Ändern tippen.</string>
+    <string name="composer_mode_selected">Ausgewählt</string>
+    <string name="composer_mode_ask">Fragen</string>
+    <string name="composer_mode_edits">Bearbeiten</string>
+    <string name="composer_mode_auto">Auto</string>
+    <string name="composer_mode_full">Voll</string>
+    <string name="composer_mode_custom">Benutzerdefiniert</string>
+    <string name="composer_mode_ask_sub">Fragt, bevor etwas geändert wird</string>
+    <string name="composer_mode_edits_sub">Bearbeitet Dateien selbst und fragt vor allem anderen</string>
+    <string name="composer_mode_auto_sub">Arbeitet selbstständig und fragt nur bei riskanten Schritten</string>
+    <string name="composer_mode_full_sub">Fragt nie. Darf alles auf dem Computer tun</string>
+    <string name="composer_mode_custom_sub">In der Desktop-App eingerichtet</string>
+    <string name="composer_mode_refused_full">Voller Zugriff ist in einem gemeinsamen Firmen-Workspace nicht verfügbar.</string>
+    <string name="composer_mode_refused_leave_custom">Um Benutzerdefiniert zu verlassen, nutze die Desktop-App.</string>
+    <string name="composer_mode_refused_custom">Benutzerdefiniert wird in der Desktop-App eingerichtet.</string>
+    <string name="composer_mode_refused_owner">Nur der Inhaber kann das ändern.</string>
+    <string name="composer_mode_refused_provider">Dieser Bot kann nicht auf dieser Stufe arbeiten.</string>
+    <string name="composer_mode_refused_confirming">Die letzte Änderung läuft noch. Versuche es gleich noch einmal.</string>
+    <string name="composer_mode_refused_other">Der Freigabemodus konnte nicht geändert werden. Versuche es noch einmal.</string>
+    <string name="composer_mode_confirm_title">Auto einschalten?</string>
+    <string name="composer_mode_confirm_body">Im Modus Auto arbeitet der Bot selbstständig auf diesem Computer und fragt nur bei riskanten Schritten.</string>
+    <string name="composer_mode_confirm_yes">Auto einschalten</string>
+    <string name="composer_mode_confirm_no">Nicht jetzt</string>
+    <string name="composer_goal_chip">Ziel: %1$s</string>
+    <string name="composer_steer_waiting">Es kann dieser Runde noch nicht beitreten. Es bleibt in der Warteschlange.</string>
+    <string name="composer_slash_goal">Ein Ziel setzen und bis zum Ergebnis arbeiten lassen</string>
+    <string name="composer_slash_learn">Etwas für das nächste Mal merken</string>
+    <string name="composer_slash_setup">Einen Skill oder ein Tool einrichten</string>
+    <string name="composer_slash_burst">Mehrere Aufgaben gleichzeitig starten</string>
+    <string name="composer_plus_goal">Bis zum Ziel arbeiten</string>
+    <string name="composer_plus_goal_sub">Gib ihm ein Ziel und lass es weitermachen</string>
+</resources>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Сообщение группе</string>
+    <string name="composer_mode_title">Согласования</string>
+    <string name="composer_mode_unset">Согласования</string>
+    <string name="composer_mode_chip_a11y">Режим согласования: %1$s. Нажмите, чтобы изменить.</string>
+    <string name="composer_mode_selected">Выбрано</string>
+    <string name="composer_mode_ask">Спрашивать</string>
+    <string name="composer_mode_edits">Правки</string>
+    <string name="composer_mode_auto">Авто</string>
+    <string name="composer_mode_full">Полный</string>
+    <string name="composer_mode_custom">Особый</string>
+    <string name="composer_mode_ask_sub">Спрашивает перед любым изменением</string>
+    <string name="composer_mode_edits_sub">Сам правит файлы и спрашивает обо всём остальном</string>
+    <string name="composer_mode_auto_sub">Работает сам и спрашивает только о рискованных шагах</string>
+    <string name="composer_mode_full_sub">Никогда не спрашивает. Может делать на компьютере всё</string>
+    <string name="composer_mode_custom_sub">Настраивается в приложении для компьютера</string>
+    <string name="composer_mode_refused_full">Полный доступ недоступен в общем рабочем пространстве компании.</string>
+    <string name="composer_mode_refused_leave_custom">Чтобы выйти из режима «Особый», используйте приложение для компьютера.</string>
+    <string name="composer_mode_refused_custom">Режим «Особый» настраивается в приложении для компьютера.</string>
+    <string name="composer_mode_refused_owner">Изменить это может только владелец.</string>
+    <string name="composer_mode_refused_provider">Этот бот не может работать на этом уровне.</string>
+    <string name="composer_mode_refused_confirming">Предыдущее изменение ещё применяется. Повторите через минуту.</string>
+    <string name="composer_mode_refused_other">Не удалось изменить режим согласования. Повторите попытку.</string>
+    <string name="composer_mode_confirm_title">Включить режим «Авто»?</string>
+    <string name="composer_mode_confirm_body">В режиме «Авто» бот работает сам на этом компьютере и спрашивает только о рискованных шагах.</string>
+    <string name="composer_mode_confirm_yes">Включить «Авто»</string>
+    <string name="composer_mode_confirm_no">Не сейчас</string>
+    <string name="composer_goal_chip">Цель: %1$s</string>
+    <string name="composer_steer_waiting">Пока не может присоединиться к этому ходу. Остаётся в очереди.</string>
+    <string name="composer_slash_goal">Задайте цель и пусть бот работает до конца</string>
+    <string name="composer_slash_learn">Сохранить что-то на будущее</string>
+    <string name="composer_slash_setup">Настроить навык или инструмент</string>
+    <string name="composer_slash_burst">Запустить несколько задач сразу</string>
+    <string name="composer_plus_goal">Работать до конца</string>
+    <string name="composer_plus_goal_sub">Дайте цель и пусть продолжает</string>
+</resources>
