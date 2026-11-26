@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">開啟選單</string>
+    <string name="shell_close_menu">關閉選單</string>
+    <string name="shell_menu">選單</string>
+    <string name="shell_tab_inbox">收件匣</string>
+    <string name="shell_tab_automations">自動化</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="other">%1$d 項在等你</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="other">收件匣，%1$d 項在等你</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">所有聊天</string>
+    <string name="shell_drawer_departments">部門</string>
+    <string name="shell_drawer_add_department">新增部門</string>
+    <string name="shell_drawer_team_map">團隊地圖</string>
+    <string name="shell_drawer_department_memory">部門記憶</string>
+    <plurals name="shell_department_row">
+        <item quantity="other">%1$s，%2$d 個機器人</item>
+    </plurals>
+    <string name="shell_bot_profile_title">機器人資料</string>
+    <string name="shell_switch_computer">切換電腦</string>
+</resources>

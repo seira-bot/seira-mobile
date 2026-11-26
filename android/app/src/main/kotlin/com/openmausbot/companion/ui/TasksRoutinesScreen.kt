@@ -81,7 +81,7 @@ import java.util.Locale
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit) {
+internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit, embedded: Boolean = false) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -108,29 +108,47 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
     val receipts = remember(runs) { RoutineRules.receipts(runs) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderBackButton(onBack)
-            Text(
-                text = stringResource(R.string.mobile_threads_routines_65d7efcd),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-            )
-            ChromeButton(
-                icon = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
-                onClick = { editor = RoutineEditorTarget.new() },
-                size = 36.dp,
-                glyph = 18.dp,
-            )
+        if (embedded) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ChromeButton(
+                    icon = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
+                    onClick = { editor = RoutineEditorTarget.new() },
+                    size = 36.dp,
+                    glyph = 18.dp,
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HeaderBackButton(onBack)
+                Text(
+                    text = stringResource(R.string.mobile_threads_routines_65d7efcd),
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                )
+                ChromeButton(
+                    icon = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
+                    onClick = { editor = RoutineEditorTarget.new() },
+                    size = 36.dp,
+                    glyph = 18.dp,
+                )
+            }
+            HorizontalDivider()
         }
-        HorizontalDivider()
 
         PullToRefreshBox(
             isRefreshing = refreshing,

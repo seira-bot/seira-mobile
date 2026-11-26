@@ -114,13 +114,35 @@ object SeiraIcons {
     )
 
     val BarChart = strokeIcon("BarChart", "M5 20V11 M12 20V4 M19 20v-6")
+    val Menu = strokeIcon("Menu", "M4 7h16 M4 12h16 M4 17h16")
+    val MessageCircle = strokeIcon("MessageCircle", "M21 11.5a8.4 8.4 0 0 1-12.4 7.4L3.5 20.5l1.6-4.6A8.4 8.4 0 1 1 21 11.5Z")
+    val Inbox = strokeIcon("Inbox", "M3.5 13H8l1.5 3h5l1.5-3h4.5 M5.5 5h13l2.5 8v5.5H3V13Z")
+    val Clock = strokeIcon("Clock", "M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z", "M12 7.5V12l3 2")
+    val Users = strokeIcon(
+        "Users",
+        "M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z",
+        "M3 20a6 6 0 0 1 12 0 M16 4.5a3.5 3.5 0 0 1 0 6.5 M18 14.5a6 6 0 0 1 3 5.5",
+    )
+    val Network = strokeIcon("Network", "M9 4h6v5H9Z M3 15h6v5H3Z M15 15h6v5h-6Z M12 9v3 M6 15v-3h12v3")
+    val BookMarked = strokeIcon("BookMarked", "M5 4h10a4 4 0 0 1 4 4v12H9a4 4 0 0 1-4-4Z", "M5 16a4 4 0 0 1 4-4h10")
+    val Calendar = strokeIcon("Calendar", "M4 6h16v14H4Z M4 10h16 M8 3v5 M16 3v5")
+    val Sliders = strokeIcon("Sliders", "M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4")
+    val Plug = strokeIcon("Plug", "M9 3v5 M15 3v5 M6 8h12v3a6 6 0 0 1-12 0Z M12 17v4")
+    val Gauge = strokeIcon("Gauge", "M4.5 17a8.5 8.5 0 1 1 15 0", "M12 15l4-5")
+    val MoreHorizontal = strokeIcon(
+        "MoreHorizontal",
+        "M6 11.2a.8.8 0 1 0 0 1.6.8.8 0 1 0 0-1.6Z",
+        "M12 11.2a.8.8 0 1 0 0 1.6.8.8 0 1 0 0-1.6Z",
+        "M18 11.2a.8.8 0 1 0 0 1.6.8.8 0 1 0 0-1.6Z",
+    )
 
     val all: List<ImageVector> by lazy {
         listOf(
             AudioLines, PenSquare, Search, Plus, X, ChevronLeft, ChevronRight, ChevronDown,
             Phone, PhoneOff, Mic, MicOff, Volume2, Captions, Camera, Image, File, CalendarClock,
             Monitor, Flashlight, FlashlightOff, Check, Sun, Moon, Smartphone, User, LogOut,
-            Bell, Shield, Download, Laptop, BarChart,
+            Bell, Shield, Download, Laptop, BarChart, Menu, MessageCircle, Inbox, Clock, Users, Network,
+            BookMarked, Calendar, Sliders, Plug, Gauge, MoreHorizontal,
         )
     }
 }

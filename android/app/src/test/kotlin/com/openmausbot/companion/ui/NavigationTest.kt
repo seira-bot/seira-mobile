@@ -245,6 +245,87 @@ class NavigationTest {
     fun `an empty restore still lands on the roster`() {
         assertEquals(listOf(Destination.Roster), CompanionNavigator(emptyList()).stack)
     }
+
+    @Test
+    fun `the new destinations survive a save and restore`() {
+        val stack = listOf(
+            Destination.Roster,
+            Destination.Search,
+            Destination.Computers,
+            Destination.TeamMap,
+            Destination.TeamMemory,
+            Destination.BotProfile("bot:with:colons", "activity"),
+        )
+        assertEquals(stack, CompanionNavigator.decode(CompanionNavigator.encode(stack)))
+    }
+
+    @Test
+    fun `a bot profile opens on the activity tab by default`() {
+        assertEquals(BotProfileTabs.ACTIVITY, Destination.BotProfile("b1").tab)
+    }
+
+    @Test
+    fun `the home tab and the department filter survive a save and restore`() {
+        val navigator = CompanionNavigator()
+        navigator.showChats("Sales")
+        navigator.selectTab(HomeTab.Inbox)
+        navigator.push(Destination.Search)
+
+        val restored = requireNotNull(
+            CompanionNavigator.restoreForGeneration(
+                CompanionNavigator.encodeWithBond(navigator.stack, 3, navigator.homeTab, navigator.sectionFilter),
+                expectedGeneration = 3,
+            ),
+        )
+        assertEquals(HomeTab.Inbox, restored.homeTab)
+        assertEquals("Sales", restored.sectionFilter)
+        assertEquals(navigator.stack, restored.stack)
+    }
+
+    @Test
+    fun `a department named like a saved entry is read back as a department`() {
+        val saved = CompanionNavigator.encodeWithBond(
+            listOf(Destination.Roster),
+            bondGeneration = 0,
+            sectionFilter = "settings",
+        )
+        val restored = requireNotNull(CompanionNavigator.restoreForGeneration(saved, 0))
+        assertEquals("settings", restored.sectionFilter)
+        assertEquals(listOf(Destination.Roster), restored.stack)
+    }
+
+    @Test
+    fun `a save from before the tabs existed restores on the chats tab`() {
+        val restored = requireNotNull(
+            CompanionNavigator.restoreForGeneration(listOf("bond:2", "roster", "settings"), 2),
+        )
+        assertEquals(HomeTab.Chats, restored.homeTab)
+        assertNull(restored.sectionFilter)
+        assertEquals(listOf(Destination.Roster, Destination.Settings), restored.stack)
+    }
+
+    @Test
+    fun `selecting a tab keeps the department and showing chats replaces it`() {
+        val navigator = CompanionNavigator()
+        navigator.showChats("Sales")
+        navigator.selectTab(HomeTab.Automations)
+        assertEquals("Sales", navigator.sectionFilter)
+        navigator.showChats(null)
+        assertEquals(HomeTab.Chats, navigator.homeTab)
+        assertNull(navigator.sectionFilter)
+    }
+
+    @Test
+    fun `going back to the roster resets the tab and the filter`() {
+        val navigator = CompanionNavigator()
+        navigator.showChats("Sales")
+        navigator.selectTab(HomeTab.Inbox)
+        navigator.push(Destination.Settings)
+        navigator.resetToRoster()
+        assertEquals(listOf(Destination.Roster), navigator.stack)
+        assertEquals(HomeTab.Chats, navigator.homeTab)
+        assertNull(navigator.sectionFilter)
+    }
 }
 
 /**

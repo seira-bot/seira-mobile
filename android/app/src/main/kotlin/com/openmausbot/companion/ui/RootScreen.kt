@@ -11,6 +11,12 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
+import com.openmausbot.companion.ui.computers.ComputersScreen
+import com.openmausbot.companion.ui.home.HomeShell
+import com.openmausbot.companion.ui.profile.BotProfileScreen
+import com.openmausbot.companion.ui.search.SearchScreen
+import com.openmausbot.companion.ui.team.TeamMapScreen
+import com.openmausbot.companion.ui.team.TeamMemoryScreen
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraMotion
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
@@ -433,7 +439,12 @@ private fun PairedScreen(
                 },
         ) {
             when (val destination = navigator.current) {
-                Destination.Roster -> RosterScreen(navigator)
+                Destination.Roster -> HomeShell(navigator)
+                Destination.Search -> SearchScreen(onBack = navigator::pop)
+                Destination.Computers -> ComputersScreen(onBack = navigator::pop)
+                is Destination.BotProfile -> BotProfileScreen(destination.botId, destination.tab, navigator::pop)
+                Destination.TeamMap -> TeamMapScreen(onBack = navigator::pop)
+                Destination.TeamMemory -> TeamMemoryScreen(onBack = navigator::pop)
                 Destination.Settings -> SettingsScreen(
                     onBack = navigator::pop,
                     onOpenRoutines = { navigator.push(Destination.Routines) },

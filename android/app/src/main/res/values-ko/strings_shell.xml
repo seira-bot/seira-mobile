@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">메뉴 열기</string>
+    <string name="shell_close_menu">메뉴 닫기</string>
+    <string name="shell_menu">메뉴</string>
+    <string name="shell_tab_inbox">받은 편지함</string>
+    <string name="shell_tab_automations">자동화</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="other">%1$d건이 기다리고 있습니다</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="other">받은 편지함, %1$d건이 기다리고 있습니다</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">모든 채팅</string>
+    <string name="shell_drawer_departments">부서</string>
+    <string name="shell_drawer_add_department">부서 추가</string>
+    <string name="shell_drawer_team_map">팀 맵</string>
+    <string name="shell_drawer_department_memory">부서 메모리</string>
+    <plurals name="shell_department_row">
+        <item quantity="other">%1$s, 봇 %2$d개</item>
+    </plurals>
+    <string name="shell_bot_profile_title">봇 프로필</string>
+    <string name="shell_switch_computer">컴퓨터 전환</string>
+</resources>

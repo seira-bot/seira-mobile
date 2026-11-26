@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">Menü öffnen</string>
+    <string name="shell_close_menu">Menü schließen</string>
+    <string name="shell_menu">Menü</string>
+    <string name="shell_tab_inbox">Eingang</string>
+    <string name="shell_tab_automations">Automatisierungen</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d wartet auf dich</item>
+        <item quantity="other">%1$d warten auf dich</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">Eingang, %1$d wartet auf dich</item>
+        <item quantity="other">Eingang, %1$d warten auf dich</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">Alle Chats</string>
+    <string name="shell_drawer_departments">Abteilungen</string>
+    <string name="shell_drawer_add_department">Abteilung hinzufügen</string>
+    <string name="shell_drawer_team_map">Team-Karte</string>
+    <string name="shell_drawer_department_memory">Abteilungsgedächtnis</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d Bot</item>
+        <item quantity="other">%1$s, %2$d Bots</item>
+    </plurals>
+    <string name="shell_bot_profile_title">Bot-Profil</string>
+    <string name="shell_switch_computer">Computer wechseln</string>
+</resources>

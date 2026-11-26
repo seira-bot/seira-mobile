@@ -11,6 +11,9 @@ import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ChatTarget
 import com.openmausbot.companion.core.target
 
+/** The three pages of the home screen, in the order of the bottom bar. */
+enum class HomeTab { Chats, Inbox, Automations }
+
 /**
  * Where the app can be. Five places, one stack, no dependency.
  *
@@ -40,6 +43,21 @@ sealed interface Destination {
 
     /** Settings → Workspace → AI usage. */
     data object AiUsage : Destination
+
+    /** Search across chats, bots and routines. */
+    data object Search : Destination
+
+    /** The paired computers, with the current one first. */
+    data object Computers : Destination
+
+    /** The team map: who works with whom. */
+    data object TeamMap : Destination
+
+    /** What the team remembers, by department. */
+    data object TeamMemory : Destination
+
+    /** A bot's profile page, opened on [tab]. Addressed by bot id for the same reason as [Computer]. */
+    data class BotProfile(val botId: String, val tab: String = BotProfileTabs.ACTIVITY) : Destination
 
     /** A bot's computer, watch-only. Addressed by bot id for the same reason. */
     data class Computer(val botId: String) : Destination
@@ -71,10 +89,44 @@ sealed interface Destination {
     data class Thread(val threadId: String) : Conversation
 }
 
+/** Names of the tabs of [Destination.BotProfile]. */
+object BotProfileTabs {
+    const val ACTIVITY = "activity"
+}
+
+/**
+ * The stack of destinations, plus the two choices the home screen keeps while a
+ * chat is pushed above it: the selected [HomeTab] and the department filter of
+ * the Chats tab. They live here, not in the home composable, because the roster
+ * leaves composition when a chat opens and a local state would be lost.
+ */
 @Stable
-class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)) {
+class CompanionNavigator(
+    initial: List<Destination> = listOf(Destination.Roster),
+    homeTab: HomeTab = HomeTab.Chats,
+    sectionFilter: String? = null,
+) {
     var stack: List<Destination> by mutableStateOf(initial.ifEmpty { listOf(Destination.Roster) })
         private set
+
+    /** The page of the home screen that is selected. */
+    var homeTab: HomeTab by mutableStateOf(homeTab)
+        private set
+
+    /** The department the Chats tab shows alone, or null for all chats. */
+    var sectionFilter: String? by mutableStateOf(sectionFilter)
+        private set
+
+    /** Select [tab]. The department filter stays as it was. */
+    fun selectTab(tab: HomeTab) {
+        homeTab = tab
+    }
+
+    /** Show the Chats tab, limited to the department [section] or, with null, all chats. */
+    fun showChats(section: String? = null) {
+        homeTab = HomeTab.Chats
+        sectionFilter = section
+    }
 
     val current: Destination get() = stack.last()
     val canGoBack: Boolean get() = stack.size > 1
@@ -113,6 +165,8 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
 
     fun resetToRoster() {
         stack = listOf(Destination.Roster)
+        homeTab = HomeTab.Chats
+        sectionFilter = null
     }
 
     /** A notification tap lands on the thread, with the roster behind it. */
@@ -152,6 +206,13 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
         private const val CALENDAR = "calendar"
         private const val CONNECTED_APPS = "connected-apps"
         private const val AI_USAGE = "ai-usage"
+        private const val SEARCH = "search"
+        private const val COMPUTERS = "computers"
+        private const val TEAM_MAP = "team-map"
+        private const val TEAM_MEMORY = "team-memory"
+        private const val BOT_PROFILE = "botprofile:"
+        private const val TAB = "tab:"
+        private const val SECTION = "section:"
         private const val THREAD = "thread:"
         private const val COMPUTER = "computer:"
         private const val BROWSER = "browser:"
@@ -167,6 +228,11 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
                 Destination.Calendar -> CALENDAR
                 Destination.ConnectedApps -> CONNECTED_APPS
                 Destination.AiUsage -> AI_USAGE
+                Destination.Search -> SEARCH
+                Destination.Computers -> COMPUTERS
+                Destination.TeamMap -> TEAM_MAP
+                Destination.TeamMemory -> TEAM_MEMORY
+                is Destination.BotProfile -> BOT_PROFILE + join(it.botId, it.tab)
                 is Destination.Thread -> THREAD + it.threadId
                 is Destination.Computer -> COMPUTER + it.botId
                 is Destination.Browser -> BROWSER + it.botId
@@ -186,6 +252,12 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
                 it == CALENDAR -> Destination.Calendar
                 it == CONNECTED_APPS -> Destination.ConnectedApps
                 it == AI_USAGE -> Destination.AiUsage
+                it == SEARCH -> Destination.Search
+                it == COMPUTERS -> Destination.Computers
+                it == TEAM_MAP -> Destination.TeamMap
+                it == TEAM_MEMORY -> Destination.TeamMemory
+                it.startsWith(BOT_PROFILE) -> split(it.removePrefix(BOT_PROFILE))
+                    ?.let { (owner, tab) -> Destination.BotProfile(owner, tab) }
                 it.startsWith(THREAD) -> Destination.Thread(it.removePrefix(THREAD))
                 it.startsWith(COMPUTER) -> Destination.Computer(it.removePrefix(COMPUTER))
                 it.startsWith(BROWSER) -> Destination.Browser(it.removePrefix(BROWSER))
@@ -230,7 +302,7 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
          * [rememberSaveable] runs its init and the next bond starts on roster.
          */
         fun saver(bondGeneration: Int): Saver<CompanionNavigator, List<String>> = Saver(
-            save = { listOf(BOND_MARKER + bondGeneration) + encode(it.stack) },
+            save = { encodeWithBond(it.stack, bondGeneration, it.homeTab, it.sectionFilter) },
             restore = { restoreForGeneration(it, bondGeneration) },
         )
 
@@ -243,12 +315,28 @@ class CompanionNavigator(initial: List<Destination> = listOf(Destination.Roster)
             if (!header.startsWith(BOND_MARKER)) return null
             val saved = header.removePrefix(BOND_MARKER).toIntOrNull() ?: return null
             if (saved != expectedGeneration) return null
-            return CompanionNavigator(decode(raw.drop(1)))
+            val rest = raw.drop(1)
+            val tab = rest.firstOrNull { it.startsWith(TAB) }
+                ?.removePrefix(TAB)
+                ?.let { name -> HomeTab.entries.firstOrNull { it.name == name } }
+                ?: HomeTab.Chats
+            val section = rest.firstOrNull { it.startsWith(SECTION) }?.removePrefix(SECTION)
+            return CompanionNavigator(decode(rest), tab, section)
         }
 
-        /** Encode a stack together with the bond generation that owns it. */
-        fun encodeWithBond(stack: List<Destination>, bondGeneration: Int): List<String> =
-            listOf(BOND_MARKER + bondGeneration) + encode(stack)
+        /**
+         * Encode a stack together with the bond generation that owns it, and
+         * the home tab and department filter that go with it.
+         */
+        fun encodeWithBond(
+            stack: List<Destination>,
+            bondGeneration: Int,
+            homeTab: HomeTab = HomeTab.Chats,
+            sectionFilter: String? = null,
+        ): List<String> =
+            listOf(BOND_MARKER + bondGeneration, TAB + homeTab.name) +
+                listOfNotNull(sectionFilter?.let { SECTION + it }) +
+                encode(stack)
     }
 }
 
