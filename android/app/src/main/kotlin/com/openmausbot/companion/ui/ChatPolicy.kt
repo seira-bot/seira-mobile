@@ -17,6 +17,7 @@ import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.chat
 import com.openmausbot.companion.core.TranscriptRow
 import com.openmausbot.companion.core.webhookContent
+import com.openmausbot.companion.ui.chat.composer.ComposerCommands
 
 /**
  * The decisions the chat and roster screens make that are worth testing without
@@ -198,7 +199,7 @@ object SearchPolicy {
  */
 enum class ChatActionId {
     PHOTOS, FILES, NEW_TASK, TASKS, WATCH_COMPUTER, SETTINGS, SHARE_MARKDOWN, SHARE_JSON, INTERRUPT,
-    CAMERA, LIVE_CALL, SCHEDULE,
+    CAMERA, LIVE_CALL, SCHEDULE, WORK_UNTIL_DONE,
 }
 
 data class ChatAction(
@@ -552,7 +553,7 @@ object Reactions {
 }
 
 /** The five commands, by what selecting one does rather than by its label. */
-enum class SlashCommandId { COMPUTER, TASKS, DIFF, RETRY, STEER }
+enum class SlashCommandId { COMPUTER, TASKS, DIFF, RETRY, STEER, GOAL, LEARN, SETUP, BURST }
 
 /**
  * What a command *is*, which is not always a message.
@@ -570,6 +571,9 @@ sealed interface SlashEffect {
 
     /** Sent immediately, exactly as typing it would have been. */
     data class Send(val prompt: String) : SlashEffect
+
+    /** Written into the field for the person to finish. It goes out as message text when they send it. */
+    data class Insert(val text: String) : SlashEffect
 }
 
 data class SlashCommand(
@@ -622,6 +626,10 @@ object SlashCommands {
             description = "Steer and redirect active execution",
             effect = SlashEffect.Send("Pause and explain your current plan"),
         ),
+        ComposerCommands.GOAL,
+        ComposerCommands.LEARN,
+        ComposerCommands.SETUP,
+        ComposerCommands.BURST,
     )
 
     /** What is left once the computer-only shortcut is gone. */
@@ -646,7 +654,7 @@ object SlashCommands {
      * Typing a `/` is the other way in — and typing anything else is the way
      * out, which is why this is the whole answer and not just "should it open".
      */
-    fun opensOnDraft(draft: String): Boolean = draft.startsWith("/")
+    fun opensOnDraft(draft: String): Boolean = draft.startsWith("/") && draft.none { it.isWhitespace() }
 
     /**
      * The HUD state a chat opens with, given the draft it opens with.
@@ -729,7 +737,7 @@ object ComposerAccessories {
      * approval buries the question the screen exists to ask, and offering one
      * under a failure reads as if the turn had worked.
      *
-     * [hasQuickReplies] carries no default for the same reason [PredictiveChipsRow]
+     * [hasQuickReplies] carries no default for the same reason the chip row
      * no longer does: the reader can empty the row, and a call site that forgot
      * to say so would put chips back over an emptied composer.
      */

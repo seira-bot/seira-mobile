@@ -21,7 +21,7 @@ import kotlin.test.assertTrue
  */
 class SlashCommandsTest {
     @Test
-    fun `the five commands, in the order the HUD lists them`() {
+    fun `the nine commands, in the order the HUD lists them`() {
         assertEquals(
             listOf(
                 SlashCommandId.COMPUTER,
@@ -29,11 +29,15 @@ class SlashCommandsTest {
                 SlashCommandId.DIFF,
                 SlashCommandId.RETRY,
                 SlashCommandId.STEER,
+                SlashCommandId.GOAL,
+                SlashCommandId.LEARN,
+                SlashCommandId.SETUP,
+                SlashCommandId.BURST,
             ),
             SlashCommands.ALL.map { it.id },
         )
         assertEquals(
-            listOf("/computer", "/threads", "/diff", "/retry", "/steer"),
+            listOf("/computer", "/threads", "/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
             SlashCommands.ALL.map { it.title },
         )
     }
@@ -58,7 +62,7 @@ class SlashCommandsTest {
     @Test
     fun `a room has no computer and no task list`() {
         assertEquals(
-            listOf("/diff", "/retry", "/steer"),
+            listOf("/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
             SlashCommands.forChat(Chat.RoomChat(room())).map { it.title },
         )
     }
@@ -67,7 +71,7 @@ class SlashCommandsTest {
     fun `a channel with tasks keeps tasks but never computer`() {
         val channel = Chat.RoomChat(room().copy(tasks = listOf(BotTask("task-1", "Plan", 0.0))))
         assertEquals(
-            listOf("/threads", "/diff", "/retry", "/steer"),
+            listOf("/threads", "/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
             SlashCommands.forChat(channel).map { it.title },
         )
     }
@@ -83,13 +87,13 @@ class SlashCommandsTest {
         )
         assertFalse(dm.supportsTasks)
         assertEquals(
-            listOf("/diff", "/retry", "/steer"),
+            listOf("/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
             SlashCommands.forChat(dm).map { it.title },
         )
     }
 
     @Test
-    fun `a bot chat keeps all five`() {
+    fun `a bot chat keeps all nine`() {
         assertEquals(SlashCommands.ALL, SlashCommands.forChat(Chat.BotChat(bot())))
     }
 
@@ -137,6 +141,28 @@ class SlashCommandsTest {
         assertFalse(SlashCommands.opensOnDraft(""))
         assertFalse(SlashCommands.opensOnDraft("hello /diff"))
         assertFalse(SlashCommands.opensOnDraft(" /diff"))
+    }
+
+    @Test
+    fun `goal, learn, setup and burst insert text that goes out as a message`() {
+        listOf("/goal", "/learn", "/setup", "/burst").forEach { title ->
+            val command = SlashCommands.ALL.single { it.title == title }
+            assertEquals(SlashEffect.Insert("$title "), command.effect)
+            assertTrue(command.description.isNotBlank())
+        }
+    }
+
+    @Test
+    fun `the four message commands are in a group chat too`() {
+        val titles = SlashCommands.forChat(Chat.RoomChat(room())).map { it.title }
+        assertTrue(titles.containsAll(listOf("/goal", "/learn", "/setup", "/burst")))
+    }
+
+    @Test
+    fun `a command with its words after it no longer holds the HUD open`() {
+        assertTrue(SlashCommands.opensOnDraft("/goal"))
+        assertFalse(SlashCommands.opensOnDraft("/goal "))
+        assertFalse(SlashCommands.opensOnDraft("/goal ship the report"))
     }
 
     @Test

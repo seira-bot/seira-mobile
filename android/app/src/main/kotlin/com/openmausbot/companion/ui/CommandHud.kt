@@ -160,46 +160,10 @@ private fun localizedSlashCommandDescription(id: SlashCommandId): String = when 
     SlashCommandId.DIFF -> stringResource(R.string.mobile_slash_diff_description)
     SlashCommandId.RETRY -> stringResource(R.string.mobile_slash_retry_description)
     SlashCommandId.STEER -> stringResource(R.string.mobile_slash_steer_description)
-}
-
-/**
- * Four standing prompts under an empty composer, each sent on the tap.
- *
- * `AssistChip` rather than a hand-rolled capsule: it is the Material control for
- * exactly this — a suggested action beside a text field — and it carries the
- * `Role.Button` semantics and the 48 dp touch expansion that a 32 dp pill drawn
- * by hand would not.
- *
- * [chips] carries no default. These are the reader's own quick replies, which the
- * composer always passes; a default of [PredictiveChips.ALL] would let a future
- * call site render the four factory ones instead — silently, and always wrongly.
- */
-@Composable
-fun PredictiveChipsRow(
-    chips: List<PredictiveChip>,
-    onSelect: (PredictiveChip) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .horizontalScroll(rememberScrollState())
-            .padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        chips.forEach { chip ->
-            AssistChip(
-                onClick = { onSelect(chip) },
-                label = { Text(chip.title, fontSize = 13.sp) },
-                leadingIcon = chip.icon?.let { icon ->
-                    { Text(quickReplyGlyph(icon), fontSize = 13.sp) }
-                },
-                border = AssistChipDefaults.assistChipBorder(enabled = true),
-            )
-        }
-        Spacer(Modifier.width(4.dp))
-    }
+    SlashCommandId.GOAL -> stringResource(R.string.composer_slash_goal)
+    SlashCommandId.LEARN -> stringResource(R.string.composer_slash_learn)
+    SlashCommandId.SETUP -> stringResource(R.string.composer_slash_setup)
+    SlashCommandId.BURST -> stringResource(R.string.composer_slash_burst)
 }
 
 /**
@@ -237,4 +201,8 @@ private fun accent(id: SlashCommandId): Color = when (id) {
     SlashCommandId.DIFF -> Color(0xFF22C55E)
     SlashCommandId.RETRY -> Color(0xFFEAB308)
     SlashCommandId.STEER -> Color(0xFFF97316)
+    SlashCommandId.GOAL -> Color(0xFFEC4899)
+    SlashCommandId.LEARN -> Color(0xFF14B8A6)
+    SlashCommandId.SETUP -> Color(0xFF6366F1)
+    SlashCommandId.BURST -> Color(0xFFF43F5E)
 }

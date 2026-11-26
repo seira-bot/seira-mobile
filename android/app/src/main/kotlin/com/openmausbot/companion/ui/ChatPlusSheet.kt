@@ -278,6 +278,7 @@ internal fun chatActionTitle(id: ChatActionId): String = when (id) {
     ChatActionId.SHARE_MARKDOWN -> stringResource(R.string.mobile_share_transcript_004e223a)
     ChatActionId.SHARE_JSON -> stringResource(R.string.mobile_share_as_json_df80c8e6)
     ChatActionId.INTERRUPT -> stringResource(R.string.mobile_interrupt_d5db4549)
+    ChatActionId.WORK_UNTIL_DONE -> stringResource(R.string.composer_plus_goal)
 }
 
 @Composable
@@ -297,6 +298,7 @@ internal fun chatActionSubtitle(id: ChatActionId, chat: Chat): String = when (id
     ChatActionId.SHARE_MARKDOWN -> stringResource(R.string.mobile_action_markdown_transcript)
     ChatActionId.SHARE_JSON -> stringResource(R.string.mobile_action_structured_transcript)
     ChatActionId.INTERRUPT -> stringResource(R.string.mobile_action_stop_turn)
+    ChatActionId.WORK_UNTIL_DONE -> stringResource(R.string.composer_plus_goal_sub)
 }
 
 private fun chatActionIcon(id: ChatActionId): ImageVector = when (id) {
@@ -311,4 +313,5 @@ private fun chatActionIcon(id: ChatActionId): ImageVector = when (id) {
     ChatActionId.SETTINGS -> Icons.Filled.Settings
     ChatActionId.SHARE_MARKDOWN, ChatActionId.SHARE_JSON -> Icons.Filled.Share
     ChatActionId.INTERRUPT -> SeiraIcons.X
+    ChatActionId.WORK_UNTIL_DONE -> SeiraIcons.Clock
 }

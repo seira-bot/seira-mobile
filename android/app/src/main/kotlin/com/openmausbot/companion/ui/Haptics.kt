@@ -151,7 +151,7 @@ object CompanionHaptics {
      * selection. One gesture, one cue.
      */
     fun forCommand(effect: SlashEffect): HapticCue? = when (effect) {
-        is SlashEffect.Send -> null
+        is SlashEffect.Send, is SlashEffect.Insert -> null
         SlashEffect.OpenComputer, SlashEffect.OpenTasks -> HapticCue.SELECT
     }
 }
