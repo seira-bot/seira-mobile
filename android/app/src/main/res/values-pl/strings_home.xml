@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">Dobry wieczór</string>
     <string name="home_greeting_with_name">%1$s, %2$s</string>
     <string name="home_more_options">Więcej opcji</string>
+    <string name="home_add_computer">Dodaj komputer</string>
     <string name="home_talk">Rozmowa</string>
     <string name="home_status_ready">Gotowe</string>
     <string name="home_team">Zespół</string>

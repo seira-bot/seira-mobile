@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">晚安</string>
     <string name="home_greeting_with_name">%1$s，%2$s</string>
     <string name="home_more_options">更多選項</string>
+    <string name="home_add_computer">新增電腦</string>
     <string name="home_talk">通話</string>
     <string name="home_status_ready">待命</string>
     <string name="home_team">團隊</string>
