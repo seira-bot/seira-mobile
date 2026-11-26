@@ -429,6 +429,7 @@ class TactileActionTest {
                 TactileAction.TOGGLE_REACTION to HapticCue.SELECT,
                 TactileAction.CHOOSE_APPROVAL to HapticCue.SELECT,
                 TactileAction.GRANT_APPROVAL to HapticCue.SELECT,
+                TactileAction.SWIPE_THRESHOLD to HapticCue.SELECT,
                 TactileAction.START_NEW_SECTION to HapticCue.SELECT,
                 TactileAction.TOGGLE_ACTIVITY_RUN to HapticCue.SELECT,
                 TactileAction.OPEN_THREAD_CHIP to HapticCue.SELECT,
