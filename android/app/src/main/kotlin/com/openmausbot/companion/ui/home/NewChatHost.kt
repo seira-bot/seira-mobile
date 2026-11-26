@@ -17,6 +17,7 @@ import com.openmausbot.companion.ui.NewChatSheet
 import com.openmausbot.companion.ui.NewGroupSheet
 import com.openmausbot.companion.ui.SectionRules
 import com.openmausbot.companion.ui.TactileAction
+import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import kotlinx.coroutines.launch
 

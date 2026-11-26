@@ -21,7 +21,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -42,6 +41,7 @@ import com.openmausbot.companion.ui.TactileAction
 import com.openmausbot.companion.ui.UpdateKind
 import com.openmausbot.companion.ui.UpdatesSheet
 import com.openmausbot.companion.ui.computerStatusPhrase
+import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraMotion
