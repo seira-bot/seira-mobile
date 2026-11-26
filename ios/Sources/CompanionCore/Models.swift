@@ -617,6 +617,10 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     public var hasMore: Bool?
     /// Set when the host set up an own server for this bot. Only its presence is read.
     public var vpsAlias: String?
+    /// The bot's own instructions. Older computers omit them.
+    public var soul: String?
+    /// `default` or `conversational`. Older computers omit it, and a newer one may add values.
+    public var replyStyle: String?
 
     /// Routine results are ordinary tasks; only their per-run executions are hidden.
     public var visibleTasks: [BotTask] {

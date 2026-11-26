@@ -17700,6 +17700,28 @@
           }
         }
       }
+    },
+    "Updates, a decision is waiting": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Novidades, uma decisão está esperando"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新，有一项决定在等待"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "更新，有一項決定在等待"
+          }
+        }
+      }
     }
   },
   "version": "1.0"
