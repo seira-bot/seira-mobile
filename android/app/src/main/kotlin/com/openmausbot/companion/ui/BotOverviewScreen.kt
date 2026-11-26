@@ -124,7 +124,7 @@ fun BotOverviewScreen(botId: String, onBack: () -> Unit) {
 }
 
 @Composable
-private fun OverviewBody(overview: BotOverview) {
+internal fun OverviewBody(overview: BotOverview) {
     FormSection(header = OverviewRules.WHO) {
         Text(overview.who.name, fontWeight = FontWeight.SemiBold)
         if (overview.who.title.isNotBlank()) {

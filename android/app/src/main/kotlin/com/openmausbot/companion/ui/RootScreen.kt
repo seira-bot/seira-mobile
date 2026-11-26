@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import com.openmausbot.companion.ui.computers.ComputersScreen
 import com.openmausbot.companion.ui.home.HomeShell
 import com.openmausbot.companion.ui.profile.BotProfileScreen
+import com.openmausbot.companion.ui.profile.ProfileTab
 import com.openmausbot.companion.ui.search.SearchScreen
 import com.openmausbot.companion.ui.team.TeamMapScreen
 import com.openmausbot.companion.ui.team.TeamMemoryScreen
@@ -442,8 +443,18 @@ private fun PairedScreen(
                 Destination.Roster -> HomeShell(navigator)
                 Destination.Search -> SearchScreen(onBack = navigator::pop, navigator = navigator)
                 Destination.Computers -> ComputersScreen(onBack = navigator::pop)
-                is Destination.BotProfile -> BotProfileScreen(destination.botId, destination.tab, navigator::pop)
-                Destination.TeamMap -> TeamMapScreen(onBack = navigator::pop)
+                is Destination.BotProfile -> BotProfileScreen(
+                    botId = destination.botId,
+                    tab = destination.tab,
+                    onBack = navigator::pop,
+                    onOpenChat = { navigator.push(Destination.Chat(it)) },
+                    onOpenBrowser = { navigator.push(Destination.Browser(it)) },
+                    onDeleted = navigator::resetToRoster,
+                )
+                Destination.TeamMap -> TeamMapScreen(
+                    onBack = navigator::pop,
+                    onOpenBot = { navigator.push(Destination.BotProfile(it)) },
+                )
                 Destination.TeamMemory -> TeamMemoryScreen(onBack = navigator::pop)
                 Destination.Settings -> SettingsScreen(
                     onBack = navigator::pop,
@@ -489,9 +500,13 @@ private fun PairedScreen(
                     botId = destination.botId,
                     onBack = navigator::pop,
                 )
-                is Destination.Overview -> BotOverviewScreen(
+                is Destination.Overview -> BotProfileScreen(
                     botId = destination.botId,
+                    tab = ProfileTab.SETTINGS.key,
                     onBack = navigator::pop,
+                    onOpenChat = { navigator.push(Destination.Chat(it)) },
+                    onOpenBrowser = { navigator.push(Destination.Browser(it)) },
+                    onDeleted = navigator::resetToRoster,
                 )
             }
         }
