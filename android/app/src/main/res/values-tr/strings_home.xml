@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">İyi akşamlar</string>
     <string name="home_greeting_with_name">%2$s, %1$s</string>
     <string name="home_more_options">Diğer seçenekler</string>
+    <string name="home_add_computer">Bilgisayar ekle</string>
     <string name="home_talk">Konuş</string>
     <string name="home_status_ready">Hazır</string>
     <string name="home_team">Ekip</string>

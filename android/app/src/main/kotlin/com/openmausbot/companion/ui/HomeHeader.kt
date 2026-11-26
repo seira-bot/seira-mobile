@@ -148,6 +148,7 @@ internal fun ChatsHeading(
     modifier: Modifier = Modifier,
     computerName: String? = null,
     onComputer: () -> Unit = {},
+    onAddComputer: () -> Unit = {},
     workspaceName: String? = null,
     onWorkspace: () -> Unit = {},
 ) {
@@ -164,15 +165,28 @@ internal fun ChatsHeading(
             text = stringResource(R.string.home_chats),
             style = SeiraType.headline,
             color = colors.ink,
-            modifier = Modifier
-                .weight(1f)
-                .semantics { heading() },
+            modifier = Modifier.semantics { heading() },
         )
-        if (workspaceName != null) {
-            WorkspaceChip(name = workspaceName, onClick = onWorkspace)
-        }
-        if (computerName != null) {
-            ComputerChip(name = computerName, onClick = onComputer)
+        Row(
+            modifier = Modifier.weight(1f),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (workspaceName != null) {
+                WorkspaceChip(
+                    name = workspaceName,
+                    onClick = onWorkspace,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
+            if (computerName != null) {
+                ComputerPill(
+                    name = computerName,
+                    onComputer = onComputer,
+                    onAdd = onAddComputer,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+            }
         }
         Box {
             TouchTarget(
@@ -216,11 +230,11 @@ internal fun ChatsHeading(
 
 /** The open workspace of the computer; it shows only when the computer lists more than one. */
 @Composable
-private fun WorkspaceChip(name: String, onClick: () -> Unit) {
+private fun WorkspaceChip(name: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = Seira.colors
     val label = stringResource(R.string.workspace_chip_description, name)
     Row(
-        modifier = Modifier
+        modifier = modifier
             .testTag("home-workspace")
             .heightIn(min = MIN_TOUCH_TARGET)
             .widthIn(max = WORKSPACE_CHIP_MAX_WIDTH)
@@ -243,16 +257,51 @@ private fun WorkspaceChip(name: String, onClick: () -> Unit) {
     }
 }
 
+/** The computer chip and the add button as one pill, split by a hairline. */
 @Composable
-private fun ComputerChip(name: String, onClick: () -> Unit) {
+private fun ComputerPill(
+    name: String,
+    onComputer: () -> Unit,
+    onAdd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = Seira.colors
+    val addLabel = stringResource(R.string.home_add_computer)
+    Row(
+        modifier = modifier
+            .padding(start = 4.dp)
+            .clip(RoundedCornerShape(PILL_RADIUS))
+            .background(colors.control),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        ComputerChip(name = name, onClick = onComputer, modifier = Modifier.weight(1f, fill = false))
+        Box(
+            Modifier
+                .size(width = 1.dp, height = 18.dp)
+                .background(colors.hairline),
+        )
+        Box(
+            modifier = Modifier
+                .testTag("home-add-computer")
+                .size(MIN_TOUCH_TARGET)
+                .clickable(role = Role.Button, onClickLabel = addLabel, onClick = onAdd)
+                .semantics { contentDescription = addLabel },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(SeiraIcons.Plus, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(16.dp))
+        }
+    }
+}
+
+@Composable
+private fun ComputerChip(name: String, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val colors = Seira.colors
     val label = stringResource(R.string.home_switch_computer, name)
     Row(
-        modifier = Modifier
+        modifier = modifier
             .testTag("home-computer")
             .heightIn(min = MIN_TOUCH_TARGET)
             .widthIn(max = COMPUTER_CHIP_MAX_WIDTH)
-            .clip(RoundedCornerShape(12.dp))
             .clickable(role = Role.Button, onClickLabel = label, onClick = onClick)
             .semantics(mergeDescendants = true) { contentDescription = label }
             .padding(horizontal = 8.dp, vertical = 4.dp),
@@ -273,7 +322,8 @@ private fun ComputerChip(name: String, onClick: () -> Unit) {
 }
 
 private val PROFILE_CIRCLE = 40.dp
-private val COMPUTER_CHIP_MAX_WIDTH = 180.dp
+private val COMPUTER_CHIP_MAX_WIDTH = 160.dp
+private val PILL_RADIUS = 14.dp
 private val WORKSPACE_CHIP_MAX_WIDTH = 120.dp
 
 /** Three dots in the theme's stroke weight; the theme has no ellipsis of its own. */

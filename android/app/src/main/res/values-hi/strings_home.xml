@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">शुभ संध्या</string>
     <string name="home_greeting_with_name">%1$s, %2$s</string>
     <string name="home_more_options">और विकल्प</string>
+    <string name="home_add_computer">कंप्यूटर जोड़ें</string>
     <string name="home_talk">बात करें</string>
     <string name="home_status_ready">तैयार</string>
     <string name="home_team">टीम</string>

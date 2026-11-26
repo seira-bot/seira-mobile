@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">Добрий вечір</string>
     <string name="home_greeting_with_name">%1$s, %2$s</string>
     <string name="home_more_options">Більше параметрів</string>
+    <string name="home_add_computer">Додати комп’ютер</string>
     <string name="home_talk">Говорити</string>
     <string name="home_status_ready">Готово</string>
     <string name="home_team">Команда</string>
