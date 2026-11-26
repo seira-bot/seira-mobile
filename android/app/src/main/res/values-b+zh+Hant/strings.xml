@@ -672,8 +672,8 @@
     <string name="mobile_file_no_viewer">此手機上沒有可以開啟 %1$s 的 App。</string>
     <string name="mobile_file_share_title">分享 %1$s</string>
     <string name="mobile_file_no_share_app">此手機上沒有可以分享 %1$s 的 App。</string>
-    <string name="mobile_pairing_notice_https">只有在這是你剛掃描 QR 碼的電腦時才繼續。確認後會建立經過驗證的 HTTPS 配套連線。</string>
-    <string name="mobile_pairing_notice_scan">只有在這是你剛掃描 QR 碼的電腦時才繼續。確認後會建立經過驗證的配套連線。請使用可信任的 Wi-Fi 網路或 tailnet；Seira 不會加密本機 Wi-Fi 流量。</string>
+    <string name="mobile_pairing_notice_https">只有在你認得這台電腦時才繼續。</string>
+    <string name="mobile_pairing_notice_scan">只有在你認得這台電腦時才繼續。請使用可信任的 Wi-Fi 網路或 tailnet；Seira 不會加密本機 Wi-Fi 流量。</string>
     <string name="mobile_pairing_enter_code_notice">請輸入電腦上顯示的 6 位數代碼：</string>
     <string name="mobile_pairing_rescan_notice">配對完成前，應用程式已重新啟動。該一次性代碼絕不會重複使用，因為它可能已被兌換。請在電腦上重新開始配對，並掃描新的 QR 碼。</string>
     <string name="mobile_composer_ask_bot">詢問 %1$s</string>

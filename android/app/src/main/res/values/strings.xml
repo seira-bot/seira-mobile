@@ -799,8 +799,8 @@
     <string name="mobile_file_share_title">Share %1$s</string>
     <string name="mobile_file_no_share_app">No app on this phone can share %1$s.</string>
 
-    <string name="mobile_pairing_notice_https">Only continue if this is the computer whose QR code you just scanned. Confirming establishes an authenticated HTTPS companion connection.</string>
-    <string name="mobile_pairing_notice_scan">Only continue if this is the computer whose QR code you just scanned. Confirming establishes an authenticated companion connection. Use a trusted Wi-Fi network or a tailnet; Seira does not encrypt local Wi-Fi traffic.</string>
+    <string name="mobile_pairing_notice_https">Continue only if you know this computer.</string>
+    <string name="mobile_pairing_notice_scan">Continue only if you know this computer. Use a trusted Wi-Fi network or a tailnet; Seira does not encrypt local Wi-Fi traffic.</string>
     <string name="mobile_pairing_enter_code_notice">Enter the 6-digit code shown on your desktop:</string>
     <string name="mobile_pairing_rescan_notice">This app restarted before the pairing finished. That one-time code is never reused, because it may already have been redeemed. Start pairing again on your computer and scan the new QR code.</string>
 

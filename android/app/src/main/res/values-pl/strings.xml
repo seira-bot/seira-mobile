@@ -702,8 +702,8 @@
     <string name="mobile_file_no_viewer">Żadna aplikacja na tym telefonie nie może otworzyć: %1$s.</string>
     <string name="mobile_file_share_title">Udostępnij: %1$s</string>
     <string name="mobile_file_no_share_app">Żadna aplikacja na tym telefonie nie może udostępnić: %1$s.</string>
-    <string name="mobile_pairing_notice_https">Kontynuuj tylko wtedy, gdy to komputer, którego kod QR właśnie zeskanowano. Potwierdzenie ustanawia uwierzytelnione połączenie towarzyszące przez HTTPS.</string>
-    <string name="mobile_pairing_notice_scan">Kontynuuj tylko wtedy, gdy to komputer, którego kod QR właśnie zeskanowano. Potwierdzenie ustanawia uwierzytelnione połączenie towarzyszące. Użyj zaufanej sieci Wi-Fi lub tailnetu; Seira nie szyfruje ruchu w lokalnej sieci Wi-Fi.</string>
+    <string name="mobile_pairing_notice_https">Kontynuuj tylko wtedy, gdy znasz ten komputer.</string>
+    <string name="mobile_pairing_notice_scan">Kontynuuj tylko wtedy, gdy znasz ten komputer. Użyj zaufanej sieci Wi-Fi lub tailnetu; Seira nie szyfruje ruchu w lokalnej sieci Wi-Fi.</string>
     <string name="mobile_pairing_enter_code_notice">Wpisz 6-cyfrowy kod widoczny na komputerze:</string>
     <string name="mobile_pairing_rescan_notice">Aplikacja uruchomiła się ponownie przed zakończeniem parowania. Ten jednorazowy kod nigdy nie jest używany ponownie, ponieważ mógł już zostać wykorzystany. Rozpocznij parowanie od nowa na komputerze i zeskanuj nowy kod QR.</string>
     <string name="mobile_composer_ask_bot">Zapytaj: %1$s</string>

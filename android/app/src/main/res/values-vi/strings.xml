@@ -672,8 +672,8 @@
     <string name="mobile_file_no_viewer">Không có ứng dụng nào trên điện thoại này mở được %1$s.</string>
     <string name="mobile_file_share_title">Chia sẻ %1$s</string>
     <string name="mobile_file_no_share_app">Không có ứng dụng nào trên điện thoại này chia sẻ được %1$s.</string>
-    <string name="mobile_pairing_notice_https">Chỉ tiếp tục nếu đây là máy tính có mã QR bạn vừa quét. Việc xác nhận sẽ thiết lập một kết nối HTTPS đã xác thực giữa điện thoại và máy tính.</string>
-    <string name="mobile_pairing_notice_scan">Chỉ tiếp tục nếu đây là máy tính có mã QR bạn vừa quét. Việc xác nhận sẽ thiết lập một kết nối đã xác thực giữa điện thoại và máy tính. Hãy dùng mạng Wi-Fi đáng tin cậy hoặc tailnet; Seira không mã hóa lưu lượng Wi-Fi cục bộ.</string>
+    <string name="mobile_pairing_notice_https">Chỉ tiếp tục nếu bạn nhận ra máy tính này.</string>
+    <string name="mobile_pairing_notice_scan">Chỉ tiếp tục nếu bạn nhận ra máy tính này. Hãy dùng mạng Wi-Fi đáng tin cậy hoặc tailnet; Seira không mã hóa lưu lượng Wi-Fi cục bộ.</string>
     <string name="mobile_pairing_enter_code_notice">Nhập mã 6 chữ số hiển thị trên máy tính của bạn:</string>
     <string name="mobile_pairing_rescan_notice">Ứng dụng này đã khởi động lại trước khi việc ghép nối hoàn tất. Mã dùng một lần đó sẽ không bao giờ được dùng lại vì có thể đã được sử dụng. Hãy bắt đầu ghép nối lại trên máy tính và quét mã QR mới.</string>
     <string name="mobile_composer_ask_bot">Hỏi %1$s</string>

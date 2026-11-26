@@ -682,8 +682,8 @@
     <string name="mobile_file_no_viewer">इस फ़ोन में ऐसा कोई ऐप नहीं जो %1$s खोल सके।</string>
     <string name="mobile_file_share_title">%1$s साझा करें</string>
     <string name="mobile_file_no_share_app">इस फ़ोन में ऐसा कोई ऐप नहीं जो %1$s साझा कर सके।</string>
-    <string name="mobile_pairing_notice_https">तभी आगे बढ़ें जब यह वही कंप्यूटर हो जिसका QR कोड आपने अभी स्कैन किया है। पुष्टि करने पर प्रमाणित HTTPS साथी कनेक्शन बनता है।</string>
-    <string name="mobile_pairing_notice_scan">तभी आगे बढ़ें जब यह वही कंप्यूटर हो जिसका QR कोड आपने अभी स्कैन किया है। पुष्टि करने पर प्रमाणित साथी कनेक्शन बनता है। भरोसेमंद Wi-Fi नेटवर्क या tailnet इस्तेमाल करें; Seira लोकल Wi-Fi ट्रैफ़िक को एन्क्रिप्ट नहीं करता।</string>
+    <string name="mobile_pairing_notice_https">तभी आगे बढ़ें जब आप इस कंप्यूटर को जानते हों।</string>
+    <string name="mobile_pairing_notice_scan">तभी आगे बढ़ें जब आप इस कंप्यूटर को जानते हों। भरोसेमंद Wi-Fi नेटवर्क या tailnet इस्तेमाल करें; Seira लोकल Wi-Fi ट्रैफ़िक को एन्क्रिप्ट नहीं करता।</string>
     <string name="mobile_pairing_enter_code_notice">अपने डेस्कटॉप पर दिख रहा 6 अंकों का कोड दर्ज करें:</string>
     <string name="mobile_pairing_rescan_notice">जोड़ना पूरा होने से पहले यह ऐप दोबारा शुरू हो गया। वह एक बार चलने वाला कोड दोबारा इस्तेमाल नहीं होता, क्योंकि वह पहले ही इस्तेमाल हो चुका हो सकता है। अपने कंप्यूटर पर जोड़ना फिर से शुरू करें और नया QR कोड स्कैन करें।</string>
     <string name="mobile_composer_ask_bot">%1$s से पूछें</string>

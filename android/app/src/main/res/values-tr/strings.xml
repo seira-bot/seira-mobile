@@ -682,8 +682,8 @@
     <string name="mobile_file_no_viewer">Bu telefonda %1$s dosyasını açabilecek bir uygulama yok.</string>
     <string name="mobile_file_share_title">%1$s dosyasını paylaş</string>
     <string name="mobile_file_no_share_app">Bu telefonda %1$s dosyasını paylaşabilecek bir uygulama yok.</string>
-    <string name="mobile_pairing_notice_https">Yalnızca az önce QR kodunu taradığınız bilgisayarsa devam edin. Onaylamak, kimliği doğrulanmış bir HTTPS eşlik bağlantısı kurar.</string>
-    <string name="mobile_pairing_notice_scan">Yalnızca az önce QR kodunu taradığınız bilgisayarsa devam edin. Onaylamak, kimliği doğrulanmış bir eşlik bağlantısı kurar. Güvenilir bir Wi-Fi ağı ya da tailnet kullanın; Seira yerel Wi-Fi trafiğini şifrelemez.</string>
+    <string name="mobile_pairing_notice_https">Yalnızca bu bilgisayarı tanıyorsanız devam edin.</string>
+    <string name="mobile_pairing_notice_scan">Yalnızca bu bilgisayarı tanıyorsanız devam edin. Güvenilir bir Wi-Fi ağı ya da tailnet kullanın; Seira yerel Wi-Fi trafiğini şifrelemez.</string>
     <string name="mobile_pairing_enter_code_notice">Masaüstünüzde gösterilen 6 haneli kodu girin:</string>
     <string name="mobile_pairing_rescan_notice">Uygulama, eşleme bitmeden yeniden başladı. Bu tek kullanımlık kod, zaten kullanılmış olabileceğinden asla yeniden kullanılmaz. Bilgisayarınızda eşlemeyi yeniden başlatın ve yeni QR kodunu tarayın.</string>
     <string name="mobile_composer_ask_bot">%1$s adlı bota sor</string>
