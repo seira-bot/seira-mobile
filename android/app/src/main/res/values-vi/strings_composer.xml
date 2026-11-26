@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Để sau</string>
     <string name="composer_goal_chip">Mục tiêu: %1$s</string>
     <string name="composer_steer_waiting">Chưa thể tham gia lượt này. Tin nhắn vẫn nằm trong hàng đợi.</string>
+    <string name="composer_steer_failed">Không thể gửi tin nhắn này vào lượt đang chạy. Hãy thử lại.</string>
     <string name="composer_slash_goal">Đặt mục tiêu và để bot làm đến khi xong</string>
-    <string name="composer_slash_learn">Lưu điều cần nhớ cho lần sau</string>
-    <string name="composer_slash_setup">Thiết lập một kỹ năng hoặc công cụ</string>
+    <string name="composer_slash_learn">Soạn thảo một kỹ năng có thể tái sử dụng từ cuộc trò chuyện này</string>
+    <string name="composer_slash_setup">Để bot này phỏng vấn bạn và tự thiết lập</string>
     <string name="composer_slash_burst">Chạy nhiều tác vụ cùng lúc</string>
-    <string name="composer_plus_goal">Làm đến khi xong</string>
-    <string name="composer_plus_goal_sub">Giao mục tiêu và để bot tiếp tục</string>
 </resources>

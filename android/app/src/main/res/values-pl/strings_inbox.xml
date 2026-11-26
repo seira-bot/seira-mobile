@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, ukończona</string>
     <string name="automations_open_results">Otwórz wątek wyników</string>
     <string name="automations_status_failed">Nie udało się</string>
+    <string name="inbox_review_skill_in_chat">Otwórz czat, aby przejrzeć tę umiejętność.</string>
+    <string name="routines_header_footer">Każde uruchomienie używa istniejącego modelu, narzędzi, uprawnień, komputera i połączonych aplikacji agenta. Godziny zależą od lokalnej strefy czasowej sparowanego komputera.</string>
 </resources>

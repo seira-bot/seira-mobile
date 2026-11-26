@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Agora não</string>
     <string name="composer_goal_chip">Meta: %1$s</string>
     <string name="composer_steer_waiting">Ele ainda não pode entrar neste turno. Continua na fila.</string>
+    <string name="composer_steer_failed">Não foi possível enviar esta mensagem para o turno em andamento. Tente de novo.</string>
     <string name="composer_slash_goal">Defina uma meta e deixe trabalhar até terminar</string>
-    <string name="composer_slash_learn">Salve algo para lembrar da próxima vez</string>
-    <string name="composer_slash_setup">Configure uma skill ou uma ferramenta</string>
+    <string name="composer_slash_learn">Rascunhar uma habilidade reutilizável a partir desta conversa</string>
+    <string name="composer_slash_setup">Pedir a este bot que entreviste você e se configure sozinho</string>
     <string name="composer_slash_burst">Execute várias tarefas ao mesmo tempo</string>
-    <string name="composer_plus_goal">Trabalhar até terminar</string>
-    <string name="composer_plus_goal_sub">Dê uma meta e deixe continuar</string>
 </resources>

@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">나중에</string>
     <string name="composer_goal_chip">목표: %1$s</string>
     <string name="composer_steer_waiting">아직 이 턴에 참여할 수 없습니다. 대기열에 남아 있습니다.</string>
+    <string name="composer_steer_failed">이 메시지를 진행 중인 턴에 보내지 못했습니다. 다시 시도하세요.</string>
     <string name="composer_slash_goal">목표를 정하고 끝날 때까지 작업하게 합니다</string>
-    <string name="composer_slash_learn">다음에 기억할 내용을 저장합니다</string>
-    <string name="composer_slash_setup">스킬이나 도구를 설정합니다</string>
+    <string name="composer_slash_learn">이 대화로 재사용할 수 있는 스킬 초안 만들기</string>
+    <string name="composer_slash_setup">이 봇이 인터뷰하고 스스로 설정하게 하기</string>
     <string name="composer_slash_burst">여러 작업을 한 번에 실행합니다</string>
-    <string name="composer_plus_goal">끝날 때까지 작업</string>
-    <string name="composer_plus_goal_sub">목표를 주고 계속 진행하게 합니다</string>
 </resources>

@@ -454,6 +454,11 @@ class CompanionHapticsTest {
     }
 
     @Test
+    fun `a command that fills the field is felt as a selection`() {
+        assertEquals(HapticCue.SELECT, CompanionHaptics.forCommand(SlashEffect.Insert("/learn ")))
+    }
+
+    @Test
     fun `a command that navigates is felt as a selection`() {
         assertEquals(HapticCue.SELECT, CompanionHaptics.forCommand(SlashEffect.OpenComputer))
         assertEquals(HapticCue.SELECT, CompanionHaptics.forCommand(SlashEffect.OpenTasks))
@@ -463,7 +468,10 @@ class CompanionHapticsTest {
     fun `every command in the HUD has an answer`() {
         val cues = SlashCommands.ALL.map { CompanionHaptics.forCommand(it.effect) }
         assertEquals(
-            listOf(HapticCue.SELECT, HapticCue.SELECT, null, null, null),
+            listOf(
+                HapticCue.SELECT, HapticCue.SELECT, null, null, null,
+                HapticCue.SELECT, HapticCue.SELECT, HapticCue.SELECT, HapticCue.SELECT,
+            ),
             cues,
         )
     }

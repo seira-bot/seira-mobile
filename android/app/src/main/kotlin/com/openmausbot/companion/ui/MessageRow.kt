@@ -1305,8 +1305,6 @@ private fun ReceiptChip(label: String, detail: String) {
 fun ActivityRunChip(
     items: List<Message>,
     openThread: ((ThreadRef) -> Unit)? = null,
-    /** Who did the work; kept for callers that still pass it. */
-    bots: List<Bot> = emptyList(),
     startsOpen: Boolean = false,
 ) {
     if (items.isEmpty()) return
@@ -1562,7 +1560,7 @@ private fun CardContent(
             }
             // The buttons are the card's own options, never a string invented
             // here. Session maps the choice to allow/deny/answer.
-            val showsAlways = ApprovalChoices.showsAlwaysAllow(card, chat)
+            val movesAlways = ApprovalButtons.movesAlways(card, chat)
             val buttons = ApprovalButtons.layout(card, chat)
             val optionEnabled: (ApprovalButtonSpec) -> Boolean = { spec ->
                 !answering && (
@@ -1603,7 +1601,7 @@ private fun CardContent(
                 val alwaysAllow = ApprovalChoices.alwaysAllowChoice(card)
                 ApprovalButtonRow(
                     buttons = buttons,
-                    showsAlways = showsAlways && alwaysAllow != null && chat is Chat.BotChat,
+                    showsAlways = movesAlways && alwaysAllow != null && chat is Chat.BotChat,
                     enabledFor = optionEnabled,
                     alwaysEnabled = !answering,
                     onChoose = choose,

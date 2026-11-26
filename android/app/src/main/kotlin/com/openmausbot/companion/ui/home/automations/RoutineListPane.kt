@@ -216,6 +216,7 @@ internal fun RoutineListPane(
         RoutineActionSheet(
             routine = routine,
             runs = runs,
+            pending = pending,
             onRunNow = {
                 scope.launch {
                     session.runRoutine(routine)

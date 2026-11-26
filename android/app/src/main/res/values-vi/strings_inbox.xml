@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, đã hoàn tất</string>
     <string name="automations_open_results">Mở luồng kết quả</string>
     <string name="automations_status_failed">Thất bại</string>
+    <string name="inbox_review_skill_in_chat">Mở cuộc trò chuyện để xem kỹ năng này.</string>
+    <string name="routines_header_footer">Mỗi lần chạy dùng mô hình, công cụ, quyền, máy tính và ứng dụng đã kết nối sẵn có của tác nhân. Giờ tuân theo múi giờ cục bộ của máy tính đã ghép nối.</string>
 </resources>

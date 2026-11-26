@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Şimdi değil</string>
     <string name="composer_goal_chip">Hedef: %1$s</string>
     <string name="composer_steer_waiting">Bu tura henüz katılamıyor. Sırada bekliyor.</string>
+    <string name="composer_steer_failed">Bu mesaj sürmekte olan tura iletilemedi. Tekrar deneyin.</string>
     <string name="composer_slash_goal">Bir hedef belirle ve bitene kadar çalışsın</string>
-    <string name="composer_slash_learn">Bir dahaki sefer için bir şey kaydet</string>
-    <string name="composer_slash_setup">Bir beceri veya araç kur</string>
+    <string name="composer_slash_learn">Bu sohbetten yeniden kullanılabilir bir beceri taslağı oluşturun</string>
+    <string name="composer_slash_setup">Bu botun sizinle mülakat yapmasını ve kendini kurmasını sağlayın</string>
     <string name="composer_slash_burst">Birden çok görevi aynı anda çalıştır</string>
-    <string name="composer_plus_goal">Bitene kadar çalış</string>
-    <string name="composer_plus_goal_sub">Ona bir hedef ver ve devam etsin</string>
 </resources>

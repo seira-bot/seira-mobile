@@ -199,7 +199,7 @@ object SearchPolicy {
  */
 enum class ChatActionId {
     PHOTOS, FILES, NEW_TASK, TASKS, WATCH_COMPUTER, SETTINGS, SHARE_MARKDOWN, SHARE_JSON, INTERRUPT,
-    CAMERA, LIVE_CALL, SCHEDULE, WORK_UNTIL_DONE,
+    CAMERA, LIVE_CALL, SCHEDULE,
 }
 
 data class ChatAction(
@@ -552,7 +552,7 @@ object Reactions {
             .sortedBy { it.emoji }
 }
 
-/** The five commands, by what selecting one does rather than by its label. */
+/** The commands, by what selecting one does rather than by its label. */
 enum class SlashCommandId { COMPUTER, TASKS, DIFF, RETRY, STEER, GOAL, LEARN, SETUP, BURST }
 
 /**
@@ -585,14 +585,25 @@ data class SlashCommand(
 )
 
 /**
+ * What the paired computer and this chat allow of the four message commands.
+ * A gate with no data on the phone stays false, so its command stays hidden.
+ *
+ * [goal]: the phone can send a message as a goal. [learn]: skill authoring is on and an
+ * engine can use it. [agents]: the bot's engine supports /setup and /burst.
+ */
+data class SlashGates(val goal: Boolean = false, val learn: Boolean = false, val agents: Boolean = false) {
+    companion object {
+        val NONE = SlashGates()
+    }
+}
+
+/**
  * The slash-command HUD — the port of `CommandSkillHUDView` in
  * `ios/App/Composer/CommandSkillHUDView.swift` and the composer that drives it.
  *
- * Local, and deliberately so: these five are the phone's own shortcuts into
- * navigation it already has and prompts the bot already understands. There is no
- * skills endpoint behind them and there must not be one — a HUD that had to ask
- * the computer what it could offer would be empty in exactly the situation the
- * shortcuts exist for.
+ * Local, and deliberately so: the first five are the phone's own shortcuts into
+ * navigation it already has and prompts the bot already understands. The four
+ * message commands show only where [SlashGates] allows them.
  */
 object SlashCommands {
     val ALL: List<SlashCommand> = listOf(
@@ -632,22 +643,39 @@ object SlashCommands {
         ComposerCommands.BURST,
     )
 
-    /** What is left once the computer-only shortcut is gone. */
-    val IN_ROOM: List<SlashCommand> = ALL.filterNot { it.id == SlashCommandId.COMPUTER }
+    private val MESSAGE_COMMANDS: List<SlashCommand> =
+        listOf(ComposerCommands.GOAL, ComposerCommands.LEARN, ComposerCommands.SETUP, ComposerCommands.BURST)
+
+    private val LOCAL: List<SlashCommand> = ALL.filterNot { it in MESSAGE_COMMANDS }
+
+    private val LOCAL_IN_ROOM: List<SlashCommand> = LOCAL.filterNot { it.id == SlashCommandId.COMPUTER }
 
     /** Older sidecars omit room tasks and cannot accept the task routes. */
-    val IN_LEGACY_ROOM: List<SlashCommand> = IN_ROOM.filterNot { it.id == SlashCommandId.TASKS }
+    private val LOCAL_IN_LEGACY_ROOM: List<SlashCommand> = LOCAL_IN_ROOM.filterNot { it.id == SlashCommandId.TASKS }
 
     /**
      * The computer is bot-only. A non-DM room exposes tasks when the paired
      * desktop advertises them through a non-null task list.
      *
-     * Both answers are constants, so the composer can ask on every recomposition
-     * without allocating a list per streamed token.
+     * Without gates every answer is a constant, so the composer can ask on every
+     * recomposition without allocating a list per streamed token.
      */
-    fun forChat(chat: Chat): List<SlashCommand> = when (chat) {
-        is Chat.BotChat -> ALL
-        is Chat.RoomChat -> if (chat.supportsTasks) IN_ROOM else IN_LEGACY_ROOM
+    fun forChat(chat: Chat, gates: SlashGates = SlashGates.NONE): List<SlashCommand> {
+        val local = when (chat) {
+            is Chat.BotChat -> LOCAL
+            is Chat.RoomChat -> if (chat.supportsTasks) LOCAL_IN_ROOM else LOCAL_IN_LEGACY_ROOM
+        }
+        if (gates == SlashGates.NONE) return local
+        val isRoom = chat is Chat.RoomChat
+        val isDm = (chat as? Chat.RoomChat)?.room?.dm == true
+        return local + MESSAGE_COMMANDS.filter { command ->
+            when (command.id) {
+                SlashCommandId.GOAL -> gates.goal && !isDm
+                SlashCommandId.LEARN -> gates.learn
+                SlashCommandId.SETUP, SlashCommandId.BURST -> gates.agents && !isRoom
+                else -> true
+            }
+        }
     }
 
     /**

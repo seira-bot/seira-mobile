@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Nicht jetzt</string>
     <string name="composer_goal_chip">Ziel: %1$s</string>
     <string name="composer_steer_waiting">Es kann dieser Runde noch nicht beitreten. Es bleibt in der Warteschlange.</string>
+    <string name="composer_steer_failed">Die Nachricht konnte nicht in die laufende Runde geschickt werden. Versuche es erneut.</string>
     <string name="composer_slash_goal">Ein Ziel setzen und bis zum Ergebnis arbeiten lassen</string>
-    <string name="composer_slash_learn">Etwas für das nächste Mal merken</string>
-    <string name="composer_slash_setup">Einen Skill oder ein Tool einrichten</string>
+    <string name="composer_slash_learn">Aus diesem Gespräch einen wiederverwendbaren Skill entwerfen</string>
+    <string name="composer_slash_setup">Diesen Bot dich befragen und sich selbst einrichten lassen</string>
     <string name="composer_slash_burst">Mehrere Aufgaben gleichzeitig starten</string>
-    <string name="composer_plus_goal">Bis zum Ziel arbeiten</string>
-    <string name="composer_plus_goal_sub">Gib ihm ein Ziel und lass es weitermachen</string>
 </resources>

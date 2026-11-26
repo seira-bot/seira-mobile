@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">Відкрити: %1$s</string>
     <string name="chat2_menu_find">Пошук у розмові</string>
     <string name="chat2_menu_new_thread">Нова гілка</string>
+    <string name="chat2_menu_new_thread_creating">Створення гілки…</string>
+    <string name="chat2_menu_new_thread_decision">Спершу дайте відповідь на рішення, що очікує.</string>
+    <string name="chat2_menu_new_thread_unavailable">У цьому чаті не можна почати нову гілку.</string>
     <string name="chat2_menu_all_threads">Усі гілки</string>
     <string name="chat2_menu_model">Модель</string>
     <string name="chat2_menu_members">Учасники групи</string>

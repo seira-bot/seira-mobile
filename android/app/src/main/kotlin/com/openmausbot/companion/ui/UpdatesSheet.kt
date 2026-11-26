@@ -185,10 +185,7 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
     }
 }
 
-/**
- * The active chats grouped by what they need. The sheet and the Inbox tab show
- * the same list, so an answer given in one is the answer seen in the other.
- */
+/** The active chats grouped by what they need. */
 @Composable
 internal fun UpdatesList(
     onOpen: (Chat) -> Unit,

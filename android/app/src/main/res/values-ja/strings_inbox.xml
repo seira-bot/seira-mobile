@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s、完了</string>
     <string name="automations_open_results">結果のスレッドを開く</string>
     <string name="automations_status_failed">失敗しました</string>
+    <string name="inbox_review_skill_in_chat">チャットを開いてこのスキルを確認してください。</string>
+    <string name="routines_header_footer">実行のたびに、エージェントの既存のモデル、ツール、権限、コンピューター、連携アプリを使います。時刻はペアリング済みコンピューターのローカルタイムゾーンに従います。</string>
 </resources>

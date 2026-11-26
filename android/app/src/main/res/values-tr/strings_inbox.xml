@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, tamamlandı</string>
     <string name="automations_open_results">Sonuç konusunu aç</string>
     <string name="automations_status_failed">Başarısız</string>
+    <string name="inbox_review_skill_in_chat">Bu beceriyi incelemek için sohbeti açın.</string>
+    <string name="routines_header_footer">Her çalıştırma ajanın mevcut modelini, araçlarını, izinlerini, bilgisayarını ve bağlı uygulamalarını kullanır. Saatler eşlenen bilgisayarın yerel saat dilimine uyar.</string>
 </resources>

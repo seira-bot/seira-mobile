@@ -33,6 +33,14 @@ internal object ComposerRound {
     }
 
     fun enabled(button: RoundButton, hasContent: Boolean): Boolean = button != RoundButton.SEND || hasContent
+
+    /** With a line typed the round button sends, so Stop sits beside it while the bot works. */
+    fun stopBesideSend(hasContent: Boolean, working: Boolean): Boolean = hasContent && working
+}
+
+internal object ComposerHint {
+    /** A direct message with one person reads as a chat with them, not as a group. */
+    fun isGroup(chat: Chat): Boolean = chat is Chat.RoomChat && chat.room.dm != true
 }
 
 internal object ModeChip {
@@ -111,6 +119,14 @@ internal object ModeChange {
 internal enum class SteerOutcome { DONE, WAITING, FAILED }
 
 internal object QueuedSteering {
+    /** The line shown under the composer for an outcome, or null when nothing needs saying. */
+    @StringRes
+    fun messageRes(outcome: SteerOutcome): Int? = when (outcome) {
+        SteerOutcome.WAITING -> R.string.composer_steer_waiting
+        SteerOutcome.FAILED -> R.string.composer_steer_failed
+        SteerOutcome.DONE -> null
+    }
+
     /** The only way Steer reaches the computer: through [steerQueued], never an interrupt. */
     suspend fun steer(
         send: QueuedSend,
@@ -136,19 +152,16 @@ internal object GoalChip {
             ?.takeIf { it.isNotEmpty() }
 }
 
-/** The four commands that go to the bot as plain message text. */
+/** The four commands that insert their name and go out as plain message text. */
 internal object ComposerCommands {
     val GOAL = SlashCommand(SlashCommandId.GOAL, "/goal", "Set a goal and let it work until done", SlashEffect.Insert("/goal "))
-    val LEARN = SlashCommand(SlashCommandId.LEARN, "/learn", "Save something to remember for next time", SlashEffect.Insert("/learn "))
-    val SETUP = SlashCommand(SlashCommandId.SETUP, "/setup", "Set up a skill or a tool", SlashEffect.Insert("/setup "))
+    val LEARN = SlashCommand(SlashCommandId.LEARN, "/learn", "Draft a reusable skill from this conversation", SlashEffect.Insert("/learn "))
+    val SETUP = SlashCommand(SlashCommandId.SETUP, "/setup", "Have this bot interview you and set itself up", SlashEffect.Insert("/setup "))
     val BURST = SlashCommand(SlashCommandId.BURST, "/burst", "Run several tasks at once", SlashEffect.Insert("/burst "))
 }
 
 internal object ComposerPlus {
-    /**
-     * What the + offers. Every entry has an action behind it. The live call
-     * moved to the round button and Stop lives there too.
-     */
+    /** What the + offers. The live call and Stop live on the composer's buttons. */
     fun actions(
         chat: Chat,
         hasPendingApproval: Boolean,
@@ -156,7 +169,7 @@ internal object ComposerPlus {
         hasCamera: Boolean,
         offersSchedule: Boolean,
     ): List<ChatAction> {
-        val base = ChatActions.sheet(
+        return ChatActions.sheet(
             chat = chat,
             hasPendingApproval = hasPendingApproval,
             canAddAttachment = canAddAttachment,
@@ -164,8 +177,5 @@ internal object ComposerPlus {
             offersCall = false,
             offersSchedule = offersSchedule,
         ).filterNot { it.id == ChatActionId.INTERRUPT || it.id == ChatActionId.LIVE_CALL }
-        val goal = ChatAction(ChatActionId.WORK_UNTIL_DONE, "Work until done", "Give it a goal and let it keep going")
-        val at = base.indexOfFirst { it.id == ChatActionId.NEW_TASK || it.id == ChatActionId.SHARE_MARKDOWN }
-        return if (at < 0) base + goal else base.take(at) + goal + base.drop(at)
     }
 }

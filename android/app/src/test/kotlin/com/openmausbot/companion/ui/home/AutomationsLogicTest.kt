@@ -65,6 +65,13 @@ class AutomationsLogicTest {
     }
 
     @Test
+    fun `the sheet toggle follows the tapped state, not the stored one`() {
+        val paused = routine(enabled = false)
+        assertEquals(true, AutomationsRules.shownEnabled(paused, mapOf("r1" to true)))
+        assertEquals(false, AutomationsRules.shownEnabled(paused, emptyMap()))
+    }
+
+    @Test
     fun `the menu lists what the routine can do`() {
         val withResults = AutomationsRules.menu(routine(), listOf(run("a", at = 1.0)), 0.0)
         assertEquals(

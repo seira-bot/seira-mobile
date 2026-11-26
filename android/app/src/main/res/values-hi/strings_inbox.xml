@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, पूरा हुआ</string>
     <string name="automations_open_results">नतीजे वाला थ्रेड खोलें</string>
     <string name="automations_status_failed">विफल</string>
+    <string name="inbox_review_skill_in_chat">इस स्किल को देखने के लिए चैट खोलें।</string>
+    <string name="routines_header_footer">हर रन एजेंट के मौजूदा मॉडल, टूल, अनुमतियों, कंप्यूटर और जुड़े हुए ऐप का इस्तेमाल करता है। समय जुड़े हुए कंप्यूटर के स्थानीय टाइमज़ोन के अनुसार है।</string>
 </resources>

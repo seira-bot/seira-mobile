@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Pas maintenant</string>
     <string name="composer_goal_chip">Objectif : %1$s</string>
     <string name="composer_steer_waiting">Il ne peut pas encore rejoindre ce tour. Il reste dans la file.</string>
+    <string name="composer_steer_failed">Impossible d’envoyer ce message dans le tour en cours. Réessayez.</string>
     <string name="composer_slash_goal">Fixer un objectif et le laisser travailler jusqu\'au bout</string>
-    <string name="composer_slash_learn">Enregistrer quelque chose à retenir pour la prochaine fois</string>
-    <string name="composer_slash_setup">Configurer une compétence ou un outil</string>
+    <string name="composer_slash_learn">Rédiger une compétence réutilisable à partir de cette conversation</string>
+    <string name="composer_slash_setup">Laisser ce bot vous interroger et se configurer lui-même</string>
     <string name="composer_slash_burst">Lancer plusieurs tâches à la fois</string>
-    <string name="composer_plus_goal">Travailler jusqu\'au bout</string>
-    <string name="composer_plus_goal_sub">Donnez-lui un objectif et laissez-le continuer</string>
 </resources>

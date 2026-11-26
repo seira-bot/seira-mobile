@@ -82,6 +82,23 @@ class InboxLogicTest {
     }
 
     @Test
+    fun `a send, team memory or engine switch card is answered in the chat`() {
+        val base = card(listOf("Allow", "Deny"), tool = "mail")
+        assertEquals(
+            DecisionAnswer.InChat,
+            InboxDecisions.answer(base.copy(outboundRequest = com.openmausbot.companion.core.OutboundRequest())),
+        )
+        assertEquals(
+            DecisionAnswer.InChat,
+            InboxDecisions.answer(base.copy(teamMemoryRequest = com.openmausbot.companion.core.TeamMemoryRequest())),
+        )
+        assertEquals(
+            DecisionAnswer.InChat,
+            InboxDecisions.answer(base.copy(quotaSwitch = com.openmausbot.companion.core.QuotaSwitchCard())),
+        )
+    }
+
+    @Test
     fun `a settled or option-less card offers no answer here`() {
         assertEquals(DecisionAnswer.None, InboxDecisions.answer(null))
         assertEquals(DecisionAnswer.None, InboxDecisions.answer(card(listOf("Allow"), answered = "allow")))

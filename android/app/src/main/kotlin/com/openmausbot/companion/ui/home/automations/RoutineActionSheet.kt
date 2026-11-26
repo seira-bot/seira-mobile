@@ -35,6 +35,7 @@ import com.openmausbot.companion.ui.theme.Seira
 internal fun RoutineActionSheet(
     routine: Routine,
     runs: List<RoutineRun>,
+    pending: Map<String, Boolean>,
     onRunNow: () -> Unit,
     onEdit: () -> Unit,
     onToggle: () -> Unit,
@@ -72,7 +73,7 @@ internal fun RoutineActionSheet(
                     RoutineMenuAction.RUN_NOW -> stringResource(R.string.mobile_run_now_2af00e23)
                     RoutineMenuAction.EDIT -> stringResource(R.string.mobile_edit_5301648d)
                     RoutineMenuAction.TOGGLE ->
-                        if (routine.enabled) stringResource(R.string.mobile_pause_781961bc)
+                        if (AutomationsRules.shownEnabled(routine, pending)) stringResource(R.string.mobile_pause_781961bc)
                         else stringResource(R.string.mobile_resume_b3bd0b5a)
                     RoutineMenuAction.OPEN_RESULTS -> stringResource(R.string.automations_open_results)
                     RoutineMenuAction.DELETE -> stringResource(R.string.mobile_delete_f6fdbe48)

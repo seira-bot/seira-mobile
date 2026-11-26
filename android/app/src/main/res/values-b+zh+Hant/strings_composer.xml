@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">暫不</string>
     <string name="composer_goal_chip">目標：%1$s</string>
     <string name="composer_steer_waiting">暫時無法加入這一輪。它會保留在佇列中。</string>
+    <string name="composer_steer_failed">無法將這則訊息傳送到目前這一輪。請再試一次。</string>
     <string name="composer_slash_goal">設定目標，讓它一直做到完成</string>
-    <string name="composer_slash_learn">儲存一些內容，下次記住</string>
-    <string name="composer_slash_setup">設定技能或工具</string>
+    <string name="composer_slash_learn">從這段對話草擬一份可重複使用的技能</string>
+    <string name="composer_slash_setup">讓這個機器人訪談你，並自行完成設定</string>
     <string name="composer_slash_burst">同時執行多個任務</string>
-    <string name="composer_plus_goal">做到完成為止</string>
-    <string name="composer_plus_goal_sub">給它一個目標，讓它繼續做下去</string>
 </resources>

@@ -75,7 +75,7 @@ import java.util.Locale
  * Tasks & Routines — the port of `ios/App/TasksRoutinesView.swift`.
  *
  * A task is one conversation and result; a routine runs with fresh context and
- * collects results in one thread, with no cron syntax anywhere. Webhook management
+ * collects results in one thread. Webhook management
  * and the cancel/seen operations on a run are not on the paired allowlist and have no
  * control here — only the receipts a webhook run leaves behind.
  */
@@ -167,7 +167,7 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit,
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
                 item(key = "explainer") {
-                    FormSection(header = null, footer = RoutineRules.HEADER_FOOTER) {
+                    FormSection(header = null, footer = stringResource(R.string.routines_header_footer)) {
                         IconNote(
                             text = RoutineRules.HEADER_TASK,
                             painter = R.drawable.ic_chat_bubbles,
