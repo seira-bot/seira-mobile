@@ -43,12 +43,51 @@ final class HomeLogicTests: XCTestCase {
         XCTAssertTrue(HomeSearch.bots(bots, query: "  ").isEmpty)
     }
 
-    func testAllowAndDenyComeFromTheCard() {
+    func testEveryOptionShowsItsOwnText() {
+        let card = OptionCard(
+            title: "Run?", subtitle: "", options: ["Always allow", "Allow once", "Deny"],
+            requestId: "r1", tool: "Bash", requestType: "permission"
+        )
+        XCTAssertEqual(
+            InboxLogic.action(for: card),
+            .options(labels: ["Always allow", "Allow once", "Deny"], primary: "Allow once")
+        )
+    }
+
+    func testPlainAllowIsPrimary() {
         let card = OptionCard(
             title: "Run?", subtitle: "", options: ["Always allow", "Allow", "Deny"],
             requestId: "r1", tool: "Bash", requestType: "permission"
         )
-        XCTAssertEqual(InboxLogic.action(for: card), .decide(allow: "Allow", deny: "Deny"))
+        XCTAssertEqual(
+            InboxLogic.action(for: card),
+            .options(labels: ["Always allow", "Allow", "Deny"], primary: "Allow")
+        )
+    }
+
+    func testAStandingGrantIsNeverPrimary() {
+        let card = OptionCard(
+            title: "Run?", subtitle: "", options: ["Always allow", "Deny"],
+            requestId: "r1", tool: "Bash", requestType: "permission"
+        )
+        XCTAssertEqual(InboxLogic.action(for: card), .options(labels: ["Always allow", "Deny"], primary: nil))
+    }
+
+    func testCardsThatNeedMoreThanAButtonGoToTheChat() {
+        let base = OptionCard(title: "Run?", subtitle: "", options: ["Allow", "Deny"], requestId: "r1", tool: "Bash")
+        var outbound = base
+        outbound.outboundRequest = OutboundRequest(tool: "send")
+        var memory = base
+        memory.teamMemoryRequest = TeamMemoryRequest(section: "notes")
+        var quota = base
+        quota.quotaSwitch = QuotaSwitchCard(messageId: "m1", rootId: nil)
+        var asked = base
+        asked.questionRequest = QuestionRequestCardData(
+            questions: [AskQuestion(question: "Which?", options: [AskQuestionOption(label: "One")])]
+        )
+        for card in [outbound, memory, quota, asked] {
+            XCTAssertEqual(InboxLogic.action(for: card), .answerInChat)
+        }
     }
 
     func testAQuestionIsAnsweredInTheChat() {

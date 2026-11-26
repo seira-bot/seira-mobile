@@ -143,10 +143,11 @@ private struct DecisionCard: View {
 
     @ViewBuilder private var actions: some View {
         switch InboxLogic.action(for: update.card) {
-        case let .decide(allow, deny):
-            HStack(spacing: 8) {
-                pill(Text("Allow"), primary: true) { answer(allow) }
-                if let deny { pill(Text("Deny"), primary: false) { answer(deny) } }
+        case let .options(labels, primary):
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(labels, id: \.self) { label in
+                    pill(Text(verbatim: label), primary: label == primary) { answer(label) }
+                }
                 pill(Text("Open in chat"), primary: false) { open(update.chat) }
             }
         case .answerInChat:
@@ -175,7 +176,7 @@ private struct DecisionCard: View {
         Haptics.selection()
         answering = true
         Task {
-            await session.answer(chat: update.chat, card: card, choice: choice)
+            await session.answer(chat: update.chat, card: card, choice: choice, rememberingPermission: false)
             answering = false
         }
     }

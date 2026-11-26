@@ -45,7 +45,9 @@ public enum HomeSearch {
 }
 
 public enum InboxAction: Equatable, Sendable {
-    case decide(allow: String, deny: String?)
+    /// Each option under its own text. `primary` is the plain "Allow" or
+    /// "Allow once" option, or nil when the card has none.
+    case options(labels: [String], primary: String?)
     case answerInChat
 }
 
@@ -54,14 +56,24 @@ public enum InboxLogic {
         updates.filter { $0.kind == .needsYou }.count
     }
 
+    /// Security invariant: the Inbox never answers with a label the person did
+    /// not see, and never remembers a grant. Any card that needs more than a
+    /// button goes to the chat.
     public static func action(for card: OptionCard?) -> InboxAction {
-        guard let card, card.isPending, card.isPermission, card.skillRequest == nil else { return .answerInChat }
-        let plain = card.options.first { $0.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("Allow") == .orderedSame }
-        guard let allow = plain ?? card.options.first(where: { OptionCard.isApproval($0) }) else {
+        guard let card, card.isPending else { return .answerInChat }
+        if card.skillRequest != nil || !card.questions.isEmpty || card.outboundRequest != nil
+            || card.teamMemoryRequest != nil || card.quotaSwitch != nil || card.options.isEmpty {
             return .answerInChat
         }
-        let deny = card.options.first { OptionCard.isRefusal($0) }
-        return .decide(allow: allow, deny: deny)
+        return .options(labels: card.options, primary: primaryOption(in: card.options))
+    }
+
+    static func primaryOption(in options: [String]) -> String? {
+        options.first {
+            let text = $0.trimmingCharacters(in: .whitespacesAndNewlines)
+            return text.caseInsensitiveCompare("Allow") == .orderedSame
+                || text.caseInsensitiveCompare("Allow once") == .orderedSame
+        }
     }
 
     /// Runs that ended, newest first. Runs still going or waiting stay out.
