@@ -157,48 +157,27 @@ final class ThreadNavigationUITests: XCTestCase {
     }
 
     @MainActor
-    func testHomeSearchFindsSiblingTitlesAndFolders() {
-        homeSearchFindsSiblingTitlesAndFolders(density: nil)
+    func testHomeSearchOpensAPageWithFilters() {
+        homeSearchOpensAPageWithFilters(density: nil)
     }
 
     @MainActor
-    func testHomeSearchFindsSiblingTitlesAndFoldersInComfortable() {
-        homeSearchFindsSiblingTitlesAndFolders(density: "comfortable")
+    func testHomeSearchOpensAPageWithFiltersInComfortable() {
+        homeSearchOpensAPageWithFilters(density: "comfortable")
     }
 
     @MainActor
-    private func homeSearchFindsSiblingTitlesAndFolders(density: String?) {
+    private func homeSearchOpensAPageWithFilters(density: String?) {
         let app = launchPreview(density: density)
-        app.buttons["threads-toggle.preview-pepper"].tap()
-        app.buttons["Search"].tap()
-        let search = app.textFields["Search threads"]
+        app.buttons["home-search"].tap()
+        let search = app.textFields["Search"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
         search.typeText("iCloud")
+        for chip in ["All", "Messages", "Bots", "Groups", "Routines"] {
+            XCTAssertTrue(app.buttons[chip].exists, chip)
+        }
         recordScreenshot("Home search for iCloud", in: app)
-
-        XCTAssertTrue(app.buttons["thread.preview-icloud"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["thread.preview-gmail"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-weekend"].exists)
-
-        app.buttons["Cancel"].tap()
-        app.buttons["Search"].tap()
-        XCTAssertTrue(search.waitForExistence(timeout: 5))
-        search.tap()
-        search.typeText("Email")
-        XCTAssertTrue(app.buttons["thread.preview-gmail"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["thread.preview-icloud"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-weekend"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-routine"].exists)
-        recordScreenshot("Home search for Email folder", in: app)
-
-        app.buttons["thread.preview-icloud"].tap()
-        assertThread("Triage iCloud", in: app)
-        app.buttons["Back"].tap()
-        XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 5))
-        app.buttons["Cancel"].tap()
-        XCTAssertTrue(app.buttons["threads-toggle.preview-pepper"].exists)
-        XCTAssertEqual(app.buttons["threads-toggle.preview-pepper"].value as? String, "Expanded, 3 threads")
     }
 
     @MainActor

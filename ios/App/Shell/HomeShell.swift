@@ -52,8 +52,8 @@ struct HomeTopBar: View {
 
             Button(action: openSeira) { seiraFace }
                 .buttonStyle(SeiraCircleButtonStyle(size: 48, fill: .seiraS1))
-                .accessibilityLabel(needsYou ? "Seira, a decision is waiting" : "Seira")
-                .accessibilityIdentifier("home-seira")
+                .accessibilityLabel(needsYou ? "Updates, a decision is waiting" : "Updates")
+                .accessibilityIdentifier("updates-button")
 
             Spacer(minLength: 0)
 

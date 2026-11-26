@@ -138,13 +138,13 @@ final class RosterDensityUITests: XCTestCase {
         assertMissing(app.buttons["threads-toggle.roster-atlas"])
     }
 
-    /// The floating Updates bar must never cover the last row: scrolled to
-    /// the end, the row sits wholly above the bar and takes a tap.
+    /// The tab bar must never cover the last row: scrolled to the end, the
+    /// row sits wholly above the bar and takes a tap.
     @MainActor
     func testLastRowClearsTheBottomBarInBothDensities() {
         for (density, lastRow) in [("compact", "chat-row.roster-sage"), ("comfortable", "threads-toggle.roster-sage")] {
             let app = launchRoster(density: density)
-            let bar = app.buttons["updates-button"]
+            let bar = app.buttons["tab-chats"]
             XCTAssertTrue(bar.waitForExistence(timeout: 10))
             let last = app.buttons[lastRow]
             // Scroll until the last row shows, then on to the list's end.

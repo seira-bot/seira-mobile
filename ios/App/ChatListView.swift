@@ -26,6 +26,7 @@ struct ChatListView: View {
     @State private var chatFilter = HomeChatFilter.all
     @State private var drawerOpen = false
     @State private var showingNewChat = false
+    @State private var showingUpdates = false
     @State private var showingWalkie = false
     @State private var showingNewGroup = false
     @State private var showingNewSection = false
@@ -111,6 +112,12 @@ struct ChatListView: View {
                 ChangeLookSheet(bot: bot)
                     .environmentObject(session)
             }
+            .sheet(isPresented: $showingUpdates) {
+                UpdatesSheet { chat in
+                    showingUpdates = false
+                    path.append(chat)
+                }
+            }
             .sheet(isPresented: $showingNewChat) {
                 NewChatSheet(
                     chief: homeChief,
@@ -176,7 +183,7 @@ struct ChatListView: View {
                 profileName: session.connection?.name ?? "You",
                 needsYou: !waiting.isEmpty,
                 openMenu: { Haptics.selection(); drawerOpen = true },
-                openSeira: { if let chief = homeChief { openBot(chief) } },
+                openSeira: { Haptics.selection(); showingUpdates = true },
                 openProfile: { path.append(HomeRoute.settings) }
             )
             WorkspaceStrip(
