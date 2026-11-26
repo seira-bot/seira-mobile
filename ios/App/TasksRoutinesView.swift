@@ -502,7 +502,7 @@ private extension RoutineRunLocation {
     }
 }
 
-private extension RoutineSchedule {
+extension RoutineSchedule {
     var summary: String {
         switch type {
         case .once:

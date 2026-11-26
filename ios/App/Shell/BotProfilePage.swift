@@ -188,7 +188,7 @@ private struct BotLibraryTab: View {
     let bot: Bot
 
     @EnvironmentObject private var session: Session
-    @State private var items: [LibraryItem]?
+    @State private var items: [CompanionCore.LibraryItem]?
     @State private var failed = false
 
     var body: some View {
@@ -232,7 +232,7 @@ private struct BotLibraryTab: View {
 
 private struct LibraryItemPage: View {
     let bot: Bot
-    let item: LibraryItem
+    let item: CompanionCore.LibraryItem
 
     @EnvironmentObject private var session: Session
     @State private var columns: [String] = []
@@ -275,7 +275,10 @@ private struct LibraryItemPage: View {
         let request = ProfileLibraryRules.request(item, offset: rows.count)
         guard let page = await session.botDataPage(for: bot, request: request) else { return }
         if columns.isEmpty { columns = (page.columns ?? []).map(\.name) }
-        rows += page.rows.map { $0.map(ProfileLibraryRules.cell) }
+        let pageRows: [[String]] = page.rows.map { (row: [JSONValue]) -> [String] in
+            row.map { ProfileLibraryRules.cell($0) }
+        }
+        rows += pageRows
         total = page.rowCount ?? Int64(rows.count)
     }
 }
