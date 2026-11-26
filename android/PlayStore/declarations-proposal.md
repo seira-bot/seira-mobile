@@ -309,6 +309,21 @@ Tambah komputer dengan satu ketukan lewat tombol + di samping namanya di Chats. 
 </id>
 ```
 
+### Catatan rilis update 1.1.0
+
+Isi teks ini saat rilis 1.1.0 dibuat di Console:
+
+```text
+<en-US>
+A new look for Seira. Chats, Inbox and Automations each have a tab. The menu shows your departments, the Team map and Department memory. Search every chat from the top bar. Start a chat or make a new bot from one button. Each bot has a profile with its activity, skills and settings. Settings show your computers, connected apps and AI usage. The message box has quick actions, slash commands and a way to guide a bot while it works.
+Some features need the newest Seira on your computer.
+</en-US>
+<id>
+Tampilan baru Seira. Chats, Inbox, dan Automations punya tab sendiri. Menu menampilkan departemen, Team map, dan Department memory. Cari semua chat dari bar atas. Mulai chat atau buat bot baru dari satu tombol. Tiap bot punya profil berisi aktivitas, skill, dan pengaturan. Settings menampilkan komputer, app terhubung, dan pemakaian AI. Kotak pesan punya aksi cepat, perintah slash, dan cara mengarahkan bot saat bekerja.
+Beberapa fitur butuh Seira terbaru di komputer.
+</id>
+```
+
 ## Negara dan rollout
 
 - Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan
