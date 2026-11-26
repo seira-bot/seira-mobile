@@ -37,7 +37,8 @@ internal object CarvedAvatarRenderer {
         pose: CarvedPose,
         sizePx: Float,
         swayDegrees: Float = 0f,
-    ) = draw(canvas, assets, CarvedLook.of(hair, accessories), color, pose, sizePx, swayDegrees)
+        eyeColor: Int? = null,
+    ) = draw(canvas, assets, CarvedLook.of(hair, accessories), color, pose, sizePx, swayDegrees, eyeColor)
 
     fun draw(
         canvas: Canvas,
@@ -47,6 +48,7 @@ internal object CarvedAvatarRenderer {
         pose: CarvedPose,
         sizePx: Float,
         swayDegrees: Float = 0f,
+        eyeColor: Int? = null,
     ) {
         val body = look.body
         val geometry = carvedGeometry(body, pose)
@@ -62,7 +64,7 @@ internal object CarvedAvatarRenderer {
             canvas.translate(-BODY_PIVOT_X.toFloat(), -BODY_PIVOT_Y.toFloat())
             val headPx = UNITS * scale
             head(assets, body, color, headPx)?.let { canvas.drawBitmap(it, null, RectF(0f, 0f, UNITS, UNITS), bitmapPaint) }
-            drawEyes(canvas, body, geometry, glow)
+            drawEyes(canvas, body, geometry, glow, eyeColor ?: body.eyes.ink)
             if (body.eyes.mouth) drawMouth(canvas, body, geometry, glow)
             for (sprite in look.sprites) {
                 val picture = decode(assets, "accessory/${sprite.sticker.file}") ?: continue
@@ -77,11 +79,11 @@ internal object CarvedAvatarRenderer {
 
     private val bitmapPaint = Paint(Paint.ANTI_ALIAS_FLAG or Paint.FILTER_BITMAP_FLAG)
 
-    private fun drawEyes(canvas: Canvas, body: SeiraBody, g: CarvedGeometry, glow: Boolean) {
+    private fun drawEyes(canvas: Canvas, body: SeiraBody, g: CarvedGeometry, glow: Boolean, eyeInk: Int) {
         val visor = visors.getOrPut(body.id) { PathParser.createPathFromPathData(body.clip) }
         canvas.save()
         canvas.clipPath(visor)
-        val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = body.eyes.ink }
+        val ink = Paint(Paint.ANTI_ALIAS_FLAG).apply { color = eyeInk }
         val halo = Paint(ink).apply { maskFilter = glowFilter }
         for (eye in g.eyes) {
             canvas.save()

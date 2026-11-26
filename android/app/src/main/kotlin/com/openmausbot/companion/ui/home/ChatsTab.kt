@@ -6,6 +6,6 @@ import com.openmausbot.companion.ui.home.chats.ChatsScreen
 
 /** The Chats tab, limited to [sectionFilter] when set. */
 @Composable
-internal fun ChatsTab(navigator: CompanionNavigator, sectionFilter: String?) {
-    ChatsScreen(navigator = navigator, sectionFilter = sectionFilter)
+internal fun ChatsTab(navigator: CompanionNavigator, sectionFilter: String?, onNewChat: () -> Unit) {
+    ChatsScreen(navigator = navigator, sectionFilter = sectionFilter, onNewChat = onNewChat)
 }

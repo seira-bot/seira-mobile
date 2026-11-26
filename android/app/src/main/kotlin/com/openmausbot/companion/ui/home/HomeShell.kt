@@ -32,7 +32,6 @@ import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.CompanionNavigator
-import com.openmausbot.companion.ui.ComputerSwitchSheet
 import com.openmausbot.companion.ui.Destination
 import com.openmausbot.companion.ui.HomeTab
 import com.openmausbot.companion.ui.LocalCompanion
@@ -59,14 +58,12 @@ internal fun HomeShell(navigator: CompanionNavigator) {
     val state by session.state.collectAsState()
     val status by session.status.collectAsState()
     val connection by session.connection.collectAsState()
-    val computers by session.connections.collectAsState()
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
     val reduced = rememberReducedMotion()
     val density = LocalDensity.current
 
     var drawerOpen by rememberSaveable { mutableStateOf(false) }
     var showUpdates by remember { mutableStateOf(false) }
-    var showComputers by remember { mutableStateOf(false) }
     var showNewChat by remember { mutableStateOf(false) }
     var showNewDepartment by remember { mutableStateOf(false) }
 
@@ -83,8 +80,9 @@ internal fun HomeShell(navigator: CompanionNavigator) {
         state.sidebarSections.map { DrawerDepartment(it.name, it.chiefs.size + it.bots.size) }
     }
     val sectionFilter = navigator.sectionFilter
-    LaunchedEffect(departments, sectionFilter) {
-        if (sectionFilter != null && departments.none { it.name == sectionFilter }) navigator.showChats(null)
+    val fleetLoaded = state.bots.isNotEmpty() || state.rooms.isNotEmpty()
+    LaunchedEffect(fleetLoaded, departments, sectionFilter) {
+        if (HomeShellRules.staleFilter(fleetLoaded, departments.map { it.name }, sectionFilter)) navigator.showChats(null)
     }
 
     val closeDrawer = { drawerOpen = false }
@@ -180,7 +178,7 @@ internal fun HomeShell(navigator: CompanionNavigator) {
                 )
                 Box(modifier = Modifier.weight(1f)) {
                     when (navigator.homeTab) {
-                        HomeTab.Chats -> ChatsTab(navigator, sectionFilter)
+                        HomeTab.Chats -> ChatsTab(navigator, sectionFilter, onNewChat = { showNewChat = true })
                         HomeTab.Inbox -> InboxTab(navigator)
                         HomeTab.Automations -> AutomationsTab(navigator)
                     }
@@ -224,25 +222,6 @@ internal fun HomeShell(navigator: CompanionNavigator) {
         )
     }
 
-    if (showComputers) {
-        ComputerSwitchSheet(
-            computers = computers,
-            activeId = connection?.id,
-            status = status,
-            onPick = { computer ->
-                showComputers = false
-                haptics.play(TactileAction.SWITCH_COMPUTER)
-                session.switchComputer(computer.id)
-            },
-            onPairAnother = {
-                showComputers = false
-                haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
-                session.beginPairing()
-            },
-            onDismiss = { showComputers = false },
-        )
-    }
-
     NewChatHost(
         show = showNewChat,
         navigator = navigator,
@@ -253,4 +232,10 @@ internal fun HomeShell(navigator: CompanionNavigator) {
     if (showNewDepartment) {
         NewSectionSheet(onDismiss = { showNewDepartment = false })
     }
+}
+
+internal object HomeShellRules {
+    /** A department filter is dropped only after the fleet has arrived, so a restored filter survives the wait. */
+    fun staleFilter(fleetLoaded: Boolean, departments: List<String>, filter: String?): Boolean =
+        fleetLoaded && filter != null && filter !in departments
 }

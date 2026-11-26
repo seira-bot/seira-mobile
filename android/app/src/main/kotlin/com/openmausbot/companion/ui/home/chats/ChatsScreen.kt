@@ -94,6 +94,7 @@ private val StringSetSaver = listSaver<Set<String>, String>(
 internal fun ChatsScreen(
     navigator: CompanionNavigator,
     sectionFilter: String?,
+    onNewChat: () -> Unit,
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
 ) {
     val environment = LocalCompanion.current
@@ -357,7 +358,7 @@ internal fun ChatsScreen(
                         RosterEmptyState(
                             empty = rosterEmpty(status, phoneOnline),
                             refreshing = refreshing,
-                            onNewChat = {},
+                            onNewChat = onNewChat,
                             onPairComputer = { session.beginPairing() },
                             onRefresh = refresh,
                             modifier = Modifier.fillParentMaxHeight(0.6f),

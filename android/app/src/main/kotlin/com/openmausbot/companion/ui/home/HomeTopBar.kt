@@ -37,7 +37,7 @@ private val WAITING_DOT = 14.dp
 
 /**
  * The bar above every home tab: the menu on the left, Seira in the middle and the
- * profile on the right. A dot on Seira says that a decision waits.
+ * profile on the right. A dot and amber eyes on Seira say that a decision waits.
  */
 @Composable
 internal fun HomeTopBar(
@@ -116,7 +116,11 @@ private fun SeiraButton(waiting: Int, onClick: () -> Unit) {
                 .border(1.dp, colors.hairline, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
-            CarvedAvatar(look = SeiraLook.SEIRA, size = FACE_BUTTON - FACE_INSET * 2)
+            CarvedAvatar(
+                look = SeiraLook.SEIRA,
+                size = FACE_BUTTON - FACE_INSET * 2,
+                eyeColor = if (waiting > 0) colors.warning else null,
+            )
             if (waiting > 0) {
                 WaitingDot(modifier = Modifier.align(Alignment.BottomEnd).offset(x = (-1).dp, y = (-1).dp))
             }
