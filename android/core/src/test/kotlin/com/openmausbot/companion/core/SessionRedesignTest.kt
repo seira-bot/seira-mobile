@@ -31,7 +31,7 @@ class SessionRedesignTest {
     @Test
     fun deleteBotRemovesItFromTheFleetOnSuccess() = runTest {
         val kept = bot("b2")
-        val session = session(Fleet(listOf(bot("b1"), kept), emptyList()))
+        val session = session().seeded(bot("b1"), kept)
         server.enqueue(json("""{"ok":true}"""))
 
         assertTrue(session.deleteBot(bot("b1")))
@@ -43,7 +43,7 @@ class SessionRedesignTest {
 
     @Test
     fun deleteBotKeepsTheBotAndReportsWhenTheComputerRefuses() = runTest {
-        val session = session(Fleet(listOf(bot("b1")), emptyList()))
+        val session = session().seeded(bot("b1"))
         server.enqueue(json("""{"error":"The default bot cannot be deleted"}""", 403))
 
         assertEquals(false, session.deleteBot(bot("b1")))
@@ -54,7 +54,7 @@ class SessionRedesignTest {
 
     @Test
     fun approvalModeChangeUpdatesTheBotAndExposesTheMode() = runTest {
-        val session = session(Fleet(listOf(bot("b1")), emptyList()))
+        val session = session().seeded(bot("b1"))
         server.enqueue(json("""{"bot":${CompanionJson.encodeToString(bot("b1", "edits"))}}"""))
 
         val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.EDITS)
@@ -65,7 +65,7 @@ class SessionRedesignTest {
 
     @Test
     fun aRefusedApprovalChangeIsTypedAndNotTheAppWideError() = runTest {
-        val session = session(Fleet(listOf(bot("b1")), emptyList()))
+        val session = session().seeded(bot("b1"))
         server.enqueue(
             json(
                 """{"error":"On a shared company workspace Full access comes only from the operator's dedicated policy"}""",
@@ -83,7 +83,7 @@ class SessionRedesignTest {
 
     @Test
     fun localAutoRefusalAsksForTheAcknowledgement() = runTest {
-        val session = session(Fleet(listOf(bot("b1")), emptyList()))
+        val session = session().seeded(bot("b1"))
         server.enqueue(
             json("""{"error":"Auto mode on this computer requires confirming the warning first (acknowledgeLocalAuto)"}""", 400),
         )
@@ -93,13 +93,22 @@ class SessionRedesignTest {
 
     @Test
     fun readsReturnNullAndReportWhenTheComputerFails() = runTest {
-        val session = session(Fleet(listOf(bot("b1")), emptyList()))
+        val session = session().seeded(bot("b1"))
         server.enqueue(json("""{"error":"no such bot"}""", 404))
         assertNull(session.botActivity(bot("b1")))
         assertEquals("no such bot", session.actionError)
     }
 
-    private suspend fun TestScope.session(fleet: Fleet): Session {
+    private suspend fun Session.seeded(vararg bots: Bot): Session {
+        bots.forEach { known ->
+            server.enqueue(json("""{"bot":${CompanionJson.encodeToString(known)}}"""))
+            createBot()
+            server.takeRequest()
+        }
+        return this
+    }
+
+    private suspend fun TestScope.session(): Session {
         val connection = requireNotNull(Connection.parse(server.url("/").toString()))
         return Session(
             scope = backgroundScope,
@@ -121,11 +130,8 @@ class SessionRedesignTest {
             onboardingStore = InMemoryOnboardingStore(),
             deviceNameProvider = { "Pixel" },
             eventsFn = { _, _, _ -> emptyFlow() },
-            hydrateFn = { _, _ -> fleet },
-        ).also {
-            it.awaitRestored()
-            it.refresh()
-        }
+            hydrateFn = { _, _ -> Fleet(emptyList(), emptyList()) },
+        ).also { it.awaitRestored() }
     }
 
     private fun bot(id: String, approvalMode: String? = null): Bot = Bot(
