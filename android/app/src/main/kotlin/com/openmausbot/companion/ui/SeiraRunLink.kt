@@ -60,7 +60,7 @@ internal object SeiraRunLink {
     /** The fragment keys, as a browser reads them: percent-decoded and compared without case. */
     private fun fragmentKeys(fragment: String): List<String> = fragment.split('&').map { part ->
         val raw = part.substringBefore('=')
-        runCatching { URLDecoder.decode(raw, Charsets.UTF_8) }.getOrDefault(raw).lowercase(Locale.ROOT)
+        runCatching { URLDecoder.decode(raw, "UTF-8") }.getOrDefault(raw).lowercase(Locale.ROOT)
     }
 
     fun matches(connection: Connection, origin: String): Boolean {
