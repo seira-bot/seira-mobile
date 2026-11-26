@@ -35,6 +35,9 @@ chip kode yang menunggu kode pertama (PR #79), dan pemilih workspace (PR #88).
 Update 1.0.8 dikirim untuk review pada 2026-11-25: Production, semua negara
 target, rollout 100%. Bundle dibangun dari `5145e987`. Tree-nya sama dengan
 `main` `ac77e71d`.
+Update 1.0.9 (versionCode 10009) membawa tombol "Add a computer" di heading
+Chats, link server `https://c-….seira.run` yang terbuka di app, dan saran
+balasan sesuai isi chat di atas kotak pesan.
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -289,6 +292,19 @@ Fixes: Connected Apps no longer shows a Connect button for an app that needs no 
 </en-US>
 <id>
 Perbaikan: Connected Apps tidak lagi menampilkan tombol Connect untuk app yang tidak butuh login, seperti Composio. Ketukan pada notifikasi membuka komputer asal notifikasi itu. Saat aksi notifikasi tidak punya komputer, app kini memberi tahu. Chip Show diff dan Run tests baru muncul setelah chat menjalankan kode.
+</id>
+```
+
+### Catatan rilis update 1.0.9
+
+Isi teks ini saat rilis 1.0.9 dibuat di Console:
+
+```text
+<en-US>
+Add a computer in one tap: the + now sits next to the computer name on Chats. Server links on seira.run now open in the app and start pairing, or open that computer when the phone already has it. Above the message box, Seira now suggests what to say next from the chat: pick an option, answer a question, see the changes, or ask what's next. A tap only fills the box. You still press Send.
+</en-US>
+<id>
+Tambah komputer dengan satu ketukan: tombol + kini ada di samping nama komputer di Chats. Link server seira.run kini terbuka di app dan langsung memulai pairing, atau membuka komputer itu kalau HP sudah menyimpannya. Di atas kotak pesan, Seira kini menyarankan balasan sesuai isi chat: pilih opsi, jawab pertanyaan, lihat perubahan, atau tanya langkah berikutnya. Ketukan hanya mengisi kotak pesan. Kamu tetap menekan Kirim.
 </id>
 ```
 
