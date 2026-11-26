@@ -96,10 +96,9 @@ class ChatsHeadingTest {
         compose.onNodeWithText("Chats").fetchSemanticsNode().config
             .getOrNull(SemanticsActions.GetTextLayoutResult)?.action?.invoke(results)
         val layout = results.single()
-        assertFalse(
-            layout.didOverflowWidth,
-            "size ${layout.size} lines ${layout.lineCount} bounds ${compose.onNodeWithText("Chats").getBoundsInRoot()}",
-        )
+        assertEquals(1, layout.lineCount)
+        assertEquals("Chats".length, layout.getLineEnd(0, visibleEnd = true))
+        assertFalse(layout.isLineEllipsized(0))
         for (tag in listOf("home-add-computer", "home-more")) {
             val bounds = compose.onNodeWithTag(tag).getBoundsInRoot()
             assertTrue(bounds.right - bounds.left >= 48.dp, "$tag wide")
