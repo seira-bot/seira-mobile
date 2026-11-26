@@ -25,11 +25,11 @@ final class ThreadNavigationUITests: XCTestCase {
         let app = launchPreview(islandIntro: "always")
         openGmail(in: app)
 
-        let topBarThreads = app.buttons["header-threads"]
+        let topBarThreads = app.buttons["chat-menu"]
         // The chat header settles late on a loaded CI runner. 5s timed out
         // here while the thread open itself was correct, same as assertThread.
         XCTAssertTrue(topBarThreads.waitForExistence(timeout: 10))
-        topBarThreads.tap()
+        app.openAllThreads()
         let iCloud = app.buttons["thread-preview-icloud"]
         XCTAssertTrue(iCloud.waitForExistence(timeout: 5))
         recordScreenshot("Top bar opens the thread picker", in: app)
@@ -39,7 +39,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
         // The same button switches again: it is the chat's one way to its
         // threads now that the name pill under the face is gone.
-        topBarThreads.tap()
+        app.openAllThreads()
         let weekend = app.buttons["thread-preview-weekend"]
         XCTAssertTrue(weekend.waitForExistence(timeout: 5))
         weekend.tap()
@@ -66,7 +66,7 @@ final class ThreadNavigationUITests: XCTestCase {
         assertThread("Triage Gmail", in: app)
         XCTAssertTrue(transcriptContains("I’m reviewing Gmail here", in: app))
 
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let iCloud = app.buttons["thread-preview-icloud"]
         XCTAssertTrue(iCloud.waitForExistence(timeout: 5))
         XCTAssertTrue(iCloud.label.contains("Unread"))
@@ -205,7 +205,7 @@ final class ThreadNavigationUITests: XCTestCase {
     func testFailedCreationKeepsThreadPickerOpenWithError() {
         let app = launchPreview()
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let create = app.buttons["new-thread"]
         XCTAssertTrue(create.waitForExistence(timeout: 5))
         // The preview deliberately has no API client, so this cannot write
@@ -247,7 +247,7 @@ final class ThreadNavigationUITests: XCTestCase {
     func testBulkDeletionKeepsCurrentAndWorkingThread() {
         let app = launchPreview(extraArguments: ["-threads-preview-deletion"])
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         app.buttons["select-threads"].tap()
 
         XCTAssertFalse(app.buttons["select-thread-preview-gmail"].isEnabled)
@@ -279,7 +279,7 @@ final class ThreadNavigationUITests: XCTestCase {
             "-threads-preview-deletion", "-threads-preview-deletion-fails-weekend"
         ])
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         app.buttons["select-threads"].tap()
         app.buttons["select-all-threads"].tap()
         app.buttons["delete-selected-threads"].tap()
@@ -348,7 +348,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
     @MainActor
     private func selectThread(_ id: String, title: String, in app: XCUIApplication) {
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let row = app.buttons["thread-\(id)"]
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
@@ -357,7 +357,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
     @MainActor
     private func assertThread(_ title: String, in app: XCUIApplication) {
-        let header = app.buttons["header-threads"]
+        let header = app.buttons["chat-menu"]
         let expected = NSPredicate(format: "value == %@", title)
         let appeared = XCTNSPredicateExpectation(predicate: expected, object: header)
         // Thread headers settle late on a loaded CI runner; 5s timed out on

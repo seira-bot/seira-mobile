@@ -236,7 +236,7 @@ final class RosterDensityUITests: XCTestCase {
 
     @MainActor
     private func assertThread(_ title: String, in app: XCUIApplication) {
-        let header = app.buttons["header-threads"]
+        let header = app.buttons["chat-menu"]
         let expected = NSPredicate(format: "value == %@", title)
         let appeared = XCTNSPredicateExpectation(predicate: expected, object: header)
         XCTAssertEqual(XCTWaiter.wait(for: [appeared], timeout: 10), .completed)

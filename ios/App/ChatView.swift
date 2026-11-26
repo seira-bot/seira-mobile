@@ -48,6 +48,12 @@ struct ChatView: View {
     @State private var showingComputer = false
     @State private var showingPlus = false
     @State private var showingProfile = false
+    @State private var showingModel = false
+    @State private var showingMembers = false
+    @State private var finding = false
+    @State private var findQuery = ""
+    @State private var findIndex = 0
+    @State private var replyTarget: ReplyTarget?
     @State private var showCommandHUD = false
     @State private var shareFile: ShareFile?
     @State private var showingPhotoPicker = false
@@ -315,6 +321,7 @@ struct ChatView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             liveCallBars
+            if let replyTarget { ReplyStrip(target: replyTarget) { self.replyTarget = nil } }
             composer(snapshot)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
@@ -392,7 +399,23 @@ struct ChatView: View {
             }
         }
         .sheet(isPresented: $showingProfile) {
+            if case let .bot(bot) = current {
+                NavigationStack {
+                    BotProfilePage(botId: bot.id, onDeleted: {
+                        showingProfile = false
+                        dismiss()
+                    })
+                }
+                .environmentObject(session)
+            }
+        }
+        .sheet(isPresented: $showingModel) {
             if case let .bot(bot) = current { AgentProfileView(bot: bot) }
+        }
+        .sheet(isPresented: $showingMembers) {
+            if case let .room(room) = current {
+                RoomMembersSheet(room: room).environmentObject(session)
+            }
         }
         .sheet(item: $shareFile) { file in
             ActivityShareSheet(items: [file.url])
@@ -470,7 +493,12 @@ struct ChatView: View {
         .overlay(alignment: .top) {
             SeiraFade(edge: .top, height: 120, color: .seiraApp).ignoresSafeArea(edges: .top)
         }
-        .safeAreaInset(edge: .top, spacing: 0) { headerBar }
+        .safeAreaInset(edge: .top, spacing: 0) {
+            VStack(spacing: 0) {
+                headerBar
+                if finding { findBar(snapshot: snapshot, proxy: proxy) }
+            }
+        }
         .overlay(alignment: .top) {
             GeometryReader { floatingFace(width: $0.size.width) }
                 .allowsHitTesting(false)
@@ -548,6 +576,8 @@ struct ChatView: View {
             today: RosterDay.today,
             pendingEditId: session.state.pendingEdits[threadId]?.placeholderId,
             versions: snapshot.versions,
+            findHits: finding ? Set(ChatFindRules.hits(snapshot.messages, query: findQuery)) : [],
+            findCurrent: finding ? currentFindId(snapshot) : nil,
             actions: actions
         )
         // VStack, not LazyVStack. A lazy stack does not know how
@@ -569,6 +599,9 @@ struct ChatView: View {
             }
 
             ForEach(Array(transcript.enumerated()), id: \.element.id) { index, row in
+                if let day = ChatDaySeparators.label(rows: transcript, index: index, now: shared.today) {
+                    DaySeparator(label: day)
+                }
                 rowView(row, at: index, in: transcript, shared: shared)
                     .equatable()
                     .id(row.id)
@@ -581,6 +614,75 @@ struct ChatView: View {
         .padding(.vertical, 12)
         .frame(maxWidth: CompanionLayout.chatWidth, alignment: .leading)
         .frame(maxWidth: .infinity)
+    }
+
+    private func messageIds(of row: TranscriptRow) -> [String] {
+        switch row {
+        case let .message(message): return [message.id]
+        case let .activityRun(items): return items.map(\.id)
+        case let .assistantTurn(turn): return turn.messages.map(\.id)
+        }
+    }
+
+    private func findMark(of row: TranscriptRow, shared: RowShared) -> Int {
+        guard !shared.findHits.isEmpty else { return 0 }
+        let ids = messageIds(of: row)
+        if let current = shared.findCurrent, ids.contains(current) { return 2 }
+        return ids.contains(where: shared.findHits.contains) ? 1 : 0
+    }
+
+    private func currentFindId(_ snapshot: TranscriptSnapshot) -> String? {
+        let hits = ChatFindRules.hits(snapshot.messages, query: findQuery)
+        return hits.indices.contains(findIndex) ? hits[findIndex] : nil
+    }
+
+    private func findBar(snapshot: TranscriptSnapshot, proxy: ScrollViewProxy) -> some View {
+        let hits = ChatFindRules.hits(snapshot.messages, query: findQuery)
+        let jump: (Bool) -> Void = { forward in
+            findIndex = ChatFindRules.step(current: findIndex, count: hits.count, forward: forward)
+            scrollToFind(snapshot: snapshot, proxy: proxy)
+        }
+        return HStack(spacing: 8) {
+            Image(systemName: "magnifyingglass").foregroundStyle(Color.seiraMut)
+            TextField("Find in conversation", text: $findQuery)
+                .textInputAutocapitalization(.never)
+                .autocorrectionDisabled()
+                .submitLabel(.search)
+                .onSubmit { jump(true) }
+                .accessibilityIdentifier("find-field")
+            if !findQuery.trimmingCharacters(in: .whitespaces).isEmpty {
+                Text(hits.isEmpty ? LocalizedStringKey("None found") : LocalizedStringKey("\(hits.count) found"))
+                    .font(.seira(13, relativeTo: .footnote))
+                    .foregroundStyle(Color.seiraMut)
+            }
+            Button { jump(false) } label: { Image(systemName: "chevron.up").frame(width: 36, height: 36) }
+                .disabled(hits.isEmpty)
+                .accessibilityLabel("Previous match")
+            Button { jump(true) } label: { Image(systemName: "chevron.down").frame(width: 36, height: 36) }
+                .disabled(hits.isEmpty)
+                .accessibilityLabel("Next match")
+            Button("Done") {
+                finding = false
+                findQuery = ""
+                findIndex = 0
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 4)
+        .frame(minHeight: 46)
+        .background(Color.seiraS2, in: Capsule())
+        .padding(.horizontal, 12)
+        .padding(.bottom, 6)
+        .onValueChange(of: findQuery) { _ in
+            findIndex = 0
+            scrollToFind(snapshot: snapshot, proxy: proxy)
+        }
+    }
+
+    private func scrollToFind(snapshot: TranscriptSnapshot, proxy: ScrollViewProxy) {
+        guard let id = currentFindId(snapshot),
+              let row = snapshot.rows.first(where: { messageIds(of: $0).contains(id) }) else { return }
+        withAnimation { proxy.scrollTo(row.id, anchor: .center) }
     }
 
     private func loadEarlierButton(proxy: ScrollViewProxy, transcript: [TranscriptRow]) -> some View {
@@ -605,6 +707,8 @@ struct ChatView: View {
         let today: Date
         let pendingEditId: String?
         let versions: [String?: [Message]]
+        let findHits: Set<String>
+        let findCurrent: String?
         let actions: TranscriptActions
     }
 
@@ -682,6 +786,7 @@ struct ChatView: View {
             routineRun: routineRun,
             context: shared.context,
             revealedMessageId: revealed,
+            findMark: findMark(of: row, shared: shared),
             actions: shared.actions
         )
     }
@@ -707,7 +812,16 @@ struct ChatView: View {
         case let .reveal(messageId):
             proxy.scrollTo(messageId, anchor: .center)
         case .botSettings:
-            showingProfile = true
+            showingModel = true
+        case let .reply(messageId):
+            if let message = messages.first(where: { $0.id == messageId }),
+               let text = ChatFindRules.searchableText(message) {
+                replyTarget = ReplyTarget(
+                    id: messageId, text: text,
+                    who: message.role == .user ? String(localized: "You") : current.name
+                )
+                composerFocused = true
+            }
         }
     }
 
@@ -1028,9 +1142,42 @@ struct ChatView: View {
             onBack: { dismiss() },
             onProfile: { showingProfile = true },
             onCall: { beginLiveCall() },
-            onThreads: { showingTasks = true },
-            onComputer: { showingComputer = true }
+            onComputer: { showingComputer = true },
+            menuItems: ChatMenuRules.items(current),
+            onMenu: { menuAction($0) }
         )
+    }
+
+    private func menuAction(_ item: ChatMenuItem) {
+        switch item {
+        case .find:
+            finding = true
+        case .newThread:
+            switch current {
+            case let .bot(bot):
+                Task {
+                    if let created = await session.createTask(for: bot, title: nil) {
+                        selectedThreadId = created.threadId
+                    }
+                }
+            case let .room(room):
+                Task { _ = await session.createTask(for: room, title: nil) }
+            }
+        case .allThreads:
+            showingTasks = true
+        case .model:
+            showingModel = true
+        case .members:
+            showingMembers = true
+        case .botScreen:
+            showingComputer = true
+        case .share:
+            Task {
+                if let url = await session.export(threadId: current.threadId, format: "markdown") {
+                    shareFile = ShareFile(url: url)
+                }
+            }
+        }
     }
 
     private var currentBot: Bot? {
@@ -1280,11 +1427,14 @@ struct ChatView: View {
         // open the microphone after the message has already been sent.
         dictation.stop()
         let draftAtSend = draft
-        let text = (explicitText ?? draftAtSend).trimmingCharacters(in: .whitespacesAndNewlines)
+        let typed = (explicitText ?? draftAtSend).trimmingCharacters(in: .whitespacesAndNewlines)
         let outgoingAttachments = attachments
         let chatAtSend = current
         // Only the typed line answers; a chip or a command is its own ask.
         let question = explicitText == nil ? composerQuestion : nil
+        // A reply quotes the message above the typed words, in the same text.
+        let quoted = explicitText == nil && question == nil && !typed.isEmpty
+        let text = quoted ? ReplyQuote.wrap(replyTarget?.text, text: typed) : typed
         guard !text.isEmpty || !outgoingAttachments.isEmpty,
               !preparingAttachments,
               !sendingMessage
@@ -1340,6 +1490,7 @@ struct ChatView: View {
             if draft == draftAtSend {
                 draft = ""
             }
+            if quoted { replyTarget = nil }
             if attachments.map(\.id) == outgoingAttachments.map(\.id) {
                 attachments = []
             }
@@ -2210,6 +2361,9 @@ struct MessageRow: View, Equatable {
             Divider()
             Button("Copy", systemImage: "doc.on.doc") {
                 PlatformBridge.copyToPasteboard(visibleText)
+            }
+            Button("Reply", systemImage: "arrowshape.turn.up.left") {
+                actions.reply(messageId: message.id)
             }
         }
         // Copy above takes the whole reply. Selection happens in a sheet
