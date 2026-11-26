@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">审批</string>
+    <string name="inbox_kind_question">问题</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">在聊天中回答</string>
+    <string name="inbox_open_in_chat">在聊天中打开</string>
+    <string name="inbox_open_chat_with">打开与 %1$s 的聊天</string>
+    <string name="inbox_needs_decision">需要你做决定</string>
+    <string name="inbox_news">动态</string>
+    <string name="inbox_news_finished">%1$s 完成了一项任务</string>
+    <string name="inbox_news_routine_failed">例行工作出问题：%1$s 失败了。点按即可重试。</string>
+    <string name="inbox_empty_title">全部处理完毕</string>
+    <string name="inbox_empty_body">目前没有等待你回答的事项。</string>
+    <string name="automations_list">列表</string>
+    <string name="automations_calendar">日历</string>
+    <string name="automations_intro">对话是一次交流和它的结果。例行工作是按计划进行的工作，结果集中在一个对话里。</string>
+    <string name="automations_pause_named">暂停 %1$s</string>
+    <string name="automations_resume_named">继续 %1$s</string>
+    <string name="automations_switch_finished">%1$s，已完成</string>
+    <string name="automations_open_results">打开结果对话</string>
+    <string name="automations_status_failed">失败</string>
+</resources>

@@ -77,7 +77,12 @@ import kotlinx.coroutines.launch
  * out by [RoutineCalendar], the same rules as the desktop's calendar.
  */
 @Composable
-internal fun RoutineCalendarScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit) {
+internal fun RoutineCalendarScreen(
+    onBack: () -> Unit,
+    onOpenChat: (Chat) -> Unit,
+    embedded: Boolean = false,
+    reloadSignal: Int = 0,
+) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -99,7 +104,7 @@ internal fun RoutineCalendarScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Uni
         runs = loaded.runs
         loading = false
     }
-    LaunchedEffect(Unit) { reload() }
+    LaunchedEffect(reloadSignal) { reload() }
 
     val selected = LocalDate.ofEpochDay(selectedDay)
     val today = LocalDate.now(zone)
@@ -110,11 +115,13 @@ internal fun RoutineCalendarScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Uni
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 8.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = if (embedded) 16.dp else 10.dp, vertical = if (embedded) 0.dp else 8.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            HeaderBackButton(onBack)
+            if (!embedded) HeaderBackButton(onBack)
             Text(
                 text = selected.format(DateTimeFormatter.ofPattern("LLLL yyyy", locale)),
                 fontSize = 17.sp,
@@ -126,13 +133,15 @@ internal fun RoutineCalendarScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Uni
                     Text(stringResource(R.string.mobile_calendar_today))
                 }
             }
-            ChromeButton(
-                icon = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
-                onClick = { editor = RoutineEditorTarget.new() },
-                size = 36.dp,
-                glyph = 18.dp,
-            )
+            if (!embedded) {
+                ChromeButton(
+                    icon = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
+                    onClick = { editor = RoutineEditorTarget.new() },
+                    size = 36.dp,
+                    glyph = 18.dp,
+                )
+            }
         }
 
         Row(

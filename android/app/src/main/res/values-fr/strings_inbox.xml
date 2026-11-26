@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Autorisation</string>
+    <string name="inbox_kind_question">Question</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Répondre dans la conversation</string>
+    <string name="inbox_open_in_chat">Ouvrir dans la conversation</string>
+    <string name="inbox_open_chat_with">Ouvrir la conversation avec %1$s</string>
+    <string name="inbox_needs_decision">Attend votre décision</string>
+    <string name="inbox_news">Actualités</string>
+    <string name="inbox_news_finished">%1$s a terminé une tâche</string>
+    <string name="inbox_news_routine_failed">Problème de routine : %1$s a échoué. Touchez pour réessayer.</string>
+    <string name="inbox_empty_title">Tout est à jour</string>
+    <string name="inbox_empty_body">Rien n’attend votre réponse pour le moment.</string>
+    <string name="automations_list">Liste</string>
+    <string name="automations_calendar">Calendrier</string>
+    <string name="automations_intro">Un fil est une conversation avec un résultat. Une routine est un travail planifié avec un fil de résultats.</string>
+    <string name="automations_pause_named">Mettre %1$s en pause</string>
+    <string name="automations_resume_named">Reprendre %1$s</string>
+    <string name="automations_switch_finished">%1$s, terminée</string>
+    <string name="automations_open_results">Ouvrir le fil de résultats</string>
+    <string name="automations_status_failed">Échec</string>
+</resources>

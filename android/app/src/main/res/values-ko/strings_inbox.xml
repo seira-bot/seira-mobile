@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">승인</string>
+    <string name="inbox_kind_question">질문</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">채팅에서 답하기</string>
+    <string name="inbox_open_in_chat">채팅에서 열기</string>
+    <string name="inbox_open_chat_with">%1$s와의 채팅 열기</string>
+    <string name="inbox_needs_decision">결정이 필요해요</string>
+    <string name="inbox_news">소식</string>
+    <string name="inbox_news_finished">%1$s이(가) 작업을 마쳤어요</string>
+    <string name="inbox_news_routine_failed">루틴 문제: %1$s이(가) 실패했어요. 탭해서 다시 시도하세요.</string>
+    <string name="inbox_empty_title">모두 확인했어요</string>
+    <string name="inbox_empty_body">지금 답을 기다리는 항목이 없어요.</string>
+    <string name="automations_list">목록</string>
+    <string name="automations_calendar">캘린더</string>
+    <string name="automations_intro">스레드는 하나의 대화와 그 결과예요. 루틴은 결과 스레드가 하나 있는 예약된 작업이에요.</string>
+    <string name="automations_pause_named">%1$s 일시정지</string>
+    <string name="automations_resume_named">%1$s 재개</string>
+    <string name="automations_switch_finished">%1$s, 완료됨</string>
+    <string name="automations_open_results">결과 스레드 열기</string>
+    <string name="automations_status_failed">실패</string>
+</resources>
