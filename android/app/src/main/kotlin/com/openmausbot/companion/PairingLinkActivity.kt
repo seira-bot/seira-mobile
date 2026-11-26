@@ -1,13 +1,18 @@
 package com.openmausbot.companion
 
 import android.app.Activity
+import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import com.openmausbot.companion.ui.PairingHandoff
+import com.openmausbot.companion.ui.PairingAddressHandoff
 import com.openmausbot.companion.ui.PairingLink
+import com.openmausbot.companion.ui.SeiraRunLink
+import com.openmausbot.companion.ui.SeiraRunRoute
 
 /**
- * The only door `seira://pair?…&token=seira_pair_…` may come through.
+ * The only door `seira://pair?…&token=seira_pair_…` and `https://c-….seira.run` links may come through.
  *
  * A pairing URL carries a one-time credential, and §6 forbids persisting one.
  * Keeping the deep link on [MainActivity] broke that by a path no `Saver` audit
@@ -37,6 +42,43 @@ class PairingLinkActivity : Activity() {
         super.onCreate(savedInstanceState)
 
         val data = intent?.data
+        val session = (application as OpenMausApp).session
+        val relaunch = {
+            // Built from a component and flags only. Nothing copies the
+            // incoming data or extras onto it, which is what keeps the
+            // credential out of the Intent the system remembers for
+            // MainActivity.
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                },
+            )
+        }
+
+        if (data?.scheme.equals("https", ignoreCase = true)) {
+            when (val route = SeiraRunLink.route(data.toString(), session.connections.value)) {
+                is SeiraRunRoute.Pair -> PairingHandoff.run(
+                    inviteUrl = route.inviteUrl,
+                    relaunch = relaunch,
+                    markFinishing = ::finish,
+                    deliver = session::receivePairingURL,
+                )
+                is SeiraRunRoute.SwitchTo -> PairingHandoff.runThen(relaunch, ::finish) {
+                    session.switchComputer(route.connectionId)
+                }
+                is SeiraRunRoute.FillAddress -> PairingHandoff.runThen(relaunch, ::finish) {
+                    PairingAddressHandoff.offer(route.origin)
+                    session.beginPairing()
+                }
+                is SeiraRunRoute.OpenInBrowser -> {
+                    openInBrowser(route.url)
+                    finish()
+                }
+                SeiraRunRoute.Ignore -> PairingHandoff.runThen(relaunch, ::finish) {}
+            }
+            return
+        }
+
         val inviteUrl = data
             ?.takeIf { PairingLink.isInvite(it.scheme, it.host) }
             ?.toString()
@@ -46,21 +88,22 @@ class PairingLinkActivity : Activity() {
         // reaches anything that outlives it.
         PairingHandoff.run(
             inviteUrl = inviteUrl,
-            relaunch = {
-                // Built from a component and flags only. Nothing copies the
-                // incoming data or extras onto it, which is what keeps the
-                // credential out of the Intent the system remembers for
-                // MainActivity.
-                startActivity(
-                    Intent(this, MainActivity::class.java).apply {
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                    },
-                )
-            },
+            relaunch = relaunch,
             markFinishing = ::finish,
             // Session decides whether the invite may be accepted at all — an
             // already-paired phone rejects it (§6).
-            deliver = { url -> (application as OpenMausApp).session.receivePairingURL(url) },
+            deliver = session::receivePairingURL,
         )
+    }
+
+    private fun openInBrowser(url: String) {
+        val view = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+            selector = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        try {
+            startActivity(view)
+        } catch (_: ActivityNotFoundException) {
+        }
     }
 }
