@@ -688,8 +688,8 @@
     <string name="mobile_file_no_viewer">Keine App auf diesem Telefon kann %1$s öffnen.</string>
     <string name="mobile_file_share_title">%1$s teilen</string>
     <string name="mobile_file_no_share_app">Keine App auf diesem Telefon kann %1$s teilen.</string>
-    <string name="mobile_pairing_notice_https">Fahre nur fort, wenn das der Computer ist, dessen QR-Code du gerade gescannt hast. Mit der Bestätigung wird eine authentifizierte HTTPS-Begleitverbindung aufgebaut.</string>
-    <string name="mobile_pairing_notice_scan">Fahre nur fort, wenn das der Computer ist, dessen QR-Code du gerade gescannt hast. Mit der Bestätigung wird eine authentifizierte Begleitverbindung aufgebaut. Nutze ein vertrauenswürdiges WLAN oder ein Tailnet. Seira verschlüsselt lokalen WLAN-Verkehr nicht.</string>
+    <string name="mobile_pairing_notice_https">Fahre nur fort, wenn du diesen Computer kennst.</string>
+    <string name="mobile_pairing_notice_scan">Fahre nur fort, wenn du diesen Computer kennst. Nutze ein vertrauenswürdiges WLAN oder ein Tailnet. Seira verschlüsselt lokalen WLAN-Verkehr nicht.</string>
     <string name="mobile_pairing_enter_code_notice">Gib den 6-stelligen Code ein, der auf deinem Desktop angezeigt wird:</string>
     <string name="mobile_pairing_rescan_notice">Diese App wurde neu gestartet, bevor die Kopplung abgeschlossen war. Dieser Einmalcode wird nie wiederverwendet, da er schon eingelöst worden sein könnte. Starte die Kopplung auf deinem Computer erneut und scanne den neuen QR-Code.</string>
     <string name="mobile_composer_ask_bot">%1$s fragen</string>
