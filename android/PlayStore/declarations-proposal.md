@@ -37,7 +37,8 @@ target, rollout 100%. Bundle dibangun dari `5145e987`. Tree-nya sama dengan
 `main` `ac77e71d`.
 Update 1.0.9 (versionCode 10009) membawa tombol "Add a computer" di heading
 Chats, link server `https://c-….seira.run` yang terbuka di app, dan saran
-balasan sesuai isi chat di atas kotak pesan.
+balasan sesuai isi chat di atas kotak pesan, serta swipe pada kartu persetujuan
+dengan langkah konfirmasi (seira-bot/seira#602, PR #95).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -301,10 +302,10 @@ Isi teks ini saat rilis 1.0.9 dibuat di Console:
 
 ```text
 <en-US>
-Add a computer in one tap: the + now sits next to the computer name on Chats. Server links on seira.run now open in the app and start pairing, or open that computer when the phone already has it. Above the message box, Seira now suggests what to say next from the chat: pick an option, answer a question, see the changes, or ask what's next. A tap only fills the box. You still press Send.
+Add a computer in one tap with the + next to its name on Chats. Server links on seira.run now open in the app and start pairing, or open that computer if you already have it. Above the message box, Seira suggests what to say next from the chat. A tap only fills the box. Swipe an approval card right to allow or left to deny, then tap Confirm.
 </en-US>
 <id>
-Tambah komputer dengan satu ketukan: tombol + kini ada di samping nama komputer di Chats. Link server seira.run kini terbuka di app dan langsung memulai pairing, atau membuka komputer itu kalau HP sudah menyimpannya. Di atas kotak pesan, Seira kini menyarankan balasan sesuai isi chat: pilih opsi, jawab pertanyaan, lihat perubahan, atau tanya langkah berikutnya. Ketukan hanya mengisi kotak pesan. Kamu tetap menekan Kirim.
+Tambah komputer dengan satu ketukan lewat tombol + di samping namanya di Chats. Link server seira.run kini terbuka di app dan memulai pairing, atau membuka komputer itu kalau sudah tersimpan. Di atas kotak pesan, Seira menyarankan balasan sesuai isi chat. Ketukan hanya mengisi kotak pesan. Geser kartu persetujuan ke kanan untuk izinkan atau ke kiri untuk tolak, lalu ketuk Confirm.
 </id>
 ```
 
