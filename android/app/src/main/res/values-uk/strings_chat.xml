@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Тепер працює на вашому сервері.</string>
     <string name="chat_works_on_failed">Не вдалося змінити, де працює цей бот. Спробуйте ще раз.</string>
     <string name="chat_works_on_forbidden">Змініть це на комп\'ютері.</string>
+    <string name="chat_suggest_capabilities">Що ти вмієш?</string>
+    <string name="chat_suggest_capabilities_prompt">Чим ти можеш мені тут допомогти?</string>
+    <string name="chat_suggest_plan_day">План на день</string>
+    <string name="chat_suggest_plan_day_prompt">Допоможи спланувати, що робити сьогодні.</string>
+    <string name="chat_suggest_needs_me">Що чекає на мене?</string>
+    <string name="chat_suggest_needs_me_prompt">Що зараз потребує моєї уваги?</string>
+    <string name="chat_suggest_yes">Так, давай</string>
+    <string name="chat_suggest_yes_prompt">Так, давай.</string>
+    <string name="chat_suggest_not_now">Не зараз</string>
+    <string name="chat_suggest_not_now_prompt">Ні, не зараз.</string>
+    <string name="chat_suggest_more">Розкажи більше</string>
+    <string name="chat_suggest_more_prompt">Розкажи більше, перш ніж я вирішу.</string>
+    <string name="chat_suggest_show_changes">Показати зміни</string>
+    <string name="chat_suggest_show_changes_prompt">Покажи, що ти змінив.</string>
+    <string name="chat_suggest_run_tests">Запустити тести</string>
+    <string name="chat_suggest_run_tests_prompt">Запусти тести й скажи результат.</string>
+    <string name="chat_suggest_summarize">Коротко</string>
+    <string name="chat_suggest_summarize_prompt">Перекажи свою останню відповідь у 3 коротких пунктах.</string>
+    <string name="chat_suggest_next">Що далі?</string>
+    <string name="chat_suggest_next_prompt">Що нам робити далі?</string>
+    <string name="chat_suggest_explain">Поясни простіше</string>
+    <string name="chat_suggest_explain_prompt">Поясни це простішими словами.</string>
+    <string name="chat_suggest_option_prompt">Беремо варіант %1$d: %2$s</string>
 </resources>

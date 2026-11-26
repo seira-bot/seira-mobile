@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Now works on your own server.</string>
     <string name="chat_works_on_failed">Couldn\'t change where this bot works. Try again.</string>
     <string name="chat_works_on_forbidden">Change this on the computer.</string>
+    <string name="chat_suggest_capabilities">What can you do?</string>
+    <string name="chat_suggest_capabilities_prompt">What can you help me with here?</string>
+    <string name="chat_suggest_plan_day">Plan my day</string>
+    <string name="chat_suggest_plan_day_prompt">Help me plan what to do today.</string>
+    <string name="chat_suggest_needs_me">What needs me?</string>
+    <string name="chat_suggest_needs_me_prompt">What needs my attention right now?</string>
+    <string name="chat_suggest_yes">Yes, go ahead</string>
+    <string name="chat_suggest_yes_prompt">Yes, go ahead.</string>
+    <string name="chat_suggest_not_now">Not now</string>
+    <string name="chat_suggest_not_now_prompt">No, not now.</string>
+    <string name="chat_suggest_more">Tell me more</string>
+    <string name="chat_suggest_more_prompt">Tell me more before I decide.</string>
+    <string name="chat_suggest_show_changes">Show the changes</string>
+    <string name="chat_suggest_show_changes_prompt">Show me what you changed.</string>
+    <string name="chat_suggest_run_tests">Run the tests</string>
+    <string name="chat_suggest_run_tests_prompt">Run the tests and tell me the result.</string>
+    <string name="chat_suggest_summarize">Summarize it</string>
+    <string name="chat_suggest_summarize_prompt">Summarize your last answer in 3 short points.</string>
+    <string name="chat_suggest_next">What\'s next?</string>
+    <string name="chat_suggest_next_prompt">What should we do next?</string>
+    <string name="chat_suggest_explain">Explain simply</string>
+    <string name="chat_suggest_explain_prompt">Explain that in simpler words.</string>
+    <string name="chat_suggest_option_prompt">Let\'s go with option %1$d: %2$s</string>
 </resources>

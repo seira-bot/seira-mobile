@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Теперь работает на вашем сервере.</string>
     <string name="chat_works_on_failed">Не удалось изменить, где работает этот бот. Повторите попытку.</string>
     <string name="chat_works_on_forbidden">Измените это на компьютере.</string>
+    <string name="chat_suggest_capabilities">Что ты умеешь?</string>
+    <string name="chat_suggest_capabilities_prompt">Чем ты можешь мне здесь помочь?</string>
+    <string name="chat_suggest_plan_day">План на день</string>
+    <string name="chat_suggest_plan_day_prompt">Помоги спланировать, что делать сегодня.</string>
+    <string name="chat_suggest_needs_me">Что требует меня?</string>
+    <string name="chat_suggest_needs_me_prompt">Что сейчас требует моего внимания?</string>
+    <string name="chat_suggest_yes">Да, давай</string>
+    <string name="chat_suggest_yes_prompt">Да, давай.</string>
+    <string name="chat_suggest_not_now">Не сейчас</string>
+    <string name="chat_suggest_not_now_prompt">Нет, не сейчас.</string>
+    <string name="chat_suggest_more">Расскажи больше</string>
+    <string name="chat_suggest_more_prompt">Расскажи больше, прежде чем я решу.</string>
+    <string name="chat_suggest_show_changes">Показать изменения</string>
+    <string name="chat_suggest_show_changes_prompt">Покажи, что ты изменил.</string>
+    <string name="chat_suggest_run_tests">Запустить тесты</string>
+    <string name="chat_suggest_run_tests_prompt">Запусти тесты и скажи результат.</string>
+    <string name="chat_suggest_summarize">Кратко</string>
+    <string name="chat_suggest_summarize_prompt">Перескажи свой последний ответ в 3 коротких пунктах.</string>
+    <string name="chat_suggest_next">Что дальше?</string>
+    <string name="chat_suggest_next_prompt">Что нам делать дальше?</string>
+    <string name="chat_suggest_explain">Объясни проще</string>
+    <string name="chat_suggest_explain_prompt">Объясни это более простыми словами.</string>
+    <string name="chat_suggest_option_prompt">Берём вариант %1$d: %2$s</string>
 </resources>

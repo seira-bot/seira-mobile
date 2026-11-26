@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Arbeitet jetzt auf deinem eigenen Server.</string>
     <string name="chat_works_on_failed">Der Arbeitsort dieses Bots konnte nicht geändert werden. Versuch es noch einmal.</string>
     <string name="chat_works_on_forbidden">Ändere das am Computer.</string>
+    <string name="chat_suggest_capabilities">Was kannst du?</string>
+    <string name="chat_suggest_capabilities_prompt">Wobei kannst du mir hier helfen?</string>
+    <string name="chat_suggest_plan_day">Tag planen</string>
+    <string name="chat_suggest_plan_day_prompt">Hilf mir, meinen Tag zu planen.</string>
+    <string name="chat_suggest_needs_me">Was braucht mich?</string>
+    <string name="chat_suggest_needs_me_prompt">Was braucht gerade meine Aufmerksamkeit?</string>
+    <string name="chat_suggest_yes">Ja, mach weiter</string>
+    <string name="chat_suggest_yes_prompt">Ja, mach weiter.</string>
+    <string name="chat_suggest_not_now">Jetzt nicht</string>
+    <string name="chat_suggest_not_now_prompt">Nein, jetzt nicht.</string>
+    <string name="chat_suggest_more">Mehr dazu</string>
+    <string name="chat_suggest_more_prompt">Sag mir mehr, bevor ich entscheide.</string>
+    <string name="chat_suggest_show_changes">Änderungen zeigen</string>
+    <string name="chat_suggest_show_changes_prompt">Zeig mir, was du geändert hast.</string>
+    <string name="chat_suggest_run_tests">Tests ausführen</string>
+    <string name="chat_suggest_run_tests_prompt">Führe die Tests aus und sag mir das Ergebnis.</string>
+    <string name="chat_suggest_summarize">Zusammenfassen</string>
+    <string name="chat_suggest_summarize_prompt">Fasse deine letzte Antwort in 3 kurzen Punkten zusammen.</string>
+    <string name="chat_suggest_next">Wie weiter?</string>
+    <string name="chat_suggest_next_prompt">Was sollen wir als Nächstes tun?</string>
+    <string name="chat_suggest_explain">Einfach erklären</string>
+    <string name="chat_suggest_explain_prompt">Erkläre das in einfacheren Worten.</string>
+    <string name="chat_suggest_option_prompt">Nehmen wir Option %1$d: %2$s</string>
 </resources>

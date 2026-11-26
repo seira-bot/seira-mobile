@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">अब यह आपके अपने सर्वर पर काम करता है।</string>
     <string name="chat_works_on_failed">इस बॉट के काम करने की जगह नहीं बदली जा सकी। फिर से कोशिश करें।</string>
     <string name="chat_works_on_forbidden">इसे कंप्यूटर पर बदलें।</string>
+    <string name="chat_suggest_capabilities">तुम क्या कर सकते हो?</string>
+    <string name="chat_suggest_capabilities_prompt">यहाँ तुम मेरी किस काम में मदद कर सकते हो?</string>
+    <string name="chat_suggest_plan_day">मेरा दिन प्लान करो</string>
+    <string name="chat_suggest_plan_day_prompt">आज क्या करना है, यह प्लान करने में मेरी मदद करो।</string>
+    <string name="chat_suggest_needs_me">मुझे क्या देखना है?</string>
+    <string name="chat_suggest_needs_me_prompt">अभी किस चीज़ पर मेरा ध्यान चाहिए?</string>
+    <string name="chat_suggest_yes">हाँ, आगे बढ़ो</string>
+    <string name="chat_suggest_yes_prompt">हाँ, आगे बढ़ो।</string>
+    <string name="chat_suggest_not_now">अभी नहीं</string>
+    <string name="chat_suggest_not_now_prompt">नहीं, अभी नहीं।</string>
+    <string name="chat_suggest_more">और बताओ</string>
+    <string name="chat_suggest_more_prompt">मेरे फ़ैसले से पहले और बताओ।</string>
+    <string name="chat_suggest_show_changes">बदलाव दिखाओ</string>
+    <string name="chat_suggest_show_changes_prompt">मुझे दिखाओ कि तुमने क्या बदला।</string>
+    <string name="chat_suggest_run_tests">टेस्ट चलाओ</string>
+    <string name="chat_suggest_run_tests_prompt">टेस्ट चलाओ और नतीजा बताओ।</string>
+    <string name="chat_suggest_summarize">सार बताओ</string>
+    <string name="chat_suggest_summarize_prompt">अपने पिछले जवाब का सार 3 छोटे बिंदुओं में बताओ।</string>
+    <string name="chat_suggest_next">आगे क्या?</string>
+    <string name="chat_suggest_next_prompt">अब हमें आगे क्या करना चाहिए?</string>
+    <string name="chat_suggest_explain">आसान शब्दों में</string>
+    <string name="chat_suggest_explain_prompt">इसे आसान शब्दों में समझाओ।</string>
+    <string name="chat_suggest_option_prompt">विकल्प %1$d चुनते हैं: %2$s</string>
 </resources>

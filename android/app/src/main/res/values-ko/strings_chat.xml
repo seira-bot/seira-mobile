@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">이제 내 서버에서 작업해요.</string>
     <string name="chat_works_on_failed">이 봇의 작업 위치를 바꾸지 못했어요. 다시 시도해 주세요.</string>
     <string name="chat_works_on_forbidden">컴퓨터에서 변경해 주세요.</string>
+    <string name="chat_suggest_capabilities">뭘 할 수 있어?</string>
+    <string name="chat_suggest_capabilities_prompt">여기서 뭘 도와줄 수 있어?</string>
+    <string name="chat_suggest_plan_day">오늘 계획 짜기</string>
+    <string name="chat_suggest_plan_day_prompt">오늘 할 일을 계획하는 걸 도와줘.</string>
+    <string name="chat_suggest_needs_me">내가 챙길 일은?</string>
+    <string name="chat_suggest_needs_me_prompt">지금 내가 챙겨야 할 일이 뭐야?</string>
+    <string name="chat_suggest_yes">응, 진행해</string>
+    <string name="chat_suggest_yes_prompt">응, 진행해 줘.</string>
+    <string name="chat_suggest_not_now">지금은 말고</string>
+    <string name="chat_suggest_not_now_prompt">아니, 지금은 하지 마.</string>
+    <string name="chat_suggest_more">더 알려줘</string>
+    <string name="chat_suggest_more_prompt">결정하기 전에 더 알려줘.</string>
+    <string name="chat_suggest_show_changes">변경 내용 보기</string>
+    <string name="chat_suggest_show_changes_prompt">뭘 바꿨는지 보여줘.</string>
+    <string name="chat_suggest_run_tests">테스트 실행</string>
+    <string name="chat_suggest_run_tests_prompt">테스트를 실행하고 결과를 알려줘.</string>
+    <string name="chat_suggest_summarize">요약해줘</string>
+    <string name="chat_suggest_summarize_prompt">방금 답변을 짧은 3가지 요점으로 요약해줘.</string>
+    <string name="chat_suggest_next">다음은?</string>
+    <string name="chat_suggest_next_prompt">다음에 뭘 할까?</string>
+    <string name="chat_suggest_explain">쉽게 설명</string>
+    <string name="chat_suggest_explain_prompt">더 쉬운 말로 설명해줘.</string>
+    <string name="chat_suggest_option_prompt">%1$d번 옵션으로 갈게: %2$s</string>
 </resources>

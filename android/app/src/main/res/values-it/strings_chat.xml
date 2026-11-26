@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Ora lavora sul tuo server.</string>
     <string name="chat_works_on_failed">Impossibile cambiare dove lavora questo bot. Riprova.</string>
     <string name="chat_works_on_forbidden">Cambialo sul computer.</string>
+    <string name="chat_suggest_capabilities">Cosa sai fare?</string>
+    <string name="chat_suggest_capabilities_prompt">In cosa puoi aiutarmi qui?</string>
+    <string name="chat_suggest_plan_day">Pianifica la giornata</string>
+    <string name="chat_suggest_plan_day_prompt">Aiutami a pianificare cosa fare oggi.</string>
+    <string name="chat_suggest_needs_me">Cosa mi aspetta?</string>
+    <string name="chat_suggest_needs_me_prompt">Cosa richiede la mia attenzione adesso?</string>
+    <string name="chat_suggest_yes">Sì, procedi</string>
+    <string name="chat_suggest_yes_prompt">Sì, procedi.</string>
+    <string name="chat_suggest_not_now">Non ora</string>
+    <string name="chat_suggest_not_now_prompt">No, non ora.</string>
+    <string name="chat_suggest_more">Dimmi di più</string>
+    <string name="chat_suggest_more_prompt">Dimmi di più prima che io decida.</string>
+    <string name="chat_suggest_show_changes">Mostra le modifiche</string>
+    <string name="chat_suggest_show_changes_prompt">Mostrami cosa hai cambiato.</string>
+    <string name="chat_suggest_run_tests">Esegui i test</string>
+    <string name="chat_suggest_run_tests_prompt">Esegui i test e dimmi il risultato.</string>
+    <string name="chat_suggest_summarize">Riassumi</string>
+    <string name="chat_suggest_summarize_prompt">Riassumi la tua ultima risposta in 3 punti brevi.</string>
+    <string name="chat_suggest_next">E ora?</string>
+    <string name="chat_suggest_next_prompt">Cosa dovremmo fare ora?</string>
+    <string name="chat_suggest_explain">Spiega semplice</string>
+    <string name="chat_suggest_explain_prompt">Spiegalo con parole più semplici.</string>
+    <string name="chat_suggest_option_prompt">Scegliamo l\'opzione %1$d: %2$s</string>
 </resources>

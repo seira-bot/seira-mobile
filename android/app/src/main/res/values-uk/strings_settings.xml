@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">Не вдається зв’язатися з вашим комп’ютером</string>
     <string name="settings_reconnect">Підключитися знову</string>
-    <string name="update_banner_downloading">Завантаження оновлення…</string>
-    <string name="update_banner_ready">Оновлення готове. Перезапустіть Seira</string>
-    <string name="update_banner_restart">Перезапустити</string>
-    <string name="settings_check_updates">Перевірити оновлення</string>
-    <string name="settings_update_checking">Перевіряємо…</string>
-    <string name="settings_update_found">Завантаження оновлення</string>
-    <string name="settings_update_current">Встановлено останню версію</string>
     <string name="ai_usage_title">Використання ШІ</string>
     <string name="ai_usage_window_five_hour">Ліміт на 5 годин</string>
     <string name="ai_usage_window_weekly">Тижневий ліміт</string>
@@ -48,4 +41,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">Токенів: %1$s · крок: 1</string>
     <string name="ai_usage_conversation_cost">%1$s · приблизно %2$s</string>
     <string name="ai_usage_conversation_context">Контекст: %1$s із %2$s</string>
+    <string name="update_banner_downloading">Завантаження оновлення…</string>
+    <string name="update_banner_ready">Оновлення готове. Перезапустіть Seira</string>
+    <string name="update_banner_restart">Перезапустити</string>
+    <string name="settings_check_updates">Перевірити оновлення</string>
+    <string name="settings_update_checking">Перевіряємо…</string>
+    <string name="settings_update_found">Завантаження оновлення</string>
+    <string name="settings_update_current">Встановлено останню версію</string>
 </resources>

@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Travaille maintenant sur votre propre serveur.</string>
     <string name="chat_works_on_failed">Impossible de changer l\'endroit où ce bot travaille. Réessayez.</string>
     <string name="chat_works_on_forbidden">Modifiez cela sur l\'ordinateur.</string>
+    <string name="chat_suggest_capabilities">Que sais-tu faire ?</string>
+    <string name="chat_suggest_capabilities_prompt">En quoi peux-tu m\'aider ici ?</string>
+    <string name="chat_suggest_plan_day">Planifier ma journée</string>
+    <string name="chat_suggest_plan_day_prompt">Aide-moi à planifier ma journée.</string>
+    <string name="chat_suggest_needs_me">Qu\'est-ce qui m\'attend ?</string>
+    <string name="chat_suggest_needs_me_prompt">Qu\'est-ce qui demande mon attention maintenant ?</string>
+    <string name="chat_suggest_yes">Oui, vas-y</string>
+    <string name="chat_suggest_yes_prompt">Oui, vas-y.</string>
+    <string name="chat_suggest_not_now">Pas maintenant</string>
+    <string name="chat_suggest_not_now_prompt">Non, pas maintenant.</string>
+    <string name="chat_suggest_more">En savoir plus</string>
+    <string name="chat_suggest_more_prompt">Dis-m\'en plus avant que je décide.</string>
+    <string name="chat_suggest_show_changes">Voir les changements</string>
+    <string name="chat_suggest_show_changes_prompt">Montre-moi ce que tu as modifié.</string>
+    <string name="chat_suggest_run_tests">Lancer les tests</string>
+    <string name="chat_suggest_run_tests_prompt">Lance les tests et donne-moi le résultat.</string>
+    <string name="chat_suggest_summarize">Résumer</string>
+    <string name="chat_suggest_summarize_prompt">Résume ta dernière réponse en 3 points courts.</string>
+    <string name="chat_suggest_next">Et ensuite ?</string>
+    <string name="chat_suggest_next_prompt">Que devrions-nous faire ensuite ?</string>
+    <string name="chat_suggest_explain">Expliquer simplement</string>
+    <string name="chat_suggest_explain_prompt">Explique cela avec des mots plus simples.</string>
+    <string name="chat_suggest_option_prompt">Allons avec l\'option %1$d : %2$s</string>
 </resources>
