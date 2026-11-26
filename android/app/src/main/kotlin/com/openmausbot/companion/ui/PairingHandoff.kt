@@ -50,13 +50,20 @@ internal object PairingHandoff {
         relaunch: () -> Unit,
         markFinishing: () -> Unit,
         deliver: (String) -> Unit,
+    ) = runThen(relaunch, markFinishing) { if (inviteUrl != null) deliver(inviteUrl) }
+
+    /** The same order for a route that hands over something other than an invite. */
+    fun runThen(
+        relaunch: () -> Unit,
+        markFinishing: () -> Unit,
+        after: () -> Unit,
     ) {
         // 1. Hand the user to the real screen.
         relaunch()
         // 2. Mark this record finishing. Everything after this point is safe from
         //    an Intent redelivery, because there is no record left to relaunch.
         markFinishing()
-        // 3. Only now does the credential enter process memory.
-        if (inviteUrl != null) deliver(inviteUrl)
+        // 3. Only now does anything enter process memory.
+        after()
     }
 }
