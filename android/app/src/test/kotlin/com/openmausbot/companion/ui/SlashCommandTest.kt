@@ -19,6 +19,8 @@ import kotlin.test.assertTrue
  * `if text == "/"`, and the `else if draft.isEmpty && !current.busy &&
  * !hasPendingApproval` that gates the chips. Not derived from the Kotlin.
  */
+private val MESSAGE_TITLES = listOf("/goal", "/learn", "/setup", "/burst")
+
 class SlashCommandsTest {
     @Test
     fun `the nine commands, in the order the HUD lists them`() {
@@ -62,7 +64,7 @@ class SlashCommandsTest {
     @Test
     fun `a room has no computer and no task list`() {
         assertEquals(
-            listOf("/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
+            listOf("/diff", "/retry", "/steer"),
             SlashCommands.forChat(Chat.RoomChat(room())).map { it.title },
         )
     }
@@ -71,7 +73,7 @@ class SlashCommandsTest {
     fun `a channel with tasks keeps tasks but never computer`() {
         val channel = Chat.RoomChat(room().copy(tasks = listOf(BotTask("task-1", "Plan", 0.0))))
         assertEquals(
-            listOf("/threads", "/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
+            listOf("/threads", "/diff", "/retry", "/steer"),
             SlashCommands.forChat(channel).map { it.title },
         )
     }
@@ -87,14 +89,48 @@ class SlashCommandsTest {
         )
         assertFalse(dm.supportsTasks)
         assertEquals(
-            listOf("/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
+            listOf("/diff", "/retry", "/steer"),
             SlashCommands.forChat(dm).map { it.title },
         )
     }
 
     @Test
-    fun `a bot chat keeps all nine`() {
-        assertEquals(SlashCommands.ALL, SlashCommands.forChat(Chat.BotChat(bot())))
+    fun `a bot chat shows the five local commands and hides the four with no phone data`() {
+        assertEquals(
+            listOf("/computer", "/threads", "/diff", "/retry", "/steer"),
+            SlashCommands.forChat(Chat.BotChat(bot())).map { it.title },
+        )
+    }
+
+    @Test
+    fun `every gate open gives a bot all nine`() {
+        val open = SlashGates(goal = true, learn = true, agents = true)
+        assertEquals(SlashCommands.ALL, SlashCommands.forChat(Chat.BotChat(bot()), open))
+    }
+
+    @Test
+    fun `learn needs its own gate, and setup and burst need the agents gate`() {
+        val chat = Chat.BotChat(bot())
+        assertEquals(
+            listOf("/learn"),
+            SlashCommands.forChat(chat, SlashGates(learn = true)).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
+        assertEquals(
+            listOf("/setup", "/burst"),
+            SlashCommands.forChat(chat, SlashGates(agents = true)).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
+    }
+
+    @Test
+    fun `a group never offers setup or burst, and a DM never offers goal`() {
+        val open = SlashGates(goal = true, learn = true, agents = true)
+        val group = SlashCommands.forChat(Chat.RoomChat(room()), open).map { it.title }.filter { it in MESSAGE_TITLES }
+        assertEquals(listOf("/goal", "/learn"), group)
+        val dm = Chat.RoomChat(room().copy(dm = true))
+        assertEquals(
+            listOf("/learn"),
+            SlashCommands.forChat(dm, open).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
     }
 
     @Test
@@ -153,9 +189,9 @@ class SlashCommandsTest {
     }
 
     @Test
-    fun `the four message commands are in a group chat too`() {
-        val titles = SlashCommands.forChat(Chat.RoomChat(room())).map { it.title }
-        assertTrue(titles.containsAll(listOf("/goal", "/learn", "/setup", "/burst")))
+    fun `learn and setup say what they do in the desktop words`() {
+        assertEquals("Draft a reusable skill from this conversation", SlashCommands.ALL.single { it.title == "/learn" }.description)
+        assertEquals("Have this bot interview you and set itself up", SlashCommands.ALL.single { it.title == "/setup" }.description)
     }
 
     @Test

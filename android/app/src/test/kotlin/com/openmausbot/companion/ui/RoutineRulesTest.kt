@@ -45,6 +45,7 @@ class RoutineRulesTest {
             assertTrue(footer.contains("full run logs remain available"))
         }
         assertTrue(RoutineRules.INTERVAL_SCHEDULE_FOOTER.contains("skipped instead of queued"))
+        assertTrue(listOf(RoutineRules.SCHEDULE_FOOTER, RoutineRules.INTERVAL_SCHEDULE_FOOTER).none { it.contains("cron", ignoreCase = true) })
     }
 
     @Test

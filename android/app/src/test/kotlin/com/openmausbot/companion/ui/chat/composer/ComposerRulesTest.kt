@@ -22,6 +22,14 @@ import kotlinx.coroutines.test.runTest
 /** AC-19: the round button. */
 class ComposerRoundTest {
     @Test
+    fun `Stop sits beside Send when a line is typed while the bot works`() {
+        assertTrue(ComposerRound.stopBesideSend(hasContent = true, working = true))
+        assertFalse(ComposerRound.stopBesideSend(hasContent = false, working = true))
+        assertFalse(ComposerRound.stopBesideSend(hasContent = true, working = false))
+        assertEquals(RoundButton.STOP, ComposerRound.of(hasContent = false, working = true, callAvailable = true))
+    }
+
+    @Test
     fun `an empty field over an idle bot starts the call`() {
         val button = ComposerRound.of(hasContent = false, working = false, callAvailable = true)
         assertEquals(RoundButton.CALL, button)
@@ -228,7 +236,6 @@ class ComposerPlusTest {
                 ChatActionId.SETTINGS,
                 ChatActionId.SCHEDULE,
                 ChatActionId.WATCH_COMPUTER,
-                ChatActionId.WORK_UNTIL_DONE,
                 ChatActionId.SHARE_MARKDOWN,
                 ChatActionId.SHARE_JSON,
             ).sortedBy { it.name },
@@ -257,7 +264,28 @@ class ComposerPlusTest {
     }
 
     @Test
-    fun `Work until done is offered and fills the field`() {
-        assertTrue(ChatActionId.WORK_UNTIL_DONE in ids(Chat.BotChat(bot())))
+    fun `Work until done is not offered while a goal cannot be sent as a goal`() {
+        val titles = ComposerPlus.actions(
+            Chat.BotChat(bot()), hasPendingApproval = false, canAddAttachment = true, hasCamera = true, offersSchedule = true,
+        ).map { it.title }
+        assertTrue(titles.none { it.contains("until done", ignoreCase = true) })
+    }
+}
+
+class ComposerHintTest {
+    @Test
+    fun `a direct message is not a group, a channel is`() {
+        assertFalse(ComposerHint.isGroup(Chat.BotChat(bot())))
+        assertFalse(ComposerHint.isGroup(Chat.RoomChat(room().copy(dm = true))))
+        assertTrue(ComposerHint.isGroup(Chat.RoomChat(room())))
+    }
+}
+
+class SteerMessageTest {
+    @Test
+    fun `a failed Steer and a waiting Steer each say something, a done one does not`() {
+        assertEquals(R.string.composer_steer_waiting, QueuedSteering.messageRes(SteerOutcome.WAITING))
+        assertEquals(R.string.composer_steer_failed, QueuedSteering.messageRes(SteerOutcome.FAILED))
+        assertNull(QueuedSteering.messageRes(SteerOutcome.DONE))
     }
 }

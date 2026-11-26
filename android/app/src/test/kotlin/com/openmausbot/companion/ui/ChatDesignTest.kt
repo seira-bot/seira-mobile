@@ -130,7 +130,7 @@ class ChatDesignTest {
         val items = listOf("Read invoices", "Check totals").mapIndexed { index, name ->
             Message("t$index", Message.Role.BOT, Message.Kind.ACTIVITY, index.toDouble(), tool = ToolActivity(name = name, ok = true))
         }
-        show { ActivityRunChip(items = items, bots = listOf(bot)) }
+        show { ActivityRunChip(items = items) }
         compose.onNodeWithContentDescription("Worked, collapsed").assertExists()
         compose.onNodeWithTag(ACTIVITY_CHEVRON_TAG, useUnmergedTree = true).assertExists()
 
@@ -160,9 +160,9 @@ class ChatDesignTest {
     @Test
     fun `an approval has Allow and Deny, each 48 dp tall`() {
         showApproval(skill = null)
-        compose.onNodeWithText("Allow once").assertIsEnabled()
+        compose.onNodeWithText("Allow").assertIsEnabled()
         compose.onNodeWithText("Deny").assertIsEnabled()
-        listOf("Allow once", "Deny").forEach { label ->
+        listOf("Allow", "Deny").forEach { label ->
             val height = compose.onNodeWithText(label).getBoundsInRoot().height
             assertTrue(height >= 47.9.dp, "$label is $height tall")
         }
@@ -171,14 +171,14 @@ class ChatDesignTest {
     @Test
     fun `Allow stays off for a skill request the person could not read in full`() {
         showApproval(skill = skillRequest(sha256 = null, preview = null))
-        compose.onNodeWithText("Allow once").assertIsNotEnabled()
+        compose.onNodeWithText("Allow").assertIsNotEnabled()
         compose.onNodeWithText("Deny").assertIsEnabled()
     }
 
     @Test
     fun `Allow comes on once the skill request carries its full review`() {
         showApproval(skill = skillRequest(sha256 = hash, preview = "Reads the invoice folder."))
-        compose.onNodeWithText("Allow once").assertIsEnabled()
+        compose.onNodeWithText("Allow").assertIsEnabled()
     }
 
     // The stream

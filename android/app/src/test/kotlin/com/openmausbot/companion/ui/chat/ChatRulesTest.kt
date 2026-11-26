@@ -336,3 +336,93 @@ class MessageActionRulesTest {
         assertNotNull(members.firstOrNull())
     }
 }
+
+class ReplyOutgoingTest {
+    @Test
+    fun `a reply with attachments only sends the quote as its text`() {
+        assertEquals("> Send it", ReplyQuote.outgoing("Send it", ""))
+        assertEquals("> Send it", ReplyQuote.outgoing("Send it", "   "))
+    }
+
+    @Test
+    fun `a reply with words quotes them`() {
+        assertEquals("> Send it\n\nYes, now", ReplyQuote.outgoing("Send it", "Yes, now"))
+    }
+
+    @Test
+    fun `a slash line stays a bare command even in a reply`() {
+        assertEquals("/learn how we do refunds", ReplyQuote.outgoing("Send it", "/learn how we do refunds"))
+    }
+
+    @Test
+    fun `with no reply the text is unchanged`() {
+        assertEquals("", ReplyQuote.outgoing(null, ""))
+        assertEquals("Yes", ReplyQuote.outgoing(null, "Yes"))
+    }
+}
+
+class ChatFindShownTest {
+    @Test
+    fun `search covers only the messages the rows show`() {
+        val shown = text("a", "March invoices")
+        val hidden = text("b", "March totals, hidden by the activity setting")
+        val rows = listOf<TranscriptRow>(TranscriptRow.Single(shown))
+        val hits = ChatFindRules.hits(ChatFindRules.shownMessages(rows), "march")
+        assertEquals(listOf("a"), hits)
+        assertEquals(listOf("a", "b"), ChatFindRules.hits(listOf(shown, hidden), "march"))
+    }
+
+    @Test
+    fun `folded messages count because opening the fold shows them`() {
+        val rows = listOf<TranscriptRow>(
+            TranscriptRow.ActivityRun(listOf(step("s1", 1.0), step("s2", 2.0))),
+            TranscriptRow.AssistantTurn("turn", listOf(text("n1", "March narration")), 10.0),
+        )
+        assertEquals(listOf("s1", "s2", "n1"), ChatFindRules.shownMessages(rows).map { it.id })
+        assertEquals(listOf("n1"), ChatFindRules.hits(ChatFindRules.shownMessages(rows), "march"))
+    }
+}
+
+class NewThreadReasonTest {
+    @Test
+    fun `an enabled New thread has no reason`() {
+        assertNull(ChatMenuRules.newThreadReason(canCreate = true, creating = false, decisionWaiting = false))
+    }
+
+    @Test
+    fun `a disabled New thread always says why`() {
+        assertNotNull(ChatMenuRules.newThreadReason(canCreate = false, creating = false, decisionWaiting = false))
+        assertNotNull(ChatMenuRules.newThreadReason(canCreate = true, creating = true, decisionWaiting = false))
+        assertNotNull(ChatMenuRules.newThreadReason(canCreate = true, creating = false, decisionWaiting = true))
+    }
+}
+
+class AlwaysAllowOnceTest {
+    private val botChat = Chat.BotChat(bot())
+
+    private fun permission(vararg options: String, requestType: String = "permission") = OptionCard(
+        title = "Run a command", subtitle = "ls", options = options.toList(), requestId = "r1",
+        tool = "Bash", requestType = requestType, allowKey = "Bash:ls",
+    )
+
+    @Test
+    fun `the button replaces the option when another way to say yes remains`() {
+        val card = permission("Allow", "Always allow", "Deny")
+        assertTrue(ApprovalButtons.movesAlways(card, botChat))
+        assertEquals(listOf("Allow", "Deny"), ApprovalButtons.layout(card, botChat).map { it.option })
+    }
+
+    @Test
+    fun `the option stays and the button hides when it is the only yes`() {
+        val card = permission("Always allow", "Deny")
+        assertFalse(ApprovalButtons.movesAlways(card, botChat))
+        assertEquals(listOf("Always allow", "Deny"), ApprovalButtons.layout(card, botChat).map { it.option })
+    }
+
+    @Test
+    fun `a stacked card keeps its own Always allow option`() {
+        val card = permission("Allow", "Always allow", "Deny", requestType = "question")
+        assertFalse(ApprovalButtons.movesAlways(card, botChat))
+        assertEquals(listOf("Allow", "Always allow", "Deny"), ApprovalButtons.layout(card, botChat).map { it.option })
+    }
+}
