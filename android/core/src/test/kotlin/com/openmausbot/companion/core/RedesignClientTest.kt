@@ -350,7 +350,7 @@ class RedesignClientTest {
 
     @Test
     fun unsafeIdsNeverReachTheWire() {
-        assertFailsWith<APIError> { runBlocking { client.deleteBot("../x") } }
+        assertFailsWith<APIError> { runBlocking { client.deleteBot("..") } }
         assertFailsWith<APIError> { runBlocking { client.deleteConnectorAccount("gmail", "") } }
         assertEquals(0, server.requestCount)
     }

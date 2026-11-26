@@ -122,7 +122,10 @@ class SessionRedesignTest {
             deviceNameProvider = { "Pixel" },
             eventsFn = { _, _, _ -> emptyFlow() },
             hydrateFn = { _, _ -> fleet },
-        ).also { it.awaitRestored() }
+        ).also {
+            it.awaitRestored()
+            it.refresh()
+        }
     }
 
     private fun bot(id: String, approvalMode: String? = null): Bot = Bot(
