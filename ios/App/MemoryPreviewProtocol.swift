@@ -61,9 +61,11 @@ final class MemoryPreviewProtocol: URLProtocol {
     override func stopLoading() { held?.cancel(); held = nil }
 
     private func entry(newComputer: Bool) -> [String: Any] {
-        ["id": "memory_1", "kind": "term", "name": newComputer ? "New computer" : "MCHQ",
-         "detail": newComputer ? "Current host memory" : Self.state.withLock { $0.detail },
-         "aliases": [], "status": "accepted", "source": ["botId": "", "botName": "you", "threadId": "", "at": 1], "updatedAt": 1]
+        let saved = Self.state.withLock { $0 }
+        return ["id": "memory_1", "kind": "term", "name": newComputer ? "New computer" : "MCHQ",
+                "detail": newComputer ? "Current host memory" : saved.detail,
+                "aliases": [], "status": "accepted", "source": ["botId": "", "botName": "you", "threadId": "", "at": 1], "updatedAt": 1,
+                "revision": newComputer ? "new-1" : "rev-\(saved.writes)"]
     }
 
     private func requestObject() -> [String: Any] {
