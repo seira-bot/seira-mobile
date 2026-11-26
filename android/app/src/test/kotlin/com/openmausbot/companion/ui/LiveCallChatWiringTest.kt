@@ -189,7 +189,7 @@ class LiveCallChatWiringTest {
 
         compose.onNodeWithContentDescription("Hang up").performClick()
         compose.waitUntil(5_000) { requests.any { it.path == "/api/live/call/end" } }
-        compose.waitUntil(5_000) { !scene.environment.liveCalls.state.value.active }
+        compose.waitUntil(5_000) { compose.runOnIdle { !scene.environment.liveCalls.state.value.active } }
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Talk with Scout").fetchSemanticsNodes().isNotEmpty() }
         compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.waitUntil(10_000) { requests.count { it.path == "/api/live/session" } == 2 }
