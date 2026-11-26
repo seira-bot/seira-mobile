@@ -440,7 +440,7 @@ private fun PairedScreen(
         ) {
             when (val destination = navigator.current) {
                 Destination.Roster -> HomeShell(navigator)
-                Destination.Search -> SearchScreen(onBack = navigator::pop)
+                Destination.Search -> SearchScreen(onBack = navigator::pop, navigator = navigator)
                 Destination.Computers -> ComputersScreen(onBack = navigator::pop)
                 is Destination.BotProfile -> BotProfileScreen(destination.botId, destination.tab, navigator::pop)
                 Destination.TeamMap -> TeamMapScreen(onBack = navigator::pop)
