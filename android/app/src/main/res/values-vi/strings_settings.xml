@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">Giới hạn 5 giờ</string>
     <string name="ai_usage_window_weekly">Giới hạn hằng tuần</string>
     <string name="ai_usage_window_other">Giới hạn khác</string>
-    <string name="ai_usage_window_row">Còn %1$d%% · đặt lại %2$s</string>
-    <string name="ai_usage_window_row_no_reset">Còn %1$d%%</string>
     <string name="ai_usage_paused_until">Tạm dừng đến %1$s</string>
     <string name="ai_usage_paused">Đã tạm dừng</string>
     <string name="ai_usage_near_limit">Sắp chạm giới hạn</string>

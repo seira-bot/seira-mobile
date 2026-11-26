@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">Лимит на 5 часов</string>
     <string name="ai_usage_window_weekly">Недельный лимит</string>
     <string name="ai_usage_window_other">Другой лимит</string>
-    <string name="ai_usage_window_row">Осталось %1$d%% · сброс %2$s</string>
-    <string name="ai_usage_window_row_no_reset">Осталось %1$d%%</string>
     <string name="ai_usage_paused_until">Приостановлено до %1$s</string>
     <string name="ai_usage_paused">Приостановлено</string>
     <string name="ai_usage_near_limit">Почти исчерпан лимит</string>

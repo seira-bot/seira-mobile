@@ -74,48 +74,12 @@ internal object SettingsDesign {
     fun channelIsOn(appNotificationsEnabled: Boolean, importance: Int?): Boolean =
         appNotificationsEnabled && importance != android.app.NotificationManager.IMPORTANCE_NONE
 
-    /** Up to two initials, or null when the name has no letters to use. */
-    fun initials(name: String): String? =
-        name.trim().split(Regex("\\s+"))
-            .mapNotNull { part -> part.firstOrNull { it.isLetterOrDigit() } }
-            .take(2)
-            .joinToString("") { it.uppercase() }
-            .ifEmpty { null }
-
     fun kindLabel(kind: CompanionEndpointKind?): Int? = when (kind) {
         CompanionEndpointKind.LAN, CompanionEndpointKind.BONJOUR -> R.string.pair_kind_same_wifi
         CompanionEndpointKind.TAILNET -> R.string.pair_kind_tailscale
         CompanionEndpointKind.HOSTED -> R.string.pair_kind_internet
         null -> null
     }
-
-    fun connectedStateLabel(connection: Connection): Int = when (connection.activeEndpoint?.kind) {
-        CompanionEndpointKind.LAN, CompanionEndpointKind.BONJOUR -> R.string.settings_state_same_wifi
-        CompanionEndpointKind.TAILNET -> R.string.settings_state_tailscale
-        CompanionEndpointKind.HOSTED -> R.string.settings_state_internet
-        null -> R.string.settings_state_connected
-    }
-}
-
-@Composable
-internal fun SettingsGroupTitle(text: String) {
-    Text(
-        text = text,
-        style = SeiraType.callout.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Medium),
-        color = Seira.colors.ink3,
-        modifier = Modifier.padding(start = 4.dp, end = 4.dp, top = 28.dp, bottom = 8.dp),
-    )
-}
-
-@Composable
-internal fun SettingsHairline(inset: androidx.compose.ui.unit.Dp = 16.dp) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .padding(start = inset)
-            .height(1.dp)
-            .background(Seira.colors.hairline),
-    )
 }
 
 /** A 56 dp row with an optional icon, a title, an optional second line and a trailing slot. */
@@ -188,25 +152,6 @@ internal fun SwitchRow(
         )
     }
 }
-
-@Composable
-internal fun ProfileAvatar(initials: String?, size: androidx.compose.ui.unit.Dp = 52.dp) {
-    val colors = Seira.colors
-    Box(
-        modifier = Modifier.size(size).background(colors.primary, CircleShape),
-        contentAlignment = Alignment.Center,
-    ) {
-        if (initials != null) {
-            Text(initials, style = SeiraType.title3, color = colors.onPrimary)
-        } else {
-            Icon(SeiraIcons.User, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(24.dp))
-        }
-    }
-}
-
-@Composable
-internal fun connectedStateText(connection: Connection): String =
-    stringResource(SettingsDesign.connectedStateLabel(connection))
 
 /** Two sheets, one in front of the other. The theme set has no copy icon. */
 internal val CopyIcon: ImageVector = ImageVector.Builder(

@@ -29,15 +29,6 @@ class SettingsDesignTest {
     val compose = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `initials use the first letter of up to two words`() {
-        assertEquals("DP", SettingsDesign.initials("Dina Pratama"))
-        assertEquals("D", SettingsDesign.initials("  dina "))
-        assertEquals("DM", SettingsDesign.initials("Dina Maya Pratama"))
-        assertNull(SettingsDesign.initials("   "))
-        assertNull(SettingsDesign.initials("--"))
-    }
-
-    @Test
     fun `a channel the system has not made yet counts as on`() {
         assertTrue(SettingsDesign.channelIsOn(appNotificationsEnabled = true, importance = null))
         assertTrue(SettingsDesign.channelIsOn(true, NotificationManager.IMPORTANCE_HIGH))

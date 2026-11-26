@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">5 घंटे की सीमा</string>
     <string name="ai_usage_window_weekly">साप्ताहिक सीमा</string>
     <string name="ai_usage_window_other">अन्य सीमा</string>
-    <string name="ai_usage_window_row">%1$d%% बचा · %2$s पर रीसेट</string>
-    <string name="ai_usage_window_row_no_reset">%1$d%% बचा</string>
     <string name="ai_usage_paused_until">%1$s तक रुका हुआ</string>
     <string name="ai_usage_paused">रुका हुआ</string>
     <string name="ai_usage_near_limit">सीमा लगभग पूरी हो गई</string>
