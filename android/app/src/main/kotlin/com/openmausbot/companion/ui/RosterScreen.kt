@@ -476,6 +476,10 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                                     haptics.play(HapticCue.SELECT)
                                     showingComputers = true
                                 },
+                                onAddComputer = {
+                                    haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
+                                    session.beginPairing()
+                                },
                                 workspaceName = workspaces.current?.takeIf { workspaces.visible }
                                     ?.let { WorkspaceSheetRules.name(it) ?: workspaceUnnamed },
                                 onWorkspace = {

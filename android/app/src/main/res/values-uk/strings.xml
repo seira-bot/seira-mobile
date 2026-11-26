@@ -160,6 +160,12 @@
     <string name="mobile_card_send_to_app">Надіслати в %1$s?</string>
     <string name="mobile_card_send_on_your_behalf">Надіслати від вашого імені?</string>
     <string name="mobile_card_details">Подробиці</string>
+    <string name="mobile_card_swipe_allow">Дозволити</string>
+    <string name="mobile_card_swipe_deny">Відхилити</string>
+    <string name="mobile_card_confirm_allow">Дозволити цей запит?</string>
+    <string name="mobile_card_confirm_deny">Відхилити цей запит?</string>
+    <string name="mobile_card_confirm">Підтвердити</string>
+    <string name="mobile_card_cancel_swipe">Скасувати</string>
     <string name="mobile_card_allowed">Дозволено</string>
     <string name="mobile_card_denied">Відмовлено</string>
     <string name="mobile_card_no_longer_available">Більше недоступно</string>

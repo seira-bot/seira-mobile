@@ -158,6 +158,13 @@
                 <data android:scheme="seira" />
                 <data android:host="pair" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="*.seira.run" />
+            </intent-filter>
         </activity>
         <!--
           Inbound share. The sending app's content URIs are granted to this

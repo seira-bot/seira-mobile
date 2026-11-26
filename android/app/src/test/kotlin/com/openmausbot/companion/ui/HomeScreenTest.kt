@@ -273,6 +273,15 @@ class HomeScreenTest {
         compose.waitUntil(5_000) { scene.session.pairingRequested.value }
     }
 
+    @Test
+    fun `the Add a computer button on the Chats heading starts pairing in one tap`() {
+        mount()
+        compose.onNodeWithTag("roster-list").performScrollToNode(hasTestTag("home-add-computer"))
+        compose.onNodeWithTag("home-add-computer").assert(hasContentDescription("Add a computer")).performClick()
+        compose.waitUntil(5_000) { scene.session.pairingRequested.value }
+        assertEquals(0, compose.onAllNodesWithTag("computer-switch-sheet").fetchSemanticsNodes().size)
+    }
+
     private fun mount(
         hour: Int = 9,
         fleet: Fleet = RosterFixture.fleet(),

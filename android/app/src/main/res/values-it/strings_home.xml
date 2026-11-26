@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">Buonasera</string>
     <string name="home_greeting_with_name">%1$s, %2$s</string>
     <string name="home_more_options">Altre opzioni</string>
+    <string name="home_add_computer">Aggiungi un computer</string>
     <string name="home_talk">Parla</string>
     <string name="home_status_ready">Pronto</string>
     <string name="home_team">Team</string>

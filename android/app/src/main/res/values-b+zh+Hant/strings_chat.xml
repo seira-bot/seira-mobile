@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">現在在你自己的伺服器上工作。</string>
     <string name="chat_works_on_failed">無法變更此機器人的工作位置。請重試。</string>
     <string name="chat_works_on_forbidden">請在電腦上變更。</string>
+    <string name="chat_suggest_capabilities">你能做什麼？</string>
+    <string name="chat_suggest_capabilities_prompt">你在這裡能幫我做什麼？</string>
+    <string name="chat_suggest_plan_day">規劃今天</string>
+    <string name="chat_suggest_plan_day_prompt">幫我規劃今天要做的事。</string>
+    <string name="chat_suggest_needs_me">有什麼要我處理？</string>
+    <string name="chat_suggest_needs_me_prompt">現在有什麼需要我關注？</string>
+    <string name="chat_suggest_yes">好，請繼續</string>
+    <string name="chat_suggest_yes_prompt">好，請繼續。</string>
+    <string name="chat_suggest_not_now">先不要</string>
+    <string name="chat_suggest_not_now_prompt">不，先不要。</string>
+    <string name="chat_suggest_more">多說一點</string>
+    <string name="chat_suggest_more_prompt">在我決定之前，請多告訴我一些。</string>
+    <string name="chat_suggest_show_changes">查看變更</string>
+    <string name="chat_suggest_show_changes_prompt">給我看你改了什麼。</string>
+    <string name="chat_suggest_run_tests">執行測試</string>
+    <string name="chat_suggest_run_tests_prompt">執行測試並告訴我結果。</string>
+    <string name="chat_suggest_summarize">總結一下</string>
+    <string name="chat_suggest_summarize_prompt">用 3 個簡短重點總結你上一則回答。</string>
+    <string name="chat_suggest_next">下一步？</string>
+    <string name="chat_suggest_next_prompt">我們接下來該做什麼？</string>
+    <string name="chat_suggest_explain">說簡單一點</string>
+    <string name="chat_suggest_explain_prompt">請用更簡單的話解釋一下。</string>
+    <string name="chat_suggest_option_prompt">選擇方案 %1$d：%2$s</string>
 </resources>

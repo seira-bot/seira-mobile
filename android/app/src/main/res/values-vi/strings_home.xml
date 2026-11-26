@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">Chào buổi tối</string>
     <string name="home_greeting_with_name">%2$s, %1$s</string>
     <string name="home_more_options">Thêm tùy chọn</string>
+    <string name="home_add_computer">Thêm máy tính</string>
     <string name="home_talk">Nói chuyện</string>
     <string name="home_status_ready">Sẵn sàng</string>
     <string name="home_team">Nhóm</string>

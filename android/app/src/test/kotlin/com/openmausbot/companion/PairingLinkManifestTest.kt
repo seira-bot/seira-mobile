@@ -89,6 +89,26 @@ class PairingLinkManifestTest {
     }
 
     @Test
+    fun `the https filter for seira run links is verified and separate`() {
+        val filters = activity(".PairingLinkActivity").getElementsByTagName("intent-filter")
+        val found = (0 until filters.length).map { filters.item(it) as Element }.filter { filter ->
+            val data = filter.getElementsByTagName("data")
+            (0 until data.length).map { data.item(it) as Element }
+                .any { it.getAttributeNS(android, "scheme") == "https" }
+        }
+        assertEquals(1, found.size)
+        val filter = found.single()
+        assertEquals("true", filter.getAttributeNS(android, "autoVerify"))
+        val data = filter.getElementsByTagName("data")
+        val elements = (0 until data.length).map { data.item(it) as Element }
+        assertEquals(
+            listOf("*.seira.run"),
+            elements.map { it.getAttributeNS(android, "host") }.filter { it.isNotEmpty() },
+        )
+        assertTrue(elements.none { it.hasAttributeNS(android, "path") || it.hasAttributeNS(android, "pathPrefix") })
+    }
+
+    @Test
     fun `the trampoline is never kept, listed, or persisted`() {
         val trampoline = activity(".PairingLinkActivity")
         assertEquals("true", trampoline.getAttributeNS(android, "noHistory"))

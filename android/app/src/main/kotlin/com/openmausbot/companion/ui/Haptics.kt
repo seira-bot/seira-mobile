@@ -48,6 +48,9 @@ internal enum class TactileAction(val cue: HapticCue) {
     CHOOSE_APPROVAL(HapticCue.SELECT),
     GRANT_APPROVAL(HapticCue.SELECT),
 
+    /** A swipe on an approval card passing the point where a release would ask. */
+    SWIPE_THRESHOLD(HapticCue.SELECT),
+
     /**
      * Opening the organizer. Both iOS entry points — the bar button
      * (`ChatListView.swift:419`) and the compact menu item (`:385`) — are the one

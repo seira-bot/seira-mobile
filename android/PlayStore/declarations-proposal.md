@@ -35,6 +35,10 @@ chip kode yang menunggu kode pertama (PR #79), dan pemilih workspace (PR #88).
 Update 1.0.8 dikirim untuk review pada 2026-11-25: Production, semua negara
 target, rollout 100%. Bundle dibangun dari `5145e987`. Tree-nya sama dengan
 `main` `ac77e71d`.
+Update 1.0.9 (versionCode 10009) membawa tombol "Add a computer" di heading
+Chats, link server `https://c-….seira.run` yang terbuka di app, dan saran
+balasan sesuai isi chat di atas kotak pesan, serta swipe pada kartu persetujuan
+dengan langkah konfirmasi (seira-bot/seira#602, PR #95).
 
 Pemilik rilis memberi izin di chat untuk mengisi form, menyimpan, dan mengirim
 rilis untuk review.
@@ -289,6 +293,19 @@ Fixes: Connected Apps no longer shows a Connect button for an app that needs no 
 </en-US>
 <id>
 Perbaikan: Connected Apps tidak lagi menampilkan tombol Connect untuk app yang tidak butuh login, seperti Composio. Ketukan pada notifikasi membuka komputer asal notifikasi itu. Saat aksi notifikasi tidak punya komputer, app kini memberi tahu. Chip Show diff dan Run tests baru muncul setelah chat menjalankan kode.
+</id>
+```
+
+### Catatan rilis update 1.0.9
+
+Isi teks ini saat rilis 1.0.9 dibuat di Console:
+
+```text
+<en-US>
+Add a computer in one tap with the + next to its name on Chats. Server links on seira.run now open in the app and start pairing, or open that computer if you already have it. Above the message box, Seira suggests what to say next from the chat. A tap only fills the box. Swipe an approval card right to allow or left to deny, then tap Confirm.
+</en-US>
+<id>
+Tambah komputer dengan satu ketukan lewat tombol + di samping namanya di Chats. Link server seira.run kini terbuka di app dan memulai pairing, atau membuka komputer itu kalau sudah tersimpan. Di atas kotak pesan, Seira menyarankan balasan sesuai isi chat. Ketukan hanya mengisi kotak pesan. Geser kartu persetujuan ke kanan untuk izinkan atau ke kiri untuk tolak, lalu ketuk Confirm.
 </id>
 ```
 

@@ -157,6 +157,12 @@
     <string name="mobile_card_send_to_app">%1$s에 보낼까요?</string>
     <string name="mobile_card_send_on_your_behalf">내 이름으로 보낼까요?</string>
     <string name="mobile_card_details">상세</string>
+    <string name="mobile_card_swipe_allow">허용</string>
+    <string name="mobile_card_swipe_deny">거부</string>
+    <string name="mobile_card_confirm_allow">이 요청을 허용할까요?</string>
+    <string name="mobile_card_confirm_deny">이 요청을 거부할까요?</string>
+    <string name="mobile_card_confirm">확인</string>
+    <string name="mobile_card_cancel_swipe">취소</string>
     <string name="mobile_card_allowed">허용됨</string>
     <string name="mobile_card_denied">거부됨</string>
     <string name="mobile_card_no_longer_available">더 이상 사용할 수 없어요</string>
