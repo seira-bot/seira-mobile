@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · アドレス、ペアリング、再接続</string>
+    <string name="settings2_theme_label">テーマ</string>
+    <string name="settings2_sign_out_title">サインアウトしますか?</string>
+    <string name="settings2_sign_out_note">このスマートフォンからのみペアリングを解除します。パソコンに表示されるコードでもう一度ペアリングしてください。</string>
+    <string name="settings2_sign_out_footer">このスマートフォンからのみペアリングを解除します。パソコンへの接続を完全に止めるには、パソコン側でこのスマートフォンを削除してください。</string>
+    <string name="settings2_apps_remove_title">%2$sから%1$sを削除しますか?</string>
+    <string name="settings2_apps_remove_note">ボットはこのアカウントを使えなくなります。後でもう一度追加できます。</string>
+    <string name="settings2_apps_remove_content">%2$sから%1$sを削除</string>
+    <string name="settings2_apps_remove_failed">アカウントを削除できませんでした。もう一度お試しください。</string>
+    <string name="settings2_apps_no_match">検索に一致するアプリはありません。</string>
+    <string name="settings2_usage_left">残り%1$d%%</string>
+    <string name="settings2_usage_resets">%1$sにリセット</string>
+    <string name="computers_paired_title">ペアリング済みのパソコン</string>
+    <string name="computers_tap_to_switch">タップして切り替え</string>
+    <string name="computers_save_address">アドレスを保存</string>
+    <string name="computers_bot_screens_title">ボットの画面</string>
+    <string name="computers_bot_screens_note">画面の閲覧や操作には、このスマートフォンにパソコンへのアクセス権が必要です。</string>
+    <string name="computers_bot_cloud_desktop">クラウドデスクトップ</string>
+    <string name="computers_bot_working">作業中</string>
+    <string name="computers_bot_waiting">チームメイト待ち</string>
+    <string name="computers_bot_idle">待機中</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

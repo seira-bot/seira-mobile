@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · address, pairing, reconnect</string>
+    <string name="settings2_theme_label">Theme</string>
+    <string name="settings2_sign_out_title">Sign out?</string>
+    <string name="settings2_sign_out_note">Removes the pairing from this phone only. Pair again with the code on your computer.</string>
+    <string name="settings2_sign_out_footer">Removes the pairing from this phone only. To stop it reaching the computer at all, remove the phone on your computer.</string>
+    <string name="settings2_apps_remove_title">Remove %1$s from %2$s?</string>
+    <string name="settings2_apps_remove_note">Your bots lose access to this account. You can add it again later.</string>
+    <string name="settings2_apps_remove_content">Remove %1$s from %2$s</string>
+    <string name="settings2_apps_remove_failed">Could not remove the account. Try again.</string>
+    <string name="settings2_apps_no_match">No app matches your search.</string>
+    <string name="settings2_usage_left">%1$d%% left</string>
+    <string name="settings2_usage_resets">Resets %1$s</string>
+    <string name="computers_paired_title">Paired computers</string>
+    <string name="computers_tap_to_switch">Tap to switch</string>
+    <string name="computers_save_address">Save address</string>
+    <string name="computers_bot_screens_title">Bot screens</string>
+    <string name="computers_bot_screens_note">Watching or controlling a screen needs computer access for this phone.</string>
+    <string name="computers_bot_cloud_desktop">Cloud desktop</string>
+    <string name="computers_bot_working">Working</string>
+    <string name="computers_bot_waiting">Waiting for a teammate</string>
+    <string name="computers_bot_idle">Idle</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

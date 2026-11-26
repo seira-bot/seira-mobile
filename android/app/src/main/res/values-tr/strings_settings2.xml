@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · adres, eşleştirme, yeniden bağlanma</string>
+    <string name="settings2_theme_label">Tema</string>
+    <string name="settings2_sign_out_title">Oturum kapatılsın mı?</string>
+    <string name="settings2_sign_out_note">Eşleştirmeyi yalnızca bu telefondan kaldırır. Bilgisayarınızdaki kodla yeniden eşleştirin.</string>
+    <string name="settings2_sign_out_footer">Eşleştirmeyi yalnızca bu telefondan kaldırır. Bilgisayara erişimini tamamen durdurmak için telefonu bilgisayarınızdan kaldırın.</string>
+    <string name="settings2_apps_remove_title">%1$s, %2$s uygulamasından kaldırılsın mı?</string>
+    <string name="settings2_apps_remove_note">Botlarınız bu hesaba erişimi kaybeder. Hesabı daha sonra yeniden ekleyebilirsiniz.</string>
+    <string name="settings2_apps_remove_content">%1$s hesabını %2$s uygulamasından kaldır</string>
+    <string name="settings2_apps_remove_failed">Hesap kaldırılamadı. Tekrar deneyin.</string>
+    <string name="settings2_apps_no_match">Aramanızla eşleşen uygulama yok.</string>
+    <string name="settings2_usage_left">%%%1$d kaldı</string>
+    <string name="settings2_usage_resets">Sıfırlanma: %1$s</string>
+    <string name="computers_paired_title">Eşleştirilmiş bilgisayarlar</string>
+    <string name="computers_tap_to_switch">Geçmek için dokunun</string>
+    <string name="computers_save_address">Adresi kaydet</string>
+    <string name="computers_bot_screens_title">Bot ekranları</string>
+    <string name="computers_bot_screens_note">Bir ekranı izlemek veya denetlemek için bu telefonun bilgisayara erişimi olmalıdır.</string>
+    <string name="computers_bot_cloud_desktop">Bulut masaüstü</string>
+    <string name="computers_bot_working">Çalışıyor</string>
+    <string name="computers_bot_waiting">Bir ekip arkadaşı bekleniyor</string>
+    <string name="computers_bot_idle">Boşta</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · adresse, appairage, reconnexion</string>
+    <string name="settings2_theme_label">Thème</string>
+    <string name="settings2_sign_out_title">Se déconnecter ?</string>
+    <string name="settings2_sign_out_note">Supprime l\'appairage de ce téléphone uniquement. Appairez à nouveau avec le code affiché sur votre ordinateur.</string>
+    <string name="settings2_sign_out_footer">Supprime l\'appairage de ce téléphone uniquement. Pour qu\'il n\'accède plus du tout à l\'ordinateur, retirez le téléphone sur votre ordinateur.</string>
+    <string name="settings2_apps_remove_title">Retirer %1$s de %2$s ?</string>
+    <string name="settings2_apps_remove_note">Vos bots perdent l\'accès à ce compte. Vous pourrez l\'ajouter à nouveau plus tard.</string>
+    <string name="settings2_apps_remove_content">Retirer %1$s de %2$s</string>
+    <string name="settings2_apps_remove_failed">Impossible de retirer le compte. Réessayez.</string>
+    <string name="settings2_apps_no_match">Aucune app ne correspond à votre recherche.</string>
+    <string name="settings2_usage_left">%1$d %% restant</string>
+    <string name="settings2_usage_resets">Réinitialisation %1$s</string>
+    <string name="computers_paired_title">Ordinateurs appairés</string>
+    <string name="computers_tap_to_switch">Touchez pour changer</string>
+    <string name="computers_save_address">Enregistrer l\'adresse</string>
+    <string name="computers_bot_screens_title">Écrans des bots</string>
+    <string name="computers_bot_screens_note">Pour regarder ou contrôler un écran, ce téléphone doit avoir accès à l\'ordinateur.</string>
+    <string name="computers_bot_cloud_desktop">Bureau cloud</string>
+    <string name="computers_bot_working">En cours</string>
+    <string name="computers_bot_waiting">En attente d\'un coéquipier</string>
+    <string name="computers_bot_idle">Inactif</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

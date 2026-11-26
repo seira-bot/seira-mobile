@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · indirizzo, associazione, riconnessione</string>
+    <string name="settings2_theme_label">Tema</string>
+    <string name="settings2_sign_out_title">Uscire?</string>
+    <string name="settings2_sign_out_note">Rimuove l\'associazione solo da questo telefono. Associa di nuovo con il codice sul tuo computer.</string>
+    <string name="settings2_sign_out_footer">Rimuove l\'associazione solo da questo telefono. Per impedirgli del tutto di raggiungere il computer, rimuovi il telefono sul tuo computer.</string>
+    <string name="settings2_apps_remove_title">Rimuovere %1$s da %2$s?</string>
+    <string name="settings2_apps_remove_note">I tuoi bot perdono l\'accesso a questo account. Puoi aggiungerlo di nuovo più tardi.</string>
+    <string name="settings2_apps_remove_content">Rimuovi %1$s da %2$s</string>
+    <string name="settings2_apps_remove_failed">Impossibile rimuovere l\'account. Riprova.</string>
+    <string name="settings2_apps_no_match">Nessuna app corrisponde alla tua ricerca.</string>
+    <string name="settings2_usage_left">Resta il %1$d%%</string>
+    <string name="settings2_usage_resets">Si azzera %1$s</string>
+    <string name="computers_paired_title">Computer associati</string>
+    <string name="computers_tap_to_switch">Tocca per cambiare</string>
+    <string name="computers_save_address">Salva indirizzo</string>
+    <string name="computers_bot_screens_title">Schermi dei bot</string>
+    <string name="computers_bot_screens_note">Guardare o controllare uno schermo richiede l\'accesso al computer da questo telefono.</string>
+    <string name="computers_bot_cloud_desktop">Desktop cloud</string>
+    <string name="computers_bot_working">In lavorazione</string>
+    <string name="computers_bot_waiting">In attesa di un collega</string>
+    <string name="computers_bot_idle">Inattivo</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

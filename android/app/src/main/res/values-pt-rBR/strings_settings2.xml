@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · endereço, pareamento, reconexão</string>
+    <string name="settings2_theme_label">Tema</string>
+    <string name="settings2_sign_out_title">Sair?</string>
+    <string name="settings2_sign_out_note">Remove o pareamento somente deste telefone. Pareie de novo com o código no seu computador.</string>
+    <string name="settings2_sign_out_footer">Remove o pareamento somente deste telefone. Para que ele deixe de acessar o computador por completo, remova o telefone no seu computador.</string>
+    <string name="settings2_apps_remove_title">Remover %1$s de %2$s?</string>
+    <string name="settings2_apps_remove_note">Seus bots perdem o acesso a esta conta. Você pode adicioná-la de novo mais tarde.</string>
+    <string name="settings2_apps_remove_content">Remover %1$s de %2$s</string>
+    <string name="settings2_apps_remove_failed">Não foi possível remover a conta. Tente de novo.</string>
+    <string name="settings2_apps_no_match">Nenhum app corresponde à sua busca.</string>
+    <string name="settings2_usage_left">Restam %1$d%%</string>
+    <string name="settings2_usage_resets">Reinicia %1$s</string>
+    <string name="computers_paired_title">Computadores pareados</string>
+    <string name="computers_tap_to_switch">Toque para trocar</string>
+    <string name="computers_save_address">Salvar endereço</string>
+    <string name="computers_bot_screens_title">Telas dos bots</string>
+    <string name="computers_bot_screens_note">Ver ou controlar uma tela exige acesso ao computador por este telefone.</string>
+    <string name="computers_bot_cloud_desktop">Desktop na nuvem</string>
+    <string name="computers_bot_working">Trabalhando</string>
+    <string name="computers_bot_waiting">Aguardando um colega</string>
+    <string name="computers_bot_idle">Ocioso</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>
