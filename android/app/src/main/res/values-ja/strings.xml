@@ -157,6 +157,12 @@
     <string name="mobile_card_send_to_app">%1$s に送信しますか？</string>
     <string name="mobile_card_send_on_your_behalf">あなたに代わって送信しますか？</string>
     <string name="mobile_card_details">詳細</string>
+    <string name="mobile_card_swipe_allow">許可</string>
+    <string name="mobile_card_swipe_deny">拒否</string>
+    <string name="mobile_card_confirm_allow">このリクエストを許可しますか？</string>
+    <string name="mobile_card_confirm_deny">このリクエストを拒否しますか？</string>
+    <string name="mobile_card_confirm">確定</string>
+    <string name="mobile_card_cancel_swipe">キャンセル</string>
     <string name="mobile_card_allowed">許可済み</string>
     <string name="mobile_card_denied">拒否済み</string>
     <string name="mobile_card_no_longer_available">利用できなくなりました</string>

@@ -157,6 +157,12 @@
     <string name="mobile_card_send_to_app">傳送到 %1$s？</string>
     <string name="mobile_card_send_on_your_behalf">以你的名義傳送？</string>
     <string name="mobile_card_details">詳細資料</string>
+    <string name="mobile_card_swipe_allow">允許</string>
+    <string name="mobile_card_swipe_deny">拒絕</string>
+    <string name="mobile_card_confirm_allow">允許此請求？</string>
+    <string name="mobile_card_confirm_deny">拒絕此請求？</string>
+    <string name="mobile_card_confirm">確認</string>
+    <string name="mobile_card_cancel_swipe">取消</string>
     <string name="mobile_card_allowed">已允許</string>
     <string name="mobile_card_denied">已拒絕</string>
     <string name="mobile_card_no_longer_available">已無法使用</string>
