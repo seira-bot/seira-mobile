@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">Impossible de joindre votre ordinateur</string>
     <string name="settings_reconnect">Se reconnecter</string>
-    <string name="update_banner_downloading">Téléchargement de la mise à jour…</string>
-    <string name="update_banner_ready">Mise à jour prête. Redémarrez Seira</string>
-    <string name="update_banner_restart">Redémarrer</string>
-    <string name="settings_check_updates">Rechercher des mises à jour</string>
-    <string name="settings_update_checking">Vérification…</string>
-    <string name="settings_update_found">Téléchargement de la mise à jour</string>
-    <string name="settings_update_current">À jour</string>
     <string name="ai_usage_title">Utilisation de l’IA</string>
     <string name="ai_usage_window_five_hour">Limite de 5 heures</string>
     <string name="ai_usage_window_weekly">Limite hebdomadaire</string>
@@ -48,4 +41,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">%1$s jetons en 1 tour</string>
     <string name="ai_usage_conversation_cost">%1$s · environ %2$s</string>
     <string name="ai_usage_conversation_context">Contexte %1$s sur %2$s</string>
+    <string name="update_banner_downloading">Téléchargement de la mise à jour…</string>
+    <string name="update_banner_ready">Mise à jour prête. Redémarrez Seira</string>
+    <string name="update_banner_restart">Redémarrer</string>
+    <string name="settings_check_updates">Rechercher des mises à jour</string>
+    <string name="settings_update_checking">Vérification…</string>
+    <string name="settings_update_found">Téléchargement de la mise à jour</string>
+    <string name="settings_update_current">À jour</string>
 </resources>

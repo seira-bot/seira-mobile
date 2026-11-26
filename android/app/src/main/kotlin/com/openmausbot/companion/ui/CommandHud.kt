@@ -222,6 +222,7 @@ internal fun quickReplyGlyph(icon: String): String = when (icon) {
     "search" -> "⌕"
     "history" -> "↶"
     "list" -> "☷"
+    "suggest" -> "✦"
     else -> "•"
 }
 

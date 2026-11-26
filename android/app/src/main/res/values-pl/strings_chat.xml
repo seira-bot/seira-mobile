@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Teraz pracuje na Twoim własnym serwerze.</string>
     <string name="chat_works_on_failed">Nie udało się zmienić miejsca pracy tego bota. Spróbuj ponownie.</string>
     <string name="chat_works_on_forbidden">Zmień to na komputerze.</string>
+    <string name="chat_suggest_capabilities">Co potrafisz?</string>
+    <string name="chat_suggest_capabilities_prompt">W czym możesz mi tu pomóc?</string>
+    <string name="chat_suggest_plan_day">Zaplanuj mój dzień</string>
+    <string name="chat_suggest_plan_day_prompt">Pomóż mi zaplanować, co zrobić dzisiaj.</string>
+    <string name="chat_suggest_needs_me">Co mnie czeka?</string>
+    <string name="chat_suggest_needs_me_prompt">Co wymaga teraz mojej uwagi?</string>
+    <string name="chat_suggest_yes">Tak, działaj</string>
+    <string name="chat_suggest_yes_prompt">Tak, działaj.</string>
+    <string name="chat_suggest_not_now">Nie teraz</string>
+    <string name="chat_suggest_not_now_prompt">Nie, nie teraz.</string>
+    <string name="chat_suggest_more">Powiedz więcej</string>
+    <string name="chat_suggest_more_prompt">Powiedz więcej, zanim zdecyduję.</string>
+    <string name="chat_suggest_show_changes">Pokaż zmiany</string>
+    <string name="chat_suggest_show_changes_prompt">Pokaż, co zmieniłeś.</string>
+    <string name="chat_suggest_run_tests">Uruchom testy</string>
+    <string name="chat_suggest_run_tests_prompt">Uruchom testy i podaj mi wynik.</string>
+    <string name="chat_suggest_summarize">Podsumuj</string>
+    <string name="chat_suggest_summarize_prompt">Podsumuj ostatnią odpowiedź w 3 krótkich punktach.</string>
+    <string name="chat_suggest_next">Co dalej?</string>
+    <string name="chat_suggest_next_prompt">Co powinniśmy zrobić dalej?</string>
+    <string name="chat_suggest_explain">Wyjaśnij prosto</string>
+    <string name="chat_suggest_explain_prompt">Wyjaśnij to prostszymi słowami.</string>
+    <string name="chat_suggest_option_prompt">Wybieram opcję %1$d: %2$s</string>
 </resources>

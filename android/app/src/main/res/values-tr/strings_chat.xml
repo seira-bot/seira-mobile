@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Artık kendi sunucunda çalışıyor.</string>
     <string name="chat_works_on_failed">Bu botun nerede çalışacağı değiştirilemedi. Tekrar dene.</string>
     <string name="chat_works_on_forbidden">Bunu bilgisayarda değiştir.</string>
+    <string name="chat_suggest_capabilities">Neler yapabilirsin?</string>
+    <string name="chat_suggest_capabilities_prompt">Burada bana nasıl yardım edebilirsin?</string>
+    <string name="chat_suggest_plan_day">Günümü planla</string>
+    <string name="chat_suggest_plan_day_prompt">Bugün ne yapacağımı planlamama yardım et.</string>
+    <string name="chat_suggest_needs_me">Neye ihtiyaç var?</string>
+    <string name="chat_suggest_needs_me_prompt">Şu anda neyin dikkatime ihtiyacı var?</string>
+    <string name="chat_suggest_yes">Evet, devam et</string>
+    <string name="chat_suggest_yes_prompt">Evet, devam et.</string>
+    <string name="chat_suggest_not_now">Şimdi değil</string>
+    <string name="chat_suggest_not_now_prompt">Hayır, şimdi değil.</string>
+    <string name="chat_suggest_more">Daha fazla anlat</string>
+    <string name="chat_suggest_more_prompt">Karar vermeden önce biraz daha anlat.</string>
+    <string name="chat_suggest_show_changes">Değişiklikleri göster</string>
+    <string name="chat_suggest_show_changes_prompt">Ne değiştirdiğini bana göster.</string>
+    <string name="chat_suggest_run_tests">Testleri çalıştır</string>
+    <string name="chat_suggest_run_tests_prompt">Testleri çalıştır ve sonucu söyle.</string>
+    <string name="chat_suggest_summarize">Özetle</string>
+    <string name="chat_suggest_summarize_prompt">Son cevabını 3 kısa maddeyle özetle.</string>
+    <string name="chat_suggest_next">Sırada ne var?</string>
+    <string name="chat_suggest_next_prompt">Şimdi ne yapalım?</string>
+    <string name="chat_suggest_explain">Basitçe anlat</string>
+    <string name="chat_suggest_explain_prompt">Bunu daha basit sözcüklerle anlat.</string>
+    <string name="chat_suggest_option_prompt">%1$d. seçenekle devam edelim: %2$s</string>
 </resources>

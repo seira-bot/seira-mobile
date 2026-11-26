@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Ahora trabaja en tu propio servidor.</string>
     <string name="chat_works_on_failed">No se pudo cambiar dónde trabaja este bot. Inténtalo de nuevo.</string>
     <string name="chat_works_on_forbidden">Cámbialo en el ordenador.</string>
+    <string name="chat_suggest_capabilities">¿Qué puedes hacer?</string>
+    <string name="chat_suggest_capabilities_prompt">¿En qué puedes ayudarme aquí?</string>
+    <string name="chat_suggest_plan_day">Planear mi día</string>
+    <string name="chat_suggest_plan_day_prompt">Ayúdame a planear qué hacer hoy.</string>
+    <string name="chat_suggest_needs_me">¿Qué me necesita?</string>
+    <string name="chat_suggest_needs_me_prompt">¿Qué necesita mi atención ahora mismo?</string>
+    <string name="chat_suggest_yes">Sí, adelante</string>
+    <string name="chat_suggest_yes_prompt">Sí, adelante.</string>
+    <string name="chat_suggest_not_now">Ahora no</string>
+    <string name="chat_suggest_not_now_prompt">No, ahora no.</string>
+    <string name="chat_suggest_more">Cuéntame más</string>
+    <string name="chat_suggest_more_prompt">Cuéntame más antes de que decida.</string>
+    <string name="chat_suggest_show_changes">Ver los cambios</string>
+    <string name="chat_suggest_show_changes_prompt">Muéstrame lo que cambiaste.</string>
+    <string name="chat_suggest_run_tests">Ejecutar pruebas</string>
+    <string name="chat_suggest_run_tests_prompt">Ejecuta las pruebas y dime el resultado.</string>
+    <string name="chat_suggest_summarize">Resumir</string>
+    <string name="chat_suggest_summarize_prompt">Resume tu última respuesta en 3 puntos breves.</string>
+    <string name="chat_suggest_next">¿Y ahora qué?</string>
+    <string name="chat_suggest_next_prompt">¿Qué deberíamos hacer ahora?</string>
+    <string name="chat_suggest_explain">Explicar fácil</string>
+    <string name="chat_suggest_explain_prompt">Explícalo con palabras más sencillas.</string>
+    <string name="chat_suggest_option_prompt">Elijamos la opción %1$d: %2$s</string>
 </resources>
