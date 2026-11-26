@@ -195,17 +195,17 @@ class AndroidThreadNavigationTest {
         headerKeepsClearOfThePill()
     }
 
-    /** Back on the left, the call on the right, the name pill between them and touching neither. */
+    /** Back on the left, the screen and menu buttons on the right, the name pill between them and touching neither. */
     private fun headerKeepsClearOfThePill() {
         val destination = Destination.Chat(Chat.BotChat(fixture).target)
         mount {
             ChatScreen(destination, onResolved = {}, onBack = {}, onOpenComputer = {}, onOpenOverview = {})
         }
-        val pill = compose.onNodeWithContentDescription("Open ${fixture.name} settings").getBoundsInRoot()
-        val controls = listOfNotNull(
+        val pill = compose.onNodeWithContentDescription("Open ${fixture.name}").getBoundsInRoot()
+        val controls = listOf(
             compose.onNodeWithContentDescription("Back").getBoundsInRoot(),
-            compose.onAllNodesWithContentDescription("Start live call").fetchSemanticsNodes()
-                .singleOrNull()?.let { compose.onNodeWithContentDescription("Start live call").getBoundsInRoot() },
+            compose.onNodeWithContentDescription("Open the bot's screen").getBoundsInRoot(),
+            compose.onNodeWithContentDescription("More about this chat").getBoundsInRoot(),
         )
         for (control in controls) {
             assertTrue(control.right <= pill.left || control.left >= pill.right, "$control clear of the pill $pill")

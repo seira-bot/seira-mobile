@@ -102,6 +102,13 @@ class ConnectedAppsPolicyTest {
     }
 
     @Test
+    fun `an account alias is trimmed and a blank one is the primary account`() {
+        assertEquals("Work", ConnectedAppsPolicy.accountAlias("  Work "))
+        assertNull(ConnectedAppsPolicy.accountAlias("   "))
+        assertNull(ConnectedAppsPolicy.accountAlias(null))
+    }
+
+    @Test
     fun `the catalog wire field noAuth is read, and absent means false`() {
         val cards = com.openmausbot.companion.core.CompanionJson.decodeFromString<ConnectorCatalog>(
             """{"configured":true,"cards":[{"slug":"composio","label":"Composio","blurb":"b","noAuth":true},{"slug":"gmail","label":"Gmail","blurb":"b"}]}""",

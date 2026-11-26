@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Abrir a tela do bot</string>
+    <string name="chat2_header_menu">Mais sobre esta conversa</string>
+    <string name="chat2_open_bot">Abrir %1$s</string>
+    <string name="chat2_menu_find">Buscar na conversa</string>
+    <string name="chat2_menu_new_thread">Nova conversa</string>
+    <string name="chat2_menu_all_threads">Todas as conversas</string>
+    <string name="chat2_menu_model">Modelo</string>
+    <string name="chat2_menu_members">Membros do grupo</string>
+    <string name="chat2_menu_bot_screen">Tela do bot</string>
+    <string name="chat2_menu_share">Compartilhar transcrição</string>
+    <string name="chat2_menu_share_markdown">Esta conversa em Markdown</string>
+    <string name="chat2_menu_share_json">Compartilhar como JSON</string>
+    <string name="chat2_find_hint">Buscar na conversa</string>
+    <string name="chat2_find_none">Nenhum resultado</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d encontrado</item>
+        <item quantity="other">%1$d encontrados</item>
+    </plurals>
+    <string name="chat2_find_previous">Resultado anterior</string>
+    <string name="chat2_find_next">Próximo resultado</string>
+    <string name="chat2_find_close">Fechar busca</string>
+    <string name="chat2_msg_react">Reagir com %1$s</string>
+    <string name="chat2_msg_reply">Responder</string>
+    <string name="chat2_msg_edit">Editar mensagem</string>
+    <string name="chat2_msg_more">Mais ações</string>
+    <string name="chat2_reply_to">Respondendo a %1$s</string>
+    <string name="chat2_reply_cancel">Cancelar resposta</string>
+    <string name="chat2_reply_you">Você</string>
+    <string name="chat2_work_done">Trabalhou por %1$s</string>
+    <string name="chat2_work_seconds">%1$d s</string>
+    <string name="chat2_work_minutes">%1$d min %2$02d s</string>
+    <string name="chat2_work_instant">Trabalhou</string>
+    <string name="chat2_approval_needed">Aprovação necessária</string>
+    <string name="chat2_day_today">Hoje</string>
+    <string name="chat2_day_yesterday">Ontem</string>
+</resources>

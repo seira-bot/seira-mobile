@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · Adresse, Kopplung, Neuverbindung</string>
+    <string name="settings2_theme_label">Design</string>
+    <string name="settings2_sign_out_title">Abmelden?</string>
+    <string name="settings2_sign_out_note">Entfernt die Kopplung nur von diesem Telefon. Koppeln Sie erneut mit dem Code auf Ihrem Computer.</string>
+    <string name="settings2_sign_out_footer">Entfernt die Kopplung nur von diesem Telefon. Damit es den Computer gar nicht mehr erreicht, entfernen Sie das Telefon auf Ihrem Computer.</string>
+    <string name="settings2_apps_remove_title">%1$s aus %2$s entfernen?</string>
+    <string name="settings2_apps_remove_note">Ihre Bots verlieren den Zugriff auf dieses Konto. Sie können es später wieder hinzufügen.</string>
+    <string name="settings2_apps_remove_content">%1$s aus %2$s entfernen</string>
+    <string name="settings2_apps_remove_failed">Das Konto konnte nicht entfernt werden. Versuchen Sie es erneut.</string>
+    <string name="settings2_apps_no_match">Keine App passt zu Ihrer Suche.</string>
+    <string name="settings2_usage_left">%1$d%% übrig</string>
+    <string name="settings2_usage_resets">Zurückgesetzt um %1$s</string>
+    <string name="computers_paired_title">Gekoppelte Computer</string>
+    <string name="computers_tap_to_switch">Tippen zum Wechseln</string>
+    <string name="computers_save_address">Adresse speichern</string>
+    <string name="computers_bot_screens_title">Bot-Bildschirme</string>
+    <string name="computers_bot_screens_note">Um einen Bildschirm zu beobachten oder zu steuern, braucht dieses Telefon Zugriff auf den Computer.</string>
+    <string name="computers_bot_cloud_desktop">Cloud-Desktop</string>
+    <string name="computers_bot_working">Arbeitet</string>
+    <string name="computers_bot_waiting">Wartet auf ein Teammitglied</string>
+    <string name="computers_bot_idle">Inaktiv</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

@@ -1,13 +1,12 @@
 package com.openmausbot.companion.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,16 +19,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.union
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -48,13 +49,10 @@ import com.openmausbot.companion.audio.LiveCallSnapshot
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.LiveCallState
 import com.openmausbot.companion.ui.theme.AvatarRing
-import com.openmausbot.companion.ui.theme.GlassCircleButton
 import com.openmausbot.companion.ui.theme.IdentityAvatar
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.TopFade
-import com.openmausbot.companion.ui.theme.glass
-import com.openmausbot.companion.ui.theme.identityPlate
 
 /**
  * The window insets the floating chat chrome keeps clear of. Null in the app,
@@ -84,7 +82,7 @@ internal object ChatStatusRules {
     }
 }
 
-/** What the header's phone button does. */
+/** What the composer's talk button does. */
 internal enum class ChatCallAction { START, OPEN, NONE }
 
 internal object ChatCallRules {
@@ -108,8 +106,10 @@ internal object ChatCallRules {
 internal val CHAT_HEADER_FADE = 120.dp
 internal val CHAT_HEADER_SIDE = 12.dp
 internal val CHAT_HEADER_TOP_GAP = 8.dp
-private val HEADER_CONTROL = 48.dp
-private val HEADER_PILL = 44.dp
+private val HEADER_BUTTON = 46.dp
+
+internal const val CHAT_HEADER_SCREEN_TAG = "chat-header-screen"
+internal const val CHAT_HEADER_MENU_TAG = "chat-header-menu"
 
 /** The face for a chat: a bot's own, or its member bots stacked for a room. */
 @Composable
@@ -132,9 +132,9 @@ internal fun ChatFace(
 }
 
 /**
- * Floating header: back, the bot's name and status, the live call. The log
- * scrolls under it and fades out beneath the controls. [onHeight] reports the
- * header's own height, status bar included, so the log can start below it.
+ * Floating header: back, the name pill, the bot's screen and the chat menu. The
+ * log scrolls under it and fades out beneath the controls. [onHeight] reports
+ * the header's own height, status bar included, so the log can start below it.
  */
 @Composable
 internal fun ChatHeader(
@@ -142,9 +142,10 @@ internal fun ChatHeader(
     face: CharacterMood,
     status: ChatStatus,
     unreadElsewhere: Int,
-    call: ChatCallAction,
+    showScreen: Boolean,
     onBack: () -> Unit,
-    onCall: () -> Unit,
+    onOpenScreen: () -> Unit,
+    onOpenMenu: () -> Unit,
     onOpenPill: (() -> Unit)?,
     onHeight: (Int) -> Unit,
     modifier: Modifier = Modifier,
@@ -152,16 +153,17 @@ internal fun ChatHeader(
     val colors = Seira.colors
     Box(modifier = modifier.fillMaxWidth()) {
         TopFade(CHAT_HEADER_FADE, modifier = Modifier.align(Alignment.TopCenter))
-        BoxWithConstraints(
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .onSizeChanged { onHeight(it.height) }
                 .windowInsetsPadding(chatTopInsets())
                 .padding(start = CHAT_HEADER_SIDE, end = CHAT_HEADER_SIDE, top = CHAT_HEADER_TOP_GAP),
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            val pillMax = (maxWidth - (HEADER_CONTROL + 8.dp) * 2).coerceAtLeast(96.dp)
-            Box(modifier = Modifier.align(Alignment.CenterStart)) {
-                GlassCircleButton(
+            Box {
+                HeaderRoundButton(
                     icon = SeiraIcons.ChevronLeft,
                     contentDescription = stringResource(R.string.mobile_back_b52b36b7),
                     onClick = onBack,
@@ -183,23 +185,44 @@ internal fun ChatHeader(
                     )
                 }
             }
-            ChatNamePill(
-                chat = chat, face = face, status = status, onOpen = onOpenPill,
-                modifier = Modifier.align(Alignment.Center).widthIn(max = pillMax),
-            )
-            Box(modifier = Modifier.align(Alignment.CenterEnd)) {
-                if (call == ChatCallAction.NONE) {
-                    Spacer(Modifier.size(HEADER_CONTROL))
-                } else {
-                    GlassCircleButton(
-                        icon = SeiraIcons.Phone,
-                        contentDescription = stringResource(
-                            if (call == ChatCallAction.OPEN) R.string.chat_call_open else R.string.chat_call_start,
-                        ),
-                        onClick = onCall,
-                    )
-                }
+            Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.Center) {
+                ChatNamePill(chat = chat, face = face, status = status, onOpen = onOpenPill)
             }
+            if (showScreen) {
+                HeaderRoundButton(
+                    icon = SeiraIcons.Monitor,
+                    contentDescription = stringResource(R.string.chat2_header_screen),
+                    onClick = onOpenScreen,
+                    modifier = Modifier.testTag(CHAT_HEADER_SCREEN_TAG),
+                )
+            }
+            HeaderRoundButton(
+                icon = SeiraIcons.MoreHorizontal,
+                contentDescription = stringResource(R.string.chat2_header_menu),
+                onClick = onOpenMenu,
+                modifier = Modifier.testTag(CHAT_HEADER_MENU_TAG),
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeaderRoundButton(
+    icon: ImageVector,
+    contentDescription: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = Seira.colors
+    TouchTarget(onClick = onClick, contentDescription = contentDescription, modifier = modifier) {
+        Box(
+            modifier = Modifier
+                .size(HEADER_BUTTON)
+                .background(colors.s1, CircleShape)
+                .border(1.dp, colors.hairline, CircleShape),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(icon, contentDescription = null, tint = colors.ink, modifier = Modifier.size(22.dp))
         }
     }
 }
@@ -214,12 +237,17 @@ private fun ChatNamePill(
 ) {
     val colors = Seira.colors
     val description = when (chat) {
-        is Chat.BotChat -> stringResource(R.string.mobile_a11y_open_chat_settings, chat.name)
+        is Chat.BotChat -> stringResource(R.string.chat2_open_bot, chat.name)
         is Chat.RoomChat -> pluralStringResource(R.plurals.mobile_a11y_room_header, chat.room.memberIds.size, chat.name, chat.room.memberIds.size)
+    }
+    val statusColor = when (status) {
+        ChatStatus.WORKING -> colors.accent
+        ChatStatus.WAITING -> colors.warning
+        ChatStatus.IDLE -> colors.ink3
     }
     Box(
         modifier = modifier
-            .heightIn(min = HEADER_CONTROL)
+            .heightIn(min = MIN_TOUCH_TARGET)
             .clip(CircleShape)
             .then(if (onOpen != null) Modifier.clickable(role = Role.Button, onClick = onOpen) else Modifier)
             .clearAndSetSemantics {
@@ -230,17 +258,14 @@ private fun ChatNamePill(
     ) {
         Row(
             modifier = Modifier
-                .height(HEADER_PILL)
-                .glass(CircleShape)
+                .height(HEADER_BUTTON)
+                .background(colors.s1, CircleShape)
+                .border(1.dp, colors.hairline, CircleShape)
                 .padding(start = 6.dp, end = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            ChatFace(
-                chat = chat,
-                size = 32.dp,
-                state = face,
-            )
+            ChatFace(chat = chat, size = 34.dp, state = face)
             Column(modifier = Modifier.weight(1f, fill = false), verticalArrangement = Arrangement.Center) {
                 Text(
                     text = chat.name,
@@ -251,31 +276,20 @@ private fun ChatNamePill(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    val dot = when (status) {
-                        ChatStatus.WORKING -> colors.success
-                        ChatStatus.WAITING -> colors.warning
-                        ChatStatus.IDLE -> colors.ink3
-                    }
-                    Box(Modifier.size(6.dp).background(dot, CircleShape))
-                    Text(
-                        text = stringResource(
-                            when (status) {
-                                ChatStatus.WORKING -> R.string.chat_status_working
-                                ChatStatus.WAITING -> R.string.chat_status_waiting
-                                ChatStatus.IDLE -> R.string.chat_status_idle
-                            },
-                        ),
-                        fontSize = 11.sp,
-                        lineHeight = 13.sp,
-                        color = colors.ink3,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
+                Text(
+                    text = stringResource(
+                        when (status) {
+                            ChatStatus.WORKING -> R.string.chat_status_working
+                            ChatStatus.WAITING -> R.string.chat_status_waiting
+                            ChatStatus.IDLE -> R.string.chat_status_idle
+                        },
+                    ),
+                    fontSize = 12.sp,
+                    lineHeight = 14.sp,
+                    color = statusColor,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
         }
     }

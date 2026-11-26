@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Открыть экран бота</string>
+    <string name="chat2_header_menu">Ещё об этом чате</string>
+    <string name="chat2_open_bot">Открыть: %1$s</string>
+    <string name="chat2_menu_find">Поиск по переписке</string>
+    <string name="chat2_menu_new_thread">Новая ветка</string>
+    <string name="chat2_menu_all_threads">Все ветки</string>
+    <string name="chat2_menu_model">Модель</string>
+    <string name="chat2_menu_members">Участники группы</string>
+    <string name="chat2_menu_bot_screen">Экран бота</string>
+    <string name="chat2_menu_share">Поделиться расшифровкой</string>
+    <string name="chat2_menu_share_markdown">Эта ветка в Markdown</string>
+    <string name="chat2_menu_share_json">Поделиться в JSON</string>
+    <string name="chat2_find_hint">Поиск по переписке</string>
+    <string name="chat2_find_none">Ничего не найдено</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">Найдено: %1$d</item>
+        <item quantity="few">Найдено: %1$d</item>
+        <item quantity="many">Найдено: %1$d</item>
+        <item quantity="other">Найдено: %1$d</item>
+    </plurals>
+    <string name="chat2_find_previous">Предыдущий результат</string>
+    <string name="chat2_find_next">Следующий результат</string>
+    <string name="chat2_find_close">Закрыть поиск</string>
+    <string name="chat2_msg_react">Отреагировать: %1$s</string>
+    <string name="chat2_msg_reply">Ответить</string>
+    <string name="chat2_msg_edit">Изменить сообщение</string>
+    <string name="chat2_msg_more">Другие действия</string>
+    <string name="chat2_reply_to">Ответ для %1$s</string>
+    <string name="chat2_reply_cancel">Отменить ответ</string>
+    <string name="chat2_reply_you">Вы</string>
+    <string name="chat2_work_done">Работал %1$s</string>
+    <string name="chat2_work_seconds">%1$d с</string>
+    <string name="chat2_work_minutes">%1$d мин %2$02d с</string>
+    <string name="chat2_work_instant">Работал</string>
+    <string name="chat2_approval_needed">Нужно подтверждение</string>
+    <string name="chat2_day_today">Сегодня</string>
+    <string name="chat2_day_yesterday">Вчера</string>
+</resources>

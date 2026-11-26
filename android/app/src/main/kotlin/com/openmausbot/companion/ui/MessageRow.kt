@@ -9,6 +9,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.platform.LocalLayoutDirection
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.ui.chat.AccentLinks
+import com.openmausbot.companion.ui.chat.ApprovalButton
+import com.openmausbot.companion.ui.chat.ApprovalButtonRow
+import com.openmausbot.companion.ui.chat.ApprovalButtonSpec
+import com.openmausbot.companion.ui.chat.ApprovalButtons
+import com.openmausbot.companion.ui.chat.LocalReplyHandler
+import com.openmausbot.companion.ui.chat.MessageActionRow
+import com.openmausbot.companion.ui.chat.MessageActionRules
+import com.openmausbot.companion.ui.chat.MessageActionsSheet
+import com.openmausbot.companion.ui.chat.WorkFold
+import com.openmausbot.companion.ui.chat.WorkFoldPill
+import com.openmausbot.companion.ui.chat.workLabel
+import com.openmausbot.companion.ui.chat.findHighlight
 import com.openmausbot.companion.ui.theme.IdentityAvatar
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -59,9 +72,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -186,10 +196,19 @@ fun MessageRow(
     // Whose face and name head a reply: the bot of this chat, or, in a room,
     // the member who said it.
     val replyBot = bot ?: message.from?.botId?.let { id -> state.bots.firstOrNull { it.id == id } }
+    val replyHandler = LocalReplyHandler.current
+    val copyText = MessageActions.copyableText(message)
+    val editableText = MessageActions.editableText(message)
+    fun copyToClipboard(text: String) {
+        scope.launch {
+            clipboard.setClipEntry(ClipEntry(ClipData.newPlainText(MESSAGE_CLIP_LABEL, text)))
+        }
+    }
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
+            .findHighlight(message.id)
             // Long-press is the context menu; a plain tap must stay inert, so no
             // ripple is drawn for it.
             .combinedClickable(
@@ -219,6 +238,17 @@ fun MessageRow(
                 openThread = openThread,
                 runRef = runRef,
             )
+
+            if (!isPendingEdit && MessageActionRules.showsRow(message) && copyText != null) {
+                MessageActionRow(
+                    onCopy = {
+                        haptics.play(TactileAction.TOGGLE_REACTION)
+                        copyToClipboard(copyText)
+                    },
+                    onReply = replyHandler?.let { reply -> { reply(message) } },
+                    onMore = { menuOpen = true },
+                )
+            }
 
             message.comm?.let {
                 Text(
@@ -307,60 +337,42 @@ fun MessageRow(
                 }
             }
         }
+    }
 
-        DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-            if (!isPendingEdit) Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)) {
-                Reactions.CHOICES.forEach { emoji ->
-                    Text(
-                        text = emoji,
-                        fontSize = 22.sp,
-                        modifier = Modifier
-                            .clickable {
-                                menuOpen = false
-                                haptics.play(TactileAction.TOGGLE_REACTION)
-                                scope.launch { session.react(message, chat.threadId, emoji) }
-                            }
-                            .padding(8.dp),
-                    )
+    if (menuOpen) {
+        MessageActionsSheet(
+            onReact = if (isPendingEdit) null else { emoji ->
+                menuOpen = false
+                haptics.play(TactileAction.TOGGLE_REACTION)
+                scope.launch { session.react(message, chat.threadId, emoji) }
+            },
+            onReply = if (!isPendingEdit && copyText != null && replyHandler != null) {
+                {
+                    menuOpen = false
+                    replyHandler(message)
                 }
-            }
-            MessageActions.copyableText(message)?.let { text ->
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.mobile_copy_af74f7c5)) },
-                    onClick = {
-                        menuOpen = false
-                        scope.launch {
-                            clipboard.setClipEntry(
-                                ClipEntry(ClipData.newPlainText(MESSAGE_CLIP_LABEL, text)),
-                            )
-                        }
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.mobile_select_text_9d49219e)) },
-                    onClick = {
-                        menuOpen = false
-                        selectingText = text
-                    },
-                )
-            }
+            } else {
+                null
+            },
+            onCopy = copyText?.let { text -> { menuOpen = false; copyToClipboard(text) } },
+            onSelectText = copyText?.let { text ->
+                {
+                    menuOpen = false
+                    selectingText = text
+                }
+            },
             // Attachment messages cannot be reconstructed by a text-only edit.
             // The policy also keeps their private transport paths out of the UI.
-            val editableText = MessageActions.editableText(message)
-            if (editableText != null && bot != null && !isPendingEdit) {
-                HorizontalDivider()
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.mobile_edit_and_retry_f683a3c2)) },
-                    enabled = bot.busy != true && editPending == null,
-                    onClick = {
-                        menuOpen = false
-                        editText = editableText
-                        editing = true
-                    },
-                )
-            }
-        }
+            onEdit = editableText?.takeIf { bot != null && !isPendingEdit }?.let { text ->
+                {
+                    menuOpen = false
+                    editText = text
+                    editing = true
+                }
+            },
+            editEnabled = bot?.busy != true && editPending == null,
+            onDismiss = { menuOpen = false },
+        )
     }
 
     if (editing && bot != null) {
@@ -598,7 +610,7 @@ private fun TextBubble(
     ) {
         Column(
             modifier = Modifier
-                .weight(1f, fill = false)
+                .weight(1f, fill = !mine)
                 .widthIn(max = if (mine) USER_BUBBLE_MAX_WIDTH else 640.dp)
                 .then(
                     if (bubble) {
@@ -667,10 +679,12 @@ private fun TextBubble(
                         }
                     }
                 } else {
-                    MarkdownText(
-                        source = message.text.orEmpty(),
-                        openLink = openLink?.let { open -> { url -> open(url, message) } },
-                    )
+                    AccentLinks {
+                        MarkdownText(
+                            source = message.text.orEmpty(),
+                            openLink = openLink?.let { open -> { url -> open(url, message) } },
+                        )
+                    }
                 }
             }
         }
@@ -1291,8 +1305,9 @@ private fun ReceiptChip(label: String, detail: String) {
 fun ActivityRunChip(
     items: List<Message>,
     openThread: ((ThreadRef) -> Unit)? = null,
-    /** Who did the work; up to four faces stack at the pill's start. */
+    /** Who did the work; kept for callers that still pass it. */
     bots: List<Bot> = emptyList(),
+    startsOpen: Boolean = false,
 ) {
     if (items.isEmpty()) return
     val colors = Seira.colors
@@ -1300,78 +1315,21 @@ fun ActivityRunChip(
     // Keyed on the run's identity — the same one the LazyColumn keys the row by
     // (`TranscriptRow.ActivityRun.id = "run.${head.id}"`). Keying on the last id
     // too would throw the reader's disclosure away on every receipt that lands
-    // while the run is still going. iOS holds a `@State` with no key at all.
-    var expanded by remember(items.first().id) { mutableStateOf(false) }
+    // while the run is still going.
+    var expanded by remember(items.first().id) { mutableStateOf(startsOpen) }
     val running = items.any { it.tool?.ok == null }
-    val summary = if (running) {
-        stringResource(R.string.mobile_running_steps, items.size)
-    } else {
-        stringResource(R.string.mobile_ran_steps, items.size)
-    }
-    val turn by animateFloatAsState(
-        targetValue = if (expanded) 180f else 0f,
-        animationSpec = seiraTween(SeiraMotion.BASE),
-        label = ACTIVITY_CHEVRON_ANIMATION,
-    )
+    val label = workLabel(WorkFold.duration(WorkFold.runElapsed(items)), running, items.size)
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        // The pill is 32 dp tall; the target around it is MIN_TOUCH_TARGET, the
-        // way TouchTarget does it for the round buttons. Not TouchTarget itself:
-        // that helper is a square box, which would clip a capsule this wide.
-        Box(
-            modifier = Modifier
-                .heightIn(min = MIN_TOUCH_TARGET)
-                .clickable(role = Role.Button) {
-                    expanded = !expanded
-                    haptics.play(TactileAction.TOGGLE_ACTIVITY_RUN)
-                }
-                .localizedSemantics(contentDescription = {
-                    stringResource(
-                        if (expanded) R.string.mobile_a11y_summary_expanded
-                        else R.string.mobile_a11y_summary_collapsed,
-                        summary,
-                    )
-                }),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            Row(
-                modifier = Modifier
-                    .height(ACTIVITY_PILL_HEIGHT)
-                    .background(colors.tint, CircleShape)
-                    .padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                if (bots.isNotEmpty()) {
-                    Row(horizontalArrangement = Arrangement.spacedBy((-6).dp)) {
-                        bots.take(4).forEach { IdentityAvatar(bot = it, size = 18.dp, animated = false) }
-                    }
-                }
-                if (running) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(13.dp),
-                        strokeWidth = 1.5.dp,
-                        color = colors.ink2,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.Check,
-                        contentDescription = null,
-                        tint = colors.success,
-                        modifier = Modifier.size(14.dp),
-                    )
-                }
-                Text(summary, fontSize = 13.sp, fontWeight = FontWeight.Medium, color = colors.ink2)
-                Icon(
-                    imageVector = SeiraIcons.ChevronDown,
-                    contentDescription = null,
-                    tint = colors.ink3,
-                    modifier = Modifier
-                        .size(14.dp)
-                        .graphicsLayer { rotationZ = turn }
-                        .testTag(ACTIVITY_CHEVRON_TAG),
-                )
-            }
-        }
+        WorkFoldPill(
+            label = label,
+            running = running,
+            expanded = expanded,
+            onToggle = {
+                expanded = !expanded
+                haptics.play(TactileAction.TOGGLE_ACTIVITY_RUN)
+            },
+            chevronTag = ACTIVITY_CHEVRON_TAG,
+        )
         if (expanded) {
             val line = colors.hairline
             Column(
@@ -1389,9 +1347,7 @@ fun ActivityRunChip(
     }
 }
 
-private val ACTIVITY_PILL_HEIGHT = 32.dp
 internal const val ACTIVITY_CHEVRON_TAG = "activity-chevron"
-private const val ACTIVITY_CHEVRON_ANIMATION = "activity-chevron"
 
 /** The receipt's status dot, sized to sit level with the 13 sp name beside it. */
 private val ACTIVITY_DOT = 7.dp
@@ -1442,12 +1398,20 @@ private fun CardContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(colors.tint, cardShape)
-            .border(1.dp, colors.hairline, cardShape)
+            .background(if (card.isPending) colors.s1 else colors.tint, cardShape)
+            .border(1.dp, if (card.isPending) colors.warning.copy(alpha = 0.45f) else colors.hairline, cardShape)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        if (card.isPending) {
+        if (card.isPending && ApprovalButtons.isApproval(card)) {
+            Text(
+                text = stringResource(R.string.chat2_approval_needed),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = colors.warning,
+                modifier = Modifier.semantics(mergeDescendants = true) { contentDescription = waitingLabel },
+            )
+        } else if (card.isPending) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -1598,27 +1562,22 @@ private fun CardContent(
             }
             // The buttons are the card's own options, never a string invented
             // here. Session maps the choice to allow/deny/answer.
-            val optionButton: @Composable (String, Modifier) -> Unit = { option, buttonModifier ->
-                val refusal = ApprovalChoices.emphasis(option) == OptionEmphasis.SECONDARY
-                CardChoiceButton(
-                    text = option,
-                    primary = !refusal,
-                    fullWidth = card.stacksOptions,
-                    enabled = !answering && (
-                        skillRequest == null ||
-                            refusal ||
-                            skillRequest.reviewedSha256 != null
-                        ),
-                    onClick = {
-                        haptics.play(TactileAction.CHOOSE_APPROVAL)
-                        answering = true
-                        scope.launch {
-                            ApprovalAnswers.choose(session, chat, card, option)
-                            answering = false
-                        }
-                    },
-                    modifier = buttonModifier,
-                )
+            val showsAlways = ApprovalChoices.showsAlwaysAllow(card, chat)
+            val buttons = ApprovalButtons.layout(card, chat)
+            val optionEnabled: (ApprovalButtonSpec) -> Boolean = { spec ->
+                !answering && (
+                    skillRequest == null ||
+                        OptionCard.isRefusal(spec.option) ||
+                        skillRequest.reviewedSha256 != null
+                    )
+            }
+            val choose: (ApprovalButtonSpec) -> Unit = { spec ->
+                haptics.play(TactileAction.CHOOSE_APPROVAL)
+                answering = true
+                scope.launch {
+                    ApprovalAnswers.choose(session, chat, card, spec.option)
+                    answering = false
+                }
             }
             if (card.stacksOptions) {
                 // A question's answers are sentences: one under another, full
@@ -1627,12 +1586,38 @@ private fun CardContent(
                     modifier = Modifier.fillMaxWidth().testTag(STACKED_OPTIONS_TAG),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    card.options.forEach { option -> optionButton(option, Modifier.fillMaxWidth()) }
+                    buttons.forEach { spec ->
+                        ApprovalButton(
+                            spec = spec,
+                            enabled = optionEnabled(spec),
+                            onClick = { choose(spec) },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
                 }
             } else {
-                Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    card.options.forEach { option -> optionButton(option, Modifier) }
-                }
+                // The grant key comes from the card. The phone never derives its
+                // own, so it cannot permit something subtly wider than the computer
+                // would have. The same goes for the answer: it is one of the options
+                // the card offered, never a string invented here.
+                val alwaysAllow = ApprovalChoices.alwaysAllowChoice(card)
+                ApprovalButtonRow(
+                    buttons = buttons,
+                    showsAlways = showsAlways && alwaysAllow != null && chat is Chat.BotChat,
+                    enabledFor = optionEnabled,
+                    alwaysEnabled = !answering,
+                    onChoose = choose,
+                    onAlways = {
+                        if (alwaysAllow != null && chat is Chat.BotChat) {
+                            haptics.play(TactileAction.GRANT_APPROVAL)
+                            answering = true
+                            scope.launch {
+                                ApprovalAnswers.grant(session, chat, card, alwaysAllow)
+                                answering = false
+                            }
+                        }
+                    },
+                )
             }
 
             // A question also takes words: under its options, or on its own
@@ -1688,27 +1673,6 @@ private fun CardContent(
                     modifier = Modifier.fillMaxWidth().testTag(CARD_ANSWER_FIELD_TAG),
                 )
             }
-
-            // The grant key comes from the card. The phone never derives its
-            // own, so it cannot permit something subtly wider than the computer
-            // would have. The same goes for the answer: it is one of the options
-            // the card offered, never a string invented here.
-            val alwaysAllow = ApprovalChoices.alwaysAllowChoice(card)
-            if (alwaysAllow != null && chat is Chat.BotChat) {
-                TextButton(
-                    onClick = {
-                        haptics.play(TactileAction.GRANT_APPROVAL)
-                        answering = true
-                        scope.launch {
-                            ApprovalAnswers.grant(session, chat, card, alwaysAllow)
-                            answering = false
-                        }
-                    },
-                    enabled = !answering,
-                ) {
-                    Text(stringResource(R.string.mobile_always_allow_this_tool_2ce82a7e), fontSize = 14.sp)
-                }
-            }
         } else {
             val outcome = card.outcome
             if (outcome != null) {
@@ -1738,49 +1702,6 @@ private fun CardContent(
             } else if (card.expired == true) {
                 Text(stringResource(R.string.mobile_card_expired), fontSize = 14.sp, color = secondaryTint)
             }
-        }
-    }
-}
-
-/**
- * One answer on a card. The allow choice is ink and the others sit on the control
- * colour, both 44 dp tall inside a 48 dp touch target. A disabled one stays
- * visible and dimmed, and does not take a tap.
- */
-@Composable
-private fun CardChoiceButton(
-    text: String,
-    primary: Boolean,
-    fullWidth: Boolean,
-    enabled: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = Seira.colors
-    Box(
-        modifier = modifier
-            .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
-            .heightIn(min = MIN_TOUCH_TARGET)
-            .clickable(enabled = enabled, role = Role.Button, onClick = onClick),
-        contentAlignment = Alignment.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .then(if (fullWidth) Modifier.fillMaxWidth() else Modifier)
-                .heightIn(min = 44.dp)
-                .background(
-                    (if (primary) colors.primary else colors.control).copy(alpha = if (enabled) 1f else 0.4f),
-                    CircleShape,
-                )
-                .padding(horizontal = 22.dp, vertical = 8.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                text = text,
-                style = SeiraType.headline,
-                color = if (primary) colors.onPrimary else colors.ink,
-                textAlign = TextAlign.Center,
-            )
         }
     }
 }

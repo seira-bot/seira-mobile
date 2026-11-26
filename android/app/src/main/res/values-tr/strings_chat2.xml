@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Botun ekranını aç</string>
+    <string name="chat2_header_menu">Bu sohbet hakkında daha fazlası</string>
+    <string name="chat2_open_bot">%1$s aç</string>
+    <string name="chat2_menu_find">Konuşmada bul</string>
+    <string name="chat2_menu_new_thread">Yeni konu</string>
+    <string name="chat2_menu_all_threads">Tüm konular</string>
+    <string name="chat2_menu_model">Model</string>
+    <string name="chat2_menu_members">Grup üyeleri</string>
+    <string name="chat2_menu_bot_screen">Botun ekranı</string>
+    <string name="chat2_menu_share">Dökümü paylaş</string>
+    <string name="chat2_menu_share_markdown">Bu konu Markdown olarak</string>
+    <string name="chat2_menu_share_json">JSON olarak paylaş</string>
+    <string name="chat2_find_hint">Konuşmada bul</string>
+    <string name="chat2_find_none">Eşleşme yok</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d bulundu</item>
+        <item quantity="other">%1$d bulundu</item>
+    </plurals>
+    <string name="chat2_find_previous">Önceki eşleşme</string>
+    <string name="chat2_find_next">Sonraki eşleşme</string>
+    <string name="chat2_find_close">Aramayı kapat</string>
+    <string name="chat2_msg_react">%1$s ile tepki ver</string>
+    <string name="chat2_msg_reply">Yanıtla</string>
+    <string name="chat2_msg_edit">Mesajı düzenle</string>
+    <string name="chat2_msg_more">Daha fazla işlem</string>
+    <string name="chat2_reply_to">%1$s kişisine yanıt</string>
+    <string name="chat2_reply_cancel">Yanıtı iptal et</string>
+    <string name="chat2_reply_you">Sen</string>
+    <string name="chat2_work_done">%1$s çalıştı</string>
+    <string name="chat2_work_seconds">%1$d sn</string>
+    <string name="chat2_work_minutes">%1$d dk %2$02d sn</string>
+    <string name="chat2_work_instant">Çalıştı</string>
+    <string name="chat2_approval_needed">Onay gerekli</string>
+    <string name="chat2_day_today">Bugün</string>
+    <string name="chat2_day_yesterday">Dün</string>
+</resources>

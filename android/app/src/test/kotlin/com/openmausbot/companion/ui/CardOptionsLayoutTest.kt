@@ -96,7 +96,7 @@ class CardOptionsLayoutTest {
         )
         assertEquals(0, compose.onAllNodesWithTag(STACKED_OPTIONS_TAG, useUnmergedTree = true).fetchSemanticsNodes().size)
         assertEquals(0, compose.onAllNodesWithTag(CARD_ANSWER_FIELD_TAG).fetchSemanticsNodes().size, "an approval takes no words")
-        val allow = compose.onNodeWithText("Allow").getBoundsInRoot()
+        val allow = compose.onNodeWithText("Allow once").getBoundsInRoot()
         val deny = compose.onNodeWithText("Deny").getBoundsInRoot()
         assertEquals(allow.top, deny.top, "side by side")
         assertTrue(deny.left >= allow.right)

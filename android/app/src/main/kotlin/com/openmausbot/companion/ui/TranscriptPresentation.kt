@@ -1,5 +1,8 @@
 package com.openmausbot.companion.ui
 
+import com.openmausbot.companion.ui.chat.WorkFold
+import com.openmausbot.companion.ui.chat.WorkFoldPill
+import com.openmausbot.companion.ui.chat.workLabel
 import com.openmausbot.companion.ui.theme.Seira
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -63,26 +66,15 @@ fun AssistantTurnChip(
 ) {
     val haptics = rememberHaptics()
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Box(
-            modifier = Modifier.heightIn(min = MIN_TOUCH_TARGET)
-                .clickable(role = Role.Button) {
-                    onToggle()
-                    haptics.play(TactileAction.TOGGLE_ACTIVITY_RUN)
-                }
-                .localizedSemantics(stateDescription = { stringResource(if (expanded) R.string.mobile_a11y_expanded else R.string.mobile_a11y_collapsed) }),
-            contentAlignment = Alignment.CenterStart,
-        ) {
-            Row(
-                modifier = Modifier.background(secondaryTint.copy(alpha = 0.10f), RoundedCornerShape(18.dp))
-                    .padding(horizontal = 10.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = null, tint = secondaryTint, modifier = Modifier.size(14.dp))
-                Text(turn.label, fontSize = 13.sp, fontWeight = FontWeight.Medium)
-                Text(stringResource(if (expanded) R.string.mobile_hide_34d8b60f else R.string.mobile_show_d97d1ee3), fontSize = 12.sp, color = secondaryTint)
-            }
-        }
+        WorkFoldPill(
+            label = workLabel(WorkFold.duration(turn.elapsed), running = false, steps = turn.items.size),
+            running = false,
+            expanded = expanded,
+            onToggle = {
+                onToggle()
+                haptics.play(TactileAction.TOGGLE_ACTIVITY_RUN)
+            },
+        )
         if (expanded) turn.items.forEach { message ->
             key(message.id) {
                 val requester = remember { BringIntoViewRequester() }

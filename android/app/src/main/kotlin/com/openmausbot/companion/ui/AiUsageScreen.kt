@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -54,6 +55,9 @@ import com.openmausbot.companion.core.limitLine
 import com.openmausbot.companion.core.limitResetTime
 import com.openmausbot.companion.core.usageRows
 import com.openmausbot.companion.core.usageTone
+import com.openmausbot.companion.ui.home.PageTopBar
+import com.openmausbot.companion.ui.settings.GroupCard
+import com.openmausbot.companion.ui.settings.PageActionPill
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraCard
 import com.openmausbot.companion.ui.theme.SeiraType
@@ -87,26 +91,22 @@ internal fun AiUsageScreen(onBack: () -> Unit) {
 
     LaunchedEffect(Unit) { load(refresh = false) }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderBackButton(onBack)
-            Text(
-                stringResource(R.string.ai_usage_title),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-            )
-            TextButton(onClick = { scope.launch { load(refresh = true) } }, enabled = !checking) {
-                Text(stringResource(if (checking) R.string.ai_usage_checking else R.string.ai_usage_check_again))
-            }
-        }
-        HorizontalDivider()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Seira.colors.app),
+    ) {
+        PageTopBar(
+            title = stringResource(R.string.ai_usage_title),
+            onBack = onBack,
+            trailing = {
+                PageActionPill(
+                    text = stringResource(if (checking) R.string.ai_usage_checking else R.string.ai_usage_check_again),
+                    enabled = !checking,
+                    onClick = { scope.launch { load(refresh = true) } },
+                )
+            },
+        )
         PullToRefreshBox(
             isRefreshing = checking && report != null,
             onRefresh = { scope.launch { load(refresh = true) } },
@@ -116,8 +116,8 @@ internal fun AiUsageScreen(onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 val current = report
                 val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
@@ -152,8 +152,8 @@ internal fun AiUsageCardView(
     val name = limit.name.ifBlank { limit.engine.replaceFirstChar { it.uppercase() } }
     val percent = if (limit.blocked) 100 else (limit.usedPercent ?: 0.0).roundToInt().coerceIn(0, 100)
     val paused = limit.blocked || limit.held == true
-    SeiraCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+    GroupCard {
+        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
             Row(horizontalArrangement = Arrangement.spacedBy(14.dp), verticalAlignment = Alignment.CenterVertically) {
                 val ringDescription = stringResource(R.string.ai_usage_ring_description, name, percent)
                 UsageRing(
@@ -188,6 +188,7 @@ internal fun AiUsageCardView(
 
 @Composable
 private fun UsageRowView(row: UsageRow, now: Instant, zone: ZoneId, locale: Locale) {
+    val colors = Seira.colors
     val label = stringResource(
         when (EngineUsage.windowKind(row.window)) {
             LimitWindowKind.FIVE_HOUR -> R.string.ai_usage_window_five_hour
@@ -196,12 +197,47 @@ private fun UsageRowView(row: UsageRow, now: Instant, zone: ZoneId, locale: Loca
         },
     )
     val reset = row.resetsAt?.takeIf { it > now }
-    val detail = reset?.let {
-        stringResource(R.string.ai_usage_window_row, row.left, limitResetTime(it, now, locale, zone))
-    } ?: stringResource(R.string.ai_usage_window_row_no_reset, row.left)
-    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        Text(label, style = SeiraType.body, color = Seira.colors.ink)
-        Text(detail, style = SeiraType.callout, color = if (row.tone == UsageTone.FINE) Seira.colors.ink2 else Seira.colors.warningText)
+    val barColor = when (row.tone) {
+        UsageTone.FINE -> colors.accent
+        UsageTone.NEAR -> colors.warning
+        UsageTone.OUT -> colors.danger
+    }
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(label, style = SeiraType.body, color = colors.ink, modifier = Modifier.weight(1f))
+            Text(
+                stringResource(R.string.settings2_usage_left, row.left),
+                style = SeiraType.bodyMedium,
+                color = if (row.tone == UsageTone.FINE) colors.ink else colors.warningText,
+            )
+        }
+        UsageBar(left = row.left, color = barColor)
+        reset?.let {
+            Text(
+                stringResource(R.string.settings2_usage_resets, limitResetTime(it, now, locale, zone)),
+                style = SeiraType.callout,
+                color = colors.ink2,
+            )
+        }
+    }
+}
+
+/** What is left of a window, as a rounded bar. */
+@Composable
+private fun UsageBar(left: Int, color: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier) {
+    val track = Seira.colors.hairline
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .height(8.dp)
+            .background(track, RoundedCornerShape(50)),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth(left.coerceIn(0, 100) / 100f)
+                .height(8.dp)
+                .background(color, RoundedCornerShape(50)),
+        )
     }
 }
 

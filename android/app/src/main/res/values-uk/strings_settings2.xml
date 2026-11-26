@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · адреса, сполучення, повторне підключення</string>
+    <string name="settings2_theme_label">Тема</string>
+    <string name="settings2_sign_out_title">Вийти?</string>
+    <string name="settings2_sign_out_note">Сполучення видаляється лише з цього телефона. Сполучіть знову за кодом на комп\'ютері.</string>
+    <string name="settings2_sign_out_footer">Сполучення видаляється лише з цього телефона. Щоб він зовсім не міг підключатися до комп\'ютера, видаліть телефон на комп\'ютері.</string>
+    <string name="settings2_apps_remove_title">Видалити %1$s із %2$s?</string>
+    <string name="settings2_apps_remove_note">Ваші боти втратять доступ до цього облікового запису. Пізніше його можна додати знову.</string>
+    <string name="settings2_apps_remove_content">Видалити %1$s із %2$s</string>
+    <string name="settings2_apps_remove_failed">Не вдалося видалити обліковий запис. Спробуйте ще раз.</string>
+    <string name="settings2_apps_no_match">Жоден застосунок не відповідає запиту.</string>
+    <string name="settings2_usage_left">Залишилося %1$d%%</string>
+    <string name="settings2_usage_resets">Скидання: %1$s</string>
+    <string name="computers_paired_title">Сполучені комп\'ютери</string>
+    <string name="computers_tap_to_switch">Торкніться, щоб перемкнути</string>
+    <string name="computers_save_address">Зберегти адресу</string>
+    <string name="computers_bot_screens_title">Екрани ботів</string>
+    <string name="computers_bot_screens_note">Щоб дивитися або керувати екраном, цьому телефону потрібен доступ до комп\'ютера.</string>
+    <string name="computers_bot_cloud_desktop">Хмарний робочий стіл</string>
+    <string name="computers_bot_working">Працює</string>
+    <string name="computers_bot_waiting">Чекає на колегу</string>
+    <string name="computers_bot_idle">Простоює</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

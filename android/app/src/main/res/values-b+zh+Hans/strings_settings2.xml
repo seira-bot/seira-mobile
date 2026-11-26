@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · 地址、配对、重新连接</string>
+    <string name="settings2_theme_label">主题</string>
+    <string name="settings2_sign_out_title">退出登录?</string>
+    <string name="settings2_sign_out_note">仅从这部手机移除配对。请用电脑上的代码重新配对。</string>
+    <string name="settings2_sign_out_footer">仅从这部手机移除配对。若要彻底阻止它连接电脑,请在电脑上移除这部手机。</string>
+    <string name="settings2_apps_remove_title">从%2$s移除%1$s?</string>
+    <string name="settings2_apps_remove_note">你的机器人将无法再使用此账号。你可以稍后重新添加。</string>
+    <string name="settings2_apps_remove_content">从%2$s移除%1$s</string>
+    <string name="settings2_apps_remove_failed">无法移除账号。请重试。</string>
+    <string name="settings2_apps_no_match">没有与搜索匹配的应用。</string>
+    <string name="settings2_usage_left">剩余 %1$d%%</string>
+    <string name="settings2_usage_resets">%1$s重置</string>
+    <string name="computers_paired_title">已配对的电脑</string>
+    <string name="computers_tap_to_switch">点按切换</string>
+    <string name="computers_save_address">保存地址</string>
+    <string name="computers_bot_screens_title">机器人屏幕</string>
+    <string name="computers_bot_screens_note">查看或控制屏幕需要这部手机拥有电脑访问权限。</string>
+    <string name="computers_bot_cloud_desktop">云桌面</string>
+    <string name="computers_bot_working">工作中</string>
+    <string name="computers_bot_waiting">等待队友</string>
+    <string name="computers_bot_idle">空闲</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>
