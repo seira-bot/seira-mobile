@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Freigabe</string>
+    <string name="inbox_kind_question">Frage</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Im Chat antworten</string>
+    <string name="inbox_open_in_chat">Im Chat öffnen</string>
+    <string name="inbox_open_chat_with">Chat mit %1$s öffnen</string>
+    <string name="inbox_needs_decision">Braucht deine Entscheidung</string>
+    <string name="inbox_news">Neuigkeiten</string>
+    <string name="inbox_news_finished">%1$s hat eine Aufgabe erledigt</string>
+    <string name="inbox_news_routine_failed">Routine-Problem: %1$s ist fehlgeschlagen. Zum Wiederholen tippen.</string>
+    <string name="inbox_empty_title">Alles erledigt</string>
+    <string name="inbox_empty_body">Im Moment wartet nichts auf deine Antwort.</string>
+    <string name="automations_list">Liste</string>
+    <string name="automations_calendar">Kalender</string>
+    <string name="automations_intro">Ein Thread ist eine Unterhaltung mit einem Ergebnis. Eine Routine ist geplante Arbeit mit einem Ergebnis-Thread.</string>
+    <string name="automations_pause_named">%1$s pausieren</string>
+    <string name="automations_resume_named">%1$s fortsetzen</string>
+    <string name="automations_switch_finished">%1$s, abgeschlossen</string>
+    <string name="automations_open_results">Ergebnis-Thread öffnen</string>
+    <string name="automations_status_failed">Fehlgeschlagen</string>
+</resources>

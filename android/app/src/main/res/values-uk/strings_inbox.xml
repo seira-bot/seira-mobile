@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Підтвердження</string>
+    <string name="inbox_kind_question">Запитання</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Відповісти в чаті</string>
+    <string name="inbox_open_in_chat">Відкрити в чаті</string>
+    <string name="inbox_open_chat_with">Відкрити чат із %1$s</string>
+    <string name="inbox_needs_decision">Потрібне ваше рішення</string>
+    <string name="inbox_news">Новини</string>
+    <string name="inbox_news_finished">%1$s завершив(ла) завдання</string>
+    <string name="inbox_news_routine_failed">Проблема з рутиною: %1$s не вдалася. Торкніться, щоб повторити.</string>
+    <string name="inbox_empty_title">Усе опрацьовано</string>
+    <string name="inbox_empty_body">Зараз ніщо не чекає на вашу відповідь.</string>
+    <string name="automations_list">Список</string>
+    <string name="automations_calendar">Календар</string>
+    <string name="automations_intro">Гілка — це одна розмова та її результат. Рутина — запланована робота з однією гілкою результатів.</string>
+    <string name="automations_pause_named">Призупинити: %1$s</string>
+    <string name="automations_resume_named">Відновити: %1$s</string>
+    <string name="automations_switch_finished">%1$s, завершено</string>
+    <string name="automations_open_results">Відкрити гілку результатів</string>
+    <string name="automations_status_failed">Не вдалося</string>
+</resources>

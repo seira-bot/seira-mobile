@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Phê duyệt</string>
+    <string name="inbox_kind_question">Câu hỏi</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Trả lời trong cuộc trò chuyện</string>
+    <string name="inbox_open_in_chat">Mở trong cuộc trò chuyện</string>
+    <string name="inbox_open_chat_with">Mở cuộc trò chuyện với %1$s</string>
+    <string name="inbox_needs_decision">Cần bạn quyết định</string>
+    <string name="inbox_news">Tin mới</string>
+    <string name="inbox_news_finished">%1$s đã hoàn thành một tác vụ</string>
+    <string name="inbox_news_routine_failed">Sự cố tác vụ định kỳ: %1$s đã thất bại. Chạm để thử lại.</string>
+    <string name="inbox_empty_title">Đã xong hết</string>
+    <string name="inbox_empty_body">Hiện không có gì đang chờ bạn trả lời.</string>
+    <string name="automations_list">Danh sách</string>
+    <string name="automations_calendar">Lịch</string>
+    <string name="automations_intro">Luồng là một cuộc trò chuyện và kết quả của nó. Tác vụ định kỳ là công việc được lên lịch với một luồng kết quả.</string>
+    <string name="automations_pause_named">Tạm dừng %1$s</string>
+    <string name="automations_resume_named">Tiếp tục %1$s</string>
+    <string name="automations_switch_finished">%1$s, đã hoàn tất</string>
+    <string name="automations_open_results">Mở luồng kết quả</string>
+    <string name="automations_status_failed">Thất bại</string>
+</resources>

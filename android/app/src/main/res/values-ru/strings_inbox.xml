@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Подтверждение</string>
+    <string name="inbox_kind_question">Вопрос</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Ответить в чате</string>
+    <string name="inbox_open_in_chat">Открыть в чате</string>
+    <string name="inbox_open_chat_with">Открыть чат с %1$s</string>
+    <string name="inbox_needs_decision">Нужно ваше решение</string>
+    <string name="inbox_news">Новости</string>
+    <string name="inbox_news_finished">%1$s завершил(а) задачу</string>
+    <string name="inbox_news_routine_failed">Проблема с процедурой: %1$s не выполнена. Нажмите, чтобы повторить.</string>
+    <string name="inbox_empty_title">Всё разобрано</string>
+    <string name="inbox_empty_body">Сейчас ничто не ждёт вашего ответа.</string>
+    <string name="automations_list">Список</string>
+    <string name="automations_calendar">Календарь</string>
+    <string name="automations_intro">Ветка — это одна беседа и её результат. Процедура — запланированная работа с одной веткой результатов.</string>
+    <string name="automations_pause_named">Приостановить: %1$s</string>
+    <string name="automations_resume_named">Возобновить: %1$s</string>
+    <string name="automations_switch_finished">%1$s, завершено</string>
+    <string name="automations_open_results">Открыть ветку результатов</string>
+    <string name="automations_status_failed">Не удалось</string>
+</resources>

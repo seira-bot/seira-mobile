@@ -643,7 +643,7 @@ private fun SectionNote(title: String, description: String) {
 }
 
 @Composable
-private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String {
+internal fun localizedRoutineSubtitle(routine: Routine, botName: String?): String {
     val schedule = routine.schedule
     val summary = when (schedule.type) {
         RoutineSchedule.Kind.ONCE -> schedule.at?.let {
@@ -694,7 +694,7 @@ private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String
 }
 
 @Composable
-private fun localizedRoutineRunSubtitle(run: RoutineRun, botName: String?): String = stringResource(
+internal fun localizedRoutineRunSubtitle(run: RoutineRun, botName: String?): String = stringResource(
     R.string.mobile_routine_run_subtitle,
     botName ?: stringResource(R.string.mobile_deleted_agent_ff6eff9d),
     RelativeStamp.dateAndTime(run.scheduledFor, ZoneId.systemDefault(), Locale.getDefault()),
