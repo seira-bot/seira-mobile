@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">सभी</string>
+    <string name="chats_filter_empty">यहाँ कोई चैट नहीं है।</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s को आपकी ज़रूरत है।</string>
+    <string name="chats_hero_quiet">सब शांत है। किसी को आपकी ज़रूरत नहीं।</string>
+    <string name="search_placeholder">खोजें</string>
+    <string name="search_clear">खोज साफ़ करें</string>
+    <string name="search_filter_routines">रूटीन</string>
+    <string name="search_prompt">अपने संदेश खोजने के लिए लिखें।</string>
+    <string name="search_none">कोई परिणाम नहीं।</string>
+    <string name="search_failed">खोज नहीं हो पाई। फिर से कोशिश करें।</string>
+    <string name="newbot_row_subtitle">पहले आप एक छोटा फ़ॉर्म भरते हैं</string>
+    <string name="newbot_name_label">नाम</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">काम</string>
+    <string name="newbot_job_placeholder">यह क्या करता है</string>
+    <string name="newbot_note">बॉट तभी बनता है जब आप बनाएँ पर टैप करते हैं।</string>
+    <string name="newbot_create">बॉट बनाएँ</string>
+    <string name="newbot_creating">बॉट बनाया जा रहा है</string>
+    <string name="newbot_name_needed">आगे बढ़ने के लिए नाम लिखें।</string>
+    <string name="newbot_failed">बॉट नहीं बना। कनेक्शन जाँचें और फिर कोशिश करें।</string>
+    <string name="newbot_create_group">ग्रुप बनाएँ</string>
+    <string name="newbot_group_pick">कम से कम एक बॉट चुनें।</string>
+    <string name="newbot_section_creates">एक नया सेक्शन (विभाग) बनाता है।</string>
+    <string name="newbot_section_needed">नाम लिखें और कम से कम एक बॉट चुनें।</string>
+</resources>

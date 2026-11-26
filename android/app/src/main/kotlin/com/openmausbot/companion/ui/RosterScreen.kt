@@ -1139,7 +1139,7 @@ private fun RosterBottomBar(
 private val BAR_HEIGHT = 52.dp
 
 @Composable
-private fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
+internal fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
     val now = remember(hit.id) { System.currentTimeMillis() }
     Row(
         modifier = Modifier

@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -40,6 +41,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.CompanionState
+import com.openmausbot.companion.ui.home.chats.SheetPrimaryButton
+import com.openmausbot.companion.ui.theme.Seira
 import kotlinx.coroutines.launch
 
 /**
@@ -92,6 +95,10 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
     ModalBottomSheet(
         onDismissRequest = { if (SectionRules.canDismiss(saving)) onDismiss() },
         sheetState = sheetState,
+        containerColor = Seira.colors.sheet,
+        shape = RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp),
+        tonalElevation = 0.dp,
+        modifier = Modifier.testTag("new-section-sheet"),
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
@@ -109,26 +116,6 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                TextButton(
-                    enabled = SectionRules.canSave(name, selected, saving, chiefConflict),
-                    onClick = {
-                        saving = true
-                        val section = trimmed
-                        scope.launch {
-                            val saved = session.assignSection(section, SectionRules.ids(bots, selected))
-                            if (saved != null) {
-                                haptics.play(HapticCue.SUCCESS)
-                                lastCreated = section
-                                selected = emptySet()
-                                name = ""
-                            }
-                            saving = false
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                ) {
-                    Text(stringResource(R.string.mobile_save_efc007a3))
-                }
             }
 
             lastCreated?.let { section ->
@@ -149,7 +136,7 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                 supportingText = {
                     Row(modifier = Modifier.fillMaxWidth()) {
                         Text(
-                            text = if (joinsExisting) stringResource(R.string.mobile_adds_to_existing_section_731f1f94) else stringResource(R.string.mobile_creates_a_new_section_9da73eb0),
+                            text = if (joinsExisting) stringResource(R.string.mobile_adds_to_existing_section_731f1f94) else stringResource(R.string.newbot_section_creates),
                             fontSize = 13.sp,
                             modifier = Modifier.weight(1f),
                         )
@@ -221,6 +208,35 @@ internal fun NewSectionSheet(onDismiss: () -> Unit) {
                         },
                     )
                 }
+            }
+            SheetPrimaryButton(
+                label = stringResource(R.string.mobile_save_efc007a3),
+                enabled = SectionRules.canSave(name, selected, saving, chiefConflict),
+                busy = saving,
+                tag = "new-section-save",
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                onClick = {
+                    saving = true
+                    val section = trimmed
+                    scope.launch {
+                        val saved = session.assignSection(section, SectionRules.ids(bots, selected))
+                        if (saved != null) {
+                            haptics.play(HapticCue.SUCCESS)
+                            lastCreated = section
+                            selected = emptySet()
+                            name = ""
+                        }
+                        saving = false
+                    }
+                },
+            )
+            if (!SectionRules.canSave(name, selected, saving, chiefConflict) && !saving && !chiefConflict) {
+                Text(
+                    text = stringResource(R.string.newbot_section_needed),
+                    fontSize = 13.sp,
+                    color = secondaryTint,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                )
             }
         }
     }

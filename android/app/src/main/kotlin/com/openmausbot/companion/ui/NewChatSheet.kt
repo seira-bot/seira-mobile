@@ -39,7 +39,7 @@ import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraType
 
 /**
- * What the ink "New chat" pill opens: a new group, a new bot, organizing bots
+ * What the "New chat" button opens: a new group, a new bot, organizing bots
  * into a section, and a new chat with any bot on the list below.
  */
 @OptIn(ExperimentalMaterial3Api::class)
@@ -78,7 +78,7 @@ internal fun NewChatSheet(
                 ActionRow(SeiraIcons.Plus, stringResource(R.string.mobile_new_group_f9850c0b), "new-chat-group", enabled = true, onClick = onNewGroup)
             }
             item(key = "new-bot") {
-                ActionRow(SeiraIcons.PenSquare, stringResource(R.string.mobile_new_bot_66d3c052), "new-chat-bot", enabled = canCreateBot, onClick = onNewBot)
+                ActionRow(SeiraIcons.PenSquare, stringResource(R.string.mobile_new_bot_66d3c052), "new-chat-bot", enabled = canCreateBot, onClick = onNewBot, subtitle = stringResource(R.string.newbot_row_subtitle))
             }
             if (canOrganize) {
                 item(key = "organize") {
@@ -128,7 +128,7 @@ internal fun NewChatSheet(
 }
 
 @Composable
-private fun ActionRow(icon: ImageVector, label: String, tag: String, enabled: Boolean, onClick: () -> Unit) {
+private fun ActionRow(icon: ImageVector, label: String, tag: String, enabled: Boolean, onClick: () -> Unit, subtitle: String? = null) {
     val colors = Seira.colors
     Row(
         modifier = Modifier
@@ -151,6 +151,11 @@ private fun ActionRow(icon: ImageVector, label: String, tag: String, enabled: Bo
                 modifier = Modifier.size(18.dp),
             )
         }
-        Text(label, style = SeiraType.bodyMedium, color = if (enabled) colors.ink else colors.ink3, modifier = Modifier.weight(1f))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(label, style = SeiraType.bodyMedium, color = if (enabled) colors.ink else colors.ink3)
+            if (subtitle != null) {
+                Text(subtitle, style = SeiraType.caption, color = colors.ink3)
+            }
+        }
     }
 }

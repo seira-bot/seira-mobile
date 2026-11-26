@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
@@ -36,6 +37,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -45,6 +47,8 @@ import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.Room
+import com.openmausbot.companion.ui.home.chats.SheetPrimaryButton
+import com.openmausbot.companion.ui.theme.Seira
 import kotlinx.coroutines.launch
 
 /**
@@ -74,7 +78,13 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
     // if the bot does.
     val bots = remember(state) { NewGroupRules.selectable(state) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        containerColor = Seira.colors.sheet,
+        shape = RoundedCornerShape(topStart = 34.dp, topEnd = 34.dp),
+        tonalElevation = 0.dp,
+        modifier = Modifier.testTag("new-group-sheet"),
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Box(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp)) {
                 TextButton(
@@ -89,26 +99,6 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier.align(Alignment.Center),
                 )
-                TextButton(
-                    onClick = {
-                        creating = true
-                        scope.launch {
-                            val ordered = NewGroupRules.members(bots, members)
-                            val room = session.createRoom(name, ordered)
-                            // A failure leaves the sheet open with the picks
-                            // intact; `Session` raises the error dialog itself.
-                            if (room != null) {
-                                haptics.play(TactileAction.CREATE_GROUP_SUCCESS)
-                                onCreated(room)
-                            }
-                            creating = false
-                        }
-                    },
-                    enabled = NewGroupRules.canCreate(members, creating),
-                    modifier = Modifier.align(Alignment.CenterEnd),
-                ) {
-                    Text(stringResource(R.string.mobile_create_6e157c5d))
-                }
             }
 
             OutlinedTextField(
@@ -144,6 +134,36 @@ internal fun NewGroupSheet(onCreated: (Room) -> Unit, onDismiss: () -> Unit) {
                         },
                     )
                 }
+            }
+
+            SheetPrimaryButton(
+                label = stringResource(R.string.newbot_create_group),
+                enabled = NewGroupRules.canCreate(members, creating),
+                busy = creating,
+                tag = "new-group-create",
+                modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                onClick = {
+                    creating = true
+                    scope.launch {
+                        val ordered = NewGroupRules.members(bots, members)
+                        val room = session.createRoom(name, ordered)
+                        // A failure leaves the sheet open with the picks
+                        // intact; `Session` raises the error dialog itself.
+                        if (room != null) {
+                            haptics.play(TactileAction.CREATE_GROUP_SUCCESS)
+                            onCreated(room)
+                        }
+                        creating = false
+                    }
+                },
+            )
+            if (members.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.newbot_group_pick),
+                    fontSize = 13.sp,
+                    color = secondaryTint,
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
+                )
             }
         }
     }
