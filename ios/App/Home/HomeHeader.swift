@@ -10,9 +10,9 @@ enum HomeGreeting {
     }
 }
 
-struct HomeHeader: View {
-    let profileName: String
-    let openCalendar: () -> Void
+struct HomeChatsHeader: View {
+    let openSearch: () -> Void
+    let newChat: () -> Void
 
     var body: some View {
         HStack(spacing: 12) {
@@ -25,34 +25,25 @@ struct HomeHeader: View {
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .accessibilityAddTraits(.isHeader)
 
-            calendarButton
-            settingsLink
+            button("magnifyingglass", label: "Search", fill: .seiraS1, ink: .seiraInk, action: openSearch)
+                .accessibilityIdentifier("home-search")
+            button("square.and.pencil", label: "New chat", fill: .seiraAcc, ink: .seiraOnAcc, action: newChat)
+                .accessibilityIdentifier("home-new-chat")
         }
         .padding(.horizontal, HomeRowMetrics.side)
         .padding(.top, 4)
         .frame(minHeight: 48)
     }
 
-    private var calendarButton: some View {
-        Button(action: openCalendar) {
-            Image(systemName: "calendar")
+    private func button(
+        _ symbol: String, label: LocalizedStringKey, fill: Color, ink: Color, action: @escaping () -> Void
+    ) -> some View {
+        Button(action: action) {
+            Image(systemName: symbol)
                 .font(.system(size: 18, weight: .medium))
-                .foregroundStyle(Color.seiraInk)
+                .foregroundStyle(ink)
         }
-        .buttonStyle(SeiraCircleButtonStyle(size: 44, fill: .seiraTint))
-        .accessibilityLabel("Routine calendar")
-        .accessibilityIdentifier("open-calendar")
-    }
-
-    private var settingsLink: some View {
-        NavigationLink {
-            SettingsView()
-        } label: {
-            ProfileAvatar(name: profileName, size: 40)
-                .frame(width: 44, height: 44)
-                .contentShape(Circle())
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel("Settings")
+        .buttonStyle(SeiraCircleButtonStyle(size: 48, fill: fill))
+        .accessibilityLabel(label)
     }
 }

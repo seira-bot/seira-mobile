@@ -6,6 +6,7 @@ import SwiftUI
 /// went, and what is coming. The days are worked out by RoutineCalendar, the
 /// same rules as the desktop's calendar.
 struct RoutineCalendarView: View {
+    let embedded: Bool
     @EnvironmentObject private var session: Session
     @Environment(\.dismiss) private var dismiss
     @State private var routines: [Routine] = []
@@ -13,6 +14,8 @@ struct RoutineCalendarView: View {
     @State private var loading = true
     @State private var selected = Calendar.current.startOfDay(for: Date())
     @State private var editor: CalendarEditorTarget?
+
+    init(embedded: Bool = false) { self.embedded = embedded }
 
     private var calendar: Calendar { .current }
     private var week: [Date] { RoutineCalendar.week(containing: selected, calendar: calendar) }
@@ -22,53 +25,65 @@ struct RoutineCalendarView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            VStack(spacing: 0) {
-                weekStrip
-                Divider()
-                let dayItems = items(on: selected)
-                List {
-                    if dayItems.isEmpty && !loading {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text("Nothing scheduled")
-                                .font(.headline)
-                            Text("Routines that run on this day appear here.")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
+        if embedded {
+            screen
+        } else {
+            NavigationStack {
+                screen
+                    .navigationTitle(Text(selected, format: .dateTime.month(.wide).year()))
+                    .navigationBarTitleDisplayMode(.inline)
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Done") { dismiss() }
                         }
-                        .padding(.vertical, 8)
-                        .listRowSeparator(.hidden)
+                        ToolbarItemGroup(placement: .primaryAction) {
+                            if !calendar.isDateInToday(selected) {
+                                Button("Today") { select(Date()) }
+                            }
+                            Button("New routine", systemImage: "plus") { editor = .new }
+                                .accessibilityIdentifier("calendar-new-routine")
+                        }
                     }
-                    ForEach(dayItems) { item in
-                        CalendarRunRow(item: item, bot: session.state.bot(item.run?.botId ?? item.routine?.botId ?? ""))
-                            .contentShape(Rectangle())
-                            .onTapGesture { open(item) }
-                    }
-                }
-                .listStyle(.plain)
-                .overlay {
-                    if loading && routines.isEmpty && runs.isEmpty { ProgressView() }
-                }
             }
-            .navigationTitle(Text(selected, format: .dateTime.month(.wide).year()))
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Done") { dismiss() }
+        }
+    }
+
+    private var screen: some View {
+        VStack(spacing: 0) {
+            weekStrip
+            Divider()
+            dayList
+        }
+        .task { await reload() }
+        .refreshable { await reload() }
+        .sheet(item: $editor) { target in
+            RoutineEditorView(routine: target.routine) { await reload() }
+        }
+    }
+
+    private var dayList: some View {
+        let dayItems = items(on: selected)
+        return List {
+            if dayItems.isEmpty && !loading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Nothing scheduled")
+                        .font(.headline)
+                    Text("Routines that run on this day appear here.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                 }
-                ToolbarItemGroup(placement: .primaryAction) {
-                    if !calendar.isDateInToday(selected) {
-                        Button("Today") { select(Date()) }
-                    }
-                    Button("New routine", systemImage: "plus") { editor = .new }
-                        .accessibilityIdentifier("calendar-new-routine")
-                }
+                .padding(.vertical, 8)
+                .listRowSeparator(.hidden)
             }
-            .task { await reload() }
-            .refreshable { await reload() }
-            .sheet(item: $editor) { target in
-                RoutineEditorView(routine: target.routine) { await reload() }
+            ForEach(dayItems) { item in
+                CalendarRunRow(item: item, bot: session.state.bot(item.run?.botId ?? item.routine?.botId ?? ""))
+                    .contentShape(Rectangle())
+                    .onTapGesture { open(item) }
             }
+        }
+        .listStyle(.plain)
+        .overlay {
+            if loading && routines.isEmpty && runs.isEmpty { ProgressView() }
         }
     }
 

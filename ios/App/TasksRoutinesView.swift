@@ -18,7 +18,7 @@ struct TasksRoutinesView: View {
                 }
                 .font(.subheadline)
             } footer: {
-                Text("No cron syntax. Every run uses the agent's existing model, tools, permissions, computer, and connected apps. Times follow the paired computer's local timezone.")
+                Text("Every run uses the agent's existing model, tools, permissions, computer, and connected apps. Times follow the paired computer's local timezone.")
             }
 
             Section("Routines") {
@@ -367,7 +367,7 @@ struct RoutineEditorView: View {
                     if kind == .interval {
                         Text("Each occurrence starts with fresh context. Results collect in one thread, and full run logs remain available. If the previous run is still active, the next occurrence is skipped instead of queued.")
                     } else {
-                        Text("Each occurrence starts with fresh context. Results collect in one thread, and full run logs remain available. No cron syntax is used.")
+                        Text("Each occurrence starts with fresh context. Results collect in one thread, and full run logs remain available.")
                     }
                 }
 
