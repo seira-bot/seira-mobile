@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">自分のサーバーで作業するようになりました。</string>
     <string name="chat_works_on_failed">このボットの作業場所を変更できませんでした。もう一度お試しください。</string>
     <string name="chat_works_on_forbidden">コンピューターで変更してください。</string>
+    <string name="chat_suggest_capabilities">何ができる？</string>
+    <string name="chat_suggest_capabilities_prompt">ここで何を手伝ってくれる？</string>
+    <string name="chat_suggest_plan_day">今日の予定を立てる</string>
+    <string name="chat_suggest_plan_day_prompt">今日やることの計画を手伝って。</string>
+    <string name="chat_suggest_needs_me">何が必要？</string>
+    <string name="chat_suggest_needs_me_prompt">今すぐ私が対応すべきことは何？</string>
+    <string name="chat_suggest_yes">はい、進めて</string>
+    <string name="chat_suggest_yes_prompt">はい、進めてください。</string>
+    <string name="chat_suggest_not_now">今はやめる</string>
+    <string name="chat_suggest_not_now_prompt">いいえ、今はやめておきます。</string>
+    <string name="chat_suggest_more">もっと教えて</string>
+    <string name="chat_suggest_more_prompt">決める前にもっと詳しく教えて。</string>
+    <string name="chat_suggest_show_changes">変更を見る</string>
+    <string name="chat_suggest_show_changes_prompt">何を変更したか見せて。</string>
+    <string name="chat_suggest_run_tests">テストを実行</string>
+    <string name="chat_suggest_run_tests_prompt">テストを実行して、結果を教えて。</string>
+    <string name="chat_suggest_summarize">要約して</string>
+    <string name="chat_suggest_summarize_prompt">直前の回答を3つの短い点にまとめて。</string>
+    <string name="chat_suggest_next">次は？</string>
+    <string name="chat_suggest_next_prompt">次に何をしましょうか？</string>
+    <string name="chat_suggest_explain">やさしく説明</string>
+    <string name="chat_suggest_explain_prompt">もっとやさしい言葉で説明して。</string>
+    <string name="chat_suggest_option_prompt">選択肢%1$dにします：%2$s</string>
 </resources>

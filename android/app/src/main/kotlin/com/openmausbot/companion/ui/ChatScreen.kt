@@ -58,6 +58,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -506,8 +507,21 @@ private fun LoadedChat(
     var revealedTurnMessageId by remember(threadId) { mutableStateOf<String?>(null) }
     val codeActivity = remember(rawTranscript) { QuickReplyContext.hasCodeActivity(rawTranscript) }
     val suggestedReplies = remember(rawTranscript) { SuggestedReplies.forTranscript(rawTranscript) }
-    val predictiveChips = remember(quickReplies, codeActivity, suggestedReplies) {
-        PredictiveChip.row(SuggestedReplies.composerChips(suggestedReplies, QuickReplyContext.chips(quickReplies, codeActivity)))
+    val chipResources = LocalContext.current.resources
+    val chipConfiguration = LocalConfiguration.current
+    val predictiveChips = remember(quickReplies, codeActivity, suggestedReplies, rawTranscript, chat.busy, chipConfiguration) {
+        val savedList = QuickReplyContext.chips(quickReplies, codeActivity)
+        val savedCodeChips = savedList.any { it.id == "default.diff" || it.id == "default.tests" }
+        val contextChips = ComposerSuggestions.suggest(rawTranscript, working = chat.busy, savedCodeChips = savedCodeChips)
+            .map { it.toChip(chipResources) }
+        PredictiveChip.row(
+            ComposerSuggestions.row(
+                server = SuggestedReplies.composerChips(suggestedReplies, emptyList()),
+                context = contextChips,
+                saved = SuggestedReplies.composerChips(emptyList(), savedList)
+                    .filterNot { c -> suggestedReplies.any { it.prompt.trim().equals(c.prompt.trim(), true) } },
+            ),
+        )
     }
     val streaming = state.streaming[threadId]
     val reasoning = state.reasoning[threadId]

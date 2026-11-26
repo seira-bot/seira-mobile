@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Giờ bot làm việc trên máy chủ của bạn.</string>
     <string name="chat_works_on_failed">Không thể đổi nơi bot này làm việc. Hãy thử lại.</string>
     <string name="chat_works_on_forbidden">Hãy đổi việc này trên máy tính.</string>
+    <string name="chat_suggest_capabilities">Bạn làm được gì?</string>
+    <string name="chat_suggest_capabilities_prompt">Bạn giúp được gì cho tôi ở đây?</string>
+    <string name="chat_suggest_plan_day">Lên kế hoạch ngày</string>
+    <string name="chat_suggest_plan_day_prompt">Giúp tôi lên kế hoạch cho hôm nay.</string>
+    <string name="chat_suggest_needs_me">Việc nào cần tôi?</string>
+    <string name="chat_suggest_needs_me_prompt">Việc gì cần tôi chú ý ngay bây giờ?</string>
+    <string name="chat_suggest_yes">Có, làm đi</string>
+    <string name="chat_suggest_yes_prompt">Có, làm đi.</string>
+    <string name="chat_suggest_not_now">Chưa phải lúc này</string>
+    <string name="chat_suggest_not_now_prompt">Không, chưa phải lúc này.</string>
+    <string name="chat_suggest_more">Nói thêm đi</string>
+    <string name="chat_suggest_more_prompt">Hãy nói thêm trước khi tôi quyết định.</string>
+    <string name="chat_suggest_show_changes">Xem thay đổi</string>
+    <string name="chat_suggest_show_changes_prompt">Cho tôi xem bạn đã thay đổi gì.</string>
+    <string name="chat_suggest_run_tests">Chạy kiểm thử</string>
+    <string name="chat_suggest_run_tests_prompt">Chạy kiểm thử và cho tôi biết kết quả.</string>
+    <string name="chat_suggest_summarize">Tóm tắt</string>
+    <string name="chat_suggest_summarize_prompt">Tóm tắt câu trả lời gần nhất của bạn trong 3 ý ngắn.</string>
+    <string name="chat_suggest_next">Tiếp theo?</string>
+    <string name="chat_suggest_next_prompt">Chúng ta nên làm gì tiếp theo?</string>
+    <string name="chat_suggest_explain">Giải thích dễ hiểu</string>
+    <string name="chat_suggest_explain_prompt">Giải thích điều đó bằng từ ngữ đơn giản hơn.</string>
+    <string name="chat_suggest_option_prompt">Chọn phương án %1$d: %2$s</string>
 </resources>

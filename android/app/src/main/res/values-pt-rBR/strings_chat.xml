@@ -87,4 +87,27 @@
     <string name="chat_works_on_now_own_server">Agora trabalha no seu próprio servidor.</string>
     <string name="chat_works_on_failed">Não foi possível mudar onde este bot trabalha. Tente de novo.</string>
     <string name="chat_works_on_forbidden">Mude isso no computador.</string>
+    <string name="chat_suggest_capabilities">O que você sabe fazer?</string>
+    <string name="chat_suggest_capabilities_prompt">Em que você pode me ajudar aqui?</string>
+    <string name="chat_suggest_plan_day">Planejar meu dia</string>
+    <string name="chat_suggest_plan_day_prompt">Me ajude a planejar o que fazer hoje.</string>
+    <string name="chat_suggest_needs_me">O que precisa de mim?</string>
+    <string name="chat_suggest_needs_me_prompt">O que precisa da minha atenção agora?</string>
+    <string name="chat_suggest_yes">Sim, pode seguir</string>
+    <string name="chat_suggest_yes_prompt">Sim, pode seguir.</string>
+    <string name="chat_suggest_not_now">Agora não</string>
+    <string name="chat_suggest_not_now_prompt">Não, agora não.</string>
+    <string name="chat_suggest_more">Conte mais</string>
+    <string name="chat_suggest_more_prompt">Conte mais antes de eu decidir.</string>
+    <string name="chat_suggest_show_changes">Ver as mudanças</string>
+    <string name="chat_suggest_show_changes_prompt">Mostre o que você mudou.</string>
+    <string name="chat_suggest_run_tests">Rodar os testes</string>
+    <string name="chat_suggest_run_tests_prompt">Rode os testes e me diga o resultado.</string>
+    <string name="chat_suggest_summarize">Resumir</string>
+    <string name="chat_suggest_summarize_prompt">Resuma sua última resposta em 3 pontos curtos.</string>
+    <string name="chat_suggest_next">E agora?</string>
+    <string name="chat_suggest_next_prompt">O que devemos fazer agora?</string>
+    <string name="chat_suggest_explain">Explicar simples</string>
+    <string name="chat_suggest_explain_prompt">Explique isso com palavras mais simples.</string>
+    <string name="chat_suggest_option_prompt">Vamos com a opção %1$d: %2$s</string>
 </resources>

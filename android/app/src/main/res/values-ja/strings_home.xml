@@ -5,6 +5,7 @@
     <string name="home_greeting_evening">こんばんは</string>
     <string name="home_greeting_with_name">%1$s、%2$s</string>
     <string name="home_more_options">その他のオプション</string>
+    <string name="home_add_computer">コンピュータを追加</string>
     <string name="home_talk">話す</string>
     <string name="home_status_ready">準備完了</string>
     <string name="home_team">チーム</string>

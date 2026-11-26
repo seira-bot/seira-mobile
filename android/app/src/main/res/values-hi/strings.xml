@@ -158,6 +158,12 @@
     <string name="mobile_card_send_to_app">%1$s को भेजें?</string>
     <string name="mobile_card_send_on_your_behalf">आपकी ओर से भेजें?</string>
     <string name="mobile_card_details">ब्योरा</string>
+    <string name="mobile_card_swipe_allow">अनुमति दें</string>
+    <string name="mobile_card_swipe_deny">अस्वीकार करें</string>
+    <string name="mobile_card_confirm_allow">इस अनुरोध की अनुमति दें?</string>
+    <string name="mobile_card_confirm_deny">यह अनुरोध अस्वीकार करें?</string>
+    <string name="mobile_card_confirm">पुष्टि करें</string>
+    <string name="mobile_card_cancel_swipe">रद्द करें</string>
     <string name="mobile_card_allowed">अनुमति दी गई</string>
     <string name="mobile_card_denied">अस्वीकार किया गया</string>
     <string name="mobile_card_no_longer_available">अब उपलब्ध नहीं</string>

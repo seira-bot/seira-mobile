@@ -165,6 +165,13 @@ fun PairingScreen(onCancel: () -> Unit) {
         failure = null
     }
 
+    val handedAddress by PairingAddressHandoff.address.collectAsState()
+    LaunchedEffect(handedAddress) {
+        if (handedAddress == null) return@LaunchedEffect
+        val address = PairingAddressHandoff.take() ?: return@LaunchedEffect
+        Connection.parse(address)?.let { openPending(it, fromScan = false) }
+    }
+
     val invite by session.pairingInvite.collectAsState()
     // One key, and it is the invite. `takeInvite` refuses while a redemption
     // holds the slot, and what brings the refused invitation back is not a

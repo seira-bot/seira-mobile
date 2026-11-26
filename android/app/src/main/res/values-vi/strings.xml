@@ -157,6 +157,12 @@
     <string name="mobile_card_send_to_app">Gửi đến %1$s?</string>
     <string name="mobile_card_send_on_your_behalf">Gửi thay mặt bạn?</string>
     <string name="mobile_card_details">Chi tiết</string>
+    <string name="mobile_card_swipe_allow">Cho phép</string>
+    <string name="mobile_card_swipe_deny">Từ chối</string>
+    <string name="mobile_card_confirm_allow">Cho phép yêu cầu này?</string>
+    <string name="mobile_card_confirm_deny">Từ chối yêu cầu này?</string>
+    <string name="mobile_card_confirm">Xác nhận</string>
+    <string name="mobile_card_cancel_swipe">Hủy</string>
     <string name="mobile_card_allowed">Đã cho phép</string>
     <string name="mobile_card_denied">Đã từ chối</string>
     <string name="mobile_card_no_longer_available">Không còn khả dụng</string>
