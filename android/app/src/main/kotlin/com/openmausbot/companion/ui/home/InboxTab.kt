@@ -53,6 +53,7 @@ import com.openmausbot.companion.ui.home.inbox.InboxNews
 import com.openmausbot.companion.ui.home.inbox.NewsItem
 import com.openmausbot.companion.ui.home.inbox.TitleSegment
 import com.openmausbot.companion.ui.localizedMobileCopy
+import com.openmausbot.companion.ui.localizedUpdateLine
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.updates
 import kotlinx.coroutines.launch
@@ -142,7 +143,7 @@ internal fun InboxTab(navigator: CompanionNavigator) {
                     is NewsItem.Finished -> NewsRow(
                         dot = colors.success,
                         title = stringResource(R.string.inbox_news_finished, item.update.chat.name),
-                        detail = item.update.line.trim().takeIf { it.isNotEmpty() },
+                        detail = item.update.line.trim().takeIf { it.isNotEmpty() }?.let { localizedUpdateLine(it) },
                         time = item.at?.let { localizedMobileCopy(RelativeStamp.list(it, now)) },
                         onClick = { navigator.open(item.update.chat) },
                     )

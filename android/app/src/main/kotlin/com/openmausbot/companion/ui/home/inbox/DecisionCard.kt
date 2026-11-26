@@ -42,6 +42,7 @@ import com.openmausbot.companion.ui.ChatAvatar
 import com.openmausbot.companion.ui.ChatUpdate
 import com.openmausbot.companion.ui.LocalCompanion
 import com.openmausbot.companion.ui.TactileAction
+import com.openmausbot.companion.ui.localizedUpdateLine
 import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import com.openmausbot.companion.ui.theme.Seira
@@ -67,7 +68,7 @@ internal fun DecisionCard(
 
     val card = update.card
     val answer = remember(card) { InboxDecisions.answer(card) }
-    val detail = remember(update) { InboxDecisions.detail(update) }
+    val detail = remember(update) { InboxDecisions.detail(update) }?.let { localizedUpdateLine(it) }
     val kindLabel = when (InboxDecisions.kind(card)) {
         DecisionKind.APPROVAL -> stringResource(R.string.inbox_kind_approval)
         DecisionKind.QUESTION -> stringResource(R.string.inbox_kind_question)
