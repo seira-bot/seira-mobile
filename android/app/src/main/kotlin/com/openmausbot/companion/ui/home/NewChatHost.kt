@@ -17,9 +17,13 @@ import com.openmausbot.companion.ui.NewChatSheet
 import com.openmausbot.companion.ui.NewGroupSheet
 import com.openmausbot.companion.ui.SectionRules
 import com.openmausbot.companion.ui.TactileAction
+import com.openmausbot.companion.ui.home.chats.NewBotRules
+import com.openmausbot.companion.ui.home.chats.NewBotSheet
 import com.openmausbot.companion.ui.play
 import com.openmausbot.companion.ui.rememberHaptics
 import kotlinx.coroutines.launch
+
+private enum class NewChatForm { GROUP, BOT }
 
 /**
  * The New chat sheet and what it starts: a thread with a bot, a group, a bot or a
@@ -40,10 +44,16 @@ internal fun NewChatHost(
     val state by session.state.collectAsState()
     val activityDetail by environment.chatPreferences.activityDetail.collectAsState()
     var creatingBot by remember { mutableStateOf(false) }
+    var botFailed by remember { mutableStateOf(false) }
     var creatingThreadFor by remember { mutableStateOf(emptySet<String>()) }
-    var group by remember { mutableStateOf(false) }
+    var form by remember { mutableStateOf<NewChatForm?>(null) }
 
-    LaunchedEffect(show) { if (!show) group = false }
+    LaunchedEffect(show) {
+        if (!show) {
+            form = null
+            botFailed = false
+        }
+    }
     if (!show) return
 
     val bots = remember(state, activityDetail) {
@@ -67,7 +77,36 @@ internal fun NewChatHost(
         }
     }
 
-    if (group) {
+    if (form == NewChatForm.BOT) {
+        NewBotSheet(
+            creating = creatingBot,
+            failed = botFailed,
+            onCreate = { name, job, retryKey ->
+                if (!creatingBot) {
+                    creatingBot = true
+                    botFailed = false
+                    scope.launch {
+                        try {
+                            val bot = session.createBot(NewBotRules.spec(name, job, retryKey))
+                            if (bot != null) {
+                                haptics.play(TactileAction.CREATE_BOT_SUCCESS)
+                                onDismiss()
+                                navigator.open(Chat.BotChat(bot))
+                            } else {
+                                botFailed = true
+                            }
+                        } finally {
+                            creatingBot = false
+                        }
+                    }
+                }
+            },
+            onDismiss = onDismiss,
+        )
+        return
+    }
+
+    if (form == NewChatForm.GROUP) {
         NewGroupSheet(
             onCreated = { room ->
                 onDismiss()
@@ -88,23 +127,11 @@ internal fun NewChatHost(
         },
         onNewGroup = {
             haptics.play(TactileAction.START_NEW_GROUP)
-            group = true
+            form = NewChatForm.GROUP
         },
         onNewBot = {
-            onDismiss()
-            if (!creatingBot) {
-                creatingBot = true
-                scope.launch {
-                    try {
-                        session.createBot()?.let {
-                            haptics.play(TactileAction.CREATE_BOT_SUCCESS)
-                            navigator.open(Chat.BotChat(it))
-                        }
-                    } finally {
-                        creatingBot = false
-                    }
-                }
-            }
+            botFailed = false
+            form = NewChatForm.BOT
         },
         onOrganize = {
             onDismiss()

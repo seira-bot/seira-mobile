@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">すべて</string>
+    <string name="chats_filter_empty">ここにチャットはありません。</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$sがあなたを待っています。</string>
+    <string name="chats_hero_quiet">静かです。あなたを待っているものはありません。</string>
+    <string name="search_placeholder">検索</string>
+    <string name="search_clear">検索をクリア</string>
+    <string name="search_filter_routines">ルーティン</string>
+    <string name="search_prompt">入力してメッセージを検索します。</string>
+    <string name="search_none">結果はありません。</string>
+    <string name="search_failed">検索できませんでした。もう一度お試しください。</string>
+    <string name="newbot_row_subtitle">最初に短いフォームに入力します</string>
+    <string name="newbot_name_label">名前</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">役割</string>
+    <string name="newbot_job_placeholder">できること</string>
+    <string name="newbot_note">「作成」をタップするまで、ボットは作成されません。</string>
+    <string name="newbot_create">ボットを作成</string>
+    <string name="newbot_creating">ボットを作成しています</string>
+    <string name="newbot_name_needed">続けるには名前を入力してください。</string>
+    <string name="newbot_failed">ボットを作成できませんでした。接続を確認して、もう一度お試しください。</string>
+    <string name="newbot_create_group">グループを作成</string>
+    <string name="newbot_group_pick">ボットを1つ以上選んでください。</string>
+    <string name="newbot_section_creates">新しいセクション（部門）を作成します。</string>
+    <string name="newbot_section_needed">名前を入力し、ボットを1つ以上選んでください。</string>
+</resources>

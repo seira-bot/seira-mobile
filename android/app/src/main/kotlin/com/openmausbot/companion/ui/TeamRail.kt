@@ -2,6 +2,7 @@ package com.openmausbot.companion.ui
 
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -14,9 +15,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -66,6 +69,7 @@ internal const val TEAM_RAIL_FIT = 4
 
 private const val MEMBER_WIDTH = 64
 private const val MEMBER_FACE = 60
+private const val STATUS_FACE = 58
 
 /**
  * The team: every visible bot but the chief, in a row that scrolls sideways, or
@@ -82,18 +86,20 @@ internal fun TeamRail(
     onManageThreads: (Bot) -> Unit,
     onChangeLook: (Bot) -> Unit,
     modifier: Modifier = Modifier,
+    /** The Chats tab's rail: no heading, one scrolling row, a status dot on each face. */
+    statusDots: Boolean = false,
 ) {
     val colors = Seira.colors
-    val canExpand = members.size > TEAM_RAIL_FIT
+    val canExpand = members.size > TEAM_RAIL_FIT && !statusDots
     Column(
         modifier = modifier
             .fillMaxWidth()
             // 28 dp to the text; the 48 dp toggle row already adds 14 dp above it.
-            .padding(top = if (canExpand) 14.dp else 28.dp)
+            .padding(top = if (statusDots) 4.dp else if (canExpand) 14.dp else 28.dp)
             .testTag("home-team")
             .animateContentSize(seiraTween(SeiraMotion.BASE)),
     ) {
-        Row(
+        if (!statusDots) Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 20.dp, end = 8.dp),
@@ -138,7 +144,7 @@ internal fun TeamRail(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 members.forEach {
-                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
+                    TeamMemberItem(it, statusDots, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
                 }
             }
         } else {
@@ -147,7 +153,7 @@ internal fun TeamRail(
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 6.dp),
             ) {
                 items(members, key = { it.bot.id }) {
-                    TeamMemberItem(it, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
+                    TeamMemberItem(it, statusDots, onOpen = { onOpen(it.bot) }, onCreateThread = { onCreateThread(it.bot) }, onManageThreads = { onManageThreads(it.bot) }, onChangeLook = { onChangeLook(it.bot) })
                 }
             }
         }
@@ -158,6 +164,7 @@ internal fun TeamRail(
 @Composable
 private fun TeamMemberItem(
     member: TeamMember,
+    statusDots: Boolean,
     onOpen: () -> Unit,
     onCreateThread: () -> Unit,
     onManageThreads: () -> Unit,
@@ -206,14 +213,35 @@ private fun TeamMemberItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            IdentityAvatar(
-                bot = bot,
-                size = MEMBER_FACE.dp,
-                ring = if (member.working) AvatarRing.Working else AvatarRing.None,
-                waitingDot = member.waiting,
-                state = member.face,
-                animated = false,
-            )
+            if (statusDots) {
+                Box {
+                    IdentityAvatar(bot = bot, size = STATUS_FACE.dp, state = member.face, animated = false)
+                    val dot = when {
+                        member.waiting -> colors.warning
+                        member.working -> colors.accent
+                        else -> null
+                    }
+                    if (dot != null) {
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .size(16.dp)
+                                .background(colors.app, CircleShape)
+                                .padding(3.dp)
+                                .background(dot, CircleShape),
+                        )
+                    }
+                }
+            } else {
+                IdentityAvatar(
+                    bot = bot,
+                    size = MEMBER_FACE.dp,
+                    ring = if (member.working) AvatarRing.Working else AvatarRing.None,
+                    waitingDot = member.waiting,
+                    state = member.face,
+                    animated = false,
+                )
+            }
             Text(
                 text = bot.name,
                 style = SeiraType.caption,
