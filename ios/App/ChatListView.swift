@@ -22,9 +22,11 @@ struct ChatListView: View {
     @State private var path = NavigationPath()
     @State private var searchHits: [SearchHit] = []
     @State private var searching = false
-    @State private var searchOpen = false
+    @State private var tab = HomeTab.chats
+    @State private var chatFilter = HomeChatFilter.all
+    @State private var drawerOpen = false
+    @State private var showingNewChat = false
     @State private var showingUpdates = false
-    @State private var showingCalendar = false
     @State private var showingWalkie = false
     @State private var showingNewGroup = false
     @State private var showingNewSection = false
@@ -38,15 +40,9 @@ struct ChatListView: View {
     /// for a thread that changed. Filled while rendering: it is a cache,
     /// not something any view observes.
     @State private var previewCache = RosterPreviewCache()
-    @FocusState private var searchFocused: Bool
 
     /// Space between the header and whatever the list starts with.
     private static let listTopInset: CGFloat = 8
-    /// Where the bar's bottom edge sits above the screen's own edge.
-    private static let barBottomGap: CGFloat = 30
-    /// Clear space above the floating bar once the list is scrolled to its
-    /// end. The bar's own height is inset by `safeAreaInset`, so the last
-    /// row stays fully visible and tappable whatever the bar measures.
     private static let listBottomMargin: CGFloat = 16
 
     var body: some View {
@@ -59,40 +55,19 @@ struct ChatListView: View {
         // Search's matches: the list and its empty state both read them.
         let matches: [ChatSummary] = query.isEmpty ? [] : chats
         NavigationStack(path: $path) {
-            GeometryReader { geo in
-            VStack(spacing: 0) {
-                HomeHeader(profileName: session.connection?.name ?? "You") { showingCalendar = true }
-                WorkspaceStrip(
-                    model: session.workspacePicker,
-                    computerID: session.connection?.id,
-                    live: session.status == .live
-                )
-                StatusBanner()
-                LiveCallBanner { target in
-                    if let bot = session.state.bot(target.botId)?.projected(forThread: target.threadId) {
-                        path.append(Chat.bot(bot))
-                    }
-                }
-                rosterScroll(
-                    updates: updates,
-                    waiting: waiting,
-                    matches: matches,
-                    barGap: max(8, Self.barBottomGap - geo.safeAreaInsets.bottom)
-                )
-            }
-            // top-aligned: the roster fills downward from the header
-            .frame(maxWidth: CompanionLayout.rosterWidth, maxHeight: .infinity, alignment: .top)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-            // a bot that stopped for you grows out of the island
-            .overlay(alignment: .top) {
-                if CompanionLayout.supportsIslandPresentation {
-                    NeedsYouIsland(update: updates.first { $0.kind == .needsYou }) { chat in path.append(chat) }
-                }
-            }
+            HomeDrawerLayer(
+                open: $drawerOpen,
+                name: session.connection?.name ?? "You",
+                select: { path.append($0) }
+            ) {
+                homeColumn(updates: updates, waiting: waiting, matches: matches)
             }
             .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(for: Chat.self) { ChatView(chat: $0) }
+            .navigationDestination(for: HomeRoute.self) { route in
+                routePage(route).environment(\.returnToChats, { path = NavigationPath() })
+            }
             .onValueChange(of: session.notificationChat) { chat in
                 guard let chat else { return }
                 path.append(chat)
@@ -139,15 +114,23 @@ struct ChatListView: View {
                 ChangeLookSheet(bot: bot)
                     .environmentObject(session)
             }
-            .sheet(isPresented: $showingCalendar) {
-                RoutineCalendarView()
-                    .environmentObject(session)
-            }
             .sheet(isPresented: $showingUpdates) {
                 UpdatesSheet { chat in
                     showingUpdates = false
                     path.append(chat)
                 }
+            }
+            .sheet(isPresented: $showingNewChat) {
+                NewChatSheet(
+                    chief: homeChief,
+                    openBot: { openBot($0) },
+                    newChatWithChief: { newChat() },
+                    openGroup: { path.append(Chat.room($0)) },
+                    newSection: { openNewSection() },
+                    walkie: { Haptics.selection(); showingWalkie = true },
+                    walkieDisabled: liveCall.machine.isActive
+                )
+                .environmentObject(session)
             }
             .fullScreenCover(isPresented: $showingWalkie) {
                 WalkieView { chat in
@@ -194,8 +177,71 @@ struct ChatListView: View {
 
     // MARK: - Scroll
 
+    private func homeColumn(
+        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
+    ) -> some View {
+        VStack(spacing: 0) {
+            HomeTopBar(
+                profileName: session.connection?.name ?? "You",
+                needsYou: !waiting.isEmpty,
+                openMenu: { Haptics.selection(); drawerOpen = true },
+                openSeira: { Haptics.selection(); showingUpdates = true },
+                openProfile: { path.append(HomeRoute.settings) }
+            )
+            WorkspaceStrip(
+                model: session.workspacePicker,
+                computerID: session.connection?.id,
+                live: session.status == .live
+            )
+            StatusBanner()
+            LiveCallBanner { target in
+                if let bot = session.state.bot(target.botId)?.projected(forThread: target.threadId) {
+                    path.append(Chat.bot(bot))
+                }
+            }
+            tabContent(updates: updates, waiting: waiting, matches: matches)
+            HomeTabBar(tab: $tab, inboxCount: InboxLogic.badgeCount(updates))
+        }
+        .frame(maxWidth: CompanionLayout.rosterWidth, maxHeight: .infinity, alignment: .top)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+    }
+
+    @ViewBuilder
+    private func tabContent(
+        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
+    ) -> some View {
+        switch tab {
+        case .chats:
+            VStack(spacing: 0) {
+                HomeChatsHeader(
+                    openSearch: { Haptics.selection(); path.append(HomeRoute.search) },
+                    newChat: { Haptics.selection(); showingNewChat = true }
+                )
+                HomeFilterChips(filter: $chatFilter)
+                    .padding(.top, 8)
+                rosterScroll(updates: updates, waiting: waiting, matches: matches)
+            }
+        case .inbox:
+            InboxTab { path.append($0) }
+        case .automations:
+            AutomationsTab()
+        }
+    }
+
+    @ViewBuilder
+    private func routePage(_ route: HomeRoute) -> some View {
+        switch route {
+        case .search: SearchPage { path.append($0) }
+        case .settings: SettingsView()
+        case .teamMap: TeamMapPage()
+        case .departmentMemory: DepartmentMemoryPage()
+        case .computers: ComputersPage()
+        case .botProfiles: BotProfilesPage()
+        }
+    }
+
     private func rosterScroll(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary], barGap: CGFloat
+        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
     ) -> some View {
         ScrollViewReader { proxy in
             ScrollView {
@@ -215,10 +261,6 @@ struct ChatListView: View {
             .refreshable { await session.refresh() }
             .accessibilityIdentifier("roster-list")
             .overlay { emptyState(matches: matches) }
-            .overlay(alignment: .bottom) { SeiraFade(edge: .bottom, height: 128, color: .seiraApp) }
-            // The list scrolls beneath the floating bar, and its end is
-            // inset by the bar's measured height rather than a guess.
-            .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar(updates: updates, gap: barGap) }
         }
     }
 
@@ -297,8 +339,8 @@ struct ChatListView: View {
     private func homeTop(
         updates: [ChatUpdate], waiting: Set<String>, scrollTo: @escaping (String) -> Void
     ) -> some View {
-        let chief = homeChief
-        let team = teamMembers(excluding: chief, waiting: waiting)
+        let chief = chatFilter.showsBots ? homeChief : nil
+        let team = chatFilter.showsBots ? teamMembers(excluding: chief, waiting: waiting) : []
         if let chief {
             chiefCard(chief, updates: updates, waiting: waiting)
                 .padding(.top, 12)
@@ -332,7 +374,8 @@ struct ChatListView: View {
             workingLine: line,
             canTalk: canTalk,
             open: { openBot(chief) },
-            talk: { talkTo(chief) }
+            talk: { talkTo(chief) },
+            allQuiet: updates.allSatisfy { $0.kind != .needsYou }
         )
         .modifier(HomeLiveCallDisclosure(bot: $disclosingLiveCall, start: startLiveCall))
     }
@@ -399,7 +442,9 @@ struct ChatListView: View {
         // Only comfortable rows show a preview line (search, which matches
         // on it, reads `chats` instead).
         let allSummaries = rosterSummaries(previews: density == .comfortable)
-        let attention = self.attention
+        let attention = chatFilter.showsBots ? self.attention : []
+        let showsBots = chatFilter.showsBots
+        let showsGroups = chatFilter.showsGroups
         if !attention.isEmpty {
             sectionLabel(Text("Needs attention"))
                 .padding(.top, 2)
@@ -415,7 +460,7 @@ struct ChatListView: View {
             }
         }
 
-        if let chief = session.state.unsectionedChief {
+        if showsBots, let chief = session.state.unsectionedChief {
             VStack(alignment: .leading, spacing: 0) {
                 botRows(summaries(for: [chief], from: allSummaries), waiting: waiting)
             }
@@ -424,7 +469,7 @@ struct ChatListView: View {
             .padding(.top, density == .compact && !attention.isEmpty ? sectionSpacing : 0)
         }
 
-        let pinned = summaries(for: session.state.pinnedBots, from: allSummaries)
+        let pinned = showsBots ? summaries(for: session.state.pinnedBots, from: allSummaries) : []
         if !pinned.isEmpty {
             sectionLabel(Text("Pinned"))
                 // a compact row above it leaves little air of its own
@@ -433,6 +478,39 @@ struct ChatListView: View {
             botRows(pinned, waiting: waiting)
         }
 
+        if showsGroups {
+            groupSections(waiting: waiting)
+        }
+
+        let unsectioned = showsBots ? summaries(for: session.state.unsectionedBots, from: allSummaries) : []
+        if !unsectioned.isEmpty {
+            sectionLabel(Text("Bots"))
+                .padding(.top, sectionSpacing)
+                .padding(.bottom, 4)
+                .id(Self.botsSectionID)
+            botRows(unsectioned, waiting: waiting)
+        }
+
+        ForEach(visibleSections) { section in
+            departmentSection(section, allSummaries: allSummaries, waiting: waiting)
+        }
+    }
+
+    private var visibleSections: [SidebarSection] {
+        session.state.sidebarSections.compactMap { section -> SidebarSection? in
+            var shown = section
+            if !chatFilter.showsBots {
+                shown.chiefs = []
+                shown.bots = []
+            }
+            if !chatFilter.showsGroups { shown.channels = [] }
+            let empty = shown.chiefs.isEmpty && shown.bots.isEmpty && shown.channels.isEmpty
+            return empty && chatFilter != .all ? nil : shown
+        }
+    }
+
+    @ViewBuilder
+    private func groupSections(waiting: Set<String>) -> some View {
         switch density {
         case .comfortable:
             channelsStrip(
@@ -456,42 +534,59 @@ struct ChatListView: View {
                 compactRoomsSection(title: "Bot threads", rooms: session.state.botChats, showsCreate: false, waiting: waiting)
             }
         }
+    }
 
-        let unsectioned = summaries(for: session.state.unsectionedBots, from: allSummaries)
-        if !unsectioned.isEmpty {
-            sectionLabel(Text("Bots"))
-                .padding(.top, sectionSpacing)
-                .padding(.bottom, 4)
-                .id(Self.botsSectionID)
-            botRows(unsectioned, waiting: waiting)
-        }
-
-        ForEach(session.state.sidebarSections) { section in
-            VStack(alignment: .leading, spacing: 0) {
-                switch density {
-                case .comfortable:
-                    sectionLabel(Text(verbatim: section.name))
-                        .padding(.top, 18)
-                        .padding(.bottom, section.chiefs.isEmpty && !section.channels.isEmpty ? 10 : 4)
-                    if !section.chiefs.isEmpty {
-                        botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
-                    }
-                    if !section.channels.isEmpty {
-                        channelTiles(section.channels, showsCreate: false)
-                            .padding(.top, section.chiefs.isEmpty ? 0 : 8)
-                            .padding(.bottom, section.bots.isEmpty ? 4 : 8)
-                    }
-                case .compact:
-                    sectionLabel(Text(verbatim: section.name))
-                        .padding(.top, sectionSpacing)
-                        .padding(.bottom, 4)
-                    if !section.chiefs.isEmpty {
-                        botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
-                    }
-                    compactRoomRows(section.channels, waiting: waiting)
+    private func departmentHeader(_ name: String) -> some View {
+        HStack(spacing: 0) {
+            sectionLabel(Text(verbatim: name))
+            Spacer(minLength: 0)
+            if chatFilter.showsGroups {
+                Button {
+                    Haptics.selection()
+                    showingNewGroup = true
+                } label: {
+                    Label("New group", systemImage: "plus")
+                        .labelStyle(.titleAndIcon)
+                        .font(.seira(13, .medium, relativeTo: .caption))
+                        .foregroundStyle(Color.seiraInk3)
+                        .padding(.horizontal, HomeRowMetrics.side)
+                        .frame(minHeight: 44)
+                        .contentShape(Rectangle())
                 }
-                botRows(summaries(for: section.bots, from: allSummaries), waiting: waiting)
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("new-group-\(name)")
             }
+        }
+        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
+    }
+
+    @ViewBuilder
+    private func departmentSection(
+        _ section: SidebarSection, allSummaries: [ChatSummary], waiting: Set<String>
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 0) {
+            switch density {
+            case .comfortable:
+                departmentHeader(section.name)
+                    .padding(.top, 18)
+                    .padding(.bottom, section.chiefs.isEmpty && !section.channels.isEmpty ? 6 : 0)
+                if !section.chiefs.isEmpty {
+                    botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
+                }
+                if !section.channels.isEmpty {
+                    channelTiles(section.channels, showsCreate: false)
+                        .padding(.top, section.chiefs.isEmpty ? 0 : 8)
+                        .padding(.bottom, section.bots.isEmpty ? 4 : 8)
+                }
+            case .compact:
+                departmentHeader(section.name)
+                    .padding(.top, sectionSpacing - 12)
+                if !section.chiefs.isEmpty {
+                    botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
+                }
+                compactRoomRows(section.channels, waiting: waiting)
+            }
+            botRows(summaries(for: section.bots, from: allSummaries), waiting: waiting)
         }
     }
 
@@ -711,91 +806,6 @@ struct ChatListView: View {
         .equatable()
     }
 
-    // MARK: - Bottom bar
-
-    private func bottomBar(updates: [ChatUpdate], gap: CGFloat) -> some View {
-        GlassGroup(spacing: 8) {
-            VStack(spacing: 10) {
-                if searchOpen {
-                    searchField
-                } else {
-                    updatesButton(updates: updates)
-                    HomeBottomBar(
-                        hasChief: homeChief != nil,
-                        canAdminister: session.canAdminister,
-                        hasVisibleBots: hasVisibleBots,
-                        walkieDisabled: liveCall.machine.isActive,
-                        openSearch: openSearch,
-                        newChat: newChat,
-                        newGroup: { Haptics.selection(); showingNewGroup = true },
-                        newSection: openNewSection,
-                        newBot: createBot,
-                        walkie: { Haptics.selection(); showingWalkie = true }
-                    )
-                }
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.bottom, gap)
-        .seiraAnimation(SeiraMotion.base, value: searchOpen)
-    }
-
-    private var searchField: some View {
-        HStack(spacing: 8) {
-            HStack(spacing: 8) {
-                Image(systemName: "magnifyingglass")
-                    .font(.system(size: 17, weight: .medium))
-                    .foregroundStyle(Color.seiraInk3)
-                TextField("Search threads", text: $query)
-                    .font(.seira(15, relativeTo: .body))
-                    .foregroundStyle(Color.seiraInk)
-                    .submitLabel(.search)
-                    .autocorrectionDisabled()
-                    .focused($searchFocused)
-                if !query.isEmpty {
-                    Button {
-                        query = ""
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(Color.seiraInk3)
-                            .frame(width: 44, height: 44)
-                            .contentShape(Rectangle())
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("Clear")
-                }
-            }
-            .padding(.horizontal, 18)
-            .frame(height: 52)
-            .glassCapsule()
-
-            Button("Cancel") {
-                query = ""
-                searchOpen = false
-                searchFocused = false
-            }
-            .font(.seira(15, .medium, relativeTo: .body))
-            .foregroundStyle(Color.seiraInk)
-            .padding(.horizontal, 16)
-            .frame(height: 52)
-            .glassCapsule()
-        }
-    }
-
-    private func openSearch() {
-        Haptics.selection()
-        searchOpen = true
-        searchFocused = true
-    }
-
-    private func updatesButton(updates: [ChatUpdate]) -> some View {
-        UpdatesPill(updates: updates) {
-            Haptics.selection()
-            showingUpdates = true
-        }
-        .frame(height: 52)
-    }
-
     private var hasVisibleBots: Bool {
         session.state.bots.contains { $0.hidden != true }
     }
@@ -803,15 +813,6 @@ struct ChatListView: View {
     private func openNewSection() {
         Haptics.selection()
         showingNewSection = true
-    }
-
-    private func createBot() {
-        Task {
-            if let bot = await session.createBot() {
-                Haptics.success()
-                path.append(Chat.bot(bot))
-            }
-        }
     }
 
     // MARK: - Data

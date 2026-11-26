@@ -11,8 +11,9 @@ struct ChatHeaderBar: View {
     let onBack: () -> Void
     let onProfile: () -> Void
     let onCall: () -> Void
-    let onThreads: () -> Void
     let onComputer: () -> Void
+    let menuItems: [ChatMenuItem]
+    let onMenu: (ChatMenuItem) -> Void
 
     var body: some View {
         HStack(spacing: 8) {
@@ -38,7 +39,7 @@ struct ChatHeaderBar: View {
             .foregroundStyle(Color.seiraInk)
             .padding(.leading, 12)
             .padding(.trailing, unread > 0 ? 8 : 12)
-            .frame(minWidth: 44, minHeight: 44)
+            .frame(minWidth: 46, minHeight: 46)
             .contentShape(Capsule())
         }
         .buttonStyle(.plain)
@@ -87,7 +88,7 @@ struct ChatHeaderBar: View {
         }
         .padding(.leading, 6)
         .padding(.trailing, 14)
-        .frame(maxWidth: .infinity, minHeight: 44, maxHeight: 44, alignment: .leading)
+        .frame(maxWidth: .infinity, minHeight: 46, maxHeight: 46, alignment: .leading)
         .contentShape(Capsule())
         .glassCapsule()
     }
@@ -115,16 +116,52 @@ struct ChatHeaderBar: View {
 
     private var actions: some View {
         HStack(spacing: 8) {
-            if chat.supportsTasks { threadsButton }
-            if case .bot = chat { computerButton }
+            if ChatMenuRules.showsScreenButton(chat) { computerButton }
+            menuButton
         }
     }
 
-    private var threadsButton: some View {
-        roundButton("square.stack", action: onThreads)
-            .accessibilityLabel("Threads")
-            .accessibilityValue(Text(verbatim: chat.threadTitle))
-            .accessibilityIdentifier("header-threads")
+    private var menuButton: some View {
+        Menu {
+            ForEach(menuItems, id: \.self) { item in
+                Button { onMenu(item) } label: { Label(title(of: item), systemImage: symbol(of: item)) }
+                    .accessibilityIdentifier("menu-\(item.rawValue)")
+            }
+        } label: {
+            Image(systemName: "ellipsis")
+                .font(.system(size: 17, weight: .medium))
+                .foregroundStyle(Color.seiraInk)
+                .frame(width: 46, height: 46)
+                .contentShape(Circle())
+        }
+        .glassCapsule()
+        .accessibilityLabel("More")
+        .accessibilityValue(Text(verbatim: chat.threadTitle))
+        .accessibilityIdentifier("chat-menu")
+    }
+
+    private func title(of item: ChatMenuItem) -> LocalizedStringKey {
+        switch item {
+        case .find: return "Find in conversation"
+        case .newThread: return "New thread"
+        case .allThreads: return "All threads"
+        case .model: return "Model"
+        case .members: return "Members"
+        case .botScreen: return "Bot screen"
+        case .share: return "Share"
+        }
+    }
+
+    private func symbol(of item: ChatMenuItem) -> String {
+        switch item {
+        case .find: return "magnifyingglass"
+        case .newThread: return "plus.square.on.square"
+        case .allThreads: return "square.stack"
+        case .model: return "cpu"
+        case .members: return "person.2"
+        case .botScreen: return "display"
+        case .share: return "square.and.arrow.up"
+        }
     }
 
     private var computerButton: some View {
@@ -143,7 +180,7 @@ struct ChatHeaderBar: View {
             Image(systemName: symbol)
                 .font(.system(size: 17, weight: .medium))
                 .foregroundStyle(Color.seiraInk)
-                .frame(width: 44, height: 44)
+                .frame(width: 46, height: 46)
                 .contentShape(Circle())
         }
         .buttonStyle(.plain)

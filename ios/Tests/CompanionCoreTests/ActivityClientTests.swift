@@ -113,29 +113,31 @@ final class ActivityClientTests: XCTestCase {
     func testRemembersAProposalWithAnAcceptPatch() async throws {
         ActivityRequestStub.responseBody = Data(#"{"entries":[]}"#.utf8)
 
-        _ = try await client.answerTeamMemory(section: "Work", id: "entry_1", remember: true)
+        _ = try await client.updateTeamMemory(section: "Work", entryId: "entry_1", revision: "r1", accept: true)
 
         let request = try XCTUnwrap(ActivityRequestStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "PATCH")
         XCTAssertEqual(request.url?.path, "/api/team-memory/entry_1")
         XCTAssertEqual(request.url?.query, "section=Work")
         XCTAssertEqual(try body()["accept"] as? Bool, true)
+        XCTAssertEqual(try body()["expectedRevision"] as? String, "r1")
     }
 
     func testSkipsAProposalWithADelete() async throws {
         ActivityRequestStub.responseBody = Data(#"{"entries":[]}"#.utf8)
 
-        _ = try await client.answerTeamMemory(section: "", id: "entry_1", remember: false)
+        _ = try await client.deleteTeamMemory(section: "", entryId: "entry_1", revision: "r1")
 
         let request = try XCTUnwrap(ActivityRequestStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "DELETE")
         XCTAssertEqual(request.url?.path, "/api/team-memory/entry_1")
+        XCTAssertEqual(request.url?.query, "section=&revision=r1")
     }
 
     func testAddsAnEntryByHand() async throws {
         ActivityRequestStub.responseBody = Data(#"{"entries":[{"id":"e1","kind":"term","name":"MCHQ","detail":"MissionControlHQ","aliases":[],"status":"accepted","source":{"botId":"","botName":"you","threadId":"","at":1},"updatedAt":1}]}"#.utf8)
 
-        let entries = try await client.addTeamMemory(section: "", kind: "term", name: "MCHQ", detail: "MissionControlHQ")
+        let entries = try await client.addTeamMemory(section: "", kind: .term, name: "MCHQ", detail: "MissionControlHQ").entries
 
         let request = try XCTUnwrap(ActivityRequestStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "POST")
@@ -147,7 +149,7 @@ final class ActivityClientTests: XCTestCase {
     func testEditsAnAcceptedEntryAndEncodesTheExactSection() async throws {
         ActivityRequestStub.responseBody = Data(#"{"entries":[]}"#.utf8)
 
-        _ = try await client.updateTeamMemory(section: "Work & R&D", id: "entry_1", detail: "Reviewed detail")
+        _ = try await client.updateTeamMemory(section: "Work & R&D", entryId: "entry_1", revision: "r1", detail: "Reviewed detail")
 
         let request = try XCTUnwrap(ActivityRequestStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "PATCH")
@@ -155,6 +157,7 @@ final class ActivityClientTests: XCTestCase {
         let query = URLComponents(url: try XCTUnwrap(request.url), resolvingAgainstBaseURL: false)?.queryItems
         XCTAssertEqual(query, [URLQueryItem(name: "section", value: "Work & R&D")])
         XCTAssertEqual(try body()["detail"] as? String, "Reviewed detail")
+        XCTAssertEqual(try body()["expectedRevision"] as? String, "r1")
         XCTAssertNil(try body()["accept"])
     }
 
@@ -162,9 +165,9 @@ final class ActivityClientTests: XCTestCase {
         for operation in ["edit", "answer", "remove"] {
             do {
                 switch operation {
-                case "edit": _ = try await client.updateTeamMemory(section: "", id: "../other", detail: "No")
-                case "answer": _ = try await client.answerTeamMemory(section: "", id: "../other", remember: true)
-                default: _ = try await client.removeTeamMemory(section: "", id: "../other")
+                case "edit": _ = try await client.updateTeamMemory(section: "", entryId: "../other", revision: "r1", detail: "No")
+                case "answer": _ = try await client.updateTeamMemory(section: "", entryId: "../other", revision: "r1", accept: true)
+                default: _ = try await client.deleteTeamMemory(section: "", entryId: "../other", revision: "r1")
                 }
                 XCTFail("a path-shaped id must never reach the wire")
             } catch {

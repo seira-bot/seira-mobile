@@ -262,13 +262,13 @@ final class ResponsivenessUITests: XCTestCase {
 
     @MainActor
     private func selectThread(_ id: String, title: String, in app: XCUIApplication) {
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let thread = app.buttons["thread-\(id)"]
         XCTAssertTrue(thread.waitForExistence(timeout: 10))
         thread.tap()
         let titleArrived = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", title),
-            object: app.buttons["header-threads"]
+            object: app.buttons["chat-menu"]
         )
         XCTAssertEqual(XCTWaiter.wait(for: [titleArrived], timeout: 10), .completed)
     }

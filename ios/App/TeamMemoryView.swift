@@ -17,6 +17,7 @@ struct TeamMemoryView: View {
     @State private var draftDetail = ""
     @State private var editingEntry: TeamMemoryEntry?
     @State private var editDetail = ""
+    @State private var removing: TeamMemoryEntry?
     @State private var loadGeneration = 0
 
     private static let kinds: [(kind: String, title: LocalizedStringKey)] = [
@@ -68,7 +69,7 @@ struct TeamMemoryView: View {
                                     .tint(.accentColor)
                                     .disabled(busyID != nil)
                                     Button(role: .destructive) {
-                                        Task { await remove(entry) }
+                                        removing = entry
                                     } label: {
                                         Label("Remove", systemImage: "trash")
                                     }
@@ -117,6 +118,15 @@ struct TeamMemoryView: View {
             await load()
         }
         .refreshable { await load() }
+        .confirmationDialog(
+            "Remove this entry?", isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+            titleVisibility: .visible, presenting: removing
+        ) { entry in
+            Button("Remove", role: .destructive) { Task { await remove(entry) } }
+            Button("Cancel", role: .cancel) {}
+        } message: { entry in
+            Text(verbatim: entry.name)
+        }
         .sheet(item: $editingEntry) { entry in
             NavigationStack {
                 Form {
@@ -135,7 +145,7 @@ struct TeamMemoryView: View {
                         Button("Save") {
                             Task {
                                 let detail = editDetail.trimmingCharacters(in: .whitespacesAndNewlines)
-                                if await mutate(id: entry.id, { try await $0.updateTeamMemory(section: section, id: entry.id, detail: detail) }) {
+                                if await mutate(id: entry.id, { try await $0.updateTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry), detail: detail).entries }) {
                                     editingEntry = nil
                                 }
                             }
@@ -183,18 +193,34 @@ struct TeamMemoryView: View {
         return true
     }
 
+    private static func revision(of entry: TeamMemoryEntry) throws -> String {
+        guard let revision = entry.revision else {
+            throw APIError.status(code: 428, message: String(localized: "Reload this memory and try again."))
+        }
+        return revision
+    }
+
     private func answer(_ entry: TeamMemoryEntry, remember: Bool) async {
-        _ = await mutate(id: entry.id) { try await $0.answerTeamMemory(section: section, id: entry.id, remember: remember) }
+        if remember {
+            _ = await mutate(id: entry.id) {
+                try await $0.updateTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry), accept: true).entries
+            }
+        } else {
+            await remove(entry)
+        }
     }
 
     private func remove(_ entry: TeamMemoryEntry) async {
-        _ = await mutate(id: entry.id) { try await $0.removeTeamMemory(section: section, id: entry.id) }
+        _ = await mutate(id: entry.id) {
+            try await $0.deleteTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry)).entries
+        }
     }
 
     private func add() async {
         let name = draftName.trimmingCharacters(in: .whitespaces)
         let detail = draftDetail.trimmingCharacters(in: .whitespaces)
-        if await mutate(id: "new", { try await $0.addTeamMemory(section: section, kind: draftKind, name: name, detail: detail) }) {
+        let kind = TeamMemoryKind(rawValue: draftKind) ?? .term
+        if await mutate(id: "new", { try await $0.addTeamMemory(section: section, kind: kind, name: name, detail: detail).entries }) {
             draftName = ""
             draftDetail = ""
             adding = false

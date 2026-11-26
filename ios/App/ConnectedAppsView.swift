@@ -4,10 +4,9 @@ import UIKit
 
 /// Account-aware Composio inventory for a paired phone.
 ///
-/// The companion may list accounts and start authorization, but revocation
-/// deliberately remains on the Mac. That keeps a lost phone from removing a
-/// workspace integration while still giving mobile users explicit Work,
-/// Personal, and client-account choices.
+/// The companion lists accounts, starts authorization and removes one
+/// account after a confirmation, so Work, Personal and client accounts stay
+/// explicit choices.
 struct ConnectedAppsView: View {
     @EnvironmentObject private var session: Session
     @Environment(\.scenePhase) private var scenePhase
@@ -26,6 +25,12 @@ struct ConnectedAppsView: View {
     @State private var alias = ""
     @State private var loading = true
     @State private var refreshing = false
+    @State private var removing: RemoveTarget?
+
+    private struct RemoveTarget {
+        let card: ConnectorCard
+        let account: ConnectorAccount
+    }
 
     private var cards: [ConnectorCard] {
         let values = catalog?.cards ?? []
@@ -89,6 +94,17 @@ struct ConnectedAppsView: View {
         .refreshable { await refreshStatuses() }
         .onValueChange(of: scenePhase) { phase in
             if phase == .active { Task { await refreshStatuses() } }
+        }
+        .confirmationDialog(
+            removeTitle,
+            isPresented: Binding(get: { removing != nil }, set: { if !$0 { removing = nil } }),
+            titleVisibility: .visible,
+            presenting: removing
+        ) { target in
+            Button("Remove", role: .destructive) { Task { await remove(target) } }
+            Button("Cancel", role: .cancel) {}
+        } message: { _ in
+            Text("Your bots lose access to this account. You can add it again later.")
         }
         .alert("Account alias", isPresented: Binding(
             get: { aliasCard != nil },
@@ -156,6 +172,13 @@ struct ConnectedAppsView: View {
                         Spacer()
                         Image(systemName: account.isActive ? "checkmark.circle.fill" : "clock")
                             .foregroundStyle(account.isActive ? .green : .secondary)
+                        Button(role: .destructive) {
+                            removing = RemoveTarget(card: card, account: account)
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .buttonStyle(.borderless)
+                        .accessibilityLabel(removeLabel(account, in: card))
                     }
                 }
 
@@ -197,6 +220,23 @@ struct ConnectedAppsView: View {
         // guessing on the user's behalf.
         guard response.isAuthoritative else { return }
         statuses = response.services
+    }
+
+    private var removeTitle: String {
+        guard let target = removing else { return "" }
+        let name = target.account.nonemptyAlias ?? String(localized: "Primary account")
+        return String(localized: "Remove \(name) from \(target.card.label)?")
+    }
+
+    private func removeLabel(_ account: ConnectorAccount, in card: ConnectorCard) -> String {
+        let name = account.nonemptyAlias ?? String(localized: "Primary account")
+        return String(localized: "Remove \(name) from \(card.label)")
+    }
+
+    private func remove(_ target: RemoveTarget) async {
+        if await session.deleteConnectorAccount(connectorId: target.card.slug, accountId: target.account.id) {
+            await refreshStatuses(showProgress: true)
+        }
     }
 
     private func authorize(_ card: ConnectorCard, alias: String?) async {

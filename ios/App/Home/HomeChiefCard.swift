@@ -8,6 +8,7 @@ struct HomeChiefCard: View {
     let canTalk: Bool
     let open: () -> Void
     let talk: () -> Void
+    var allQuiet = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
@@ -105,7 +106,7 @@ struct HomeChiefCard: View {
         case .waitingOnYou:
             return String(localized: "Needs your OK")
         case .idle:
-            return String(localized: "Ready")
+            return allQuiet ? String(localized: "All quiet. Nothing needs you.") : String(localized: "Ready")
         }
     }
 

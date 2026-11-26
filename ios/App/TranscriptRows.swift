@@ -25,6 +25,8 @@ enum TranscriptNavigation {
     case reveal(messageId: String)
     /// A failed turn's "Switch model": the bot's settings, at its model.
     case botSettings
+    /// "Reply" on a message: quote it above the composer.
+    case reply(messageId: String)
 }
 
 /// Where a row's taps go once they leave the row: ChatView's handlers, held
@@ -105,6 +107,9 @@ struct TranscriptActions: Equatable {
 
     @MainActor
     func openBotSettings() { navigate(.botSettings) }
+
+    @MainActor
+    func reply(messageId: String) { navigate(.reply(messageId: messageId)) }
 
     @MainActor
     func worksOnConfig() async -> ConfigStatus? {
@@ -305,6 +310,8 @@ struct TranscriptRowView: View, Equatable {
     let context: TranscriptRowContext
     /// The message a search landed on, for the fold that holds it only.
     let revealedMessageId: String?
+    /// 0 none, 1 a find match, 2 the match the find bar stands on.
+    var findMark = 0
     let actions: TranscriptActions
 
     static func == (lhs: Self, rhs: Self) -> Bool {
@@ -313,7 +320,7 @@ struct TranscriptRowView: View, Equatable {
             && lhs.versions == rhs.versions
             && lhs.isPendingEdit == rhs.isPendingEdit && lhs.routineRun == rhs.routineRun
             && lhs.context == rhs.context && lhs.revealedMessageId == rhs.revealedMessageId
-            && lhs.actions == rhs.actions
+            && lhs.findMark == rhs.findMark && lhs.actions == rhs.actions
     }
 
     var body: some View {
@@ -330,6 +337,7 @@ struct TranscriptRowView: View, Equatable {
             }
             replyHeader
             content
+                .background(findFill, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
         }
         // Never wider than the column, whatever is inside. A frame with only
         // a maximum takes its content's width when that is wider, and one
@@ -338,6 +346,14 @@ struct TranscriptRowView: View, Equatable {
         // wide screenshot did it). An overflowing row now overflows its own
         // edge instead: yours to the left, a bot's to the right.
         .frame(minWidth: 0, maxWidth: .infinity, alignment: alignment)
+    }
+
+    private var findFill: Color {
+        switch findMark {
+        case 2: return Color.seiraWarn.opacity(0.35)
+        case 1: return Color.seiraWarn.opacity(0.15)
+        default: return .clear
+        }
     }
 
     @ViewBuilder private var replyHeader: some View {

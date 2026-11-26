@@ -7,6 +7,8 @@ import SwiftUI
 /// desktop's Activity panel; read-only, like the overview beside it.
 struct BotActivityView: View {
     let bot: Bot
+    /// Inside a page that already has a title.
+    var embedded = false
     @EnvironmentObject private var session: Session
     @Environment(\.scenePhase) private var scenePhase
     @State private var rows: [ActivityRow]?
@@ -79,7 +81,7 @@ struct BotActivityView: View {
                 }
             }
         }
-        .navigationTitle("\(bot.name) activity")
+        .modifier(ActivityTitle(embedded: embedded, title: "\(bot.name) activity"))
         .overlay { if loading && rows == nil { ProgressView() } }
         .task(id: session.connection?.id) {
             rows = nil
@@ -122,6 +124,15 @@ struct BotActivityView: View {
         } else {
             failed = true
         }
+    }
+}
+
+private struct ActivityTitle: ViewModifier {
+    let embedded: Bool
+    let title: LocalizedStringKey
+
+    @ViewBuilder func body(content: Content) -> some View {
+        if embedded { content } else { content.navigationTitle(title) }
     }
 }
 
