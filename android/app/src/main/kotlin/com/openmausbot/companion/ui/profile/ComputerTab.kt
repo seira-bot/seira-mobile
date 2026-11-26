@@ -1,6 +1,6 @@
 package com.openmausbot.companion.ui.profile
 
-import android.app.Activity
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +26,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -74,7 +73,7 @@ private fun ScreenView(bot: Bot) {
     val session = LocalCompanion.current.session
     val colors = Seira.colors
     val scope = rememberCoroutineScope()
-    val activity = LocalContext.current as? Activity
+    val activity = LocalActivity.current
     val takenText = stringResource(R.string.profile_control_taken)
     val failedText = stringResource(R.string.profile_control_failed)
     var lease by rememberSaveable(bot.id) { mutableStateOf<String?>(null) }
