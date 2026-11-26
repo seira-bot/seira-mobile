@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Не сейчас</string>
     <string name="composer_goal_chip">Цель: %1$s</string>
     <string name="composer_steer_waiting">Пока не может присоединиться к этому ходу. Остаётся в очереди.</string>
+    <string name="composer_steer_failed">Не удалось передать это сообщение в текущий ход. Попробуйте ещё раз.</string>
     <string name="composer_slash_goal">Задайте цель и пусть бот работает до конца</string>
-    <string name="composer_slash_learn">Сохранить что-то на будущее</string>
-    <string name="composer_slash_setup">Настроить навык или инструмент</string>
+    <string name="composer_slash_learn">Составляет переиспользуемый навык из этого диалога</string>
+    <string name="composer_slash_setup">Бот задаст вам вопросы и настроит сам себя</string>
     <string name="composer_slash_burst">Запустить несколько задач сразу</string>
-    <string name="composer_plus_goal">Работать до конца</string>
-    <string name="composer_plus_goal_sub">Дайте цель и пусть продолжает</string>
 </resources>

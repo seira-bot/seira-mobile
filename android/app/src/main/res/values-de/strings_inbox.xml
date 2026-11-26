@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, abgeschlossen</string>
     <string name="automations_open_results">Ergebnis-Thread öffnen</string>
     <string name="automations_status_failed">Fehlgeschlagen</string>
+    <string name="inbox_review_skill_in_chat">Öffne den Chat, um diesen Skill zu prüfen.</string>
+    <string name="routines_header_footer">Jede Ausführung nutzt Modell, Werkzeuge, Berechtigungen, Computer und verbundene Apps des Agents. Die Zeiten folgen der lokalen Zeitzone des gekoppelten Computers.</string>
 </resources>

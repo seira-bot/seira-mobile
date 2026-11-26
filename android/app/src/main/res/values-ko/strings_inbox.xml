@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, 완료됨</string>
     <string name="automations_open_results">결과 스레드 열기</string>
     <string name="automations_status_failed">실패</string>
+    <string name="inbox_review_skill_in_chat">채팅을 열어 이 스킬을 검토하세요.</string>
+    <string name="routines_header_footer">모든 실행은 에이전트의 기존 모델, 도구, 권한, 컴퓨터, 연결된 앱을 그대로 사용해요. 시간은 연결된 컴퓨터의 현지 시간대를 따라요.</string>
 </resources>

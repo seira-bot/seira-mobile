@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Message
+import com.openmausbot.companion.core.TranscriptRow
 import com.openmausbot.companion.ui.CHAT_HEADER_FADE
 import com.openmausbot.companion.ui.CHAT_HEADER_SIDE
 import com.openmausbot.companion.ui.CHAT_HEADER_TOP_GAP
@@ -54,6 +55,15 @@ internal object ChatFindRules {
         return messages.filter { message ->
             MessageActions.copyableText(message)?.contains(needle, ignoreCase = true) == true
         }.map { it.id }
+    }
+
+    /** The messages a person can see in [rows], folded ones included. */
+    fun shownMessages(rows: List<TranscriptRow>): List<Message> = rows.flatMap { row ->
+        when (row) {
+            is TranscriptRow.Single -> listOf(row.message)
+            is TranscriptRow.ActivityRun -> row.items
+            is TranscriptRow.AssistantTurn -> row.items
+        }
     }
 
     /** The next position, wrapping past either end. */

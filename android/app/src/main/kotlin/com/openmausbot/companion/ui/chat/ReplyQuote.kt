@@ -54,6 +54,17 @@ internal object ReplyQuote {
         if (replied.isNullOrBlank()) return text
         return quote(replied) + "\n\n" + text
     }
+
+    /**
+     * What goes out for a typed line: a command stays a bare command, and a
+     * reply with no words of its own (attachments only) is the quote alone.
+     */
+    fun outgoing(replied: String?, text: String): String = when {
+        replied.isNullOrBlank() -> text
+        text.startsWith("/") -> text
+        text.isBlank() -> quote(replied)
+        else -> wrap(replied, text)
+    }
 }
 
 /** Set by the chat screen; a row starts a reply through it. Null where replies are off. */

@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, terminée</string>
     <string name="automations_open_results">Ouvrir le fil de résultats</string>
     <string name="automations_status_failed">Échec</string>
+    <string name="inbox_review_skill_in_chat">Ouvrez la conversation pour relire cette compétence.</string>
+    <string name="routines_header_footer">Chaque exécution utilise le modèle, les outils, les autorisations, l’ordinateur et les applications connectées de l’agent. Les heures suivent le fuseau horaire local de l’ordinateur associé.</string>
 </resources>

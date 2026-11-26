@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">Ouvrir %1$s</string>
     <string name="chat2_menu_find">Rechercher dans la conversation</string>
     <string name="chat2_menu_new_thread">Nouveau fil</string>
+    <string name="chat2_menu_new_thread_creating">Création du fil…</string>
+    <string name="chat2_menu_new_thread_decision">Répondez d’abord à la décision en attente.</string>
+    <string name="chat2_menu_new_thread_unavailable">Cette conversation ne peut pas démarrer un nouveau fil.</string>
     <string name="chat2_menu_all_threads">Tous les fils</string>
     <string name="chat2_menu_model">Modèle</string>
     <string name="chat2_menu_members">Membres du groupe</string>

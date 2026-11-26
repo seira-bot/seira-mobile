@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">%1$sを開く</string>
     <string name="chat2_menu_find">会話内を検索</string>
     <string name="chat2_menu_new_thread">新しいスレッド</string>
+    <string name="chat2_menu_new_thread_creating">スレッドを作成しています…</string>
+    <string name="chat2_menu_new_thread_decision">まず待機中の判断に答えてください。</string>
+    <string name="chat2_menu_new_thread_unavailable">このチャットでは新しいスレッドを開始できません。</string>
     <string name="chat2_menu_all_threads">すべてのスレッド</string>
     <string name="chat2_menu_model">モデル</string>
     <string name="chat2_menu_members">グループのメンバー</string>

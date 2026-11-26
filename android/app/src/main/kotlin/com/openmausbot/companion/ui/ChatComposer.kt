@@ -484,6 +484,27 @@ internal fun ChatComposer(
                 }
             }
 
+            if (ComposerRound.stopBesideSend(hasContent = canSend, working = stoppable)) {
+                TouchTarget(
+                    onClick = onStop,
+                    contentDescription = stringResource(R.string.mobile_action_stop_turn),
+                    modifier = Modifier.testTag("composer-stop"),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .background(colors.control, CircleShape),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(12.dp)
+                                .background(colors.ink, RoundedCornerShape(2.dp)),
+                        )
+                    }
+                }
+            }
+
             val round = ComposerRound.of(hasContent = canSend, working = stoppable, callAvailable = callAction != ChatCallAction.NONE)
             val roundEnabled = ComposerRound.enabled(round, canSend)
             TouchTarget(

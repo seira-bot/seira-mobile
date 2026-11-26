@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, завершено</string>
     <string name="automations_open_results">Відкрити гілку результатів</string>
     <string name="automations_status_failed">Не вдалося</string>
+    <string name="inbox_review_skill_in_chat">Відкрийте чат, щоб переглянути цю навичку.</string>
+    <string name="routines_header_footer">Кожен запуск використовує наявну модель, інструменти, дозволи, комп’ютер і підключені застосунки агента. Час відповідає місцевому часовому поясу під’єднаного комп’ютера.</string>
 </resources>

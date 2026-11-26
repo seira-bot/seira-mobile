@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s，已完成</string>
     <string name="automations_open_results">打开结果对话</string>
     <string name="automations_status_failed">失败</string>
+    <string name="inbox_review_skill_in_chat">打开聊天以检查这个技能。</string>
+    <string name="routines_header_footer">每次运行都使用机器人现有的模型、工具、权限、电脑和已连接的应用程序。时间以已配对电脑的本地时区为准。</string>
 </resources>

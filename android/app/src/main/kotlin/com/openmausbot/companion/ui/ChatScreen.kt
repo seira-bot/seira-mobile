@@ -115,11 +115,11 @@ import com.openmausbot.companion.ui.chat.LocalReplyHandler
 import com.openmausbot.companion.ui.chat.ReplyQuote
 import com.openmausbot.companion.ui.chat.ReplyTarget
 import com.openmausbot.companion.ui.chat.composer.ApprovalModeSheet
+import com.openmausbot.companion.ui.chat.composer.ComposerHint
 import com.openmausbot.companion.ui.chat.composer.ComposerPlus
 import com.openmausbot.companion.ui.chat.composer.GoalChip
 import com.openmausbot.companion.ui.chat.composer.ModeChip
 import com.openmausbot.companion.ui.chat.composer.QueuedSteering
-import com.openmausbot.companion.ui.chat.composer.SteerOutcome
 import com.openmausbot.companion.core.approvalModeIn
 import com.openmausbot.companion.ui.chat.WorkFold
 import java.util.Locale
@@ -276,10 +276,6 @@ private fun LoadedChat(
     val engineCanSteer = steerTarget?.modelSelection?.instanceId
         ?.let { it in steeringInstanceIds }
         ?: false
-    // A Steer is in flight. Cleared when the queue drains or the turn ends,
-    // whichever the engine gets to first — and after twenty seconds even if
-    // neither frame ever arrives, because a control that spins for ever is
-    // worse than one that admits it does not know.
     var steering by remember(threadId) { mutableStateOf(false) }
     LaunchedEffect(queuedSends.size, chat.busy) {
         if (queuedSends.isEmpty() || !chat.busy) steering = false
@@ -293,9 +289,6 @@ private fun LoadedChat(
     var showingTasks by remember { mutableStateOf(false) }
     var showingSchedule by remember(chatId) { mutableStateOf(false) }
     var creatingThread by remember(chatId) { mutableStateOf(false) }
-    // Saveable: the profile form is a form, and a rotation must not throw away
-    // what was typed into it — the sheet has to come back for that to matter.
-    var showingProfile by rememberSaveable { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     var showingMode by remember(threadId) { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
@@ -310,7 +303,7 @@ private fun LoadedChat(
     var preparingAttachments by attachmentDraft.preparing
     var sendingMessage by attachmentDraft.sending
     var attachmentError by attachmentDraft.error
-    val steerWaitingText = LocalContext.current.resources.getString(R.string.composer_steer_waiting)
+    val steerResources = LocalContext.current.resources
     val steerNow: (QueuedSend) -> Unit = { queued ->
         haptics.play(HapticCue.SELECT)
         dictation.stop()
@@ -321,7 +314,7 @@ private fun LoadedChat(
             } finally {
                 steering = false
             }
-            if (outcome == SteerOutcome.WAITING) attachmentError = steerWaitingText
+            QueuedSteering.messageRes(outcome)?.let { attachmentError = steerResources.getString(it) }
         }
     }
     // A notification can change owners while the system picker is open.
@@ -543,8 +536,8 @@ private fun LoadedChat(
     var showingMenu by remember(threadId) { mutableStateOf(false) }
     var showingMembers by remember(threadId) { mutableStateOf(false) }
     var showingModel by remember(threadId) { mutableStateOf(false) }
-    val findHits = remember(rawTranscript, findQuery, finding) {
-        if (finding) ChatFindRules.hits(rawTranscript, findQuery) else emptyList()
+    val findHits = remember(transcript, findQuery, finding) {
+        if (finding) ChatFindRules.hits(ChatFindRules.shownMessages(transcript), findQuery) else emptyList()
     }
     val findHighlights = remember(findHits, findIndex) {
         findHits.mapIndexed { position, id ->
@@ -686,7 +679,6 @@ private fun LoadedChat(
     // Stop when computer / tasks / profile / plus open — matching ChatView.swift.
     LaunchedEffect(showingPlus) { if (showingPlus) dictation.stop() }
     LaunchedEffect(showingTasks) { if (showingTasks) dictation.stop() }
-    LaunchedEffect(showingProfile) { if (showingProfile) dictation.stop() }
     LaunchedEffect(showingSchedule) { if (showingSchedule) dictation.stop() }
 
     val connection by session.connection.collectAsState()
@@ -796,8 +788,6 @@ private fun LoadedChat(
     }
 
     val bot = (chat as? Chat.BotChat)?.bot
-    // The computer is bot-only; a non-DM room exposes task navigation when the
-    // paired desktop supplied a task list. Both answers are constants.
     val commands = SlashCommands.forChat(chat)
     val density = LocalDensity.current
     var headerPx by remember { mutableIntStateOf(0) }
@@ -828,9 +818,6 @@ private fun LoadedChat(
         if (requestedCall == target.id && environment.callUi.consume(target.id)) callOrOpen()
     }
 
-    // One handler for the one door. The name pill stopped being the second when
-    // it became the way into a bot's profile, so the + now carries every action
-    // there is — including both export formats.
     val onAction: (ChatActionId) -> Unit = { action ->
         when (action) {
             ChatActionId.PHOTOS -> {
@@ -874,14 +861,13 @@ private fun LoadedChat(
                 dictation.stop()
                 if (bot != null) onOpenComputer(bot.id)
             }
-            ChatActionId.SETTINGS -> if (bot != null) showingProfile = true
+            ChatActionId.SETTINGS -> if (bot != null) {
+                dictation.stop()
+                onOpenOverview(bot.id)
+            }
             ChatActionId.SHARE_MARKDOWN -> share(scope, environment, threadId, ShareFormat.MARKDOWN)
             ChatActionId.SHARE_JSON -> share(scope, environment, threadId, ShareFormat.JSON)
             ChatActionId.INTERRUPT -> if (bot != null) scope.launch { session.interrupt(bot) }
-            ChatActionId.WORK_UNTIL_DONE -> {
-                composer.onTypedChange("/goal ")
-                publishFrom(composer)
-            }
         }
         Unit
     }
@@ -906,7 +892,7 @@ private fun LoadedChat(
         val text = (explicitText ?: draft).trim()
         // Only the typed line carries a reply; a chip or a command is its own ask.
         val replied = replyTarget?.takeIf { explicitText == null }
-        fun withReply(line: String) = if (line.isEmpty()) line else ReplyQuote.wrap(replied?.text, line)
+        fun withReply(line: String) = ReplyQuote.outgoing(replied?.text, line)
         // With attachments waiting, the message is the attachments plus
         // whatever was typed; the draft is cleared only once they are sent.
         if (attachments.isNotEmpty()) {
@@ -949,6 +935,7 @@ private fun LoadedChat(
             attachmentError = null
             composer.onSend()
             publishFrom(composer)
+            if (replied != null) replyTarget = null
             haptics.play(HapticCue.SEND)
             scope.launch {
                 val result = try {
@@ -1179,7 +1166,6 @@ private fun LoadedChat(
                             is TranscriptRow.ActivityRun -> ActivityRunChip(
                                 message.items,
                                 ::openThread,
-                                bots = listOfNotNull(bot),
                                 startsOpen = WorkFold.startsOpen(activityDetail),
                             )
                             is TranscriptRow.AssistantTurn -> AssistantTurnChip(
@@ -1311,7 +1297,7 @@ private fun LoadedChat(
                 queuedSends = queuedSends,
                 steering = steering,
                 onSteer = steerNow,
-                isGroup = chat is Chat.RoomChat,
+                isGroup = ComposerHint.isGroup(chat),
                 showMode = ModeChip.visible(chat),
                 mode = bot?.approvalModeIn(threadId),
                 onMode = {
@@ -1470,7 +1456,11 @@ private fun LoadedChat(
     if (showingMenu) {
         ChatMenuSheet(
             chat = chat,
-            newThreadEnabled = TaskRules.canCreate(chat) && !creatingThread && !(chat is Chat.RoomChat && pendingApproval),
+            newThreadReason = ChatMenuRules.newThreadReason(
+                canCreate = TaskRules.canCreate(chat),
+                creating = creatingThread,
+                decisionWaiting = chat is Chat.RoomChat && pendingApproval,
+            ),
             onPick = { item ->
                 showingMenu = false
                 when (item) {
@@ -1506,17 +1496,6 @@ private fun LoadedChat(
 
     if (showingTasks) {
         if (chat.supportsTasks) TaskSheet(chat = chat, onDismiss = { showingTasks = false }, onSelectTask = onSelectTask, onDeletedCurrent = onBack)
-    }
-
-    if (showingProfile && bot != null) {
-        AgentProfileSheet(
-            bot = bot,
-            onDismiss = { showingProfile = false },
-            onOpenOverview = {
-                onOpenOverview(it)
-                showingProfile = false
-            },
-        )
     }
 
     if (showingLiveSettings) {

@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Nie teraz</string>
     <string name="composer_goal_chip">Cel: %1$s</string>
     <string name="composer_steer_waiting">Nie może jeszcze dołączyć do tej tury. Zostaje w kolejce.</string>
+    <string name="composer_steer_failed">Nie udało się wysłać tej wiadomości do trwającej tury. Spróbuj ponownie.</string>
     <string name="composer_slash_goal">Ustaw cel i pozwól pracować do końca</string>
-    <string name="composer_slash_learn">Zapisz coś do zapamiętania na następny raz</string>
-    <string name="composer_slash_setup">Skonfiguruj umiejętność lub narzędzie</string>
+    <string name="composer_slash_learn">Utwórz z tej rozmowy umiejętność wielokrotnego użytku</string>
+    <string name="composer_slash_setup">Pozwól temu botowi przeprowadzić wywiad i skonfigurować się</string>
     <string name="composer_slash_burst">Uruchom kilka zadań naraz</string>
-    <string name="composer_plus_goal">Pracuj do skutku</string>
-    <string name="composer_plus_goal_sub">Daj mu cel i pozwól działać dalej</string>
 </resources>

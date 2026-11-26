@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Ahora no</string>
     <string name="composer_goal_chip">Objetivo: %1$s</string>
     <string name="composer_steer_waiting">Aún no puede unirse a este turno. Sigue en la cola.</string>
+    <string name="composer_steer_failed">No se pudo enviar este mensaje al turno en curso. Inténtalo de nuevo.</string>
     <string name="composer_slash_goal">Fija un objetivo y déjalo trabajar hasta terminar</string>
-    <string name="composer_slash_learn">Guarda algo para recordarlo la próxima vez</string>
-    <string name="composer_slash_setup">Configura una skill o una herramienta</string>
+    <string name="composer_slash_learn">Redactar una habilidad reutilizable a partir de esta conversación</string>
+    <string name="composer_slash_setup">Que este bot te entreviste y se configure solo</string>
     <string name="composer_slash_burst">Ejecuta varias tareas a la vez</string>
-    <string name="composer_plus_goal">Trabajar hasta terminar</string>
-    <string name="composer_plus_goal_sub">Dale un objetivo y deja que siga</string>
 </resources>

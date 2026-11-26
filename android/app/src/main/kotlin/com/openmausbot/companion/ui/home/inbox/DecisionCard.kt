@@ -146,7 +146,7 @@ internal fun DecisionCard(
                 onClick = onOpenChat,
             )
             DecisionAnswer.ReviewSkill -> Text(
-                text = stringResource(R.string.mobile_open_the_chat_to_review_skill_md_6225775b),
+                text = stringResource(R.string.inbox_review_skill_in_chat),
                 style = SeiraType.caption,
                 color = colors.ink3,
             )

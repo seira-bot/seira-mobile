@@ -45,12 +45,17 @@ internal object ApprovalButtons {
     fun isApproval(card: OptionCard): Boolean = card.presentation != CardPresentation.STANDARD
 
     /**
-     * The row of buttons. The card's own "Always allow" moves to the text
-     * button when that button is offered and another way to say yes remains.
+     * True when the text button stands in for the card's own "Always allow":
+     * the card shares a row, offers the button, and keeps another way to say yes.
+     * The button shows exactly when this is true, so the choice is never shown twice.
      */
-    fun layout(card: OptionCard, chat: Chat): List<ApprovalButtonSpec> {
-        val movesAlways = ApprovalChoices.showsAlwaysAllow(card, chat) &&
+    fun movesAlways(card: OptionCard, chat: Chat): Boolean =
+        !card.stacksOptions &&
+            ApprovalChoices.showsAlwaysAllow(card, chat) &&
             card.options.any { OptionCard.isApproval(it) && !isAlways(it) }
+
+    fun layout(card: OptionCard, chat: Chat): List<ApprovalButtonSpec> {
+        val movesAlways = movesAlways(card, chat)
         val options = card.options.filterNot { movesAlways && isAlways(it) }
         if (card.stacksOptions) {
             return options.map { ApprovalButtonSpec(it, ApprovalLabel.OWN, ApprovalLook.OUTLINED) }

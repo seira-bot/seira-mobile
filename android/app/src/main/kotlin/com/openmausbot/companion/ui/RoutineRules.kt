@@ -17,9 +17,8 @@ import java.util.Locale
  * `ios/App/TasksRoutinesView.swift`.
  *
  * A task is one conversation and result; a routine runs with fresh context and
- * collects results in one thread. No cron syntax reaches the phone, and the two
- * operations not on the paired allowlist — webhook management, and cancel/seen on a run —
- * have no representation here at all.
+ * collects results in one thread. The two operations not on the paired allowlist —
+ * webhook management, and cancel/seen on a run — have no representation here at all.
  */
 object RoutineRules {
     /** `String(name.trimming….prefix(80))` in `RoutineEditorView.save`. */
@@ -57,10 +56,6 @@ object RoutineRules {
     const val HEADER_TASK: String = "Thread = one conversation and result"
     const val HEADER_ROUTINE: String = "Routine = scheduled work with one results thread"
 
-    const val HEADER_FOOTER: String =
-        "No cron syntax. Every run uses the agent's existing model, tools, permissions, " +
-            "computer, and connected apps. Times follow the paired computer's local timezone."
-
     const val NO_ROUTINES_TITLE: String = "No routines"
     const val NO_ROUTINES_DESCRIPTION: String = "Schedule recurring or one-time agent work."
     const val NO_RECEIPTS: String =
@@ -80,7 +75,7 @@ object RoutineRules {
 
     const val SCHEDULE_FOOTER: String =
         "Each occurrence starts with fresh context. Results collect in one thread, " +
-            "and full run logs remain available. No cron syntax is used."
+            "and full run logs remain available."
     const val INTERVAL_SCHEDULE_FOOTER: String =
         "Each occurrence starts with fresh context. Results collect in one thread, " +
             "and full run logs remain available. If the previous run is still active, " +

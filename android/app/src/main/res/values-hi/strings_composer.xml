@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">अभी नहीं</string>
     <string name="composer_goal_chip">लक्ष्य: %1$s</string>
     <string name="composer_steer_waiting">यह अभी इस टर्न में शामिल नहीं हो सकता। यह कतार में रहता है।</string>
+    <string name="composer_steer_failed">इस संदेश को चालू टर्न में नहीं भेजा जा सका। फिर कोशिश करें।</string>
     <string name="composer_slash_goal">एक लक्ष्य तय करें और पूरा होने तक काम करने दें</string>
-    <string name="composer_slash_learn">अगली बार के लिए कुछ याद रखने को सहेजें</string>
-    <string name="composer_slash_setup">कोई स्किल या टूल सेट करें</string>
+    <string name="composer_slash_learn">इस बातचीत से दोबारा इस्तेमाल होने वाली स्किल का ड्राफ़्ट बनाएं</string>
+    <string name="composer_slash_setup">इस बॉट को आपसे सवाल पूछकर खुद सेट होने दें</string>
     <string name="composer_slash_burst">एक साथ कई काम चलाएँ</string>
-    <string name="composer_plus_goal">पूरा होने तक काम करें</string>
-    <string name="composer_plus_goal_sub">इसे लक्ष्य दें और काम जारी रखने दें</string>
 </resources>

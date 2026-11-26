@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">開啟%1$s</string>
     <string name="chat2_menu_find">在對話中尋找</string>
     <string name="chat2_menu_new_thread">新執行緒</string>
+    <string name="chat2_menu_new_thread_creating">正在建立執行緒…</string>
+    <string name="chat2_menu_new_thread_decision">請先回答等待中的決定。</string>
+    <string name="chat2_menu_new_thread_unavailable">此聊天無法開始新的執行緒。</string>
     <string name="chat2_menu_all_threads">所有執行緒</string>
     <string name="chat2_menu_model">模型</string>
     <string name="chat2_menu_members">群組成員</string>

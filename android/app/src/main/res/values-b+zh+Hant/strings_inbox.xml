@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s，已完成</string>
     <string name="automations_open_results">開啟結果討論串</string>
     <string name="automations_status_failed">失敗</string>
+    <string name="inbox_review_skill_in_chat">開啟聊天以檢查這個技能。</string>
+    <string name="routines_header_footer">每次執行都使用機器人現有的模型、工具、權限、電腦和已連線的應用程式。時間以已配對電腦的本機時區為準。</string>
 </resources>

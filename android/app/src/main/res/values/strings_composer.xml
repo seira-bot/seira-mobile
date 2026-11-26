@@ -28,10 +28,9 @@
     <string name="composer_mode_confirm_no">Not now</string>
     <string name="composer_goal_chip">Goal: %1$s</string>
     <string name="composer_steer_waiting">It cannot join this turn yet. It stays in the queue.</string>
+    <string name="composer_steer_failed">Could not steer this message. Try again.</string>
     <string name="composer_slash_goal">Set a goal and let it work until done</string>
-    <string name="composer_slash_learn">Save something to remember for next time</string>
-    <string name="composer_slash_setup">Set up a skill or a tool</string>
+    <string name="composer_slash_learn">Draft a reusable skill from this conversation</string>
+    <string name="composer_slash_setup">Have this bot interview you and set itself up</string>
     <string name="composer_slash_burst">Run several tasks at once</string>
-    <string name="composer_plus_goal">Work until done</string>
-    <string name="composer_plus_goal_sub">Give it a goal and let it keep going</string>
 </resources>

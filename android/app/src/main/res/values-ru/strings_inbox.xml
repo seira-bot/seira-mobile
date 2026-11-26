@@ -20,4 +20,6 @@
     <string name="automations_switch_finished">%1$s, завершено</string>
     <string name="automations_open_results">Открыть ветку результатов</string>
     <string name="automations_status_failed">Не удалось</string>
+    <string name="inbox_review_skill_in_chat">Откройте чат, чтобы просмотреть этот навык.</string>
+    <string name="routines_header_footer">Каждый запуск использует модель, инструменты, разрешения, компьютер и подключённые приложения агента. Время соответствует часовому поясу подключённого компьютера.</string>
 </resources>

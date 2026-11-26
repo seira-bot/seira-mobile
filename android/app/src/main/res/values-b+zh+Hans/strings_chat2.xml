@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">打开%1$s</string>
     <string name="chat2_menu_find">在对话中查找</string>
     <string name="chat2_menu_new_thread">新线程</string>
+    <string name="chat2_menu_new_thread_creating">正在创建线程…</string>
+    <string name="chat2_menu_new_thread_decision">请先回答等待中的决定。</string>
+    <string name="chat2_menu_new_thread_unavailable">此聊天无法开始新线程。</string>
     <string name="chat2_menu_all_threads">所有线程</string>
     <string name="chat2_menu_model">模型</string>
     <string name="chat2_menu_members">群组成员</string>

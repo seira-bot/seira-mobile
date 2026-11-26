@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">Otwórz: %1$s</string>
     <string name="chat2_menu_find">Szukaj w rozmowie</string>
     <string name="chat2_menu_new_thread">Nowy wątek</string>
+    <string name="chat2_menu_new_thread_creating">Tworzenie wątku…</string>
+    <string name="chat2_menu_new_thread_decision">Najpierw odpowiedz na oczekującą decyzję.</string>
+    <string name="chat2_menu_new_thread_unavailable">W tym czacie nie można rozpocząć nowego wątku.</string>
     <string name="chat2_menu_all_threads">Wszystkie wątki</string>
     <string name="chat2_menu_model">Model</string>
     <string name="chat2_menu_members">Członkowie grupy</string>

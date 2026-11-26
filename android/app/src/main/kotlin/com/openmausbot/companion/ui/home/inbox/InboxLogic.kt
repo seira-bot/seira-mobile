@@ -36,6 +36,7 @@ internal object InboxDecisions {
     fun answer(card: OptionCard?): DecisionAnswer = when {
         card == null || !card.isPending -> DecisionAnswer.None
         card.skillRequest != null -> DecisionAnswer.ReviewSkill
+        card.outboundRequest != null || card.teamMemoryRequest != null || card.quotaSwitch != null -> DecisionAnswer.InChat
         card.questions.isNotEmpty() -> DecisionAnswer.InChat
         card.options.isEmpty() -> DecisionAnswer.None
         else -> DecisionAnswer.Options(card.options, primaryOption(card))

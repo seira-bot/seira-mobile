@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">%1$s खोलें</string>
     <string name="chat2_menu_find">बातचीत में खोजें</string>
     <string name="chat2_menu_new_thread">नया थ्रेड</string>
+    <string name="chat2_menu_new_thread_creating">थ्रेड बनाया जा रहा है…</string>
+    <string name="chat2_menu_new_thread_decision">पहले प्रतीक्षा कर रहे निर्णय का जवाब दें।</string>
+    <string name="chat2_menu_new_thread_unavailable">यह चैट नया थ्रेड शुरू नहीं कर सकती।</string>
     <string name="chat2_menu_all_threads">सभी थ्रेड्स</string>
     <string name="chat2_menu_model">मॉडल</string>
     <string name="chat2_menu_members">समूह के सदस्य</string>

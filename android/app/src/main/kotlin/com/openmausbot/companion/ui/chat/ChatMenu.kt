@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui.chat
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,15 @@ internal object ChatMenuRules {
 
     /** The Monitor button in the header: a bot's own screen, never a group's. */
     fun showsScreenButton(chat: Chat): Boolean = chat is Chat.BotChat
+
+    /** Why New thread is off, or null while it works. A disabled row always says why. */
+    @StringRes
+    fun newThreadReason(canCreate: Boolean, creating: Boolean, decisionWaiting: Boolean): Int? = when {
+        creating -> R.string.chat2_menu_new_thread_creating
+        decisionWaiting -> R.string.chat2_menu_new_thread_decision
+        !canCreate -> R.string.chat2_menu_new_thread_unavailable
+        else -> null
+    }
 }
 
 internal fun chatMenuTag(item: ChatMenuItem): String = "chat-menu.${item.name.lowercase()}"
@@ -67,7 +77,7 @@ internal fun chatMenuTag(item: ChatMenuItem): String = "chat-menu.${item.name.lo
 @Composable
 internal fun ChatMenuSheet(
     chat: Chat,
-    newThreadEnabled: Boolean,
+    newThreadReason: Int?,
     onPick: (ChatMenuItem) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -83,11 +93,12 @@ internal fun ChatMenuSheet(
         Column(modifier = Modifier.navigationBarsPadding().padding(bottom = 16.dp)) {
             for (item in ChatMenuRules.items(chat)) {
                 val (icon, title, subtitle) = copyFor(item)
+                val reason = if (item == ChatMenuItem.NEW_THREAD) newThreadReason else null
                 ChatSheetRow(
                     icon = icon,
                     title = title,
-                    subtitle = subtitle,
-                    enabled = item != ChatMenuItem.NEW_THREAD || newThreadEnabled,
+                    subtitle = reason?.let { stringResource(it) } ?: subtitle,
+                    enabled = reason == null,
                     tag = chatMenuTag(item),
                     onClick = { onPick(item) },
                 )

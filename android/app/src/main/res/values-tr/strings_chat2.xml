@@ -5,6 +5,9 @@
     <string name="chat2_open_bot">%1$s aç</string>
     <string name="chat2_menu_find">Konuşmada bul</string>
     <string name="chat2_menu_new_thread">Yeni konu</string>
+    <string name="chat2_menu_new_thread_creating">Konu oluşturuluyor…</string>
+    <string name="chat2_menu_new_thread_decision">Önce bekleyen kararı yanıtlayın.</string>
+    <string name="chat2_menu_new_thread_unavailable">Bu sohbet yeni bir konu başlatamıyor.</string>
     <string name="chat2_menu_all_threads">Tüm konular</string>
     <string name="chat2_menu_model">Model</string>
     <string name="chat2_menu_members">Grup üyeleri</string>
