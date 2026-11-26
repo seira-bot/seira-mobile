@@ -65,7 +65,7 @@ class SettingsReconnectWiringTest {
         compose.setContent {
             CompositionLocalProvider(LocalCompanion provides scene.environment) {
                 CompanionTheme(darkTheme = false) {
-                    SettingsScreen(onBack = {})
+                    com.openmausbot.companion.ui.computers.ComputersScreen(onBack = {})
                 }
             }
         }
@@ -73,8 +73,7 @@ class SettingsReconnectWiringTest {
         compose.waitForIdle()
         assertEquals(0, scene.streamStarts.get(), "mounting Settings must not dial anything")
 
-        // The section sits below the fold, and the button sits inside the folded details.
-        compose.onNodeWithText("Connection details").performScrollTo().performClick()
+        // The button sits in the connection details, below the fold.
         compose.onNodeWithText(reconnect).performScrollTo().assertIsEnabled().performClick()
         compose.waitUntil(5_000) { scene.streamStarts.get() == 1 }
 

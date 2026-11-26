@@ -93,10 +93,7 @@ internal fun HomeShell(navigator: CompanionNavigator) {
         navigator.push(destination)
     }
     val actions = DrawerActions(
-        onComputer = {
-            drawerOpen = false
-            showComputers = true
-        },
+        onComputer = { go(Destination.Computers) },
         onSearch = { go(Destination.Search) },
         onAllChats = {
             drawerOpen = false
