@@ -135,7 +135,7 @@ struct TeamMemoryView: View {
                         Button("Save") {
                             Task {
                                 let detail = editDetail.trimmingCharacters(in: .whitespacesAndNewlines)
-                                if await mutate(id: entry.id, { try await $0.updateTeamMemory(section: section, id: entry.id, detail: detail) }) {
+                                if await mutate(id: entry.id, { try await $0.updateTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry), detail: detail).entries }) {
                                     editingEntry = nil
                                 }
                             }
@@ -183,18 +183,34 @@ struct TeamMemoryView: View {
         return true
     }
 
+    private static func revision(of entry: TeamMemoryEntry) throws -> String {
+        guard let revision = entry.revision else {
+            throw APIError.status(code: 428, message: String(localized: "Reload this memory and try again."))
+        }
+        return revision
+    }
+
     private func answer(_ entry: TeamMemoryEntry, remember: Bool) async {
-        _ = await mutate(id: entry.id) { try await $0.answerTeamMemory(section: section, id: entry.id, remember: remember) }
+        if remember {
+            _ = await mutate(id: entry.id) {
+                try await $0.updateTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry), accept: true).entries
+            }
+        } else {
+            await remove(entry)
+        }
     }
 
     private func remove(_ entry: TeamMemoryEntry) async {
-        _ = await mutate(id: entry.id) { try await $0.removeTeamMemory(section: section, id: entry.id) }
+        _ = await mutate(id: entry.id) {
+            try await $0.deleteTeamMemory(section: section, entryId: entry.id, revision: Self.revision(of: entry)).entries
+        }
     }
 
     private func add() async {
         let name = draftName.trimmingCharacters(in: .whitespaces)
         let detail = draftDetail.trimmingCharacters(in: .whitespaces)
-        if await mutate(id: "new", { try await $0.addTeamMemory(section: section, kind: draftKind, name: name, detail: detail) }) {
+        let kind = TeamMemoryKind(rawValue: draftKind) ?? .term
+        if await mutate(id: "new", { try await $0.addTeamMemory(section: section, kind: kind, name: name, detail: detail).entries }) {
             draftName = ""
             draftDetail = ""
             adding = false

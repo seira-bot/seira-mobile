@@ -731,7 +731,7 @@ public struct CompanionClient: Sendable {
     /// Encodable request bodies are used for contracts where omitted and null
     /// have different meanings. JSONSerialization cannot preserve that type
     /// distinction without rebuilding the object by hand at every call site.
-    private func makeRequest<Body: Encodable>(
+    func makeRequest<Body: Encodable>(
         _ method: String,
         _ path: String,
         encodedBody body: Body
@@ -743,7 +743,7 @@ public struct CompanionClient: Sendable {
     }
 
     @discardableResult
-    private func send<T: Decodable>(_ request: URLRequest, as type: T.Type) async throws -> T {
+    func send<T: Decodable>(_ request: URLRequest, as type: T.Type) async throws -> T {
         let (data, response) = try await perform(request)
         try Self.check(response, data)
         do {
@@ -753,7 +753,7 @@ public struct CompanionClient: Sendable {
         }
     }
 
-    private func send(_ request: URLRequest) async throws {
+    func send(_ request: URLRequest) async throws {
         let (data, response) = try await perform(request)
         try Self.check(response, data)
     }
@@ -1385,48 +1385,13 @@ public struct CompanionClient: Sendable {
         try await send(try makeRequest("GET", "/api/team-memory", query: [URLQueryItem(name: "section", value: section)]), as: TeamMemoryPage.self)
     }
 
-    /// Add an entry by hand. The person's own entry never waits on the person.
-    public func addTeamMemory(section: String, kind: String, name: String, detail: String) async throws -> [TeamMemoryEntry] {
-        try await send(
-            try makeRequest("POST", "/api/team-memory", query: [URLQueryItem(name: "section", value: section)], body: ["kind": kind, "name": name, "detail": detail]),
-            as: TeamMemoryEdit.self
-        ).entries
-    }
-
-    /// Answer a proposal: remember it, or drop it.
-    public func answerTeamMemory(section: String, id: String, remember: Bool) async throws -> [TeamMemoryEntry] {
-        guard Self.validRouteID(id) else { throw APIError.badURL }
-        let query = [URLQueryItem(name: "section", value: section)]
-        if remember {
-            return try await send(try makeRequest("PATCH", "/api/team-memory/\(id)", query: query, body: ["accept": true]), as: TeamMemoryEdit.self).entries
-        }
-        return try await send(try makeRequest("DELETE", "/api/team-memory/\(id)", query: query), as: TeamMemoryEdit.self).entries
-    }
-
-    /// Change what an entry says. Editing a proposal accepts it.
-    public func updateTeamMemory(section: String, id: String, detail: String) async throws -> [TeamMemoryEntry] {
-        guard Self.validRouteID(id) else { throw APIError.badURL }
-        return try await send(
-            try makeRequest("PATCH", "/api/team-memory/\(id)", query: [URLQueryItem(name: "section", value: section)], body: ["detail": detail]),
-            as: TeamMemoryEdit.self
-        ).entries
-    }
-
-    public func removeTeamMemory(section: String, id: String) async throws -> [TeamMemoryEntry] {
-        guard Self.validRouteID(id) else { throw APIError.badURL }
-        return try await send(
-            try makeRequest("DELETE", "/api/team-memory/\(id)", query: [URLQueryItem(name: "section", value: section)]),
-            as: TeamMemoryEdit.self
-        ).entries
-    }
-
     // MARK: - Doing
 
     /// Make a new bot. The harness picks its name, colour and greeting — the
     /// phone deliberately does not, so a bot created here is indistinguishable
     /// from one created on the desktop.
     public func createBot() async throws -> Bot {
-        try await send(try makeRequest("POST", "/api/bots"), as: CreatedBot.self).bot
+        try await createBot(NewBot())
     }
 
     /// The paired-device profile contract is deliberately narrower than the
@@ -1844,7 +1809,7 @@ public struct CompanionClient: Sendable {
         ).live
     }
 
-    private static func validRouteID(_ value: String) -> Bool {
+    static func validRouteID(_ value: String) -> Bool {
         !value.isEmpty && value.utf8.allSatisfy { byte in
             (48...57).contains(byte) || (65...90).contains(byte) || (97...122).contains(byte)
                 || byte == 45 || byte == 95
@@ -1857,7 +1822,7 @@ public struct CompanionClient: Sendable {
 
     /// The harness's own answer when the entry is not in its queue. Matched
     /// positively, never on the status alone — see cancelQueued.
-    private static let alreadyDrainedQueueMessage = "no such queued message"
+    static let alreadyDrainedQueueMessage = "no such queued message"
 
     /// Answer an approval or a question.
     ///
