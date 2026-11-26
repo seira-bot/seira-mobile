@@ -34,9 +34,6 @@ import org.robolectric.annotation.Config
  * exactly one — and the button was dead while it was in flight. Asserting some
  * `refreshing` boolean would prove the boolean, and a button wired to nothing
  * would leave that green.
- *
- * The two pure helpers this screen gained are pinned here as well: they are read
- * off `ios/App/SettingsView.swift`, and this is the file about that screen.
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34])
@@ -73,7 +70,6 @@ class SettingsReconnectWiringTest {
         compose.waitForIdle()
         assertEquals(0, scene.streamStarts.get(), "mounting Settings must not dial anything")
 
-        // The button sits in the connection details, below the fold.
         compose.onNodeWithText(reconnect).performScrollTo().assertIsEnabled().performClick()
         compose.waitUntil(5_000) { scene.streamStarts.get() == 1 }
 

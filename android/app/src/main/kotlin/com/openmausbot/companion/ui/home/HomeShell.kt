@@ -49,7 +49,6 @@ import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraTween
 import com.openmausbot.companion.ui.updates
 
-/** Home after pairing: top bar, the three tabs, the floating tab bar and the left drawer. */
 @Composable
 internal fun HomeShell(navigator: CompanionNavigator, callsEnabled: Boolean = BuildConfig.LIVE_CALLS) {
     val colors = Seira.colors

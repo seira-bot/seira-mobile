@@ -46,7 +46,6 @@ import com.openmausbot.companion.ui.theme.seiraTween
 
 internal val CardShape = RoundedCornerShape(18.dp)
 
-/** A rounded card on the surface colour with a one dp border. */
 @Composable
 internal fun ProfileCard(modifier: Modifier = Modifier, content: @Composable ColumnScope.() -> Unit) {
     val colors = Seira.colors
@@ -60,7 +59,6 @@ internal fun ProfileCard(modifier: Modifier = Modifier, content: @Composable Col
     )
 }
 
-/** A heading above a card, and an optional note below it. */
 @Composable
 internal fun ProfileGroup(
     title: String?,
@@ -92,7 +90,6 @@ internal fun CardDivider() {
     HorizontalDivider(color = Seira.colors.hairline, modifier = Modifier.padding(start = 16.dp))
 }
 
-/** A line of a card: title, optional subtitle and a trailing slot. Tappable when [onClick] is set. */
 @Composable
 internal fun ProfileRow(
     title: String,
@@ -127,7 +124,6 @@ internal fun ProfileRow(
     }
 }
 
-/** The page's tabs: large labels in a row that scrolls when the screen is narrow, the chosen one underlined. */
 @Composable
 internal fun ProfileTabBar(
     tabs: List<Pair<ProfileTab, String>>,
@@ -192,7 +188,6 @@ internal fun ProfileLoading(modifier: Modifier = Modifier) {
     }
 }
 
-/** A plain-words notice, with an action when there is one to offer. */
 @Composable
 internal fun ProfileNotice(text: String, modifier: Modifier = Modifier, retry: (() -> Unit)? = null) {
     val colors = Seira.colors
