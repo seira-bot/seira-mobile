@@ -3,6 +3,7 @@ package com.openmausbot.companion.ui
 import com.openmausbot.companion.core.Connection
 import com.openmausbot.companion.core.PairingInvite
 import java.net.URI
+import java.net.URLDecoder
 import java.util.Locale
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,14 +33,16 @@ internal object SeiraRunLink {
 
         val path = uri.rawPath.orEmpty()
         val onPairPath = path in PAIR_PATHS
-        if (!onPairPath && path !in EMPTY_PATHS) return SeiraRunRoute.OpenInBrowser(url)
-
+        val onOriginPath = onPairPath || path in EMPTY_PATHS
         val origin = "https://$host"
         val fragment = uri.rawFragment
-        if (fragment != null) {
-            if (!onPairPath) return SeiraRunRoute.OpenInBrowser(url)
-            val keys = fragment.split('&').map { it.substringBefore('=') }
-            if (keys.any { it !in PAIR_KEYS } || "code" !in keys) return SeiraRunRoute.OpenInBrowser(url)
+        val keys = fragment?.let(::fragmentKeys).orEmpty()
+
+        // A pairing code never leaves the app. A link that carries a `code` key is
+        // never given to the browser, whatever its path or its other keys are.
+        if ("code" in keys) {
+            if (!onOriginPath) return SeiraRunRoute.Ignore
+            if (!onPairPath || keys.any { it !in PAIR_KEYS }) return SeiraRunRoute.FillAddress(origin)
             val candidate = if (path == "/pair/") url.trim().replaceFirst("/pair/", "/pair") else url.trim()
             return if (PairingInvite.parse(candidate) != null) {
                 SeiraRunRoute.Pair(candidate)
@@ -48,8 +51,16 @@ internal object SeiraRunLink {
             }
         }
 
+        if (!onOriginPath || fragment != null) return SeiraRunRoute.OpenInBrowser(url)
+
         val known = saved.firstOrNull { matches(it, origin) }
         return if (known != null) SeiraRunRoute.SwitchTo(known.id) else SeiraRunRoute.FillAddress(origin)
+    }
+
+    /** The fragment keys, as a browser reads them: percent-decoded and compared without case. */
+    private fun fragmentKeys(fragment: String): List<String> = fragment.split('&').map { part ->
+        val raw = part.substringBefore('=')
+        runCatching { URLDecoder.decode(raw, Charsets.UTF_8) }.getOrDefault(raw).lowercase(Locale.ROOT)
     }
 
     fun matches(connection: Connection, origin: String): Boolean {

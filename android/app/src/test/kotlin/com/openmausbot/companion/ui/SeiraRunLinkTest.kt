@@ -58,18 +58,46 @@ class SeiraRunLinkTest {
         assertEquals(SeiraRunRoute.FillAddress(origin), route("$origin/", other))
     }
 
+    /** No route may hand a pairing code to the browser. */
+    private fun assertNoCodeInBrowser(url: String, expected: SeiraRunRoute) {
+        val actual = route(url)
+        assertEquals(expected, actual, url)
+        if (actual is SeiraRunRoute.OpenInBrowser) {
+            assertFalse(actual.url.contains("code=", ignoreCase = true), "browser route carries a code: $url")
+        }
+    }
+
     @Test
     fun `a browser sign-in link goes to the browser`() {
         val url = "$origin/pair#signin=abc"
         assertEquals(SeiraRunRoute.OpenInBrowser(url), route(url))
-        val mixed = "$origin/pair#code=7KQ2-M9XD-H4TP&signin=abc"
-        assertEquals(SeiraRunRoute.OpenInBrowser(mixed), route(mixed))
+        val root = "$origin/#signin=abc"
+        assertEquals(SeiraRunRoute.OpenInBrowser(root), route(root))
     }
 
     @Test
-    fun `a fragment on a path that is not pair goes to the browser`() {
-        val url = "$origin/#code=7KQ2-M9XD-H4TP"
-        assertEquals(SeiraRunRoute.OpenInBrowser(url), route(url))
+    fun `a code on the root path never goes to the browser`() {
+        assertNoCodeInBrowser("$origin/#code=7KQ2-M9XD-H4TP", SeiraRunRoute.FillAddress(origin))
+        assertNoCodeInBrowser("$origin#code=7KQ2-M9XD-H4TP", SeiraRunRoute.FillAddress(origin))
+    }
+
+    @Test
+    fun `a code with an extra key on the pair path never goes to the browser`() {
+        assertNoCodeInBrowser("$origin/pair#code=7KQ2-M9XD-H4TP&x=1", SeiraRunRoute.FillAddress(origin))
+        assertNoCodeInBrowser("$origin/pair#code=7KQ2-M9XD-H4TP&signin=abc", SeiraRunRoute.FillAddress(origin))
+        assertNoCodeInBrowser("$origin/pair#signin=abc&code=7KQ2-M9XD-H4TP", SeiraRunRoute.FillAddress(origin))
+    }
+
+    @Test
+    fun `a code on another path never goes to the browser`() {
+        assertNoCodeInBrowser("$origin/settings#code=7KQ2-M9XD-H4TP", SeiraRunRoute.Ignore)
+        assertNoCodeInBrowser("$origin/pair/x#code=7KQ2-M9XD-H4TP", SeiraRunRoute.Ignore)
+    }
+
+    @Test
+    fun `a code key that is encoded or in another case never goes to the browser`() {
+        assertNoCodeInBrowser("$origin/#c%6Fde=7KQ2-M9XD-H4TP", SeiraRunRoute.FillAddress(origin))
+        assertNoCodeInBrowser("$origin/pair#CODE=7KQ2-M9XD-H4TP&x=1", SeiraRunRoute.FillAddress(origin))
     }
 
     @Test
