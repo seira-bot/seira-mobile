@@ -7,7 +7,20 @@ import androidx.compose.ui.res.stringResource
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.Icon
+import com.openmausbot.companion.ui.home.PageTopBar
+import com.openmausbot.companion.ui.settings.Chevron
+import com.openmausbot.companion.ui.settings.ConfirmSheet
+import com.openmausbot.companion.ui.settings.GroupCard
+import com.openmausbot.companion.ui.settings.GroupTitle
+import com.openmausbot.companion.ui.settings.PageActionPill
+import com.openmausbot.companion.ui.settings.PageSearchField
+import com.openmausbot.companion.ui.settings.RowDivider
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraType
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -86,6 +99,9 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
         mutableStateOf<AliasTarget?>(null)
     }
     var alias by rememberSaveable { mutableStateOf("") }
+    var removing by remember { mutableStateOf<RemoveTarget?>(null) }
+    var removeError by remember { mutableStateOf<String?>(null) }
+    val removeFailed = stringResource(R.string.settings2_apps_remove_failed)
 
     suspend fun refresh(showProgress: Boolean = false) {
         if (showProgress) refreshing = true
@@ -140,22 +156,22 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
         onPauseOrDispose {}
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderBackButton(onBack)
-            Text(stringResource(R.string.mobile_connected_apps_8ab72a8e), fontSize = 17.sp, fontWeight = FontWeight.SemiBold, modifier = Modifier.weight(1f))
-            TextButton(
-                onClick = { scope.launch { refresh(showProgress = true) } },
-                enabled = !refreshing,
-            ) { Text(if (refreshing) stringResource(R.string.mobile_refreshing_96141178) else stringResource(R.string.mobile_refresh_56e3badc)) }
-        }
-        HorizontalDivider()
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Seira.colors.app),
+    ) {
+        PageTopBar(
+            title = stringResource(R.string.mobile_connected_apps_8ab72a8e),
+            onBack = onBack,
+            trailing = {
+                PageActionPill(
+                    text = if (refreshing) stringResource(R.string.mobile_refreshing_96141178) else stringResource(R.string.mobile_refresh_56e3badc),
+                    enabled = !refreshing,
+                    onClick = { scope.launch { refresh(showProgress = true) } },
+                )
+            },
+        )
 
         // The same gesture the roster uses for the same question (RosterScreen.kt:167),
         // and iOS's `.refreshable` (ConnectedAppsView.swift:89).
@@ -166,17 +182,21 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 item(key = "search", contentType = "search") {
-                    OutlinedTextField(
+                    PageSearchField(
                         value = query,
                         onValueChange = { query = it },
-                        label = { Text(stringResource(R.string.mobile_search_apps_ca3ce8f3)) },
-                        singleLine = true,
-                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = stringResource(R.string.mobile_search_apps_ca3ce8f3),
                     )
+                }
+
+                removeError?.let {
+                    item(key = "remove-error", contentType = "notice") {
+                        Text(it, style = SeiraType.callout, color = Seira.colors.danger)
+                    }
                 }
 
                 if (inventory.credentialStoreUnreadable) {
@@ -187,16 +207,16 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
 
                 if (ConnectedAppsPolicy.showSetupNotice(catalog, inventory.credentialStoreUnreadable)) {
                     item(key = "setup-notice", contentType = "notice") {
-                        Card(modifier = Modifier.fillMaxWidth()) {
+                        GroupCard {
                             Column(
                                 modifier = Modifier.padding(16.dp),
                                 verticalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
-                                Text(stringResource(R.string.mobile_connected_apps_need_setup_2cdb536a), fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.mobile_connected_apps_need_setup_2cdb536a), style = SeiraType.bodyMedium, color = Seira.colors.ink)
                                 Text(
                                     stringResource(R.string.mobile_configure_composio_on_your_compute_4281e8b0),
                                     color = secondaryTint,
-                                    fontSize = 13.sp,
+                                    style = SeiraType.callout,
                                 )
                             }
                         }
@@ -214,12 +234,17 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                             alias = ""
                             aliasTarget = AliasTarget(slug = card.slug, label = card.label)
                         },
+                        onRemoveAccount = { account -> removing = RemoveTarget(card.slug, card.label, account.id, account.alias.orEmpty()) },
                     )
                 }
 
                 if (!loading && catalog?.cards.isNullOrEmpty()) {
                     item(key = "empty", contentType = "notice") {
                         Text(stringResource(R.string.mobile_no_connected_apps_are_available_fr_0529e71d), color = secondaryTint)
+                    }
+                } else if (!loading && visibleCards.isEmpty()) {
+                    item(key = "no-match", contentType = "notice") {
+                        Text(stringResource(R.string.settings2_apps_no_match), color = secondaryTint)
                     }
                 }
 
@@ -232,6 +257,28 @@ fun ConnectedAppsScreen(onBack: () -> Unit) {
                 }
             }
         }
+    }
+
+    removing?.let { target ->
+        val accountName = ConnectedAppsRules.trimmedAlias(target.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
+        ConfirmSheet(
+            title = stringResource(R.string.settings2_apps_remove_title, accountName, target.label),
+            note = stringResource(R.string.settings2_apps_remove_note),
+            confirmLabel = stringResource(R.string.mobile_remove_e963907d),
+            onConfirm = {
+                removing = null
+                scope.launch {
+                    removeError = null
+                    if (session.deleteConnectorAccount(target.slug, target.accountId)) {
+                        refresh()
+                    } else {
+                        removeError = removeFailed
+                    }
+                }
+            },
+            onDismiss = { removing = null },
+            tag = "connected-apps-remove-sheet",
+        )
     }
 
     aliasTarget?.let { target ->
@@ -279,6 +326,8 @@ internal const val CONNECTOR_CARD_TAG = "connector-card"
  */
 private data class AliasTarget(val slug: String, val label: String)
 
+private data class RemoveTarget(val slug: String, val label: String, val accountId: String, val alias: String)
+
 private val AliasTargetSaver = listSaver<AliasTarget?, String>(
     save = { target -> target?.let { listOf(it.slug, it.label) }.orEmpty() },
     restore = { saved -> saved.takeIf { it.size == 2 }?.let { AliasTarget(it[0], it[1]) } },
@@ -286,9 +335,9 @@ private val AliasTargetSaver = listSaver<AliasTarget?, String>(
 
 @Composable
 private fun CredentialStoreWarning(hasLastKnownInventory: Boolean) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    GroupCard {
         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(stringResource(R.string.mobile_accounts_could_not_be_re_checked_6727be8f), fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.tertiary)
+            Text(stringResource(R.string.mobile_accounts_could_not_be_re_checked_6727be8f), style = SeiraType.bodyMedium, color = Seira.colors.danger)
             Text(
                 if (hasLastKnownInventory) {
                     stringResource(R.string.mobile_showing_what_was_connected_last_ti_62107fa4)
@@ -296,7 +345,7 @@ private fun CredentialStoreWarning(hasLastKnownInventory: Boolean) {
                     stringResource(R.string.mobile_your_computer_could_not_open_its_c_fa640d75)
                 },
                 color = secondaryTint,
-                fontSize = 13.sp,
+                style = SeiraType.callout,
             )
         }
     }
@@ -310,44 +359,53 @@ private fun ConnectorCardView(
     configured: Boolean,
     onConnect: () -> Unit,
     onAddAccount: () -> Unit,
+    onRemoveAccount: (ConnectorAccount) -> Unit,
 ) {
+    val colors = Seira.colors
     val accounts = status?.accounts.orEmpty()
-    val connected = status?.connected == true
     val pending = status?.pending == true
 
-    Card(modifier = Modifier.fillMaxWidth().testTag(CONNECTOR_CARD_TAG)) {
-        Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text(card.label, fontWeight = FontWeight.SemiBold)
-                    Text(card.blurb, color = secondaryTint, fontSize = 13.sp)
-                }
-                if (pending) Text(stringResource(R.string.mobile_connecting_fd3e7969), color = secondaryTint, fontSize = 13.sp)
+    Column(modifier = Modifier.fillMaxWidth().testTag(CONNECTOR_CARD_TAG)) {
+        GroupTitle(card.label)
+        GroupCard {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(card.blurb, style = SeiraType.callout, color = colors.ink2, modifier = Modifier.weight(1f))
+                if (pending) Text(stringResource(R.string.mobile_connecting_fd3e7969), color = secondaryTint, style = SeiraType.callout)
             }
-
+            RowDivider()
             when {
-                card.noAuth -> Text(stringResource(R.string.mobile_connected_c2f9b7b4))
-                !hasAuthoritativeInventory -> Text(stringResource(R.string.mobile_connection_unknown_973b0484), color = secondaryTint)
-                ConnectedAppsPolicy.offersConnect(card, status) -> Button(onClick = onConnect, enabled = configured) {
-                    Text(stringResource(R.string.mobile_connect_card_label_c9e612b4, card.label))
-                }
+                card.noAuth -> DesignRow(title = stringResource(R.string.mobile_connected_c2f9b7b4))
+                !hasAuthoritativeInventory -> DesignRow(title = stringResource(R.string.mobile_connection_unknown_973b0484))
+                ConnectedAppsPolicy.offersConnect(card, status) -> DesignRow(
+                    title = stringResource(R.string.mobile_connect_card_label_c9e612b4, card.label),
+                    enabled = configured,
+                    onClick = onConnect,
+                    trailing = { Chevron() },
+                )
                 accounts.isEmpty() -> {
-                    Text(if (pending) stringResource(R.string.mobile_connecting_fd3e7969) else stringResource(R.string.mobile_connected_c2f9b7b4))
-                    Text(
-                        stringResource(R.string.mobile_account_details_are_unavailable_fr_d9d62172),
-                        color = secondaryTint,
-                        fontSize = 13.sp,
+                    DesignRow(
+                        title = if (pending) stringResource(R.string.mobile_connecting_fd3e7969) else stringResource(R.string.mobile_connected_c2f9b7b4),
+                        subtitle = stringResource(R.string.mobile_account_details_are_unavailable_fr_d9d62172),
                     )
                 }
                 else -> {
-                    accounts.forEach { account -> ConnectorAccountRow(account) }
+                    accounts.forEachIndexed { index, account ->
+                        if (index > 0) RowDivider()
+                        ConnectorAccountRow(account, appLabel = card.label, onRemove = { onRemoveAccount(account) })
+                    }
+                    RowDivider()
                     // Kept and disabled at the limit, so the limit is legible
                     // (`ios/App/ConnectedAppsView.swift:159-163`); hiding the
-                    // button leaves the ceiling to be guessed at.
-                    TextButton(
-                        onClick = onAddAccount,
+                    // row leaves the ceiling to be guessed at.
+                    DesignRow(
+                        title = stringResource(R.string.mobile_add_another_account_5dcc7913),
+                        icon = SeiraIcons.Plus,
                         enabled = ConnectedAppsRules.canAddAnotherAccount(accounts),
-                    ) { Text(stringResource(R.string.mobile_add_another_account_5dcc7913)) }
+                        onClick = onAddAccount,
+                    )
                 }
             }
         }
@@ -355,15 +413,28 @@ private fun ConnectorCardView(
 }
 
 @Composable
-private fun ConnectorAccountRow(account: ConnectorAccount) {
-    Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-        Column(modifier = Modifier.weight(1f)) {
-            Text(account.displayName)
-            Text(localizedMobileCopy(ConnectedAppsPolicy.statusLabel(account.status)), color = secondaryTint, fontSize = 12.sp)
-            SelectionContainer { Text(account.id, color = secondaryTint, fontSize = 11.sp) }
-        }
-        Text(if (account.isActive) stringResource(R.string.mobile_active_a733b809) else stringResource(R.string.mobile_pending_96f608c1), color = secondaryTint, fontSize = 12.sp)
-    }
+private fun ConnectorAccountRow(account: ConnectorAccount, appLabel: String, onRemove: () -> Unit) {
+    val colors = Seira.colors
+    val name = ConnectedAppsRules.trimmedAlias(account.alias) ?: stringResource(R.string.mobile_primary_account_32f2184e)
+    DesignRow(
+        title = name,
+        subtitle = if (account.isActive) null else localizedMobileCopy(ConnectedAppsPolicy.statusLabel(account.status)),
+        trailing = {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    if (account.isActive) stringResource(R.string.mobile_active_a733b809) else stringResource(R.string.mobile_pending_96f608c1),
+                    color = if (account.isActive) colors.success else secondaryTint,
+                    style = SeiraType.callout,
+                )
+                TouchTarget(
+                    onClick = onRemove,
+                    contentDescription = stringResource(R.string.settings2_apps_remove_content, name, appLabel),
+                ) {
+                    Icon(SeiraIcons.X, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+                }
+            }
+        },
+    )
 }
 
 /** Pure state transition so an unavailable store can never erase a known inventory. */
