@@ -442,7 +442,12 @@ private fun PairedScreen(
             when (val destination = navigator.current) {
                 Destination.Roster -> HomeShell(navigator)
                 Destination.Search -> SearchScreen(onBack = navigator::pop, navigator = navigator)
-                Destination.Computers -> ComputersScreen(onBack = navigator::pop)
+                Destination.Computers -> ComputersScreen(
+                    onBack = navigator::pop,
+                    onOpenAiUsage = { navigator.push(Destination.AiUsage) },
+                    onOpenConnectedApps = { navigator.push(Destination.ConnectedApps) },
+                    onOpenBotScreen = { navigator.push(Destination.Browser(it)) },
+                )
                 is Destination.BotProfile -> BotProfileScreen(
                     botId = destination.botId,
                     tab = destination.tab,
@@ -461,6 +466,7 @@ private fun PairedScreen(
                     onOpenRoutines = { navigator.push(Destination.Routines) },
                     onOpenConnectedApps = { navigator.push(Destination.ConnectedApps) },
                     onOpenAiUsage = { navigator.push(Destination.AiUsage) },
+                    onOpenComputers = { navigator.push(Destination.Computers) },
                 )
                 Destination.Routines -> TasksRoutinesScreen(
                     onBack = navigator::pop,
