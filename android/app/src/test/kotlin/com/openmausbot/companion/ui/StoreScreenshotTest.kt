@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.core.app.ApplicationProvider
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Bot
@@ -256,7 +256,7 @@ class StoreScreenshotTest {
             mode,
             beforeCapture = {
                 compose.waitUntil(10_000) {
-                    compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
+                    compose.onAllNodesWithTag("roster-list").fetchSemanticsNodes().isNotEmpty()
                 }
             },
         ) {

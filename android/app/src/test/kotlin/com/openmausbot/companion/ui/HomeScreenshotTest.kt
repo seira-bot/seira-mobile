@@ -11,7 +11,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performSemanticsAction
@@ -120,9 +120,9 @@ class HomeScreenshotTest {
             name,
             mode,
             beforeCapture = {
-                // Same state in both modes: the profile has loaded and the greeting names her.
+                // Same state in both modes: the chat list is on screen.
                 compose.waitUntil(10_000) {
-                    compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
+                    compose.onAllNodesWithTag("roster-list").fetchSemanticsNodes().isNotEmpty()
                 }
                 // The comfortable rows start under Needs attention: bring them up.
                 if (scrolled && density == RosterDensity.COMFORTABLE) {

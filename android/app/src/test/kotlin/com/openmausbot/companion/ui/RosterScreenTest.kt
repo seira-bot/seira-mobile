@@ -465,8 +465,7 @@ class RosterScreenTest {
         mount()
         compose.onAllNodesWithContentDescription("Settings").onFirst().performClick()
         compose.onNodeWithText("List density").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Change list density").performScrollTo().performClick()
-        compose.onNode(hasText("Compact") and isSelectable()).assertIsSelected()
+        compose.onNode(hasText("Compact") and isSelectable()).performScrollTo().assertIsSelected()
         compose.onNode(hasText("Comfortable") and isSelectable()).performClick()
 
         assertEquals(RosterDensity.COMFORTABLE, scene.environment.chatPreferences.rosterDensity.value)

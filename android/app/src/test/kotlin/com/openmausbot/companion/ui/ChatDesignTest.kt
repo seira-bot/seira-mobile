@@ -160,9 +160,9 @@ class ChatDesignTest {
     @Test
     fun `an approval has Allow and Deny, each 48 dp tall`() {
         showApproval(skill = null)
-        compose.onNodeWithText("Allow").assertIsEnabled()
+        compose.onNodeWithText("Allow once").assertIsEnabled()
         compose.onNodeWithText("Deny").assertIsEnabled()
-        listOf("Allow", "Deny").forEach { label ->
+        listOf("Allow once", "Deny").forEach { label ->
             val height = compose.onNodeWithText(label).getBoundsInRoot().height
             assertTrue(height >= 47.9.dp, "$label is $height tall")
         }
