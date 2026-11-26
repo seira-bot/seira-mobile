@@ -688,8 +688,8 @@
     <string name="mobile_file_no_viewer">Aucune app sur ce téléphone ne peut ouvrir %1$s.</string>
     <string name="mobile_file_share_title">Partager %1$s</string>
     <string name="mobile_file_no_share_app">Aucune app sur ce téléphone ne peut partager %1$s.</string>
-    <string name="mobile_pairing_notice_https">Continuez seulement s’il s’agit bien de l’ordinateur dont vous venez de scanner le code QR. La confirmation établit une connexion HTTPS authentifiée avec l’app compagnon.</string>
-    <string name="mobile_pairing_notice_scan">Continuez seulement s’il s’agit bien de l’ordinateur dont vous venez de scanner le code QR. La confirmation établit une connexion authentifiée avec l’app compagnon. Utilisez un réseau Wi-Fi de confiance ou un tailnet ; Seira ne chiffre pas le trafic Wi-Fi local.</string>
+    <string name="mobile_pairing_notice_https">Continuez seulement si vous connaissez cet ordinateur.</string>
+    <string name="mobile_pairing_notice_scan">Continuez seulement si vous connaissez cet ordinateur. Utilisez un réseau Wi-Fi de confiance ou un tailnet ; Seira ne chiffre pas le trafic Wi-Fi local.</string>
     <string name="mobile_pairing_enter_code_notice">Saisissez le code à 6 chiffres affiché sur votre ordinateur :</string>
     <string name="mobile_pairing_rescan_notice">Cette app a redémarré avant la fin de l’association. Ce code à usage unique n’est jamais réutilisé, car il a peut-être déjà été utilisé. Relancez l’association sur votre ordinateur et scannez le nouveau code QR.</string>
     <string name="mobile_composer_ask_bot">Demander à %1$s</string>

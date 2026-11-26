@@ -374,29 +374,20 @@ internal data class PairingConfirmation(
 
 /**
  * The confirmation's wording, in one place because this is the part §6 cares
- * about: what pairing authenticates, and what it does not encrypt.
+ * about: which computer the person confirms, and what pairing does not encrypt.
+ * The same words serve a scanned QR code and a pairing link.
  */
 internal object PairingCopy {
-    const val CONFIRM_HTTPS: String =
-        "Only continue if this is the computer whose QR code you just scanned. " +
-            "Confirming establishes an authenticated HTTPS companion connection."
+    const val CONFIRM_HTTPS: String = "Continue only if you know this computer."
 
     /**
-     * Mirrors `ios/App/PairingView.swift`, which says of a scanned computer:
-     * "Confirm this computer to establish an authenticated companion connection.
-     * Use a trusted Wi-Fi network or a tailnet; Seira does not encrypt
-     * local Wi-Fi traffic."
-     *
      * The pairing handshake authenticates the phone to the computer; the session
-     * that follows is plain HTTP on the local network. Those are different
-     * claims and the user is the one who has to choose the network, so both are
-     * said out loud.
+     * that follows is plain HTTP on the local network. The person is the one who
+     * has to choose the network, so the copy says so out loud.
      */
     const val CONFIRM_SCAN: String =
-        "Only continue if this is the computer whose QR code you just scanned. " +
-            "Confirming establishes an authenticated companion connection. Use a " +
-            "trusted Wi-Fi network or a tailnet; Seira does not encrypt " +
-            "local Wi-Fi traffic."
+        "Continue only if you know this computer. Use a trusted Wi-Fi network or " +
+            "a tailnet; Seira does not encrypt local Wi-Fi traffic."
 
     /** Both the desktop companion and headless server show pairing codes. */
     const val ENTER_CODE: String = "Enter the pairing code shown on your computer or server:"

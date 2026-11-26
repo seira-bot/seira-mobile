@@ -708,8 +708,8 @@
     <string name="mobile_file_no_viewer">На этом телефоне нет приложения, которое откроет «%1$s».</string>
     <string name="mobile_file_share_title">Поделиться: %1$s</string>
     <string name="mobile_file_no_share_app">На этом телефоне нет приложения, через которое можно поделиться «%1$s».</string>
-    <string name="mobile_pairing_notice_https">Продолжайте, только если это компьютер, QR-код которого вы только что отсканировали. Подтверждение устанавливает аутентифицированное защищённое соединение HTTPS с компьютером.</string>
-    <string name="mobile_pairing_notice_scan">Продолжайте, только если это компьютер, QR-код которого вы только что отсканировали. Подтверждение устанавливает аутентифицированное соединение с компьютером. Используйте доверенную сеть Wi-Fi или tailnet: Seira не шифрует трафик в локальной сети Wi-Fi.</string>
+    <string name="mobile_pairing_notice_https">Продолжайте, только если вы знаете этот компьютер.</string>
+    <string name="mobile_pairing_notice_scan">Продолжайте, только если вы знаете этот компьютер. Используйте доверенную сеть Wi-Fi или tailnet: Seira не шифрует трафик в локальной сети Wi-Fi.</string>
     <string name="mobile_pairing_enter_code_notice">Введите 6-значный код, показанный на компьютере:</string>
     <string name="mobile_pairing_rescan_notice">Приложение перезапустилось до завершения подключения. Этот одноразовый код не используется повторно, потому что он мог уже быть применён. Начните подключение заново на компьютере и отсканируйте новый QR-код.</string>
     <string name="mobile_composer_ask_bot">Спросить: %1$s</string>

@@ -688,8 +688,8 @@
     <string name="mobile_file_no_viewer">Nenhum app neste celular consegue abrir %1$s.</string>
     <string name="mobile_file_share_title">Compartilhar %1$s</string>
     <string name="mobile_file_no_share_app">Nenhum app neste celular consegue compartilhar %1$s.</string>
-    <string name="mobile_pairing_notice_https">Só continue se este for o computador cujo QR code você acabou de escanear. Confirmar estabelece uma conexão HTTPS autenticada com o app complementar.</string>
-    <string name="mobile_pairing_notice_scan">Só continue se este for o computador cujo QR code você acabou de escanear. Confirmar estabelece uma conexão autenticada com o app complementar. Use uma rede Wi-Fi confiável ou uma tailnet; o Seira não criptografa o tráfego do Wi-Fi local.</string>
+    <string name="mobile_pairing_notice_https">Só continue se você conhece este computador.</string>
+    <string name="mobile_pairing_notice_scan">Só continue se você conhece este computador. Use uma rede Wi-Fi confiável ou uma tailnet; o Seira não criptografa o tráfego do Wi-Fi local.</string>
     <string name="mobile_pairing_enter_code_notice">Digite o código de 6 dígitos mostrado no seu desktop:</string>
     <string name="mobile_pairing_rescan_notice">Este app reiniciou antes de o pareamento terminar. Esse código de uso único nunca é reutilizado, pois já pode ter sido resgatado. Inicie o pareamento de novo no computador e escaneie o novo QR code.</string>
     <string name="mobile_composer_ask_bot">Pergunte a %1$s</string>

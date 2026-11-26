@@ -678,8 +678,8 @@
     <string name="mobile_file_no_viewer">此手机上没有可以打开 %1$s 的应用。</string>
     <string name="mobile_file_share_title">分享 %1$s</string>
     <string name="mobile_file_no_share_app">此手机上没有可以分享 %1$s 的应用。</string>
-    <string name="mobile_pairing_notice_https">请仅在这是你刚扫描二维码的电脑时继续。确认后会建立经过身份验证的 HTTPS 配套连接。</string>
-    <string name="mobile_pairing_notice_scan">请仅在这是你刚扫描二维码的电脑时继续。确认后会建立经过身份验证的配套连接。请使用可信的 Wi-Fi 网络或 tailnet；Seira 不会加密本地 Wi-Fi 流量。</string>
+    <string name="mobile_pairing_notice_https">请仅在你认识这台电脑时继续。</string>
+    <string name="mobile_pairing_notice_scan">请仅在你认识这台电脑时继续。请使用可信的 Wi-Fi 网络或 tailnet；Seira 不会加密本地 Wi-Fi 流量。</string>
     <string name="mobile_pairing_enter_code_notice">请输入电脑上显示的 6 位数代码：</string>
     <string name="mobile_pairing_rescan_notice">配对完成前应用已重启。该一次性代码绝不会重复使用，因为它可能已被兑换。请在电脑上重新开始配对，并扫描新的二维码。</string>
     <string name="mobile_composer_ask_bot">询问 %1$s</string>

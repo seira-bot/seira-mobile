@@ -608,11 +608,8 @@ class PairingFailureDispositionTest {
  *  - `Text(connection.name)` and `Text(connection.pairingConsentOrigin)`
  *    sit **above** `if let credential = scannedCredential`, so both are on
  *    screen before confirming a scan *and* before typing six digits.
- *  - the scanned branch reads: "Confirm this computer to establish an
- *    authenticated companion connection. Use a trusted Wi-Fi network or a
- *    tailnet; Seira does not encrypt local Wi-Fi traffic." Authenticated
- *    and encrypted are different claims, and only one of them is true of the
- *    local network.
+ *  - the confirmation asks the person to know the computer, and a local
+ *    connection also warns that Seira does not encrypt local Wi-Fi traffic.
  */
 class PairingConfirmationTest {
     private val connection = Connection(
@@ -762,20 +759,28 @@ class PairingConfirmationTest {
         val confirmation = PairingConfirmation.of(pending, secrets)
 
         assertEquals("https://mac.example:9443", confirmation.address)
-        assertTrue(confirmation.notice.contains("authenticated HTTPS companion connection"))
+        assertEquals(PairingCopy.CONFIRM_HTTPS, confirmation.notice)
         assertFalse(confirmation.notice.contains("does not encrypt"))
     }
 
     @Test
-    fun `the scanned notice says authenticated and says the local network is not encrypted`() {
+    fun `the local notice asks about the computer and says the local network is not encrypted`() {
         val notice = PairingCopy.CONFIRM_SCAN
-        // The clauses of the Swift line, each carrying its own claim.
-        assertTrue(notice.contains("authenticated companion connection"), notice)
+        assertTrue(notice.contains("Continue only if you know this computer"), notice)
         assertTrue(notice.contains("trusted Wi-Fi"), notice)
         assertTrue(notice.contains("tailnet"), notice)
         assertTrue(notice.contains("does not encrypt local Wi-Fi traffic"), notice)
-        // And it still asks the question a scan must never answer for the user.
-        assertTrue(notice.contains("Only continue if this is the computer"), notice)
+    }
+
+    @Test
+    fun `no confirmation notice depends on how the person reached the screen or names the transport`() {
+        for (notice in listOf(PairingCopy.CONFIRM_HTTPS, PairingCopy.CONFIRM_SCAN)) {
+            assertFalse(notice.contains("QR"), notice)
+            assertFalse(notice.contains("scanned"), notice)
+            assertFalse(notice.contains("HTTPS"), notice)
+            assertFalse(notice.contains("companion"), notice)
+            assertFalse(notice.contains("authenticated"), notice)
+        }
     }
 
     @Test
