@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import com.openmausbot.companion.ui.theme.GlassCircleButton
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.BottomFade
+import com.openmausbot.companion.ui.theme.Seira
 import androidx.compose.ui.res.stringResource
 
 import androidx.activity.compose.BackHandler
@@ -96,7 +97,23 @@ import com.openmausbot.companion.core.liveNarration
 import com.openmausbot.companion.core.showsTyping
 import com.openmausbot.companion.core.takeLastCharacters
 import com.openmausbot.companion.core.target
+import com.openmausbot.companion.core.ModelSelection
 import com.openmausbot.companion.core.transcriptRows
+import com.openmausbot.companion.ui.chat.ChatDaySeparators
+import com.openmausbot.companion.ui.chat.ChatFindBar
+import com.openmausbot.companion.ui.chat.ChatFindRules
+import com.openmausbot.companion.ui.chat.ChatMembers
+import com.openmausbot.companion.ui.chat.ChatMembersSheet
+import com.openmausbot.companion.ui.chat.ChatMenuItem
+import com.openmausbot.companion.ui.chat.ChatMenuRules
+import com.openmausbot.companion.ui.chat.ChatMenuSheet
+import com.openmausbot.companion.ui.chat.DayKind
+import com.openmausbot.companion.ui.chat.FindHighlight
+import com.openmausbot.companion.ui.chat.LocalFindHighlights
+import com.openmausbot.companion.ui.chat.LocalReplyHandler
+import com.openmausbot.companion.ui.chat.ReplyQuote
+import com.openmausbot.companion.ui.chat.ReplyTarget
+import com.openmausbot.companion.ui.chat.WorkFold
 import java.util.Locale
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -498,12 +515,27 @@ private fun LoadedChat(
         liveNarration(rawTranscript, chat.busy, activityDetail)
     }
     val transcript = remember(rawTranscript, activityDetail, live) {
-        transcriptRows(
+        WorkFold.rows(
             if (live.hiddenIds.isEmpty()) rawTranscript else rawTranscript.filterNot { it.id in live.hiddenIds },
             activityDetail,
         )
     }
     var expandedTurns by remember(threadId) { mutableStateOf(emptySet<String>()) }
+    var replyTarget by remember(threadId) { mutableStateOf<ReplyTarget?>(null) }
+    var finding by remember(threadId) { mutableStateOf(false) }
+    var findQuery by remember(threadId) { mutableStateOf("") }
+    var findIndex by remember(threadId) { mutableIntStateOf(-1) }
+    var showingMenu by remember(threadId) { mutableStateOf(false) }
+    var showingMembers by remember(threadId) { mutableStateOf(false) }
+    var showingModel by remember(threadId) { mutableStateOf(false) }
+    val findHits = remember(rawTranscript, findQuery, finding) {
+        if (finding) ChatFindRules.hits(rawTranscript, findQuery) else emptyList()
+    }
+    val findHighlights = remember(findHits, findIndex) {
+        findHits.mapIndexed { position, id ->
+            id to if (position == findIndex) FindHighlight.ACTIVE else FindHighlight.MATCH
+        }.toMap()
+    }
     var revealedTurnMessageId by remember(threadId) { mutableStateOf<String?>(null) }
     val codeActivity = remember(rawTranscript) { QuickReplyContext.hasCodeActivity(rawTranscript) }
     val suggestedReplies = remember(rawTranscript) { SuggestedReplies.forTranscript(rawTranscript) }
@@ -732,6 +764,21 @@ private fun LoadedChat(
         }
         settled = true
     }
+    // A new search starts at the newest match.
+    LaunchedEffect(findQuery, findHits.size) {
+        findIndex = if (findHits.isEmpty()) -1 else findHits.lastIndex
+    }
+    LaunchedEffect(findHits, findIndex) {
+        val target = findHits.getOrNull(findIndex) ?: return@LaunchedEffect
+        val index = transcript.indexOfFirst { row -> row.id == target || row.containsMessage(target) }
+        if (index < 0) return@LaunchedEffect
+        val turn = transcript[index] as? TranscriptRow.AssistantTurn
+        if (turn != null) {
+            expandedTurns = expandedTurns + turn.turnId
+            revealedTurnMessageId = target
+        }
+        listState.scrollToItem(headerCount + index)
+    }
 
     val bot = (chat as? Chat.BotChat)?.bot
     // The computer is bot-only; a non-DM room exposes task navigation when the
@@ -838,6 +885,9 @@ private fun LoadedChat(
         // microphone after the message has already been sent.
         dictation.stop()
         val text = (explicitText ?: draft).trim()
+        // Only the typed line carries a reply; a chip or a command is its own ask.
+        val replied = replyTarget?.takeIf { explicitText == null }
+        fun withReply(line: String) = if (line.isEmpty()) line else ReplyQuote.wrap(replied?.text, line)
         // With attachments waiting, the message is the attachments plus
         // whatever was typed; the draft is cleared only once they are sent.
         if (attachments.isNotEmpty()) {
@@ -849,7 +899,7 @@ private fun LoadedChat(
             showingPlus = false
             scope.launch {
                 val sent = try {
-                    session.send(text, outgoing, chat)
+                    session.send(withReply(text), outgoing, chat)
                 } finally {
                     sendingMessage = false
                 }
@@ -858,6 +908,7 @@ private fun LoadedChat(
                     session.actionError = null
                     return@launch
                 }
+                if (replied != null && replyTarget == replied) replyTarget = null
                 // Compare with what was in the field at tap time, so a newer
                 // edit made while uploading survives the clear.
                 if (composer.text == draftAtSend) {
@@ -919,7 +970,8 @@ private fun LoadedChat(
         // Deliberately not disabled while the bot is busy: the harness answers
         // 409 and Session surfaces "The bot is busy — stop it first." That is a
         // clearer answer than a dead button.
-        scope.launch { session.send(text, chat) }
+        if (replied != null) replyTarget = null
+        scope.launch { session.send(withReply(text), chat) }
     }
 
     fun selectCommand(command: SlashCommand) {
@@ -975,7 +1027,13 @@ private fun LoadedChat(
     // Back dismisses an open panel before it leaves the screen — the platform's
     // own gesture, applied to the HUD the way it already was to the + sheet.
     BackHandler(enabled = !showingPlus && hudOpen) { closeHud() }
-    BackHandler(enabled = !showingPlus && !hudOpen) { leaveToRoster() }
+    fun closeFind() {
+        finding = false
+        findQuery = ""
+        findIndex = -1
+    }
+    BackHandler(enabled = !showingPlus && !hudOpen && finding) { closeFind() }
+    BackHandler(enabled = !showingPlus && !hudOpen && !finding) { leaveToRoster() }
 
     // A swipe across the conversation is the platform's back gesture carried
     // to the body of the screen — one exit chain, so the pill, the system's
@@ -984,6 +1042,7 @@ private fun LoadedChat(
         when {
             showingPlus -> showingPlus = false
             hudOpen -> closeHud()
+            finding -> closeFind()
             else -> leaveToRoster()
         }
     }
@@ -992,11 +1051,26 @@ private fun LoadedChat(
     // exit decision keeps the detector running without restarting it.
     val latestBackBySwipe = rememberUpdatedState(::backBySwipe)
 
+    val youLabel = stringResource(R.string.chat2_reply_you)
+    val replyHandler: (Message) -> Unit = remember(chat.name, youLabel) {
+        { message ->
+            val text = MessageActions.copyableText(message)
+            if (text != null) {
+                val author = if (message.role == Message.Role.USER) youLabel else message.from?.name ?: chat.name
+                replyTarget = ReplyTarget(message.id, author, text)
+            }
+        }
+    }
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .horizontalBackSwipe(onBack = { latestBackBySwipe.value() }),
     ) {
+        CompositionLocalProvider(
+            LocalFindHighlights provides findHighlights,
+            LocalReplyHandler provides replyHandler,
+        ) {
         LazyColumn(
             state = listState,
             modifier = Modifier
@@ -1026,7 +1100,7 @@ private fun LoadedChat(
                                     session.loadOlder(threadId)
                                     if (anchor == null) return@launch
                                     val fresh = session.state.value
-                                    val freshRows = transcriptRows(
+                                    val freshRows = WorkFold.rows(
                                         fresh.visibleTranscript(threadId),
                                         activityDetail,
                                     )
@@ -1049,17 +1123,18 @@ private fun LoadedChat(
 
                 itemsIndexedKeyed(transcript) { index, message ->
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                        // A gap in time is worth marking; a timestamp on every
-                        // message is just noise.
-                        if (TranscriptLayout.startsNewRowStretch(transcript, index)) {
+                        val day = remember(transcript, index) {
+                            ChatDaySeparators.label(transcript, index, System.currentTimeMillis())
+                        }
+                        if (day != null) {
                             Text(
-                                text = localizedMobileCopy(RelativeStamp.separator(
-                                    message.at,
-                                    System.currentTimeMillis(),
-                                    locale = Locale.getDefault(),
-                                )),
-                                fontSize = 13.sp,
-                                color = secondaryTint,
+                                text = when (day.kind) {
+                                    DayKind.TODAY -> stringResource(R.string.chat2_day_today)
+                                    DayKind.YESTERDAY -> stringResource(R.string.chat2_day_yesterday)
+                                    DayKind.DATE -> ChatDaySeparators.dateText(day.date, Locale.getDefault())
+                                },
+                                fontSize = 12.sp,
+                                color = Seira.colors.ink3,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(top = 6.dp),
@@ -1077,7 +1152,12 @@ private fun LoadedChat(
                                 openAttachment = ::openAttachment,
                                 openThread = ::openThread,
                             )
-                            is TranscriptRow.ActivityRun -> ActivityRunChip(message.items, ::openThread, bots = listOfNotNull(bot))
+                            is TranscriptRow.ActivityRun -> ActivityRunChip(
+                                message.items,
+                                ::openThread,
+                                bots = listOfNotNull(bot),
+                                startsOpen = WorkFold.startsOpen(activityDetail),
+                            )
                             is TranscriptRow.AssistantTurn -> AssistantTurnChip(
                                 turn = message,
                                 chat = chat,
@@ -1109,37 +1189,59 @@ private fun LoadedChat(
                     }
                 }
         }
+        }
 
         BottomFade(CHAT_HEADER_FADE, modifier = Modifier.align(Alignment.BottomCenter))
 
-        ChatHeader(
-            chat = chat,
-            face = remember(chat, rawTranscript) {
-                CharacterMood.forChat(chat, rawTranscript.lastOrNull())
-            },
-            status = ChatStatusRules.of(busy = chat.busy, pendingApproval = pendingApproval),
-            unreadElsewhere = remember(state, chat) {
-                (state.unreadCount - if (chat.unread) 1 else 0).coerceAtLeast(0)
-            },
-            call = callAction,
-            onBack = { backBySwipe() },
-            onCall = ::callOrOpen,
-            // The pill is the door a bot's face used to be: its profile. A
-            // room has no profile; its pill opens the room's threads when it has them.
-            onOpenPill = when {
-                bot != null -> ({ showingProfile = true })
-                chat.supportsTasks -> ({
+        if (finding) {
+            ChatFindBar(
+                query = findQuery,
+                count = findHits.size,
+                onQueryChange = { findQuery = it },
+                onPrevious = { findIndex = ChatFindRules.step(findIndex, findHits.size, forward = false) },
+                onNext = { findIndex = ChatFindRules.step(findIndex, findHits.size, forward = true) },
+                onClose = ::closeFind,
+                onHeight = { headerPx = it },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
+            )
+        } else {
+            ChatHeader(
+                chat = chat,
+                face = remember(chat, rawTranscript) {
+                    CharacterMood.forChat(chat, rawTranscript.lastOrNull())
+                },
+                status = ChatStatusRules.of(busy = chat.busy, pendingApproval = pendingApproval),
+                unreadElsewhere = remember(state, chat) {
+                    (state.unreadCount - if (chat.unread) 1 else 0).coerceAtLeast(0)
+                },
+                showScreen = ChatMenuRules.showsScreenButton(chat),
+                onBack = { backBySwipe() },
+                onOpenScreen = {
+                    dictation.stop()
+                    if (bot != null) onOpenComputer(bot.id)
+                },
+                onOpenMenu = {
                     dictation.stop()
                     focusManager.clearFocus()
-                    showingTasks = true
-                })
-                else -> null
-            },
-            onHeight = { headerPx = it },
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
-        )
+                    showingMenu = true
+                },
+                onOpenPill = when {
+                    bot != null -> ({ onOpenOverview(bot.id) })
+                    chat.supportsTasks -> ({
+                        dictation.stop()
+                        focusManager.clearFocus()
+                        showingTasks = true
+                    })
+                    else -> null
+                },
+                onHeight = { headerPx = it },
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .widthIn(max = CHAT_CONTENT_MAX_WIDTH),
+            )
+        }
 
         Column(
             modifier = Modifier
@@ -1273,6 +1375,8 @@ private fun LoadedChat(
                 },
                 callAction = callAction,
                 onCall = ::callOrOpen,
+                reply = replyTarget,
+                onClearReply = { replyTarget = null },
             )
         }
 
@@ -1321,6 +1425,43 @@ private fun LoadedChat(
                 onDismiss = { showingSchedule = false },
             )
         }
+    }
+
+    if (showingMenu) {
+        ChatMenuSheet(
+            chat = chat,
+            newThreadEnabled = TaskRules.canCreate(chat) && !creatingThread && !(chat is Chat.RoomChat && pendingApproval),
+            onPick = { item ->
+                showingMenu = false
+                when (item) {
+                    ChatMenuItem.FIND -> finding = true
+                    ChatMenuItem.NEW_THREAD -> onAction(ChatActionId.NEW_TASK)
+                    ChatMenuItem.ALL_THREADS -> showingTasks = true
+                    ChatMenuItem.MODEL -> showingModel = true
+                    ChatMenuItem.MEMBERS -> showingMembers = true
+                    ChatMenuItem.BOT_SCREEN -> onAction(ChatActionId.WATCH_COMPUTER)
+                    ChatMenuItem.SHARE_MARKDOWN -> share(scope, environment, threadId, ShareFormat.MARKDOWN)
+                    ChatMenuItem.SHARE_JSON -> share(scope, environment, threadId, ShareFormat.JSON)
+                }
+            },
+            onDismiss = { showingMenu = false },
+        )
+    }
+
+    if (showingMembers && chat is Chat.RoomChat) {
+        ChatMembersSheet(
+            members = remember(chat.room, state.bots) { ChatMembers.of(chat.room, state.bots) },
+            onDismiss = { showingMembers = false },
+        )
+    }
+
+    if (showingModel && bot != null) {
+        ModelPickerSheet(
+            bot = bot,
+            unavailable = remember { ModelSelection("", "", null) },
+            onSwitched = { showingModel = false },
+            onDismiss = { showingModel = false },
+        )
     }
 
     if (showingTasks) {

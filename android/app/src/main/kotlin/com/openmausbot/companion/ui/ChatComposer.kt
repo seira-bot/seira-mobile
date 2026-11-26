@@ -13,6 +13,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.windowInsetsPadding
+import com.openmausbot.companion.ui.chat.ReplyStrip
+import com.openmausbot.companion.ui.chat.ReplyTarget
 import com.openmausbot.companion.ui.theme.ControlCircleButton
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -224,6 +226,8 @@ internal fun ChatComposer(
     liveStatus: String? = null,
     callAction: ChatCallAction = ChatCallAction.NONE,
     onCall: () -> Unit = {},
+    reply: ReplyTarget? = null,
+    onClearReply: () -> Unit = {},
 ) {
     val colors = Seira.colors
     val canSend = AttachmentImportRules.canSend(draft, attachments.size, preparing, sending)
@@ -327,6 +331,7 @@ internal fun ChatComposer(
                 }
             }
         }
+        if (reply != null) ReplyStrip(target = reply, onClose = onClearReply)
         // One or the other, never both: the HUD is what the composer is doing
         // right now, and a row of send-immediately chips under it would be a
         // second thing to tap by accident.

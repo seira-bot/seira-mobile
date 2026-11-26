@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Mở màn hình của bot</string>
+    <string name="chat2_header_menu">Thêm về cuộc trò chuyện này</string>
+    <string name="chat2_open_bot">Mở %1$s</string>
+    <string name="chat2_menu_find">Tìm trong cuộc trò chuyện</string>
+    <string name="chat2_menu_new_thread">Luồng mới</string>
+    <string name="chat2_menu_all_threads">Tất cả luồng</string>
+    <string name="chat2_menu_model">Mô hình</string>
+    <string name="chat2_menu_members">Thành viên nhóm</string>
+    <string name="chat2_menu_bot_screen">Màn hình của bot</string>
+    <string name="chat2_menu_share">Chia sẻ bản ghi</string>
+    <string name="chat2_menu_share_markdown">Luồng này dạng Markdown</string>
+    <string name="chat2_menu_share_json">Chia sẻ dạng JSON</string>
+    <string name="chat2_find_hint">Tìm trong cuộc trò chuyện</string>
+    <string name="chat2_find_none">Không có kết quả</string>
+    <plurals name="chat2_find_count">
+        <item quantity="other">Tìm thấy %1$d</item>
+    </plurals>
+    <string name="chat2_find_previous">Kết quả trước</string>
+    <string name="chat2_find_next">Kết quả tiếp theo</string>
+    <string name="chat2_find_close">Đóng tìm kiếm</string>
+    <string name="chat2_msg_react">Phản ứng bằng %1$s</string>
+    <string name="chat2_msg_reply">Trả lời</string>
+    <string name="chat2_msg_edit">Sửa tin nhắn</string>
+    <string name="chat2_msg_more">Thao tác khác</string>
+    <string name="chat2_reply_to">Đang trả lời %1$s</string>
+    <string name="chat2_reply_cancel">Hủy trả lời</string>
+    <string name="chat2_reply_you">Bạn</string>
+    <string name="chat2_work_done">Đã làm việc %1$s</string>
+    <string name="chat2_work_seconds">%1$d giây</string>
+    <string name="chat2_work_minutes">%1$d phút %2$02d giây</string>
+    <string name="chat2_work_instant">Đã làm việc</string>
+    <string name="chat2_approval_needed">Cần phê duyệt</string>
+    <string name="chat2_day_today">Hôm nay</string>
+    <string name="chat2_day_yesterday">Hôm qua</string>
+</resources>

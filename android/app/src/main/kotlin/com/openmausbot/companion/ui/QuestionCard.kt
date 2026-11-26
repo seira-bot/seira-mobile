@@ -22,7 +22,10 @@ import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.semantics.Role
+import com.openmausbot.companion.ui.theme.Seira
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -149,13 +152,11 @@ internal fun QuestionCardView(chat: Chat, message: Message, haptics: Haptics) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(secondaryTint.copy(alpha = 0.13f), RoundedCornerShape(22.dp))
-            .then(
-                if (settled) {
-                    Modifier
-                } else {
-                    Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(22.dp))
-                },
+            .background(if (settled) Seira.colors.tint else Seira.colors.s1, RoundedCornerShape(22.dp))
+            .border(
+                1.dp,
+                if (settled) Seira.colors.hairline else Seira.colors.warning.copy(alpha = 0.45f),
+                RoundedCornerShape(22.dp),
             )
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -261,12 +262,10 @@ internal fun QuestionCardView(chat: Chat, message: Message, haptics: Haptics) {
                     .testTag("question-answer-field"),
             )
         } else Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(secondaryTint.copy(alpha = 0.10f), RoundedCornerShape(14.dp)),
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             current.options.forEachIndexed { position, option ->
-                if (position > 0) HorizontalDivider()
                 ChoiceRow(
                     label = option.label,
                     detail = option.detail,
@@ -278,7 +277,6 @@ internal fun QuestionCardView(chat: Chat, message: Message, haptics: Haptics) {
                     choose(option.label)
                 }
             }
-            if (current.options.isNotEmpty()) HorizontalDivider()
             ChoiceRow(
                 label = stringResource(R.string.mobile_other_6e6a6f20),
                 detail = null,
@@ -290,7 +288,6 @@ internal fun QuestionCardView(chat: Chat, message: Message, haptics: Haptics) {
                 toggleOther()
             }
             if (other[index] == true) {
-                HorizontalDivider()
                 OutlinedTextField(
                     value = custom[index].orEmpty(),
                     onValueChange = { custom[index] = it },
@@ -298,9 +295,7 @@ internal fun QuestionCardView(chat: Chat, message: Message, haptics: Haptics) {
                     singleLine = false,
                     maxLines = 4,
                     enabled = !answering,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 )
             }
         }
@@ -325,13 +320,19 @@ private fun ChoiceRow(
     enabled: Boolean,
     onClick: () -> Unit,
 ) {
+    val colors = Seira.colors
+    val shape = RoundedCornerShape(18.dp)
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .heightIn(min = MIN_TOUCH_TARGET)
+            .clip(shape)
+            .background(if (checked) colors.accentSoft else Color.Transparent, shape)
+            .border(1.dp, if (checked) colors.accent else colors.line2, shape)
+            .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
+            .padding(horizontal = 14.dp, vertical = 10.dp),
         horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalAlignment = Alignment.Top,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Marker(checked = checked, multi = multi)
         Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {

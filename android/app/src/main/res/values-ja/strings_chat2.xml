@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">ボットの画面を開く</string>
+    <string name="chat2_header_menu">このチャットの詳細</string>
+    <string name="chat2_open_bot">%1$sを開く</string>
+    <string name="chat2_menu_find">会話内を検索</string>
+    <string name="chat2_menu_new_thread">新しいスレッド</string>
+    <string name="chat2_menu_all_threads">すべてのスレッド</string>
+    <string name="chat2_menu_model">モデル</string>
+    <string name="chat2_menu_members">グループのメンバー</string>
+    <string name="chat2_menu_bot_screen">ボットの画面</string>
+    <string name="chat2_menu_share">トランスクリプトを共有</string>
+    <string name="chat2_menu_share_markdown">このスレッドをMarkdownで</string>
+    <string name="chat2_menu_share_json">JSONで共有</string>
+    <string name="chat2_find_hint">会話内を検索</string>
+    <string name="chat2_find_none">一致なし</string>
+    <plurals name="chat2_find_count">
+        <item quantity="other">%1$d件見つかりました</item>
+    </plurals>
+    <string name="chat2_find_previous">前の一致</string>
+    <string name="chat2_find_next">次の一致</string>
+    <string name="chat2_find_close">検索を閉じる</string>
+    <string name="chat2_msg_react">%1$sでリアクション</string>
+    <string name="chat2_msg_reply">返信</string>
+    <string name="chat2_msg_edit">メッセージを編集</string>
+    <string name="chat2_msg_more">その他の操作</string>
+    <string name="chat2_reply_to">%1$sに返信中</string>
+    <string name="chat2_reply_cancel">返信をやめる</string>
+    <string name="chat2_reply_you">あなた</string>
+    <string name="chat2_work_done">%1$s作業しました</string>
+    <string name="chat2_work_seconds">%1$d秒</string>
+    <string name="chat2_work_minutes">%1$d分%2$02d秒</string>
+    <string name="chat2_work_instant">作業しました</string>
+    <string name="chat2_approval_needed">承認が必要です</string>
+    <string name="chat2_day_today">今日</string>
+    <string name="chat2_day_yesterday">昨日</string>
+</resources>
