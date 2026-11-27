@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seira Design Gallery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<style>
+@property --halo { syntax: "<color>"; inherits: true; initial-value: rgba(255, 178, 62, 0.5); }
+@property --n { syntax: "<integer>"; inherits: true; initial-value: 20; }
+
+.hero2 { padding: 84px 0 40px; }
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 30px; }
+.stat {
+  font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.5px; padding: 7px 13px;
+  border: 1px solid var(--g-line2); border-radius: 999px; color: var(--g-mut);
+  background: color-mix(in srgb, var(--g-card) 60%, transparent); font-variant-numeric: tabular-nums;
+}
+.stat b { color: var(--g-ink); font-weight: 600; }
+
+.ba {
+  position: relative; isolation: isolate; padding: 48px 16px 40px; border-radius: 44px;
+  border: 1px solid var(--g-line); overflow: hidden;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--g-card) 55%, transparent), transparent 70%);
+}
+.ba::before {
+  content: ""; position: absolute; z-index: -1; left: 50%; top: -6%; width: min(1100px, 150%); height: 82%;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, var(--g-glow), transparent 72%);
+  pointer-events: none;
+}
+.ba::after {
+  content: ""; position: absolute; z-index: -1; left: 50%; bottom: 120px; width: min(900px, 120%); height: 160px;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--g-ink) 7%, transparent), transparent);
+  pointer-events: none;
+}
+.ba-grid {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  gap: clamp(16px, 4vw, 56px); align-items: start; justify-items: center; position: relative;
+}
+.ba-col { display: grid; gap: 20px; justify-items: center; width: 100%; position: relative; }
+.ba-label {
+  font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; text-transform: uppercase;
+  letter-spacing: 0.14em; display: inline-flex; align-items: center; gap: 9px; color: var(--g-dim);
+}
+.ba-label i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.ba-col.after .ba-label { color: var(--g-acc); }
+.ba-col.after .ba-label i { box-shadow: 0 0 0 4px var(--g-acc-soft); }
+.ba-arrow {
+  align-self: center; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+  border: 1px solid var(--g-line2); color: var(--g-mut); background: var(--g-card);
+  box-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.35);
+}
+.ba-arrow .ic { width: 18px; height: 18px; }
+.ba-hint { text-align: center; margin: 28px 0 0; color: var(--g-dim); font-size: 13px; position: relative; }
+@media (max-width: 760px) {
+  .ba { padding: 36px 12px 32px; border-radius: 32px; }
+  .ba-grid { grid-template-columns: 1fr; gap: 28px; }
+  .ba-arrow { transform: rotate(90deg); }
+}
+
+.ba .device-body { padding-bottom: 8px; }
+.dv-in { padding: 2px 14px 48px; }
+.dv-in .s-row { gap: 12px; padding: 10px 12px 10px 14px; }
+.dv-in .s-row + .s-row::before { left: 56px; }
+.dv-in .s-row .s-chev { width: 14px; height: 14px; }
+.dv-in .s-row-sub { line-height: 1.35; }
+.dot-ok { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); margin-right: 6px; vertical-align: 1px; }
+.s-section.has-pin { display: flex; justify-content: space-between; align-items: center; }
+.sub-gap { margin-top: 14px; }
+.dv-in .s-top { padding-top: 0; }
+[data-ui] :focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 10px; }
+.now-seg button[aria-checked="true"] { color: var(--fg); background: var(--s3); box-shadow: 0 1px 1px rgba(0, 0, 0, 0.12); }
+.now-seg button { min-height: 36px; }
+.now-switch { position: relative; }
+.now-switch::before { content: ""; position: absolute; inset: -7px -4px; }
+
+.pin {
+  display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; flex: none;
+  background: var(--acc); color: var(--on-acc); font: 600 10.5px/1 "Geist Mono", ui-monospace, monospace;
+  box-shadow: 0 0 0 3px var(--acc-soft); animation: pinpulse 2.6s ease-out 3;
+  transition: transform var(--m-base) var(--ease-spring);
+}
+.pin.hot { transform: scale(1.4); box-shadow: 0 0 0 5px var(--acc-soft); }
+.s-row-title .pin { margin-left: 6px; vertical-align: 1px; }
+@keyframes pinpulse { 0% { box-shadow: 0 0 0 0 var(--acc); } 80%, 100% { box-shadow: 0 0 0 9px transparent; } }
+
+.gh { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); padding: 14px 6px 12px; }
+.gh[data-sel="light"] { --halo: rgba(255, 178, 62, 0.5); }
+.gh[data-sel="dark"] { --halo: rgba(104, 114, 255, 0.46); }
+.gh[data-sel="auto"] { --halo: rgba(255, 61, 103, 0.46); }
+.gh-halo {
+  position: absolute; left: 0; top: 12px; width: 68px; height: 68px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, var(--halo) 0%, transparent 68%); transition: --halo 400ms var(--ease);
+  will-change: transform;
+}
+.gh-b {
+  position: relative; z-index: 1; display: grid; justify-items: center; gap: 9px; padding: 6px 0 4px; min-height: 44px;
+  background: none; border: 0; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.gh-l { font-size: 12.5px; font-weight: 500; color: var(--mut); transition: color var(--m-base) var(--ease); }
+.gh-b[aria-checked="true"] .gh-l { color: var(--fg); }
+.cel {
+  position: relative; display: block; width: 52px; height: 52px; border-radius: 50%;
+  transform: scale(0.84); opacity: 0.64; filter: saturate(0.6);
+  transition: transform 320ms var(--ease-spring), opacity var(--m-base) var(--ease), filter var(--m-base) var(--ease);
+}
+.gh-b:active .cel { transform: scale(0.8); }
+.gh-b[aria-checked="true"] .cel { transform: scale(1); opacity: 1; filter: saturate(1.1); }
+.cel-sun {
+  background: radial-gradient(circle at 36% 30%, #fff5bd 0, #ffc34b 42%, #ff8728 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.35) inset, 0 6px 18px -4px rgba(255, 140, 40, 0.65);
+}
+.rays {
+  position: absolute; inset: -10px; border-radius: 50%; opacity: 0; transition: opacity 300ms var(--ease);
+  background: repeating-conic-gradient(from 0deg, #ffb84a 0 4deg, transparent 4deg 30deg);
+  -webkit-mask: radial-gradient(closest-side, transparent 0 76%, #000 77% 100%);
+  mask: radial-gradient(closest-side, transparent 0 76%, #000 77% 100%);
+  animation: spin 16s linear infinite paused;
+}
+.gh-b[aria-checked="true"] .rays { opacity: 1; animation-play-state: running; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.cel-moon {
+  overflow: hidden; background: radial-gradient(circle at 30% 24%, #3d4496 0, #181c4c 62%, #0e1034 100%);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.14) inset, 0 6px 18px -4px rgba(90, 100, 255, 0.5);
+}
+.cel-moon svg { position: absolute; inset: 0; width: 52px; height: 52px; }
+.st { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: 0; box-shadow: 0 0 5px 1px rgba(255, 255, 255, 0.8); }
+.st.s1 { left: 38px; top: 34px; } .st.s2 { left: 39px; top: 9px; width: 2px; height: 2px; } .st.s3 { left: 10px; top: 12px; width: 2px; height: 2px; }
+.gh-b[aria-checked="true"] .st { animation: twinkle 2.2s ease-in-out infinite; }
+.gh-b[aria-checked="true"] .st.s2 { animation-delay: 0.7s; } .gh-b[aria-checked="true"] .st.s3 { animation-delay: 1.3s; }
+@keyframes twinkle { 0%, 100% { opacity: 0.15; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.3); } }
+.cel-ecl { background: radial-gradient(circle, #1f1424 0, #0c0a10 100%); box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.12) inset, 0 6px 18px -4px rgba(255, 61, 103, 0.55); }
+.ecl-sun, .ecl-moon { position: absolute; width: 30px; height: 30px; left: 11px; top: 11px; border-radius: 50%; }
+.ecl-sun { background: radial-gradient(circle at 40% 35%, #fff, #ffd27a 55%, #ff6a3d); }
+.ecl-moon { background: #050508; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); transform: translateX(4px); animation: drift 5s ease-in-out infinite alternate paused; }
+.gh-b[aria-checked="true"] .ecl-moon { animation-play-state: running; }
+@keyframes drift { from { transform: translateX(6px); } to { transform: translateX(-3px); } }
+.ecl-cor {
+  position: absolute; inset: 6px; border-radius: 50%;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5), 0 0 10px 2px rgba(255, 61, 103, 0.85), inset 0 0 8px 1px rgba(255, 255, 255, 0.55);
+}
+
+.jeli {
+  position: relative; width: 52px; height: 32px; border-radius: 99px; border: 0; padding: 0; cursor: pointer; flex: none;
+  background: var(--track-off); touch-action: manipulation; -webkit-tap-highlight-color: transparent;
+}
+.jeli::before { content: ""; position: absolute; inset: -7px -4px; }
+.jl-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--inv); clip-path: circle(0 at 16px 16px); }
+.jl-knob {
+  position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 99px; background: #fff; display: grid; place-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.28), 0 0 0 0.5px rgba(0, 0, 0, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: background-color var(--m-base) var(--ease); will-change: transform;
+}
+.jeli[aria-checked="true"] .jl-knob { background: var(--on-inv); }
+.jl-check {
+  width: 15px; height: 15px; fill: none; stroke: var(--inv); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 220ms var(--ease);
+}
+.jeli[aria-checked="true"] .jl-check { stroke-dashoffset: 0; transition: stroke-dashoffset 280ms var(--ease) 150ms; }
+
+.ni { position: relative; color: var(--dim); transition: background-color var(--m-base) var(--ease), color var(--m-base) var(--ease); }
+.ni > * { position: absolute; inset: 0; display: grid; place-items: center; transition: opacity var(--m-base) var(--ease), transform 300ms var(--ease-spring); }
+.ni .ni-a { opacity: 0; transform: scale(0.6) rotate(-20deg); }
+.ni.on .ni-a { opacity: 1; transform: none; }
+.ni.on .ni-b { opacity: 0; transform: scale(0.6) rotate(20deg); }
+.ni.single > * { opacity: 0.55; transform: none; }
+.ni.single.on > * { opacity: 1; }
+.ni.on { background: var(--acc-soft); color: var(--acc-fg); }
+.ni.ok.on { background: var(--ok-soft); color: var(--ok); }
+.ni.warn.on { background: var(--warn-soft); color: var(--warn); }
+
+.tn { position: relative; height: 44px; border-radius: 16px; background: var(--s2); overflow: hidden; }
+.tn-base { position: absolute; inset: 0; padding: 4px; display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; }
+.tn-base > * {
+  display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 13.5px; font-weight: 500; letter-spacing: -0.005em;
+  border: 0; background: transparent; color: var(--mut); cursor: pointer; border-radius: 12px; min-height: 36px;
+}
+.tn-ink { position: absolute; inset: 0; background: var(--inv); pointer-events: none; clip-path: inset(4px 50% 4px 4px round 12px); }
+.tn-ink .tn-base > * { color: var(--on-inv); cursor: default; }
+.tn svg { width: 14px; height: 14px; }
+
+.adv { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--m-sheet) var(--ease); }
+.adv.open { grid-template-rows: 1fr; }
+.adv-in { overflow: hidden; min-height: 0; }
+.adv-row {
+  display: flex; align-items: center; gap: 12px; width: 100%; min-height: 48px; padding: 0 12px 0 14px; border: 0;
+  border-top: 1px solid var(--line); background: transparent; color: var(--fg); font-size: 14px; font-weight: 500; text-align: left; cursor: pointer;
+  opacity: 0; transform: translateY(-8px); transition: opacity 120ms var(--ease), transform 160ms var(--ease);
+}
+.adv-row .s-ico { width: 28px; height: 28px; background: var(--s2); }
+.adv-row > span:nth-child(2) { flex: 1; }
+.adv.open .adv-row { opacity: 1; transform: none; transition: opacity 240ms var(--ease) calc(var(--i) * 40ms + 60ms), transform 340ms var(--ease-spring) calc(var(--i) * 40ms + 60ms); }
+.adv-row:active { background: var(--s2); }
+
+.ba-notes { list-style: none; margin: 40px 0 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; position: relative; }
+@media (max-width: 1080px) { .ba-notes { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 560px) { .ba-notes { grid-template-columns: 1fr; } }
+.ba-note {
+  display: grid; align-content: start; gap: 10px; padding: 18px; border-radius: 24px; background: var(--g-card); border: 1px solid var(--g-line);
+  transition: border-color var(--m-base) var(--ease), transform var(--m-sheet) var(--ease-spring);
+}
+.ba-note:hover, .ba-note:focus-within { border-color: var(--g-acc); transform: translateY(-2px); }
+.ba-note-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ba-no {
+  width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--g-acc); color: #fff;
+  font: 600 11px/1 "Geist Mono", ui-monospace, monospace; flex: none;
+}
+.cid { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; color: var(--g-acc); }
+.ba-note strong { font-size: 16px; letter-spacing: -0.015em; }
+.ba-note p { margin: 0; color: var(--g-mut); font-size: 14px; text-wrap: pretty; }
+.ba-link, .g-table a, .srcs a { text-underline-offset: 3px; }
+.ba-link { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.5px; color: var(--g-acc); text-decoration: none; min-height: 24px; display: inline-flex; align-items: center; }
+.ba-link:hover { text-decoration: underline; }
+
+.boards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+@media (max-width: 820px) { .boards { grid-template-columns: 1fr; } }
+.board {
+  display: flex; flex-direction: column; text-decoration: none; color: inherit; min-width: 0;
+  background: var(--g-card); border: 1px solid var(--g-line); border-radius: 30px; overflow: hidden; box-shadow: var(--g-shadow);
+  transition: transform 320ms var(--ease-spring), border-color var(--m-base) var(--ease);
+}
+.board:hover { transform: translateY(-4px); border-color: var(--g-line2); }
+.board:focus-visible { outline-offset: 4px; border-radius: 30px; }
+.pv {
+  height: 214px; display: grid; place-items: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--g-line);
+  background: radial-gradient(70% 90% at 50% 0%, var(--acc-soft), transparent 70%), var(--bg);
+}
+.board-meta { padding: 22px 24px 24px; display: grid; gap: 10px; }
+.board-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.board h3 { margin: 0; font-size: 22px; letter-spacing: -0.025em; font-weight: 600; }
+.board-top .mono { font-size: 12px; color: var(--g-dim); }
+.board p { margin: 0; color: var(--g-mut); text-wrap: pretty; }
+.board-go { display: inline-flex; align-items: center; gap: 6px; color: var(--g-acc); font-weight: 500; font-size: 14px; min-height: 28px; }
+.board-go .ic { width: 15px; height: 15px; transition: transform var(--m-sheet) var(--ease-spring); }
+.board:hover .board-go .ic, .board:focus-visible .board-go .ic { transform: translateX(4px); }
+.board:not(.live) .pv *, .ba:not(.live) * { animation-play-state: paused !important; }
+
+.pv-ecl { position: relative; width: 104px; height: 104px; }
+.pv-ecl i { position: absolute; border-radius: 50%; }
+.pv-sun { inset: 0; background: radial-gradient(circle at 40% 35%, #fff4b8, #ffc34b 45%, #ff7a28); box-shadow: 0 0 40px 6px rgba(255, 150, 50, 0.45); animation: pvsun 8s ease-in-out infinite; }
+.pv-cor { inset: -6px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7), 0 0 26px 6px rgba(255, 61, 103, 0.85), inset 0 0 18px 2px rgba(255, 255, 255, 0.5); opacity: 0; animation: pvcor 8s ease-in-out infinite; }
+.pv-moon { inset: -1px; background: #06060a; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1); animation: pvmoon 8s cubic-bezier(0.45, 0, 0.35, 1) infinite; }
+@keyframes pvmoon { 0% { transform: translateX(-150px); opacity: 0; } 12% { opacity: 1; } 50% { transform: translateX(0); } 88% { opacity: 1; } 100% { transform: translateX(150px); opacity: 0; } }
+@keyframes pvcor { 0%, 30%, 70%, 100% { opacity: 0; } 50% { opacity: 1; } }
+@keyframes pvsun { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(0.9); } }
+
+.pv-jeli { position: relative; width: 52px; height: 32px; border-radius: 99px; background: var(--track-off); transform: scale(1.9); }
+.pv-fill { position: absolute; inset: 0; border-radius: inherit; background: var(--inv); clip-path: circle(0 at 16px 16px); animation: pvfill 4s infinite; }
+.pv-knob { position: absolute; left: 2px; top: 2px; width: 28px; height: 28px; border-radius: 99px; background: #fff; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3); animation: pvknob 4s infinite; }
+@keyframes pvfill {
+  0%, 2% { clip-path: circle(0 at 16px 16px); } 18%, 52% { clip-path: circle(46px at 16px 16px); } 68%, 100% { clip-path: circle(0 at 16px 16px); }
+}
+@keyframes pvknob {
+  0% { transform: translateX(0) scaleX(1); background-color: #fff; }
+  3% { transform: translateX(0) scaleX(1.28); }
+  9% { transform: translateX(14px) scaleX(1.36); }
+  13% { transform: translateX(22px) scaleX(0.9) scaleY(1.06); background-color: var(--on-inv); }
+  17%, 48% { transform: translateX(22px) scaleX(1); background-color: var(--on-inv); }
+  52% { transform: translateX(22px) scaleX(1.28); }
+  58% { transform: translateX(8px) scaleX(1.36); }
+  63% { transform: translateX(0) scaleX(0.9) scaleY(1.06); background-color: #fff; }
+  67%, 100% { transform: translateX(0) scaleX(1); background-color: #fff; }
+}
+
+.pv-tab { position: relative; width: 252px; max-width: calc(100% - 24px); height: 44px; border-radius: 16px; background: var(--s2); overflow: hidden; }
+.pv-tab-in { position: absolute; inset: 0; padding: 0 6px; display: grid; grid-template-columns: repeat(3, 1fr); align-items: center; text-align: center; font-size: 13.5px; font-weight: 500; color: var(--mut); }
+.pv-tab-ink { position: absolute; inset: 0; background: var(--inv); clip-path: inset(4px 166px 4px 6px round 12px); animation: pvtab 7s infinite; }
+.pv-tab-ink .pv-tab-in { color: var(--on-inv); }
+@keyframes pvtab {
+  0%, 16% { clip-path: inset(4px 166px 4px 6px round 12px); }
+  21% { clip-path: inset(4px 86px 4px 6px round 12px); }
+  25%, 42% { clip-path: inset(4px 86px 4px 86px round 12px); }
+  47% { clip-path: inset(4px 6px 4px 86px round 12px); }
+  51%, 68% { clip-path: inset(4px 6px 4px 166px round 12px); }
+  73% { clip-path: inset(4px 6px 4px 6px round 12px); }
+  77%, 100% { clip-path: inset(4px 166px 4px 6px round 12px); }
+}
+
+.pv-dial { position: relative; width: 132px; height: 132px; animation: pvn 9s ease-in-out infinite; }
+.pv-dial svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+.pv-dial circle { fill: none; stroke-width: 7; stroke-linecap: round; }
+.pv-dial .tr { stroke: var(--s3); }
+.pv-dial .ar { stroke: var(--acc); stroke-dasharray: 100 100; stroke-dashoffset: calc((100 - var(--n)) * 1px); }
+.pv-dial .hand { position: absolute; inset: 0; transform: rotate(calc(var(--n) * 3.6deg)); }
+.pv-dial .hand::after { content: ""; position: absolute; left: calc(50% - 6px); top: 5px; width: 12px; height: 12px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45), 0 0 0 2px var(--acc); }
+.pv-dial .num { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; font: 600 30px/1 "Geist", sans-serif; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; counter-reset: n var(--n); color: var(--fg); }
+.pv-dial .num::before { content: counter(n); }
+@keyframes pvn {
+  0% { --n: 15; } 22% { --n: 72; } 40% { --n: 72; } 56% { --n: 34; } 76% { --n: 92; } 90% { --n: 92; } 100% { --n: 15; }
+}
+
+.g-table { min-width: 860px; }
+.g-table td:nth-child(2) { max-width: 260px; }
+.pri { display: inline-block; font-family: "Geist Mono", ui-monospace, monospace; font-size: 11.5px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--g-line2); color: var(--g-mut); }
+.pri.p1 { background: var(--g-acc); border-color: transparent; color: #fff; }
+.pri.p2 { border-color: var(--g-acc); color: var(--g-acc); }
+.g-table a { color: var(--g-acc); font-family: "Geist Mono", ui-monospace, monospace; font-size: 12.5px; text-decoration: none; padding: 2px 0; }
+.g-table a:hover { text-decoration: underline; }
+.legend { margin: 14px 4px 0; color: var(--g-dim); font-size: 13px; font-family: "Geist Mono", ui-monospace, monospace; }
+
+.principles { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; }
+.pr {
+  grid-column: span 2; padding: 26px 26px 28px; border-radius: 28px; background: var(--g-card); border: 1px solid var(--g-line);
+  box-shadow: var(--g-shadow); display: grid; gap: 10px; align-content: start;
+}
+.pr:nth-child(n+4) { grid-column: span 3; }
+.pr-n { font-family: "Instrument Serif", ui-serif, Georgia, serif; font-style: italic; font-size: 76px; line-height: 0.9; color: var(--g-acc); letter-spacing: -0.03em; }
+.pr h3 { margin: 6px 0 0; font-size: 20px; letter-spacing: -0.025em; font-weight: 600; }
+.pr p { margin: 0; color: var(--g-mut); text-wrap: pretty; }
+@media (max-width: 1080px) { .pr, .pr:nth-child(n+4) { grid-column: span 3; } .pr:last-child { grid-column: 1 / -1; } }
+@media (max-width: 700px) { .principles { grid-template-columns: 1fr; } .pr, .pr:nth-child(n+4), .pr:last-child { grid-column: auto; } }
+
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; counter-reset: st; }
+@media (max-width: 820px) { .steps { grid-template-columns: 1fr; } }
+.step { position: relative; padding: 22px 24px 24px; border-radius: 26px; border: 1px dashed var(--g-line2); display: grid; gap: 10px; }
+.step .mono { font-size: 12px; color: var(--g-acc); letter-spacing: 0.06em; }
+.step p { margin: 0; font-size: 17px; letter-spacing: -0.015em; font-weight: 500; text-wrap: balance; }
+
+.srcs { list-style: none; padding: 0; margin: 10px 0 22px; display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.srcs a { color: var(--g-mut); display: inline-flex; align-items: center; min-height: 28px; }
+.srcs a:hover { color: var(--g-ink); }
+.g-foot p { margin: 0; }
+.g-foot .mono { font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<header data-g-nav="index.html"></header>
+<main class="g-wrap">
+
+<section class="g-hero hero2">
+  <span class="g-eyebrow">Seira Design · 27 Nov 2026</span>
+  <h1 class="g-h1">Setiap pilihan <span class="serif">terasa</span> saat disentuh.</h1>
+  <p class="g-lede">Galeri ini mengganti kontrol pilihan standar di Seira Mobile. Setiap konsep bisa disentuh, bisa dibuat di SwiftUI dan Compose, dan memakai token warna app.</p>
+  <div class="stats" aria-label="Ringkasan galeri">
+    <span class="stat"><b>24</b> konsep</span>
+    <span class="stat"><b>4</b> papan</span>
+    <span class="stat"><b>13</b> kontrol diaudit</span>
+  </div>
+</section>
+
+<section class="g-section" id="sebelum-sesudah" style="border-top:0;padding-top:24px">
+  <div class="g-section-head">
+    <h2 class="g-h2">Layar Settings yang sama. <span class="serif">Rasa</span> yang berbeda.</h2>
+    <p>Ketuk kontrol di kedua layar. Gulir di dalam layar. Nomor merah menandai kontrol yang berubah.</p>
+  </div>
+
+  <div class="ba" id="ba">
+    <div class="ba-grid">
+      <div class="ba-col before">
+        <span class="ba-label"><i></i>Sebelum</span>
+        <div class="device" style="--dw:300px">
+          <div class="device-screen" id="scr-before" data-ui="dark" data-ui-global>
+            <div class="device-island"></div>
+            <div class="device-status"><span>9:41</span><span class="sb-icons"><i style="width:3px;height:5px"></i><i style="width:3px;height:7px"></i><i style="width:3px;height:9px"></i><i style="width:22px;height:10px;border-radius:3px;margin-left:4px"></i></span></div>
+            <div class="device-body" id="body-before"></div>
+            <div class="device-home"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ba-arrow" aria-hidden="true"><svg class="ic"><use href="#i-chevron"/></svg></div>
+
+      <div class="ba-col after">
+        <span class="ba-label"><i></i>Sesudah</span>
+        <div class="device" style="--dw:300px">
+          <div class="device-screen" id="scr-after" data-ui="dark">
+            <div class="device-island"></div>
+            <div class="device-status"><span>9:41</span><span class="sb-icons"><i style="width:3px;height:5px"></i><i style="width:3px;height:7px"></i><i style="width:3px;height:9px"></i><i style="width:22px;height:10px;border-radius:3px;margin-left:4px"></i></span></div>
+            <div class="device-body" id="body-after"></div>
+            <div class="device-home"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="ba-hint mono">Pilih Light atau Dark di layar kanan. Seluruh layar berganti dari titik jari.</p>
+
+    <ol class="ba-notes">
+      <li class="ba-note" data-n="1">
+        <div class="ba-note-head"><span class="ba-no">1</span><span class="cid">A1</span><strong>Gerhana</strong></div>
+        <p>Tombol menunjukkan hasilnya. Seluruh layar berganti tema dari titik jari.</p>
+        <a class="ba-link" href="appearance.html#a1">Lihat konsep A1 →</a>
+      </li>
+      <li class="ba-note" data-n="2">
+        <div class="ba-note-head"><span class="ba-no">2</span><span class="cid">S1</span><strong>Jeli + Ikon hidup</strong></div>
+        <p>Knob yang lentur memberi tanda On yang jelas. Ikon notifikasi ikut bereaksi.</p>
+        <a class="ba-link" href="switches.html#s1">Lihat konsep S1 →</a>
+      </li>
+      <li class="ba-note" data-n="3">
+        <div class="ba-note-head"><span class="ba-no">3</span><span class="cid">A6</span><strong>Tinta</strong></div>
+        <p>Satu penanda padat bergerak seperti ulat. Label di bawahnya berbalik warna.</p>
+        <a class="ba-link" href="appearance.html#a6">Lihat konsep A6 →</a>
+      </li>
+      <li class="ba-note" data-n="4">
+        <div class="ba-note-head"><span class="ba-no">4</span><span class="cid">S4</span><strong>Mode Advanced</strong></div>
+        <p>Baris baru muncul di tempatnya. Orang melihat apa yang berubah.</p>
+        <a class="ba-link" href="switches.html#s4">Lihat konsep S4 →</a>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<section class="g-section" id="papan">
+  <div class="g-section-head">
+    <h2 class="g-h2">Empat <span class="serif">papan</span>, 24 konsep.</h2>
+    <p>Setiap papan memuat enam konsep yang bisa disentuh. Buka satu papan dan coba semuanya.</p>
+  </div>
+  <div class="boards">
+    <a class="board" href="appearance.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-ecl"><i class="pv-sun"></i><i class="pv-cor"></i><i class="pv-moon"></i></div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Tema</h3><span class="mono">6 konsep · A1–A6</span></div>
+        <p>Enam cara memilih Light, Dark, dan Auto. Pergantian tema membuka dari titik jari.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+    <a class="board" href="switches.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-jeli"><i class="pv-fill"></i><i class="pv-knob"></i></div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Saklar</h3><span class="mono">6 konsep · S1–S6</span></div>
+        <p>Enam saklar dengan bobot fisik. Ikon, titik LED, dan tutup pengaman menunjukkan keadaan.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+    <a class="board" href="segments.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-tab">
+          <div class="pv-tab-in"><span>Chats</span><span>Inbox</span><span>Routines</span></div>
+          <div class="pv-tab-ink"><div class="pv-tab-in"><span>Chats</span><span>Inbox</span><span>Routines</span></div></div>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Tab &amp; segmen</h3><span class="mono">6 konsep · T1–T6</span></div>
+        <p>Tab bar kaca, tab yang mengikuti jari, dan grup segmen yang bersambung.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+    <a class="board" href="dials.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-dial">
+          <svg viewBox="0 0 100 100"><circle class="tr" cx="50" cy="50" r="42"/><circle class="ar" cx="50" cy="50" r="42" pathLength="100"/></svg>
+          <span class="hand"></span><span class="num"></span>
+        </div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Dial</h3><span class="mono">6 konsep · D1–D6</span></div>
+        <p>Mode approval, reasoning, timeout, dan bahasa berubah menjadi dial yang diputar, ditarik, atau ditahan.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+  </div>
+</section>
+
+<section class="g-section" id="audit">
+  <div class="g-section-head">
+    <h2 class="g-h2">Audit <span class="serif">kontrol</span></h2>
+    <p>Ada 13 tempat yang memakai kontrol pilihan standar. Setiap baris punya usulan dan prioritas.</p>
+  </div>
+  <div class="g-table-wrap">
+    <table class="g-table">
+      <thead><tr><th>Kontrol</th><th>Tempat di app</th><th>Sekarang</th><th>Usulan</th><th>Prioritas</th></tr></thead>
+      <tbody>
+        <tr><td>Tema</td><td>Settings &gt; Appearance</td><td>Segmented 3 bagian</td><td><a href="appearance.html#a1">A1</a> (alt. <a href="appearance.html#a3">A3</a>, <a href="appearance.html#a6">A6</a>)</td><td><span class="pri p1">P1</span></td></tr>
+        <tr><td>On/off</td><td>Notifications, Live call, profil bot, routine</td><td>Switch kapsul yang sama di semua tempat</td><td><a href="switches.html#s1">S1</a> + <a href="switches.html#s2">S2</a> notifikasi + <a href="switches.html#s5">S5</a> privasi + <a href="switches.html#s6">S6</a> routine</td><td><span class="pri p1">P1</span></td></tr>
+        <tr><td>Advanced mode</td><td>Settings</td><td>Switch biasa</td><td><a href="switches.html#s4">S4</a></td><td><span class="pri p1">P1</span></td></tr>
+        <tr><td>Approval mode</td><td>Composer &gt; sheet</td><td>Daftar radio</td><td><a href="dials.html#d1">D1</a></td><td><span class="pri p1">P1</span></td></tr>
+        <tr><td>Tab bar</td><td>Chats, Inbox, Automations</td><td>Tab bar standar</td><td><a href="segments.html#t1">T1</a></td><td><span class="pri p2">P2</span></td></tr>
+        <tr><td>Tab profil bot</td><td>Activity, Settings, Library, Computer</td><td>Strip tab, indikator melompat</td><td><a href="segments.html#t2">T2</a></td><td><span class="pri p2">P2</span></td></tr>
+        <tr><td>Dua pilihan</td><td>List density, List/Calendar, Day/Week, Speaker/Earpiece</td><td>Segmented pill</td><td><a href="appearance.html#a6">A6</a>, <a href="segments.html#t3">T3</a>, <a href="segments.html#t4">T4</a>, <a href="segments.html#t5">T5</a></td><td><span class="pri p2">P2</span></td></tr>
+        <tr><td>Activity detail</td><td>Settings &gt; Chat</td><td>Menu Picker</td><td><a href="dials.html#d4">D4</a></td><td><span class="pri p2">P2</span></td></tr>
+        <tr><td>Filter pencarian</td><td>Search</td><td>Chip tanpa jumlah</td><td><a href="segments.html#t6">T6</a></td><td><span class="pri p3">P3</span></td></tr>
+        <tr><td>Reasoning effort</td><td>Profil bot</td><td>Menu Picker</td><td><a href="dials.html#d2">D2</a></td><td><span class="pri p3">P3</span></td></tr>
+        <tr><td>Hang up after silence</td><td>Live call</td><td>Menu Picker</td><td><a href="dials.html#d3">D3</a></td><td><span class="pri p3">P3</span></td></tr>
+        <tr><td>Bot intro animation</td><td>Settings</td><td>Menu Picker</td><td><a href="dials.html#d5">D5</a></td><td><span class="pri p3">P3</span></td></tr>
+        <tr><td>Language</td><td>Settings</td><td>Menu Picker</td><td><a href="dials.html#d6">D6</a></td><td><span class="pri p3">P3</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="legend">P1 = kerjakan di rilis desain berikutnya. P2 = sesudah P1. P3 = kalau ada waktu.</p>
+</section>
+
+<section class="g-section" id="prinsip">
+  <div class="g-section-head">
+    <h2 class="g-h2">Lima <span class="serif">prinsip</span></h2>
+    <p>Setiap konsep di galeri ini lulus lima aturan yang sama.</p>
+  </div>
+  <div class="principles">
+    <article class="pr"><span class="pr-n">1</span><h3>Tampilkan hasil, bukan label.</h3><p>Tombol tema memperlihatkan matahari dan bulan. Orang melihat hasil pilihannya sebelum memilih.</p></article>
+    <article class="pr"><span class="pr-n">2</span><h3>Gerak mulai dari jari.</h3><p>Pergantian tema membuka dari titik sentuh. Geseran mengikuti kecepatan jari.</p></article>
+    <article class="pr"><span class="pr-n">3</span><h3>Pilihan berisiko butuh niat.</h3><p>Mode Full approval butuh tahan atau tutup pengaman. Satu ketukan tidak cukup.</p></article>
+    <article class="pr"><span class="pr-n">4</span><h3>Satu bahasa gerak.</h3><p>Semua pegas berdurasi 200–280 ms dengan overshoot kecil. Setiap titik henti memberi haptic.</p></article>
+    <article class="pr"><span class="pr-n">5</span><h3>Hormati semua orang.</h3><p>Reduce motion mematikan gerak besar. Target sentuh 44 pt di iOS dan 48 dp di Android. VoiceOver, TalkBack, dan kontras tetap terjaga.</p></article>
+  </div>
+</section>
+
+<section class="g-section" id="langkah">
+  <div class="g-section-head">
+    <h2 class="g-h2">Langkah <span class="serif">berikutnya</span></h2>
+  </div>
+  <ol class="steps">
+    <li class="step"><span class="mono">LANGKAH 01</span><p>Rama memilih konsep per baris audit.</p></li>
+    <li class="step"><span class="mono">LANGKAH 02</span><p>Agent menulis spec implementasi SwiftUI dan Compose.</p></li>
+    <li class="step"><span class="mono">LANGKAH 03</span><p>Implementasi masuk sesudah rilis 1.2.0.</p></li>
+  </ol>
+</section>
+
+</main>
+
+<footer class="g-wrap g-foot">
+  <p class="mono">Sumber riset</p>
+  <ul class="srcs">
+    <li><a href="https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass" target="_blank" rel="noopener">Apple, Adopting Liquid Glass</a></li>
+    <li><a href="https://developer.apple.com/videos/play/wwdc2025/323/" target="_blank" rel="noopener">WWDC25 323</a></li>
+    <li><a href="https://codelabs.developers.google.com/codelabs/mdc-102-objc" target="_blank" rel="noopener">M3 Expressive</a></li>
+    <li><a href="https://pub.dev/documentation/flutter_theme_circle_animation/latest/" target="_blank" rel="noopener">Pola reveal Telegram</a></li>
+  </ul>
+  <p>Mockup statis. Warna dari SeiraTheme.swift.</p>
+</footer>
+
+<script src="assets/kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var I = function (n, c) { return Seira.icon(n, c); };
+  var warnSvg = '<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4 21 19.5H3Z"/><path d="M12 10v4.5M12 17.2v.1"/></svg>';
+
+  function seg(label, opts, sel) {
+    return '<div class="now-seg" role="radiogroup" aria-label="' + label + '">' + opts.map(function (o, i) {
+      return '<button type="button" role="radio" aria-checked="' + (i === sel) + '" tabindex="' + (i === sel ? 0 : -1) + '" data-mode="' + o[0] + '">' + (o[2] ? I(o[2]) : '') + o[1] + '</button>';
+    }).join('') + '</div>';
+  }
+  function tinta(label, opts, sel) {
+    var labels = function (ink) {
+      return opts.map(function (o, i) {
+        return ink ? '<span>' + I(o[2]) + o[1] + '</span>'
+          : '<button type="button" role="radio" aria-checked="' + (i === sel) + '" tabindex="' + (i === sel ? 0 : -1) + '">' + I(o[2]) + o[1] + '</button>';
+      }).join('');
+    };
+    return '<div class="tn" id="tn"><div class="tn-base" role="radiogroup" aria-label="' + label + '">' + labels(false) + '</div>' +
+      '<div class="tn-ink" aria-hidden="true"><div class="tn-base">' + labels(true) + '</div></div></div>';
+  }
+  function ico(inner, extra) { return '<span class="s-ico ' + (extra || '') + '">' + inner + '</span>'; }
+  function row(icoHtml, title, sub, tail) {
+    return '<div class="s-row">' + icoHtml + '<span class="s-text"><span class="s-row-title">' + title + '</span>' +
+      (sub ? '<span class="s-row-sub">' + sub + '</span>' : '') + '</span>' + (tail || '') + '</div>';
+  }
+  function nSwitch(label, on) {
+    return '<button type="button" class="now-switch" role="switch" aria-checked="' + on + '" aria-label="' + label + '"></button>';
+  }
+  function jeli(label, on, id) {
+    return '<button type="button" class="jeli" role="switch" aria-checked="' + on + '" aria-label="' + label + '"' + (id ? ' data-id="' + id + '"' : '') +
+      '><span class="jl-fill"></span><span class="jl-knob"><svg class="jl-check" viewBox="0 0 24 24" aria-hidden="true"><path d="m5.5 12.5 4.2 4.2L18.5 7.5" pathLength="1"/></svg></span></button>';
+  }
+  var GH = '<div class="s-card"><div class="gh" id="gh" role="radiogroup" aria-label="Appearance" data-sel="dark"><i class="gh-halo" id="gh-halo"></i>' +
+    '<button type="button" class="gh-b" role="radio" aria-checked="false" tabindex="-1" data-mode="light"><span class="cel cel-sun"><i class="rays"></i></span><span class="gh-l">Light</span></button>' +
+    '<button type="button" class="gh-b" role="radio" aria-checked="true" tabindex="0" data-mode="dark"><span class="cel cel-moon">' +
+      '<svg viewBox="0 0 52 52" aria-hidden="true"><defs><mask id="gm-mask"><rect width="52" height="52" fill="#fff"/><circle cx="34" cy="19" r="14" fill="#000"/></mask>' +
+      '<linearGradient id="gm-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbfcff"/><stop offset="1" stop-color="#b9c0f5"/></linearGradient></defs>' +
+      '<g mask="url(#gm-mask)"><circle cx="26" cy="26" r="17" fill="url(#gm-grad)"/><circle cx="17" cy="30" r="1.7" fill="#8a92d6" opacity=".7"/><circle cx="22" cy="38" r="1.3" fill="#8a92d6" opacity=".7"/><circle cx="14" cy="22" r="1" fill="#8a92d6" opacity=".6"/></g></svg>' +
+      '<i class="st s1"></i><i class="st s2"></i><i class="st s3"></i></span><span class="gh-l">Dark</span></button>' +
+    '<button type="button" class="gh-b" role="radio" aria-checked="false" tabindex="-1" data-mode="auto"><span class="cel cel-ecl"><i class="ecl-sun"></i><i class="ecl-moon"></i><i class="ecl-cor"></i></span><span class="gh-l">Auto</span></button>' +
+    '</div></div>';
+
+  function screen(after) {
+    var pin = function (n) { return after ? '<span class="pin" data-pin="' + n + '" aria-hidden="true">' + n + '</span>' : ''; };
+    var appearance = after ? GH : '<div class="s-card pad">' + seg('Appearance', [['light', 'Light', 'sun'], ['dark', 'Dark', 'moon'], ['auto', 'Auto', 'auto']], 1) + '</div>';
+    var notifRows = [
+      ['bell', 'Needs your OK', 'When a bot waits for your answer', true, ''],
+      ['check', 'Task finished', 'When a bot is done with a job', true, 'ok'],
+      ['warn', 'Routine problems', 'When a scheduled job fails', false, 'warn']
+    ];
+    var notif = notifRows.map(function (r, i) {
+      var icon;
+      if (after) {
+        var inner = r[0] === 'bell'
+          ? '<span class="ni-a">' + I('bell') + '</span><span class="ni-b">' + I('bell-off') + '</span>'
+          : '<span>' + (r[0] === 'warn' ? warnSvg : I('check')) + '</span>';
+        icon = ico(inner, 'ni ' + (r[0] === 'bell' ? '' : 'single ') + r[4] + (r[3] ? ' on' : ''));
+      } else {
+        icon = ico(r[0] === 'warn' ? warnSvg : I(r[0]));
+      }
+      return row(icon, r[1], r[2], after ? jeli(r[1], r[3], r[0]) : nSwitch(r[1], r[3]));
+    }).join('');
+    var density = after
+      ? tinta('List density', [['comfortable', 'Comfortable', 'rows'], ['compact', 'Compact', 'rows-dense']], 0)
+      : seg('List density', [['comfortable', 'Comfortable', 'rows'], ['compact', 'Compact', 'rows-dense']], 0);
+    var advRow = row(ico(I('gear')), 'Advanced mode' + pin(4), 'More controls for bots and chats.', after ? jeli('Advanced mode', false, 'adv') : nSwitch('Advanced mode', false));
+    var advPanel = after ? '<div class="adv" id="adv"><div class="adv-in" inert>' +
+      [['layers', 'Move to department'], ['check', 'Mark all as read'], ['text', 'Copy conversation ID']].map(function (r, i) {
+        return '<button type="button" class="adv-row" style="--i:' + i + '">' + ico(I(r[0])) + '<span>' + r[1] + '</span>' + I('chevron', 's-chev') + '</button>';
+      }).join('') + '</div></div>' : '';
+    return '<div class="dv-in">' +
+      '<div class="s-top"><span class="s-back">' + I('chevron-left') + '</span><span class="s-navtitle">Settings</span></div>' +
+      '<div class="s-section">Your computer</div>' +
+      '<div class="s-card">' + row(ico(I('computer')), 'seira-vm', '<i class="dot-ok"></i>Connected', I('chevron', 's-chev')) + '</div>' +
+      '<div class="s-section has-pin"><span>Appearance</span>' + pin(1) + '</div>' + appearance +
+      '<div class="s-caption">Auto follows your phone setting.</div>' +
+      '<div class="s-section has-pin"><span>Notifications</span>' + pin(2) + '</div>' +
+      '<div class="s-card">' + notif + '</div>' +
+      '<div class="s-section">Chat</div>' +
+      '<div class="s-card">' + row(ico(I('pulse')), 'Activity', '', '<span class="s-value">Reduced</span>' + I('chevron', 's-chev')) +
+        row(ico(I('bolt')), 'Quick replies', '', I('chevron', 's-chev')) + '</div>' +
+      '<div class="s-section has-pin sub-gap"><span>List density</span>' + pin(3) + '</div>' +
+      '<div class="s-card pad">' + density + '</div>' +
+      '<div class="s-card sub-gap" style="margin-top:18px">' + advRow + advPanel + '</div>' +
+      '</div>';
+  }
+
+  function wireRadios(group, onPick) {
+    var items = [].slice.call(group.querySelectorAll('[role="radio"]'));
+    function cur() { return items.findIndex(function (b) { return b.getAttribute('aria-checked') === 'true'; }); }
+    function mark(i) { items.forEach(function (b, j) { b.setAttribute('aria-checked', String(j === i)); b.tabIndex = j === i ? 0 : -1; }); }
+    items.forEach(function (b, i) {
+      b.addEventListener('click', function () { if (cur() === i) return; mark(i); onPick(i, b); });
+      b.addEventListener('keydown', function (e) {
+        var n = null, k = e.key;
+        if (k === 'ArrowRight' || k === 'ArrowDown') n = (i + 1) % items.length;
+        if (k === 'ArrowLeft' || k === 'ArrowUp') n = (i - 1 + items.length) % items.length;
+        if (n !== null) { e.preventDefault(); items[n].focus(); items[n].click(); }
+      });
+    });
+    return { items: items, mark: mark, cur: cur };
+  }
+  function centerOf(el) { var r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }
+
+  function initBefore() {
+    var scr = document.getElementById('scr-before');
+    var body = document.getElementById('body-before');
+    body.innerHTML = screen(false);
+    var groups = body.querySelectorAll('.now-seg');
+    var appr = wireRadios(groups[0], function (i, b) { Seira.tick(b); Seira.setUI(scr, b.getAttribute('data-mode'), { reveal: false }); });
+    wireRadios(groups[1], function (i, b) { Seira.tick(b); });
+    body.querySelectorAll('.now-switch').forEach(function (s) {
+      s.addEventListener('click', function () { s.setAttribute('aria-checked', String(s.getAttribute('aria-checked') !== 'true')); Seira.tick(s); });
+    });
+    return { sync: function (mode) { appr.mark(mode === 'light' ? 0 : 1); } };
+  }
+
+  function initJeli(btn, onChange) {
+    var W = 52, PAD = 2;
+    var knob = btn.querySelector('.jl-knob'), fill = btn.querySelector('.jl-fill');
+    var S = { x: 0, vx: 0, w: 28, vw: 0, q: 0, vq: 0, pressed: false, moving: false, landed: true, sx: null, sw: null, sq: null };
+    var on = btn.getAttribute('aria-checked') === 'true';
+    var tw = function () { return S.pressed ? 36 : 28; };
+    var tx = function () { return on ? W - PAD - tw() : PAD; };
+    function render() {
+      var stretch = Math.min(0.28, Math.abs(S.vx) / 520);
+      knob.style.width = S.w + 'px';
+      knob.style.transform = 'translate3d(' + S.x + 'px,0,0) scale(' + (1 + 0.16 * S.q + stretch) + ',' + (1 - 0.14 * S.q - stretch * 0.35) + ')';
+    }
+    function squash() {
+      if (S.sq) S.sq();
+      S.q = 1; S.vq = 0;
+      S.sq = Seira.spring({ from: 1, to: 0, stiffness: 320, damping: 11, onUpdate: function (v, vel) { S.q = v; S.vq = vel || 0; render(); } });
+    }
+    function go() {
+      if (S.sx) S.sx();
+      if (S.sw) S.sw();
+      var target = tx();
+      S.sx = Seira.spring({
+        from: S.x, to: target, velocity: S.vx, stiffness: 420, damping: 24,
+        onUpdate: function (v, vel) {
+          S.x = v; S.vx = vel || 0;
+          if (S.moving && !S.landed && Math.abs(v - target) < 2.5) { S.landed = true; squash(); }
+          render();
+        },
+        onDone: function () { S.moving = false; }
+      });
+      S.sw = Seira.spring({ from: S.w, to: tw(), velocity: S.vw, stiffness: 520, damping: 26, onUpdate: function (v, vel) { S.w = v; S.vw = vel || 0; render(); } });
+    }
+    function reveal(v) {
+      fill.getAnimations().forEach(function (a) { a.cancel(); });
+      var big = 'circle(46px at 16px 16px)', none = 'circle(0px at 16px 16px)';
+      fill.style.clipPath = v ? big : none;
+      if (fill.animate) fill.animate({ clipPath: v ? [none, big] : [big, none] },
+        { duration: Seira.reduced ? 0 : 360, easing: 'cubic-bezier(.3,.9,.3,1)' });
+    }
+    S.x = tx(); render(); fill.style.clipPath = on ? 'circle(46px at 16px 16px)' : 'circle(0px at 16px 16px)';
+    btn.addEventListener('pointerdown', function () { S.pressed = true; go(); });
+    var release = function () { if (S.pressed) { S.pressed = false; go(); } };
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+    btn.addEventListener('pointerleave', release);
+    btn.addEventListener('click', function () {
+      on = !on;
+      btn.setAttribute('aria-checked', String(on));
+      S.moving = true; S.landed = false;
+      go(); reveal(on); Seira.tick(btn);
+      onChange(on);
+    });
+  }
+
+  function react(id, on, iconEl) {
+    if (!iconEl || !iconEl.animate || Seira.reduced) return;
+    iconEl.classList.toggle('on', on);
+    if (!on) return;
+    var a;
+    if (id === 'bell') {
+      a = iconEl.querySelector('.ni-a');
+      a.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(16deg)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(10deg)' }, { transform: 'rotate(-6deg)' }, { transform: 'rotate(2deg)' }, { transform: 'rotate(0)' }],
+        { duration: 720, easing: 'ease-in-out', delay: 120 });
+    } else if (id === 'check') {
+      iconEl.firstElementChild.animate([{ transform: 'scale(.55)' }, { transform: 'scale(1.38)' }, { transform: 'scale(.94)' }, { transform: 'scale(1)' }],
+        { duration: 520, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    } else if (id === 'warn') {
+      iconEl.animate([{ boxShadow: '0 0 0 0 color-mix(in srgb, var(--warn-fill) 55%, transparent)' }, { boxShadow: '0 0 0 11px transparent' }], { duration: 640, easing: 'ease-out' });
+      iconEl.firstElementChild.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.28)' }, { transform: 'scale(1)' }], { duration: 480, easing: 'cubic-bezier(.2,.8,.2,1)' });
+    }
+  }
+
+  function initTinta(root) {
+    var group = root.querySelector('.tn-base[role="radiogroup"]');
+    var ink = root.querySelector('.tn-ink');
+    var radios;
+    var L = 0, R = 0, vL = 0, vR = 0, stopL, stopR, timer, cur = 0;
+    function rect(i) { var b = radios.items[i]; return [b.offsetLeft, b.offsetLeft + b.offsetWidth]; }
+    function render() { ink.style.clipPath = 'inset(4px ' + (root.clientWidth - R) + 'px 4px ' + L + 'px round 12px)'; }
+    function snap() { var r = rect(cur); L = r[0]; R = r[1]; vL = vR = 0; render(); }
+    function moveTo(i) {
+      var r = rect(i), right = i > cur; cur = i;
+      if (stopL) stopL(); if (stopR) stopR(); clearTimeout(timer);
+      var runL = function () { stopL = Seira.spring({ from: L, to: r[0], velocity: vL, stiffness: 430, damping: 27, onUpdate: function (v, vel) { L = v; vL = vel || 0; render(); } }); };
+      var runR = function () { stopR = Seira.spring({ from: R, to: r[1], velocity: vR, stiffness: 430, damping: 27, onUpdate: function (v, vel) { R = v; vR = vel || 0; render(); } }); };
+      if (right) { runR(); timer = setTimeout(runL, 70); } else { runL(); timer = setTimeout(runR, 70); }
+    }
+    radios = wireRadios(group, function (i, b) { Seira.tick(b); moveTo(i); });
+    snap();
+    if (window.ResizeObserver) new ResizeObserver(function () { if (!stopL && !stopR) snap(); else render(); }).observe(root);
+    document.fonts && document.fonts.ready.then(snap);
+  }
+
+  function initGerhana(scr) {
+    var gh = document.getElementById('gh'), halo = document.getElementById('gh-halo');
+    var hx = 0, hv = 0, stop;
+    var radios;
+    function target(i) { var b = radios.items[i]; return b.offsetLeft + b.offsetWidth / 2 - 34; }
+    function place(i, animate) {
+      if (stop) stop();
+      gh.setAttribute('data-sel', radios.items[i].getAttribute('data-mode'));
+      if (!animate) { hx = target(i); hv = 0; halo.style.transform = 'translateX(' + hx + 'px)'; return; }
+      stop = Seira.spring({ from: hx, to: target(i), velocity: hv, stiffness: 380, damping: 26, onUpdate: function (x, v) { hx = x; hv = v || 0; halo.style.transform = 'translateX(' + x + 'px)'; } });
+    }
+    radios = wireRadios(gh, function (i, b) {
+      var c = centerOf(b);
+      Seira.tick(b);
+      place(i, true);
+      Seira.setUI(scr, b.getAttribute('data-mode'), { x: c.x, y: c.y });
+    });
+    function fit() { place(radios.cur(), false); }
+    fit();
+    if (window.ResizeObserver) new ResizeObserver(function () { if (!stop) fit(); }).observe(gh);
+    document.fonts && document.fonts.ready.then(fit);
+    return { sync: function (mode) { var i = mode === 'light' ? 0 : 1; radios.mark(i); place(i, true); } };
+  }
+
+  function initAfter() {
+    var scr = document.getElementById('scr-after');
+    var body = document.getElementById('body-after');
+    body.innerHTML = screen(true);
+    var g = initGerhana(scr);
+    initTinta(document.getElementById('tn'));
+    body.querySelectorAll('.jeli').forEach(function (btn) {
+      var id = btn.getAttribute('data-id');
+      if (id === 'adv') {
+        var adv = document.getElementById('adv'), inner = adv.firstElementChild;
+        initJeli(btn, function (on) {
+          adv.classList.toggle('open', on); inner.inert = !on;
+          if (on) setTimeout(function () { body.scrollTo({ top: body.scrollHeight, behavior: Seira.reduced ? 'auto' : 'smooth' }); }, 120);
+        });
+      } else {
+        var icon = btn.closest('.s-row').querySelector('.ni');
+        initJeli(btn, function (on) { react(id, on, icon); });
+      }
+    });
+    body.querySelectorAll('.adv-row').forEach(function (b) { b.addEventListener('click', function () { Seira.tick(b); }); });
+    return { scr: scr, gh: g };
+  }
+
+  function watch(sel) {
+    var els = [].slice.call(document.querySelectorAll(sel));
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('live'); }); return; }
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { e.target.classList.toggle('live', e.isIntersecting); }); }, { rootMargin: '80px' });
+    els.forEach(function (e) { io.observe(e); });
+  }
+
+  function start() {
+    var before = initBefore();
+    var after = initAfter();
+    var pressed = document.querySelector('[data-g-ui][aria-pressed="true"]');
+    var mode = pressed ? pressed.getAttribute('data-g-ui') : 'dark';
+    after.scr.dataset.ui = mode;
+    before.sync(mode); after.gh.sync(mode);
+    document.addEventListener('seira:ui', function (e) {
+      Seira.setUI(after.scr, e.detail);
+      before.sync(e.detail); after.gh.sync(e.detail);
+    });
+    document.querySelectorAll('.ba-note').forEach(function (li) {
+      var pins = function () { return document.querySelectorAll('.pin[data-pin="' + li.getAttribute('data-n') + '"]'); };
+      var on = function () { pins().forEach(function (p) { p.classList.add('hot'); }); };
+      var off = function () { pins().forEach(function (p) { p.classList.remove('hot'); }); };
+      li.addEventListener('mouseenter', on); li.addEventListener('mouseleave', off);
+      li.addEventListener('focusin', on); li.addEventListener('focusout', off);
+    });
+    watch('.board'); watch('.ba');
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+</body>
+</html>

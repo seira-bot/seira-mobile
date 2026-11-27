@@ -78,7 +78,8 @@ final class SidebarSectionsClientTests: XCTestCase {
     }
 
     func testAssignSectionUsesTheNarrowAtomicRoute() async throws {
-        let bots = try await client.assignSection(name: "Research", botIds: ["b2", "b1"])
+        let assignment = try await client.assignSection(name: "Research", botIds: ["b2", "b1"])
+        let bots = assignment.bots
 
         let request = try XCTUnwrap(SidebarSectionRequestStub.capturedRequest)
         XCTAssertEqual(request.httpMethod, "POST")

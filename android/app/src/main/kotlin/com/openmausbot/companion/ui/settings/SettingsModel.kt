@@ -7,6 +7,7 @@ internal enum class SettingsGroup {
     CHAT,
     WORKSPACE,
     PRIVACY,
+    ADVANCED,
     HELP,
     SIGN_OUT,
     UPDATES,
@@ -28,6 +29,7 @@ internal object SettingsLayout {
         add(SettingsGroup.CHAT)
         if (showsWorkspace) add(SettingsGroup.WORKSPACE)
         if (showsPrivacy) add(SettingsGroup.PRIVACY)
+        add(SettingsGroup.ADVANCED)
         add(SettingsGroup.HELP)
         if (paired) add(SettingsGroup.SIGN_OUT)
         if (updatesAvailable) add(SettingsGroup.UPDATES)

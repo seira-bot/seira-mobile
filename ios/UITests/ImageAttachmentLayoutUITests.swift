@@ -26,14 +26,13 @@ final class ImageAttachmentLayoutUITests: XCTestCase {
             "-store-preview", "-images-preview",
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
-            "-companion.prefs.rosterDensity", "comfortable",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES",
         ]
         app.launch()
         // The app reopens the last chat; start from the roster either way.
         if app.buttons["Back"].waitForExistence(timeout: 3) { app.buttons["Back"].tap() }
-        let row = app.staticTexts["Iris"].firstMatch
+        let row = app.buttons["chat-row.preview-iris"]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "Iris on the roster")
         let input = app.descendants(matching: .any)["message-input"]
         for _ in 0..<3 where !input.exists {

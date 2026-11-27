@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">नाम बदलें</string>
+    <string name="chat3_menu_copy_markdown">Markdown के रूप में कॉपी करें</string>
+    <string name="chat3_menu_download_markdown">.md डाउनलोड करें</string>
+    <string name="chat3_menu_activity">गतिविधि</string>
+    <string name="chat3_copied">कॉपी हो गया</string>
+    <string name="chat3_rename_heading">थ्रेड का नाम बदलें</string>
+    <string name="chat3_rename_label">शीर्षक</string>
+    <string name="chat3_rename_save">सहेजें</string>
+    <string name="chat3_rename_cancel">रद्द करें</string>
+    <string name="chat3_rename_failed">इस थ्रेड का नाम बदला नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="chat3_tool_teach">सिखाएँ</string>
+    <string name="chat3_tool_teach_a11y">नई स्किल सिखाएँ</string>
+    <string name="chat3_tool_goal">लक्ष्य</string>
+    <string name="chat3_tool_goal_a11y">लक्ष्य तय करें</string>
+    <string name="chat3_tool_context">संदर्भ %1$d%%</string>
+    <string name="chat3_tool_context_a11y">संदर्भ, %1$d प्रतिशत इस्तेमाल हुआ। ब्योरे के लिए टैप करें।</string>
+    <string name="chat3_context_title">संदर्भ</string>
+    <string name="chat3_context_bar_a11y">%1$d प्रतिशत इस्तेमाल हुआ</string>
+    <string name="chat3_context_usage">%2$s में से %1$s टोकन इस्तेमाल हुए</string>
+    <string name="chat3_context_compact">संदर्भ छोटा करें</string>
+    <string name="chat3_context_compact_sub">पुराने संदेशों का सार बनाता है</string>
+    <string name="chat3_context_compacting">छोटा किया जा रहा है…</string>
+    <string name="chat3_context_compacted">सार बनना शुरू हुआ</string>
+    <string name="chat3_context_wait">जवाब पूरा होने तक रुकें।</string>
+    <string name="chat3_context_failed">इस बातचीत को छोटा नहीं किया जा सका। फिर कोशिश करें।</string>
+    <string name="chat3_allow_session">इस सेशन के लिए अनुमति दें</string>
+</resources>

@@ -41,30 +41,33 @@ switching check can assert that the body as well as the title changes. The
 bulk-delete UI checks add `-threads-preview-deletion` to update that synthetic
 fleet in memory; `-threads-preview-deletion-fails-weekend` refuses the second
 delete to check partial results. These flags are compiled only in Debug.
-They start from the default compact list (`-reset-list-density` drops a
-density saved by an earlier run), where Pepper's threads open from its **› 3**
-control; the folder-switching and home-search checks also run in comfortable,
-through its Threads row.
+They launch with Advanced mode on (`-companion.prefs.advancedMode YES`),
+because the Simple home shows bots as tiles and has no thread list. In
+Advanced mode, Pepper's threads open from the chevron at the start of its row
+(`row-threads-toggle.preview-pepper`). The list under the row has its own
+**Threads** header (`threads-toggle.preview-pepper`). Tests open a bot with the
+identifier `chat-row.<bot id>`, which the Simple tile and the Advanced row
+share. `-reset-list-density` drops a density saved by an earlier run; the
+folder-switching and home-search checks also run in comfortable.
 
 `RosterDensityUITests` launches with `-store-preview -roster-preview`.
 `App/RosterPreview.json` is another synthetic, offline fleet: an unsectioned
 Chief of Staff, a pinned bot, Pepper with three threads (one in an Email
 folder, one queued) and a hidden routine run, a bot waiting on you, a working
 bot, groups, a bot-to-bot chat and named sections with their own Chief. It
-checks that compact is the default; that a single-thread bot has no thread
-control but its long-press menu offers **New thread**; that Pepper's **› 3**
-lists its threads in line with its name and ends with **New thread**, with its
-unfiled thread under a **Threads** label that stays when the Email folder
-closes; that
-**Settings → List density** switches to comfortable and is remembered across
-launches; and, in both densities, that the first section title clears the
-header's buttons and the last row, scrolled to the end, sits wholly above the
-floating Updates bar.
+checks that the Simple home shows bots as tiles with no thread control; that,
+in Advanced mode, Pepper's chevron lists its threads under the row and hides
+them again; that folding a department hides its bots in both modes and opening
+it brings them back; and that the first group title clears the header's
+buttons and the last row, scrolled to the end, sits wholly above the floating
+Updates bar. **Settings → List density** shows only in Advanced mode. Compact
+(the default) hides the preview line under each bot name; comfortable shows it.
+The choice is remembered across launches.
 
 Check on iPhone and iPad:
 
-1. Expand Pepper's threads (**› 3** in compact, the Threads row in
-   comfortable) and its Email folder. Each visible thread opens directly; the
+1. Turn on Advanced mode. Expand Pepper's threads with the chevron of its row,
+   then its Email folder. Each visible thread opens directly; the
    routine run is absent. Check working, queued and unread labels.
 2. Search by folder and thread name, then clear the search.
 3. Enter an unsent draft in Gmail, switch to iCloud through the thread-name

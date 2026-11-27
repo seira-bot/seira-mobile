@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">Bilgisayarınıza ulaşılamıyor</string>
     <string name="settings_reconnect">Yeniden bağlan</string>
-    <string name="update_banner_downloading">Güncelleme indiriliyor…</string>
-    <string name="update_banner_ready">Güncelleme hazır. Seira\'yı yeniden başlat</string>
-    <string name="update_banner_restart">Yeniden başlat</string>
-    <string name="settings_check_updates">Güncellemeleri denetle</string>
-    <string name="settings_update_checking">Denetleniyor…</string>
-    <string name="settings_update_found">Güncelleme indiriliyor</string>
-    <string name="settings_update_current">Güncel</string>
     <string name="ai_usage_title">Yapay zekâ kullanımı</string>
     <string name="ai_usage_window_five_hour">5 saatlik sınır</string>
     <string name="ai_usage_window_weekly">Haftalık sınır</string>
@@ -46,4 +39,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">1 turda %1$s token</string>
     <string name="ai_usage_conversation_cost">%1$s · yaklaşık %2$s</string>
     <string name="ai_usage_conversation_context">Bağlam %1$s / %2$s</string>
+    <string name="update_banner_downloading">Güncelleme indiriliyor…</string>
+    <string name="update_banner_ready">Güncelleme hazır. Seira\'yı yeniden başlat</string>
+    <string name="update_banner_restart">Yeniden başlat</string>
+    <string name="settings_check_updates">Güncellemeleri denetle</string>
+    <string name="settings_update_checking">Denetleniyor…</string>
+    <string name="settings_update_found">Güncelleme indiriliyor</string>
+    <string name="settings_update_current">Güncel</string>
 </resources>

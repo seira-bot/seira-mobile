@@ -27,7 +27,7 @@ public enum TeamMapRules {
             ?? state.bots.first { $0.hidden != true && $0.chiefOfStaff == true }
         let sections = state.sidebarSections
             .map { TeamGroup(name: $0.name, bots: $0.chiefs + $0.bots) }
-            .filter { !$0.bots.isEmpty }
+            .filter { !$0.bots.isEmpty || state.declaredSections.contains($0.name ?? "") }
         let general = state.unsectionedBots + state.pinnedBots
         let groups = sections + (general.isEmpty ? [] : [TeamGroup(name: nil, bots: general)])
         return TeamLayout(chief: chief, groups: groups)

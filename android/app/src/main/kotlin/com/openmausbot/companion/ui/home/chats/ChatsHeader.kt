@@ -1,12 +1,13 @@
 package com.openmausbot.companion.ui.home.chats
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -17,9 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -27,68 +31,19 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
-import com.openmausbot.companion.core.Bot
-import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.TouchTarget
-import com.openmausbot.companion.ui.theme.AvatarRing
-import com.openmausbot.companion.ui.theme.IdentityAvatar
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
-import com.openmausbot.companion.ui.theme.SeiraType
-
-@Composable
-internal fun ChatsGreeting(text: String, modifier: Modifier = Modifier) {
-    Text(
-        text = text,
-        style = SeiraType.title1.copy(fontSize = 27.sp, lineHeight = 34.sp, fontWeight = FontWeight.SemiBold),
-        color = Seira.colors.ink,
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, end = 16.dp, top = 4.dp)
-            .testTag("roster-header")
-            .semantics { heading() },
-    )
-}
-
-/** All, Bots and Groups as pills, and the button that opens search. */
-@Composable
-internal fun ChatsFilterBar(
-    selected: ChatsFilter,
-    onSelect: (ChatsFilter) -> Unit,
-    onSearch: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, end = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        FilterPill(stringResource(R.string.chats_filter_all), selected == ChatsFilter.ALL, "chats-filter-all") {
-            onSelect(ChatsFilter.ALL)
-        }
-        FilterPill(stringResource(R.string.mobile_bots_4ca88ea4), selected == ChatsFilter.BOTS, "chats-filter-bots") {
-            onSelect(ChatsFilter.BOTS)
-        }
-        FilterPill(stringResource(R.string.mobile_groups_ae9629f4), selected == ChatsFilter.GROUPS, "chats-filter-groups") {
-            onSelect(ChatsFilter.GROUPS)
-        }
-        Box(modifier = Modifier.weight(1f))
-        TouchTarget(
-            onClick = onSearch,
-            contentDescription = stringResource(R.string.mobile_search_bce06414),
-            modifier = Modifier.testTag("chats-search"),
-        ) {
-            Icon(SeiraIcons.Search, contentDescription = null, tint = Seira.colors.ink, modifier = Modifier.size(22.dp))
-        }
-    }
-}
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.rememberReducedMotion
+import com.openmausbot.companion.ui.theme.seiraTween
 
 @Composable
 internal fun FilterPill(label: String, selected: Boolean, tag: String, onClick: () -> Unit) {
@@ -122,144 +77,154 @@ internal fun FilterPill(label: String, selected: Boolean, tag: String, onClick: 
     }
 }
 
-/** The chief of staff, large, with the line that needs the person or the quiet line. */
+/** An icon-only button at the end of a group heading. */
 @Composable
-internal fun ChatsHero(
-    bot: Bot,
-    role: String,
-    line: String,
-    busy: Boolean,
-    face: CharacterMood,
-    canTalk: Boolean,
-    onOpen: () -> Unit,
-    onTalk: () -> Unit,
+internal fun HeaderIconButton(
+    icon: ImageVector,
+    label: String,
+    tag: String,
+    onClick: () -> Unit,
+) {
+    TouchTarget(
+        onClick = onClick,
+        contentDescription = label,
+        modifier = Modifier.testTag(tag),
+    ) {
+        Icon(icon, contentDescription = null, tint = Seira.colors.ink, modifier = Modifier.size(20.dp))
+    }
+}
+
+/**
+ * The heading of a group. A foldable one is a button with a chevron that turns
+ * to the side when the group is folded; [trailing] holds the buttons at the end.
+ * A folded group shows how many of its bots wait for the person in [waitingCount].
+ */
+@Composable
+internal fun GroupHeader(
+    title: String,
+    foldable: Boolean,
+    open: Boolean,
+    onToggle: () -> Unit,
+    tag: String,
+    startPadding: Dp,
     modifier: Modifier = Modifier,
+    waitingCount: Int = 0,
+    trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = Seira.colors
-    val shape = RoundedCornerShape(22.dp)
-    val talkLabel = stringResource(R.string.home_talk_to, bot.name)
+    val reduced = rememberReducedMotion()
+    val angle by animateFloatAsState(
+        targetValue = if (open) 0f else -90f,
+        animationSpec = seiraTween(SeiraMotion.BASE, reduced),
+        label = "group-chevron",
+    )
+    val openLabel = stringResource(R.string.home2_fold_open)
+    val foldedLabel = stringResource(R.string.home2_fold_folded)
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .testTag("home-hero")
-            .clip(shape)
-            .background(colors.s1, shape)
-            .border(1.dp, colors.hairline, shape),
+            .heightIn(min = 48.dp)
+            .padding(start = startPadding),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Row(
-            modifier = Modifier
-                .weight(1f)
-                .testTag("home-hero-open")
-                .clickable(role = Role.Button, onClick = onOpen)
-                .padding(14.dp)
-                .clearAndSetSemantics { contentDescription = "${bot.name}, $role, $line" },
-            horizontalArrangement = Arrangement.spacedBy(14.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Box(modifier = Modifier.padding(5.dp)) {
-                IdentityAvatar(
-                    bot = bot,
-                    size = 60.dp,
-                    ring = if (busy) AvatarRing.Working else AvatarRing.None,
-                    state = face,
-                    animated = false,
-                )
-            }
-            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.Bottom) {
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+            if (foldable) {
+                Row(
+                    modifier = Modifier
+                        .testTag(tag)
+                        .heightIn(min = 48.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(role = Role.Button, onClick = onToggle)
+                        .semantics(mergeDescendants = true) {
+                            heading()
+                            stateDescription = if (open) openLabel else foldedLabel
+                        }
+                        .padding(end = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Text(
-                        text = bot.name,
-                        fontSize = 19.sp,
-                        lineHeight = 24.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = colors.ink,
+                        text = title,
+                        fontSize = 14.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = colors.ink3,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         modifier = Modifier.weight(1f, fill = false),
                     )
-                    Text(
-                        text = role,
-                        fontSize = 13.sp,
-                        lineHeight = 22.sp,
-                        color = colors.ink3,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
+                    Icon(
+                        imageVector = SeiraIcons.ChevronDown,
+                        contentDescription = null,
+                        tint = colors.ink3,
+                        modifier = Modifier
+                            .size(13.dp)
+                            .graphicsLayer { rotationZ = angle },
                     )
+                    if (!open && waitingCount > 0) {
+                        WaitingBadge(waitingCount, Modifier.testTag("$tag.waiting"))
+                    }
                 }
+            } else {
                 Text(
-                    text = line,
-                    fontSize = 15.sp,
-                    lineHeight = 21.sp,
-                    color = colors.ink2,
-                    maxLines = 2,
+                    text = title,
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = colors.ink3,
+                    maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .testTag(tag)
+                        .semantics { heading() },
                 )
             }
         }
-        if (canTalk) {
-            Box(
-                modifier = Modifier
-                    .padding(end = 14.dp)
-                    .testTag("home-talk")
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(colors.primary, CircleShape)
-                    .clickable(role = Role.Button, onClick = onTalk)
-                    .semantics { contentDescription = talkLabel },
-                contentAlignment = Alignment.Center,
-            ) {
-                Icon(SeiraIcons.AudioLines, contentDescription = null, tint = colors.onPrimary, modifier = Modifier.size(20.dp))
-            }
-        }
+        trailing()
     }
 }
 
-/** A heading over a stretch of the list, with an optional action at its end. */
+/** A small accent dot with the number of bots that wait for the person. */
 @Composable
-internal fun ChatsSectionHeader(
-    title: String,
-    modifier: Modifier = Modifier,
-    actionLabel: String? = null,
-    onAction: (() -> Unit)? = null,
-) {
+private fun WaitingBadge(count: Int, modifier: Modifier = Modifier) {
     val colors = Seira.colors
-    Row(
+    val label = stringResource(R.string.home2_waiting_count, count)
+    Box(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(start = 20.dp, end = 8.dp, top = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .heightIn(min = 18.dp)
+            .background(colors.accent, CircleShape)
+            .padding(horizontal = 6.dp)
+            .clearAndSetSemantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
     ) {
         Text(
-            text = title,
-            fontSize = 14.sp,
-            lineHeight = 20.sp,
-            fontWeight = FontWeight.Medium,
-            color = colors.ink3,
+            text = count.toString(),
+            fontSize = 11.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colors.onPrimary,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier
-                .weight(1f)
-                .padding(vertical = 8.dp)
-                .semantics { heading() },
         )
-        if (actionLabel != null && onAction != null) {
-            Row(
-                modifier = Modifier
-                    .testTag("chats-new-group")
-                    .heightIn(min = 48.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(role = Role.Button, onClick = onAction)
-                    .semantics(mergeDescendants = true) { contentDescription = actionLabel }
-                    .padding(horizontal = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Icon(SeiraIcons.Plus, contentDescription = null, tint = colors.ink2, modifier = Modifier.size(16.dp))
-                Text(text = actionLabel, fontSize = 13.sp, color = colors.ink2)
-            }
-        }
+    }
+}
+
+/** The "Show all chats" action that ends a department filter. */
+@Composable
+internal fun ShowAllChatsButton(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .testTag("chats-show-all")
+            .heightIn(min = 48.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 12.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = stringResource(R.string.home2_show_all),
+            fontSize = 13.sp,
+            color = Seira.colors.accentText,
+        )
     }
 }
 
@@ -281,5 +246,41 @@ internal fun ChatsWorkspaceChip(name: String, onClick: () -> Unit, modifier: Mod
     ) {
         Text(text = name, fontSize = 13.sp, color = colors.ink2, maxLines = 1, overflow = TextOverflow.Ellipsis)
         Icon(SeiraIcons.ChevronDown, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(14.dp))
+    }
+}
+
+@Composable
+internal fun GroupsTopRule(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+            .heightIn(min = 1.dp)
+            .background(Seira.colors.hairline),
+    )
+}
+
+/** The search entry of Advanced mode: one row that opens the search screen. */
+@Composable
+internal fun SearchRow(onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val colors = Seira.colors
+    val label = stringResource(R.string.home2_search)
+    val shape = RoundedCornerShape(14.dp)
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp)
+            .testTag("chats-search")
+            .heightIn(min = 48.dp)
+            .clip(shape)
+            .background(colors.s1, shape)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = label }
+            .padding(horizontal = 14.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(SeiraIcons.Search, contentDescription = null, tint = colors.ink3, modifier = Modifier.size(18.dp))
+        Text(text = label, fontSize = 15.sp, color = colors.ink3, maxLines = 1, overflow = TextOverflow.Ellipsis)
     }
 }

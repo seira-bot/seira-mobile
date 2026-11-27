@@ -12,6 +12,7 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonEncoder
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.contentOrNull
@@ -58,6 +59,9 @@ sealed interface Frame {
     data class Bot(val bot: com.openmausbot.companion.core.Bot) : Frame
     data class BotDeleted(val botId: String) : Frame
     data class BotQueued(val queues: Map<String, List<QueuedSend>>) : Frame
+
+    /** The department names, in creation order, empty departments included. */
+    data class Sections(val sections: List<String>) : Frame
     data class Room(val room: com.openmausbot.companion.core.Room) : Frame
     data class RoomDeleted(val groupId: String) : Frame
     data class Notify(val notification: NotificationFrame) : Frame
@@ -121,6 +125,7 @@ object FrameSerializer : KSerializer<Frame> {
             ))
             "bot.deleted" -> Frame.BotDeleted(objectValue.requiredString("botId"))
             "bot.queued" -> decodeBotQueued(objectValue) ?: Frame.Unknown(kind)
+            "sections" -> objectValue["sections"].sectionNamesOrNull()?.let(Frame::Sections) ?: Frame.Unknown(kind)
             "group" -> Frame.Room(input.json.decodeFromJsonElement(
                 com.openmausbot.companion.core.Room.serializer(),
                 objectValue.required("group"),
@@ -257,6 +262,10 @@ private fun Frame.toJsonObject(output: JsonEncoder): JsonObject = buildJsonObjec
                     put(threadId, JsonArray(sends.map { it.toJsonObject() }))
                 }
             })
+        }
+        is Frame.Sections -> {
+            put("kind", "sections")
+            put("sections", JsonArray(sections.map(::JsonPrimitive)))
         }
         is Frame.Room -> {
             put("kind", "group")

@@ -30,7 +30,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
         capture("01-home", language: language)
         home.terminate()
 
-        let approval = launchFleet(language: language)
+        let approval = launchFleet(language: language, advanced: true)
         openChat("Scout", in: approval)
         selectThread("preview-thread-scout", in: approval)
         _ = approval.buttons["Allow"].waitForExistence(timeout: 10)
@@ -58,7 +58,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
     @MainActor
     private func photographGlance(language: String) {
         let app = launchFleet(language: language, activities: true)
-        _ = app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 15)
+        _ = app.buttons["chat-row.preview-scout"].waitForExistence(timeout: 15)
         pause(6)
         XCUIDevice.shared.press(.home)
         pause(3)
@@ -114,12 +114,13 @@ final class StoreListingScreenshotUITests: XCTestCase {
     }
 
     @MainActor
-    private func launchFleet(language: String, activities: Bool = false) -> XCUIApplication {
+    private func launchFleet(language: String, activities: Bool = false, advanced: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.terminate()
         var arguments = baseArguments(language: language)
         arguments += ["-store-preview", "-listing-preview"]
         if !activities { arguments.append("-store-no-activities") }
+        if advanced { arguments += ["-companion.prefs.advancedMode", "YES"] }
         if language == "id" { arguments.append("-listing-id") }
         app.launchArguments = arguments
         app.launch()
@@ -127,7 +128,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
             app.terminate()
             app.launch()
         }
-        XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
+        XCTAssertTrue(app.buttons["chat-row.preview-scout"].waitForExistence(timeout: 20), "Scout is on the roster")
         pause(6)
         if isCompact(app) && app.buttons["Deny"].exists {
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75)).tap()
@@ -144,7 +145,6 @@ final class StoreListingScreenshotUITests: XCTestCase {
         [
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
-            "-companion.prefs.rosterDensity", "comfortable",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ]
@@ -153,7 +153,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
     @MainActor
     private func openChat(_ name: String, in app: XCUIApplication) {
         let input = app.descendants(matching: .any)["message-input"]
-        let row = app.staticTexts[name].firstMatch
+        let row = app.buttons["chat-row.preview-\(name.lowercased())"]
         for _ in 0..<3 where !input.exists {
             if row.exists { row.tap() }
             _ = input.waitForExistence(timeout: 4)
@@ -161,15 +161,20 @@ final class StoreListingScreenshotUITests: XCTestCase {
         XCTAssertTrue(input.exists, "\(name)'s chat opened")
     }
 
+    /// The chat has no thread switcher: go Home, open Scout's threads from the
+    /// chevron of its Advanced row, then open the thread.
     @MainActor @discardableResult
     private func selectThread(_ id: String, in app: XCUIApplication) -> Bool {
-        let header = app.buttons["header-threads"]
-        guard header.waitForExistence(timeout: 10) else {
-            XCTFail("The chat has no thread button")
+        let thread = app.buttons["thread.\(id)"]
+        let toggle = app.buttons["row-threads-toggle.preview-scout"]
+        if !toggle.exists, app.buttons["Back"].waitForExistence(timeout: 10) {
+            app.buttons["Back"].tap()
+        }
+        guard toggle.waitForExistence(timeout: 10) else {
+            XCTFail("Scout has no threads chevron")
             return false
         }
-        header.tap()
-        let thread = app.buttons["thread-\(id)"]
+        if !thread.exists { toggle.tap() }
         guard thread.waitForExistence(timeout: 5) else {
             XCTFail("\(id) is not in the thread list")
             return false
@@ -183,9 +188,9 @@ final class StoreListingScreenshotUITests: XCTestCase {
     private func openChangeLook(_ name: String, in app: XCUIApplication) {
         let candidates = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name))
             .allElementsBoundByIndex
-            .filter { $0.frame.width <= 100 }
+            .filter { $0.frame.width <= 200 }
         guard let item = candidates.min(by: { $0.frame.minY < $1.frame.minY }) else {
-            XCTFail("\(name) is not on the team rail")
+            XCTFail("\(name) is not on the home list")
             return
         }
         item.press(forDuration: 1.2)

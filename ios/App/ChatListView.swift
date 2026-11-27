@@ -1,29 +1,28 @@
 // The roster.
 //
-// Home: a greeting, the Chief of Staff card, a rail of the team, and the chats
-// with built-in and user-named sidebar sections. A floating bar keeps Updates,
-// search and "New chat" within one thumb's reach while everything scrolls
-// beneath its fade. Two densities, chosen in Settings: compact (the default)
-// shows each bot and group without its last message; comfortable keeps
-// channels as tiles and bots with their last message and a "Threads"
-// disclosure beneath each.
+// Home: the Chats tab as Bots, one foldable group per department, and group
+// chats. Simple mode shows bots as tiles. Advanced mode (Settings) shows a
+// search row, Seira on top and a row per bot with its threads beneath.
 import SwiftUI
 import CompanionCore
 
 struct ChatListView: View {
     @EnvironmentObject private var session: Session
     @EnvironmentObject private var liveCall: LiveCallController
-    @State private var query = ""
     @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
     @AppStorage(PrefKey.rosterDensity) private var rosterDensity = RosterDensity.default.rawValue
     /// Driven so that making a bot can open it. Value-based navigation alone
     /// cannot push without a tap, and a new bot appearing silently at the
     /// bottom of the roster is a poor answer to pressing +.
     @State private var path = NavigationPath()
-    @State private var searchHits: [SearchHit] = []
-    @State private var searching = false
     @State private var tab = HomeTab.chats
-    @State private var chatFilter = HomeChatFilter.all
+    @AppStorage(PrefKey.advancedMode) private var advancedMode = false
+    /// Folded group keys; a group that is not listed is open.
+    @SceneStorage("home.foldedGroups") private var foldedGroups = ""
+    @State private var departmentMenu: HomeDepartmentTarget?
+    @State private var afterMenu: DepartmentAction?
+    @State private var addingBotsTo: HomeDepartmentTarget?
+    @State private var newBotIn: HomeDepartmentTarget?
     @State private var drawerOpen = false
     @State private var showingNewChat = false
     @State private var showingUpdates = false
@@ -35,6 +34,7 @@ struct ChatListView: View {
     @State private var creatingThreads = Set<String>()
     @State private var managingThreads: Chat?
     @State private var disclosingLiveCall: Bot?
+    @State private var unplacedBot: UnplacedBot?
     @State private var changingLook: Bot?
     /// The preview lines comfortable rows and search show, folded again only
     /// for a thread that changed. Filled while rendering: it is a cache,
@@ -52,15 +52,13 @@ struct ChatListView: View {
         let approvals = session.state.pendingApprovals
         let updates = session.state.updates(detail: activity, pendingApprovals: approvals)
         let waiting = waitingChats(approvals)
-        // Search's matches: the list and its empty state both read them.
-        let matches: [ChatSummary] = query.isEmpty ? [] : chats
         NavigationStack(path: $path) {
             HomeDrawerLayer(
                 open: $drawerOpen,
                 name: session.connection?.name ?? "You",
                 select: { path.append($0) }
             ) {
-                homeColumn(updates: updates, waiting: waiting, matches: matches)
+                homeColumn(updates: updates, waiting: waiting)
             }
             .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
@@ -105,7 +103,8 @@ struct ChatListView: View {
                     showingWalkie = true
                 }
                 if ProcessInfo.processInfo.arguments.contains("-open-first"),
-                   path.isEmpty, let first = chats.first {
+                   path.isEmpty,
+                   let first = rosterSummaries(previews: false).first(where: { if case .bot = $0.chat { return true } else { return false } }) {
                     path.append(first.chat)
                 }
             }
@@ -148,6 +147,21 @@ struct ChatListView: View {
             .sheet(isPresented: $showingNewSection) {
                 NewSectionSheet()
             }
+            .sheet(item: $departmentMenu, onDismiss: runAfterMenu) { target in
+                DepartmentMenuSheet(
+                    department: target.name,
+                    addBots: { afterMenu = .addBots(target); departmentMenu = nil },
+                    newBot: { afterMenu = .newBot(target); departmentMenu = nil }
+                )
+            }
+            .sheet(item: $addingBotsTo) { target in
+                AddBotsSheet(department: target.name)
+                    .environmentObject(session)
+            }
+            .sheet(item: $newBotIn) { target in
+                NewBotForm { assignNewBot($0, to: target.name) }
+                    .environmentObject(session)
+            }
             .sheet(item: $managingThreads) { chat in
                 TaskManagerView(chat: chat) { threadId in
                     guard let bot = session.state.bot(forThread: threadId) else { return }
@@ -155,31 +169,25 @@ struct ChatListView: View {
                     path.append(Chat.bot(bot))
                 }
             }
-            .task(id: query) {
-                let expected = query
-                guard expected.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 else {
-                    searchHits = []
-                    searching = false
-                    return
+            .alert(
+                Text("\(unplacedBot?.bot.name ?? "") was made, but is not in \(unplacedBot?.department ?? "")."),
+                isPresented: Binding(
+                    get: { unplacedBot != nil },
+                    set: { if !$0 { unplacedBot = nil } }
+                ),
+                presenting: unplacedBot
+            ) { target in
+                Button("Try again") {
+                    Task { await placeNewBot(target.bot, in: target.department) }
                 }
-                searching = true
-                defer {
-                    if query == expected { searching = false }
-                }
-                try? await Task.sleep(for: .milliseconds(250))
-                guard !Task.isCancelled, query == expected else { return }
-                let hits = await session.search(expected)
-                guard !Task.isCancelled, query == expected else { return }
-                searchHits = hits
+                Button("Not now", role: .cancel) { openBot(target.bot) }
             }
         }
     }
 
     // MARK: - Scroll
 
-    private func homeColumn(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
+    private func homeColumn(updates: [ChatUpdate], waiting: Set<String>) -> some View {
         VStack(spacing: 0) {
             HomeTopBar(
                 profileName: session.connection?.name ?? "You",
@@ -199,27 +207,23 @@ struct ChatListView: View {
                     path.append(Chat.bot(bot))
                 }
             }
-            tabContent(updates: updates, waiting: waiting, matches: matches)
+            tabContent(updates: updates, waiting: waiting)
             HomeTabBar(tab: $tab, inboxCount: InboxLogic.badgeCount(updates))
         }
         .frame(maxWidth: CompanionLayout.rosterWidth, maxHeight: .infinity, alignment: .top)
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .modifier(HomeLiveCallDisclosure(bot: $disclosingLiveCall, start: startLiveCall))
     }
 
     @ViewBuilder
-    private func tabContent(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
+    private func tabContent(updates: [ChatUpdate], waiting: Set<String>) -> some View {
         switch tab {
         case .chats:
             VStack(spacing: 0) {
                 HomeChatsHeader(
-                    openSearch: { Haptics.selection(); path.append(HomeRoute.search) },
                     newChat: { Haptics.selection(); showingNewChat = true }
                 )
-                HomeFilterChips(filter: $chatFilter)
-                    .padding(.top, 8)
-                rosterScroll(updates: updates, waiting: waiting, matches: matches)
+                rosterScroll(waiting: waiting)
             }
         case .inbox:
             InboxTab { path.append($0) }
@@ -240,40 +244,64 @@ struct ChatListView: View {
         }
     }
 
-    private func rosterScroll(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
-        ScrollViewReader { proxy in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    if query.isEmpty {
-                        homeTop(updates: updates, waiting: waiting) { id in
-                            withSeiraAnimation(SeiraMotion.slow) { proxy.scrollTo(id, anchor: .top) }
-                        }
-                        rosterSections(waiting: waiting)
-                    } else {
-                        searchResults(matches, waiting: waiting)
-                    }
-                }
-                .padding(.top, Self.listTopInset)
-                .padding(.bottom, Self.listBottomMargin)
+    /// What one pass over the list needs. Worked out once, then each line
+    /// reads from it: no line walks the state again.
+    private struct HomeContext {
+        let state: CompanionState
+        let items: [HomeItem]
+        let waiting: Set<String>
+        let byBot: [String: ChatSummary]
+        let today: Date
+        let queued: Set<String>
+        let held: Set<String>
+        let compact: Bool
+    }
+
+    private func homeContext(waiting: Set<String>) -> HomeContext {
+        let state = session.state
+        let layout = HomeLayoutRules.layout(state, advanced: advancedMode, department: nil)
+        let folded = FoldRules.decode(foldedGroups)
+        let items = HomeItems.build(
+            layout: layout, folded: folded, advanced: advancedMode, expandedBots: expandedBots, waiting: waiting
+        )
+        var byBot: [String: ChatSummary] = [:]
+        if advancedMode {
+            for summary in rosterSummaries(previews: density == .comfortable) {
+                if case let .bot(bot) = summary.chat, byBot[bot.id] == nil { byBot[bot.id] = summary }
             }
-            .refreshable { await session.refresh() }
-            .accessibilityIdentifier("roster-list")
-            .overlay { emptyState(matches: matches) }
         }
+        return HomeContext(
+            state: state,
+            items: items,
+            waiting: waiting,
+            byBot: byBot,
+            today: RosterDay.today,
+            queued: state.queuedThreadIds,
+            held: Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key }),
+            compact: density == .compact
+        )
+    }
+
+    private func rosterScroll(waiting: Set<String>) -> some View {
+        let home = homeContext(waiting: waiting)
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(home.items) { item in
+                    itemView(item, home: home)
+                }
+            }
+            .padding(.top, Self.listTopInset)
+            .padding(.bottom, Self.listBottomMargin)
+        }
+        .refreshable { await session.refresh() }
+        .accessibilityIdentifier("roster-list")
+        .overlay { emptyState() }
     }
 
     @ViewBuilder
-    private func emptyState(matches: [ChatSummary]) -> some View {
-        if rosterIsEmpty(matches: matches) {
-            if !query.isEmpty {
-                EmptyStateView(
-                    "Nothing matches",
-                    systemImage: "magnifyingglass",
-                    description: Text("No thread matches \u{201C}\(query)\u{201D}.")
-                )
-            } else if case .offline = session.status {
+    private func emptyState() -> some View {
+        if rosterIsEmpty() {
+            if case .offline = session.status {
                 SeiraEmptyState(
                     icon: "Icons3D/offline",
                     title: "You are offline",
@@ -289,112 +317,12 @@ struct ChatListView: View {
         }
     }
 
-    @ViewBuilder
-    private func searchResults(_ matches: [ChatSummary], waiting: Set<String>) -> some View {
-        if !searchHits.isEmpty {
-            HStack {
-                sectionLabel(Text("Messages"))
-                Spacer()
-                if searching { ProgressView().controlSize(.small) }
-            }
-            .padding(.top, 10)
-            .padding(.bottom, 4)
-
-            ForEach(searchHits) { hit in
-                Button {
-                    Task {
-                        if let chat = await session.open(hit) {
-                            Haptics.selection()
-                            path.append(chat)
-                        }
-                    }
-                } label: {
-                    SearchHitRow(hit: hit)
-                }
-                .buttonStyle(HomeRowButtonStyle())
-                .padding(.horizontal, HomeRowMetrics.side)
-            }
-            sectionLabel(Text("Threads"))
-                .padding(.top, 14)
-                .padding(.bottom, 4)
-        } else if searching {
-            ProgressView()
-                .controlSize(.small)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 24)
-        }
-
-        botRows(matches, waiting: waiting)
-    }
-
     // MARK: - Home top
 
     /// The Chief of Staff, or the first Chief when none sits outside a section.
     private var homeChief: Bot? {
         let state = session.state
         return state.unsectionedChief ?? state.bots.first { $0.hidden != true && $0.chiefOfStaff == true }
-    }
-
-    @ViewBuilder
-    private func homeTop(
-        updates: [ChatUpdate], waiting: Set<String>, scrollTo: @escaping (String) -> Void
-    ) -> some View {
-        let chief = chatFilter.showsBots ? homeChief : nil
-        let team = chatFilter.showsBots ? teamMembers(excluding: chief, waiting: waiting) : []
-        if let chief {
-            chiefCard(chief, updates: updates, waiting: waiting)
-                .padding(.top, 12)
-        }
-        if !team.isEmpty {
-            HomeTeamRail(
-                members: team,
-                open: { openBot($0) },
-                changeLook: { changingLook = $0 },
-                seeAll: session.state.unsectionedBots.isEmpty ? nil : { scrollTo(Self.botsSectionID) }
-            )
-            .padding(.top, chief == nil ? 0 : 20)
-        }
-        if !rosterIsEmpty(matches: []) {
-            sectionLabel(Text("Chats"))
-                .padding(.top, chief == nil && team.isEmpty ? 8 : 24)
-                .padding(.bottom, 4)
-        }
-    }
-
-    private static let botsSectionID = "home-bots-section"
-
-    private func chiefCard(_ chief: Bot, updates: [ChatUpdate], waiting: Set<String>) -> some View {
-        let line = updates.first { $0.kind == .working && $0.chat.id == chief.id }?.line ?? ""
-        let canTalk = !liveCall.machine.isActive
-            && liveCall.machine.allowsStart(onThread: chief.threadId)
-            && session.state.liveCall?.isRunning != true
-        return HomeChiefCard(
-            bot: chief,
-            status: chief.rosterStatus(hasPendingCard: waiting.contains(chief.id)),
-            workingLine: line,
-            canTalk: canTalk,
-            open: { openBot(chief) },
-            talk: { talkTo(chief) },
-            allQuiet: updates.allSatisfy { $0.kind != .needsYou }
-        )
-        .modifier(HomeLiveCallDisclosure(bot: $disclosingLiveCall, start: startLiveCall))
-    }
-
-    /// Waiting first, then working, then the rest, each in the roster's order.
-    private func teamMembers(excluding chief: Bot?, waiting: Set<String>) -> [HomeTeamMember] {
-        let members = session.state.bots
-            .filter { $0.hidden != true && $0.id != chief?.id }
-            .map { HomeTeamMember(bot: $0, status: $0.rosterStatus(hasPendingCard: waiting.contains($0.id))) }
-        func rank(_ member: HomeTeamMember) -> Int {
-            switch member.status {
-            case .waitingOnYou: return 0
-            case .working: return 1
-            case .idle: return 2
-            }
-        }
-        return members.enumerated()
-            .sorted { (rank($0.element), $0.offset) < (rank($1.element), $1.offset) }
-            .map(\.element)
     }
 
     private func openBot(_ bot: Bot) {
@@ -428,372 +356,211 @@ struct ChatListView: View {
         }
     }
 
-    // MARK: - Sidebar sections
+    // MARK: - Groups
 
-    /// Every thread across every bot that needs the person right now — the
-    /// same rule and order as the thread tree, so the inbox can never
-    /// disagree with it.
-    private var attention: [AttentionThread] {
-        crossBotAttentionThreads(session.state.bots)
+    private enum DepartmentAction: Equatable {
+        case addBots(HomeDepartmentTarget)
+        case newBot(HomeDepartmentTarget)
     }
 
     @ViewBuilder
-    private func rosterSections(waiting: Set<String>) -> some View {
-        // Only comfortable rows show a preview line (search, which matches
-        // on it, reads `chats` instead).
-        let allSummaries = rosterSummaries(previews: density == .comfortable)
-        let attention = chatFilter.showsBots ? self.attention : []
-        let showsBots = chatFilter.showsBots
-        let showsGroups = chatFilter.showsGroups
-        if !attention.isEmpty {
-            sectionLabel(Text("Needs attention"))
-                .padding(.top, 2)
-                .padding(.bottom, 4)
-            ForEach(attention) { entry in
-                Button {
-                    Haptics.selection()
-                    openAttention(entry)
-                } label: {
-                    AttentionRow(entry: entry)
+    private func itemView(_ item: HomeItem, home: HomeContext) -> some View {
+        switch item {
+        case .search:
+            HomeSearchRow { Haptics.selection(); path.append(HomeRoute.search) }
+        case let .header(group, open, foldable, waiting):
+            groupHeader(group, open: open, foldable: foldable, waiting: waiting)
+        case let .tiles(_, bots):
+            tileRow(bots, home: home)
+        case let .advancedBot(bot, _, highlighted):
+            advancedRow(bot, highlighted: highlighted, home: home)
+        case let .threads(bot):
+            threadTree(bot, queued: home.queued, held: home.held)
+        case let .room(room, _):
+            roomRow(room, home: home)
+        case let .emptyDepartment(name, advanced):
+            emptyDepartment(name, advanced: advanced)
+        }
+    }
+
+    private func groupHeader(_ group: HomeGroup, open: Bool, foldable: Bool, waiting: Int) -> some View {
+        let folded: Bool? = foldable ? !open : nil
+        let toggle = { toggleGroup(group.key, keys: HomeLayoutRules.layout(session.state, advanced: advancedMode, department: nil).keys) }
+        return groupHeaderContent(group, folded: folded, toggle: toggle, waiting: waiting)
+            .padding(.top, 6)
+    }
+
+    @ViewBuilder
+    private func groupHeaderContent(
+        _ group: HomeGroup, folded: Bool?, toggle: @escaping () -> Void, waiting: Int
+    ) -> some View {
+        switch group.kind {
+        case .bots:
+            HomeGroupHeader(title: String(localized: "Bots"), folded: folded, toggle: toggle) {
+                if !advancedMode {
+                    HomeGroupIconButton(symbol: "magnifyingglass", label: Text("Search chats and bots")) {
+                        Haptics.selection()
+                        path.append(HomeRoute.search)
+                    }
+                    .accessibilityIdentifier("home-search")
                 }
-                .buttonStyle(HomeRowButtonStyle())
             }
-        }
-
-        if showsBots, let chief = session.state.unsectionedChief {
-            VStack(alignment: .leading, spacing: 0) {
-                botRows(summaries(for: [chief], from: allSummaries), waiting: waiting)
+        case .department:
+            let name = group.name ?? ""
+            let target = HomeDepartmentTarget(name: name)
+            HomeGroupHeader(title: name, folded: folded, toggle: toggle, waiting: waiting) {
+                HomeGroupIconButton(symbol: "ellipsis", label: Text("Actions for \(name) department")) {
+                    Haptics.selection()
+                    departmentMenu = target
+                }
+                if advancedMode {
+                    HomeGroupIconButton(symbol: "plus", label: Text("Add or remove bots in \(name)")) {
+                        Haptics.selection()
+                        addingBotsTo = target
+                    }
+                }
             }
-            // In compact, a one-line row right under the attention rows
-            // would read as one more of them: set it apart like a section.
-            .padding(.top, density == .compact && !attention.isEmpty ? sectionSpacing : 0)
-        }
-
-        let pinned = showsBots ? summaries(for: session.state.pinnedBots, from: allSummaries) : []
-        if !pinned.isEmpty {
-            sectionLabel(Text("Pinned"))
-                // a compact row above it leaves little air of its own
-                .padding(.top, density == .compact ? sectionSpacing : 2)
-                .padding(.bottom, 4)
-            botRows(pinned, waiting: waiting)
-        }
-
-        if showsGroups {
-            groupSections(waiting: waiting)
-        }
-
-        let unsectioned = showsBots ? summaries(for: session.state.unsectionedBots, from: allSummaries) : []
-        if !unsectioned.isEmpty {
-            sectionLabel(Text("Bots"))
-                .padding(.top, sectionSpacing)
-                .padding(.bottom, 4)
-                .id(Self.botsSectionID)
-            botRows(unsectioned, waiting: waiting)
-        }
-
-        ForEach(visibleSections) { section in
-            departmentSection(section, allSummaries: allSummaries, waiting: waiting)
-        }
-    }
-
-    private var visibleSections: [SidebarSection] {
-        session.state.sidebarSections.compactMap { section -> SidebarSection? in
-            var shown = section
-            if !chatFilter.showsBots {
-                shown.chiefs = []
-                shown.bots = []
-            }
-            if !chatFilter.showsGroups { shown.channels = [] }
-            let empty = shown.chiefs.isEmpty && shown.bots.isEmpty && shown.channels.isEmpty
-            return empty && chatFilter != .all ? nil : shown
-        }
-    }
-
-    @ViewBuilder
-    private func groupSections(waiting: Set<String>) -> some View {
-        switch density {
-        case .comfortable:
-            channelsStrip(
-                title: "Groups",
-                rooms: session.state.unsectionedChannels,
-                showsCreate: true
-            )
-
-            if !session.state.botChats.isEmpty {
-                channelsStrip(title: "Bot threads", rooms: session.state.botChats, showsCreate: false)
-            }
-        case .compact:
-            compactRoomsSection(
-                title: "Groups",
-                rooms: session.state.unsectionedChannels,
-                showsCreate: true,
-                waiting: waiting
-            )
-
-            if !session.state.botChats.isEmpty {
-                compactRoomsSection(title: "Bot threads", rooms: session.state.botChats, showsCreate: false, waiting: waiting)
-            }
-        }
-    }
-
-    private func departmentHeader(_ name: String) -> some View {
-        HStack(spacing: 0) {
-            sectionLabel(Text(verbatim: name))
-            Spacer(minLength: 0)
-            if chatFilter.showsGroups {
-                Button {
+        case .groups:
+            HomeGroupHeader(title: String(localized: "Group chats"), folded: folded, toggle: toggle) {
+                HomeGroupIconButton(symbol: "plus", label: Text("New group")) {
                     Haptics.selection()
                     showingNewGroup = true
-                } label: {
-                    Label("New group", systemImage: "plus")
-                        .labelStyle(.titleAndIcon)
-                        .font(.seira(13, .medium, relativeTo: .caption))
-                        .foregroundStyle(Color.seiraInk3)
-                        .padding(.horizontal, HomeRowMetrics.side)
-                        .frame(minHeight: 44)
-                        .contentShape(Rectangle())
                 }
-                .buttonStyle(.plain)
-                .accessibilityIdentifier("new-group-\(name)")
-            }
-        }
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-    }
-
-    @ViewBuilder
-    private func departmentSection(
-        _ section: SidebarSection, allSummaries: [ChatSummary], waiting: Set<String>
-    ) -> some View {
-        VStack(alignment: .leading, spacing: 0) {
-            switch density {
-            case .comfortable:
-                departmentHeader(section.name)
-                    .padding(.top, 18)
-                    .padding(.bottom, section.chiefs.isEmpty && !section.channels.isEmpty ? 6 : 0)
-                if !section.chiefs.isEmpty {
-                    botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
-                }
-                if !section.channels.isEmpty {
-                    channelTiles(section.channels, showsCreate: false)
-                        .padding(.top, section.chiefs.isEmpty ? 0 : 8)
-                        .padding(.bottom, section.bots.isEmpty ? 4 : 8)
-                }
-            case .compact:
-                departmentHeader(section.name)
-                    .padding(.top, sectionSpacing - 12)
-                if !section.chiefs.isEmpty {
-                    botRows(summaries(for: section.chiefs, from: allSummaries), waiting: waiting)
-                }
-                compactRoomRows(section.channels, waiting: waiting)
-            }
-            botRows(summaries(for: section.bots, from: allSummaries), waiting: waiting)
-        }
-    }
-
-    /// Between one section and the next title.
-    private var sectionSpacing: CGFloat { density == .compact ? 20 : 24 }
-
-    /// Groups as one-line rows under a title that carries the "+" the
-    /// comfortable strip shows as a tile.
-    @ViewBuilder
-    private func compactRoomsSection(
-        title: LocalizedStringKey, rooms: [Room], showsCreate: Bool, waiting: Set<String>
-    ) -> some View {
-        HStack(spacing: 0) {
-            sectionLabel(Text(title))
-            Spacer(minLength: 0)
-            if showsCreate {
-                Button {
-                    Haptics.selection()
-                    showingNewGroup = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.system(size: 17, weight: .medium))
-                        .foregroundStyle(Color.seiraInk3)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .padding(.trailing, 10)
-                .accessibilityLabel("New group")
                 .accessibilityIdentifier("new-group")
             }
         }
-        // the "+" grows with its title, and stops where the title does
-        .dynamicTypeSize(...DynamicTypeSize.xxxLarge)
-        // the "+" is a 44pt target; the title keeps the other titles' rhythm
-        .frame(minHeight: showsCreate ? 44 : nil)
-        .padding(.top, showsCreate ? 0 : sectionSpacing)
-        .padding(.bottom, showsCreate ? 0 : 4)
-        compactRoomRows(rooms, waiting: waiting)
-    }
-
-    /// In the order the tiles showed them, each stamped with its thread's
-    /// last message the way `chatSummaries` stamps a row.
-    private func compactRoomRows(_ rooms: [Room], waiting: Set<String>) -> some View {
-        let today = RosterDay.today
-        return ForEach(rooms) { room in
-            NavigationLink(value: Chat.room(room)) {
-                CompactRoomRow(
-                    room: room,
-                    members: members(of: room),
-                    lastActivity: session.state.lastVisibleMessage(forThread: room.threadId)?.at ?? 0,
-                    today: today,
-                    waiting: waiting.contains(room.id)
-                )
-                .equatable()
-            }
-            .buttonStyle(HomeRowButtonStyle())
-            .accessibilityIdentifier("chat-row.\(room.id)")
-        }
-    }
-
-    private func channelsStrip(title: LocalizedStringKey, rooms: [Room], showsCreate: Bool) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            sectionLabel(Text(title))
-            channelTiles(rooms, showsCreate: showsCreate)
-        }
-        .padding(.top, 2)
-    }
-
-    private func channelTiles(_ rooms: [Room], showsCreate: Bool) -> some View {
-        // Members travel in the data, as the comfortable rows' values do.
-        let tiles = rooms.map { RoomTile(room: $0, members: members(of: $0)) }
-        return ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 8) {
-                ForEach(tiles) { tile in
-                    NavigationLink(value: Chat.room(tile.room)) {
-                        GroupTile(room: tile.room, members: tile.members)
-                            .equatable()
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityIdentifier("chat-row.\(tile.id)")
-                }
-                if showsCreate {
-                    Button {
-                        Haptics.selection()
-                        showingNewGroup = true
-                    } label: {
-                        GroupTile(room: nil, members: [])
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityLabel("New group")
-                }
-            }
-            .padding(.horizontal, HomeRowMetrics.side)
-        }
     }
 
     @ViewBuilder
-    private func botRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        switch density {
-        case .comfortable: comfortableRows(rows, waiting: waiting)
-        case .compact: compactRows(rows, waiting: waiting)
+    private func emptyDepartment(_ name: String, advanced: Bool) -> some View {
+        if advanced {
+            Text("No bots in this department.")
+                .font(.seira(13, relativeTo: .footnote))
+                .foregroundStyle(Color.seiraInk3)
+                .padding(.horizontal, HomeRowMetrics.side)
+                .padding(.bottom, 8)
+        } else {
+            Button {
+                Haptics.selection()
+                addingBotsTo = HomeDepartmentTarget(name: name)
+            } label: {
+                Text("Add bots")
+                    .font(.seira(14, .medium, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraAccent)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .padding(.horizontal, HomeRowMetrics.side)
+            .accessibilityIdentifier("empty-add-bots.\(name)")
         }
     }
 
-    /// One line per bot, its threads beneath it once opened. Search results
-    /// can include groups, which get their own one-line row.
-    private func compactRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        let queued = session.state.queuedThreadIds
-        let today = RosterDay.today
-        return ForEach(rows) { summary in
-            switch summary.chat {
-            case let .bot(bot):
-                CompactBotEntry(
-                    bot: bot,
-                    face: CharacterMood.forChat(summary.chat, in: session.state),
-                    lastActivity: summary.lastActivity,
-                    today: today,
-                    hasPendingCard: waiting.contains(bot.id),
-                    queuedThreadIds: queued,
-                    query: query,
-                    expanded: expandedBots.contains(bot.id),
-                    collapsedFolders: collapsedFolders,
-                    creating: creatingThreads.contains(bot.id),
-                    session: session,
-                    toggleExpanded: {
-                        if expandedBots.contains(bot.id) { expandedBots.remove(bot.id) } else { expandedBots.insert(bot.id) }
-                    },
-                    collapse: { expandedBots.remove(bot.id) },
-                    toggleFolder: { key in
-                        if collapsedFolders.contains(key) { collapsedFolders.remove(key) } else { collapsedFolders.insert(key) }
-                    },
-                    beginCreating: { creatingThreads.insert(bot.id).inserted },
-                    endCreating: { creatingThreads.remove(bot.id) },
-                    openRow: {
-                        path.append(session.threadSelection.restoringThread(summary.chat, connectionID: session.connection?.id))
-                    },
-                    open: { chat in path.append(chat) },
-                    manage: { chat in managingThreads = chat }
-                )
-                .equatable()
-            case let .room(room):
-                Button {
-                    path.append(summary.chat)
-                } label: {
-                    CompactRoomRow(
-                        room: room, members: members(of: room),
-                        lastActivity: summary.lastActivity, today: today, waiting: waiting.contains(room.id)
-                    )
-                    .equatable()
+    /// One row of up to four tiles; a short last row keeps the tiles' width.
+    private func tileRow(_ bots: [Bot], home: HomeContext) -> some View {
+        HStack(alignment: .top, spacing: 4) {
+            ForEach(bots) { bot in
+                let dot = HomeDotRules.of(bot, bot.rosterStatus(hasPendingCard: home.waiting.contains(bot.id)))
+                Button { openBot(bot) } label: {
+                    BotTile(bot: bot, dot: dot).equatable()
                 }
-                .buttonStyle(HomeRowButtonStyle())
-                .accessibilityIdentifier("chat-row.\(room.id)")
+                .buttonStyle(.plain)
+                .accessibilityIdentifier("chat-row.\(bot.id)")
+                .contextMenu { botMenu(bot) }
+            }
+            ForEach(0 ..< max(0, HomeLayoutRules.tileColumns - bots.count), id: \.self) { _ in
+                Color.clear.frame(maxWidth: .infinity, minHeight: 1)
             }
         }
+        .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 
-    /// Two lines per bot with its "Threads" beneath. As in `compactRows`,
-    /// each row and tree is Equatable on its bot's values and shown
-    /// `.equatable()`, so a publish redraws only the bots that moved.
-    private func comfortableRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        ForEach(comfortableEntries(rows, waiting: waiting)) { entry in
-            VStack(spacing: 0) {
-                Button {
-                    path.append(session.threadSelection.restoringThread(entry.row.chat, connectionID: session.connection?.id))
-                } label: {
-                    entry.row.equatable()
-                }
-                .buttonStyle(HomeRowButtonStyle())
-                .accessibilityIdentifier("chat-row.\(entry.id)")
-                if case let .bot(bot) = entry.row.chat {
-                    threadTree(bot, queued: entry.queued, held: entry.held)
-                }
-            }
+    @ViewBuilder
+    private func botMenu(_ bot: Bot) -> some View {
+        Button { changingLook = bot } label: { Label("Change look", systemImage: "face.smiling") }
+        if !liveCall.machine.isActive, liveCall.machine.allowsStart(onThread: bot.threadId),
+           session.state.liveCall?.isRunning != true {
+            Button { talkTo(bot) } label: { Label("Talk", systemImage: "waveform") }
         }
     }
 
-    /// Each row worked out before the `ForEach`, so everything it shows is
-    /// in the `ForEach`'s data: the lazy list may skip rebuilding a row whose
-    /// data did not change, and a value read inside the closure instead
-    /// would go stale there.
-    private func comfortableEntries(_ rows: [ChatSummary], waiting: Set<String>) -> [ComfortableEntry] {
-        let state = session.state
-        let today = RosterDay.today
-        let queued = state.queuedThreadIds
-        // The trees' "Queued" marks read the held sends themselves.
-        let held = Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key })
-        return rows.map { summary -> ComfortableEntry in
-            var roomMembers: [Bot] = []
-            if case let .room(room) = summary.chat { roomMembers = members(of: room) }
-            let row = ChatRow(
-                chat: summary.chat,
-                members: roomMembers,
-                preview: summary.preview,
-                at: summary.lastActivity,
-                today: today,
-                state: CharacterMood.forChat(summary.chat, in: state),
-                waiting: waiting.contains(summary.chat.id)
+    private func advancedRow(_ bot: Bot, highlighted: Bool, home: HomeContext) -> some View {
+        let summary = home.byBot[bot.id]
+        return AdvancedBotRow(
+            bot: bot,
+            preview: summary?.preview ?? "",
+            at: summary?.lastActivity ?? 0,
+            today: home.today,
+            mood: CharacterMood.forChat(.bot(bot), in: home.state),
+            waiting: home.waiting.contains(bot.id),
+            expanded: expandedBots.contains(bot.id),
+            highlighted: highlighted,
+            compact: home.compact,
+            toggle: {
+                Haptics.selection()
+                withSeiraAnimation(SeiraMotion.base) {
+                    if expandedBots.contains(bot.id) { expandedBots.remove(bot.id) } else { expandedBots.insert(bot.id) }
+                }
+            },
+            open: { openBot(bot) }
+        )
+        .equatable()
+        .contextMenu { botMenu(bot) }
+    }
+
+    private func runAfterMenu() {
+        guard let action = afterMenu else { return }
+        afterMenu = nil
+        switch action {
+        case let .addBots(target): addingBotsTo = target
+        case let .newBot(target): newBotIn = target
+        }
+    }
+
+    private func toggleGroup(_ key: String, keys: Set<String>) {
+        Haptics.selection()
+        let folded = FoldRules.decode(foldedGroups)
+        let next = FoldRules.prune(FoldRules.toggle(folded, key), keys)
+        withSeiraAnimation(SeiraMotion.base) { foldedGroups = FoldRules.encode(next) }
+    }
+
+    private func assignNewBot(_ bot: Bot, to department: String) {
+        newBotIn = nil
+        Task { await placeNewBot(bot, in: department) }
+    }
+
+    /// The bot exists; only its place can fail. Retrying sends the place again, never a second bot.
+    private func placeNewBot(_ bot: Bot, in department: String) async {
+        if await session.assignSection(name: department, botIds: [bot.id], reportsError: false) == nil {
+            Haptics.notification(.error)
+            unplacedBot = UnplacedBot(bot: bot, department: department)
+        } else {
+            openBot(bot)
+        }
+    }
+
+    // MARK: - Rooms
+
+    private func roomRow(_ room: Room, home: HomeContext) -> some View {
+        NavigationLink(value: Chat.room(room)) {
+            HomeRoomRow(
+                room: room,
+                members: members(of: room),
+                lastActivity: home.state.lastVisibleMessage(forThread: room.threadId)?.at ?? 0,
+                today: home.today,
+                waiting: home.waiting.contains(room.id),
+                compact: advancedMode && home.compact
             )
-            return ComfortableEntry(row: row, queued: queued, held: held)
+            .equatable()
         }
+        .buttonStyle(HomeRowButtonStyle())
+        .accessibilityIdentifier("chat-row.\(room.id)")
     }
 
     private func threadTree(_ bot: Bot, queued: Set<String>, held: Set<String>) -> some View {
         BotThreadTree(
             bot: bot,
-            query: $query,
             expandedBots: $expandedBots,
             collapsedFolders: $collapsedFolders,
             creatingThreads: $creatingThreads,
@@ -806,10 +573,6 @@ struct ChatListView: View {
         .equatable()
     }
 
-    private var hasVisibleBots: Bool {
-        session.state.bots.contains { $0.hidden != true }
-    }
-
     private func openNewSection() {
         Haptics.selection()
         showingNewSection = true
@@ -820,28 +583,8 @@ struct ChatListView: View {
     /// The reader's activity level, which the roster preview folds by.
     private var activity: ActivityDetail { ActivityDetail(rawValue: activityDetail) ?? .phoneDefault }
 
-    /// How much each row says, from Settings.
+    /// How much each Advanced row says, from Settings.
     private var density: RosterDensity { RosterDensity(stored: rosterDensity) }
-
-    private var chats: [ChatSummary] {
-        let all = rosterSummaries(previews: true)
-        guard !query.isEmpty else {
-            // rooms live in the strip; the list is bots
-            return all.filter { if case .bot = $0.chat { return true } else { return false } }
-        }
-        let queued = session.state.queuedThreadIds
-        return all.filter {
-            $0.chat.name.localizedCaseInsensitiveContains(query)
-                || $0.chat.subtitle.localizedCaseInsensitiveContains(query)
-                || $0.preview.localizedCaseInsensitiveContains(query)
-                || matchesThread($0.chat, queued: queued)
-        }
-    }
-
-    private func matchesThread(_ chat: Chat, queued: Set<String>) -> Bool {
-        guard case let .bot(bot) = chat else { return false }
-        return !bot.threadGroups(matching: query, queuedThreadIds: queued).isEmpty
-    }
 
     /// Every chat in roster order, as `chatSummaries` lists them. With
     /// previews, each line comes from `previewCache`, which folds a thread
@@ -865,19 +608,6 @@ struct ChatListView: View {
         }
     }
 
-    private func openAttention(_ entry: AttentionThread) {
-        guard let bot = entry.destinationBot(in: session.state) else { return }
-        path.append(Chat.bot(bot))
-    }
-
-    private func summaries(for bots: [Bot], from all: [ChatSummary]) -> [ChatSummary] {
-        let ids = Set(bots.map(\.id))
-        return all.filter { summary in
-            if case let .bot(bot) = summary.chat { return ids.contains(bot.id) }
-            return false
-        }
-    }
-
     private func waitingChats(_ approvals: [(threadId: String, message: Message)]) -> Set<String> {
         Set(approvals.compactMap { session.state.chat(forThread: $0.threadId)?.id })
     }
@@ -886,226 +616,16 @@ struct ChatListView: View {
         room.memberIds.compactMap { session.state.bot($0) }
     }
 
-    private func rosterIsEmpty(matches: [ChatSummary]) -> Bool {
-        if query.isEmpty {
-            return session.state.bots.allSatisfy { $0.hidden == true } && session.state.rooms.isEmpty
-        }
-        return matches.isEmpty && searchHits.isEmpty && !searching
-    }
-
-    private func sectionLabel(_ text: Text) -> some View {
-        HomeSectionTitle(text: text)
+    private func rosterIsEmpty() -> Bool {
+        session.state.bots.allSatisfy { $0.hidden == true } && session.state.rooms.isEmpty
     }
 }
 
-// MARK: - Rows and tiles
-
-/// One comfortable row as the list worked it out: the row, and what its
-/// thread tree needs beyond the list's own state.
-private struct ComfortableEntry: Identifiable, Equatable {
-    /// Equatable on everything it draws (the whole bot or room).
-    let row: ChatRow
-    let queued: Set<String>
-    let held: Set<String>
-
-    var id: String { row.chat.id }
-}
-
-/// A room and its members as the state holds them, for its tile.
-private struct RoomTile: Identifiable, Equatable {
-    let room: Room
-    let members: [Bot]
-
-    var id: String { room.id }
-}
-
-/// A room as a round tile: the first two members' faces stacked, its name
-/// beneath. `nil` is the "make one" tile.
-///
-/// Its members come from the list, which looks them up once, and it is shown
-/// `.equatable()`: a tile no longer redraws its two faces on every publish.
-struct GroupTile: View, Equatable {
-    let room: Room?
-    /// The room's members as the state holds them.
-    let members: [Bot]
-
-    var body: some View {
-        VStack(spacing: 7) {
-            ZStack {
-                if let room {
-                    Circle().fill(Color.seiraTint)
-                    faces
-                    if room.unread {
-                        Circle()
-                            .fill(Color.seiraAccent)
-                            .frame(width: 10, height: 10)
-                            .overlay(Circle().stroke(Color.seiraApp, lineWidth: 2))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-                            .padding(3)
-                            .accessibilityLabel("Unread")
-                    }
-                } else {
-                    Circle()
-                        .strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-                        .foregroundStyle(Color.seiraInk3)
-                    Image(systemName: "plus")
-                        .font(.system(size: 22, weight: .medium))
-                        .foregroundStyle(Color.seiraInk3)
-                }
-            }
-            .frame(width: 64, height: 64)
-
-            Text(room?.name ?? "New group")
-                .font(.seira(12, .medium, relativeTo: .caption))
-                .foregroundStyle(room == nil ? Color.seiraInk3 : Color.seiraInk)
-                .lineLimit(1)
-        }
-        .frame(width: 76)
-        .contentShape(Rectangle())
-    }
-
-    @ViewBuilder private var faces: some View {
-        if let first = members.first {
-            SeiraAvatar(bot: first, size: 34, ringGap: .seiraTint)
-                .offset(x: -9, y: -6)
-                .accessibilityHidden(true)
-        }
-        if members.count > 1 {
-            SeiraAvatar(bot: members[1], size: 30, ringGap: .seiraTint)
-                .padding(2)
-                .background(Color.seiraTint, in: Circle())
-                .offset(x: 11, y: 9)
-                .accessibilityHidden(true)
-        }
-    }
-}
-
-/// One thread that needs the person, from any bot: title, status, and the
-/// bot it belongs to, ready to jump straight there. Waiting outranks
-/// working, which outranks queued and unread — the same order as the tree.
-struct AttentionRow: View {
-    let entry: AttentionThread
-
-    @Environment(\.dynamicTypeSize) private var typeSize
-    @ScaledMetric(relativeTo: .body) private var markWidth: CGFloat = 24
-
-    /// A scaled title wraps at the accessibility sizes instead of being cut
-    /// short.
-    private var titleWraps: Bool { typeSize.isAccessibilitySize }
-
-    private var waiting: Bool { entry.task.activity == "waiting-on-you" }
-    private var working: Bool { !waiting && (entry.task.busy == true || entry.task.activity == "working") }
-    private var queued: Bool { !waiting && !working && entry.task.activity == "queued" }
-
-    private var statusText: String {
-        if waiting { return "Waiting on you" }
-        if working { return "Working" }
-        if queued { return "Queued" }
-        return "Unread"
-    }
-
-    private var markColor: Color {
-        if waiting { return .seiraWarning }
-        if queued { return .seiraInk3 }
-        return .seiraAccent
-    }
-
-    private var markSymbol: String {
-        if waiting { return "exclamationmark.circle.fill" }
-        return queued ? "clock" : "bell.badge.fill"
-    }
-
-    var body: some View {
-        HStack(spacing: 12) {
-            mark
-                .foregroundStyle(markColor)
-                .frame(width: markWidth)
-
-            VStack(alignment: .leading, spacing: 2) {
-                Text(verbatim: entry.task.displayTitle)
-                    .font(.seira(15, .medium, relativeTo: .body))
-                    .foregroundStyle(Color.seiraInk)
-                    .lineLimit(titleWraps ? 3 : 1)
-                    .fixedSize(horizontal: false, vertical: titleWraps)
-                Text("\(entry.botName) · \(statusText)")
-                    .font(.seira(13, relativeTo: .subheadline))
-                    .foregroundStyle(waiting ? Color.seiraWarningText : Color.seiraInk2)
-                    .lineLimit(1)
-            }
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, HomeRowMetrics.side)
-        .padding(.vertical, 8)
-        .frame(minHeight: 56)
-        .contentShape(Rectangle())
-        .accessibilityElement(children: .combine)
-        .accessibilityLabel("\(entry.task.displayTitle), \(entry.botName), \(statusText)")
-    }
-
-    @ViewBuilder private var mark: some View {
-        if working {
-            ProgressView().controlSize(.small)
-        } else {
-            Image(systemName: markSymbol)
-                .font(.system(size: 17, weight: .medium))
-        }
-    }
-}
-
-/// A bot or group in comfortable Home: face, name, time, the last line, and
-/// a warning-coloured line while it waits on the person.
-///
-/// Plain values only, shown `.equatable()` like `CompactBotEntry`, so a row
-/// whose chat has not moved is skipped when the session publishes.
-struct ChatRow: View, Equatable {
-    let chat: Chat
-    /// A group's members, for its two stacked faces; empty for a bot.
-    var members: [Bot] = []
-    let preview: String
-    let at: Double
-    /// The day the list drew on (`RosterDay.today`); see
-    /// `CompactBotEntry.today`. "9:15 AM" must still become "Yesterday".
-    let today: Date
-    var state: CharacterMood = .idle
-    var waiting = false
-
-    /// `Chat`'s own `==` compares identity (id and thread) only; a row
-    /// draws the whole bot or room, so it compares those.
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.preview == rhs.preview && lhs.at == rhs.at && lhs.today == rhs.today && lhs.state == rhs.state
-            && lhs.waiting == rhs.waiting && lhs.members == rhs.members
-            && sameContent(lhs.chat, rhs.chat)
-    }
-
-    private static func sameContent(_ lhs: Chat, _ rhs: Chat) -> Bool {
-        switch (lhs, rhs) {
-        case let (.bot(left), .bot(right)): return left == right
-        case let (.room(left), .room(right)): return left == right
-        default: return false
-        }
-    }
-
-    private var detail: String {
-        if !preview.isEmpty { return preview }
-        return waiting ? String(localized: "Waiting on you") : ""
-    }
-
-    var body: some View {
-        HStack(spacing: HomeRowMetrics.gap) {
-            HomeRowAvatar(chat: chat, members: members, working: chat.busy && !waiting, waiting: waiting)
-            HomeRowLabels(
-                title: chat.name,
-                unread: chat.unread && !chat.busy,
-                stamp: RelativeStamp.list(at),
-                detail: detail,
-                detailWaiting: waiting,
-                working: chat.busy && !waiting
-            )
-        }
-        .padding(.horizontal, HomeRowMetrics.side)
-        .frame(minHeight: HomeRowMetrics.minHeight)
-        .contentShape(Rectangle())
-    }
+/// A bot that was made for a department but could not be placed there.
+private struct UnplacedBot: Identifiable {
+    let bot: Bot
+    let department: String
+    var id: String { bot.id }
 }
 
 /// The floating pill: who is doing what right now, at a glance.

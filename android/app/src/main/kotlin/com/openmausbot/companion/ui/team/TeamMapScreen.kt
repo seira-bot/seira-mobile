@@ -31,8 +31,12 @@ import androidx.compose.ui.unit.dp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.TeamMap
+import com.openmausbot.companion.ui.HapticCue
 import com.openmausbot.companion.ui.LocalCompanion
 import com.openmausbot.companion.ui.home.PageTopBar
+import com.openmausbot.companion.ui.home.chats.AddDepartmentSheet
+import com.openmausbot.companion.ui.play
+import com.openmausbot.companion.ui.rememberHaptics
 import com.openmausbot.companion.ui.profile.CardDivider
 import com.openmausbot.companion.ui.profile.ProfileGroup
 import com.openmausbot.companion.ui.profile.ProfileLoading
@@ -50,6 +54,8 @@ internal fun TeamMapScreen(onBack: () -> Unit, onOpenBot: (String) -> Unit = {})
     var map by remember { mutableStateOf<TeamMap?>(null) }
     var failed by remember { mutableStateOf(false) }
     var attempt by remember { mutableStateOf(0) }
+    var addingDepartment by remember { mutableStateOf(false) }
+    val haptics = rememberHaptics()
     val layout = TeamMapRules.layout(state)
 
     LaunchedEffect(attempt) {
@@ -92,6 +98,17 @@ internal fun TeamMapScreen(onBack: () -> Unit, onOpenBot: (String) -> Unit = {})
                     }
                     layout.groups.forEach { group ->
                         ProfileGroup(title = group.name ?: stringResource(R.string.team_general)) {
+                            if (group.bots.isEmpty()) {
+                                Text(
+                                    text = stringResource(R.string.home2_team_department_empty),
+                                    style = SeiraType.callout,
+                                    color = Seira.colors.ink3,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .heightIn(min = 48.dp)
+                                        .padding(horizontal = 16.dp, vertical = 14.dp),
+                                )
+                            }
                             group.bots.forEachIndexed { index, bot ->
                                 if (index > 0) CardDivider()
                                 TeamRow(
@@ -103,9 +120,43 @@ internal fun TeamMapScreen(onBack: () -> Unit, onOpenBot: (String) -> Unit = {})
                             }
                         }
                     }
+                    ProfileGroup(title = null) {
+                        AddDepartmentRow(
+                            onClick = {
+                                haptics.play(HapticCue.SELECT)
+                                addingDepartment = true
+                            },
+                        )
+                    }
                 }
             }
         }
+    }
+
+    if (addingDepartment) {
+        AddDepartmentSheet(
+            existing = state.sidebarSections.map { it.name },
+            onAdd = { name -> session.assignSection(name, emptyList(), reportsError = false) != null },
+            onDismiss = { addingDepartment = false },
+        )
+    }
+}
+
+@Composable
+private fun AddDepartmentRow(onClick: () -> Unit) {
+    val colors = Seira.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("team-add-department")
+            .heightIn(min = 56.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(SeiraIcons.Plus, contentDescription = null, tint = colors.ink, modifier = Modifier.size(20.dp))
+        Text(text = stringResource(R.string.home2_team_add_department), style = SeiraType.bodyMedium, color = colors.ink)
     }
 }
 

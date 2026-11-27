@@ -21,18 +21,56 @@ public struct RoutineCalendarItem: Identifiable, Hashable, Sendable {
     public var date: Date { Date(timeIntervalSince1970: at / 1_000) }
 }
 
+/// How a run in the week list is shown. A projection is `scheduled`.
+public enum RoutineWeekStatus: Hashable, Sendable {
+    case completed, failed, scheduled, other
+
+    public init(item: RoutineCalendarItem) {
+        guard let run = item.run else { self = .scheduled; return }
+        switch run.status {
+        case "completed": self = .completed
+        case "failed", "missed": self = .failed
+        default: self = .other
+        }
+    }
+}
+
+/// One line of the week list: `item` on `day` with the way it is shown.
+public struct RoutineWeekRow: Identifiable, Hashable, Sendable {
+    public let day: Date
+    public let item: RoutineCalendarItem
+    public let status: RoutineWeekStatus
+
+    public var id: String { item.id }
+}
+
 public enum RoutineCalendar {
     /// A routine that runs every few minutes would bury a day in receipts.
     /// Keep the newest dozen finished runs per routine; active ones always show.
     static let maxReceiptsPerRoutine = 12
 
-    /// The seven days of the week holding `date`, Monday first, as the
-    /// desktop's calendar lays them out.
-    public static func week(containing date: Date, calendar: Calendar = .current) -> [Date] {
+    /// The seven days of the week holding `date`, starting on `firstWeekday`
+    /// (1 = Sunday). The desktop's calendar starts on Monday.
+    public static func week(containing date: Date, calendar: Calendar = .current, firstWeekday: Int = 2) -> [Date] {
         let day = calendar.startOfDay(for: date)
         let weekday = calendar.component(.weekday, from: day) // 1 = Sunday
-        let monday = calendar.date(byAdding: .day, value: -((weekday + 5) % 7), to: day) ?? day
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: monday) }
+        let start = calendar.date(byAdding: .day, value: -((weekday - firstWeekday + 7) % 7), to: day) ?? day
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
+    }
+
+    /// One row for each run or projected run in the week holding `date`, oldest first.
+    public static func weekRows(
+        routines: [Routine],
+        runs: [RoutineRun],
+        containing date: Date,
+        calendar: Calendar = .current,
+        firstWeekday: Int = 2
+    ) -> [RoutineWeekRow] {
+        week(containing: date, calendar: calendar, firstWeekday: firstWeekday).flatMap { day in
+            items(routines: routines, runs: runs, day: day, calendar: calendar).map {
+                RoutineWeekRow(day: day, item: $0, status: RoutineWeekStatus(item: $0))
+            }
+        }
     }
 
     /// Everything on one day, in time order.

@@ -1,0 +1,933 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seira Appearance Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<style>
+@property --a3-ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+@property --a3-split { syntax: "<percentage>"; inherits: true; initial-value: 50%; }
+@property --l { syntax: "<length-percentage>"; inherits: true; initial-value: 0%; }
+@property --rr { syntax: "<length-percentage>"; inherits: true; initial-value: 0%; }
+
+[data-ui] :focus-visible { outline-color: var(--acc); }
+.concept.is-off *, .concept.is-off *::before, .concept.is-off *::after { animation-play-state: paused !important; }
+.concept-stage .frag { position: relative; }
+.now-switch { flex: none; }
+.s-row .s-text { min-width: 0; }
+
+.a1-layout { display: flex; align-items: center; justify-content: center; gap: 56px; width: 100%; }
+@media (max-width: 820px) { .a1-layout { flex-direction: column; gap: 32px; } }
+.a1-dev .s-row { min-height: 52px; }
+.a1-dev .device-body { padding: 2px 14px 70px; }
+.a1-dev .s-card.ctl { padding: 4px 0 6px; }
+.a1-side { display: grid; gap: 10px; justify-items: center; width: min(360px, 100%); }
+.a1-big { width: 100%; container-type: inline-size; }
+.a1-cap { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--g-dim); }
+.a1-ctl {
+  --sz: 64px; --gap: 20px;
+  position: relative; display: flex; justify-content: center; gap: var(--gap); padding: 14px 0 8px;
+}
+.a1-big .a1-ctl { --gap: 22px; --sz: min(88px, calc((100cqw - 12px - 44px - 8px) / 3)); padding-top: 18px; }
+.a1-halo {
+  position: absolute; left: 0; top: 0; z-index: 0; pointer-events: none; will-change: transform;
+  width: calc(var(--sz) + 16px); height: calc(var(--sz) + 16px); border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--acc) 28%, transparent) 55%, transparent 100%);
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--acc) 65%, transparent), 0 0 26px color-mix(in srgb, var(--acc) 45%, transparent);
+}
+.a1-b {
+  position: relative; z-index: 1; border: 0; background: none; padding: 0; cursor: pointer;
+  display: grid; justify-items: center; gap: 9px; -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+}
+.a1-b:focus-visible { border-radius: 28px; outline-offset: 4px; }
+.a1-body {
+  position: relative; width: var(--sz); height: var(--sz); border-radius: 50%;
+  box-shadow: 0 8px 16px -8px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--line2);
+  transition: transform 320ms var(--ease-spring), filter 320ms var(--ease);
+}
+.a1-body svg { display: block; width: 100%; height: 100%; border-radius: 50%; }
+.a1-b[aria-checked="false"] .a1-body { filter: saturate(0.5) brightness(0.9); transform: scale(0.92); }
+.a1-b:active .a1-body { transform: scale(0.94); }
+.a1-lab { font-size: 13px; color: var(--dim); transition: color var(--m-base) var(--ease); }
+.a1-big .a1-lab { font-size: 14px; }
+.a1-b[aria-checked="true"] .a1-lab { color: var(--fg); font-weight: 500; }
+.a1-rays, .a1-moondrift, .a1-star { transform-box: fill-box; transform-origin: center; }
+.a1-b[aria-checked="true"] .a1-rays { animation: a1-spin 22s linear infinite; }
+.a1-b[aria-checked="true"] .a1-star { animation: a1-twinkle 2.4s ease-in-out infinite; }
+.a1-star { opacity: 0.85; }
+.a1-moondrift { animation: a1-drift 8s ease-in-out -2s infinite paused; }
+.a1-b[aria-checked="true"] .a1-moondrift { animation-play-state: running; }
+@keyframes a1-spin { to { transform: rotate(360deg); } }
+@keyframes a1-twinkle { 0%, 100% { opacity: 0.25; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1.25); } }
+@keyframes a1-drift { 0%, 100% { transform: translateX(-8px); } 50% { transform: translateX(8px); } }
+
+.a2-sky {
+  --stars: 0; --arc: rgba(20, 40, 80, 0.35); --glow: rgba(255, 176, 60, 0.75);
+  position: relative; height: 170px; border-radius: 18px; overflow: hidden; touch-action: none; cursor: grab; user-select: none;
+  background: linear-gradient(180deg, var(--sky-t, #cfe6ff), var(--sky-b, #fff6e5));
+  box-shadow: 0 0 0 0.5px var(--line2), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
+.a2-sky.is-drag { cursor: grabbing; }
+.a2-stars { position: absolute; inset: 0; opacity: var(--stars); pointer-events: none; }
+.a2-stars i { position: absolute; width: 2px; height: 2px; border-radius: 50%; background: #fff; box-shadow: 0 0 4px #fff; }
+.a2-svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.a2-arc { fill: none; stroke: var(--arc); stroke-width: 1.4; stroke-dasharray: 3 6; stroke-linecap: round; }
+.a2-det { fill: var(--arc); }
+.a2-hill { position: absolute; left: 0; bottom: 0; width: 100%; height: 58px; pointer-events: none; }
+.a2-hill path { fill: var(--hill, #8db38a); }
+.a2-body { position: absolute; left: 0; top: 0; width: 36px; height: 36px; will-change: transform; z-index: 2; pointer-events: none; filter: drop-shadow(0 0 9px var(--glow)); }
+.a2-in { position: absolute; inset: 0; transition: transform 220ms var(--ease-spring); }
+.a2-sky.is-drag .a2-in { transform: scale(1.14); }
+.a2-sun, .a2-moon { position: absolute; inset: 0; border-radius: 50%; }
+.a2-sun { background: radial-gradient(circle at 38% 34%, #fff4c9, #ffc857 55%, #f59e0b); }
+.a2-moon { background: radial-gradient(circle at 38% 34%, #ffffff, #d7ddf2 55%, #9ea8c9); }
+.a2-moon::before, .a2-moon::after { content: ""; position: absolute; border-radius: 50%; background: rgba(90, 100, 140, 0.32); }
+.a2-moon::before { width: 8px; height: 8px; left: 58%; top: 26%; }
+.a2-moon::after { width: 5px; height: 5px; left: 66%; top: 62%; }
+.a2-labels { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 6px; }
+.a2-lb { position: relative; border: 0; background: none; min-height: 44px; font-size: 14px; color: var(--dim); cursor: pointer; transition: color var(--m-base) var(--ease); }
+.a2-lb::after { content: ""; position: absolute; left: 50%; bottom: 6px; width: 18px; height: 2px; margin-left: -9px; border-radius: 2px; background: var(--acc); transform: scaleX(0); transition: transform 280ms var(--ease-spring); }
+.a2-lb[aria-checked="true"] { color: var(--fg); font-weight: 500; }
+.a2-lb[aria-checked="true"]::after { transform: scaleX(1); }
+.a2-lb:focus-visible { border-radius: 10px; outline-offset: -2px; }
+
+.a3-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 26px 8px 10px; justify-items: center; }
+.a3-opt { border: 0; background: none; padding: 0; width: 100%; display: grid; justify-items: center; gap: 12px; cursor: pointer; min-height: 44px; -webkit-tap-highlight-color: transparent; }
+.a3-opt:focus-visible { border-radius: 22px; outline-offset: 6px; }
+.a3-lift { position: relative; width: 100%; max-width: 104px; aspect-ratio: 96 / 176; transition: transform 460ms var(--ease-spring); }
+.a3-opt[aria-checked="true"] .a3-lift { transform: translateY(-6px) scale(1.04); }
+.a3-thumb { position: absolute; inset: 0; border-radius: 18px; overflow: hidden; box-shadow: 0 0 0 1px var(--line2), 0 12px 20px -12px rgba(0, 0, 0, 0.5); }
+.a3-ring {
+  position: absolute; inset: -4px; border-radius: 22px; padding: 2px; pointer-events: none;
+  background: conic-gradient(from 0deg, var(--acc) var(--a3-ang), transparent 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  transition: --a3-ang 500ms var(--ease);
+}
+.a3-opt[aria-checked="true"] .a3-ring { --a3-ang: 360deg; }
+.a3-check {
+  position: absolute; top: -9px; right: -9px; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center;
+  background: var(--acc); color: var(--on-acc); box-shadow: 0 0 0 2px var(--s1), 0 3px 8px rgba(0, 0, 0, 0.3);
+  transform: scale(0); transition: transform 460ms var(--ease-bounce);
+}
+.a3-check svg { width: 14px; height: 14px; stroke-width: 2.4; }
+.a3-opt[aria-checked="true"] .a3-check { transform: scale(1); }
+.a3-lab { font-size: 13px; color: var(--dim); transition: color var(--m-base) var(--ease); }
+.a3-opt[aria-checked="true"] .a3-lab { color: var(--fg); font-weight: 500; }
+.a3-phone { position: absolute; inset: 0; display: flex; flex-direction: column; gap: 5px; padding: 9px 7px 7px; background: var(--bg); }
+.a3-hd { display: flex; align-items: center; justify-content: space-between; padding: 0 2px 3px; }
+.a3-hd b { width: 38%; height: 6px; border-radius: 3px; background: var(--fg); opacity: 0.85; }
+.a3-hd i { width: 10px; height: 10px; border-radius: 50%; background: var(--s3); }
+.a3-r { display: flex; align-items: center; gap: 5px; padding: 4px 5px; border-radius: 9px; background: var(--s1); box-shadow: 0 0 0 0.5px var(--line); }
+.a3-av { width: 16px; height: 16px; border-radius: 50%; flex: none; }
+.a3-ln { flex: 1; display: grid; gap: 3px; min-width: 0; }
+.a3-ln b { height: 4px; border-radius: 2px; background: var(--fg); opacity: 0.7; width: 80%; }
+.a3-ln i { height: 3px; border-radius: 2px; background: var(--dim); opacity: 0.5; width: 55%; }
+.a3-thumb.is-auto { animation: a3-sweep 8s ease-in-out -2s infinite paused; }
+.a3-opt[aria-checked="true"] .a3-thumb.is-auto { animation-play-state: running; }
+.a3-top { clip-path: polygon(calc(var(--a3-split) + 14%) 0, 100% 0, 100% 100%, calc(var(--a3-split) - 14%) 100%); }
+.a3-line {
+  position: absolute; top: -10%; height: 120%; width: 1.5px; left: var(--a3-split); margin-left: -0.75px; transform: rotate(8.7deg);
+  background: #fff; box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.35), 0 0 6px rgba(0, 0, 0, 0.25); pointer-events: none;
+}
+.a3-badge { position: absolute; left: 50%; bottom: 5px; width: 18px; height: 18px; margin-left: -9px; border-radius: 50%; display: grid; place-items: center; background: #121317; color: #fff; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5); }
+.a3-badge svg { width: 11px; height: 11px; }
+@keyframes a3-sweep { 0%, 100% { --a3-split: 32%; } 50% { --a3-split: 68%; } }
+
+.a4 { position: relative; height: 52px; padding: 4px; border-radius: 26px; background: var(--s2); touch-action: none; user-select: none; box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.22), inset 0 0 0 0.5px var(--line); cursor: grab; }
+.a4-inner { position: relative; height: 44px; }
+.a4-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(3, 1fr); }
+.a4-base button, .a4-cell { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 500; white-space: nowrap; }
+.a4-base button { border: 0; background: none; padding: 0; color: var(--mut); cursor: pointer; }
+.a4-base button:focus-visible { border-radius: 22px; outline-offset: -3px; }
+.a4 svg { width: 15px; height: 15px; }
+.a4-lens {
+  position: absolute; left: 0; top: 0; height: 100%; width: 33.333%; border-radius: 22px; overflow: hidden; pointer-events: none; will-change: transform;
+  background: var(--s1); box-shadow: var(--shadow-sm), 0 0 0 0.5px var(--line);
+  transition: background-color 240ms var(--ease), box-shadow 240ms var(--ease), backdrop-filter 240ms var(--ease);
+}
+[data-ui="dark"] .a4-lens { background: var(--s3); }
+.a4-lens.is-glass {
+  background: color-mix(in srgb, var(--s1) 34%, transparent);
+  -webkit-backdrop-filter: blur(2px) saturate(1.8); backdrop-filter: blur(2px) saturate(1.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), inset 0 -1px 1px rgba(0, 0, 0, 0.1), inset 0 0 16px rgba(255, 255, 255, 0.18), 0 12px 24px -8px rgba(0, 0, 0, 0.4), 0 0 0 0.5px rgba(255, 255, 255, 0.35);
+}
+[data-ui="dark"] .a4-lens.is-glass { background: color-mix(in srgb, var(--s3) 38%, transparent); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -1px 1px rgba(0, 0, 0, 0.3), inset 0 0 16px rgba(255, 255, 255, 0.07), 0 12px 24px -8px rgba(0, 0, 0, 0.7), 0 0 0 0.5px rgba(255, 255, 255, 0.2); }
+.a4-mag { position: absolute; left: 0; top: 0; height: 100%; display: grid; grid-template-columns: repeat(3, 1fr); transform-origin: 0 50%; color: var(--fg); }
+
+.a5-dial { position: relative; width: 100%; height: 232px; }
+.a5-ticks { position: absolute; left: 50%; top: 150px; width: 0; height: 0; pointer-events: none; }
+.a5-tick { position: absolute; left: -1px; top: -5px; width: 2px; height: 10px; border-radius: 1px; background: color-mix(in srgb, var(--fg) 26%, transparent); transition: background-color 200ms var(--ease), box-shadow 200ms var(--ease); }
+.a5-tick.bold { left: -1.5px; top: -7px; width: 3px; height: 14px; background: color-mix(in srgb, var(--fg) 58%, transparent); }
+.a5-tick.act { background: var(--acc); box-shadow: 0 0 8px var(--acc); }
+.a5-knob {
+  position: absolute; left: 50%; top: 150px; width: 132px; height: 132px; margin: -66px 0 0 -66px; border-radius: 50%; touch-action: none; cursor: grab; user-select: none;
+}
+.a5-knob:focus-visible { border-radius: 50%; outline-offset: 7px; }
+.a5-knob.is-drag { cursor: grabbing; }
+[data-ui="light"] .a5-knob { --c1: #fafbfc; --c2: #c9cdd5; --c3: #9097a3; --r1: #e8eaee; --r2: #aeb3be; --sh: rgba(255, 255, 255, 0.55); --sh2: rgba(0, 0, 0, 0.1); }
+[data-ui="dark"] .a5-knob { --c1: #4b4f59; --c2: #272a31; --c3: #121418; --r1: #2c2f36; --r2: #0d0e11; --sh: rgba(255, 255, 255, 0.16); --sh2: rgba(0, 0, 0, 0.3); }
+.a5-body { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 50% 28%, var(--r1), var(--r2)); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), inset 0 -2px 4px rgba(0, 0, 0, 0.25), 0 20px 26px -12px rgba(0, 0, 0, 0.55), 0 6px 10px -4px rgba(0, 0, 0, 0.4), 0 0 0 1px var(--line2); }
+.a5-rot { position: absolute; inset: 0; will-change: transform; }
+.a5-knurl { position: absolute; inset: 0; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(0, 0, 0, 0.42) 0 1.5deg, rgba(255, 255, 255, 0.24) 1.5deg 3deg); -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px)); mask: radial-gradient(farthest-side, transparent calc(100% - 10px), #000 calc(100% - 9px)); }
+.a5-cap {
+  position: absolute; inset: 10px; border-radius: 50%;
+  background:
+    conic-gradient(from 10deg, var(--sh), transparent 14%, var(--sh) 28%, var(--sh2) 44%, var(--sh) 58%, transparent 72%, var(--sh) 86%, var(--sh)),
+    radial-gradient(circle at 36% 24%, var(--c1), var(--c2) 58%, var(--c3));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.55), inset 0 -3px 6px rgba(0, 0, 0, 0.22), 0 4px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.28);
+}
+.a5-groove { position: absolute; left: 50%; top: 16px; width: 5px; height: 30px; margin-left: -2.5px; border-radius: 3px; background: linear-gradient(180deg, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.25)); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3); }
+.a5-led { position: absolute; left: 50%; top: 19px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: radial-gradient(circle at 40% 35%, #ffe3ea, var(--acc) 55%, #8f1130); box-shadow: 0 0 8px 2px color-mix(in srgb, var(--acc) 80%, transparent), 0 0 20px 4px color-mix(in srgb, var(--acc) 40%, transparent); }
+.a5-lb { position: absolute; transform: translate(-50%, -50%); min-width: 72px; min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 6px; border: 0; background: none; font-size: 13.5px; color: var(--dim); cursor: pointer; transition: color var(--m-base) var(--ease); }
+.a5-lb svg { width: 15px; height: 15px; }
+.a5-lb[aria-pressed="true"] { color: var(--fg); font-weight: 500; }
+.a5-lb:focus-visible { border-radius: 12px; outline-offset: -2px; }
+
+.ink { position: relative; height: 48px; padding: 4px; border-radius: 16px; background: var(--s2); box-shadow: inset 0 0 0 0.5px var(--line); --l: 0%; --rr: 66.6667%; transition: --l 220ms var(--ease-spring) 70ms, --rr 220ms var(--ease-spring); }
+.ink.to-left { transition: --l 220ms var(--ease-spring), --rr 220ms var(--ease-spring) 70ms; }
+.ink-in { position: relative; height: 100%; }
+.ink-thumb { position: absolute; top: 0; bottom: 0; left: var(--l); right: var(--rr); border-radius: 13px; background: var(--inv); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 5px 10px -5px rgba(0, 0, 0, 0.4); }
+.ink-grid { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(var(--n), 1fr); }
+.ink-cell { display: flex; align-items: center; justify-content: center; gap: 7px; font-size: 14px; font-weight: 500; white-space: nowrap; border: 0; background: none; padding: 0; }
+.ink-base .ink-cell { color: var(--mut); cursor: pointer; }
+.ink-base .ink-cell:focus-visible { border-radius: 13px; outline-offset: -2px; }
+.ink-top { pointer-events: none; color: var(--on-inv); clip-path: inset(0 var(--rr) 0 var(--l) round 13px); }
+.ink svg { width: 15px; height: 15px; }
+.a6-list { margin-top: 10px; }
+.a6-list .s-row { transition: min-height 240ms var(--ease-spring), padding 240ms var(--ease-spring); }
+.a6-list .s-row-sub { transition: opacity 160ms var(--ease); }
+.a6-list.is-compact .s-row { min-height: 38px; padding-top: 4px; padding-bottom: 4px; }
+.a6-list.is-compact .s-row-sub { display: none; }
+
+.g-before .frag { justify-self: end; width: min(360px, 100%); }
+@media (max-width: 760px) { .g-before .frag { justify-self: stretch; } }
+.g-rec { margin-top: 24px; max-width: 70ch; color: var(--g-mut); }
+.g-rec strong { color: var(--g-ink); }
+.g-foot ul { list-style: none; margin: 14px 0 22px; padding: 0; display: grid; gap: 6px; }
+.g-foot a { color: var(--g-mut); text-underline-offset: 3px; }
+.g-foot a:hover { color: var(--g-ink); }
+.g-foot h2 { font-size: 13px; margin: 0; font-family: "Geist Mono", ui-monospace, monospace; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--g-mut); }
+</style>
+</head>
+<body>
+<header data-g-nav="appearance.html"></header>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="a1-plate-day" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff8e4"/><stop offset="1" stop-color="#ffe0a0"/></linearGradient>
+    <linearGradient id="a1-plate-night" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1b2146"/><stop offset="1" stop-color="#090c1f"/></linearGradient>
+    <linearGradient id="a1-plate-dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5b4b8a"/><stop offset="1" stop-color="#f7b267"/></linearGradient>
+    <radialGradient id="a1-sun" cx=".4" cy=".35" r=".75"><stop offset="0" stop-color="#fffdf4"/><stop offset=".55" stop-color="#ffe9a8"/><stop offset="1" stop-color="#f5b13c"/></radialGradient>
+    <linearGradient id="a1-moon" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7f8ff"/><stop offset="1" stop-color="#a9b2d4"/></linearGradient>
+    <mask id="a1-crescent" maskUnits="userSpaceOnUse" x="0" y="0" width="64" height="64"><rect width="64" height="64" fill="#000"/><circle cx="29" cy="34" r="16" fill="#fff"/><circle cx="38.5" cy="28" r="14" fill="#000"/></mask>
+    <radialGradient id="a1-corona" cx=".5" cy=".5" r=".5"><stop offset=".55" stop-color="#ff789a" stop-opacity="0"/><stop offset=".72" stop-color="#ff789a" stop-opacity=".85"/><stop offset=".88" stop-color="#c42a4d" stop-opacity=".35"/><stop offset="1" stop-color="#c42a4d" stop-opacity="0"/></radialGradient>
+    <radialGradient id="a1-ecl-sun" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#fff"/><stop offset=".5" stop-color="#ffd9a0"/><stop offset="1" stop-color="#ff7a8f"/></radialGradient>
+    <linearGradient id="a1-ring" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff3d67"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <radialGradient id="a1-ecl-moon" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#2a2d38"/><stop offset="1" stop-color="#07080c"/></radialGradient>
+  </defs>
+</svg>
+
+<main class="g-wrap">
+  <section class="g-hero">
+    <span class="g-eyebrow">Papan 01 · Appearance</span>
+    <h1 class="g-h1">Light, Dark, Auto <span class="serif">tanpa rasa biasa.</span></h1>
+    <p class="g-lede">Pengaturan tema sekarang hanya tiga segmen datar. Enam konsep di bawah memberi pilihan itu rasa yang mahal, tetapi tetap bisa dibangun di iOS dan Android.</p>
+    <aside class="g-before">
+      <div>
+        <h3>Sekarang di app</h3>
+        <p>Tiga segmen datar dengan thumb abu-abu. Kontrol ini benar, tetapi datar, dan Auto tidak punya simbol yang jelas.</p>
+      </div>
+      <div class="frag" data-ui="dark" data-ui-global>
+        <div class="s-section">Appearance</div>
+        <div class="s-card pad">
+          <div class="now-seg" role="group" aria-label="Appearance" id="now-seg">
+            <button type="button" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg>Light</button>
+            <button type="button" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg>Dark</button>
+            <button type="button" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg>Auto</button>
+          </div>
+        </div>
+        <div class="s-caption">Auto follows your phone setting.</div>
+      </div>
+    </aside>
+  </section>
+
+  <section class="g-section" id="konsep">
+    <div class="g-section-head">
+      <h2 class="g-h2">Enam cara <span class="serif">memilih tema.</span></h2>
+      <p>Setiap kontrol bekerja penuh. Ketuk, geser, atau pakai keyboard, lalu lihat tampilan berganti tema dari titik sentuh.</p>
+    </div>
+    <div class="g-grid">
+
+      <article class="concept is-wide" id="a1">
+        <div class="concept-stage dots">
+          <div class="a1-layout">
+            <div class="device a1-dev" style="--dw:300px">
+              <div class="device-screen" id="a1-screen" data-ui="dark" data-scope>
+                <span class="device-island"></span>
+                <div class="device-status"><span>9:41</span><span class="sb-icons"><i style="width:16px;height:9px"></i><i style="width:14px;height:9px"></i><i style="width:22px;height:10px;border-radius:3px"></i></span></div>
+                <div class="device-body">
+                  <div class="s-top"><span class="s-back"><svg class="ic" aria-hidden="true"><use href="#i-chevron-left"/></svg></span><span class="s-navtitle">Settings</span></div>
+                  <div class="s-section">Your computer</div>
+                  <div class="s-card">
+                    <div class="s-row">
+                      <span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-computer"/></svg></span>
+                      <span class="s-text"><span class="s-row-title">seira-vm</span><span class="s-row-sub">Connected</span></span>
+                      <span style="width:9px;height:9px;border-radius:50%;background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)"></span>
+                    </div>
+                  </div>
+                  <div class="s-section">Appearance</div>
+                  <div class="s-card ctl"><div class="a1-ctl" data-a1></div></div>
+                  <div class="s-caption">Auto follows your phone setting.</div>
+                  <div class="s-section">Notifications</div>
+                  <div class="s-card" data-notif="all"></div>
+                  <div class="s-section">Chat</div>
+                  <div class="s-card">
+                    <div class="s-row">
+                      <span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-chats"/></svg></span>
+                      <span class="s-text"><span class="s-row-title">Activity</span></span>
+                      <span class="s-value">Reduced</span>
+                      <svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg>
+                    </div>
+                  </div>
+                </div>
+                <span class="device-home"></span>
+              </div>
+            </div>
+            <div class="a1-side">
+              <div class="frag a1-big" id="a1-big" data-ui="dark">
+                <div class="s-section">Appearance</div>
+                <div class="s-card pad"><div class="a1-ctl" data-a1></div></div>
+                <div class="s-caption">Auto follows your phone setting.</div>
+              </div>
+              <span class="a1-cap">Kontrol yang sama, diperbesar</span>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk atau geser layar</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A1</span><h3>Gerhana</h3></div>
+          <p class="concept-idea">Tiga benda langit menggantikan tiga kata. Matahari, bulan, dan gerhana hidup saat dipilih, lalu seluruh layar berganti tema dengan lingkaran yang tumbuh dari jari.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Halo berpindah dengan spring (stiffness 380, damping 26) dan melebar sesuai kecepatan. Sinar berputar 22 s, bintang berkedip 2,4 s, bulan gerhana bergeser 8 s. Reveal lingkaran 560 ms.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Gambar benda dengan <code>Canvas</code> atau <code>Shape</code>. Halo memakai <code>matchedGeometryEffect</code> dan <code>.spring(response: 0.32, dampingFraction: 0.67)</code>. Putaran sinar memakai <code>TimelineView(.animation)</code>. Reveal memakai snapshot tema lama dan <code>.mask(Circle())</code>. Haptic: <code>.sensoryFeedback(.selection, trigger:)</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Gambar dengan <code>Canvas</code>. Halo memakai <code>Animatable</code> dan <code>spring(dampingRatio = 0.67f, stiffness = 380f)</code>. Loop memakai <code>rememberInfiniteTransition</code>. Grup memakai <code>Modifier.selectableGroup()</code> dan <code>selectable(role = Role.RadioButton)</code>. Reveal memakai <code>GraphicsLayer</code> dan <code>clipPath</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Radiogroup dengan tiga radio berlabel teks. Panah kiri dan kanan memindahkan pilihan. Target 64 px. Dengan reduce motion, halo pindah langsung dan loop berhenti.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya L</span><span class="tag tag-pick">Rekomendasi</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="a2">
+        <div class="concept-stage dots">
+          <div class="frag" id="a2-scope" data-ui="light" data-scope>
+            <div class="s-section">Appearance</div>
+            <div class="a2-sky" id="a2-sky">
+              <div class="a2-stars" id="a2-stars"></div>
+              <svg class="a2-svg" id="a2-svg" aria-hidden="true"><path class="a2-arc" id="a2-arc"/><g id="a2-dets"></g></svg>
+              <svg class="a2-hill" viewBox="0 0 320 58" preserveAspectRatio="none" aria-hidden="true"><path d="M0 58V34C34 18 76 26 128 36S222 14 262 26 312 32 320 24V58Z"/></svg>
+              <div class="a2-body" id="a2-body" aria-hidden="true"><div class="a2-in"><i class="a2-sun" id="a2-sun"></i><i class="a2-moon" id="a2-moon"></i></div></div>
+            </div>
+            <div class="a2-labels" role="radiogroup" aria-label="Appearance" id="a2-radios">
+              <button type="button" class="a2-lb" role="radio" data-mode="light" aria-checked="true" tabindex="0">Light</button>
+              <button type="button" class="a2-lb" role="radio" data-mode="auto" aria-checked="false" tabindex="-1">Auto</button>
+              <button type="button" class="a2-lb" role="radio" data-mode="dark" aria-checked="false" tabindex="-1">Dark</button>
+            </div>
+            <div class="s-caption">Auto follows your phone setting.</div>
+            <div class="s-section">Notifications</div>
+            <div class="s-card" data-notif="one"></div>
+          </div>
+          <span class="stage-hint">Geser benda langit</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A2</span><h3>Cakrawala</h3></div>
+          <p class="concept-idea">Satu benda langit berjalan di busur cakrawala. Geser dari siang ke senja ke malam, dan langit berubah warna terus-menerus mengikuti sudut.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Tiga detent di 150°, 90°, dan 30°. Lepas jari memicu spring (stiffness 380, damping 26) dengan kecepatan sudut terakhir. Haptic tiap detent terlewati. Warna langit mengikuti sudut tanpa langkah.</dd></div>
+            <div><dt>SwiftUI</dt><dd><code>DragGesture</code> menghitung sudut dengan <code>atan2</code>. Warna memakai <code>Color.mix(with:by:)</code> pada <code>LinearGradient</code>. Snap memakai <code>.spring(response: 0.32, dampingFraction: 0.67)</code>. Haptic: <code>.sensoryFeedback(.selection, trigger:)</code>.</dd></div>
+            <div><dt>Compose</dt><dd><code>Modifier.pointerInput</code> dengan <code>detectDragGestures</code>. Sudut disimpan di <code>Animatable</code> dan di-snap dengan <code>animateTo(spring(0.67f, 380f))</code>. Warna memakai <code>lerp(Color, Color, fraction)</code>. Gambar busur dengan <code>Canvas</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Tiga label di bawah panel adalah radio sungguhan, jadi pengguna VoiceOver dan TalkBack tidak perlu menggeser. Target 44 px. Dengan reduce motion, benda langsung pindah.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 3/5</span><span class="tag">Biaya M</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="a3">
+        <div class="concept-stage dots">
+          <div class="frag" id="a3-scope" data-ui="dark" data-scope>
+            <div class="s-section">Appearance</div>
+            <div class="s-card"><div class="a3-grid" role="radiogroup" aria-label="Appearance" id="a3-radios"></div></div>
+            <div class="s-caption">Auto follows your phone setting.</div>
+            <div class="s-section">Notifications</div>
+            <div class="s-card" data-notif="one"></div>
+          </div>
+          <span class="stage-hint">Ketuk kartu</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A3</span><h3>Pratinjau hidup</h3></div>
+          <p class="concept-idea">Setiap pilihan menampilkan wajah app itu sendiri. Kartu Auto terbelah miring antara terang dan gelap, jadi arti Auto langsung terlihat.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Kartu terpilih naik 6 px dan membesar 1,04x dengan spring 460 ms. Cincin merah tergambar 500 ms. Lencana centang muncul dengan kurva bounce. Garis Auto menyapu 8 s.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Pratinjau adalah view kecil dengan <code>.environment(\.colorScheme, .dark)</code>. Cincin memakai <code>Circle().trim(from:to:)</code> pada <code>RoundedRectangle</code>. Belahan Auto memakai <code>.mask</code> dengan <code>Path</code> miring. Pilihan memakai <code>Picker</code> dengan <code>.accessibilityRepresentation</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Pratinjau memakai <code>MaterialTheme</code> yang ditimpa per kartu. Cincin memakai <code>drawArc</code> dengan <code>Animatable</code>. Belahan memakai <code>Modifier.clip(GenericShape)</code>. Kartu memakai <code>selectable(role = Role.RadioButton)</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Tiap kartu punya nama teks, bukan hanya gambar. Panah memindahkan pilihan. Status terpilih tidak bergantung pada warna karena ada centang. Dengan reduce motion, kartu tidak naik.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag">Alternatif aman</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="a4">
+        <div class="concept-stage dots">
+          <div class="frag" id="a4-scope" data-ui="light" data-scope>
+            <div class="s-section">Appearance</div>
+            <div class="s-card pad">
+              <div class="a4" id="a4-track" role="radiogroup" aria-label="Appearance">
+                <div class="a4-inner">
+                  <div class="a4-grid a4-base" id="a4-base"></div>
+                  <div class="a4-lens" id="a4-lens"><div class="a4-mag" id="a4-mag" aria-hidden="true"></div></div>
+                </div>
+              </div>
+            </div>
+            <div class="s-caption">Auto follows your phone setting.</div>
+            <div class="s-section">Notifications</div>
+            <div class="s-card" data-notif="one"></div>
+          </div>
+          <span class="stage-hint">Tekan dan geser lensa</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A4</span><h3>Lensa cair</h3></div>
+          <p class="concept-idea">Thumb berupa lensa kaca yang membesar label di bawahnya. Konsep ini mengikuti aturan iOS 26: kaca hanya tampil saat disentuh, dan Apple meminta kaca kustom dipakai hemat. Saat diam, lensa menjadi thumb solid.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Sentuh: lensa membesar 1,08x dan label salinan 1,12x. Skala X = 1 + min(|v| x 0,35; 0,3). Skala Y = 1 - min(|v| x 0,12; 0,1). Lepas: spring 380/26 ke segmen terdekat.</dd></div>
+            <div><dt>SwiftUI</dt><dd>iOS 26: <code>.glassEffect(.regular.interactive(), in: .capsule)</code> dan <code>GlassEffectContainer</code>. Sebelum iOS 26: <code>.ultraThinMaterial</code>. Gesture memakai <code>DragGesture</code> dan <code>.scaleEffect</code> dari <code>value.velocity</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Android 12 ke atas: <code>RenderEffect.createBlurEffect</code> lewat <code>Modifier.graphicsLayer</code>. Di bawahnya, pakai scrim tembus pandang. Gesture memakai <code>draggable</code> dan <code>Animatable</code> dengan <code>spring</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Segmen asli adalah radio di bawah lensa, jadi pembaca layar melihat tiga pilihan. Target 44 px tinggi. Dengan reduce motion, lensa pindah tanpa regangan dan tanpa blur.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya L</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="a5">
+        <div class="concept-stage dots">
+          <div class="frag" id="a5-scope" data-ui="dark" data-scope>
+            <div class="s-section">Appearance</div>
+            <div class="s-card">
+              <div class="a5-dial" id="a5-dial">
+                <div class="a5-ticks" id="a5-ticks"></div>
+                <button type="button" class="a5-lb" data-mode="light" aria-pressed="false" style="left:calc(50% - 99.6px);top:66.4px"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg>Light</button>
+                <button type="button" class="a5-lb" data-mode="auto" aria-pressed="true" style="left:50%;top:32px"><svg class="ic" aria-hidden="true"><use href="#i-auto"/></svg>Auto</button>
+                <button type="button" class="a5-lb" data-mode="dark" aria-pressed="false" style="left:calc(50% + 99.6px);top:66.4px"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg>Dark</button>
+                <div class="a5-knob" id="a5-knob" role="slider" tabindex="0" aria-label="Appearance" aria-valuemin="0" aria-valuemax="2" aria-valuenow="1" aria-valuetext="Auto">
+                  <div class="a5-body"></div>
+                  <div class="a5-rot"><div class="a5-knurl"></div></div>
+                  <div class="a5-cap"></div>
+                  <div class="a5-rot"><div class="a5-groove"></div><i class="a5-led"></i></div>
+                </div>
+              </div>
+            </div>
+            <div class="s-caption">Auto follows your phone setting.</div>
+            <div class="s-section">Notifications</div>
+            <div class="s-card" data-notif="one"></div>
+          </div>
+          <span class="stage-hint">Putar kenop</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A5</span><h3>Kenop</h3></div>
+          <p class="concept-idea">Kenop fisik dengan tiga detent. Putar, lepas, dan kenop mengunci dengan spring. LED merah menunjuk pilihan aktif.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Rotasi mengikuti sudut jari dari -60° sampai 60°. Detent di -50°, 0°, dan 50°. Lepas: spring (stiffness 500, damping 30) dengan kecepatan sudut. Haptic tiap detent terlewati.</dd></div>
+            <div><dt>SwiftUI</dt><dd><code>DragGesture</code> dan <code>atan2</code> untuk sudut. Tutup logam memakai <code>AngularGradient</code> dan <code>RadialGradient</code>. Snap memakai <code>.spring(response: 0.28, dampingFraction: 0.67)</code>. Aksesibilitas memakai <code>.accessibilityAdjustableAction</code>.</dd></div>
+            <div><dt>Compose</dt><dd><code>detectDragGestures</code> pada <code>Canvas</code>. Tutup memakai <code>Brush.sweepGradient</code> dan <code>Brush.radialGradient</code>. Snap memakai <code>Animatable</code> dengan <code>spring(0.67f, 500f)</code>. Semantik memakai <code>Modifier.semantics { setProgress }</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Kenop adalah slider dengan nilai teks Light, Auto, atau Dark. Panah kiri dan kanan mengubah nilai. Tiga label di sekitarnya adalah tombol 44 px. Dengan reduce motion, kenop pindah langsung.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 3/5</span><span class="tag">Biaya M</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="a6">
+        <div class="concept-stage dots">
+          <div class="frag" id="a6-scope" data-ui="light" data-scope>
+            <div class="s-section">Appearance</div>
+            <div class="s-card pad"><div id="a6-theme"></div></div>
+            <div class="s-caption">Auto follows your phone setting.</div>
+            <div class="s-section">List density</div>
+            <div class="s-card pad"><div id="a6-density"></div></div>
+            <div class="a6-list s-card" id="a6-list">
+              <div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-bot"/></svg></span><span class="s-text"><span class="s-row-title">Research helper</span><span class="s-row-sub">Waiting for your answer</span></span></div>
+              <div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-pencil"/></svg></span><span class="s-text"><span class="s-row-title">Weekly report</span><span class="s-row-sub">Finished 12 min ago</span></span></div>
+              <div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-clock-loop"/></svg></span><span class="s-text"><span class="s-row-title">Morning summary</span><span class="s-row-sub">Runs every day at 08:00</span></span></div>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk segmen</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">A6</span><h3>Tinta</h3></div>
+          <p class="concept-idea">Thumb tinta solid dengan label yang berbalik warna di bawahnya. Tepi depan bergerak lebih dulu dan tepi belakang menyusul, seperti ulat jengkal. Komponen yang sama dipakai untuk List density.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Tepi depan bergerak 220 ms dengan kurva spring. Tepi belakang menyusul 70 ms kemudian. Arah kiri memakai urutan terbalik. Label atas dipotong dengan <code>clip-path</code> yang selalu cocok dengan thumb.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Dua lapis <code>Text</code>. Lapis atas memakai <code>.mask</code> dari <code>RoundedRectangle</code> dengan <code>leading</code> dan <code>trailing</code> animasi terpisah: <code>.animation(.spring(response: 0.32, dampingFraction: 0.67).delay(0.07), value:)</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Dua lapis <code>Text</code>. Lapis atas memakai <code>drawWithContent</code> dan <code>clipRect(left, right)</code>. Tepi memakai dua <code>animateDpAsState</code> dengan <code>spring</code> dan jeda 70 ms lewat <code>delay</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Radiogroup. Lapis atas disembunyikan dari pembaca layar. Target penuh 1/n lebar, tinggi 40 px. Dengan reduce motion, kedua tepi pindah bersamaan tanpa jeda.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 3/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya S</span><span class="tag tag-hot">Sistem</span><span class="tag tag-pick">Rekomendasi</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="g-section" id="penilaian">
+    <div class="g-section-head">
+      <h2 class="g-h2">Penilaian</h2>
+      <p>Skala 1 sampai 5 untuk wow dan kejelasan. Biaya: S kecil, M sedang, L besar.</p>
+    </div>
+    <div class="g-table-wrap">
+      <table class="g-table">
+        <thead><tr><th>Konsep</th><th>Wow (1–5)</th><th>Jelas (1–5)</th><th>Biaya (S/M/L)</th><th>Catatan</th></tr></thead>
+        <tbody>
+          <tr><td>A1 Gerhana</td><td><strong>5</strong></td><td>4</td><td>L</td><td>Tiga ilustrasi hidup, halo spring, dan reveal tema. Paling berkesan, paling banyak pekerjaan.</td></tr>
+          <tr><td>A2 Cakrawala</td><td><strong>5</strong></td><td>3</td><td>M</td><td>Tema terasa sebagai waktu. Pengguna baru butuh label untuk paham bahwa busur adalah pilihan.</td></tr>
+          <tr><td>A3 Pratinjau hidup</td><td>4</td><td><strong>5</strong></td><td>M</td><td>Hasil terlihat sebelum dipilih. Paling aman dan paling mudah dipahami.</td></tr>
+          <tr><td>A4 Lensa cair</td><td>4</td><td>4</td><td>L</td><td>Cocok dengan iOS 26. Di Android, blur nyata butuh API 31 ke atas.</td></tr>
+          <tr><td>A5 Kenop</td><td>4</td><td>3</td><td>M</td><td>Rasa fisik yang kuat. Memakai tinggi layar lebih banyak dan butuh gestur putar.</td></tr>
+          <tr><td>A6 Tinta</td><td>3</td><td><strong>5</strong></td><td>S</td><td>Satu komponen untuk setiap segmen dengan 2 atau 3 pilihan. Gerak halus, biaya kecil.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="g-rec"><strong>Rekomendasi.</strong> Pakai A1 Gerhana sebagai kontrol penanda untuk Appearance. Pakai A6 Tinta sebagai pengganti setiap segmented control dengan 2 atau 3 pilihan. Simpan A3 sebagai alternatif paling aman bila A1 terlalu mahal.</p>
+  </section>
+</main>
+
+<footer class="g-wrap g-foot">
+  <h2>Sumber riset</h2>
+  <ul>
+    <li><a href="https://developer.apple.com/documentation/technologyoverviews/adopting-liquid-glass" rel="noopener">Apple, Adopting Liquid Glass</a></li>
+    <li><a href="https://developer.apple.com/videos/play/wwdc2025/323/" rel="noopener">WWDC25 323</a></li>
+    <li><a href="https://codelabs.developers.google.com/codelabs/mdc-102-objc" rel="noopener">M3 Expressive codelab</a></li>
+    <li><a href="https://pub.dev/documentation/flutter_theme_circle_animation/latest/" rel="noopener">Pola reveal Telegram</a></li>
+  </ul>
+  <p>Mockup statis. Warna dari SeiraTheme.swift.</p>
+</footer>
+
+<script src="assets/kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  const S = window.Seira;
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const center = (el) => { const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2, y: r.top + r.height / 2 }; };
+  const resolve = (m) => (m === "auto" ? (S.systemDark ? "dark" : "light") : m);
+
+  $$("[data-scope]").forEach((s) => { s.dataset.uiChoice = s.dataset.ui; });
+
+  const ROWS = [
+    ["hand", "Needs your OK", "When a bot waits for your answer"],
+    ["check", "Task finished", "When a bot is done with a job"],
+    ["clock-loop", "Routine problems", "When a scheduled job fails"],
+  ];
+  const rowHTML = (r) => `<div class="s-row"><span class="s-ico">${S.icon(r[0])}</span><span class="s-text"><span class="s-row-title">${r[1]}</span><span class="s-row-sub">${r[2]}</span></span><button type="button" class="now-switch" role="switch" aria-checked="true" aria-label="${r[1]}"></button></div>`;
+  $$("[data-notif]").forEach((c) => {
+    c.innerHTML = (c.dataset.notif === "all" ? ROWS : ROWS.slice(0, 1)).map(rowHTML).join("");
+  });
+  document.addEventListener("click", (e) => {
+    const sw = e.target.closest(".now-switch");
+    if (!sw) return;
+    sw.setAttribute("aria-checked", String(sw.getAttribute("aria-checked") !== "true"));
+    S.tick(sw);
+  });
+
+  $$("#now-seg button").forEach((b) => b.addEventListener("click", () => {
+    $$("#now-seg button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    S.tick(b);
+  }));
+
+  function arrows(group, order, getMode, setMode, sel) {
+    group.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 }[e.key];
+      let i = order.indexOf(getMode());
+      if (step) i = (i + step + order.length) % order.length;
+      else if (e.key === "Home") i = 0;
+      else if (e.key === "End") i = order.length - 1;
+      else return;
+      e.preventDefault();
+      const btn = $(`${sel || "[data-mode]"}[data-mode="${order[i]}"]`, group);
+      if (btn) { btn.focus(); setMode(order[i], btn); }
+    });
+  }
+  function markRadios(btns, m) {
+    btns.forEach((b) => { const on = b.dataset.mode === m; b.setAttribute("aria-checked", String(on)); b.tabIndex = on ? 0 : -1; });
+  }
+
+  (function a1() {
+    const scope = $("#a1-screen"), big = $("#a1-big");
+    const ORDER = ["light", "dark", "auto"], NAME = { light: "Light", dark: "Dark", auto: "Auto" };
+    let mode = "dark";
+    let rays = "";
+    for (let i = 0; i < 12; i++) {
+      const a = (i * 30 * Math.PI) / 180, r1 = 17, r2 = i % 2 ? 22 : 25;
+      rays += `<line x1="${(32 + r1 * Math.cos(a)).toFixed(2)}" y1="${(32 + r1 * Math.sin(a)).toFixed(2)}" x2="${(32 + r2 * Math.cos(a)).toFixed(2)}" y2="${(32 + r2 * Math.sin(a)).toFixed(2)}"/>`;
+    }
+    const stars = [[46, 17, 0], [52, 31, 0.8], [47, 47, 1.5], [36, 13, 0.4]]
+      .map((s) => `<circle class="a1-star" cx="${s[0]}" cy="${s[1]}" r="1.1" fill="#fff" style="animation-delay:${s[2]}s"/>`).join("");
+    const rim = '<circle cx="32" cy="32" r="31" fill="none" stroke="rgba(255,255,255,.3)"/>';
+    const art = {
+      light: `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="url(#a1-plate-day)"/><g class="a1-rays"><g stroke="#f2a93b" stroke-width="2.2" stroke-linecap="round">${rays}</g></g><circle cx="32" cy="32" r="11.5" fill="url(#a1-sun)"/>${rim}</svg>`,
+      dark: `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="url(#a1-plate-night)"/><rect width="64" height="64" fill="url(#a1-moon)" mask="url(#a1-crescent)"/><circle cx="21" cy="38" r="2.1" fill="rgba(110,120,165,.45)"/><circle cx="25" cy="45" r="1.6" fill="rgba(110,120,165,.45)"/><circle cx="19" cy="29" r="1.4" fill="rgba(110,120,165,.45)"/>${stars}${rim}</svg>`,
+      auto: `<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="32" fill="url(#a1-plate-dusk)"/><circle cx="32" cy="32" r="22" fill="url(#a1-corona)"/><circle cx="32" cy="32" r="12.5" fill="url(#a1-ecl-sun)"/><circle cx="32" cy="32" r="15.5" fill="none" stroke="url(#a1-ring)" stroke-width="1.3" opacity=".9"/><g class="a1-moondrift"><circle cx="32" cy="32" r="12" fill="url(#a1-ecl-moon)"/><circle cx="32" cy="32" r="11.6" fill="none" stroke="rgba(255,205,220,.4)" stroke-width=".9"/></g>${rim}</svg>`,
+    };
+    const insts = $$("[data-a1]").map((host) => {
+      host.setAttribute("role", "radiogroup");
+      host.setAttribute("aria-label", "Appearance");
+      host.innerHTML = '<div class="a1-halo"></div>' + ORDER.map((m) => `<button type="button" class="a1-b" role="radio" data-mode="${m}" aria-checked="false" tabindex="-1"><span class="a1-body">${art[m]}</span><span class="a1-lab">${NAME[m]}</span></button>`).join("");
+      return { host, halo: $(".a1-halo", host), btns: $$(".a1-b", host), x: 0, y: 0, v: 0, stop: null };
+    });
+    function spot(inst, m) {
+      const b = inst.btns[ORDER.indexOf(m)], body = b.firstElementChild, h = inst.halo;
+      return {
+        x: b.offsetLeft + body.offsetLeft + body.offsetWidth / 2 - h.offsetWidth / 2,
+        y: b.offsetTop + body.offsetTop + body.offsetHeight / 2 - h.offsetHeight / 2,
+      };
+    }
+    function place(inst, x, v) {
+      inst.halo.style.transform = `translate3d(${x}px,${inst.y}px,0) scaleX(${1 + Math.min(Math.abs(v || 0) / 2400, 0.45)})`;
+    }
+    function go(inst, m, animate) {
+      inst.stop && inst.stop();
+      const p = spot(inst, m);
+      inst.y = p.y;
+      if (!animate) { inst.x = p.x; inst.v = 0; place(inst, p.x, 0); return; }
+      inst.stop = S.spring({
+        from: inst.x, to: p.x, velocity: inst.v, stiffness: 380, damping: 26,
+        onUpdate: (x, v) => { inst.x = x; inst.v = v || 0; place(inst, x, v); },
+        onDone: () => { inst.v = 0; place(inst, inst.x, 0); },
+      });
+    }
+    function pick(m, btn) {
+      if (m === mode) return;
+      mode = m;
+      insts.forEach((i) => { markRadios(i.btns, m); go(i, m, true); });
+      S.tick(btn.firstElementChild);
+      S.setUI(scope, m, center(btn.firstElementChild));
+      big.dataset.ui = resolve(m);
+      big.dataset.uiChoice = m;
+    }
+    insts.forEach((inst) => {
+      markRadios(inst.btns, mode);
+      inst.btns.forEach((b) => b.addEventListener("click", () => pick(b.dataset.mode, b)));
+      arrows(inst.host, ORDER, () => mode, pick, ".a1-b");
+      const ro = new ResizeObserver(() => go(inst, mode, false));
+      ro.observe(inst.host);
+      go(inst, mode, false);
+    });
+  })();
+
+  (function a2() {
+    const scope = $("#a2-scope"), sky = $("#a2-sky"), body = $("#a2-body"), svg = $("#a2-svg"), arc = $("#a2-arc"), dets = $("#a2-dets");
+    const sun = $("#a2-sun"), moon = $("#a2-moon");
+    const radios = $("#a2-radios"), btns = $$(".a2-lb", radios);
+    const DET = { light: 150, auto: 90, dark: 30 }, ORDER = ["light", "auto", "dark"];
+    const DAY = [[207, 230, 255], [255, 246, 229]], DUSK = [[91, 75, 138], [247, 178, 103]], NIGHT = [[11, 16, 38], [27, 31, 59]];
+    const HILL = [[141, 179, 138], [59, 47, 92], [7, 10, 24]];
+    const ARC = [[20, 40, 80, 0.35], [255, 240, 220, 0.55], [255, 255, 255, 0.45]];
+    let mode = "light", angle = 150, W = 0, H = 0, cx = 0, cy = 0, R = 0, stop = null, lastIdx = 0, dragging = false;
+    let seed = 7;
+    const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+    $("#a2-stars").innerHTML = Array.from({ length: 18 }, () => `<i style="left:${(rnd() * 96 + 2).toFixed(1)}%;top:${(rnd() * 62 + 4).toFixed(1)}%;opacity:${(0.5 + rnd() * 0.5).toFixed(2)}"></i>`).join("");
+    const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);
+    const tri = (a, b, c, p) => (p <= 0.5 ? mix(a, b, p * 2) : mix(b, c, (p - 0.5) * 2));
+    const rgb = (c) => `rgb(${c.slice(0, 3).map(Math.round).join(",")})`;
+    const rgba = (c) => `rgba(${c.slice(0, 3).map(Math.round).join(",")},${c[3].toFixed(2)})`;
+    function layout() {
+      W = sky.clientWidth; H = sky.clientHeight;
+      cx = W / 2; cy = H - 34; R = Math.min(W / 2 - 34, 96);
+      svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+      arc.setAttribute("d", `M${cx - R} ${cy}A${R} ${R} 0 0 1 ${cx + R} ${cy}`);
+      dets.innerHTML = Object.values(DET).map((a) => { const r = (a * Math.PI) / 180; return `<circle class="a2-det" cx="${cx + R * Math.cos(r)}" cy="${cy - R * Math.sin(r)}" r="2.4"/>`; }).join("");
+      render(angle);
+    }
+    function render(a) {
+      const r = (a * Math.PI) / 180, bx = cx + R * Math.cos(r), by = cy - R * Math.sin(r);
+      body.style.transform = `translate3d(${bx - 18}px,${by - 18}px,0)`;
+      const p = clamp((150 - a) / 120, 0, 1);
+      const t = tri(DAY[0], DUSK[0], NIGHT[0], p), b = tri(DAY[1], DUSK[1], NIGHT[1], p);
+      sky.style.setProperty("--sky-t", rgb(t));
+      sky.style.setProperty("--sky-b", rgb(b));
+      sky.style.setProperty("--hill", rgb(tri(HILL[0], HILL[1], HILL[2], p)));
+      sky.style.setProperty("--arc", rgba(tri(ARC[0], ARC[1], ARC[2], p)));
+      sky.style.setProperty("--stars", clamp((p - 0.45) / 0.55, 0, 1).toFixed(3));
+      sky.style.setProperty("--glow", rgba(mix([255, 176, 60, 0.75], [170, 190, 255, 0.55], p)));
+      sun.style.clipPath = `inset(0 ${(p * 100).toFixed(2)}% 0 0)`;
+      moon.style.clipPath = `inset(0 0 0 ${((1 - p) * 100).toFixed(2)}%)`;
+    }
+    const nearest = (a) => ORDER.reduce((best, m, i) => (Math.abs(a - DET[m]) < Math.abs(a - DET[ORDER[best]]) ? i : best), 0);
+    function angleAt(x, y) {
+      const rc = sky.getBoundingClientRect();
+      let a = (Math.atan2(rc.top + cy - y, x - (rc.left + cx)) * 180) / Math.PI;
+      if (a < -90 || a > 150) a = 150; else if (a < 30) a = 30;
+      return a;
+    }
+    function commit(m, from, vel, tickIt) {
+      const changed = m !== mode;
+      mode = m;
+      markRadios(btns, m);
+      stop && stop();
+      stop = S.spring({ from: angle, to: DET[m], velocity: vel || 0, stiffness: 380, damping: 26, onUpdate: (a) => { angle = a; render(a); } });
+      if (changed) {
+        if (tickIt) S.tick(body);
+        S.setUI(scope, m, from);
+      }
+    }
+    S.drag(sky, {
+      start(e) { stop && stop(); dragging = true; sky.classList.add("is-drag"); angle = angleAt(e.clientX, e.clientY); lastIdx = nearest(angle); render(angle); },
+      move({ x, y }) {
+        angle = angleAt(x, y); render(angle);
+        const i = nearest(angle);
+        if (i !== lastIdx) { lastIdx = i; S.tick(body); }
+      },
+      end({ vx, vy, x, y }) {
+        dragging = false; sky.classList.remove("is-drag");
+        const th = (angle * Math.PI) / 180;
+        const w = (-(vx * Math.sin(th) + vy * Math.cos(th)) / R) * (180 / Math.PI);
+        const idx = nearest(clamp(angle + w * 140, 30, 150));
+        commit(ORDER[idx], center(body), w * 1000, false);
+      },
+    });
+    btns.forEach((b) => b.addEventListener("click", () => commit(b.dataset.mode, center(b), 0, true)));
+    arrows(radios, ORDER, () => mode, (m, b) => commit(m, center(b), 0, true));
+    markRadios(btns, mode);
+    new ResizeObserver(layout).observe(sky);
+    layout();
+  })();
+
+  (function a3() {
+    const scope = $("#a3-scope"), group = $("#a3-radios");
+    const ORDER = ["light", "dark", "auto"], NAME = { light: "Light", dark: "Dark", auto: "Auto" };
+    let mode = "dark";
+    const AV = ["var(--acc)", "var(--ok)", "var(--warn-fill)", "#6c7bff"];
+    const phone = (ui, cls) => `<span class="a3-phone ${cls || ""}" data-ui="${ui}"><span class="a3-hd"><b></b><i></i></span>${AV.map((c, i) => `<span class="a3-r"><i class="a3-av" style="background:${c}"></i><span class="a3-ln"><b style="width:${[80, 64, 72, 58][i]}%"></b><i style="width:${[55, 70, 48, 62][i]}%"></i></span></span>`).join("")}</span>`;
+    const thumb = {
+      light: `<span class="a3-thumb">${phone("light")}</span>`,
+      dark: `<span class="a3-thumb">${phone("dark")}</span>`,
+      auto: `<span class="a3-thumb is-auto">${phone("light")}${phone("dark", "a3-top")}<span class="a3-line"></span><span class="a3-badge">${S.icon("auto")}</span></span>`,
+    };
+    group.innerHTML = ORDER.map((m) => `<button type="button" class="a3-opt" role="radio" data-mode="${m}" aria-checked="false" tabindex="-1" aria-label="${NAME[m]}"><span class="a3-lift">${thumb[m]}<span class="a3-ring"></span><span class="a3-check">${S.icon("check")}</span></span><span class="a3-lab">${NAME[m]}</span></button>`).join("");
+    const btns = $$(".a3-opt", group);
+    function pick(m, btn) {
+      if (m === mode) return;
+      mode = m;
+      markRadios(btns, m);
+      S.tick($(".a3-lift", btn));
+      S.setUI(scope, m, center(btn));
+    }
+    btns.forEach((b) => b.addEventListener("click", () => pick(b.dataset.mode, b)));
+    arrows(group, ORDER, () => mode, pick, ".a3-opt");
+    markRadios(btns, mode);
+  })();
+
+  (function a4() {
+    const scope = $("#a4-scope"), track = $("#a4-track"), inner = $(".a4-inner", track);
+    const lens = $("#a4-lens"), mag = $("#a4-mag"), base = $("#a4-base");
+    const ORDER = ["light", "dark", "auto"], NAME = { light: "Light", dark: "Dark", auto: "Auto" }, ICO = { light: "sun", dark: "moon", auto: "auto" };
+    base.innerHTML = ORDER.map((m) => `<button type="button" role="radio" data-mode="${m}" aria-checked="false" tabindex="-1">${S.icon(ICO[m])}${NAME[m]}</button>`).join("");
+    mag.innerHTML = ORDER.map((m) => `<span class="a4-cell">${S.icon(ICO[m])}${NAME[m]}</span>`).join("");
+    const btns = $$("button", base);
+    let mode = "light", segW = 0, innerW = 0, x = 0, v = 0, m = 0, touching = false, raf = 0, target = 0, off = 0, last = 0, lastIdx = 0, stopX = null, stopM = null;
+    function render() {
+      const sx = 1 + Math.min(Math.abs(v) * 0.35, 0.3), sy = 1 - Math.min(Math.abs(v) * 0.12, 0.1);
+      const g = 1 + 0.08 * m, s = 1 + 0.12 * m, sh = s / (sx * g), sv = s / (sy * g);
+      lens.style.transform = `translate3d(${x}px,0,0) scale(${sx * g},${sy * g})`;
+      mag.style.transform = `translate3d(${(segW / 2) * (1 - sh) - x * sh}px,0,0) scale(${sh},${sv})`;
+    }
+    function measure() {
+      innerW = inner.clientWidth; segW = innerW / 3;
+      mag.style.width = innerW + "px"; lens.style.width = segW + "px";
+      if (!touching) { x = ORDER.indexOf(mode) * segW; v = 0; }
+      render();
+    }
+    function glass(on) {
+      lens.classList.toggle("is-glass", on);
+      stopM && stopM();
+      stopM = S.spring({ from: m, to: on ? 1 : 0, stiffness: 420, damping: 30, onUpdate: (nm) => { m = nm; render(); } });
+    }
+    function loop(now) {
+      if (!touching) return;
+      const dt = Math.max(1, now - last); last = now;
+      const nx = x + (target - x) * (1 - Math.exp(-dt / 45));
+      v = (nx - x) / dt; x = nx;
+      render();
+      raf = requestAnimationFrame(loop);
+    }
+    function settle(idx, vel) {
+      stopX && stopX();
+      stopX = S.spring({
+        from: x, to: idx * segW, velocity: vel * 1000, stiffness: 380, damping: 26,
+        onUpdate: (nx, nv) => { x = nx; v = (nv || 0) / 1000; render(); },
+        onDone: () => { v = 0; render(); },
+      });
+    }
+    function commit(mm, from) {
+      if (mm === mode) return;
+      mode = mm; markRadios(btns, mm);
+      S.tick(lens);
+      S.setUI(scope, mm, from);
+    }
+    const ptr = (cx) => cx - inner.getBoundingClientRect().left;
+    S.drag(track, {
+      start(e) {
+        if (!segW) measure();
+        const px = ptr(e.clientX), c = x + segW / 2;
+        off = Math.abs(px - c) <= segW / 2 ? c - px : 0;
+        target = clamp(px + off - segW / 2, 0, 2 * segW);
+        touching = true; lastIdx = Math.round(x / segW);
+        stopX && stopX();
+        glass(true);
+        if (S.reduced) { x = target; render(); } else { last = performance.now(); raf = requestAnimationFrame(loop); }
+      },
+      move({ x: cxp }) {
+        target = clamp(ptr(cxp) + off - segW / 2, 0, 2 * segW);
+        if (S.reduced) { x = target; render(); }
+        const i = clamp(Math.round(target / segW), 0, 2);
+        if (i !== lastIdx) { lastIdx = i; S.tick(null); }
+      },
+      end({ e }) {
+        touching = false; cancelAnimationFrame(raf);
+        const idx = clamp(Math.round((x + v * 140) / segW), 0, 2);
+        glass(false);
+        settle(idx, v);
+        commit(ORDER[idx], { x: e.clientX, y: e.clientY });
+      },
+    });
+    btns.forEach((b) => b.addEventListener("click", (e) => {
+      if (e.detail !== 0) return;
+      const idx = ORDER.indexOf(b.dataset.mode);
+      settle(idx, 0);
+      commit(b.dataset.mode, center(b));
+    }));
+    arrows(track, ORDER, () => mode, (mm, b) => { settle(ORDER.indexOf(mm), 0); commit(mm, center(b)); }, "button");
+    markRadios(btns, mode);
+    new ResizeObserver(measure).observe(inner);
+    measure();
+  })();
+
+  (function a5() {
+    const scope = $("#a5-scope"), knob = $("#a5-knob"), ticksEl = $("#a5-ticks");
+    const rots = $$(".a5-rot", knob), labels = $$(".a5-lb", $("#a5-dial"));
+    const DET = { light: -50, auto: 0, dark: 50 }, ORDER = ["light", "auto", "dark"], NAME = { light: "Light", auto: "Auto", dark: "Dark" };
+    let mode = "auto", angle = 0, stop = null, lastIdx = 1, sp = 0, sk = 0;
+    const tickEls = [];
+    for (let a = -60; a <= 60; a += 10) {
+      const bold = a === -50 || a === 0 || a === 50;
+      const t = document.createElement("i");
+      t.className = "a5-tick" + (bold ? " bold" : "");
+      t.style.transform = `rotate(${a}deg) translateY(${bold ? -80 : -79}px)`;
+      t.dataset.a = a;
+      ticksEl.appendChild(t);
+      tickEls.push(t);
+    }
+    const nearest = (a) => ORDER.reduce((best, m, i) => (Math.abs(a - DET[m]) < Math.abs(a - DET[ORDER[best]]) ? i : best), 0);
+    function render() { rots.forEach((r) => { r.style.transform = `rotate(${angle}deg)`; }); }
+    function visual(m) {
+      tickEls.forEach((t) => t.classList.toggle("act", +t.dataset.a === DET[m]));
+      labels.forEach((l) => l.setAttribute("aria-pressed", String(l.dataset.mode === m)));
+      knob.setAttribute("aria-valuenow", String(ORDER.indexOf(m)));
+      knob.setAttribute("aria-valuetext", NAME[m]);
+    }
+    function commit(m, from, vel, tickIt) {
+      const changed = m !== mode;
+      mode = m; visual(m);
+      stop && stop();
+      stop = S.spring({ from: angle, to: DET[m], velocity: vel || 0, stiffness: 500, damping: 30, onUpdate: (a) => { angle = a; render(); } });
+      if (changed) {
+        if (tickIt) S.tick(knob, "heavy");
+        S.setUI(scope, m, from);
+      }
+    }
+    const ptrAngle = (x, y) => { const c = center(knob); return (Math.atan2(x - c.x, -(y - c.y)) * 180) / Math.PI; };
+    S.drag(knob, {
+      start(e) { stop && stop(); sp = ptrAngle(e.clientX, e.clientY); sk = angle; lastIdx = nearest(angle); knob.classList.add("is-drag"); },
+      move({ x, y }) {
+        let d = ptrAngle(x, y) - sp;
+        d = ((d + 540) % 360) - 180;
+        angle = clamp(sk + d, -60, 60);
+        render();
+        const i = nearest(angle);
+        if (i !== lastIdx) { lastIdx = i; S.tick(knob, "heavy"); }
+      },
+      end({ vx, vy, x, y }) {
+        knob.classList.remove("is-drag");
+        const c = center(knob), rx = x - c.x, ry = y - c.y, r2 = Math.max(400, rx * rx + ry * ry);
+        const w = ((rx * vy - ry * vx) / r2) * (180 / Math.PI);
+        const idx = nearest(clamp(angle + w * 150, -60, 60));
+        commit(ORDER[idx], c, w * 1000, false);
+      },
+    });
+    labels.forEach((l) => l.addEventListener("click", () => commit(l.dataset.mode, center(l), 0, true)));
+    knob.addEventListener("keydown", (e) => {
+      const step = { ArrowRight: 1, ArrowUp: 1, ArrowLeft: -1, ArrowDown: -1 }[e.key];
+      let i = ORDER.indexOf(mode);
+      if (step) i = clamp(i + step, 0, 2);
+      else if (e.key === "Home") i = 0;
+      else if (e.key === "End") i = 2;
+      else return;
+      e.preventDefault();
+      commit(ORDER[i], center(knob), 0, true);
+    });
+    render(); visual(mode);
+  })();
+
+  function makeInk(host, o) {
+    const n = o.items.length;
+    host.classList.add("ink");
+    host.setAttribute("role", "radiogroup");
+    host.setAttribute("aria-label", o.label);
+    host.style.setProperty("--n", n);
+    const inner = (it) => `${it.icon ? S.icon(it.icon) : ""}${it.label}`;
+    host.innerHTML = `<div class="ink-in"><span class="ink-thumb"></span><div class="ink-grid ink-base">${o.items.map((it) => `<button type="button" class="ink-cell" role="radio" data-mode="${it.value}" aria-checked="false" tabindex="-1">${inner(it)}</button>`).join("")}</div><div class="ink-grid ink-top" aria-hidden="true">${o.items.map((it) => `<span class="ink-cell">${inner(it)}</span>`).join("")}</div></div>`;
+    const btns = $$(".ink-base button", host), values = o.items.map((it) => it.value);
+    let cur = values.indexOf(o.value);
+    function place(i) {
+      host.classList.toggle("to-left", i < cur);
+      host.style.setProperty("--l", `${(i * 100) / n}%`);
+      host.style.setProperty("--rr", `${((n - 1 - i) * 100) / n}%`);
+    }
+    function set(v, btn) {
+      const i = values.indexOf(v);
+      if (i === cur) return;
+      place(i); cur = i;
+      markRadios(btns, v);
+      S.tick(btn);
+      o.onChange(v, btn);
+    }
+    btns.forEach((b) => b.addEventListener("click", () => set(b.dataset.mode, b)));
+    arrows(host, values, () => values[cur], set, ".ink-cell");
+    host.style.setProperty("--l", `${(cur * 100) / n}%`);
+    host.style.setProperty("--rr", `${((n - 1 - cur) * 100) / n}%`);
+    markRadios(btns, o.value);
+  }
+  (function a6() {
+    const scope = $("#a6-scope");
+    makeInk($("#a6-theme"), {
+      label: "Appearance", value: "light",
+      items: [{ value: "light", label: "Light", icon: "sun" }, { value: "dark", label: "Dark", icon: "moon" }, { value: "auto", label: "Auto", icon: "auto" }],
+      onChange: (v, btn) => S.setUI(scope, v, center(btn)),
+    });
+    makeInk($("#a6-density"), {
+      label: "List density", value: "comfortable",
+      items: [{ value: "comfortable", label: "Comfortable", icon: "rows" }, { value: "compact", label: "Compact", icon: "rows-dense" }],
+      onChange: (v) => $("#a6-list").classList.toggle("is-compact", v === "compact"),
+    });
+  })();
+
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver((entries) => entries.forEach((en) => en.target.classList.toggle("is-off", !en.isIntersecting)), { rootMargin: "80px" });
+    $$(".concept").forEach((c) => io.observe(c));
+  }
+})();
+</script>
+</body>
+</html>

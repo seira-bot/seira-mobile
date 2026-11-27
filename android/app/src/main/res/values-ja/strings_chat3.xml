@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">名前を変更</string>
+    <string name="chat3_menu_copy_markdown">Markdown としてコピー</string>
+    <string name="chat3_menu_download_markdown">.md をダウンロード</string>
+    <string name="chat3_menu_activity">アクティビティ</string>
+    <string name="chat3_copied">コピーしました</string>
+    <string name="chat3_rename_heading">スレッド名を変更</string>
+    <string name="chat3_rename_label">タイトル</string>
+    <string name="chat3_rename_save">保存</string>
+    <string name="chat3_rename_cancel">キャンセル</string>
+    <string name="chat3_rename_failed">このスレッドの名前を変更できませんでした。もう一度お試しください。</string>
+    <string name="chat3_tool_teach">教える</string>
+    <string name="chat3_tool_teach_a11y">新しいスキルを教える</string>
+    <string name="chat3_tool_goal">目標</string>
+    <string name="chat3_tool_goal_a11y">目標を設定</string>
+    <string name="chat3_tool_context">コンテキスト %1$d%%</string>
+    <string name="chat3_tool_context_a11y">コンテキスト、%1$dパーセント使用中。タップで詳細を表示。</string>
+    <string name="chat3_context_title">コンテキスト</string>
+    <string name="chat3_context_bar_a11y">%1$dパーセント使用中</string>
+    <string name="chat3_context_usage">%2$sトークン中%1$sトークンを使用</string>
+    <string name="chat3_context_compact">コンテキストを圧縮</string>
+    <string name="chat3_context_compact_sub">古いメッセージを要約します</string>
+    <string name="chat3_context_compacting">圧縮中…</string>
+    <string name="chat3_context_compacted">要約を開始しました</string>
+    <string name="chat3_context_wait">返信が終わるまでお待ちください。</string>
+    <string name="chat3_context_failed">この会話を圧縮できませんでした。もう一度お試しください。</string>
+    <string name="chat3_allow_session">このセッションでは許可</string>
+</resources>

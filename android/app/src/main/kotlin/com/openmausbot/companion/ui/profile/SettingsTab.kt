@@ -292,6 +292,8 @@ internal fun SettingsTab(
         )
     }
 
+    BotActionsGroup(bot)
+
     if (changingLook) ChangeLookSheet(bot = bot, onDismiss = { changingLook = false })
 
     if (showingOverview) {

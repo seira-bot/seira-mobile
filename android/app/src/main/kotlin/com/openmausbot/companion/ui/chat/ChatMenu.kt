@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,10 +40,12 @@ import com.openmausbot.companion.ui.theme.SeiraType
 
 internal enum class ChatMenuItem {
     FIND, NEW_THREAD, ALL_THREADS, MODEL, MEMBERS, BOT_SCREEN, SHARE_MARKDOWN, SHARE_JSON,
+    RENAME, COPY_MARKDOWN, DOWNLOAD_MARKDOWN, ACTIVITY,
 }
 
 internal object ChatMenuRules {
-    fun items(chat: Chat): List<ChatMenuItem> = buildList {
+    /** [advanced] adds the Advanced mode rows after the usual ones. Off, the list is the 1.1.0 list. */
+    fun items(chat: Chat, advanced: Boolean = false): List<ChatMenuItem> = buildList {
         add(ChatMenuItem.FIND)
         if (chat.supportsTasks) {
             add(ChatMenuItem.NEW_THREAD)
@@ -56,6 +60,12 @@ internal object ChatMenuRules {
         }
         add(ChatMenuItem.SHARE_MARKDOWN)
         add(ChatMenuItem.SHARE_JSON)
+        if (advanced) {
+            if (chat is Chat.BotChat) add(ChatMenuItem.RENAME)
+            add(ChatMenuItem.COPY_MARKDOWN)
+            add(ChatMenuItem.DOWNLOAD_MARKDOWN)
+            if (chat is Chat.BotChat) add(ChatMenuItem.ACTIVITY)
+        }
     }
 
     /** The Monitor button in the header: a bot's own screen, never a group's. */
@@ -80,8 +90,10 @@ internal fun ChatMenuSheet(
     newThreadReason: Int?,
     onPick: (ChatMenuItem) -> Unit,
     onDismiss: () -> Unit,
+    advanced: Boolean = false,
 ) {
     val colors = Seira.colors
+    val scroll = rememberScrollState()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -90,8 +102,13 @@ internal fun ChatMenuSheet(
         tonalElevation = 0.dp,
         modifier = Modifier.testTag("chat-menu-sheet"),
     ) {
-        Column(modifier = Modifier.navigationBarsPadding().padding(bottom = 16.dp)) {
-            for (item in ChatMenuRules.items(chat)) {
+        Column(
+            modifier = Modifier
+                .then(if (advanced) Modifier.verticalScroll(scroll) else Modifier)
+                .navigationBarsPadding()
+                .padding(bottom = 16.dp),
+        ) {
+            for (item in ChatMenuRules.items(chat, advanced)) {
                 val (icon, title, subtitle) = copyFor(item)
                 val reason = if (item == ChatMenuItem.NEW_THREAD) newThreadReason else null
                 ChatSheetRow(
@@ -123,6 +140,10 @@ private fun copyFor(item: ChatMenuItem): MenuCopy = when (item) {
         stringResource(R.string.chat2_menu_share_markdown),
     )
     ChatMenuItem.SHARE_JSON -> MenuCopy(ChatIcons.Code, stringResource(R.string.chat2_menu_share_json), null)
+    ChatMenuItem.RENAME -> MenuCopy(SeiraIcons.PenSquare, stringResource(R.string.chat3_menu_rename), null)
+    ChatMenuItem.COPY_MARKDOWN -> MenuCopy(ChatIcons.Copy, stringResource(R.string.chat3_menu_copy_markdown), null)
+    ChatMenuItem.DOWNLOAD_MARKDOWN -> MenuCopy(SeiraIcons.Download, stringResource(R.string.chat3_menu_download_markdown), null)
+    ChatMenuItem.ACTIVITY -> MenuCopy(SeiraIcons.Clock, stringResource(R.string.chat3_menu_activity), null)
 }
 
 @Composable

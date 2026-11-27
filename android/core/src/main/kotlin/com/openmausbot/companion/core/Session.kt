@@ -1950,6 +1950,22 @@ class Session(
         )
     }
 
+    /** Allows [card] for the rest of the provider session. Sends nothing unless the card offers it. */
+    suspend fun allowForSession(chat: Chat, card: OptionCard, advancedMode: Boolean): String? {
+        val requestId = card.requestId ?: return null
+        if (!card.offersSessionAllow(advancedMode)) return null
+        var outcome: String? = null
+        perform {
+            outcome = it.respond(
+                threadId = chat.threadId,
+                requestId = requestId,
+                behavior = "allow",
+                always = true,
+            )
+        }
+        return outcome
+    }
+
     suspend fun answer(
         threadId: String,
         requestId: String,
@@ -2045,18 +2061,22 @@ class Session(
     /**
      * Create or extend a derived sidebar section in one server transaction.
      * The desktop has no standalone section resource yet, so we merge the
-     * returned bot snapshots and let SSE reconcile later desktop-side changes.
+     * returned bot snapshots and the department names, and let SSE reconcile
+     * later desktop-side changes. [reportsError] false leaves [actionError]
+     * alone, for a caller that words its own failure message.
      */
-    suspend fun assignSection(name: String, botIds: List<String>): List<Bot>? {
+    suspend fun assignSection(name: String, botIds: List<String>, reportsError: Boolean = true): List<Bot>? {
         val activeClient = client ?: return null
         return try {
-            activeClient.assignSection(name, botIds).also { updatedBots ->
-                _state.update { state ->
-                    updatedBots.fold(state) { current, bot -> current.apply(Frame.Bot(bot)) }
-                }
+            val assignment = activeClient.assignSection(name, botIds)
+            _state.update { state ->
+                val merged = assignment.bots.fold(state) { current, bot -> current.apply(Frame.Bot(bot)) }
+                assignment.sections?.let { merged.withDeclaredSections(it) } ?: merged
             }
+            assignment.bots
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            if (error is CancellationException) throw error
+            if (reportsError) _actionError.value = error.message
             null
         }
     }
@@ -2533,7 +2553,12 @@ class Session(
             // A newer live frame wins over this HTTP snapshot, including when
             // a fresh connection has not established an SSE cursor yet.
             _state.update { current ->
-                if (current !== before) current else current.copy(bots = fleet.bots, rooms = fleet.groups)
+                if (current !== before) {
+                    current
+                } else {
+                    current.copy(bots = fleet.bots, rooms = fleet.groups)
+                        .let { next -> fleet.sections?.let { next.withDeclaredSections(it) } ?: next }
+                }
             }
             notificationSink.setBadge(_state.value.unreadCount)
             true
@@ -2634,6 +2659,12 @@ class Session(
     suspend fun renameTask(task: BotTask, forBot: Bot, title: String): Boolean = mutateTask(false) { client ->
         client.renameTask(forBot.id, task.threadId, title)
         refresh()
+        true
+    }
+
+    /** Starts a summary of the older messages in [forBot]'s thread. True when the computer took the request. */
+    suspend fun compact(forBot: Bot, threadId: String? = forBot.threadId): Boolean = mutateTask(false) { client ->
+        client.compact(forBot.id, threadId)
         true
     }
 
@@ -2759,6 +2790,46 @@ class Session(
             null
         }
     }
+
+    /** Pin or mark unread. True only after the computer answers; the bot then shows its new state. */
+    suspend fun setBotFlags(botId: String, pinned: Boolean? = null, unread: Boolean? = null): Boolean {
+        val activeClient = client ?: return false
+        return try {
+            val updated = activeClient.setBotFlags(botId, pinned, unread)
+            currentCoroutineContext().ensureActive()
+            _state.update { it.apply(Frame.Bot(updated)) }
+            true
+        } catch (error: Throwable) {
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            false
+        }
+    }
+
+    /**
+     * Mark every unread conversation of one bot read, one request for each.
+     * True only after every request succeeds; a partial failure reloads the bot.
+     */
+    suspend fun markBotAllRead(botId: String): Boolean {
+        val activeClient = client ?: return false
+        val unreadIds = _state.value.bot(botId)?.unreadThreadIds() ?: return false
+        if (unreadIds.isEmpty()) return true
+        var allRead = true
+        for (threadId in unreadIds) {
+            try {
+                activeClient.markBotRead(botId, threadId)
+                currentCoroutineContext().ensureActive()
+            } catch (error: Throwable) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                allRead = false
+            }
+        }
+        if (!allRead) scope.launch { refresh() }
+        return allRead
+    }
+
+    /** Move one bot to a department; an empty name means General. True only after the computer answers. */
+    suspend fun moveToDepartment(botId: String, name: String): Boolean =
+        assignSection(name, listOf(botId), reportsError = false) != null
 
     suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
         val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)

@@ -1,1 +1,7 @@
-Rilis pertama untuk iPhone dan iPad. Pasangkan dengan Seira di komputer, lalu baca dan jawab bot kamu dari ponsel.
+Tampilan baru Seira. Chats mengelompokkan bot per departemen, sama seperti di komputer. Lipat departemen, tambahkan bot, atau buat bot baru langsung di dalamnya.
+
+Nyalakan Advanced mode di Settings untuk alat tambahan: ganti nama chat, salin atau simpan sebagai Markdown, lihat isi konteks lalu ringkas, dan izinkan satu langkah untuk sisa sesi.
+
+Automations bertanya "What should happen?" lalu menyiapkan routine untukmu. Kalender punya tampilan Week.
+
+Beberapa fitur butuh Seira terbaru di komputer.
