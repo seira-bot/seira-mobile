@@ -140,6 +140,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
         [
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
+            "-companion.prefs.advancedMode", "YES",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ]
@@ -156,15 +157,20 @@ final class StoreListingScreenshotUITests: XCTestCase {
         XCTAssertTrue(input.exists, "\(name)'s chat opened")
     }
 
+    /// The chat has no thread switcher: go Home, open Scout's threads from the
+    /// chevron of its Advanced row, then open the thread.
     @MainActor @discardableResult
     private func selectThread(_ id: String, in app: XCUIApplication) -> Bool {
-        let header = app.buttons["header-threads"]
-        guard header.waitForExistence(timeout: 10) else {
-            XCTFail("The chat has no thread button")
+        let thread = app.buttons["thread.\(id)"]
+        let toggle = app.buttons["row-threads-toggle.preview-scout"]
+        if !toggle.exists, app.buttons["Back"].waitForExistence(timeout: 10) {
+            app.buttons["Back"].tap()
+        }
+        guard toggle.waitForExistence(timeout: 10) else {
+            XCTFail("Scout has no threads chevron")
             return false
         }
-        header.tap()
-        let thread = app.buttons["thread-\(id)"]
+        if !thread.exists { toggle.tap() }
         guard thread.waitForExistence(timeout: 5) else {
             XCTFail("\(id) is not in the thread list")
             return false
