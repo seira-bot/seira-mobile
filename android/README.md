@@ -103,8 +103,8 @@ The signing key belongs to the maintainer and never enters this repository.
 Create a key once, outside any clone of this repository:
 
 ```sh
-keytool -genkeypair -v -keystore ~/openmausbot-release.jks \
-  -storetype PKCS12 -alias openmausbot -keyalg RSA -keysize 4096 -validity 10000
+keytool -genkeypair -v -keystore ~/seira-release.jks \
+  -storetype PKCS12 -alias seira -keyalg RSA -keysize 4096 -validity 10000
 ```
 
 Then, for each release:
@@ -113,7 +113,7 @@ Then, for each release:
 # whichever build-tools version is installed; any recent one works
 APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)/apksigner"
 
-"$APKSIGNER" sign --ks ~/openmausbot-release.jks --ks-key-alias openmausbot \
+"$APKSIGNER" sign --ks ~/seira-release.jks --ks-key-alias seira \
   --out app-release.apk app-release-unsigned.apk
 
 "$APKSIGNER" verify --verbose --print-certs app-release.apk
@@ -135,19 +135,19 @@ silently inherit a stale `keystore.properties` from a cached workspace.
 `android/keystore.properties` (gitignored):
 
 ```properties
-storeFile=/absolute/path/to/openmausbot-release.jks
+storeFile=/absolute/path/to/seira-release.jks
 storePassword=…
-keyAlias=openmausbot
+keyAlias=seira
 keyPassword=…
 ```
 
 or the environment, for CI secrets:
 
 ```
-OPENMAUSBOT_KEYSTORE_FILE
-OPENMAUSBOT_KEYSTORE_PASSWORD
-OPENMAUSBOT_KEY_ALIAS
-OPENMAUSBOT_KEY_PASSWORD   # optional; PKCS12 reuses the store password
+SEIRA_KEYSTORE_FILE
+SEIRA_KEYSTORE_PASSWORD
+SEIRA_KEY_ALIAS
+SEIRA_KEY_PASSWORD   # optional; PKCS12 reuses the store password
 ```
 
 Supply all of it or none of it. A build handed only part of the material stops

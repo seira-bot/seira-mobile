@@ -22,8 +22,8 @@ if (hasGoogleServices) apply(plugin = "com.google.gms.google-services")
 //     keys: `storeFile` (a path, absolute or relative to `android/`),
 //     `storePassword`, `keyAlias`, and optionally `keyPassword`.
 //   * the environment — for CI, where the material arrives as secrets:
-//     OPENMAUSBOT_KEYSTORE_FILE, OPENMAUSBOT_KEYSTORE_PASSWORD,
-//     OPENMAUSBOT_KEY_ALIAS, and optionally OPENMAUSBOT_KEY_PASSWORD.
+//     SEIRA_KEYSTORE_FILE, SEIRA_KEYSTORE_PASSWORD,
+//     SEIRA_KEY_ALIAS, and optionally SEIRA_KEY_PASSWORD.
 //
 // The environment wins over the file, so a runner cannot silently inherit a
 // stale `keystore.properties` left behind in a cached workspace.
@@ -42,23 +42,23 @@ private fun signingMaterial(property: String, environment: String): String? =
     (System.getenv(environment) ?: keystoreProperties.getProperty(property))
         ?.takeIf(String::isNotBlank)
 
-private val storeFilePath = signingMaterial("storeFile", "OPENMAUSBOT_KEYSTORE_FILE")
-private val storePasswordValue = signingMaterial("storePassword", "OPENMAUSBOT_KEYSTORE_PASSWORD")
-private val keyAliasValue = signingMaterial("keyAlias", "OPENMAUSBOT_KEY_ALIAS")
+private val storeFilePath = signingMaterial("storeFile", "SEIRA_KEYSTORE_FILE")
+private val storePasswordValue = signingMaterial("storePassword", "SEIRA_KEYSTORE_PASSWORD")
+private val keyAliasValue = signingMaterial("keyAlias", "SEIRA_KEY_ALIAS")
 // A PKCS12 keystore — keytool's default since JDK 9, and what `-storetype PKCS12`
 // produces — holds one password for the store and the key alike, so the key
 // password may be left out rather than repeated.
 private val keyPasswordValue =
-    signingMaterial("keyPassword", "OPENMAUSBOT_KEY_PASSWORD") ?: storePasswordValue
+    signingMaterial("keyPassword", "SEIRA_KEY_PASSWORD") ?: storePasswordValue
 
 // All three required values, or none of them. A build handed some of them is a
 // build somebody meant to sign, and answering that with an unsigned APK would
 // hand back something that looks finished and cannot be published. It stops here
 // instead, naming what is missing.
 private val releaseSigningMaterial = mapOf(
-    "storeFile / OPENMAUSBOT_KEYSTORE_FILE" to storeFilePath,
-    "storePassword / OPENMAUSBOT_KEYSTORE_PASSWORD" to storePasswordValue,
-    "keyAlias / OPENMAUSBOT_KEY_ALIAS" to keyAliasValue,
+    "storeFile / SEIRA_KEYSTORE_FILE" to storeFilePath,
+    "storePassword / SEIRA_KEYSTORE_PASSWORD" to storePasswordValue,
+    "keyAlias / SEIRA_KEY_ALIAS" to keyAliasValue,
 )
 private val releaseKeystore: java.io.File? = when {
     releaseSigningMaterial.values.all { it == null } -> null
@@ -99,7 +99,7 @@ private val appVersionCode = run {
 }
 
 android {
-    namespace = "com.openmausbot.companion"
+    namespace = "bot.seira.companion"
     compileSdk = 37
 
     defaultConfig {

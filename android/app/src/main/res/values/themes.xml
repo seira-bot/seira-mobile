@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.OpenMausMobile" parent="android:Theme.Material.Light.NoActionBar">
+    <style name="Theme.SeiraMobile" parent="android:Theme.Material.Light.NoActionBar">
         <item name="android:windowBackground">@color/seira_app</item>
     </style>
 
     <style name="Theme.Seira.Starting" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">@color/seira_visor_ink</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_seira_splash</item>
-        <item name="postSplashScreenTheme">@style/Theme.OpenMausMobile</item>
+        <item name="postSplashScreenTheme">@style/Theme.SeiraMobile</item>
     </style>
 </resources>
