@@ -11,6 +11,13 @@ final class StoreListingScreenshotUITests: XCTestCase {
     override func setUp() {
         continueAfterFailure = true
         XCUIDevice.shared.orientation = .portrait
+        addUIInterruptionMonitor(withDescription: "Camera access") { alert in
+            guard alert.staticTexts.containing(NSPredicate(format: "label CONTAINS 'camera'")).firstMatch.exists else {
+                return false
+            }
+            alert.buttons.matching(identifier: "Allow").firstMatch.tap()
+            return true
+        }
     }
 
     @MainActor func testEnglishListing() { photographListing(language: "en") }
@@ -78,20 +85,17 @@ final class StoreListingScreenshotUITests: XCTestCase {
 
     private func allowLiveActivities() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        let allow = springboard.buttons["Allow"]
-        if allow.waitForExistence(timeout: 3) { allow.tap() }
+        for label in ["Always Allow", "Allow"] {
+            let button = springboard.buttons.matching(identifier: label).firstMatch
+            if button.waitForExistence(timeout: 3) {
+                button.tap()
+                return
+            }
+        }
     }
 
     @MainActor
     private func photographPairing(language: String) {
-        addUIInterruptionMonitor(withDescription: "Camera access") { alert in
-            let allow = alert.buttons["Allow"]
-            if allow.exists {
-                allow.tap()
-                return true
-            }
-            return false
-        }
         let app = XCUIApplication()
         app.terminate()
         app.launchArguments = baseArguments(language: language)
@@ -123,7 +127,13 @@ final class StoreListingScreenshotUITests: XCTestCase {
             app.launch()
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
-        pause(12)
+        pause(8)
+        let island = app.buttons["Allow"].firstMatch
+        if island.exists {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08))
+                .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)))
+            pause(2)
+        }
         return app
     }
 
