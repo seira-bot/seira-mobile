@@ -343,15 +343,16 @@ Beberapa fitur butuh Seira terbaru di komputer.
 
 Isi teks ini saat rilis 1.2.2 dibuat di Console.
 Nama package Android pindah ke `bot.seira.companion`.
-Android mengikat widget Updates dan tile Talk ke nama kelasnya, jadi keduanya hilang sesudah update.
-Ikon launcher dan shortcut tetap hidup lewat `activity-alias`.
+Android mengikat widget Updates ke nama kelasnya, jadi widget itu hilang sesudah update.
+Build Play tidak punya tile Talk, jadi catatan ini tidak menyebut tile.
+Ikon launcher tetap hidup lewat `activity-alias`.
 
 ```text
 <en-US>
-Maintenance update. After you update, add the Updates widget to your home screen again, and add the Talk tile to Quick Settings again. Your chats, computers and settings do not change.
+Maintenance update. After you update, add the Updates widget to your home screen again. Your chats, computers and settings do not change.
 </en-US>
 <id>
-Update perawatan. Setelah update, pasang lagi widget Updates di layar utama, dan tambahkan lagi tile Talk di Quick Settings. Chat, komputer, dan pengaturan tidak berubah.
+Update perawatan. Setelah update, pasang lagi widget Updates di layar utama. Chat, komputer, dan pengaturan tidak berubah.
 </id>
 ```
 

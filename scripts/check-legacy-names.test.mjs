@@ -20,4 +20,6 @@ test("the launcher alias in the manifest is allowed", () => {
   assert.deepEqual(checkLine("android/app/src/main/AndroidManifest.xml", line), []);
   assert.equal(checkLine("android/app/A.kt", line).length, 1);
   assert.deepEqual(checkLine("android/app/src/test/kotlin/bot/seira/companion/NativeSurfacesManifestTest.kt", 'component("activity-alias", "com.openmausbot.companion.MainActivity")'), []);
+  assert.deepEqual(checkLine("android/app/build.gradle.kts", '        const val LEGACY_LAUNCHER = "com.openmausbot.companion.MainActivity"'), []);
+  assert.equal(checkLine("android/app/build.gradle.kts", 'import com.openmausbot.companion.MainActivity').length, 1);
 });

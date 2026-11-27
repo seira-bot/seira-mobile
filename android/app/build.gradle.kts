@@ -1,4 +1,7 @@
+import com.android.build.api.artifact.SingleArtifact
 import java.util.Properties
+import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.Element
 
 plugins {
     id("com.android.application")
@@ -36,6 +39,26 @@ if (hasGoogleServices) apply(plugin = "com.google.gms.google-services")
 private val keystoreProperties = Properties().apply {
     val file = rootProject.file("keystore.properties")
     if (file.isFile) file.inputStream().use(::load)
+}
+
+// Up to 1.2.1 the environment names began with OPENMAUSBOT_ instead of SEIRA_.
+// A host that still sets them meant to sign this build. Without this check the
+// build would come out unsigned, or signed with a stale `keystore.properties`.
+// It stops instead, and it never reads the retired values.
+private val retiredSigningVariables = listOf(
+    "OPENMAUSBOT_KEYSTORE_FILE",
+    "OPENMAUSBOT_KEYSTORE_PASSWORD",
+    "OPENMAUSBOT_KEY_ALIAS",
+    "OPENMAUSBOT_KEY_PASSWORD",
+).filter { !System.getenv(it).isNullOrBlank() }
+if (retiredSigningVariables.isNotEmpty()) {
+    error(
+        retiredSigningVariables.joinToString(
+            prefix = "Release signing variables were renamed. Use ",
+            separator = ", ",
+            postfix = ", and unset the old names.",
+        ) { "SEIRA_${it.removePrefix("OPENMAUSBOT_")} instead of $it" }
+    )
 }
 
 private fun signingMaterial(property: String, environment: String): String? =
@@ -210,6 +233,69 @@ android {
 
 kotlin {
     jvmToolchain(17)
+}
+
+// A build with LIVE_CALLS false (the Play build) must not offer the Talk
+// shortcut or the Talk tile, because the listing declares no calls. The other
+// builds keep both. The launcher alias must stay, or icons that phones pinned
+// before 1.2.2 stop working. This reads the merged manifest of the variant.
+abstract class VerifyLauncherManifest : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val manifest: RegularFileProperty
+
+    @get:Input
+    abstract val liveCalls: Property<Boolean>
+
+    @TaskAction
+    fun verify() {
+        val ns = "http://schemas.android.com/apk/res/android"
+        val document = DocumentBuilderFactory.newInstance()
+            .apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+            .parse(manifest.get().asFile)
+        fun elements(tag: String) = document.getElementsByTagName(tag)
+            .let { nodes -> (0 until nodes.length).map { nodes.item(it) as Element } }
+        fun Element.name() = getAttributeNS(ns, "name")
+
+        val alias = elements("activity-alias").singleOrNull { it.name() == LEGACY_LAUNCHER }
+            ?: throw GradleException("The launcher alias $LEGACY_LAUNCHER is missing.")
+        val categories = alias.getElementsByTagName("category")
+        if ((0 until categories.length).none { (categories.item(it) as Element).name() == "android.intent.category.LAUNCHER" }) {
+            throw GradleException("The launcher alias $LEGACY_LAUNCHER has no LAUNCHER category.")
+        }
+
+        val shortcutHosts = elements("meta-data")
+            .filter { it.name() == "android.app.shortcuts" }
+            .map { (it.parentNode as Element).name() }
+        val expectedHosts = if (liveCalls.get()) listOf(LEGACY_LAUNCHER) else emptyList()
+        if (shortcutHosts != expectedHosts) {
+            throw GradleException("Static shortcuts are on $shortcutHosts. Expected $expectedHosts.")
+        }
+
+        val talkTile = elements("service").any { it.name().endsWith(".tile.TalkTileService") }
+        if (talkTile != liveCalls.get()) {
+            throw GradleException("TalkTileService is ${if (talkTile) "present" else "missing"} with LIVE_CALLS ${liveCalls.get()}.")
+        }
+    }
+
+    private companion object {
+        const val LEGACY_LAUNCHER = "com.openmausbot.companion.MainActivity"
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val suffix = variant.name.replaceFirstChar(Char::uppercase)
+        val verify = tasks.register<VerifyLauncherManifest>("verify${suffix}LauncherManifest") {
+            manifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
+            liveCalls.set(
+                variant.buildConfigFields!!.getting("LIVE_CALLS").map { it.value.toString() == "true" },
+            )
+        }
+        tasks.matching { it.name == "assemble$suffix" || it.name == "bundle$suffix" }
+            .configureEach { dependsOn(verify) }
+    }
 }
 
 dependencies {
