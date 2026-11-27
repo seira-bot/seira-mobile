@@ -23,7 +23,7 @@ their approvals, and send them the next task from the phone.
 
 ## What the app does
 
-| | |
+| Feature | What you do |
 |---|---|
 | **Answer approvals** | When a bot asks, allow or deny the step in the chat. |
 | **See who needs you** | One notification shows the bot that needs you most. |
