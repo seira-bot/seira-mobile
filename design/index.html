@@ -230,6 +230,14 @@
   height: 214px; display: grid; place-items: center; position: relative; overflow: hidden; border-bottom: 1px solid var(--g-line);
   background: radial-gradient(70% 90% at 50% 0%, var(--acc-soft), transparent 70%), var(--bg);
 }
+.pv-isl { width: 236px; height: 46px; border-radius: 23px; background: #000; display: flex; align-items: center; justify-content: space-between; padding: 0 16px 0 9px; box-shadow: 0 16px 30px -16px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(79, 141, 255, 0.5); }
+.pv-isl .a { width: 28px; height: 28px; border-radius: 50%; background: #377fe6; }
+.pv-isl b { width: 11px; height: 11px; border-radius: 50%; background: #10131c; box-shadow: inset 0 0 0 2px #1c2333; }
+.pv-isl .d { width: 48px; height: 6px; border-radius: 3px; background: linear-gradient(90deg, #4f8dff 60%, rgba(255, 255, 255, 0.2) 60%); }
+.pv-wg { display: grid; grid-template-columns: 74px 74px; gap: 12px; }
+.pv-wg i { height: 74px; border-radius: 20px; background: var(--s1); box-shadow: 0 0 0 0.5px var(--line), var(--shadow-md); }
+.pv-wg i:first-child { grid-column: 1 / -1; height: 60px; }
+.pv-wg i:last-child { background: linear-gradient(160deg, #ff5f85, #c0113c); }
 .board-meta { padding: 22px 24px 24px; display: grid; gap: 10px; }
 .board-top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .board h3 { margin: 0; font-size: 22px; letter-spacing: -0.025em; font-weight: 600; }
@@ -337,8 +345,8 @@
   <h1 class="g-h1">Setiap pilihan <span class="serif">terasa</span> saat disentuh.</h1>
   <p class="g-lede">Galeri ini mengganti kontrol pilihan standar di Seira Mobile. Setiap konsep bisa disentuh, bisa dibuat di SwiftUI dan Compose, dan memakai token warna app.</p>
   <div class="stats" aria-label="Ringkasan galeri">
-    <span class="stat"><b>24</b> konsep</span>
-    <span class="stat"><b>4</b> papan</span>
+    <span class="stat"><b>41</b> konsep</span>
+    <span class="stat"><b>6</b> papan</span>
     <span class="stat"><b>13</b> kontrol diaudit</span>
   </div>
 </section>
@@ -407,8 +415,8 @@
 
 <section class="g-section" id="papan">
   <div class="g-section-head">
-    <h2 class="g-h2">Empat <span class="serif">papan</span>, 24 konsep.</h2>
-    <p>Setiap papan memuat enam konsep yang bisa disentuh. Buka satu papan dan coba semuanya.</p>
+    <h2 class="g-h2">Enam <span class="serif">papan</span>, 41 konsep.</h2>
+    <p>Empat papan kontrol memuat enam konsep. Papan Island memuat delapan adegan dan papan Widget memuat sembilan widget. Buka satu papan dan coba semuanya.</p>
   </div>
   <div class="boards">
     <a class="board" href="appearance.html">
@@ -454,6 +462,26 @@
       <div class="board-meta">
         <div class="board-top"><h3>Dial</h3><span class="mono">6 konsep · D1–D6</span></div>
         <p>Mode approval, reasoning, timeout, dan bahasa berubah menjadi dial yang diputar, ditarik, atau ditahan.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+    <a class="board" href="island.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-isl"><i class="a"></i><b></b><i class="d"></i></div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Island</h3><span class="mono">8 adegan · I1–I8</span></div>
+        <p>Dynamic Island dan Live Update yang menampilkan langkah kerja, izin, panggilan, dan hasil.</p>
+        <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
+      </div>
+    </a>
+    <a class="board" href="widgets.html">
+      <div class="pv" data-ui="dark" data-ui-global aria-hidden="true">
+        <div class="pv-wg"><i></i><i></i><i></i></div>
+      </div>
+      <div class="board-meta">
+        <div class="board-top"><h3>Widget</h3><span class="mono">9 widget · W1–W9</span></div>
+        <p>Widget layar utama dan layar kunci yang menjawab izin, memberi tugas, dan menjalankan routine.</p>
         <span class="board-go">Buka papan <svg class="ic" aria-hidden="true"><use href="#i-chevron"/></svg></span>
       </div>
     </a>
