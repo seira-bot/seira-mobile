@@ -65,7 +65,7 @@ internal fun ComposerChipRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .animateContentSize(seiraTween(SeiraMotion.BASE))
+            .then(if (tools.isNotEmpty()) Modifier.animateContentSize(seiraTween(SeiraMotion.BASE)) else Modifier)
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),

@@ -48,7 +48,7 @@ internal enum class CompactPhase { IDLE, WORKING, DONE, FAILED }
 internal object ChatAdvanced {
     private const val TITLE_LIMIT = 80
     private const val DEFAULT_FILE = "conversation"
-    private val UNSAFE_FILE_CHARS = Regex("[^\\p{L}\\p{N}]+")
+    private val UNSAFE_FILE_CHARS = Regex("[^\\p{L}\\p{M}\\p{N}]+")
 
     fun currentTask(bot: Bot): BotTask? = bot.tasks?.firstOrNull { it.threadId == bot.threadId }
 
@@ -214,7 +214,9 @@ internal fun ContextSheet(
                     CompactPhase.WORKING -> stringResource(R.string.chat3_context_compacting)
                     CompactPhase.DONE -> stringResource(R.string.chat3_context_compacted)
                     CompactPhase.FAILED -> stringResource(R.string.chat3_context_failed)
-                    CompactPhase.IDLE -> stringResource(R.string.chat3_context_compact_sub)
+                    CompactPhase.IDLE -> stringResource(
+                        if (canCompact) R.string.chat3_context_compact_sub else R.string.chat3_context_wait,
+                    )
                 },
                 tag = CONTEXT_COMPACT_TAG,
                 enabled = enabled,

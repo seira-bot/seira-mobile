@@ -107,6 +107,8 @@ class ChatAdvancedTest {
         assertEquals("conversation.md", ChatAdvanced.markdownFileName("  "))
         assertEquals("conversation.md", ChatAdvanced.markdownFileName(null))
         assertEquals("a-b.md", ChatAdvanced.markdownFileName("../a/b"))
+        assertEquals("योजना-साप्ताहिक.md", ChatAdvanced.markdownFileName("योजना साप्ताहिक"))
+        assertEquals("แผนงาน.md", ChatAdvanced.markdownFileName("แผนงาน"))
     }
 
     @Test

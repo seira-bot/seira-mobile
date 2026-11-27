@@ -356,6 +356,9 @@ public struct Message: Codable, Hashable, Identifiable, Sendable {
     /// leaves the message's text, which the computer writes for exactly
     /// the clients that cannot read the card.
     public var routineRun: RoutineRunCard?
+    /// `kind == "goal.run"`: the group goal run, patched in place. This build
+    /// draws no card for it; the chip above the composer reads its status.
+    public var goalRun: GoalRunCard?
     /// The message this one follows; nil at the thread root. Two messages
     /// sharing a parent are a fork.
     public var parentId: String?

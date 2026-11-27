@@ -2538,15 +2538,20 @@ final class Session: ObservableObject {
         }
     }
 
-    /// Marks every conversation of one bot read. True only after the computer answers.
+    /// Marks every unread conversation of one bot read, one request for each.
+    /// True only after every request succeeds; a partial failure reloads the bot.
     func markAllRead(botId: String) async -> Bool {
-        guard let client else { return false }
-        do {
-            try await client.markRead(botId: botId)
-            return true
-        } catch {
-            return false
+        guard let client, let bot = state.bot(botId) else { return false }
+        var allRead = true
+        for threadId in bot.unreadThreadIds {
+            do {
+                try await client.markRead(botId: botId, threadId: threadId)
+            } catch {
+                allRead = false
+            }
         }
+        if !allRead { Task { await refresh() } }
+        return allRead
     }
 
     /// Moves one bot to a department; an empty name means General. True only after the computer answers.

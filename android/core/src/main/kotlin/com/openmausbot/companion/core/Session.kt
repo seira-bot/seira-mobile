@@ -1951,9 +1951,9 @@ class Session(
     }
 
     /** Allows [card] for the rest of the provider session. Sends nothing unless the card offers it. */
-    suspend fun allowForSession(chat: Chat, card: OptionCard): String? {
+    suspend fun allowForSession(chat: Chat, card: OptionCard, advancedMode: Boolean): String? {
         val requestId = card.requestId ?: return null
-        if (!card.offersSessionAllow(advancedMode = true)) return null
+        if (!card.offersSessionAllow(advancedMode)) return null
         var outcome: String? = null
         perform {
             outcome = it.respond(
@@ -2805,17 +2805,26 @@ class Session(
         }
     }
 
-    /** Mark every conversation of one bot read. True only after the computer answers. */
+    /**
+     * Mark every unread conversation of one bot read, one request for each.
+     * True only after every request succeeds; a partial failure reloads the bot.
+     */
     suspend fun markBotAllRead(botId: String): Boolean {
         val activeClient = client ?: return false
-        return try {
-            activeClient.markBotRead(botId)
-            currentCoroutineContext().ensureActive()
-            true
-        } catch (error: Throwable) {
-            if (error is kotlinx.coroutines.CancellationException) throw error
-            false
+        val unreadIds = _state.value.bot(botId)?.unreadThreadIds() ?: return false
+        if (unreadIds.isEmpty()) return true
+        var allRead = true
+        for (threadId in unreadIds) {
+            try {
+                activeClient.markBotRead(botId, threadId)
+                currentCoroutineContext().ensureActive()
+            } catch (error: Throwable) {
+                if (error is kotlinx.coroutines.CancellationException) throw error
+                allRead = false
+            }
         }
+        if (!allRead) scope.launch { refresh() }
+        return allRead
     }
 
     /** Move one bot to a department; an empty name means General. True only after the computer answers. */

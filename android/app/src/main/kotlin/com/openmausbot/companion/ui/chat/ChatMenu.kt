@@ -93,6 +93,7 @@ internal fun ChatMenuSheet(
     advanced: Boolean = false,
 ) {
     val colors = Seira.colors
+    val scroll = rememberScrollState()
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
@@ -103,7 +104,7 @@ internal fun ChatMenuSheet(
     ) {
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .then(if (advanced) Modifier.verticalScroll(scroll) else Modifier)
                 .navigationBarsPadding()
                 .padding(bottom = 16.dp),
         ) {

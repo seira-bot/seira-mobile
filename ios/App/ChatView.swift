@@ -56,6 +56,7 @@ struct ChatView: View {
     @State private var replyTarget: ReplyTarget?
     @State private var showCommandHUD = false
     @State private var shareFile: ShareFile?
+    @State private var lastExportFolder: URL?
     @AppStorage(PrefKey.advancedMode) private var advancedMode = false
     @State private var renamingThread = false
     @State private var renameText = ""
@@ -428,13 +429,14 @@ struct ChatView: View {
         }
         .sheet(isPresented: $showingContext) {
             if let meter = contextMeter {
-                ContextSheet(meter: meter, phase: compactPhase, onCompact: compactContext)
+                ContextSheet(meter: meter, phase: compactPhase, canCompact: !current.busy, onCompact: compactContext)
             }
         }
         .alert("Rename thread", isPresented: $renamingThread) {
             TextField("Thread title", text: $renameText)
             Button("Cancel", role: .cancel) {}
             Button("Save") { saveRename() }
+                .disabled(!ChatAdvanced.canSaveRename(renameText))
         }
         .overlay(alignment: .top) {
             if copiedNotice {
@@ -1242,11 +1244,13 @@ struct ChatView: View {
 
     private func downloadMarkdown() async {
         guard let exported = await session.export(threadId: current.threadId, format: "markdown") else { return }
-        let named = FileManager.default.temporaryDirectory
-            .appendingPathComponent(ChatAdvanced.markdownFileName(currentThreadTitle))
-        try? FileManager.default.removeItem(at: named)
+        if let previous = lastExportFolder { try? FileManager.default.removeItem(at: previous) }
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let named = folder.appendingPathComponent(ChatAdvanced.markdownFileName(currentThreadTitle))
         do {
-            try FileManager.default.moveItem(at: exported, to: named)
+            try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            if named != exported { try FileManager.default.moveItem(at: exported, to: named) }
+            lastExportFolder = folder
             shareFile = ShareFile(url: named)
         } catch {
             shareFile = ShareFile(url: exported)
@@ -1931,7 +1935,8 @@ struct ChatView: View {
             composerNotices
 
             let tools = ChatAdvanced.tools(
-                current, advanced: advancedMode, learnAllowed: false, goalRunning: false, context: contextMeter
+                current, advanced: advancedMode, learnAllowed: false,
+                goalRunning: GoalChip.text(messages) != nil, context: contextMeter
             )
             if !showCommandHUD, !tools.isEmpty {
                 ComposerToolChips(tools: tools, contextPercent: contextMeter?.percent, onTool: useTool)
