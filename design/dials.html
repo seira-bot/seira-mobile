@@ -1,0 +1,1157 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seira Dial Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<style>
+.g-hero { padding-bottom: 8px; }
+.concept-stage { padding-bottom: 52px; }
+.concept-stage.has-tools { padding-top: 56px; }
+.frag :focus-visible, .frag:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+.sw-host { display: inline-grid; }
+.sw-host > .sw { grid-area: 1 / 1; }
+.rec-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; counter-reset: rec; }
+.rec-list li { counter-increment: rec; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 12px; color: var(--g-mut); }
+.rec-list li::before {
+  content: counter(rec); width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; border: 1px solid var(--g-line2); color: var(--g-ink);
+}
+.rec-list li strong { color: var(--g-ink); }
+.g-table td.num { font-family: "Geist Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+.bub { max-width: 88%; padding: 10px 14px; border-radius: 20px; font-size: 14.5px; line-height: 1.4; }
+.bub.bot { background: var(--s1); box-shadow: 0 0 0 0.5px var(--line); border-bottom-left-radius: 8px; justify-self: start; }
+.bub.me { background: var(--s2); border-bottom-right-radius: 8px; justify-self: end; }
+
+.d1-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 28px; justify-content: center; align-items: end; width: 100%; }
+@media (max-width: 780px) { .d1-stage { grid-template-columns: minmax(0, 360px); } }
+.d1-chat { display: grid; gap: 10px; padding: 18px 14px 14px; }
+.d1-composer { display: flex; align-items: center; gap: 8px; margin-top: 8px; padding: 6px; border-radius: 26px; background: var(--s1); box-shadow: 0 0 0 0.5px var(--line), var(--shadow-sm); }
+.d1-chip { display: inline-flex; align-items: center; gap: 7px; height: 36px; padding: 0 13px 0 10px; border-radius: 99px; background: var(--s2); font-size: 13.5px; font-weight: 500; flex: none; box-shadow: 0 0 0 1px var(--line) inset; }
+.d1-chip .ic { width: 16px; height: 16px; }
+.d1-input { flex: 1; min-width: 0; padding-left: 4px; color: var(--dim); font-size: 14.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.d1-send { width: 36px; height: 36px; border-radius: 50%; background: var(--inv); color: var(--on-inv); display: grid; place-items: center; flex: none; }
+.d1-send svg { transform: rotate(-90deg); width: 16px; height: 16px; }
+.d1-sheet { padding: 10px 12px 14px; border-radius: 32px 32px 24px 24px; }
+.d1-grab { width: 38px; height: 5px; border-radius: 9px; background: var(--s3); margin: 0 auto 12px; }
+.d1-st { text-align: center; font-weight: 600; font-size: 17px; margin-bottom: 12px; }
+.d1-card { padding: 14px 14px 14px; }
+.d1-top { display: flex; align-items: center; justify-content: space-between; min-height: 34px; margin-bottom: 6px; }
+.d1-name { font-size: 26px; font-weight: 600; letter-spacing: -0.025em; justify-items: start; }
+.d1-info { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 11px 0 9px; border-radius: 99px; font-size: 12.5px; font-weight: 500; background: var(--s2); color: var(--mut); box-shadow: 0 0 0 1px var(--line) inset; opacity: 0; transform: scale(0.9); transition: opacity var(--m-base) var(--ease), transform var(--m-slow) var(--ease-spring); }
+.d1-info .ic { width: 14px; height: 14px; }
+.is-custom .d1-info { opacity: 1; transform: none; }
+.d1-wrap { position: relative; }
+.d1-rail { position: relative; height: 44px; touch-action: none; cursor: grab; border-radius: 99px; transition: opacity var(--m-base) var(--ease); }
+.d1-rail:active { cursor: grabbing; }
+.d1-rail:focus-visible { border-radius: 99px; outline-offset: 6px; }
+.is-custom .d1-rail { opacity: 0.4; pointer-events: none; }
+.is-custom .d1-lab { pointer-events: none; opacity: 0.5; }
+.d1-track, .d1-fill { position: absolute; left: 0; right: 0; top: 50%; height: 10px; margin-top: -5px; border-radius: 99px; }
+.d1-track { background: var(--track-off); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2); }
+.d1-fill { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 0 0 0.5px rgba(0, 0, 0, 0.12) inset; }
+.d1-dot { position: absolute; top: 50%; width: 4px; height: 4px; margin: -2px 0 0 -2px; border-radius: 50%; background: var(--bg); opacity: 0.6; left: calc(22px + var(--p) * (100% - 44px)); }
+.d1-thumb { position: absolute; left: 0; top: 0; width: 44px; height: 44px; will-change: transform; }
+.d1-knob {
+  position: absolute; inset: 0; border-radius: 50%; background: var(--s1);
+  box-shadow: 0 0 0 1px var(--line2), 0 1px 0 rgba(255, 255, 255, 0.55) inset, 0 8px 16px -6px rgba(0, 0, 0, 0.5), 0 2px 4px rgba(0, 0, 0, 0.28);
+  transition: scale var(--m-slow) var(--ease-spring), background-color var(--m-base) var(--ease);
+}
+.d1-thumb.touch .d1-knob { scale: 1.14; background: var(--glass); -webkit-backdrop-filter: blur(14px) saturate(1.6); backdrop-filter: blur(14px) saturate(1.6); }
+.d1-ic { position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; opacity: 0; transition: opacity 180ms var(--ease), transform 300ms var(--ease-spring); }
+.d1-ic.lt { transform: rotate(-55deg) scale(0.5); }
+.d1-ic.gt { transform: rotate(55deg) scale(0.5); }
+.d1-ic.on { opacity: 1; transform: none; }
+.d1-ic.c0 { color: var(--ok); } .d1-ic.c1 { color: var(--fg); } .d1-ic.c2 { color: var(--warn); } .d1-ic.c3 { color: var(--acc); }
+.d1-ring { position: absolute; left: -7px; top: -7px; width: 58px; height: 58px; transform: rotate(-90deg); opacity: 0; transition: opacity 160ms var(--ease); pointer-events: none; overflow: visible; }
+.d1-ring.on { opacity: 1; }
+.d1-ring circle { fill: none; stroke: var(--acc); stroke-width: 3.5; stroke-linecap: round; }
+.d1-glow { position: absolute; right: -13px; top: -13px; width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(closest-side, var(--acc), transparent); opacity: 0; pointer-events: none; filter: blur(6px); }
+.d1-labels { position: relative; height: 44px; margin-top: 2px; }
+.d1-lab { position: absolute; top: 0; left: calc(22px + var(--p) * (100% - 44px)); transform: translateX(-50%); min-width: 56px; height: 44px; border: 0; background: none; font-size: 13px; font-weight: 500; color: var(--dim); border-radius: 12px; cursor: pointer; transition: color var(--m-base) var(--ease), opacity var(--m-base) var(--ease); touch-action: none; }
+.d1-lab.on { color: var(--fg); }
+.d1-lab:focus-visible { border-radius: 12px; }
+.d1-descs { display: grid; margin-top: 4px; min-height: 44px; }
+.d1-d { grid-area: 1 / 1; font-size: 14px; line-height: 1.45; color: var(--mut); opacity: 0; transform: translateX(6px); transition: opacity 200ms var(--ease), transform 260ms var(--ease); pointer-events: none; }
+.d1-d.lt { transform: translateX(-6px); }
+.d1-d.on { opacity: 1; transform: none; }
+.d1-help { height: 20px; margin-top: 6px; font-size: 12.5px; font-weight: 500; color: var(--acc-fg); opacity: 0; transform: translateY(3px); transition: opacity 160ms var(--ease), transform 200ms var(--ease); }
+.d1-help.show { opacity: 1; transform: none; }
+
+.d2-body { border-top: 1px solid var(--line); padding: 14px 16px 6px; }
+.d2-wave { display: block; width: 100%; height: auto; aspect-ratio: 320 / 120; overflow: visible; }
+.d2-wave path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.d2-wave .w0 { stroke: var(--acc); stroke-width: 2.4; }
+.d2-wave .w1 { stroke: var(--acc); stroke-width: 1.6; opacity: 0.55; }
+.d2-wave .w2 { stroke: var(--fg); stroke-width: 1.2; opacity: 0.3; }
+.d2-wave .wf { stroke: none; }
+.d2-flat { stroke: var(--dim); stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 0.1 7; }
+.d2-rail { position: relative; height: 44px; margin-top: 4px; touch-action: none; cursor: grab; border-radius: 99px; }
+.d2-rail:active { cursor: grabbing; }
+.d2-rail:focus-visible { border-radius: 99px; outline-offset: 4px; }
+.d2-line { position: absolute; left: 18px; right: 18px; top: 50%; height: 2px; margin-top: -1px; border-radius: 2px; background: var(--line2); }
+.d2-tick { position: absolute; top: 50%; width: 1.5px; height: 8px; margin: -4px 0 0 -0.75px; border-radius: 1px; background: var(--dim); opacity: 0.55; left: calc(18px + var(--p) * (100% - 36px)); transition: background-color var(--m-base) var(--ease), opacity var(--m-base) var(--ease); }
+.d2-tick.maj { height: 16px; margin-top: -8px; }
+.d2-tick.act { background: var(--acc); opacity: 1; }
+.d2-thumb { position: absolute; left: 0; top: 0; width: 36px; height: 44px; will-change: transform; }
+.d2-knob { position: absolute; left: 10px; top: 6px; width: 16px; height: 32px; border-radius: 8px; background: var(--inv); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 8px 14px -6px rgba(0, 0, 0, 0.55), 0 2px 4px rgba(0, 0, 0, 0.3); transition: scale var(--m-slow) var(--ease-spring); }
+.d2-knob::after { content: ""; position: absolute; left: 50%; top: 50%; width: 2px; height: 10px; margin: -5px 0 0 -1px; border-radius: 2px; background: var(--on-inv); opacity: 0.45; }
+.d2-thumb.touch .d2-knob { scale: 1.12 1.08; }
+.d2-labels { position: relative; height: 44px; }
+.d2-lab { position: absolute; top: 0; left: calc(18px + var(--p) * (100% - 36px)); transform: translateX(-50%); min-width: 58px; height: 44px; border: 0; background: none; border-radius: 12px; font-size: 12.5px; font-weight: 500; color: var(--dim); cursor: pointer; transition: color var(--m-base) var(--ease); }
+.d2-lab.on { color: var(--fg); }
+.d2-lab:focus-visible { border-radius: 12px; }
+
+.d3-card { padding: 16px 16px 22px; display: grid; justify-items: center; gap: 10px; }
+.d3-title { justify-self: start; font-size: 15px; font-weight: 500; letter-spacing: -0.005em; }
+.d3-dial { position: relative; width: 190px; height: 190px; border-radius: 50%; touch-action: none; cursor: grab; }
+.d3-dial:active { cursor: grabbing; }
+.d3-dial:focus-visible { border-radius: 50%; outline-offset: 6px; }
+.d3-dial svg.d3-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.d3-track, .d3-prog { fill: none; stroke-width: 10; stroke-linecap: round; }
+.d3-track { stroke: var(--track-off); }
+.d3-prog { stroke: var(--acc); }
+.d3-t { stroke: var(--line2); stroke-width: 1.5; stroke-linecap: round; transition: stroke var(--m-base) var(--ease); }
+.d3-t.act { stroke: var(--mut); }
+.d3-t.maj.act { stroke: var(--acc); }
+.d3-kc { fill: var(--s1); stroke: var(--line2); stroke-width: 1; transform-box: fill-box; transform-origin: center; transition: transform var(--m-slow) var(--ease-spring); filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.35)); }
+.d3-kd { fill: var(--acc); }
+.d3-dial.touch .d3-kc { transform: scale(1.18); }
+.d3-center { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; pointer-events: none; padding-bottom: 4px; }
+.d3-num { display: flex; height: 56px; overflow: hidden; font-size: 52px; line-height: 56px; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; }
+.d3-col { display: inline-grid; overflow: hidden; }
+.d3-col .dg { grid-area: 1 / 1; display: block; height: 56px; text-align: center; }
+.d3-unit { font-family: "Geist Mono", ui-monospace, monospace; font-size: 12px; letter-spacing: 0.04em; color: var(--dim); margin-top: -2px; }
+
+.d4-stage { display: grid; grid-template-columns: repeat(2, minmax(0, 360px)); gap: 28px; justify-content: center; align-items: start; width: 100%; }
+@media (max-width: 780px) { .d4-stage { grid-template-columns: minmax(0, 360px); } }
+.d4-sel { padding: 6px; }
+.d4-rows { position: relative; height: 228px; }
+.d4-opt, .d4-oi-row { display: flex; align-items: center; gap: 14px; height: 76px; width: 100%; padding: 0 16px; border: 0; background: none; text-align: left; border-radius: 16px; cursor: pointer; color: var(--fg); }
+.d4-opt:focus-visible { border-radius: 16px; outline-offset: -3px; }
+.d4-ico { width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center; flex: none; background: var(--s2); }
+.d4-ico .ic { width: 19px; height: 19px; }
+.d4-ot { display: grid; gap: 2px; min-width: 0; }
+.d4-ot b { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.d4-ot span { font-size: 12.5px; line-height: 1.35; color: var(--dim); }
+.d4-ink { position: absolute; inset: 0; background: var(--inv); pointer-events: none; will-change: clip-path; box-shadow: var(--shadow-md); }
+.d4-ink .d4-oi-row { color: var(--on-inv); cursor: default; }
+.d4-ink .d4-ico { background: color-mix(in srgb, var(--on-inv) 16%, transparent); }
+.d4-ink .d4-ot span { color: color-mix(in srgb, var(--on-inv) 70%, transparent); }
+.d4-chat { padding: 18px 14px 16px; display: grid; align-content: start; }
+.d4-chat .bub.me { margin-bottom: 0; }
+.d4-gr { display: grid; grid-template-rows: 0fr; transition: grid-template-rows var(--m-sheet) var(--ease); }
+.d4-gr.open { grid-template-rows: 1fr; }
+.d4-gr > .in { min-height: 0; overflow: hidden; }
+.d4-gr .pad { padding-top: 10px; }
+.d4-fold { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 0 14px; border: 0; border-radius: 14px; background: var(--s1); box-shadow: 0 0 0 0.5px var(--line); cursor: pointer; text-align: left; font-size: 13.5px; color: var(--mut); }
+.d4-fold:focus-visible { border-radius: 14px; }
+.d4-fold .ic { width: 16px; height: 16px; color: var(--dim); }
+.d4-fold .grow { flex: 1; }
+.d4-fold .lnk { color: var(--acc-fg); font-weight: 500; }
+.d4-steps { margin: 0; padding: 0 0 0 4px; list-style: none; display: grid; gap: 2px; border-left: 1px solid var(--line2); margin-left: 8px; }
+.d4-step { display: flex; align-items: center; gap: 10px; min-height: 34px; padding-left: 12px; font-size: 13.5px; color: var(--mut); opacity: 0; transform: translateY(6px); transition: opacity 180ms var(--ease), transform 220ms var(--ease); }
+.d4-step .ic { width: 15px; height: 15px; color: var(--dim); }
+.d4-gr.open .d4-step { opacity: 1; transform: none; transition-delay: calc(var(--i) * 40ms); }
+.d4-chat .bub.reply { margin-top: 10px; }
+
+.d5-wrap { display: grid; gap: 12px; justify-items: center; width: 100%; }
+.d5-frag { padding: 14px; display: grid; gap: 12px; }
+.d5-phone { position: relative; height: 292px; border-radius: 28px; background: var(--s1); box-shadow: 0 0 0 1px var(--line), inset 0 1px 0 rgba(255, 255, 255, 0.05); overflow: hidden; isolation: isolate; }
+.d5-status { position: relative; z-index: 1; display: flex; justify-content: space-between; align-items: center; height: 48px; padding: 4px 24px 0 26px; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.d5-sb { display: flex; gap: 5px; align-items: flex-end; }
+.d5-sb i { display: block; width: 3px; border-radius: 1px; background: currentColor; }
+.d5-sb b { display: block; width: 22px; height: 11px; border-radius: 3.5px; border: 1.5px solid currentColor; margin-left: 4px; opacity: 0.8; }
+.d5-glow { position: absolute; z-index: 2; left: 50%; top: -6px; width: 190px; height: 76px; margin-left: -95px; border-radius: 50%; background: radial-gradient(closest-side, var(--acc), transparent); opacity: 0; pointer-events: none; }
+.d5-island { position: absolute; z-index: 3; left: 50%; top: 10px; width: 320px; height: 76px; margin-left: -160px; background: #000; clip-path: inset(0 100px 39px 100px round 18.5px); will-change: clip-path; pointer-events: none; }
+.d5-isl-in { position: absolute; left: 20px; top: 0; width: 280px; height: 64px; display: flex; align-items: center; gap: 12px; padding: 0 18px; opacity: 0; color: #fff; }
+.d5-isl-in .t { display: grid; gap: 1px; }
+.d5-isl-in .t b { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.d5-isl-in .t span { font-size: 12px; color: #3ddc97; display: inline-flex; align-items: center; gap: 5px; }
+.d5-isl-in .t span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #3ddc97; }
+.d5-av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; flex: none; color: #fff; font-weight: 600; font-size: 15px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset; }
+.d5-view { position: absolute; inset: 52px 0 0 0; padding: 4px 12px 12px; opacity: 0; transform: translateY(8px); pointer-events: none; transition: opacity var(--m-slow) var(--ease), transform var(--m-sheet) var(--ease); }
+.d5-view.on { opacity: 1; transform: none; pointer-events: auto; }
+.d5-row { width: 100%; border: 0; background: none; text-align: left; cursor: pointer; border-radius: 0; color: var(--fg); }
+.d5-row:focus-visible { border-radius: 14px; outline-offset: -3px; }
+.d5-head { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; }
+.d5-head .s-back { border: 0; cursor: pointer; background: var(--s2); color: var(--fg); box-shadow: none; }
+.d5-head .s-back:focus-visible { border-radius: 50%; }
+.d5-head b { font-size: 16px; font-weight: 600; }
+.d5-chatbody { display: grid; gap: 10px; }
+.d5-opts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.d5-opt { min-height: 48px; padding: 6px 8px; border: 0; border-radius: 14px; background: var(--s1); box-shadow: 0 0 0 0.5px var(--line); color: var(--mut); font-size: 13px; font-weight: 500; line-height: 1.2; cursor: pointer; transition: background-color var(--m-base) var(--ease), color var(--m-base) var(--ease), scale var(--m-slow) var(--ease-spring); }
+.d5-opt:active { scale: 0.97; }
+.d5-opt[aria-checked="true"] { background: var(--inv); color: var(--on-inv); box-shadow: var(--shadow-sm); }
+.d5-opt:focus-visible { border-radius: 14px; }
+.d5-note { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11.5px; color: var(--g-dim); }
+
+.d6-frag { padding: 18px 14px 16px; display: grid; gap: 8px; justify-items: center; }
+.d6-word { display: grid; justify-items: center; height: 62px; align-items: center; font-size: 46px; line-height: 1; font-weight: 600; letter-spacing: -0.03em; overflow: hidden; width: 100%; }
+.d6-drum { position: relative; width: 100%; height: 224px; perspective: 640px; touch-action: none; cursor: grab; border-radius: 22px; -webkit-mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent); mask-image: linear-gradient(transparent, #000 24%, #000 76%, transparent); outline-offset: -3px; }
+.d6-drum:active { cursor: grabbing; }
+.d6-drum:focus-visible { border-radius: 22px; }
+.d6-cyl { position: absolute; inset: 0; transform-style: preserve-3d; will-change: transform; }
+.d6-item { position: absolute; left: 0; right: 0; top: calc(50% - 22px); height: 44px; line-height: 44px; text-align: center; font-size: 19px; font-weight: 500; color: var(--dim); backface-visibility: hidden; -webkit-backface-visibility: hidden; white-space: nowrap; transition: color var(--m-base) var(--ease); }
+.d6-item.sel { color: var(--fg); }
+.d6-band { position: absolute; z-index: 2; left: 8px; right: 8px; top: calc(50% - 22px); height: 44px; border-radius: 14px; pointer-events: none; background: linear-gradient(180deg, color-mix(in srgb, var(--fg) 9%, transparent), color-mix(in srgb, var(--fg) 4%, transparent)); -webkit-backdrop-filter: brightness(1.18) saturate(1.3); backdrop-filter: brightness(1.18) saturate(1.3); box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 -1px 0 rgba(0, 0, 0, 0.1) inset; }
+.d6-band::before, .d6-band::after { content: ""; position: absolute; left: 14px; right: 14px; height: 1px; background: linear-gradient(90deg, transparent, var(--acc), transparent); opacity: 0.75; }
+.d6-band::before { top: 0; }
+.d6-band::after { bottom: 0; }
+</style>
+</head>
+<body>
+<header data-g-nav="dials.html"></header>
+<main class="g-wrap">
+
+<section class="g-hero">
+  <span class="g-eyebrow">Papan 04 · Dial</span>
+  <h1 class="g-h1">Lebih dari dua pilihan, <span class="serif">tetap satu sentuhan.</span></h1>
+  <p class="g-lede">Enam kontrol pilihan bertahap, dari mode persetujuan sampai bahasa. Setiap konsep bisa dicoba dengan mouse, sentuhan, dan keyboard.</p>
+
+  <div class="g-before">
+    <div>
+      <h3>Sekarang di app</h3>
+      <p>Sebuah menu menyembunyikan semua pilihan. Mode yang berisiko butuh satu ketukan, sama seperti mode yang aman.</p>
+    </div>
+    <div class="frag" data-ui="dark" data-ui-global>
+      <div class="s-card">
+        <div class="s-row">
+          <span class="s-ico"><svg class="ic"><use href="#i-brain"/></svg></span>
+          <span class="s-text"><span class="s-row-title">Reasoning effort</span></span>
+          <span class="s-value">Default</span><svg class="s-chev"><use href="#i-chevron"/></svg>
+        </div>
+        <div class="s-row">
+          <span class="s-ico"><svg class="ic"><use href="#i-clock"/></svg></span>
+          <span class="s-text"><span class="s-row-title">Hang up after silence</span></span>
+          <span class="s-value">5 minutes</span><svg class="s-chev"><use href="#i-chevron"/></svg>
+        </div>
+        <div class="s-row">
+          <span class="s-ico"><svg class="ic"><use href="#i-rows"/></svg></span>
+          <span class="s-text"><span class="s-row-title">Activity</span></span>
+          <span class="s-value">Reduced</span><svg class="s-chev"><use href="#i-chevron"/></svg>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="g-section" id="konsep">
+  <div class="g-section-head">
+    <h2 class="g-h2">Konsep</h2>
+    <p>Geser, tahan, putar, atau pakai tombol panah. Ganti tema mockup lewat saklar di bar atas.</p>
+  </div>
+
+  <div class="g-grid">
+
+    <article class="concept is-wide" id="d1">
+      <div class="concept-stage dots has-tools">
+        <div class="stage-tools"><button type="button" id="d1-sim" aria-pressed="false">Simulasi Custom</button></div>
+        <div class="d1-stage">
+          <div class="frag d1-chat" data-ui="dark" data-ui-global>
+            <div class="bub bot">I can tidy up the settings screen. Want me to start?</div>
+            <div class="bub me">Go ahead.</div>
+            <div class="d1-composer">
+              <div class="d1-chip" aria-live="polite"></div>
+              <div class="d1-input">Message Atlas</div>
+              <div class="d1-send"><svg class="ic"><use href="#i-chevron"/></svg></div>
+            </div>
+          </div>
+          <div class="frag d1-sheet" data-ui="dark" data-ui-global>
+            <div class="d1-grab"></div>
+            <div class="d1-st">Approval mode</div>
+            <div class="s-card d1-card">
+              <div class="d1-top"><span class="d1-name sw-host"></span><span class="d1-info"><svg class="ic"><use href="#i-computer"/></svg>Custom</span></div>
+              <div class="d1-wrap">
+                <div class="d1-glow"></div>
+                <div class="d1-rail" role="slider" tabindex="0" aria-label="Approval mode" aria-valuemin="0" aria-valuemax="3" aria-valuenow="2" aria-valuetext="Auto">
+                  <div class="d1-track"></div>
+                  <div class="d1-fill"></div>
+                  <div class="d1-thumb">
+                    <svg class="d1-ring" viewBox="0 0 58 58" aria-hidden="true"><circle cx="29" cy="29" r="26"/></svg>
+                    <div class="d1-knob"></div>
+                  </div>
+                </div>
+                <div class="d1-labels"></div>
+              </div>
+              <div class="d1-descs"></div>
+              <div class="d1-help" aria-live="polite">Hold to turn on Full</div>
+            </div>
+          </div>
+        </div>
+        <span class="stage-hint">Geser · tap label · panah · tahan untuk Full</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D1</span><h3>Tangga kepercayaan</h3></div>
+        <p class="concept-idea">Empat mode berjajar di satu tangga. Jalur makin panas dari tenang ke merah, jadi risiko terlihat sebelum orang membaca teks. Mode Full butuh niat: tahan 700 ms.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Spring dengan overshoot kecil (stiffness 380, damping 26). Ikon thumb berputar 55° saat mode berganti. Deskripsi bergeser 6 px. Ring Full terisi 700 ms linear. Gagal: shake 7 px selama 340 ms.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>DragGesture(minimumDistance: 0)</code> di rel, <code>.sensoryFeedback(.selection, trigger: index)</code> di tiap detent. Thumb memakai <code>.glassEffect(.regular.interactive())</code> di iOS 26. Ring: <code>Circle().trim(from: 0, to: progress)</code> dengan <code>LongPressGesture(minimumDuration: 0.7)</code>; sukses memicu <code>.sensoryFeedback(.impact(weight: .heavy), trigger: confirmed)</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>Modifier.pointerInput</code> dengan <code>detectDragGestures</code> dan <code>Animatable</code> berspec <code>spring(Spring.DampingRatioMediumBouncy)</code>. Haptic: <code>LocalHapticFeedback</code> dengan <code>HapticFeedbackType.SegmentFrequentTick</code>, lalu <code>Confirm</code> saat Full aktif. Ring: <code>drawArc</code> dari <code>animateFloatAsState</code>. Tahan 700 ms: <code>withTimeoutOrNull(700)</code> di <code>awaitEachGesture</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="slider"</code>; <code>aria-valuetext</code> memuat nama dan deskripsi mode. Panah, Home, dan End bekerja; Full butuh tombol ditahan. Target 44 px. Reduce motion: tanpa spring, ring tetap tampil. iOS: <code>.accessibilityAdjustableAction</code>. Compose: <code>semantics { setProgress }</code>.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag tag-pick">Rekomendasi</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="d2">
+      <div class="concept-stage dots">
+        <div class="frag" data-ui="dark" data-ui-global>
+          <div class="s-section">Bot settings</div>
+          <div class="s-card">
+            <div class="s-row no-ico">
+              <span class="s-text"><span class="s-row-title">Model</span></span>
+              <span class="s-value">Default</span><svg class="s-chev"><use href="#i-chevron"/></svg>
+            </div>
+            <div class="s-row no-ico">
+              <span class="s-text"><span class="s-row-title">Reasoning effort</span></span>
+              <span class="s-value sw-host d2-val"></span>
+            </div>
+            <div class="d2-body">
+              <svg class="d2-wave" viewBox="0 0 320 120" aria-hidden="true">
+                <defs>
+                  <linearGradient id="d2-grad" gradientUnits="userSpaceOnUse" x1="0" y1="14" x2="0" y2="120">
+                    <stop offset="0" style="stop-color:var(--acc);stop-opacity:.22"/>
+                    <stop offset="1" style="stop-color:var(--acc);stop-opacity:0"/>
+                  </linearGradient>
+                </defs>
+                <line class="d2-flat" x1="10" y1="60" x2="310" y2="60"/>
+                <g class="d2-waves">
+                  <path class="wf" fill="url(#d2-grad)"/>
+                  <path class="w2"/><path class="w1"/><path class="w0"/>
+                </g>
+              </svg>
+              <div class="d2-rail" role="slider" tabindex="0" aria-label="Reasoning effort" aria-valuemin="0" aria-valuemax="4" aria-valuenow="0" aria-valuetext="Default">
+                <div class="d2-line"></div>
+                <div class="d2-thumb"><div class="d2-knob"></div></div>
+              </div>
+              <div class="d2-labels"></div>
+            </div>
+          </div>
+        </div>
+        <span class="stage-hint">Geser penggaris · tap label</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D2</span><h3>Gelombang pikir</h3></div>
+        <p class="concept-idea">Tiga gelombang hidup menunjukkan seberapa dalam bot berpikir. Amplitudo, frekuensi, dan kecepatan naik bersama level. Default hanya garis titik yang tenang.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Parameter gelombang mengikuti posisi thumb secara kontinu, dihaluskan dengan faktor 7 per detik. Amplitudo 9 sampai 38 px. Gelombang berhenti saat keluar layar.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>TimelineView(.animation(paused: !onScreen))</code> berisi <code>Canvas</code> dengan tiga <code>Path</code>. Rel memakai <code>DragGesture</code> dan <code>.sensoryFeedback(.selection, trigger: level)</code>. Baca <code>@Environment(\.accessibilityReduceMotion)</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>Canvas</code> dengan <code>withFrameNanos</code> di <code>LaunchedEffect</code>, dijaga <code>repeatOnLifecycle(Lifecycle.State.STARTED)</code>. Rel: <code>Slider</code> dengan <code>steps = 3</code> atau <code>draggable</code> kustom. Haptic <code>SegmentTick</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="slider"</code> dengan <code>aria-valuetext</code> berisi nama level. Panah, Home, End bekerja. Reduce motion: gelombang statis, tanpa loop. Target 44 px.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya L</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="d3">
+      <div class="concept-stage dots">
+        <div class="frag" data-ui="dark" data-ui-global>
+          <div class="s-section">Live call</div>
+          <div class="s-card d3-card">
+            <div class="d3-title">Hang up after silence</div>
+            <div class="d3-dial" role="slider" tabindex="0" aria-label="Hang up after silence" aria-valuemin="1" aria-valuemax="60" aria-valuenow="5" aria-valuetext="5 minutes">
+              <svg class="d3-svg" viewBox="0 0 190 190" aria-hidden="true"></svg>
+              <div class="d3-center"><div class="d3-num"></div><div class="d3-unit sw-host"></div></div>
+            </div>
+          </div>
+        </div>
+        <span class="stage-hint">Putar cincin · panah</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D3</span><h3>Cincin waktu</h3></div>
+        <p class="concept-idea">Durasi menjadi cincin yang bisa diputar. Delapan titik snap tersebar rata menurut indeks, jadi nilai kecil tetap mudah dipilih. Angka tengah bergulir seperti odometer.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Knob menempel magnet 45% ke titik terdekat saat ditarik. Lepas: spring ke titik (stiffness 420, damping 32). Digit lama keluar, digit baru masuk dalam 260 ms.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>Circle().trim</code> untuk jalur 300° dan busur. <code>DragGesture</code> dengan <code>atan2</code> untuk sudut. Angka: <code>.contentTransition(.numericText(value:))</code> dan <code>.monospacedDigit()</code>. Haptic <code>.sensoryFeedback(.selection, trigger: index)</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>Canvas</code> dengan <code>drawArc(startAngle = 120f, sweepAngle = 300f)</code>. Sudut dari <code>detectDragGestures</code> dan <code>atan2</code>. Angka: <code>AnimatedContent</code> dengan <code>slideInVertically</code>. Haptic <code>SegmentTick</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="slider"</code>; <code>aria-valuetext</code> "5 minutes". Panah mengubah satu titik; Home dan End ke ujung. Reduce motion: angka berganti tanpa gulir. Seluruh cincin 190 px menjadi target.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya M</span></div>
+      </div>
+    </article>
+
+    <article class="concept is-wide" id="d4">
+      <div class="concept-stage dots">
+        <div class="d4-stage">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Activity</div>
+            <div class="s-card d4-sel">
+              <div class="d4-rows" role="radiogroup" aria-label="Activity"><div class="d4-ink" aria-hidden="true"></div></div>
+            </div>
+          </div>
+          <div class="frag d4-chat" data-ui="dark" data-ui-global>
+            <div class="bub me">Ship the landing page</div>
+            <div class="d4-gr fold"><div class="in"><div class="pad">
+              <button type="button" class="d4-fold" aria-expanded="false"><svg class="ic"><use href="#i-clock"/></svg><span class="grow">Worked for 42s · 4 steps</span><span class="lnk">Show</span></button>
+            </div></div></div>
+            <div class="d4-gr steps"><div class="in"><div class="pad">
+              <ul class="d4-steps"></ul>
+            </div></div></div>
+            <div class="bub bot reply">Done. The preview is ready.</div>
+          </div>
+        </div>
+        <span class="stage-hint">Pilih satu · tap Show</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D4</span><h3>Lipatan aktivitas</h3></div>
+        <p class="concept-idea">Pilihan dan hasilnya tampil berdampingan. Pemilih ink bergerak seperti ulat: tepi depan jalan dulu, tepi belakang menyusul. Chat langsung melipat atau membuka.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Dua spring untuk dua tepi: tepi depan stiffness 520, tepi belakang 200. Tinggi memakai <code>grid-template-rows</code> 0fr ke 1fr dalam 280 ms. Langkah muncul dengan jeda 40 ms per baris.</dd></div>
+          <div><dt>SwiftUI</dt><dd>Dua <code>@State</code> untuk tepi atas dan bawah, tiap tepi dengan <code>.spring</code> sendiri, dipakai oleh <code>Shape</code> berisi <code>animatableData</code>. Teks terbalik lewat <code>.mask</code> pada salinan baris. Lipatan: <code>.transition(.push(from: .top))</code> dalam <code>withAnimation</code>.</dd></div>
+          <div><dt>Compose</dt><dd>Dua <code>animateDpAsState</code> dengan <code>spring</code> berbeda. Salinan baris digambar di <code>Modifier.drawWithContent</code> dengan <code>clipRect</code>. Lipatan: <code>AnimatedVisibility(enter = expandVertically() + fadeIn())</code>, jeda <code>tween(delayMillis = 40 * i)</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="radiogroup"</code> dengan tiga <code>role="radio"</code> dan <code>aria-checked</code>. Panah memindah pilihan. Tombol lipat memakai <code>aria-expanded</code>. Reduce motion: thumb dan tinggi berganti seketika. Baris 76 px.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag tag-pick">Rekomendasi</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="d5">
+      <div class="concept-stage dots has-tools">
+        <div class="stage-tools"><button type="button" id="d5-reset">Reset</button></div>
+        <div class="d5-wrap">
+          <div class="frag d5-frag" data-ui="dark" data-ui-global>
+            <div class="d5-phone">
+              <div class="d5-status"><span>9:41</span><span class="d5-sb" aria-hidden="true"><i style="height:4px"></i><i style="height:7px"></i><i style="height:10px"></i><b></b></span></div>
+              <div class="d5-glow"></div>
+              <div class="d5-island"><div class="d5-isl-in"></div></div>
+              <div class="d5-view on" data-view="home">
+                <div class="s-section">Bots</div>
+                <div class="s-card"></div>
+              </div>
+              <div class="d5-view" data-view="chat">
+                <div class="d5-head"><button type="button" class="s-back" aria-label="Back"><svg class="ic"><use href="#i-chevron-left"/></svg></button><span class="d5-av"></span><b></b></div>
+                <div class="d5-chatbody"></div>
+              </div>
+            </div>
+            <div class="d5-opts" role="radiogroup" aria-label="Bot intro animation"></div>
+          </div>
+          <div class="d5-note" aria-live="polite"></div>
+        </div>
+        <span class="stage-hint">Buka chat · ganti opsi</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D5</span><h3>Intro pulau</h3></div>
+        <p class="concept-idea">Saat chat bot terbuka, pil hitam di atas layar membesar dan menyapa dengan avatar dan nama. Lalu menutup lagi. Tiga opsi mengatur seberapa sering ini terjadi.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Pil memuai dari 120×37 ke 280×64 dengan spring overshoot (stiffness 300, damping 18). Tahan 1,2 detik, lalu menutup. Isi muncul setelah pil 55% terbuka. Pulse glow 800 ms.</dd></div>
+          <div><dt>SwiftUI</dt><dd>View hitam kustom di bawah status bar, bukan Dynamic Island sistem. <code>Capsule()</code> dengan <code>.frame(width:height:)</code> dan <code>.animation(.spring(response: 0.45, dampingFraction: 0.72), value: expanded)</code>. Ingatan bot: <code>@AppStorage</code>. Tahan: <code>.task(id:)</code> dengan <code>Task.sleep(for: .seconds(1.2))</code>. Live Activity memakai ActivityKit bila perlu di luar app.</dd></div>
+          <div><dt>Compose</dt><dd>Android tidak punya pulau; pil kustom di bawah <code>WindowInsets.displayCutout</code>. <code>animateDpAsState(spring(dampingRatio = 0.7f, stiffness = 380f))</code>. <code>LaunchedEffect(botId) { delay(1200) }</code>. Ingatan bot di DataStore.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd>Opsi memakai <code>role="radiogroup"</code> dengan panah. Sapaan juga muncul sebagai teks di chat. Reduce motion: pil berubah ukuran tanpa spring. Nama bot tetap terbaca di judul chat.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 3/5</span><span class="tag">Biaya L</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="d6">
+      <div class="concept-stage dots">
+        <div class="frag d6-frag" data-ui="dark" data-ui-global>
+          <div class="d6-word sw-host" aria-live="polite"></div>
+          <div class="d6-drum" role="listbox" tabindex="0" aria-label="Language">
+            <div class="d6-cyl"></div>
+            <div class="d6-band"></div>
+          </div>
+          <div class="s-caption" style="text-align:center">Changes the language inside Seira.</div>
+        </div>
+        <span class="stage-hint">Putar drum · roda mouse · panah</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">D6</span><h3>Drum bahasa</h3></div>
+        <p class="concept-idea">Lima bahasa duduk di drum tiga dimensi. Kata "Settings" di atas langsung berganti ke bahasa terpilih, jadi hasilnya terlihat sebelum orang menutup layar.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Item di silinder dengan sudut 24° per item. Momentum dari kecepatan lepas, lalu snap dengan spring (stiffness 170, damping 20). Tepi daftar menahan dengan faktor 0,35. Tick tiap item melewati pita.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>ScrollView</code> dengan <code>.scrollTargetBehavior(.viewAligned)</code> dan <code>.scrollPosition(id:)</code>. Tiap item: <code>.scrollTransition { c, p in c.rotation3DEffect(.degrees(p.value * -60), axis: (1, 0, 0)) }</code>. Haptic <code>.sensoryFeedback(.selection, trigger: id)</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>LazyColumn</code> dengan <code>rememberSnapFlingBehavior(listState)</code>. Tiap item: <code>Modifier.graphicsLayer { rotationX = ...; cameraDistance = 12f * density }</code>. Haptic <code>SegmentTick</code> saat item tengah berganti.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="listbox"</code> dengan <code>role="option"</code> dan <code>aria-selected</code>. Panah, Home, End bekerja. Pratinjau memakai <code>aria-live</code> dan atribut <code>lang</code>. Reduce motion: snap seketika. Baris 44 px.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="g-section" id="penilaian">
+  <div class="g-section-head">
+    <h2 class="g-h2">Penilaian</h2>
+    <p>Wow dan Jelas dinilai 1 sampai 5. Biaya S, M, atau L untuk dua platform.</p>
+  </div>
+  <div class="g-table-wrap">
+    <table class="g-table">
+      <thead><tr><th>Konsep</th><th>Wow (1–5)</th><th>Jelas (1–5)</th><th>Biaya (S/M/L)</th><th>Dipakai di</th></tr></thead>
+      <tbody>
+        <tr><td>D1 Tangga kepercayaan</td><td class="num">5</td><td class="num">5</td><td class="num">M</td><td>Approval mode di composer</td></tr>
+        <tr><td>D2 Gelombang pikir</td><td class="num">5</td><td class="num">4</td><td class="num">L</td><td>Reasoning effort di pengaturan bot</td></tr>
+        <tr><td>D3 Cincin waktu</td><td class="num">4</td><td class="num">4</td><td class="num">M</td><td>Hang up after silence di Live call</td></tr>
+        <tr><td>D4 Lipatan aktivitas</td><td class="num">4</td><td class="num">5</td><td class="num">M</td><td>Activity di pengaturan chat</td></tr>
+        <tr><td>D5 Intro pulau</td><td class="num">5</td><td class="num">3</td><td class="num">L</td><td>Animasi pembuka bot</td></tr>
+        <tr><td>D6 Drum bahasa</td><td class="num">4</td><td class="num">5</td><td class="num">M</td><td>Language di pengaturan app</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="g-section" id="rekomendasi">
+  <div class="g-section-head">
+    <h2 class="g-h2">Rekomendasi</h2>
+    <p>Urutan kerja yang disarankan.</p>
+  </div>
+  <ol class="rec-list">
+    <li><span><strong>D1 Tangga kepercayaan.</strong> Ia menambah keamanan dan rasa senang sekaligus. Mode berisiko kini butuh niat, bukan satu ketukan.</span></li>
+    <li><span><strong>D4 Lipatan aktivitas.</strong> Efeknya terlihat langsung di chat, dengan biaya sedang.</span></li>
+    <li><span><strong>D3 dan D6.</strong> Bagus dimiliki. Kerjakan setelah D1 dan D4 selesai.</span></li>
+  </ol>
+</section>
+
+</main>
+<footer class="g-wrap g-foot">Mockup statis. Warna dari SeiraTheme.swift. · <a href="index.html">Kembali ke ringkasan</a></footer>
+
+<script src="assets/kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  const S = window.Seira;
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+  const EASE = "cubic-bezier(.2,.8,.2,1)";
+  const red = () => S.reduced;
+  const anim = (el, kf, o) => (red() || !el || !el.animate ? null : el.animate(kf, o));
+
+  function onVisible(el, fn) {
+    if (!("IntersectionObserver" in window)) { fn(true); return; }
+    new IntersectionObserver((es) => fn(es[es.length - 1].isIntersecting), { rootMargin: "80px" }).observe(el);
+  }
+
+  function swap(host, text, dir, lang) {
+    const kids = Array.from(host.children).filter((c) => c.classList.contains("sw"));
+    const old = kids[kids.length - 1];
+    if (old && old.textContent === text) return;
+    const n = document.createElement("span");
+    n.className = "sw";
+    n.textContent = text;
+    if (lang) n.lang = lang;
+    host.appendChild(n);
+    if (!old) return;
+    if (red() || !n.animate) { kids.forEach((k) => k.remove()); return; }
+    const d = dir || 1;
+    old.animate([{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: `translateY(${-9 * d}px)` }], { duration: 180, easing: EASE, fill: "forwards" }).onfinish = () => old.remove();
+    n.animate([{ opacity: 0, transform: `translateY(${9 * d}px)` }, { opacity: 1, transform: "none" }], { duration: 260, easing: EASE });
+  }
+
+  function keyDelta(e, n) {
+    switch (e.key) {
+      case "ArrowRight": case "ArrowDown": return { d: 1 };
+      case "ArrowLeft": case "ArrowUp": return { d: -1 };
+      case "Home": return { to: 0 };
+      case "End": return { to: n - 1 };
+    }
+    return null;
+  }
+
+  function d1() {
+    const root = $("#d1");
+    const MODES = [
+      { k: "Ask", ic: "hand", d: "Asks before it edits or runs anything." },
+      { k: "Edits", ic: "pencil", d: "Edits files on its own. Asks before it runs commands." },
+      { k: "Auto", ic: "wand", d: "Works on its own and asks only about risky steps." },
+      { k: "Full", ic: "bolt", d: "Never asks. Use it only for work you trust." },
+    ];
+    const CHIPC = ["var(--ok)", "var(--fg)", "var(--warn)", "var(--acc)"];
+    const COL = ["var(--ok)", "color-mix(in srgb, var(--fg) 60%, var(--s1))", "var(--warn-fill)", "var(--acc)"];
+    const wrap = $(".d1-wrap", root), rail = $(".d1-rail", root), thumb = $(".d1-thumb", root), knob = $(".d1-knob", root), fill = $(".d1-fill", root);
+    const nameEl = $(".d1-name", root), help = $(".d1-help", root), glow = $(".d1-glow", root), chip = $(".d1-chip", root);
+    const ringSvg = $(".d1-ring", root), ring = $(".d1-ring circle", root), simBtn = $("#d1-sim");
+    const C = 2 * Math.PI * 26;
+    ring.style.strokeDasharray = C + "px";
+    ring.style.strokeDashoffset = C + "px";
+
+    knob.insertAdjacentHTML("beforeend", MODES.map((m, k) => S.icon(m.ic, "d1-ic c" + k)).join(""));
+    rail.insertAdjacentHTML("afterbegin", MODES.map((m, k) => `<i class="d1-dot" style="--p:${k / 3}"></i>`).join(""));
+    $(".d1-labels", root).innerHTML = MODES.map((m, k) => `<button type="button" class="d1-lab" style="--p:${k / 3}" tabindex="-1" aria-hidden="true">${m.k}</button>`).join("");
+    $(".d1-descs", root).innerHTML = MODES.map((m, k) => `<div class="d1-d" data-i="${k}">${m.d}</div>`).join("") + `<div class="d1-d cu">Change this mode on your computer.</div>`;
+    const ics = $$(".d1-ic", root), labs = $$(".d1-lab", root), descs = $$(".d1-d[data-i]", root), cu = $(".d1-d.cu", root);
+
+    let W = rail.clientWidth || 300, pos = 2, last = 2, mode = 2, custom = false, stop = null;
+    let dragging = false, holding = false, holdAnim = null, holdSrc = "", holdKey = "";
+
+    const heat = (p) => {
+      const i = Math.min(2, Math.floor(p)), f = p - i;
+      return `color-mix(in srgb, ${COL[i]} ${Math.round((1 - f) * 100)}%, ${COL[i + 1]})`;
+    };
+    function render() {
+      const x = clamp(pos, -0.1, 3.1) / 3 * (W - 44);
+      thumb.style.transform = `translate3d(${x}px,0,0)`;
+      fill.style.clipPath = `inset(0 ${Math.max(0, W - (x + 22))}px 0 0 round 99px)`;
+      fill.style.background = heat(clamp(pos, 0, 3));
+    }
+    function showDesc(i) {
+      descs.forEach((el, k) => { el.classList.toggle("on", !custom && k === i); el.classList.toggle("lt", k < i); });
+      cu.classList.toggle("on", custom);
+    }
+    function preview(i, quiet) {
+      const old = last;
+      ics.forEach((el, k) => { el.classList.toggle("on", k === i); el.classList.toggle("lt", k < i); el.classList.toggle("gt", k > i); });
+      labs.forEach((b, k) => b.classList.toggle("on", k === i));
+      showDesc(i);
+      swap(nameEl, custom ? "Custom" : MODES[i].k, i >= old ? 1 : -1);
+      rail.setAttribute("aria-valuenow", String(i));
+      rail.setAttribute("aria-valuetext", custom ? "Custom. Change this mode on your computer." : i === 3 && mode !== 3 ? "Full, not on yet. Hold to turn it on." : MODES[i].k + ". " + MODES[i].d);
+      if (i !== old) { last = i; if (!quiet) S.tick(knob); }
+    }
+    function setChip() {
+      const m = custom ? { k: "Custom", ic: "computer" } : MODES[mode];
+      chip.innerHTML = `<span style="display:inline-flex;color:${custom ? "var(--dim)" : CHIPC[mode]}">${S.icon(m.ic)}</span><span>${m.k}</span>`;
+      anim(chip, [{ transform: "scale(.94)" }, { transform: "scale(1)" }], { duration: 280, easing: EASE });
+    }
+    function setMode(i) { if (mode !== i) { mode = i; setChip(); } }
+    function springTo(t, v) {
+      if (stop) stop();
+      stop = S.spring({ from: pos, to: t, velocity: v || 0, stiffness: 380, damping: 26, onUpdate: (p) => { pos = p; render(); } });
+    }
+
+    function startHold(src, key) {
+      if (holding) return;
+      holding = true; holdSrc = src; holdKey = key || "";
+      ringSvg.classList.add("on");
+      ring.style.strokeDashoffset = C + "px";
+      help.classList.add("show");
+      holdAnim = ring.animate([{ strokeDashoffset: C + "px" }, { strokeDashoffset: "0px" }], { duration: 700, easing: "linear", fill: "forwards" });
+      holdAnim.onfinish = completeHold;
+    }
+    function cancelHold() {
+      if (!holding) return;
+      holding = false;
+      if (holdAnim) { holdAnim.onfinish = null; holdAnim.cancel(); holdAnim = null; }
+      ringSvg.classList.remove("on");
+      help.classList.remove("show");
+    }
+    function completeHold() {
+      holding = false;
+      ring.style.strokeDashoffset = "0px";
+      if (holdAnim) { holdAnim.onfinish = null; holdAnim.cancel(); holdAnim = null; }
+      setMode(3);
+      rail.setAttribute("aria-valuetext", MODES[3].k + ". " + MODES[3].d);
+      S.tick(knob, "heavy");
+      anim(glow, [{ opacity: 0, transform: "scale(.6)" }, { opacity: 0.95, transform: "scale(1.15)", offset: 0.35 }, { opacity: 0, transform: "scale(1.45)" }], { duration: 780, easing: EASE });
+      help.classList.remove("show");
+      setTimeout(() => { ringSvg.classList.remove("on"); }, 320);
+    }
+    function failHold() {
+      cancelHold();
+      anim(rail, [0, -7, 6, -4, 2, 0].map((x) => ({ transform: `translateX(${x}px)` })), { duration: 340, easing: EASE });
+      preview(2);
+      setMode(2);
+      springTo(2, 0);
+    }
+    function enter(i) {
+      preview(i);
+      if (i === 3 && mode !== 3) startHold("ptr");
+      else { cancelHold(); setMode(i); }
+    }
+    function go(t, src, key, repeat) {
+      if (stop) stop();
+      if (t === 3 && mode !== 3) {
+        if (repeat) return;
+        springTo(3, 0); preview(3); startHold(src, key);
+      } else { cancelHold(); preview(t); setMode(t); springTo(t, 0); }
+    }
+
+    const posFromX = (x) => clamp((x - rail.getBoundingClientRect().left - 22) / (W - 44) * 3, 0, 3);
+    S.drag(rail, {
+      start(e) {
+        if (custom) return;
+        if (stop) stop();
+        dragging = true;
+        thumb.classList.add("touch");
+        rail.focus({ preventScroll: true });
+        pos = posFromX(e.clientX); render();
+        const i = Math.round(pos);
+        if (i !== last || (i === 3 && mode !== 3 && !holding)) enter(i);
+      },
+      move(m) {
+        if (!dragging) return;
+        pos = posFromX(m.x); render();
+        const i = Math.round(pos);
+        if (i !== last) enter(i);
+      },
+      end(m) {
+        if (!dragging) return;
+        dragging = false;
+        thumb.classList.remove("touch");
+        if (holding) { failHold(); return; }
+        const v = m.vx * 1000 / (W - 44) * 3;
+        let t = clamp(Math.round(pos + v * 0.08), 0, 3);
+        if (t === 3 && mode !== 3) t = 2;
+        if (t !== last) { preview(t); setMode(t); }
+        springTo(t, v);
+      },
+    });
+
+    labs.forEach((b, k) => {
+      b.addEventListener("pointerdown", (e) => {
+        if (custom || e.button !== 0) return;
+        e.preventDefault();
+        rail.focus({ preventScroll: true });
+        go(k, "ptr", "", false);
+        if (holding) {
+          const up = () => { window.removeEventListener("pointerup", up); window.removeEventListener("pointercancel", up); if (holding) failHold(); };
+          window.addEventListener("pointerup", up);
+          window.addEventListener("pointercancel", up);
+        }
+      });
+    });
+    rail.addEventListener("keydown", (e) => {
+      if (custom) return;
+      const kd = keyDelta(e, 4);
+      if (!kd) return;
+      e.preventDefault();
+      if (holding && e.key === holdKey) return;
+      if (holding) cancelHold();
+      const cur = Math.round(pos);
+      const t = clamp(kd.to != null ? kd.to : cur + kd.d, 0, 3);
+      go(t, "key", e.key, e.repeat);
+    });
+    rail.addEventListener("keyup", (e) => { if (holding && holdSrc === "key" && e.key === holdKey) failHold(); });
+    rail.addEventListener("blur", () => { if (holding) failHold(); });
+
+    simBtn.addEventListener("click", () => {
+      custom = !custom;
+      simBtn.setAttribute("aria-pressed", String(custom));
+      root.classList.toggle("is-custom", custom);
+      rail.setAttribute("aria-disabled", String(custom));
+      cancelHold();
+      preview(Math.round(pos), true);
+      setChip();
+    });
+
+    if ("ResizeObserver" in window) new ResizeObserver(() => { W = rail.clientWidth || W; render(); }).observe(rail);
+    preview(2, true); setChip(); render();
+  }
+
+  function d2() {
+    const root = $("#d2");
+    const LV = [
+      { n: "Default", amp: 0, f: 0, s: 0 },
+      { n: "Low", amp: 9, f: 1.3, s: 0.7 },
+      { n: "Medium", amp: 17, f: 1.9, s: 1.2 },
+      { n: "High", amp: 27, f: 2.7, s: 1.9 },
+      { n: "X-High", amp: 38, f: 3.8, s: 3 },
+    ];
+    const WV = [{ a: 1, f: 1, p: 1, o: 0 }, { a: 0.62, f: 1.35, p: -1.25, o: 1.7 }, { a: 0.38, f: 0.8, p: 0.7, o: 3.1 }];
+    const rail = $(".d2-rail", root), thumb = $(".d2-thumb", root), valEl = $(".d2-val", root), labsHost = $(".d2-labels", root);
+    const flat = $(".d2-flat", root), wavesG = $(".d2-waves", root), wf = $(".wf", root);
+    const wp = [$(".w0", root), $(".w1", root), $(".w2", root)];
+    let ticks = "";
+    for (let k = 0; k <= 16; k++) ticks += `<i class="d2-tick${k % 4 === 0 ? " maj" : ""}" style="--p:${k / 16}"></i>`;
+    rail.insertAdjacentHTML("afterbegin", ticks);
+    labsHost.innerHTML = LV.map((l, k) => `<button type="button" class="d2-lab" style="--p:${k / 4}" tabindex="-1" aria-hidden="true">${l.n}</button>`).join("");
+    const tickEls = $$(".d2-tick", root), labs = $$(".d2-lab", root);
+
+    let W = rail.clientWidth || 300, pos = 0, last = 0, stop = null, dragging = false;
+    const cur = { amp: 0, f: 0, s: 0, ph: 0 };
+    const N = 64;
+
+    function target(p) {
+      const i = Math.min(3, Math.floor(p)), f = p - i, a = LV[i], b = LV[i + 1];
+      return { amp: a.amp + (b.amp - a.amp) * f, f: a.f + (b.f - a.f) * f, s: a.s + (b.s - a.s) * f };
+    }
+    function pathOf(w) {
+      let d = "";
+      for (let i = 0; i <= N; i++) {
+        const x = i / N;
+        const y = 60 - cur.amp * w.a * Math.sin(Math.PI * x) * Math.sin(6.2832 * cur.f * w.f * x + cur.ph * w.p + w.o);
+        d += (i ? "L" : "M") + (x * 320).toFixed(1) + " " + y.toFixed(1);
+      }
+      return d;
+    }
+    function step(dt, snap) {
+      const t = target(clamp(pos, 0, 4));
+      const k = snap ? 1 : Math.min(1, dt * 7);
+      cur.amp += (t.amp - cur.amp) * k; cur.f += (t.f - cur.f) * k; cur.s += (t.s - cur.s) * k;
+      cur.ph += cur.s * dt;
+      const o = clamp(cur.amp / 3, 0, 1);
+      wavesG.style.opacity = o.toFixed(3);
+      flat.style.opacity = (1 - o).toFixed(3);
+      if (o <= 0.001) return;
+      const ds = WV.map(pathOf);
+      wp.forEach((p, i) => p.setAttribute("d", ds[i]));
+      wf.setAttribute("d", ds[0] + "L320 120L0 120Z");
+    }
+    let vis = false, raf = 0, lt = 0;
+    function frame(now) { const dt = Math.min(0.05, (now - lt) / 1000); lt = now; step(dt, false); raf = requestAnimationFrame(frame); }
+    function sync() {
+      const run = vis && !red() && !document.hidden;
+      if (run && !raf) { lt = performance.now(); raf = requestAnimationFrame(frame); }
+      else if (!run && raf) { cancelAnimationFrame(raf); raf = 0; }
+      if (!raf) step(0.016, true);
+    }
+    onVisible(root, (v) => { vis = v; sync(); });
+    document.addEventListener("visibilitychange", sync);
+
+    function render() {
+      const x = clamp(pos, 0, 4) / 4 * (W - 36);
+      thumb.style.transform = `translate3d(${x}px,0,0)`;
+      const p = pos / 4;
+      tickEls.forEach((el, k) => el.classList.toggle("act", k / 16 <= p + 0.001));
+      if (!raf) step(0.016, true);
+    }
+    function setIdx(i, quiet) {
+      if (i === last) return;
+      const dir = i > last ? 1 : -1;
+      last = i;
+      if (!quiet) S.tick($(".d2-knob", root));
+      swap(valEl, LV[i].n, dir);
+      labs.forEach((b, k) => b.classList.toggle("on", k === i));
+      rail.setAttribute("aria-valuenow", String(i));
+      rail.setAttribute("aria-valuetext", LV[i].n);
+    }
+    function springTo(t, v) {
+      if (stop) stop();
+      stop = S.spring({ from: pos, to: t, velocity: v || 0, stiffness: 380, damping: 28, onUpdate: (p) => { pos = p; render(); } });
+    }
+    const posFromX = (x) => clamp((x - rail.getBoundingClientRect().left - 18) / (W - 36) * 4, 0, 4);
+    S.drag(rail, {
+      start(e) {
+        if (stop) stop();
+        dragging = true;
+        thumb.classList.add("touch");
+        rail.focus({ preventScroll: true });
+        pos = posFromX(e.clientX); render(); setIdx(Math.round(pos));
+      },
+      move(m) { if (!dragging) return; pos = posFromX(m.x); render(); setIdx(Math.round(pos)); },
+      end(m) {
+        if (!dragging) return;
+        dragging = false;
+        thumb.classList.remove("touch");
+        const v = m.vx * 1000 / (W - 36) * 4;
+        const t = clamp(Math.round(pos + v * 0.08), 0, 4);
+        setIdx(t);
+        springTo(t, v);
+      },
+    });
+    labs.forEach((b, k) => b.addEventListener("pointerdown", (e) => {
+      if (e.button !== 0) return;
+      e.preventDefault();
+      rail.focus({ preventScroll: true });
+      setIdx(k); springTo(k, 0);
+    }));
+    rail.addEventListener("keydown", (e) => {
+      const kd = keyDelta(e, 5);
+      if (!kd) return;
+      e.preventDefault();
+      const t = clamp(kd.to != null ? kd.to : Math.round(pos) + kd.d, 0, 4);
+      setIdx(t); springTo(t, 0);
+    });
+    if ("ResizeObserver" in window) new ResizeObserver(() => { W = rail.clientWidth || W; render(); }).observe(rail);
+    swap(valEl, LV[0].n, 1);
+    labs[0].classList.add("on");
+    render();
+  }
+
+  function d3() {
+    const root = $("#d3");
+    const VALS = [1, 2, 3, 5, 10, 15, 30, 60];
+    const CX = 95, CY = 95, R = 78, A0 = 210, SW = 300;
+    const P = (th, r) => { const a = th * Math.PI / 180; return [CX + r * Math.sin(a), CY - r * Math.cos(a)]; };
+    const dial = $(".d3-dial", root), svg = $(".d3-svg", root), numEl = $(".d3-num", root), unitEl = $(".d3-unit", root);
+    const [x1, y1] = P(A0, R), [x2, y2] = P(A0 + SW, R);
+    const d = `M${x1.toFixed(2)} ${y1.toFixed(2)}A${R} ${R} 0 1 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+    let tk = "";
+    for (let k = 0; k <= 28; k++) {
+      const maj = k % 4 === 0, th = A0 + k * SW / 28;
+      const [a, b] = P(th, maj ? R - 21 : R - 17), [c, e] = P(th, R - 11);
+      tk += `<line class="d3-t${maj ? " maj" : ""}" x1="${a.toFixed(2)}" y1="${b.toFixed(2)}" x2="${c.toFixed(2)}" y2="${e.toFixed(2)}"/>`;
+    }
+    svg.innerHTML = `<path class="d3-track" d="${d}"/><path class="d3-prog" d="${d}" pathLength="1000"/>${tk}<g class="d3-knob"><circle class="d3-kc" r="15"/><circle class="d3-kd" r="4.5"/></g>`;
+    const prog = $(".d3-prog", svg), knobG = $(".d3-knob", svg), tickEls = $$(".d3-t", svg);
+
+    let idx = 3, pos = 3, stop = null, dragging = false, lastRel = 0, tkA = -1;
+    function render() {
+      const p = clamp(pos, 0, 7);
+      const [x, y] = P(A0 + p / 7 * SW, R);
+      knobG.setAttribute("transform", `translate(${x.toFixed(2)} ${y.toFixed(2)})`);
+      prog.style.strokeDasharray = `${Math.max(0.01, p / 7 * 1000).toFixed(2)} 2000`;
+      const ka = Math.round(p * 4);
+      if (ka !== tkA) { tkA = ka; tickEls.forEach((el, k) => el.classList.toggle("act", k <= ka)); }
+    }
+    function roll(str, dir) {
+      const old = numEl.dataset.v || "";
+      numEl.dataset.v = str;
+      const L = str.length, O = old.length;
+      const frag = document.createDocumentFragment(), jobs = [];
+      for (let j = 0; j < L; j++) {
+        const nc = str[j], oj = j - (L - O), oc = oj >= 0 && old ? old[oj] : null;
+        const col = document.createElement("span");
+        col.className = "d3-col";
+        if (!old || oc === nc) col.innerHTML = `<span class="dg">${nc}</span>`;
+        else if (red()) col.innerHTML = `<span class="dg">${nc}</span>`;
+        else {
+          col.innerHTML = (oc != null ? `<span class="dg o">${oc}</span>` : "") + `<span class="dg n">${nc}</span>`;
+          jobs.push(col);
+        }
+        frag.appendChild(col);
+      }
+      numEl.replaceChildren(frag);
+      jobs.forEach((col) => {
+        const o = $(".o", col), n = $(".n", col);
+        if (o) o.animate([{ transform: "translateY(0)" }, { transform: `translateY(${-100 * dir}%)` }], { duration: 260, easing: EASE, fill: "forwards" }).onfinish = () => o.remove();
+        n.animate([{ transform: `translateY(${100 * dir}%)` }, { transform: "translateY(0)" }], { duration: 260, easing: EASE });
+      });
+    }
+    function setIdx(i, quiet) {
+      if (i === idx && numEl.dataset.v) return;
+      const dir = i >= idx ? 1 : -1;
+      idx = i;
+      if (!quiet) S.tick(dial);
+      const v = VALS[i];
+      roll(String(v), dir);
+      swap(unitEl, v === 1 ? "minute" : "minutes", dir);
+      dial.setAttribute("aria-valuenow", String(v));
+      dial.setAttribute("aria-valuetext", v + (v === 1 ? " minute" : " minutes"));
+    }
+    function springTo(t, v) {
+      if (stop) stop();
+      stop = S.spring({ from: pos, to: t, velocity: v || 0, stiffness: 420, damping: 32, onUpdate: (p) => { pos = p; render(); } });
+    }
+    function contFromPoint(x, y) {
+      const r = dial.getBoundingClientRect();
+      const dx = x - (r.left + r.width / 2), dy = y - (r.top + r.height / 2);
+      let th = Math.atan2(dx, -dy) * 180 / Math.PI;
+      if (th < 0) th += 360;
+      let rel = th - A0;
+      if (rel < 0) rel += 360;
+      if (rel > SW) rel = lastRel > SW / 2 ? SW : 0;
+      lastRel = rel;
+      return rel / SW * 7;
+    }
+    function follow(x, y) {
+      const cont = contFromPoint(x, y), i = Math.round(cont);
+      pos = i + (cont - i) * 0.45;
+      render();
+      if (i !== idx) setIdx(i);
+    }
+    S.drag(dial, {
+      start(e) { if (stop) stop(); dragging = true; dial.classList.add("touch"); dial.focus({ preventScroll: true }); lastRel = pos / 7 * SW; follow(e.clientX, e.clientY); },
+      move(m) { if (dragging) follow(m.x, m.y); },
+      end() { if (!dragging) return; dragging = false; dial.classList.remove("touch"); springTo(idx, 0); },
+    });
+    dial.addEventListener("keydown", (e) => {
+      const kd = keyDelta(e, 8);
+      if (!kd) return;
+      e.preventDefault();
+      const t = clamp(kd.to != null ? kd.to : idx + kd.d, 0, 7);
+      setIdx(t); springTo(t, 0);
+    });
+    setIdx(3, true);
+    render();
+  }
+
+  function d4() {
+    const root = $("#d4");
+    const OPT = [
+      { k: "Full", d: "Every step a bot takes.", ic: "list" },
+      { k: "Reduced", d: "Steps fold into one line. Failures always show.", ic: "layers" },
+      { k: "Hidden", d: "No activity, only messages.", ic: "eye-off" },
+    ];
+    const STEPS = [["search", "Read 3 files"], ["pencil", "Edited index.html"], ["bolt", "Ran the build"], ["globe", "Opened the preview"]];
+    const RH = 76, H = RH * 3;
+    const rows = $(".d4-rows", root), ink = $(".d4-ink", root);
+    const inner = (o) => `<span class="d4-ico">${S.icon(o.ic)}</span><span class="d4-ot"><b>${o.k}</b><span>${o.d}</span></span>`;
+    rows.insertAdjacentHTML("afterbegin", OPT.map((o, i) => `<button type="button" class="d4-opt" role="radio" aria-checked="false" tabindex="-1" data-i="${i}">${inner(o)}</button>`).join(""));
+    ink.innerHTML = OPT.map((o) => `<div class="d4-oi-row">${inner(o)}</div>`).join("");
+    const btns = $$(".d4-opt", root);
+    $(".d4-steps", root).innerHTML = STEPS.map((s, i) => `<li class="d4-step" style="--i:${i}">${S.icon(s[0])}<span>${s[1]}</span></li>`).join("");
+    const grFold = $(".d4-gr.fold", root), grSteps = $(".d4-gr.steps", root), foldBtn = $(".d4-fold", root), lnk = $(".lnk", foldBtn);
+
+    let mode = 1, expanded = false, E = { t: RH, b: RH * 2 }, sT = null, sB = null;
+    function paint() {
+      ink.style.clipPath = `inset(${Math.max(0, E.t).toFixed(1)}px 0 ${Math.max(0, H - E.b).toFixed(1)}px 0 round 16px)`;
+    }
+    function moveTo(i, instant) {
+      const tt = i * RH, tb = (i + 1) * RH, down = tb > E.b;
+      if (sT) sT(); if (sB) sB();
+      if (instant || red()) { E = { t: tt, b: tb }; paint(); return; }
+      sT = S.spring({ from: E.t, to: tt, stiffness: down ? 200 : 520, damping: down ? 24 : 32, onUpdate: (v) => { E.t = v; paint(); } });
+      sB = S.spring({ from: E.b, to: tb, stiffness: down ? 520 : 200, damping: down ? 32 : 24, onUpdate: (v) => { E.b = v; paint(); } });
+    }
+    function chat() {
+      grSteps.classList.toggle("open", mode === 0 || (mode === 1 && expanded));
+      grFold.classList.toggle("open", mode === 1);
+      foldBtn.setAttribute("aria-expanded", String(expanded));
+      lnk.textContent = expanded ? "Hide" : "Show";
+      foldBtn.tabIndex = mode === 1 ? 0 : -1;
+    }
+    function select(i, focus, instant) {
+      if (i !== mode) expanded = false;
+      mode = i;
+      btns.forEach((b, k) => { b.setAttribute("aria-checked", String(k === i)); b.tabIndex = k === i ? 0 : -1; });
+      if (focus) btns[i].focus();
+      moveTo(i, instant);
+      chat();
+    }
+    btns.forEach((b, k) => b.addEventListener("click", () => { if (k !== mode) S.tick(null); select(k, false); }));
+    rows.addEventListener("keydown", (e) => {
+      const kd = keyDelta(e, 3);
+      if (!kd) return;
+      e.preventDefault();
+      const t = clamp(kd.to != null ? kd.to : mode + kd.d, 0, 2);
+      if (t !== mode) { S.tick(null); select(t, true); }
+    });
+    foldBtn.addEventListener("click", () => { expanded = !expanded; chat(); });
+    select(1, false, true);
+  }
+
+  function d5() {
+    const root = $("#d5");
+    const BOTS = {
+      Atlas: { i: "A", g: "linear-gradient(135deg, var(--acc), var(--warn-fill))", hi: "Hi, I'm Atlas. What are we building today?" },
+      Nova: { i: "N", g: "linear-gradient(135deg, var(--ok), #3a6cf0)", hi: "Hi, I'm Nova. Ready when you are." },
+    };
+    const OPTS = [{ k: "always", t: "Always" }, { k: "first", t: "First time per bot" }, { k: "never", t: "Never" }];
+    const isl = $(".d5-island", root), inn = $(".d5-isl-in", root), glow = $(".d5-glow", root), note = $(".d5-note", root);
+    const home = $('[data-view="home"]', root), chatV = $('[data-view="chat"]', root);
+    const optsHost = $(".d5-opts", root), resetBtn = $("#d5-reset");
+    const avHead = $(".d5-head .d5-av", root), nameHead = $(".d5-head b", root), body = $(".d5-chatbody", root), back = $(".d5-back, .s-back", root);
+
+    $(".s-card", home).innerHTML = Object.keys(BOTS).map((n) => `<button type="button" class="s-row no-ico d5-row" data-bot="${n}"><span class="d5-av" style="background:${BOTS[n].g}">${BOTS[n].i}</span><span class="s-text"><span class="s-row-title">${n}</span><span class="s-row-sub">Online</span></span>${S.icon("chevron", "s-chev")}</button>`).join("");
+    optsHost.innerHTML = OPTS.map((o, i) => `<button type="button" class="d5-opt" role="radio" aria-checked="${i === 1}" tabindex="${i === 1 ? 0 : -1}" data-k="${o.k}">${o.t}</button>`).join("");
+    const optEls = $$(".d5-opt", root);
+
+    let opt = "first", seen = new Set(), tok = 0, stop = null, s = 0;
+    function paint() {
+      const w = 120 + 160 * s, h = 37 + 27 * s, side = (320 - w) / 2, bottom = 76 - h;
+      isl.style.clipPath = `inset(0 ${side.toFixed(1)}px ${Math.max(0, bottom).toFixed(1)}px ${side.toFixed(1)}px round ${(h / 2).toFixed(1)}px)`;
+      const op = clamp((s - 0.55) / 0.35, 0, 1);
+      inn.style.opacity = op.toFixed(2);
+      inn.style.transform = `translateY(${((1 - op) * 4).toFixed(1)}px)`;
+    }
+    function to(target, k, c) {
+      if (stop) stop();
+      return new Promise((res) => { stop = S.spring({ from: s, to: target, stiffness: k, damping: c, onUpdate: (v) => { s = v; paint(); }, onDone: res }); });
+    }
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    function setNote() { note.textContent = `Diingat: ${seen.size} dari 2 bot`; }
+    function pulse() {
+      anim(glow, [{ opacity: 0, transform: "scale(.7)" }, { opacity: 0.9, transform: "scale(1)", offset: 0.4 }, { opacity: 0, transform: "scale(1.25)" }], { duration: 800, easing: EASE });
+    }
+    async function intro(name) {
+      const my = ++tok, b = BOTS[name];
+      inn.innerHTML = `<span class="d5-av" style="background:${b.g}">${b.i}</span><span class="t"><b>${name}</b><span>Online</span></span>`;
+      await to(1, 300, 18);
+      if (my !== tok) return;
+      await wait(1200);
+      if (my !== tok) return;
+      await to(0, 380, 30);
+    }
+    function view(name) {
+      home.classList.toggle("on", !name);
+      chatV.classList.toggle("on", !!name);
+    }
+    function open(name) {
+      const b = BOTS[name];
+      avHead.style.background = b.g; avHead.textContent = b.i; nameHead.textContent = name;
+      body.innerHTML = `<div class="bub bot">${b.hi}</div>`;
+      view(name);
+      if (opt === "never") return;
+      if (opt === "always" || !seen.has(name)) { seen.add(name); setNote(); intro(name); }
+      else pulse();
+    }
+    $$(".d5-row", home).forEach((r) => r.addEventListener("click", () => open(r.dataset.bot)));
+    back.addEventListener("click", () => { tok++; to(0, 380, 30); view(null); });
+    function pick(i, focus) {
+      opt = OPTS[i].k;
+      optEls.forEach((b, k) => { b.setAttribute("aria-checked", String(k === i)); b.tabIndex = k === i ? 0 : -1; });
+      if (focus) optEls[i].focus();
+    }
+    optEls.forEach((b, k) => b.addEventListener("click", () => { S.tick(null); pick(k, false); }));
+    optsHost.addEventListener("keydown", (e) => {
+      const kd = keyDelta(e, 3);
+      if (!kd) return;
+      e.preventDefault();
+      const cur = optEls.findIndex((b) => b.getAttribute("aria-checked") === "true");
+      pick(clamp(kd.to != null ? kd.to : cur + kd.d, 0, 2), true);
+    });
+    resetBtn.addEventListener("click", () => { seen.clear(); setNote(); tok++; to(0, 380, 30); view(null); });
+    setNote(); paint();
+  }
+
+  function d6() {
+    const root = $("#d6");
+    const L = [
+      { t: "Follow the system", w: "Settings", lang: "en" },
+      { t: "English", w: "Settings", lang: "en" },
+      { t: "简体中文", w: "设置", lang: "zh-Hans" },
+      { t: "繁體中文", w: "設定", lang: "zh-Hant" },
+      { t: "Português (Brasil)", w: "Configurações", lang: "pt-BR" },
+    ];
+    const n = L.length, STEP = 24, ITEM = 44, IPX = 43;
+    const R = ITEM / 2 / Math.tan(STEP * Math.PI / 360);
+    const drum = $(".d6-drum", root), cyl = $(".d6-cyl", root), band = $(".d6-band", root), word = $(".d6-word", root);
+    cyl.innerHTML = L.map((l, i) => `<div class="d6-item" role="option" id="d6-o${i}" lang="${l.lang}" aria-selected="false" data-i="${i}" style="transform:rotateX(${-i * STEP}deg) translateZ(${R.toFixed(2)}px)">${l.t}</div>`).join("");
+    const items = $$(".d6-item", root);
+
+    let pos = 0, last = -1, stop = null, dragging = false, base = 0, startItem = null, wheelT = 0;
+    const rub = (p) => (p < 0 ? p * 0.35 : p > n - 1 ? n - 1 + (p - (n - 1)) * 0.35 : p);
+    function paint() {
+      cyl.style.transform = `translateZ(${(-R).toFixed(2)}px) rotateX(${(pos * STEP).toFixed(2)}deg)`;
+      items.forEach((el, i) => { el.style.opacity = clamp(1 - Math.abs(i - pos) * 0.27, 0, 1).toFixed(2); });
+    }
+    function select(i, quiet) {
+      if (i === last) return;
+      const dir = i > last ? 1 : -1;
+      const first = last < 0;
+      last = i;
+      items.forEach((el, k) => { el.classList.toggle("sel", k === i); el.setAttribute("aria-selected", String(k === i)); });
+      drum.setAttribute("aria-activedescendant", "d6-o" + i);
+      swap(word, L[i].w, dir, L[i].lang);
+      if (!first && !quiet) S.tick(band);
+    }
+    function springTo(t, v) {
+      if (stop) stop();
+      stop = S.spring({ from: pos, to: t, velocity: v || 0, stiffness: 170, damping: 20, onUpdate: (p) => { pos = p; paint(); select(clamp(Math.round(p), 0, n - 1)); } });
+    }
+    S.drag(drum, {
+      start(e) { if (stop) stop(); dragging = true; base = pos; startItem = e.target.closest ? e.target.closest(".d6-item") : null; drum.focus({ preventScroll: true }); },
+      move(m) { if (!dragging) return; pos = rub(base - m.dy / IPX); paint(); select(clamp(Math.round(pos), 0, n - 1)); },
+      end(m) {
+        if (!dragging) return;
+        dragging = false;
+        if (Math.abs(m.dy) < 5 && startItem) { springTo(+startItem.dataset.i, 0); return; }
+        const v = -m.vy * 1000 / IPX;
+        springTo(clamp(Math.round(pos + v * 0.2), 0, n - 1), v);
+      },
+    });
+    drum.addEventListener("wheel", (e) => {
+      const dy = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaY;
+      const atEdge = (dy < 0 && pos <= 0.001) || (dy > 0 && pos >= n - 1 - 0.001);
+      if (atEdge && !stop) return;
+      e.preventDefault();
+      if (stop) { stop(); stop = null; }
+      pos = clamp(pos + dy / 70, 0, n - 1);
+      paint(); select(Math.round(pos));
+      clearTimeout(wheelT);
+      wheelT = setTimeout(() => springTo(Math.round(pos), 0), 140);
+    }, { passive: false });
+    drum.addEventListener("keydown", (e) => {
+      const kd = keyDelta(e, n);
+      if (!kd) return;
+      e.preventDefault();
+      springTo(clamp(kd.to != null ? kd.to : last + kd.d, 0, n - 1), 0);
+    });
+    paint(); select(0, true);
+  }
+
+  function init() {
+    [d1, d2, d3, d4, d5, d6].forEach((f) => { try { f(); } catch (err) { console.error(f.name, err); } });
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
+</body>
+</html>
