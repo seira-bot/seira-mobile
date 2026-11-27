@@ -8,4 +8,4 @@
 
 ## Contributor license agreement
 
-- [ ] I have read CLA.md and I agree to it.
+- [ ] I have read CLA.md version 1.0 and I agree to it.
