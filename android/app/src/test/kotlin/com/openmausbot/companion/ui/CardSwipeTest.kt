@@ -4,7 +4,16 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTouchInput
@@ -167,5 +176,53 @@ class SwipeableCardFrameTest {
     fun `a card that is not swipeable ignores the gesture`() {
         show(enabled = false)
         compose.onNodeWithTag(CARD_SWIPE_FRAME_TAG).assertDoesNotExist()
+    }
+
+    @Test
+    fun `a disabled frame decides nothing on a horizontal swipe`() {
+        decisions.clear()
+        compose.setContent {
+            SwipeableCardFrame(
+                enabled = false,
+                shape = RoundedCornerShape(22.dp),
+                onThreshold = { thresholdTicks++ },
+                onDecision = { decisions += it },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Box(Modifier.fillMaxWidth().height(160.dp).testTag("content"))
+            }
+        }
+        compose.onNodeWithTag("content").performTouchInput { swipeRight(startX = width * 0.2f, endX = width * 0.9f) }
+        compose.waitForIdle()
+        assertEquals(emptyList(), decisions)
+    }
+
+    @Test
+    fun `the card keeps its own state when swiping turns off after a decision`() {
+        var enabled by mutableStateOf(true)
+        decisions.clear()
+        compose.setContent {
+            SwipeableCardFrame(
+                enabled = enabled,
+                shape = RoundedCornerShape(22.dp),
+                onThreshold = {},
+                onDecision = { decisions += it },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                var open by remember { mutableStateOf(false) }
+                Box(Modifier.fillMaxWidth().height(160.dp)) {
+                    Box(Modifier.size(40.dp).testTag("opener").clickable { open = true })
+                    if (open) Text("details", Modifier.testTag("details"))
+                }
+            }
+        }
+        compose.onNodeWithTag("opener").performClick()
+        compose.onNodeWithTag("details").assertExists()
+        compose.onNodeWithTag(CARD_SWIPE_FRAME_TAG).performTouchInput { swipeRight(startX = width * 0.2f, endX = width * 0.9f) }
+        compose.waitForIdle()
+        assertEquals(listOf(SwipeSide.ALLOW), decisions)
+        enabled = false
+        compose.waitForIdle()
+        compose.onNodeWithTag("details").assertExists()
     }
 }

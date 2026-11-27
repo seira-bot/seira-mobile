@@ -141,6 +141,34 @@ class SeiraRunLinkTest {
     }
 
     @Test
+    fun `an address offered 59 seconds ago is still taken`() {
+        var now = 1_000L
+        PairingAddressHandoff.clock = { now }
+        try {
+            PairingAddressHandoff.offer(origin)
+            now += 59_000L
+            assertEquals(origin, PairingAddressHandoff.take())
+        } finally {
+            PairingAddressHandoff.clock = { System.nanoTime() / 1_000_000 }
+        }
+    }
+
+    @Test
+    fun `an address offered more than 60 seconds ago is dropped`() {
+        var now = 1_000L
+        PairingAddressHandoff.clock = { now }
+        try {
+            PairingAddressHandoff.offer(origin)
+            assertEquals(origin, PairingAddressHandoff.address.value)
+            now += 60_001L
+            assertNull(PairingAddressHandoff.take())
+            assertNull(PairingAddressHandoff.address.value)
+        } finally {
+            PairingAddressHandoff.clock = { System.nanoTime() / 1_000_000 }
+        }
+    }
+
+    @Test
     fun `new routes keep the finish before the hand-over`() {
         val order = mutableListOf<String>()
         PairingHandoff.runThen(

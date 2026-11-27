@@ -328,6 +328,7 @@
     <string name="mobile_running_steps">%1$s Schritte laufen</string>
     <string name="mobile_ran_steps">%1$s Schritte ausgeführt</string>
     <string name="mobile_pairing_failed">Kopplung fehlgeschlagen.</string>
+    <string name="mobile_link_no_browser">Kein Browser auf diesem Telefon kann diesen Link öffnen.</string>
     <string name="mobile_pairing_no_address">Dieser Computer hat nicht mit einer Adresse geantwortet. Gib stattdessen die Adresse aus den Telefon-Einstellungen ein.</string>
     <string name="mobile_pairing_invalid_address">Gib eine sichere https://-Adresse, 192.168.1.42:8810 oder einen Namen wie macbook.tail1234.ts.net ein.</string>
     <string name="mobile_pairing_invalid_qr">Das ist kein Seira-Kopplungs-QR-Code.</string>

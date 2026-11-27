@@ -326,6 +326,7 @@
     <string name="mobile_running_steps">%1$s단계 실행 중</string>
     <string name="mobile_ran_steps">%1$s단계 실행함</string>
     <string name="mobile_pairing_failed">연결하지 못했어요.</string>
+    <string name="mobile_link_no_browser">이 휴대폰에는 이 링크를 열 수 있는 브라우저가 없어요.</string>
     <string name="mobile_pairing_no_address">해당 컴퓨터가 주소로 응답하지 않았어요. 휴대폰 설정에 표시된 주소를 직접 입력하세요.</string>
     <string name="mobile_pairing_invalid_address">보안 https:// 주소, 192.168.1.42:8810, 또는 macbook.tail1234.ts.net 같은 이름을 입력하세요.</string>
     <string name="mobile_pairing_invalid_qr">Seira 연결 QR 코드가 아니에요.</string>
