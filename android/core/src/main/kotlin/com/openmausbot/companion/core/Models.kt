@@ -499,6 +499,7 @@ data class BotTask(
     val busy: Boolean? = null,
     /** This thread's own turn is done and a dispatched teammate has not
      * settled yet (#1223): a wait, never work. Newer harnesses only. */
+    @SerialName("waitingForTeammates")
     val waitingOnTeammate: Boolean? = null,
     val unread: Boolean? = null,
     val approvalMode: String? = null,
@@ -582,6 +583,7 @@ data class Bot(
     val busy: Boolean? = null,
     val activity: String? = null,
     /** A dispatched teammate has not settled; the bot waits, it does not work. */
+    @SerialName("waitingForTeammates")
     val waitingOnTeammate: Boolean? = null,
     val pinned: Boolean? = null,
     val hidden: Boolean? = null,

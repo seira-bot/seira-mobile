@@ -50,7 +50,7 @@ extension Bot {
     var legacyThread: BotTask {
         BotTask(
             threadId: threadId, title: "", createdAt: createdAt,
-            modelSelection: modelSelection, busy: busy, waitingOnTeammate: waitingOnTeammate,
+            modelSelection: modelSelection, busy: busy, waitingForTeammates: waitingForTeammates,
             unread: unread,
             approvalMode: approvalMode, autoApprove: autoApprove, alwaysAllow: alwaysAllow
         )
