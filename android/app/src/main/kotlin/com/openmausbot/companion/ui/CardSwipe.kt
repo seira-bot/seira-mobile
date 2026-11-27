@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -145,10 +146,6 @@ internal fun SwipeableCardFrame(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    if (!enabled) {
-        Box(modifier) { content() }
-        return
-    }
     val density = LocalDensity.current
     val view = LocalView.current
     val layoutDirection = LocalLayoutDirection.current
@@ -163,8 +160,12 @@ internal fun SwipeableCardFrame(
     val allowLabel = stringResource(R.string.mobile_card_swipe_allow)
     val denyLabel = stringResource(R.string.mobile_card_swipe_deny)
 
-    Box(
-        modifier = modifier
+    LaunchedEffect(enabled) {
+        if (!enabled && travel != 0f) springBack(travel) { travel = it }
+    }
+
+    val swipeModifier = if (enabled) {
+        Modifier
             .testTag(CARD_SWIPE_FRAME_TAG)
             .onGloballyPositioned {
                 widthPx = it.size.width.toFloat()
@@ -216,8 +217,12 @@ internal fun SwipeableCardFrame(
                         scope.launch { springBack(travel) { travel = it } }
                     },
                 )
-            },
-    ) {
+            }
+    } else {
+        Modifier
+    }
+
+    Box(modifier = modifier.then(swipeModifier)) {
         Box(
             modifier = Modifier.graphicsLayer {
                 translationX = travel

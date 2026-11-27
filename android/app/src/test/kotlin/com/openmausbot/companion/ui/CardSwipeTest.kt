@@ -1,12 +1,20 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeRight
@@ -161,6 +169,31 @@ class SwipeableCardFrameTest {
         compose.onNodeWithTag(CARD_SWIPE_FRAME_TAG).performTouchInput { swipeDown() }
         compose.waitForIdle()
         assertEquals(emptyList(), decisions)
+    }
+
+    @Test
+    fun `card state survives the frame turning off after a swipe`() {
+        compose.setContent {
+            var armed by remember { mutableStateOf(false) }
+            SwipeableCardFrame(
+                enabled = !armed,
+                shape = RoundedCornerShape(22.dp),
+                onThreshold = {},
+                onDecision = { armed = true },
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                var showingDetails by remember { mutableStateOf(false) }
+                Box(Modifier.fillMaxWidth().height(160.dp).testTag("details-toggle").clickable { showingDetails = true }) {
+                    if (showingDetails) Text("Details", Modifier.testTag("details-text"))
+                }
+            }
+        }
+        compose.onNodeWithTag("details-toggle").performClick()
+        compose.onNodeWithTag("details-text").assertExists()
+        compose.onNodeWithTag(CARD_SWIPE_FRAME_TAG).performTouchInput { swipeRight(startX = width * 0.2f, endX = width * 0.9f) }
+        compose.waitForIdle()
+        compose.onNodeWithTag(CARD_SWIPE_FRAME_TAG).assertDoesNotExist()
+        compose.onNodeWithTag("details-text").assertExists()
     }
 
     @Test
