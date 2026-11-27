@@ -1,0 +1,33 @@
+name: CLA
+
+# Security invariant: pull_request_target runs this file from main with the
+# base repository token. Never check out or run code from the pull request here.
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions: {}
+
+jobs:
+  cla:
+    name: CLA
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check the contributor license agreement
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const maintainer = ["OWNER", "MEMBER", "COLLABORATOR"].includes(pr.author_association);
+            const bot = pr.user.type === "Bot" || pr.user.login.endsWith("[bot]");
+            if (maintainer || bot) {
+              core.info(`${pr.user.login} does not need the CLA.`);
+              return;
+            }
+            const agreed = /^\s*[-*]\s+\[[xX]\]\s+I have read CLA\.md and I agree to it\./m.test(pr.body ?? "");
+            if (agreed) {
+              core.info(`${pr.user.login} agreed to the CLA.`);
+              return;
+            }
+            core.setFailed("Read CLA.md, then tick the CLA box in the pull request description.");
