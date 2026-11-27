@@ -123,6 +123,7 @@ class ChatAdvancedTest {
         options = listOf("Allow once", "Deny", "Always allow"),
         requestId = "r1",
         tool = tool,
+        requestType = "permission",
         allowSession = allowSession,
     )
 

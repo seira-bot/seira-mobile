@@ -83,6 +83,14 @@ public struct OptionCard: Codable, Hashable, Sendable {
     public var quotaSwitch: QuotaSwitchCard? = nil
     /// The options are the whole answer: no free-text reply.
     public var fixedOptions: Bool? = nil
+    /// The computer honors an answer that allows this tool for the rest of the session.
+    public var allowSession: Bool? = nil
+
+    /// The extra "Allow for this session" button: Advanced mode and a pending
+    /// permission card that says the computer honors it.
+    public func offersSessionAllow(advancedMode: Bool) -> Bool {
+        advancedMode && isPermission && isPending && allowSession == true
+    }
 
     /// A card is actionable while it is unanswered and still has a request
     /// behind it. Everything else is transcript.
@@ -466,6 +474,8 @@ public struct BotTask: Codable, Hashable, Sendable {
     public var pinned: Bool? = nil
     /// Newest message time. Absent on older computers; the list uses createdAt.
     public var updatedAt: Double? = nil
+    /// What this thread has spent. Absent on older computers.
+    public var usage: TaskUsage? = nil
 
     /// The time the thread list sorts and stamps by.
     public var listStamp: Double { updatedAt ?? createdAt }

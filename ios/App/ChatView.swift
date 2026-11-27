@@ -56,6 +56,12 @@ struct ChatView: View {
     @State private var replyTarget: ReplyTarget?
     @State private var showCommandHUD = false
     @State private var shareFile: ShareFile?
+    @AppStorage(PrefKey.advancedMode) private var advancedMode = false
+    @State private var renamingThread = false
+    @State private var renameText = ""
+    @State private var showingContext = false
+    @State private var compactPhase = CompactPhase.idle
+    @State private var copiedNotice = false
     @State private var showingPhotoPicker = false
     @State private var showingFileImporter = false
     @State private var showingCamera = false
@@ -419,6 +425,29 @@ struct ChatView: View {
         }
         .sheet(item: $shareFile) { file in
             ActivityShareSheet(items: [file.url])
+        }
+        .sheet(isPresented: $showingContext) {
+            if let meter = contextMeter {
+                ContextSheet(meter: meter, phase: compactPhase, onCompact: compactContext)
+            }
+        }
+        .alert("Rename thread", isPresented: $renamingThread) {
+            TextField("Title", text: $renameText)
+            Button("Cancel", role: .cancel) {}
+            Button("Save") { saveRename() }
+        }
+        .overlay(alignment: .top) {
+            if copiedNotice {
+                Text("Copied")
+                    .font(.seira(14, .medium, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk)
+                    .padding(.horizontal, 16)
+                    .frame(minHeight: 44)
+                    .background(Color.seiraControl, in: Capsule())
+                    .padding(.top, 8)
+                    .transition(.opacity)
+                    .accessibilityAddTraits(.isStaticText)
+            }
         }
         .photosPicker(
             isPresented: $showingPhotoPicker,
@@ -1143,7 +1172,7 @@ struct ChatView: View {
             onProfile: { showingProfile = true },
             onCall: { beginLiveCall() },
             onComputer: { showingComputer = true },
-            menuItems: ChatMenuRules.items(current),
+            menuItems: ChatMenuRules.items(current, advanced: advancedMode),
             onMenu: { menuAction($0) }
         )
     }
@@ -1176,6 +1205,80 @@ struct ChatView: View {
                 if let url = await session.export(threadId: current.threadId, format: "markdown") {
                     shareFile = ShareFile(url: url)
                 }
+            }
+        case .rename:
+            renameText = currentThreadTitle
+            renamingThread = true
+        case .copyMarkdown:
+            Task { await copyMarkdown() }
+        case .downloadMarkdown:
+            Task { await downloadMarkdown() }
+        case .activity:
+            showingProfile = true
+        }
+    }
+
+    private var currentThreadTitle: String {
+        guard case let .bot(bot) = current else { return "" }
+        return ChatAdvanced.currentTask(bot)?.title ?? ""
+    }
+
+    private func saveRename() {
+        guard case let .bot(bot) = current, let task = ChatAdvanced.currentTask(bot),
+              ChatAdvanced.canSaveRename(renameText) else { return }
+        let title = ChatAdvanced.renameTitle(renameText)
+        Task { _ = await session.renameTask(task, for: bot, title: title) }
+    }
+
+    private func copyMarkdown() async {
+        guard let url = await session.export(threadId: current.threadId, format: "markdown"),
+              let text = try? String(contentsOf: url, encoding: .utf8) else { return }
+        PlatformBridge.copyToPasteboard(text)
+        Haptics.notification(.success)
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { copiedNotice = true }
+        try? await Task.sleep(nanoseconds: 1_500_000_000)
+        withAnimation(reduceMotion ? nil : .easeOut(duration: 0.2)) { copiedNotice = false }
+    }
+
+    private func downloadMarkdown() async {
+        guard let exported = await session.export(threadId: current.threadId, format: "markdown") else { return }
+        let named = FileManager.default.temporaryDirectory
+            .appendingPathComponent(ChatAdvanced.markdownFileName(currentThreadTitle))
+        try? FileManager.default.removeItem(at: named)
+        do {
+            try FileManager.default.moveItem(at: exported, to: named)
+            shareFile = ShareFile(url: named)
+        } catch {
+            shareFile = ShareFile(url: exported)
+        }
+    }
+
+    private var contextMeter: ContextMeter? {
+        guard case let .bot(bot) = current else { return nil }
+        return ChatAdvanced.contextMeter(ChatAdvanced.currentTask(bot))
+    }
+
+    private func useTool(_ tool: ComposerTool) {
+        switch tool {
+        case .teach: draft = ChatAdvanced.insertion(draft: draft, command: "/learn ")
+        case .goal: draft = ChatAdvanced.insertion(draft: draft, command: "/goal ")
+        case .context:
+            compactPhase = .idle
+            showingContext = true
+        }
+    }
+
+    private func compactContext() {
+        guard case let .bot(bot) = current else { return }
+        compactPhase = .working
+        Task {
+            if await session.compact(bot: bot) {
+                compactPhase = .done
+                Haptics.notification(.success)
+                try? await Task.sleep(nanoseconds: 900_000_000)
+                showingContext = false
+            } else {
+                compactPhase = .failed
             }
         }
     }
@@ -1826,6 +1929,13 @@ struct ChatView: View {
             }
 
             composerNotices
+
+            let tools = ChatAdvanced.tools(
+                current, advanced: advancedMode, learnAllowed: false, goalRunning: false, context: contextMeter
+            )
+            if !showCommandHUD, !tools.isEmpty {
+                ComposerToolChips(tools: tools, contextPercent: contextMeter?.percent, onTool: useTool)
+            }
 
             if !showCommandHUD, ModeChip.visible(current), let bot = currentBot {
                 HStack {
@@ -3283,6 +3393,7 @@ struct CardView: View {
     /// A question's answer in the person's own words.
     @State private var typedAnswer = ""
     @FocusState private var answerFocused: Bool
+    @AppStorage(PrefKey.advancedMode) private var advancedMode = false
 
     /// The option this card offers that means "go ahead".
     ///
@@ -3457,6 +3568,28 @@ struct CardView: View {
                 typedAnswerField(card)
             }
             alwaysAllowButton(card)
+            sessionAllowButton(card)
+        }
+    }
+
+    /// Advanced mode only. The card must say the computer honors it, and a skill review keeps its own hash.
+    @ViewBuilder private func sessionAllowButton(_ card: OptionCard) -> some View {
+        if card.offersSessionAllow(advancedMode: advancedMode), !card.stacksOptions, card.skillRequest == nil {
+            Button {
+                Haptics.selection()
+                answering = true
+                Task {
+                    await actions.allowForSession(card, advancedMode: advancedMode)
+                    answering = false
+                }
+            } label: {
+                Text("Allow for this session")
+                    .font(.seira(15, .semibold))
+                    .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(SeiraControlButtonStyle(height: 44))
+            .disabled(answering)
+            .accessibilityIdentifier("approval-allow-session")
         }
     }
 

@@ -2051,6 +2051,30 @@ final class Session: ObservableObject {
         await perform { try await $0.alwaysAllow(botId: bot.id, key: key, threadId: bot.threadId) }
     }
 
+    /// Allow this tool for the rest of the session. Sent only when the card says the
+    /// computer honors it; the phone never invents the grant.
+    func allowForSession(chat: Chat, card: OptionCard, advancedMode: Bool) async {
+        guard card.offersSessionAllow(advancedMode: advancedMode), let requestId = card.requestId else { return }
+        await perform {
+            try await $0.respond(
+                threadId: chat.threadId,
+                requestId: requestId,
+                behavior: "allow",
+                reviewedSha256: nil,
+                always: true
+            )
+        }
+    }
+
+    /// Summarize the older messages of a bot's thread. True once the computer accepted the request.
+    func compact(bot: Bot) async -> Bool {
+        guard let client else { return false }
+        do {
+            try await client.compact(botId: bot.id, threadId: bot.threadId)
+            return true
+        } catch { actionError = error.localizedDescription; return false }
+    }
+
     /// Make a new bot. The harness chooses its name, colour and greeting, so
     /// one made here is indistinguishable from one made on the desktop.
     ///

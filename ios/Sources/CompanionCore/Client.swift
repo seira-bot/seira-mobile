@@ -1838,15 +1838,24 @@ public struct CompanionClient: Sendable {
         requestId: String,
         behavior: String,
         message: String? = nil,
-        reviewedSha256: String? = nil
+        reviewedSha256: String? = nil,
+        always: Bool = false
     ) async throws -> String? {
         var body: [String: Any] = ["requestId": requestId, "behavior": behavior]
         if let message { body["message"] = message }
         if let reviewedSha256 { body["reviewedSha256"] = reviewedSha256 }
+        if always && behavior == "allow" { body["always"] = true }
         let request = try makeRequest("POST", "/api/threads/\(threadId)/respond", body: body)
         let (data, response) = try await perform(request)
         try Self.check(response, data)
         return (try? JSONDecoder().decode(RespondResponse.self, from: data))?.outcome
+    }
+
+    /// Summarizes the older messages of a bot's thread. The computer answers 202 and works in the background.
+    public func compact(botId: String, threadId: String? = nil) async throws {
+        var body: [String: Any]?
+        if let threadId { body = ["threadId": threadId] }
+        try await send(try makeRequest("POST", "/api/bots/\(botId)/compact", body: body))
     }
 
     /// Remember a grant so the same tool stops asking. The harness decides
