@@ -1,8 +1,47 @@
+<p align="center">
+  <img src="docs/readme/hero.jpg" alt="Seira for iOS and Android. Your bots work. You answer." width="100%">
+</p>
+
+<p align="center">
+  <a href="https://play.google.com/store/apps/details?id=bot.seira.companion"><img alt="Get it on Google Play" src="https://img.shields.io/badge/Google_Play-Get_the_app-FF4D6D?style=for-the-badge&logo=googleplay&logoColor=white"></a>
+  <a href="https://github.com/seira-bot/seira"><img alt="Seira server" src="https://img.shields.io/badge/Seira-server_repo-2A0F2E?style=for-the-badge&logo=github&logoColor=white"></a>
+</p>
+
+<p align="center">
+  <img alt="iOS 16+" src="https://img.shields.io/badge/iOS-16%2B-111?logo=apple&logoColor=white">
+  <img alt="Android 8+" src="https://img.shields.io/badge/Android-8%2B-111?logo=android&logoColor=3DDC84">
+  <img alt="SwiftUI" src="https://img.shields.io/badge/SwiftUI-F05138?logo=swift&logoColor=white">
+  <img alt="Kotlin and Compose" src="https://img.shields.io/badge/Kotlin_%2B_Compose-7F52FF?logo=kotlin&logoColor=white">
+  <a href="LICENSE"><img alt="License: PolyForm Shield 1.0.0" src="https://img.shields.io/badge/license-PolyForm_Shield_1.0.0-FF4D6D"></a>
+</p>
+
 # Seira mobile
 
 The iOS and Android apps for [Seira](https://github.com/seira-bot/seira).
 Pair a phone with a computer or a Seira Cloud. Then read your bots, answer
 their approvals, and send them the next task from the phone.
+
+## What the app does
+
+| Feature | What you do |
+|---|---|
+| **Answer approvals** | When a bot asks, allow or deny the step in the chat. |
+| **See who needs you** | One notification shows the bot that needs you most. |
+| **Watch the work come in** | Replies arrive live, with tables and formatted text. |
+| **Give each bot a face** | Pick a character and style it, or upload your own picture. |
+| **Pair with one scan** | Scan the QR code that Seira shows on your computer. |
+| **Share to a bot** (iOS) | Send text, links, images and files from other apps. |
+| **Widgets** (iOS) | See the bots that wait on you from the Home Screen. |
+
+<p align="center">
+  <img src="docs/readme/screens.jpg" alt="Six app screens: home, approval, notification, live reply, avatar editor and pairing." width="88%">
+</p>
+
+## How it works
+
+<p align="center">
+  <img src="docs/readme/how-it-works.jpg" alt="A computer or Seira Cloud runs the bots and keeps credentials and transcripts. A paired phone reads, approves and sends tasks." width="100%">
+</p>
 
 The computer keeps the bots, credentials and transcripts. The phone keeps no
 copy of them.
@@ -28,7 +67,11 @@ identifiers, including the mDNS service name, until a later desktop release.
 
 ## Build
 
-iOS needs macOS, Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen):
+<table>
+<tr><th>iOS</th><th>Android</th></tr>
+<tr valign="top"><td>
+
+Needs macOS, Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 
 ```sh
 cd ios
@@ -36,12 +79,19 @@ xcodegen generate
 open OpenMausCompanion.xcodeproj
 ```
 
-Android needs JDK 17 and an Android SDK:
+</td><td>
+
+Needs JDK 17 and an Android SDK.
 
 ```sh
 cd android
-./gradlew :core:test :app:testDebugUnitTest :app:assembleDebug
+./gradlew :core:test \
+  :app:testDebugUnitTest \
+  :app:assembleDebug
 ```
+
+</td></tr>
+</table>
 
 More detail is in [`ios/README.md`](ios/README.md), [`ios/TESTING.md`](ios/TESTING.md)
 and [`android/README.md`](android/README.md).
