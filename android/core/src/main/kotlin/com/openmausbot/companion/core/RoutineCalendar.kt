@@ -1,5 +1,6 @@
 package com.openmausbot.companion.core
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -41,14 +42,11 @@ object RoutineCalendar {
     /** A routine that runs every few minutes would bury a day in receipts. */
     internal const val MAX_RECEIPTS_PER_ROUTINE = 12
 
-    /** The seven days of the week holding [day], Monday first, as the desktop lays them out. */
-    fun week(day: LocalDate): List<LocalDate> {
-        val monday = day.minusDays((day.dayOfWeek.value - 1).toLong())
-        return (0L until 7L).map { monday.plusDays(it) }
+    /** The seven days of the week holding [day], starting on [firstDay]; the desktop starts on Monday. */
+    fun week(day: LocalDate, firstDay: DayOfWeek = DayOfWeek.MONDAY): List<LocalDate> {
+        val start = day.minusDays(((day.dayOfWeek.value - firstDay.value + 7) % 7).toLong())
+        return (0L until 7L).map { start.plusDays(it) }
     }
-
-    /** The seven days that start on [from]. */
-    fun nextSevenDays(from: LocalDate): List<LocalDate> = (0L until 7L).map { from.plusDays(it) }
 
     /** The status a run shows in the week list; a projection is Scheduled. */
     fun weekStatus(item: RoutineCalendarItem): RoutineWeekStatus {
@@ -60,10 +58,16 @@ object RoutineCalendar {
         }
     }
 
-    /** One row for each run or projected run in the seven days from [from], oldest first. */
-    fun weekRows(routines: List<Routine>, runs: List<RoutineRun>, from: LocalDate, zone: ZoneId): List<RoutineWeekRow> =
-        nextSevenDays(from).flatMap { day ->
-            items(routines, runs, day, zone).map { RoutineWeekRow(day, it, weekStatus(it)) }
+    /** One row for each run or projected run in the week holding [day], oldest first. */
+    fun weekRows(
+        routines: List<Routine>,
+        runs: List<RoutineRun>,
+        day: LocalDate,
+        zone: ZoneId,
+        firstDay: DayOfWeek = DayOfWeek.MONDAY,
+    ): List<RoutineWeekRow> =
+        week(day, firstDay).flatMap { each ->
+            items(routines, runs, each, zone).map { RoutineWeekRow(each, it, weekStatus(it)) }
         }
 
     /** Everything on one day, in time order. */

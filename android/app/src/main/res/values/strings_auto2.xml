@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Calendar view</string>
     <string name="auto2_view_day">Day</string>
     <string name="auto2_view_week">Week</string>
+    <string name="auto2_week_empty_body">Routines that run this week appear here.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Bot actions</string>
     <string name="auto2_pin">Pin</string>

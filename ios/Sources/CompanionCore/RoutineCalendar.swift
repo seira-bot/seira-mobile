@@ -49,29 +49,24 @@ public enum RoutineCalendar {
     /// Keep the newest dozen finished runs per routine; active ones always show.
     static let maxReceiptsPerRoutine = 12
 
-    /// The seven days of the week holding `date`, Monday first, as the
-    /// desktop's calendar lays them out.
-    public static func week(containing date: Date, calendar: Calendar = .current) -> [Date] {
+    /// The seven days of the week holding `date`, starting on `firstWeekday`
+    /// (1 = Sunday). The desktop's calendar starts on Monday.
+    public static func week(containing date: Date, calendar: Calendar = .current, firstWeekday: Int = 2) -> [Date] {
         let day = calendar.startOfDay(for: date)
         let weekday = calendar.component(.weekday, from: day) // 1 = Sunday
-        let monday = calendar.date(byAdding: .day, value: -((weekday + 5) % 7), to: day) ?? day
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: monday) }
+        let start = calendar.date(byAdding: .day, value: -((weekday - firstWeekday + 7) % 7), to: day) ?? day
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: start) }
     }
 
-    /// The seven days that start on `date`.
-    public static func nextSevenDays(from date: Date, calendar: Calendar = .current) -> [Date] {
-        let day = calendar.startOfDay(for: date)
-        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: day) }
-    }
-
-    /// One row for each run or projected run in the seven days from `date`, oldest first.
+    /// One row for each run or projected run in the week holding `date`, oldest first.
     public static func weekRows(
         routines: [Routine],
         runs: [RoutineRun],
-        from date: Date,
-        calendar: Calendar = .current
+        containing date: Date,
+        calendar: Calendar = .current,
+        firstWeekday: Int = 2
     ) -> [RoutineWeekRow] {
-        nextSevenDays(from: date, calendar: calendar).flatMap { day in
+        week(containing: date, calendar: calendar, firstWeekday: firstWeekday).flatMap { day in
             items(routines: routines, runs: runs, day: day, calendar: calendar).map {
                 RoutineWeekRow(day: day, item: $0, status: RoutineWeekStatus(item: $0))
             }

@@ -1,5 +1,6 @@
 package com.openmausbot.companion.core
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -26,11 +27,29 @@ class RoutineWeekTest {
         )
 
     @Test
-    fun theWeekListCoversSevenDaysFromTheGivenDay() {
-        val days = RoutineCalendar.nextSevenDays(monday)
+    fun theWeekListCoversTheCalendarWeekHoldingTheGivenDay() {
+        val thursday = monday.plusDays(3)
+        val days = RoutineCalendar.week(thursday)
         assertEquals(monday, days.first())
         assertEquals(monday.plusDays(6), days.last())
         assertEquals(7, days.size)
+        val sundayFirst = RoutineCalendar.week(thursday, DayOfWeek.SUNDAY)
+        assertEquals(monday.minusDays(1), sundayFirst.first())
+        assertEquals(monday.plusDays(5), sundayFirst.last())
+        assertEquals(monday.minusDays(1), RoutineCalendar.week(monday.minusDays(1), DayOfWeek.SUNDAY).first())
+    }
+
+    @Test
+    fun aPastRunOfThisWeekStaysInTheWeekList() {
+        val brief = routine("brief", """{"type":"daily","time":"09:00","weekdays":[1]}""")
+        val rows = RoutineCalendar.weekRows(
+            listOf(brief),
+            listOf(run("r1", "brief", ms(monday, 9), "completed")),
+            monday.plusDays(4),
+            zone,
+        )
+        assertEquals(RoutineWeekStatus.COMPLETED, rows.single().status)
+        assertEquals(monday, rows.single().day)
     }
 
     @Test
@@ -57,7 +76,7 @@ class RoutineWeekTest {
     }
 
     @Test
-    fun runsOutsideTheSevenDaysAreLeftOut() {
+    fun runsOutsideTheWeekAreLeftOut() {
         val old = run("r1", "brief", ms(monday.minusDays(1), 9), "completed")
         val late = run("r2", "brief", ms(monday.plusDays(7), 9), "completed")
         assertTrue(RoutineCalendar.weekRows(emptyList(), listOf(old, late), monday, zone).isEmpty())

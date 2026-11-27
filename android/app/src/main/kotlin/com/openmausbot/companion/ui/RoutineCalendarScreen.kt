@@ -50,6 +50,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,6 +69,7 @@ import com.openmausbot.companion.ui.theme.SegmentedControl
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.temporal.WeekFields
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
@@ -118,7 +120,10 @@ internal fun RoutineCalendarScreen(
     val dayItems = remember(routines, runs, selectedDay) { RoutineCalendar.items(routines, runs, selected, zone) }
     fun shiftWeek(weeks: Long) { selectedDay = selected.plusWeeks(weeks).toEpochDay() }
     var weekMode by rememberSaveable { mutableStateOf(CalendarViewMemory.week) }
-    val weekRows = remember(routines, runs, today) { RoutineCalendar.weekRows(routines, runs, today, zone) }
+    val weekRows = remember(routines, runs, selectedDay) {
+        RoutineCalendar.weekRows(routines, runs, selected, zone, WeekFields.of(locale).firstDayOfWeek)
+    }
+    val weekDays = remember(selectedDay) { RoutineCalendar.week(selected, WeekFields.of(locale).firstDayOfWeek) }
 
     fun openItem(item: RoutineCalendarItem) {
         val target = item.run?.let { NotificationTarget.from(it.botId, it.threadId) }
@@ -212,6 +217,28 @@ internal fun RoutineCalendarScreen(
                 Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
             }
         }
+        if (weekMode) Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 6.dp)
+                .testTag("calendar-week-nav"),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            TouchTarget(onClick = { shiftWeek(-1) }, contentDescription = stringResource(R.string.mobile_calendar_previous_week)) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null)
+            }
+            val range = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locale)
+            Text(
+                text = weekDays.first().format(range) + " – " + weekDays.last().format(range),
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.weight(1f),
+            )
+            TouchTarget(onClick = { shiftWeek(1) }, contentDescription = stringResource(R.string.mobile_calendar_next_week)) {
+                Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null)
+            }
+        }
         HorizontalDivider()
 
         LazyColumn(
@@ -223,7 +250,7 @@ internal fun RoutineCalendarScreen(
                     item(key = "week-empty") {
                         Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
                             Text(stringResource(R.string.mobile_calendar_empty_title), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-                            Text(stringResource(R.string.mobile_calendar_empty_body), fontSize = 14.sp, color = secondaryTint)
+                            Text(stringResource(R.string.auto2_week_empty_body), fontSize = 14.sp, color = secondaryTint)
                         }
                     }
                 }
