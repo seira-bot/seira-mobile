@@ -1,0 +1,384 @@
+{
+  "bots": [
+    {
+      "id": "preview-atlas",
+      "threadId": "preview-thread-atlas",
+      "name": "Atlas",
+      "title": "Chief of Staff",
+      "description": "Keeps the whole team on track.",
+      "notifications": true,
+      "color": "blue",
+      "mascotBody": "short-neat",
+      "mascotAccessories": [
+        "glasses"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028300000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-atlas",
+          "title": "Weekly plan",
+          "createdAt": 1787028300000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "atlas-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028300000,
+          "text": "What is on my plate this week?"
+        },
+        {
+          "id": "atlas-reply",
+          "parentId": "atlas-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028360000,
+          "text": "Three things: the release checklist, two open invoices, and the blog draft."
+        }
+      ],
+      "activeLeafId": "atlas-reply",
+      "chiefOfStaff": true
+    },
+    {
+      "id": "preview-scout",
+      "threadId": "preview-thread-scout",
+      "name": "Scout",
+      "title": "Researcher",
+      "description": "Finds the facts and brings back sources.",
+      "notifications": true,
+      "color": "cyan",
+      "mascotBody": "ponytail",
+      "mascotAccessories": [
+        "headphones"
+      ],
+      "unread": true,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028900000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-scout",
+          "title": "Release checklist",
+          "createdAt": 1787028900000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": true,
+          "activity": "waiting-on-you"
+        },
+        {
+          "threadId": "preview-thread-invoices",
+          "title": "Chase invoices",
+          "createdAt": 1787028100000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "scout-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028900000,
+          "text": "Send the reminder for INV-1042 to Dina."
+        },
+        {
+          "id": "scout-reply",
+          "parentId": "scout-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028960000,
+          "text": "The reminder is ready: a short note with the invoice attached. Sending email needs your OK."
+        },
+        {
+          "id": "scout-approval",
+          "parentId": "scout-reply",
+          "role": "bot",
+          "kind": "options",
+          "at": 1787029020000,
+          "card": {
+            "title": "Approval needed",
+            "subtitle": "Send the reminder email to Dina Pratama",
+            "options": [
+              "Allow",
+              "Deny"
+            ],
+            "requestId": "listing-request"
+          }
+        }
+      ],
+      "activeLeafId": "scout-approval",
+      "activity": "waiting-on-you"
+    },
+    {
+      "id": "preview-pepper",
+      "threadId": "preview-thread-pepper",
+      "name": "Pepper",
+      "title": "Personal assistant",
+      "description": "Helps with email and everyday plans.",
+      "notifications": true,
+      "color": "purple",
+      "mascotBody": "twin-tails",
+      "mascotAccessories": [
+        "ribbon"
+      ],
+      "unread": false,
+      "busy": true,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028800000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-pepper",
+          "title": "Triage Gmail",
+          "createdAt": 1787028800000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": true,
+          "unread": false,
+          "activity": "working"
+        }
+      ],
+      "messages": [
+        {
+          "id": "pepper-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028800000,
+          "text": "Triage my Gmail."
+        },
+        {
+          "id": "pepper-reply",
+          "parentId": "pepper-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028860000,
+          "text": "Reading the newest threads and sorting them by who is waiting."
+        }
+      ],
+      "activeLeafId": "pepper-reply",
+      "activity": "working"
+    },
+    {
+      "id": "preview-forge",
+      "threadId": "preview-thread-forge",
+      "name": "Forge",
+      "title": "Engineer",
+      "description": "Builds and verifies releases.",
+      "notifications": true,
+      "color": "orange",
+      "mascotBody": "spiky",
+      "mascotAccessories": [
+        "cap"
+      ],
+      "unread": false,
+      "busy": true,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028700000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-forge",
+          "title": "Release build",
+          "createdAt": 1787028700000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": true,
+          "unread": false,
+          "activity": "working"
+        }
+      ],
+      "messages": [
+        {
+          "id": "forge-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028700000,
+          "text": "Run the complete release verification."
+        },
+        {
+          "id": "forge-reply",
+          "parentId": "forge-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028760000,
+          "text": "Building the signed archive and checking the privacy manifest..."
+        }
+      ],
+      "activeLeafId": "forge-reply",
+      "activity": "working"
+    },
+    {
+      "id": "preview-pixel",
+      "threadId": "preview-thread-pixel",
+      "name": "Pixel",
+      "title": "Designer",
+      "description": "Shapes polished product experiences.",
+      "notifications": true,
+      "color": "pink",
+      "mascotBody": "long-wavy",
+      "mascotAccessories": [
+        "hairpin"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028200000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-pixel",
+          "title": "App icons",
+          "createdAt": 1787028200000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "pixel-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028200000,
+          "text": "Draw the new app icons."
+        },
+        {
+          "id": "pixel-reply",
+          "parentId": "pixel-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028260000,
+          "text": "Three icon options are ready for you to pick."
+        }
+      ],
+      "activeLeafId": "pixel-reply"
+    },
+    {
+      "id": "preview-quill",
+      "threadId": "preview-thread-quill",
+      "name": "Quill",
+      "title": "Writer",
+      "description": "Drafts posts and keeps the voice.",
+      "notifications": true,
+      "color": "teal",
+      "mascotBody": "bun",
+      "mascotAccessories": [
+        "glasses"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028100000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-quill",
+          "title": "Launch post",
+          "createdAt": 1787028100000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "quill-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028100000,
+          "text": "Draft the launch post."
+        },
+        {
+          "id": "quill-reply",
+          "parentId": "quill-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028160000,
+          "text": "The first draft is in the doc. I kept it short."
+        }
+      ],
+      "activeLeafId": "quill-reply"
+    }
+  ],
+  "groups": [],
+  "pages": {
+    "preview-thread-invoices": {
+      "messages": [
+        {
+          "id": "inv-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028100000,
+          "text": "Can you check which March invoices are still open for Dina Pratama?"
+        },
+        {
+          "id": "inv-table",
+          "parentId": "inv-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028130000,
+          "text": "Two invoices are still open for Dina Pratama.\n\n| Invoice | Total | Due |\n| --- | ---: | --- |\n| INV-1042 | 1.250.000 | 5 Apr |\n| INV-1043 | 480.000 | 12 Apr |\n\nThe larger one is due first, so I would send that reminder today."
+        },
+        {
+          "id": "inv-user2",
+          "parentId": "inv-table",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028160000,
+          "text": "Yes, draft the reminder."
+        },
+        {
+          "id": "inv-done",
+          "parentId": "inv-user2",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028190000,
+          "text": "Done. The draft is in your outbox, ready to send."
+        }
+      ],
+      "hasMore": false,
+      "activeLeafId": "inv-done"
+    }
+  }
+}

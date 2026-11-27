@@ -21,6 +21,14 @@ on:
         description: "UI test classes to run, separated by spaces. Empty runs all of them."
         type: string
         default: ""
+      store_screenshots:
+        description: "Photograph the App Store listing on an iPhone and an iPad simulator"
+        type: boolean
+        default: false
+      store_runner:
+        description: "Runner label for the store screenshots"
+        type: string
+        default: "xcode-27"
 
 permissions:
   contents: read
@@ -212,6 +220,122 @@ jobs:
         with:
           name: ios-ui-tests-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/seira-ui-tests.xcresult
+          if-no-files-found: warn
+          include-hidden-files: true
+          retention-days: 7
+
+  store-screenshots:
+    name: App Store screenshots
+    if: github.event_name == 'workflow_dispatch' && inputs.store_screenshots
+    runs-on: ${{ inputs.store_runner }}
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Restore the Swift package cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/spm-packages
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/project.yml', 'ios/Package.swift') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Photograph the listing on each device
+        run: |
+          set -uo pipefail
+          xcodebuild -version
+          cd ios
+          out="$RUNNER_TEMP/store-screenshots"
+          mkdir -p "$out"
+          xcrun simctl list runtimes
+          picks=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, re, sys
+          runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("identifier", "").startswith("com.apple.CoreSimulator.SimRuntime.iOS")]
+          if not runtimes: raise SystemExit("No iOS simulator runtime is available")
+          runtimes.sort(key=lambda r: tuple(int(p) for p in r["version"].split(".")), reverse=True)
+          def newest(runtime, pattern):
+              types = [t for t in runtime["supportedDeviceTypes"] if re.fullmatch(pattern, t["name"])]
+              types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
+              return types[-1]["identifier"] if types else None
+          for runtime in runtimes:
+              iphone = newest(runtime, r"iPhone \d+ Pro Max")
+              ipad = newest(runtime, r"iPad Pro 13-inch.*")
+              if iphone and ipad:
+                  print(runtime["identifier"], iphone, ipad)
+                  raise SystemExit(0)
+          for runtime in runtimes:
+              print(runtime["identifier"], [t["name"] for t in runtime["supportedDeviceTypes"]], file=sys.stderr)
+          raise SystemExit("No runtime has both an iPhone Pro Max and an iPad Pro 13-inch type")
+          ')
+          echo "Picked: $picks"
+          read -r runtime_id iphone_type ipad_type <<< "$picks"
+          status=0
+          for device in iphone ipad; do
+            if [ "$device" = iphone ]; then
+              type_id="$iphone_type"
+            else
+              type_id="$ipad_type"
+            fi
+            simulator_id=$(xcrun simctl create "seira-store-${device}-${GITHUB_RUN_ID}" "$type_id" "$runtime_id")
+            xcrun simctl boot "$simulator_id"
+            xcrun simctl bootstatus "$simulator_id" -b
+            xcrun simctl ui "$simulator_id" appearance dark
+            xcrun simctl status_bar "$simulator_id" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularMode active --cellularBars 4
+            bundle="$RUNNER_TEMP/store-${device}.xcresult"
+            TEST_RUNNER_STORE_DEVICE="$device" xcodebuild \
+              -project OpenMausCompanion.xcodeproj \
+              -scheme OpenMausCompanion \
+              -configuration Debug \
+              -destination "platform=iOS Simulator,id=${simulator_id}" \
+              -derivedDataPath "$RUNNER_TEMP/derived-data" \
+              -clonedSourcePackagesDirPath "$HOME/spm-packages" \
+              -resultBundlePath "$bundle" \
+              -parallel-testing-enabled NO \
+              -only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests \
+              CODE_SIGNING_ALLOWED=NO \
+              test || status=$?
+            raw="$RUNNER_TEMP/store-raw-${device}"
+            mkdir -p "$raw"
+            xcrun xcresulttool export attachments --path "$bundle" --output-path "$raw" || true
+            python3 - "$raw" "$out" <<'PY'
+          import json, os, re, shutil, sys
+          raw, out = sys.argv[1], sys.argv[2]
+          manifest = json.load(open(os.path.join(raw, "manifest.json")))
+          for test in manifest:
+              for item in test.get("attachments", []):
+                  name = re.sub(r"_\d+_[0-9A-Fa-f-]{36}$", "", os.path.splitext(item["suggestedHumanReadableName"])[0])
+                  if re.match(r"(iphone|ipad)-", name):
+                      shutil.copy(os.path.join(raw, item["exportedFileName"]), os.path.join(out, name + ".png"))
+          PY
+            xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
+          done
+          ls -la "$out"
+          exit "$status"
+
+      - name: Keep the store screenshots
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: store-screenshots
+          path: ${{ runner.temp }}/store-screenshots
+          if-no-files-found: warn
+          retention-days: 7
+
+      - name: Keep the result bundles
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: store-results-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/store-*.xcresult
           if-no-files-found: warn
           include-hidden-files: true
           retention-days: 7

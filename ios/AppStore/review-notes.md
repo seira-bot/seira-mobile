@@ -1,37 +1,29 @@
 # App Review notes
 
-Seira is a companion for the Seira desktop application. The
-primary same-network flow does not require an account. The desktop also offers
-an optional passwordless email sign-in that provisions a private HTTPS address
-for reaching that same computer from another network; the iOS app itself does
-not present a login screen.
+Paste the text block into App Store Connect, **App Review Information → Notes**.
+Replace `[REVIEW PAGE]`, `[PASSPHRASE]`, and `[SERVER ADDRESS]` there. Keep the
+real values in App Store Connect only. Do not commit them.
 
-To review the primary flow:
+The review server runs Seira with a bot named "Demo Assistant" and no personal
+data. Keep it running, and keep its passphrase unchanged, while a review is
+open. Its reviewer page mints a new single-use pairing code for each visit.
+Google Play App access uses the same server.
 
-1. Install and start Seira on a Mac, Windows, or Linux computer.
-2. Open **Settings → Phone & devices**, then choose **Pair a phone**.
-3. On the iPhone, choose **Scan QR Code**, scan the code shown by the desktop,
-   review the computer and address, and confirm pairing.
-4. If the camera is unavailable, select the discovered computer or enter the
-   address and six-digit code shown by the desktop panel.
-5. Create a bot on the desktop or with the `+` button in the iPhone roster,
-   then send a message.
-6. In Safari, Notes, Photos, or Files, open the system Share sheet and choose
-   **Seira**. The extension shows the paired computer and asks for a bot
-   or room before sending the selected link, text, image, or document. The
-   containing app does not need to be open, but the paired computer must remain
-   awake with Seira running.
+```text
+Seira for iPhone and iPad is a remote control for the Seira app on the user's own computer. The app has no account and no sign-in screen. We run a review server with Seira, so you can pair without a computer of your own.
 
-To review optional cross-network HTTPS access, enter an email in **Settings →
-Phone → Use your phone anywhere** on the desktop, enter the eight-digit
-email code, enable Companion, and scan a newly generated QR code. The hosted
-service authenticates and provisions the desktop; the phone still pairs to that
-specific computer and receives no universal Seira account credential.
-The reviewer may use any email inbox they control. This optional path uses an
-Seira-managed Cloudflare Tunnel and does not require Tailscale.
+1. In a browser, open [REVIEW PAGE] and enter this passphrase: [PASSPHRASE]
+   The page shows a QR code and a code like ABCD-EFGH-JKLM.
+2. Open the app. On "Connect your computer", point the camera at the QR code.
+   Without a camera: type the address [SERVER ADDRESS], tap Continue, type the code, and confirm.
+3. Open the bot "Demo Assistant" and send: Create a file named note.txt with the text hello.
+4. The bot asks before it acts. Tap Allow.
 
-For the direct remote alternative, both devices may be signed into the same
-Tailscale network and the reviewer may enter the computer's `.ts.net` MagicDNS
-name. No purchase or subscription is required. The computer is the source of
-bot data and credentials, so a universal demo account cannot safely expose a
-shared computer to reviewers.
+Each code works once. Tap "Get a new code" on the page for another one.
+
+You can also share a link from Safari to Seira with the Share sheet, and change a bot's look on its page.
+
+There is no purchase and no subscription. The app sends data only to the paired computer (here, the review server).
+```
+
+Set **Sign-in required** to off: the app has no account.

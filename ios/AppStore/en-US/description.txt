@@ -1,29 +1,28 @@
-Seira is the private iPhone companion for Seira on your computer.
+Your Seira bots work on your computer. When you step away from your desk, you can keep up with them from your iPhone or iPad: read their replies, answer their questions, and allow the steps that matter.
 
-Keep your AI team moving when you step away from your desk:
+What you can do
+• See every bot on one screen. Chats that need you come first.
+• Allow or deny a step when a bot asks before it acts.
+• Read replies while the bot writes them, with tables and formatted text.
+• While Seira runs, a Live Activity on the Lock Screen and in the Dynamic Island shows the bot that needs you. You can answer some requests right from it.
+• Add a widget to your Home Screen to see the chats that need you.
+• Give each bot its own face: pick a Seira character and change its hair, face, extras, and color, or upload your own picture.
+• Send a message or a new task. Type it, or dictate it.
+• When a bot asks for an API key, fill it from Apple Passwords. The key goes to your computer encrypted and never shows in the chat.
+• Share a link, a photo, or a document from another app to a bot.
+• Search your chats, and share a chat as Markdown.
+• Pair more than one computer and switch between them.
+• Use the light or the dark look.
 
-• Answer approvals and questions
-• Securely provide requested API keys with Password AutoFill
-• Follow replies as they stream
-• Send messages to bots and rooms
-• Switch and manage task contexts
-• Search the complete local transcript history
-• Edit messages and move between conversation versions
-• Share transcripts as Markdown or JSON
-• Watch a bot’s computer when you need context
+Before you start
+Seira for iPhone and iPad is a companion to Seira on your computer. It does not run bots by itself.
+• Install Seira on your Mac, Windows, or Linux computer and set up at least one bot.
+• Your phone must reach that computer: on the same Wi-Fi network, through Tailscale, or at a secure address that Seira shows.
+• iOS 16 or later.
 
-YOUR COMPUTER STAYS IN CHARGE
+How to pair
+1. On your computer, open Seira, then Settings, then Phone & devices.
+2. Open Seira on your iPhone or iPad and scan the QR code.
+3. Check the computer name, then confirm.
 
-Seira connects to the companion service on your own computer. Your bot transcripts remain in Seira’s local storage; the optional hosted connection transports them to your computer without creating a developer-hosted transcript copy.
-
-When a bot requests a supported API key, the phone can send it over Secure phone access or Tailscale, encrypted for the paired computer. Apple Passwords is built in, and other enabled Password AutoFill providers work too. The value is never added to chat or retained by Seira.
-
-PAIR ONCE, REVOKE ANY TIME
-
-Pair with a short-lived code from Seira’s Companion panel. The computer stores only a hash of the phone credential and lets you revoke the device at any time.
-
-USE IT AT HOME OR AWAY
-
-Bonjour finds your computer on a trusted local network. For remote access, use Tailscale on both devices or enable the optional email-verified HTTPS connection in Seira’s desktop Companion settings.
-
-Requires Seira running on a Mac, Windows, or Linux computer. Tailscale is optional and is not affiliated with Seira.
+Your bots stay on your computer. Your phone shows their work and sends your answers back. The app has no account, no ads, and no analytics.

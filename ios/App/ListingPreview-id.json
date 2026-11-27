@@ -1,0 +1,384 @@
+{
+  "bots": [
+    {
+      "id": "preview-atlas",
+      "threadId": "preview-thread-atlas",
+      "name": "Atlas",
+      "title": "Chief of Staff",
+      "description": "Keeps the whole team on track.",
+      "notifications": true,
+      "color": "blue",
+      "mascotBody": "short-neat",
+      "mascotAccessories": [
+        "glasses"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028300000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-atlas",
+          "title": "Rencana mingguan",
+          "createdAt": 1787028300000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "atlas-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028300000,
+          "text": "Apa saja yang perlu aku kerjakan minggu ini?"
+        },
+        {
+          "id": "atlas-reply",
+          "parentId": "atlas-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028360000,
+          "text": "Tiga hal: daftar periksa rilis, dua invoice yang belum lunas, dan draf blog."
+        }
+      ],
+      "activeLeafId": "atlas-reply",
+      "chiefOfStaff": true
+    },
+    {
+      "id": "preview-scout",
+      "threadId": "preview-thread-scout",
+      "name": "Scout",
+      "title": "Researcher",
+      "description": "Finds the facts and brings back sources.",
+      "notifications": true,
+      "color": "cyan",
+      "mascotBody": "ponytail",
+      "mascotAccessories": [
+        "headphones"
+      ],
+      "unread": true,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028900000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-scout",
+          "title": "Daftar periksa rilis",
+          "createdAt": 1787028900000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": true,
+          "activity": "waiting-on-you"
+        },
+        {
+          "threadId": "preview-thread-invoices",
+          "title": "Tagih invoice",
+          "createdAt": 1787028100000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "scout-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028900000,
+          "text": "Kirim pengingat INV-1042 ke Dina."
+        },
+        {
+          "id": "scout-reply",
+          "parentId": "scout-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028960000,
+          "text": "Pengingatnya sudah siap: pesan singkat dengan invoice terlampir. Mengirim email perlu persetujuanmu."
+        },
+        {
+          "id": "scout-approval",
+          "parentId": "scout-reply",
+          "role": "bot",
+          "kind": "options",
+          "at": 1787029020000,
+          "card": {
+            "title": "Perlu persetujuan",
+            "subtitle": "Kirim email pengingat ke Dina Pratama",
+            "options": [
+              "Allow",
+              "Deny"
+            ],
+            "requestId": "listing-request"
+          }
+        }
+      ],
+      "activeLeafId": "scout-approval",
+      "activity": "waiting-on-you"
+    },
+    {
+      "id": "preview-pepper",
+      "threadId": "preview-thread-pepper",
+      "name": "Pepper",
+      "title": "Personal assistant",
+      "description": "Helps with email and everyday plans.",
+      "notifications": true,
+      "color": "purple",
+      "mascotBody": "twin-tails",
+      "mascotAccessories": [
+        "ribbon"
+      ],
+      "unread": false,
+      "busy": true,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028800000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-pepper",
+          "title": "Pilah Gmail",
+          "createdAt": 1787028800000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": true,
+          "unread": false,
+          "activity": "working"
+        }
+      ],
+      "messages": [
+        {
+          "id": "pepper-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028800000,
+          "text": "Pilah Gmail-ku."
+        },
+        {
+          "id": "pepper-reply",
+          "parentId": "pepper-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028860000,
+          "text": "Membaca utas terbaru dan mengurutkan berdasarkan siapa yang menunggu."
+        }
+      ],
+      "activeLeafId": "pepper-reply",
+      "activity": "working"
+    },
+    {
+      "id": "preview-forge",
+      "threadId": "preview-thread-forge",
+      "name": "Forge",
+      "title": "Engineer",
+      "description": "Builds and verifies releases.",
+      "notifications": true,
+      "color": "orange",
+      "mascotBody": "spiky",
+      "mascotAccessories": [
+        "cap"
+      ],
+      "unread": false,
+      "busy": true,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028700000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-forge",
+          "title": "Build rilis",
+          "createdAt": 1787028700000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": true,
+          "unread": false,
+          "activity": "working"
+        }
+      ],
+      "messages": [
+        {
+          "id": "forge-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028700000,
+          "text": "Jalankan verifikasi rilis lengkap."
+        },
+        {
+          "id": "forge-reply",
+          "parentId": "forge-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028760000,
+          "text": "Membangun arsip bertanda tangan dan memeriksa manifes privasi..."
+        }
+      ],
+      "activeLeafId": "forge-reply",
+      "activity": "working"
+    },
+    {
+      "id": "preview-pixel",
+      "threadId": "preview-thread-pixel",
+      "name": "Pixel",
+      "title": "Designer",
+      "description": "Shapes polished product experiences.",
+      "notifications": true,
+      "color": "pink",
+      "mascotBody": "long-wavy",
+      "mascotAccessories": [
+        "hairpin"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028200000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-pixel",
+          "title": "Ikon aplikasi",
+          "createdAt": 1787028200000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "pixel-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028200000,
+          "text": "Gambar ikon aplikasi yang baru."
+        },
+        {
+          "id": "pixel-reply",
+          "parentId": "pixel-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028260000,
+          "text": "Tiga pilihan ikon sudah siap kamu pilih."
+        }
+      ],
+      "activeLeafId": "pixel-reply"
+    },
+    {
+      "id": "preview-quill",
+      "threadId": "preview-thread-quill",
+      "name": "Quill",
+      "title": "Writer",
+      "description": "Drafts posts and keeps the voice.",
+      "notifications": true,
+      "color": "teal",
+      "mascotBody": "bun",
+      "mascotAccessories": [
+        "glasses"
+      ],
+      "unread": false,
+      "busy": false,
+      "modelSelection": {
+        "instanceId": "preview",
+        "model": "preview"
+      },
+      "createdAt": 1787028100000,
+      "tasks": [
+        {
+          "threadId": "preview-thread-quill",
+          "title": "Postingan peluncuran",
+          "createdAt": 1787028100000,
+          "modelSelection": {
+            "instanceId": "preview",
+            "model": "preview"
+          },
+          "busy": false,
+          "unread": false
+        }
+      ],
+      "messages": [
+        {
+          "id": "quill-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028100000,
+          "text": "Tulis draf postingan peluncuran."
+        },
+        {
+          "id": "quill-reply",
+          "parentId": "quill-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028160000,
+          "text": "Draf pertama ada di dokumen. Aku buat singkat."
+        }
+      ],
+      "activeLeafId": "quill-reply"
+    }
+  ],
+  "groups": [],
+  "pages": {
+    "preview-thread-invoices": {
+      "messages": [
+        {
+          "id": "inv-user",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028100000,
+          "text": "Tolong cek invoice Maret atas nama Dina Pratama yang belum lunas."
+        },
+        {
+          "id": "inv-table",
+          "parentId": "inv-user",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028130000,
+          "text": "Ada dua invoice Dina Pratama yang belum lunas.\n\n| Invoice | Total | Jatuh tempo |\n| --- | ---: | --- |\n| INV-1042 | 1.250.000 | 5 Apr |\n| INV-1043 | 480.000 | 12 Apr |\n\nYang lebih besar jatuh tempo lebih dulu. Saya sarankan kirim pengingat hari ini."
+        },
+        {
+          "id": "inv-user2",
+          "parentId": "inv-table",
+          "role": "user",
+          "kind": "text",
+          "at": 1787028160000,
+          "text": "Oke, buatkan draf pengingatnya."
+        },
+        {
+          "id": "inv-done",
+          "parentId": "inv-user2",
+          "role": "bot",
+          "kind": "text",
+          "at": 1787028190000,
+          "text": "Sudah. Drafnya ada di kotak keluar, siap dikirim."
+        }
+      ],
+      "hasMore": false,
+      "activeLeafId": "inv-done"
+    }
+  }
+}

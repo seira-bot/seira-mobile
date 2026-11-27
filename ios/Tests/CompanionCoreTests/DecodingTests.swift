@@ -164,6 +164,18 @@ final class DecodingTests: XCTestCase {
         XCTAssertFalse(fleet.groups.isEmpty)
     }
 
+    func testListingPreviewsRemainDecodableFleets() throws {
+        let iosDirectory = URL(fileURLWithPath: #filePath)
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+            .deletingLastPathComponent()
+        for name in ["ListingPreview", "ListingPreview-id"] {
+            let data = try Data(contentsOf: iosDirectory.appendingPathComponent("App/\(name).json"))
+            let fleet = try JSONDecoder().decode(Fleet.self, from: data)
+            XCTAssertEqual(fleet.bots.count, 6)
+        }
+    }
+
     func testOldAndNewAvatarProfilesDecodeTogether() throws {
         let oldBot = try XCTUnwrap(decode(Fleet.self, "bots-full").bots.first)
         XCTAssertNil(oldBot.avatarUrl)
