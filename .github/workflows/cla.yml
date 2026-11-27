@@ -8,26 +8,90 @@ on:
 
 permissions: {}
 
+concurrency:
+  group: cla-${{ github.event.pull_request.number }}
+
 jobs:
   cla:
     name: CLA
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
     steps:
       - name: Check the contributor license agreement
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         with:
           script: |
+            const version = "1.0";
             const pr = context.payload.pull_request;
-            const maintainer = ["OWNER", "MEMBER", "COLLABORATOR"].includes(pr.author_association);
-            const bot = pr.user.type === "Bot" || pr.user.login.endsWith("[bot]");
-            if (maintainer || bot) {
-              core.info(`${pr.user.login} does not need the CLA.`);
+            const { owner, repo } = context.repo;
+            const author = pr.user;
+
+            const bot = author.type === "Bot" || author.login.endsWith("[bot]");
+            if (bot) {
+              core.info(`${author.login} is a bot and does not need the CLA.`);
               return;
             }
-            const agreed = /^\s*[-*]\s+\[[xX]\]\s+I have read CLA\.md and I agree to it\./m.test(pr.body ?? "");
-            if (agreed) {
-              core.info(`${pr.user.login} agreed to the CLA.`);
+
+            // GitHub reports a private organization member as CONTRIBUTOR in
+            // author_association, so read the repository role instead.
+            let role = "none";
+            try {
+              const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: author.login,
+              });
+              role = data.role_name ?? data.permission;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (["admin", "maintain"].includes(role)) {
+              core.info(`${author.login} has the ${role} role and does not need the CLA.`);
               return;
             }
-            core.setFailed("Read CLA.md, then tick the CLA box in the pull request description.");
+
+            // Security invariant: only a comment by github-actions[bot] counts as a record.
+            const marker = `<!-- seira-cla account:${author.id} version:${version} -->`;
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number: pr.number,
+              per_page: 100,
+            });
+            const recorded = comments.some(
+              (comment) => comment.user?.login === "github-actions[bot]" && comment.body?.includes(marker),
+            );
+            if (recorded) {
+              core.info(`${author.login} agreed to CLA version ${version} on this pull request.`);
+              return;
+            }
+
+            const box = new RegExp(
+              `^\\s*[-*]\\s+\\[[xX]\\]\\s+I have read CLA\\.md version ${version.replaceAll(".", "\\.")} and I agree to it\\.`,
+              "m",
+            );
+            if (!box.test(pr.body ?? "")) {
+              core.setFailed(`Read CLA.md, then tick the CLA version ${version} box in the pull request description.`);
+              return;
+            }
+
+            const { data: cla } = await github.rest.repos.getContent({
+              owner,
+              repo,
+              path: "CLA.md",
+              ref: pr.base.sha,
+            });
+            const body = [
+              marker,
+              "Contributor license agreement recorded.",
+              "",
+              `- Account: \`${author.login}\`, id ${author.id}`,
+              `- Agreement: [CLA.md version ${version}](https://github.com/${owner}/${repo}/blob/${pr.base.sha}/CLA.md), blob \`${cla.sha}\``,
+              `- Pull request head: \`${pr.head.sha}\``,
+              `- Time (UTC): ${new Date().toISOString()}`,
+            ].join("\n");
+            await github.rest.issues.createComment({ owner, repo, issue_number: pr.number, body });
+            core.info(`Recorded CLA version ${version} for ${author.login}.`);

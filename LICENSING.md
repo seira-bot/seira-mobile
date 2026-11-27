@@ -28,11 +28,22 @@ Third-party parts, such as WebRTC and the Geist font, keep their own licenses. `
 | Send a fix or a feature | Yes. Read [Contributions](#contributions) first. |
 | Use the code in a product that competes with Seira, also a free one | No |
 
-`LICENSE` defines "competes". The `Licensor Line of Business:` lines at its top name the Seira products.
+`LICENSE` defines "competes".
+The `Licensor Line of Business:` lines at its top name Seira products.
+If the licensor stops one of these products, you still cannot use the code to compete with it.
 
 To ask for a license with other terms, open an issue in this repository.
+
+## Trademarks
+
+Neither license gives rights to the Seira name, logo or characters as trademarks.
+Do not use them to name or brand a fork or another product.
+
+OpenMausBot and MausBot are trademarks of Supamaus Software Private Limited.
+Seira is not affiliated with or endorsed by Supamaus Software Private Limited or the OpenMausBot project.
 
 ## Contributions
 
 Before a maintainer merges your pull request, agree to the [contributor license agreement](CLA.md).
 Tick the CLA box in the pull request description. The `CLA` check fails until you do.
+A bot then records your agreement in a comment on the pull request.
