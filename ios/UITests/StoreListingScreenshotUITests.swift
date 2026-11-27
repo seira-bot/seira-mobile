@@ -83,6 +83,13 @@ final class StoreListingScreenshotUITests: XCTestCase {
         app.terminate()
     }
 
+    private func collapseIsland() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let from = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
+        from.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)))
+        pause(2)
+    }
+
     private func allowLiveActivities() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         for label in ["Always Allow", "Allow"] {
@@ -128,12 +135,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
         pause(8)
-        let island = app.buttons["Allow"].firstMatch
-        if island.exists {
-            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.08))
-                .press(forDuration: 0.1, thenDragTo: app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)))
-            pause(2)
-        }
+        if device == "iphone" { collapseIsland() }
         return app
     }
 
