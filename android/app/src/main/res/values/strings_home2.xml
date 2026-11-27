@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Bots</string>
+    <string name="home2_group_chats">Group chats</string>
+    <string name="home2_search">Search chats and bots</string>
+    <string name="home2_new_group">New group</string>
+    <string name="home2_department_empty">No bots in this department.</string>
+    <string name="home2_show_all">Show all chats</string>
+    <string name="home2_department_actions">Actions for %1$s department</string>
+    <string name="home2_department_add_bots_label">Add or remove bots in %1$s</string>
+    <string name="home2_fold_open">Open</string>
+    <string name="home2_fold_folded">Folded</string>
+    <string name="home2_chief">Chief of Staff</string>
+    <string name="home2_waiting">Waiting for you</string>
+    <string name="home2_problem">Needs a look</string>
+    <string name="home2_working">Working</string>
+    <string name="home2_menu_add_bots">Add bots</string>
+    <string name="home2_menu_new_bot">New bot here</string>
+    <string name="home2_add_bots_title">Add bots to %1$s</string>
+    <string name="home2_add_bots_save">Save</string>
+    <string name="home2_add_bots_saving">Saving</string>
+    <string name="home2_add_bots_failed">Could not save. Try again.</string>
+    <string name="home2_add_bots_nothing">No bots to add.</string>
+    <string name="home2_bot_in_department">In %1$s</string>
+    <string name="home2_bot_unassigned">Bots</string>
+    <string name="home2_cancel">Cancel</string>
+    <string name="home2_settings_advanced_title">Advanced mode</string>
+    <string name="home2_settings_advanced_body">More menus and tools, as on your computer.</string>
+    <string name="home2_team_add_department">Add department</string>
+    <string name="home2_team_department_empty">No bots in this department.</string>
+    <string name="home2_department_title">Add department</string>
+    <string name="home2_department_name">Department name</string>
+    <string name="home2_department_placeholder">Marketing</string>
+    <string name="home2_department_exists">That name is already used.</string>
+    <string name="home2_department_needed">Give the department a name.</string>
+    <string name="home2_department_failed">Could not add the department. Try again.</string>
+    <string name="home2_department_add">Add</string>
+    <string name="home2_department_adding">Adding</string>
+</resources>

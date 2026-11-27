@@ -1,12 +1,5 @@
 import Foundation
 
-public enum HomeChatFilter: String, CaseIterable, Sendable {
-    case all, bots, groups
-
-    public var showsBots: Bool { self != .groups }
-    public var showsGroups: Bool { self != .bots }
-}
-
 public enum HomeSearchFilter: String, CaseIterable, Sendable {
     case all, messages, bots, groups, routines
 

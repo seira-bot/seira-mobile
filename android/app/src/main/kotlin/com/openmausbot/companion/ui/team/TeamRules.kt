@@ -17,8 +17,9 @@ internal enum class TeamStatus { WORKING, WAITING }
 internal object TeamMapRules {
     /**
      * The Chief of Staff first, then each department with its own chiefs ahead
-     * of its bots, then the bots that belong to no department. A pinned bot stays
-     * in its department, and the Chief of Staff appears only once.
+     * of its bots, then the bots that belong to no department. A department the
+     * computer lists shows even with no bot. A pinned bot stays in its department,
+     * and the Chief of Staff appears only once.
      */
     fun layout(state: CompanionState): TeamLayout {
         val visible = state.bots.filter { it.hidden != true }
@@ -30,7 +31,7 @@ internal object TeamMapRules {
                 val inside = members.filter { departmentOf(it) == name }
                 TeamGroup(name, inside.filter { it.chiefOfStaff == true } + inside.filter { it.chiefOfStaff != true })
             }
-            .filter { it.bots.isNotEmpty() }
+            .filter { it.bots.isNotEmpty() || it.name in state.declaredSections }
         val general = members.filter { it.chiefOfStaff != true && departmentOf(it) == null }
         val groups = sections + if (general.isEmpty()) emptyList() else listOf(TeamGroup(null, general))
         return TeamLayout(chief = chief, groups = groups)

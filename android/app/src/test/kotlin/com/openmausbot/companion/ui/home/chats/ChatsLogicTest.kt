@@ -1,13 +1,11 @@
 package com.openmausbot.companion.ui.home.chats
 
 import com.openmausbot.companion.core.Bot
-import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.CompanionState
 import com.openmausbot.companion.core.GroupResponder
 import com.openmausbot.companion.core.ModelSelection
 import com.openmausbot.companion.core.Room
-import com.openmausbot.companion.ui.ChatUpdate
-import com.openmausbot.companion.ui.UpdateKind
+import com.openmausbot.companion.core.RosterRowStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -21,68 +19,202 @@ class ChatsLogicTest {
             bot("plain"),
             bot("pinned").copy(pinned = true),
             bot("ops-bot").copy(section = "Ops"),
+            bot("ops-chief").copy(section = "Ops", chiefOfStaff = true),
             bot("hidden").copy(hidden = true),
         ),
-        rooms = listOf(
-            room("group"),
-            room("direct").copy(dm = true),
-            room("ops-room").copy(section = "Ops"),
-        ),
+        rooms = listOf(room("group"), room("direct").copy(dm = true)),
+        declaredSections = listOf("Ops", "Empty"),
     )
 
     @Test
-    fun `the all chip lists chats, each department and then groups`() {
-        val sections = ChatsLayout.sections(state, ChatsFilter.ALL, department = null)
+    fun `simple mode shows bots, each department in order, then group chats`() {
+        val layout = HomeLayoutRules.layout(state, advanced = false, department = null)
         assertEquals(
-            listOf(ChatsSection.Kind.CHATS, ChatsSection.Kind.DEPARTMENT, ChatsSection.Kind.GROUPS),
-            sections.map { it.kind },
+            listOf("bots", "department:Ops", "department:Empty", "groups"),
+            layout.groups.map(HomeGroup::key),
         )
-        assertEquals(listOf("chief", "pinned", "plain"), sections[0].bots.map(Bot::id))
-        assertEquals("Ops", sections[1].name)
-        assertEquals(listOf("ops-bot"), sections[1].bots.map(Bot::id))
-        assertEquals(listOf("ops-room"), sections[1].rooms.map(Room::id))
-        assertEquals(listOf("group", "direct"), sections[2].rooms.map(Room::id))
+        assertNull(layout.chief)
     }
 
     @Test
-    fun `the bots chip leaves groups out`() {
-        val sections = ChatsLayout.sections(state, ChatsFilter.BOTS, department = null)
-        assertFalse(sections.any { it.kind == ChatsSection.Kind.GROUPS })
-        assertTrue(sections.all { it.rooms.isEmpty() })
+    fun `simple mode puts Seira first and then the bots with no department`() {
+        val bots = HomeLayoutRules.layout(state, advanced = false, department = null).groups.first()
+        assertEquals(listOf("chief", "pinned", "plain"), bots.bots.map(Bot::id))
     }
 
     @Test
-    fun `the groups chip keeps the groups section and drops bots`() {
-        val sections = ChatsLayout.sections(state, ChatsFilter.GROUPS, department = null)
-        assertTrue(sections.all { it.bots.isEmpty() })
-        assertEquals(ChatsSection.Kind.GROUPS, sections.last().kind)
+    fun `a department with no bot still shows`() {
+        val empty = HomeLayoutRules.layout(state, advanced = false, department = null).groups.first { it.name == "Empty" }
+        assertTrue(empty.bots.isEmpty())
+    }
+
+    @Test
+    fun `a department lists its chief first`() {
+        val ops = HomeLayoutRules.layout(state, advanced = false, department = null).groups.first { it.name == "Ops" }
+        assertEquals(listOf("ops-chief", "ops-bot"), ops.bots.map(Bot::id))
+    }
+
+    @Test
+    fun `a department a bot names shows even when the computer did not list it`() {
+        val other = state.copy(bots = state.bots + bot("extra").copy(section = "Sales"))
+        val names = HomeLayoutRules.layout(other, advanced = false, department = null).groups.mapNotNull(HomeGroup::name)
+        assertEquals(listOf("Ops", "Empty", "Sales"), names)
+    }
+
+    @Test
+    fun `group chats hold every group chat`() {
+        val groups = HomeLayoutRules.layout(state, advanced = false, department = null).groups.last()
+        assertEquals(HomeGroupKind.GROUPS, groups.kind)
+        assertEquals(listOf("group", "direct"), groups.rooms.map(Room::id))
+    }
+
+    @Test
+    fun `advanced mode gives the chief its own row and keeps the other bots in Bots`() {
+        val layout = HomeLayoutRules.layout(state, advanced = true, department = null)
+        assertEquals("chief", layout.chief?.id)
+        assertEquals(listOf("pinned", "plain"), layout.groups.first().bots.map(Bot::id))
+    }
+
+    @Test
+    fun `advanced mode leaves out an empty Bots group`() {
+        val onlyChief = CompanionState(bots = listOf(bot("chief").copy(chiefOfStaff = true)))
+        val layout = HomeLayoutRules.layout(onlyChief, advanced = true, department = null)
+        assertTrue(layout.groups.none { it.kind == HomeGroupKind.BOTS })
+        assertEquals("chief", layout.chief?.id)
     }
 
     @Test
     fun `a department filter keeps only that department`() {
-        val sections = ChatsLayout.sections(state, ChatsFilter.ALL, department = "Ops")
-        assertEquals(listOf("department-Ops"), sections.map(ChatsSection::key))
-        assertTrue(ChatsLayout.sections(state, ChatsFilter.ALL, department = "Nowhere").isEmpty())
+        val layout = HomeLayoutRules.layout(state, advanced = false, department = "Ops")
+        assertEquals(listOf("department:Ops"), layout.groups.map(HomeGroup::key))
+        assertEquals("Ops", layout.department)
+        assertNull(layout.chief)
+        assertTrue(HomeLayoutRules.layout(state, advanced = false, department = "Nowhere").groups.isEmpty())
     }
 
     @Test
     fun `a fleet with nothing to list is empty`() {
-        val sections = ChatsLayout.sections(CompanionState(), ChatsFilter.ALL, department = null)
-        assertTrue(ChatsLayout.isEmpty(sections))
-        assertFalse(ChatsLayout.isEmpty(ChatsLayout.sections(state, ChatsFilter.ALL, department = null)))
+        assertTrue(HomeLayoutRules.layout(CompanionState(), advanced = false, department = null).isEmpty)
+        assertTrue(HomeLayoutRules.layout(CompanionState(), advanced = true, department = null).isEmpty)
+        assertFalse(HomeLayoutRules.layout(state, advanced = false, department = null).isEmpty)
     }
 
     @Test
-    fun `the hero shows the newest update that needs the person`() {
-        val bot = bot("plain")
-        val chat = Chat.BotChat(bot)
-        val updates = listOf(
-            ChatUpdate(chat, UpdateKind.WORKING, "Working"),
-            ChatUpdate(chat, UpdateKind.NEEDS_YOU, "Pick one"),
-            ChatUpdate(chat, UpdateKind.NEEDS_YOU, "Older"),
+    fun `tiles come four to a row and the last row may be short`() {
+        val rows = HomeLayoutRules.tileRows(List(9) { bot("b$it") })
+        assertEquals(listOf(4, 4, 1), rows.map { it.size })
+    }
+
+    @Test
+    fun `a group key names its kind and department`() {
+        assertEquals("bots", HomeGroup(HomeGroupKind.BOTS, null, emptyList(), emptyList()).key)
+        assertEquals("department:Ops", HomeGroup(HomeGroupKind.DEPARTMENT, "Ops", emptyList(), emptyList()).key)
+        assertEquals("groups", HomeGroup(HomeGroupKind.GROUPS, null, emptyList(), emptyList()).key)
+    }
+
+    @Test
+    fun `a new group starts open and a toggle folds then opens it`() {
+        val none = emptySet<String>()
+        assertTrue(FoldRules.isOpen(none, "department:Ops"))
+        val folded = FoldRules.toggle(none, "department:Ops")
+        assertFalse(FoldRules.isOpen(folded, "department:Ops"))
+        assertTrue(FoldRules.isOpen(FoldRules.toggle(folded, "department:Ops"), "department:Ops"))
+    }
+
+    @Test
+    fun `folding one department leaves the others open`() {
+        val folded = FoldRules.toggle(emptySet(), "department:Ops")
+        assertTrue(FoldRules.isOpen(folded, "department:Sales"))
+    }
+
+    @Test
+    fun `pruning drops the fold of a department that is gone`() {
+        val folded = setOf("department:Ops", "department:Gone")
+        assertEquals(setOf("department:Ops"), FoldRules.prune(folded, setOf("department:Ops", "bots")))
+    }
+
+    @Test
+    fun `the dot shows the person's turn first, then a problem, then work`() {
+        val plain = bot("plain")
+        assertEquals(HomeDot.WAITING, HomeDotRules.of(plain, RosterRowStatus.WAITING_ON_YOU))
+        assertEquals(HomeDot.PROBLEM, HomeDotRules.of(plain.copy(activity = "failed"), RosterRowStatus.IDLE))
+        assertEquals(HomeDot.WORKING, HomeDotRules.of(plain, RosterRowStatus.WORKING))
+        assertEquals(HomeDot.NONE, HomeDotRules.of(plain, RosterRowStatus.IDLE))
+    }
+
+    @Test
+    fun `a tile shows a dot only for a wait or a problem`() {
+        assertTrue(HomeDotRules.tileShows(HomeDot.WAITING))
+        assertTrue(HomeDotRules.tileShows(HomeDot.PROBLEM))
+        assertFalse(HomeDotRules.tileShows(HomeDot.WORKING))
+        assertFalse(HomeDotRules.tileShows(HomeDot.NONE))
+    }
+
+    @Test
+    fun `the Add bots list leaves out hidden bots and the chief`() {
+        assertEquals(
+            listOf("plain", "pinned", "ops-bot"),
+            DepartmentRules.selectable(state).map(Bot::id),
         )
-        assertEquals("Pick one", ChatsHeroRules.needsYou(updates)?.line)
-        assertNull(ChatsHeroRules.needsYou(updates.take(1)))
+    }
+
+    @Test
+    fun `the bots of a department start checked`() {
+        val bots = DepartmentRules.selectable(state)
+        assertEquals(setOf("ops-bot"), DepartmentRules.members(bots, "Ops"))
+    }
+
+    @Test
+    fun `a save with nothing changed has no calls`() {
+        val bots = DepartmentRules.selectable(state)
+        val placement = DepartmentRules.diff(bots, "Ops", DepartmentRules.members(bots, "Ops"))
+        assertTrue(placement.isEmpty)
+        assertTrue(placement.calls("Ops").isEmpty())
+        assertFalse(DepartmentRules.canSave(placement, saving = false))
+    }
+
+    @Test
+    fun `the diff names the bots added and the bots removed`() {
+        val bots = DepartmentRules.selectable(state)
+        val checked = DepartmentRules.toggle(DepartmentRules.toggle(DepartmentRules.members(bots, "Ops"), "plain"), "ops-bot")
+        val placement = DepartmentRules.diff(bots, "Ops", checked)
+        assertEquals(listOf("plain"), placement.added)
+        assertEquals(listOf("ops-bot"), placement.removed)
+    }
+
+    @Test
+    fun `a save sends one call to add and one call with an empty name to remove`() {
+        val placement = DepartmentPlacement(added = listOf("a", "b"), removed = listOf("c"))
+        assertEquals(
+            listOf(SectionCall("Ops", listOf("a", "b")), SectionCall("", listOf("c"))),
+            placement.calls("Ops"),
+        )
+    }
+
+    @Test
+    fun `a call is left out when its list is empty`() {
+        assertEquals(listOf(SectionCall("Ops", listOf("a"))), DepartmentPlacement(listOf("a"), emptyList()).calls("Ops"))
+        assertEquals(listOf(SectionCall("", listOf("c"))), DepartmentPlacement(emptyList(), listOf("c")).calls("Ops"))
+    }
+
+    @Test
+    fun `save waits while a save runs`() {
+        val placement = DepartmentPlacement(listOf("a"), emptyList())
+        assertTrue(DepartmentRules.canSave(placement, saving = false))
+        assertFalse(DepartmentRules.canSave(placement, saving = true))
+    }
+
+    @Test
+    fun `a department name is trimmed and refused when empty or already used`() {
+        val existing = listOf("Ops", "Sales")
+        assertEquals(DepartmentRules.NameProblem.EMPTY, DepartmentRules.nameProblem("   ", existing))
+        assertEquals(DepartmentRules.NameProblem.EXISTS, DepartmentRules.nameProblem(" Ops ", existing))
+        assertNull(DepartmentRules.nameProblem(" Marketing ", existing))
+    }
+
+    @Test
+    fun `a department name stops at sixty characters`() {
+        assertEquals(60, DepartmentRules.clampName("x".repeat(80)).length)
     }
 
     @Test

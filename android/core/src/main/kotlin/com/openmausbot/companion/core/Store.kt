@@ -57,6 +57,11 @@ data class CompanionState(
      * message that is already in the transcript.
      */
     val drainedQueueIds: List<String> = emptyList(),
+    /**
+     * Department names as the computer lists them, in creation order. This list
+     * alone shows a department that holds no bot.
+     */
+    val declaredSections: List<String> = emptyList(),
     /** Edits in flight, by thread. A hydrate keeps them: the request is still running. */
     val pendingEdits: Map<String, PendingEdit> = emptyMap(),
     /**
@@ -199,7 +204,7 @@ data class CompanionState(
                     sectionName(raw)?.takeIf { it !in this }?.let(::add)
                 }
             }
-            return names.map { name ->
+            return (declaredSections + names).distinct().map { name ->
                 SidebarSection(
                     name = name,
                     chiefs = sectionChiefs.filter { sectionName(it.section) == name },
@@ -208,6 +213,10 @@ data class CompanionState(
                 )
             }
         }
+
+    /** Replaces the declared department names; blank and repeated names are dropped. */
+    fun withDeclaredSections(names: List<String>): CompanionState =
+        copy(declaredSections = names.mapNotNull { sectionName(it) }.distinct())
 
     val unsectionedChief: Bot?
         get() = bots.firstOrNull {
@@ -269,6 +278,7 @@ data class CompanionState(
             activeLeafIds = fleet.bots.associate { it.threadId to it.activeLeafId },
         )
             .let { state -> fleet.botQueuedMessages?.let { state.replaceBotQueues(it) } ?: state }
+            .let { state -> fleet.sections?.let { state.withDeclaredSections(it) } ?: state }
             .reconcileAllQueued()
     }
 
@@ -353,6 +363,7 @@ data class CompanionState(
         is Frame.Bot -> applyBot(frame.bot)
         is Frame.BotDeleted -> deleteBot(frame.botId)
         is Frame.BotQueued -> replaceBotQueues(frame.queues)
+        is Frame.Sections -> withDeclaredSections(frame.sections)
         is Frame.Room -> applyRoom(frame.room)
         is Frame.RoomDeleted -> deleteRoom(frame.groupId)
 

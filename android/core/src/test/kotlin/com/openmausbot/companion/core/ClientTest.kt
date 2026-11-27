@@ -16,6 +16,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class ClientTest {
@@ -179,9 +180,9 @@ class ClientTest {
 
     @Test
     fun assignSectionUsesTheNarrowAtomicOrganizerRoute() = runBlocking {
-        server.enqueue(json("""{"section":"Research","bots":[${botJson()}]}"""))
+        server.enqueue(json("""{"section":"Research","sections":["Work","Research"],"bots":[${botJson()}]}"""))
 
-        val bots = client.assignSection("Research", listOf("b2", "b1"))
+        val assignment = client.assignSection("Research", listOf("b2", "b1"))
 
         val request = server.takeRequest()
         assertEquals("POST", request.method)
@@ -190,7 +191,15 @@ class ClientTest {
         val body = CompanionJson.parseToJsonElement(request.body.readUtf8()).jsonObject
         assertEquals("Research", body.getValue("name").jsonPrimitive.content)
         assertEquals(listOf("b2", "b1"), body.getValue("botIds").jsonArray.map { it.jsonPrimitive.content })
-        assertEquals(1, bots.size)
+        assertEquals(1, assignment.bots.size)
+        assertEquals(listOf("Work", "Research"), assignment.sections)
+    }
+
+    @Test
+    fun assignSectionAnsweredWithoutDepartmentNamesKeepsThemAbsent() = runBlocking {
+        server.enqueue(json("""{"section":"","bots":[${botJson()}]}"""))
+
+        assertNull(client.assignSection("", listOf("b1")).sections)
     }
 
     @Test

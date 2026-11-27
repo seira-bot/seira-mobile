@@ -51,6 +51,14 @@ class TeamRulesTest {
     }
 
     @Test
+    fun `a department the computer lists shows with no bot`() {
+        val state = CompanionState(bots = listOf(bot("a", section = "Sales")), declaredSections = listOf("Sales", "Empty"))
+        val layout = TeamMapRules.layout(state)
+        assertEquals(listOf("Sales", "Empty"), layout.groups.map { it.name })
+        assertTrue(layout.groups[1].bots.isEmpty())
+    }
+
+    @Test
     fun `an empty fleet makes an empty layout`() {
         assertTrue(TeamMapRules.layout(CompanionState()).isEmpty)
     }

@@ -199,40 +199,6 @@ struct HomeDrawer: View {
     }
 }
 
-struct HomeFilterChips: View {
-    @Binding var filter: HomeChatFilter
-
-    var body: some View {
-        HStack(spacing: 8) {
-            chip(.all, "All")
-            chip(.bots, "Bots")
-            chip(.groups, "Groups")
-            Spacer(minLength: 0)
-        }
-        .padding(.horizontal, HomeRowMetrics.side)
-    }
-
-    private func chip(_ value: HomeChatFilter, _ title: LocalizedStringKey) -> some View {
-        let selected = filter == value
-        let fill: Color = selected ? .seiraInv : .seiraS1
-        let ink: Color = selected ? .seiraOnInv : .seiraFg
-        return Button {
-            Haptics.selection()
-            filter = value
-        } label: {
-            Text(title)
-                .font(.seira(14, .medium, relativeTo: .subheadline))
-                .foregroundStyle(ink)
-                .padding(.horizontal, 16)
-                .frame(minHeight: 40)
-                .background(fill, in: Capsule())
-                .contentShape(Capsule())
-        }
-        .buttonStyle(.plain)
-        .accessibilityAddTraits(selected ? .isSelected : [])
-    }
-}
-
 /// The side drawer over the home screen. The main layer slides right and
 /// dims while the drawer is open.
 struct HomeDrawerLayer<Content: View>: View {
