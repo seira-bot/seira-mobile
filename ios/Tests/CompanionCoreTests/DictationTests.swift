@@ -102,6 +102,64 @@ final class DictationTests: XCTestCase {
         )
     }
 
+    // MARK: - Recognizer rewrites of words it already spoke (seira-mobile#112)
+
+    /// Feed partials one by one, like the speech session does.
+    private func transcript(after partials: [String]) -> String {
+        partials.reduce("") { Dictation.updateTranscript($0, new: $1) }
+    }
+
+    func testAPunctuationChangeInTheFirstWordIsNotANewSegment() {
+        XCTAssertEqual(transcript(after: ["Iya", "Iya."]), "Iya.")
+        XCTAssertEqual(
+            transcript(after: ["Halo", "Halo, apa kabar", "Halo apa kabar hari ini"]),
+            "Halo apa kabar hari ini"
+        )
+    }
+
+    func testACaseChangeInTheFirstWordIsNotANewSegment() {
+        XCTAssertEqual(
+            transcript(after: ["hello there", "Hello there my friend"]),
+            "Hello there my friend"
+        )
+    }
+
+    func testARewriteThatDropsTheFirstWordsDoesNotRepeatThem() {
+        // Partials from seira-mobile#112: the recognizer first heard "Iya"
+        // twice, then dropped the first one.
+        XCTAssertEqual(
+            transcript(after: [
+                "Iya",
+                "Iya.",
+                "Iya. Iya dari tadi",
+                "Iya. Iya dari tadi kenapa?",
+                "Iya dari tadi kenapa berulang",
+            ]),
+            "Iya dari tadi kenapa berulang"
+        )
+    }
+
+    func testABacktrackWithDifferentPunctuationKeepsTheLongerTranscript() {
+        XCTAssertEqual(
+            Dictation.updateTranscript("Halo, apa kabar", new: "Halo apa"),
+            "Halo, apa kabar"
+        )
+    }
+
+    func testANewSegmentThatSharesTwoWordsWithTheTailIsStillAppended() {
+        XCTAssertEqual(
+            Dictation.updateTranscript("kita makan nasi goreng", new: "nasi goreng enak"),
+            "kita makan nasi goreng nasi goreng enak"
+        )
+    }
+
+    func testANewSegmentAfterPunctuatedTextIsStillAppended() {
+        XCTAssertEqual(
+            transcript(after: ["Halo, apa kabar?", "Saya baik."]),
+            "Halo, apa kabar? Saya baik."
+        )
+    }
+
     // MARK: - Locale candidates
 
     func testPreferredLanguageComesFirst() {

@@ -48,18 +48,55 @@ public enum Dictation {
         // Same segment with a brief backtrack: keep the longer version.
         if current.hasPrefix(new) { return current }
 
+        // The recognizer rewrites punctuation and case in words it already
+        // spoke ("Iya" -> "Iya." or "Halo, apa" -> "Halo apa"). Compare words
+        // without them, so a rewrite is not taken for a new segment.
+        let currentWords = comparableWords(current)
+        let newWords = comparableWords(new)
+
+        // Same segment: the new words continue the current words.
+        if !currentWords.isEmpty, newWords.starts(with: currentWords) { return new }
+
+        // Same segment with a brief backtrack: keep the longer version.
+        if currentWords.starts(with: newWords) { return current }
+
         // Same segment with a word-level revision: most leading words match.
-        let currentWords = current.split(separator: " ")
-        let newWords = new.split(separator: " ")
         let commonWordCount = zip(currentWords, newWords)
-            .prefix(while: { $0.lowercased() == $1.lowercased() })
+            .prefix(while: { $0 == $1 })
             .count
         if commonWordCount >= 2, commonWordCount * 2 >= currentWords.count {
             return new
         }
 
+        // Same segment, but the recognizer dropped the first words it had
+        // heard ("Iya Iya dari tadi" -> "Iya dari tadi"). The new words start
+        // with the tail of the current words, so take the newest reading.
+        if continuesFromTail(currentWords, newWords) { return new }
+
         // New segment after a pause: append, separated by a space.
         return draft(base: current, transcript: new)
+    }
+
+    private static let minimumTailWords = 3
+
+    /// Words without case or punctuation. Words that are only punctuation go away.
+    private static func comparableWords(_ text: String) -> [String] {
+        text.split(whereSeparator: \.isWhitespace)
+            .map { $0.filter { $0.isLetter || $0.isNumber }.lowercased() }
+            .filter { !$0.isEmpty }
+    }
+
+    /// True when `newWords` start with the last words of `currentWords`, and
+    /// those words are at least `minimumTailWords` and half of the current
+    /// text. Fewer shared words could be a new segment that repeats a phrase.
+    private static func continuesFromTail(_ currentWords: [String], _ newWords: [String]) -> Bool {
+        let longest = min(currentWords.count, newWords.count)
+        guard longest >= minimumTailWords else { return false }
+        for length in stride(from: longest, through: minimumTailWords, by: -1) {
+            if length * 2 < currentWords.count { return false }
+            if Array(currentWords.suffix(length)) == Array(newWords.prefix(length)) { return true }
+        }
+        return false
     }
 
     /// Locales to try, in order. First available recognizer wins.
