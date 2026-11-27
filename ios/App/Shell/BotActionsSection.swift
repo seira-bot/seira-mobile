@@ -40,7 +40,7 @@ struct BotActionsSection: View {
             }
         }
         .sheet(isPresented: $moving) {
-            DepartmentSheet(bot: bot, departments: BotDepartments.names(in: session.state.bots)) { name in
+            DepartmentSheet(bot: bot, departments: BotDepartments.names(in: session.state.bots, declared: session.state.declaredSections)) { name in
                 moving = false
                 change("Moved") { await session.moveToDepartment(botId: bot.id, name: name) }
             }

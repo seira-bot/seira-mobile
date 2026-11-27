@@ -75,6 +75,12 @@ class BotDepartmentsTest {
     }
 
     @Test
+    fun namesKeepADepartmentWithNoBot() {
+        val bots = listOf(bot("a", "Sales"))
+        assertEquals(listOf("Legal", "sales"), BotDepartments.names(bots, listOf("sales", "Legal", " ")))
+    }
+
+    @Test
     fun aNewNameNeedsOneToSixtyCharacters() {
         assertNull(BotDepartments.cleanName("   "))
         assertNull(BotDepartments.cleanName("x".repeat(61)))

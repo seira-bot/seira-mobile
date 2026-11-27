@@ -108,6 +108,11 @@ final class BotDepartmentsTests: XCTestCase {
         XCTAssertEqual(BotDepartments.names(in: bots), ["ops", "Sales"])
     }
 
+    func testNamesKeepADepartmentWithNoBot() {
+        let bots = [bot("a", section: "Sales")]
+        XCTAssertEqual(BotDepartments.names(in: bots, declared: ["sales", "Legal", " "]), ["Legal", "sales"])
+    }
+
     func testANewNameNeedsOneToSixtyCharacters() {
         XCTAssertNil(BotDepartments.cleanName("   "))
         XCTAssertNil(BotDepartments.cleanName(String(repeating: "x", count: 61)))

@@ -4,9 +4,13 @@ package com.openmausbot.companion.core
 object BotDepartments {
     const val MAX_NAME_LENGTH = 60
 
-    /** The department names the phone already knows, sorted without regard to case. */
-    fun names(bots: List<Bot>): List<String> =
-        bots.mapNotNull { it.section?.trim()?.takeIf(String::isNotEmpty) }
+    /**
+     * The departments the computer lists, also when they have no bot, and the
+     * departments of the bots, sorted without regard to case.
+     */
+    fun names(bots: List<Bot>, declared: List<String> = emptyList()): List<String> =
+        (declared + bots.mapNotNull { it.section })
+            .mapNotNull { it.trim().takeIf(String::isNotEmpty) }
             .distinctBy { it.lowercase() }
             .sortedBy { it.lowercase() }
 

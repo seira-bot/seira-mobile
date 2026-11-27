@@ -4,11 +4,12 @@ import Foundation
 public enum BotDepartments {
     public static let maxNameLength = 60
 
-    /// The department names the phone already knows, sorted without regard to case.
-    public static func names(in bots: [Bot]) -> [String] {
+    /// The departments the computer lists, also when they have no bot, and the
+    /// departments of the bots, sorted without regard to case.
+    public static func names(in bots: [Bot], declared: [String] = []) -> [String] {
         var seen = Set<String>()
-        return bots
-            .compactMap { $0.section?.trimmingCharacters(in: .whitespacesAndNewlines) }
+        return (declared + bots.compactMap(\.section))
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty && seen.insert($0.lowercased()).inserted }
             .sorted { $0.lowercased() < $1.lowercased() }
     }

@@ -165,7 +165,7 @@ internal fun BotActionsGroup(bot: Bot) {
     if (moving) {
         DepartmentSheet(
             bot = bot,
-            departments = BotDepartments.names(state.bots),
+            departments = BotDepartments.names(state.bots, state.declaredSections),
             onPick = { name ->
                 moving = false
                 change(movedDone) { session.moveToDepartment(bot.id, name) }
