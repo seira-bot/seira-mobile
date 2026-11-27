@@ -2,15 +2,12 @@ package com.openmausbot.companion.ui.theme
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
@@ -102,25 +99,16 @@ class ThemeRevealState {
 
 val LocalThemeReveal = compositionLocalOf { ThemeRevealState() }
 
-/** Draws [content] through a layer, so the old theme can be kept while a circle uncovers the new one. */
+/** Draws through a layer, so the old theme can be kept while a circle uncovers the new one. */
 @Composable
-fun ThemeRevealHost(
-    state: ThemeRevealState = remember { ThemeRevealState() },
-    content: @Composable () -> Unit,
-) {
+fun Modifier.themeRevealSurface(state: ThemeRevealState): Modifier {
     val layer = rememberGraphicsLayer()
     state.attach(layer)
-    CompositionLocalProvider(LocalThemeReveal provides state) {
-        Box(
-            modifier = Modifier
-                .onGloballyPositioned { state.place(it.positionInWindow(), it.size) }
-                .drawWithContent {
-                    layer.record { this@drawWithContent.drawContent() }
-                    drawLayer(layer)
-                    with(state) { drawOverlay() }
-                },
-        ) {
-            content()
+    return this
+        .onGloballyPositioned { state.place(it.positionInWindow(), it.size) }
+        .drawWithContent {
+            layer.record { this@drawWithContent.drawContent() }
+            drawLayer(layer)
+            with(state) { drawOverlay() }
         }
-    }
 }

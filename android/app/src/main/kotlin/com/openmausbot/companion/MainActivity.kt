@@ -23,6 +23,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -32,8 +33,11 @@ import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.ui.launch.LaunchVisor
 import com.openmausbot.companion.ui.launch.LaunchVisorState
 import com.openmausbot.companion.ui.launch.LaunchVisorTimeline
+import com.openmausbot.companion.ui.theme.LocalThemeReveal
 import com.openmausbot.companion.ui.theme.NightModeApplier
+import com.openmausbot.companion.ui.theme.ThemeRevealState
 import com.openmausbot.companion.ui.theme.resolvesDark
+import com.openmausbot.companion.ui.theme.themeRevealSurface
 import kotlinx.coroutines.launch
 import com.openmausbot.companion.dictation.SpeechDictation
 import com.openmausbot.companion.lifecycle.AlwaysOnConnectionService
@@ -291,8 +295,9 @@ class MainActivity : ComponentActivity() {
                 enableEdgeToEdge(statusBarStyle = style, navigationBarStyle = style)
                 onDispose {}
             }
-            CompositionLocalProvider(LocalCompanion provides environment) {
-                Box(Modifier.fillMaxSize()) {
+            val themeReveal = remember { ThemeRevealState() }
+            CompositionLocalProvider(LocalCompanion provides environment, LocalThemeReveal provides themeReveal) {
+                Box(Modifier.fillMaxSize().themeRevealSurface(themeReveal)) {
                     CompanionRoot(
                         pendingNotification = pendingTarget,
                         onPendingTargetConsumed = notificationNavigation::consume,
