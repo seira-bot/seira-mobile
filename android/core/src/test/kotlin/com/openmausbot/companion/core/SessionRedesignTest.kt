@@ -57,7 +57,7 @@ class SessionRedesignTest {
         val session = session().seeded(bot("b1"))
         server.enqueue(json("""{"bot":${CompanionJson.encodeToString(bot("b1", "edits"))}}"""))
 
-        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.EDITS)
+        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.EDITS, expected = session.runtimeBinding()!!)
 
         assertEquals(ApprovalMode.EDITS, (result as ApprovalModeResult.Changed).mode)
         assertEquals(ApprovalMode.EDITS, session.approvalMode(bot("b1"), "t1"))
@@ -73,7 +73,7 @@ class SessionRedesignTest {
             ),
         )
 
-        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.FULL)
+        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.FULL, expected = session.runtimeBinding()!!)
 
         val refusal = (result as ApprovalModeResult.Refused).refusal
         assertTrue(refusal is ApprovalModeRefusal.FullNotAllowedHere)
@@ -87,7 +87,7 @@ class SessionRedesignTest {
         server.enqueue(
             json("""{"error":"Auto mode on this computer requires confirming the warning first (acknowledgeLocalAuto)"}""", 400),
         )
-        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.AUTO)
+        val result = session.setApprovalMode(bot("b1"), "t1", ApprovalMode.AUTO, expected = session.runtimeBinding()!!)
         assertTrue((result as ApprovalModeResult.Refused).refusal is ApprovalModeRefusal.LocalAutoNeedsAcknowledgement)
     }
 

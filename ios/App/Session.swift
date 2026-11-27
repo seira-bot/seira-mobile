@@ -2165,13 +2165,16 @@ final class Session: ObservableObject {
     /// one, the call goes down its current route: a lease must not be
     /// released through an address the session has since moved away from.
     private func withClient<T>(_ client: CompanionClient, call: (CompanionClient) async throws -> T) async throws -> T {
-        let client = self.client?.connection.id == client.connection.id ? self.client ?? client : client
+        let servesThisComputer = self.client?.connection.id == client.connection.id
+        let binding = bindRuntime()
+        let client = servesThisComputer ? self.client ?? client : client
         do {
             return try await call(client)
         } catch let error as APIError where error.isUnauthorized {
             // As for screenshots: a call answered by the computer the phone
-            // has since switched away from must not evict the new session.
-            guard !Task.isCancelled, self.client?.connection.id == client.connection.id else {
+            // has since switched away from, or by an earlier runtime of the
+            // same pairing, must not evict the new session.
+            guard !Task.isCancelled, servesThisComputer, isCurrent(binding) else {
                 throw CancellationError()
             }
             status = .unauthorized

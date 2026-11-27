@@ -53,7 +53,8 @@ class SessionRuntimeIsolationTest {
         val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
         val session = session(gate)
 
-        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        val shown = session.runtimeBinding()!!
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shown) }
         gate.awaitParked()
         switchToPro(session)
         gate.release()
@@ -68,7 +69,8 @@ class SessionRuntimeIsolationTest {
         val gate = Gate(status = 403, body = """{"error":"old computer refused"}""")
         val session = session(gate)
 
-        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.FULL) }
+        val shown = session.runtimeBinding()!!
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.FULL, expected = shown) }
         gate.awaitParked()
         switchToPro(session)
         gate.release()
@@ -189,7 +191,8 @@ class SessionRuntimeIsolationTest {
         val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
         val session = session(gate)
 
-        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        val shown = session.runtimeBinding()!!
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shown) }
         gate.awaitParked()
         switchToPro(session)
         session.switchComputer(air.id)
@@ -206,7 +209,8 @@ class SessionRuntimeIsolationTest {
         val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
         val session = session(gate)
 
-        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        val shown = session.runtimeBinding()!!
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shown) }
         gate.awaitParked()
         session.reloadAfterWorkspaceChange(air.id)
         runCurrent()
@@ -225,7 +229,7 @@ class SessionRuntimeIsolationTest {
         switchToPro(session)
         assertTrue(!session.isCurrent(shownFor!!), "the binding of the left computer is retired")
 
-        val result = session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shownFor)
+        val result = session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shownFor!!)
 
         assertTrue(result is ApprovalModeResult.Refused)
         assertEquals(0, gate.requests.get(), "a retired sheet must not reach the network")
@@ -248,7 +252,8 @@ class SessionRuntimeIsolationTest {
         val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(edited)}}""")
         val session = session(gate)
 
-        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        val shown = session.runtimeBinding()!!
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shown) }
         gate.awaitParked()
         gate.release()
 

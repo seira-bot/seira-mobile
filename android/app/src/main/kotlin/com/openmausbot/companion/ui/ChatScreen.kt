@@ -9,6 +9,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import com.openmausbot.companion.core.Routine
 import com.openmausbot.companion.core.RoutineRunLocation
 import com.openmausbot.companion.core.RoutineSchedule
+import com.openmausbot.companion.core.Session
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.openmausbot.companion.ui.theme.GlassCircleButton
@@ -291,6 +292,7 @@ private fun LoadedChat(
     var creatingThread by remember(chatId) { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     var showingMode by remember(threadId) { mutableStateOf(false) }
+    var modeShownFor by remember(threadId) { mutableStateOf<Session.RuntimeBinding?>(null) }
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -1303,7 +1305,8 @@ private fun LoadedChat(
                 onMode = {
                     dictation.stop()
                     focusManager.clearFocus()
-                    showingMode = true
+                    modeShownFor = session.runtimeBinding()
+                    showingMode = modeShownFor != null
                 },
                 goal = remember(rawTranscript) { GoalChip.text(rawTranscript) },
                 onCancelQueued = { queued ->
@@ -1419,22 +1422,30 @@ private fun LoadedChat(
         )
     }
 
-    if (showingMode && bot != null) {
-        // The sheet belongs to the computer that was paired when it opened. When the phone serves another one
-        // (switch, unpair, re-pair or workspace change) the sheet closes with its pending answer and confirmation,
+    val shownFor = modeShownFor
+    if (showingMode && bot != null && shownFor != null) {
+        // The sheet belongs to the computer that was paired when the chip was pressed. When the phone serves another
+        // one (switch, unpair, re-pair or workspace change) the sheet closes with its pending answer and confirmation,
         // and a change it still sends is refused before any request leaves the phone.
-        val shownFor = remember { session.runtimeBinding() }
         val liveEpoch by session.runtimeEpoch.collectAsState()
         val liveConnection by session.connection.collectAsState()
-        val sameRuntime = shownFor != null && liveEpoch == shownFor.epoch && liveConnection?.id == shownFor.connectionId
-        LaunchedEffect(sameRuntime) { if (!sameRuntime) showingMode = false }
+        val sameRuntime = liveEpoch == shownFor.epoch && liveConnection?.id == shownFor.connectionId
+        LaunchedEffect(sameRuntime) {
+            if (!sameRuntime) {
+                showingMode = false
+                modeShownFor = null
+            }
+        }
         if (sameRuntime) {
             ApprovalModeSheet(
                 current = session.approvalMode(bot, threadId),
                 change = { mode, acknowledged ->
                     session.setApprovalMode(bot, threadId, mode, acknowledged, expected = shownFor)
                 },
-                onDismiss = { showingMode = false },
+                onDismiss = {
+                    showingMode = false
+                    modeShownFor = null
+                },
             )
         }
     }

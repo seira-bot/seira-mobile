@@ -213,7 +213,7 @@ class Session(
     private fun RuntimeBinding.isCurrentLocked(): Boolean =
         connectionId != null && client != null && _connection.value?.id == connectionId && _runtimeEpoch.value == epoch
 
-    private fun RuntimeBinding.isCurrent(): Boolean = isCurrent(this)
+    private fun RuntimeBinding.stillCurrent(): Boolean = isCurrent(this)
 
     /** Moves the epoch on. Call only inside [runtimeLock], together with the change that retires the runtime. */
     private fun retireRuntimeLocked() {
@@ -226,6 +226,15 @@ class Session(
         _state.update(update)
         true
     }
+
+    /** Commit a result and move the focused message in one step, only while its runtime is the active one. */
+    private fun RuntimeBinding.commitFocused(messageId: String, update: (CompanionState) -> CompanionState): Boolean =
+        synchronized(runtimeLock) {
+            if (!isCurrentLocked()) return false
+            _state.update(update)
+            _focusedMessageId.value = messageId
+            true
+        }
 
     /** Show an error only while its runtime is the active one. */
     private fun RuntimeBinding.reportError(message: String?) = synchronized(runtimeLock) {
@@ -1669,7 +1678,7 @@ class Session(
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (!binding.isCurrent()) return false
+            if (!binding.stillCurrent()) return false
             if (error.isUnauthorized) binding.markUnauthorized()
             binding.reportError(error.message)
             return false
@@ -1693,14 +1702,14 @@ class Session(
             if (result !is SteerResult.StillQueued) {
                 val gone = (result as? SteerResult.Steered)?.queueIds.orEmpty() + send.queueId
                 if (!binding.commit { state -> gone.fold(state) { next, id -> next.forgetQueued(id, chat.threadId) } }) return null
-            } else if (!binding.isCurrent()) {
+            } else if (!binding.stillCurrent()) {
                 return null
             }
             return result
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (!binding.isCurrent()) return null
+            if (!binding.stillCurrent()) return null
             if (error.isUnauthorized) binding.markUnauthorized()
             binding.reportError(error.message)
             return null
@@ -2232,7 +2241,7 @@ class Session(
             throw error
         } catch (error: Exception) {
             val gone = (error as? APIError.Status)?.code == 404
-            if (gone && binding.isCurrent() && _state.value.showsRunningLiveCall(callId)) {
+            if (gone && binding.stillCurrent() && _state.value.showsRunningLiveCall(callId)) {
                 liveCall()
             }
             return null
@@ -2495,7 +2504,7 @@ class Session(
         if (trimmed.length < 2) return emptyList()
         val (activeClient, binding) = bound() ?: return emptyList()
         return try {
-            activeClient.search(trimmed).takeIf { binding.isCurrent() } ?: emptyList()
+            activeClient.search(trimmed).takeIf { binding.stillCurrent() } ?: emptyList()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
             binding.reportError(error.message)
@@ -2516,8 +2525,7 @@ class Session(
                     if (!binding.commit { it.apply(Frame.Thread(hit.threadId, leaf)) }) return null
                 }
                 val page = activeClient.messagesAround(hit.threadId, hit.messageId)
-                if (!binding.commit { it.merge(page, hit.threadId) }) return null
-                _focusedMessageId.value = hit.messageId
+                if (!binding.commitFocused(hit.messageId) { it.merge(page, hit.threadId) }) return null
                 return _state.value.chat(ChatTarget.Bot(bot.id, hit.threadId))
             }
             val groupId = hit.groupId
@@ -2528,8 +2536,7 @@ class Session(
                     if (!binding.commit { it.apply(Frame.Room(room)) }) return null
                 }
                 val page = activeClient.messagesAround(hit.threadId, hit.messageId)
-                if (!binding.commit { it.merge(page, hit.threadId) }) return null
-                _focusedMessageId.value = hit.messageId
+                if (!binding.commitFocused(hit.messageId) { it.merge(page, hit.threadId) }) return null
                 return _state.value.chat(ChatTarget.Room(groupId, hit.threadId))
             }
             null
@@ -2566,7 +2573,7 @@ class Session(
                     ?: throw APIError.Status(404, THREAD_GONE_MESSAGE))
             } catch (error: Throwable) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
-                if (!binding.isCurrent()) return@withLock null
+                if (!binding.stillCurrent()) return@withLock null
                 binding.reportError(error.message)
                 null
             }
@@ -2635,7 +2642,7 @@ class Session(
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
             currentCoroutineContext().ensureActive()
-            if (!binding.isCurrent()) return null
+            if (!binding.stillCurrent()) return null
             binding.reportError(error.message)
             null
         }
@@ -2656,7 +2663,7 @@ class Session(
             val result = binding.mutation(activeClient)
             currentCoroutineContext().ensureActive()
             // A result for a runtime that is gone is not this computer's answer.
-            if (binding.isCurrent()) result else offline
+            if (binding.stillCurrent()) result else offline
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
             binding.reportError(error.message)
@@ -2822,7 +2829,7 @@ class Session(
             WorksOnResult.Changed(updated)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            if (!binding.isCurrent()) return WorksOnResult.Refused(WorksOnRefusal.Failed)
+            if (!binding.stillCurrent()) return WorksOnResult.Refused(WorksOnRefusal.Failed)
             WorksOnResult.Refused(WorksOnChoice.refusal(error))
         }
     }
@@ -2838,13 +2845,13 @@ class Session(
         threadId: String,
         mode: ApprovalMode,
         acknowledgeLocalAuto: Boolean = false,
-        expected: RuntimeBinding? = null,
+        expected: RuntimeBinding,
     ): ApprovalModeResult {
         // The answer of a computer that is no longer the paired one says nothing about this one.
         val retired = ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
         val (activeClient, binding) = bound() ?: return retired
         // A sheet shown for one computer never changes the mode of another: no request leaves the phone.
-        if (expected != null && expected != binding) return retired
+        if (expected != binding) return retired
         return try {
             val updated = activeClient.setApprovalMode(bot.id, threadId, mode, acknowledgeLocalAuto)
             currentCoroutineContext().ensureActive()
@@ -2852,7 +2859,7 @@ class Session(
             ApprovalModeResult.Changed(updated, updated.approvalModeIn(threadId))
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
-            if (!binding.isCurrent()) return retired
+            if (!binding.stillCurrent()) return retired
             ApprovalModeResult.Refused(ApprovalModeRefusal.from(error))
         }
     }
@@ -2941,11 +2948,11 @@ class Session(
         return try {
             val instances = activeClient.instances()
             // The list and the forbidden flag of a computer that is gone say nothing about this one.
-            if (!binding.isCurrent()) return ModelListResult.Failed
+            if (!binding.stillCurrent()) return ModelListResult.Failed
             ModelListResult.Loaded(instances).also { _modelListForbidden.value = false }
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            if (!binding.isCurrent()) return ModelListResult.Failed
+            if (!binding.stillCurrent()) return ModelListResult.Failed
             if (error is APIError.Status && error.code == 403) {
                 _modelListForbidden.value = true
                 ModelListResult.Forbidden
@@ -3146,7 +3153,7 @@ class Session(
         val connectionId = binding.connectionId
         return try {
             val report = activeClient.engineLimits(refresh)
-            if (!binding.isCurrent()) return AiUsageResult.Failed
+            if (!binding.stillCurrent()) return AiUsageResult.Failed
             if ((report == null || report.engines.isEmpty()) && connectionId != null) {
                 _aiUsageHiddenFor.value = connectionId
             }
@@ -3154,7 +3161,7 @@ class Session(
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (!binding.isCurrent()) return AiUsageResult.Failed
+            if (!binding.stillCurrent()) return AiUsageResult.Failed
             if (error.isUnauthorized) binding.markUnauthorized()
             AiUsageResult.Failed
         }
@@ -3181,7 +3188,7 @@ class Session(
         return try {
             val overview = activeClient.overview(botId)
             currentCoroutineContext().ensureActive()
-            overview.takeIf { binding.isCurrent() }
+            overview.takeIf { binding.stillCurrent() }
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
             if (!quiet) binding.reportError(error.message)
