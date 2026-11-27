@@ -220,7 +220,7 @@ final class Session: ObservableObject {
         let arguments = ProcessInfo.processInfo.arguments
         if (arguments.contains("-store-preview") || arguments.contains("-computer-switcher-preview")),
            let url = Bundle.main.url(
-               forResource: arguments.contains("-images-preview") ? "ImagePreview" : arguments.contains("-approval-preview") ? "ApprovalPreview" : arguments.contains("-question-preview") ? "QuestionPreview" : arguments.contains("-chat-update-preview") ? "ChatUpdatePreview" : arguments.contains("-chat-presentation-preview") ? "ChatPresentationPreview" : arguments.contains("-roster-preview") ? "RosterPreview" : arguments.contains("-threads-preview") ? "ThreadPreview" : "StorePreview",
+               forResource: Self.listingFixtureName(arguments) ?? (arguments.contains("-images-preview") ? "ImagePreview" : arguments.contains("-approval-preview") ? "ApprovalPreview" : arguments.contains("-question-preview") ? "QuestionPreview" : arguments.contains("-chat-update-preview") ? "ChatUpdatePreview" : arguments.contains("-chat-presentation-preview") ? "ChatPresentationPreview" : arguments.contains("-roster-preview") ? "RosterPreview" : arguments.contains("-threads-preview") ? "ThreadPreview" : "StorePreview"),
                withExtension: "json"
            ),
            let data = try? Data(contentsOf: url),
@@ -367,6 +367,15 @@ final class Session: ObservableObject {
                let pages = try? JSONDecoder().decode([String: ThreadPage].self, from: pagesData) {
                 for (threadID, page) in pages { state.merge(page, intoThread: threadID) }
             }
+            if arguments.contains("-listing-preview"),
+               let listingURL = Bundle.main.url(
+                   forResource: Self.listingFixtureName(arguments),
+                   withExtension: "json"
+               ),
+               let listingData = try? Data(contentsOf: listingURL),
+               let listing = try? JSONDecoder().decode(ListingPreviewPages.self, from: listingData) {
+                for (threadID, page) in listing.pages { state.merge(page, intoThread: threadID) }
+            }
             if arguments.contains("-reset-list-density") {
                 // The fresh-install default is checked in UI tests; an
                 // earlier run on the same simulator may have saved a choice.
@@ -382,6 +391,15 @@ final class Session: ObservableObject {
     }
 
 #if DEBUG
+    private static func listingFixtureName(_ arguments: [String]) -> String? {
+        guard arguments.contains("-listing-preview") else { return nil }
+        return arguments.contains("-listing-id") ? "ListingPreview-id" : "ListingPreview"
+    }
+
+    private struct ListingPreviewPages: Decodable {
+        var pages: [String: ThreadPage]
+    }
+
     /// The preview fixtures' turn switch: flips one thread busy or idle with
     /// the same metadata-only bot frame the computer sends.
     func setPreviewTurn(busy: Bool, threadId: String) {
