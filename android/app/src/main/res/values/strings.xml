@@ -329,6 +329,7 @@
     <string name="mobile_running_steps">Running %1$s steps</string>
     <string name="mobile_ran_steps">Ran %1$s steps</string>
     <string name="mobile_pairing_failed">Pairing failed.</string>
+    <string name="mobile_link_no_browser">No browser on this phone can open this link.</string>
     <string name="mobile_pairing_no_address">That computer did not answer with an address. Enter the address shown in Phone settings instead.</string>
     <string name="mobile_pairing_invalid_address">Enter a secure https:// address, 192.168.1.42:8810, or a name like macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">That is not a Seira pairing QR code.</string>

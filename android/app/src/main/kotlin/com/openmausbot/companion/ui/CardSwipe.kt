@@ -145,10 +145,6 @@ internal fun SwipeableCardFrame(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit,
 ) {
-    if (!enabled) {
-        Box(modifier) { content() }
-        return
-    }
     val density = LocalDensity.current
     val view = LocalView.current
     val layoutDirection = LocalLayoutDirection.current
@@ -163,13 +159,9 @@ internal fun SwipeableCardFrame(
     val allowLabel = stringResource(R.string.mobile_card_swipe_allow)
     val denyLabel = stringResource(R.string.mobile_card_swipe_deny)
 
-    Box(
-        modifier = modifier
+    val swipeModifier = if (enabled) {
+        Modifier
             .testTag(CARD_SWIPE_FRAME_TAG)
-            .onGloballyPositioned {
-                widthPx = it.size.width.toFloat()
-                leftInWindow = it.positionInWindow().x
-            }
             .semantics {
                 customActions = listOf(
                     CustomAccessibilityAction(allowLabel) { latestOnDecision.value(SwipeSide.ALLOW); true },
@@ -216,7 +208,18 @@ internal fun SwipeableCardFrame(
                         scope.launch { springBack(travel) { travel = it } }
                     },
                 )
-            },
+            }
+    } else {
+        Modifier
+    }
+
+    Box(
+        modifier = modifier
+            .onGloballyPositioned {
+                widthPx = it.size.width.toFloat()
+                leftInWindow = it.positionInWindow().x
+            }
+            .then(swipeModifier),
     ) {
         Box(
             modifier = Modifier.graphicsLayer {

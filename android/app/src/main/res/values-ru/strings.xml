@@ -332,6 +332,7 @@
     <string name="mobile_running_steps">Выполняется шагов: %1$s</string>
     <string name="mobile_ran_steps">Выполнено шагов: %1$s</string>
     <string name="mobile_pairing_failed">Не удалось подключиться.</string>
+    <string name="mobile_link_no_browser">На этом телефоне нет браузера, который может открыть эту ссылку.</string>
     <string name="mobile_pairing_no_address">Этот компьютер не прислал адрес. Введите адрес, показанный в настройках телефона.</string>
     <string name="mobile_pairing_invalid_address">Введите защищённый адрес https://, 192.168.1.42:8810 или имя вида macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">Это не QR-код для подключения Seira.</string>

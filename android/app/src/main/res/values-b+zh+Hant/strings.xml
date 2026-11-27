@@ -326,6 +326,7 @@
     <string name="mobile_running_steps">正在執行 %1$s 個步驟</string>
     <string name="mobile_ran_steps">已執行 %1$s 個步驟</string>
     <string name="mobile_pairing_failed">配對失敗。</string>
+    <string name="mobile_link_no_browser">這支手機上沒有可以開啟此連結的瀏覽器。</string>
     <string name="mobile_pairing_no_address">這部電腦沒有回傳位址。請改為輸入其「手機」設定中顯示的位址。</string>
     <string name="mobile_pairing_invalid_address">請輸入安全的 https:// 位址、192.168.1.42:8810，或 macbook.tail1234.ts.net 這類名稱。</string>
     <string name="mobile_pairing_invalid_qr">這不是 Seira 配對 QR Code。</string>

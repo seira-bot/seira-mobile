@@ -76,20 +76,31 @@ internal object SeiraRunLink {
 
 /**
  * An address (never a credential) that a link handed to the pairing screen.
- * Kept in memory only. The screen takes it once.
+ * Kept in memory only. The screen takes it once, within [MAX_AGE_MILLIS] of the
+ * offer, so a link that never opened the screen cannot fill a later one.
  */
 internal object PairingAddressHandoff {
-    private val pending = MutableStateFlow<String?>(null)
-    val address: StateFlow<String?> = pending.asStateFlow()
+    const val MAX_AGE_MILLIS = 60_000L
+
+    internal var clock: () -> Long = { System.nanoTime() / 1_000_000 }
+
+    private class Offer(val origin: String, val atMillis: Long)
+
+    private val pending = MutableStateFlow<Offer?>(null)
+    private val current = MutableStateFlow<String?>(null)
+    val address: StateFlow<String?> = current.asStateFlow()
 
     fun offer(origin: String) {
-        pending.value = origin
+        pending.value = Offer(origin, clock())
+        current.value = origin
     }
 
     fun take(): String? {
         while (true) {
-            val current = pending.value ?: return null
-            if (pending.compareAndSet(current, null)) return current
+            val offer = pending.value ?: return null
+            if (!pending.compareAndSet(offer, null)) continue
+            current.value = null
+            return offer.origin.takeIf { clock() - offer.atMillis <= MAX_AGE_MILLIS }
         }
     }
 }
