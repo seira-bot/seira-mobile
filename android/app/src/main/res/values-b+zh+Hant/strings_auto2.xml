@@ -14,6 +14,7 @@
     <string name="auto2_view_label">日曆檢視</string>
     <string name="auto2_view_day">日</string>
     <string name="auto2_view_week">週</string>
+    <string name="auto2_week_empty_body">本週執行的例行工作會顯示在這裡。</string>
     <string name="auto2_week_row">%1$s，%2$s，%3$s，%4$s</string>
     <string name="auto2_actions_group">機器人操作</string>
     <string name="auto2_pin">釘選</string>

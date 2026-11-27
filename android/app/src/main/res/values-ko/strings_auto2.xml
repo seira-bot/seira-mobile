@@ -14,6 +14,7 @@
     <string name="auto2_view_label">캘린더 보기</string>
     <string name="auto2_view_day">일</string>
     <string name="auto2_view_week">주</string>
+    <string name="auto2_week_empty_body">이번 주에 실행되는 루틴이 여기에 표시돼요.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">봇 작업</string>
     <string name="auto2_pin">고정</string>

@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Không thể thêm phòng ban. Hãy thử lại.</string>
     <string name="home2_department_add">Thêm</string>
     <string name="home2_department_adding">Đang thêm</string>
+    <string name="home2_add_bots_partial">Một số thay đổi chưa được lưu. Hãy thử lại.</string>
+    <string name="home2_new_bot_not_filed">Đã tạo %1$s nhưng chưa nằm trong %2$s.</string>
+    <string name="home2_try_again">Thử lại</string>
+    <string name="home2_not_now">Để sau</string>
+    <string name="home2_waiting_count">%1$d đang chờ</string>
 </resources>

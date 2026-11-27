@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Vista calendario</string>
     <string name="auto2_view_day">Giorno</string>
     <string name="auto2_view_week">Settimana</string>
+    <string name="auto2_week_empty_body">Le routine che girano questa settimana compaiono qui.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Azioni del bot</string>
     <string name="auto2_pin">Fissa</string>

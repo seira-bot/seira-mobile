@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Die Abteilung konnte nicht hinzugefügt werden. Versuche es noch einmal.</string>
     <string name="home2_department_add">Hinzufügen</string>
     <string name="home2_department_adding">Wird hinzugefügt</string>
+    <string name="home2_add_bots_partial">Einige Änderungen wurden nicht gespeichert. Versuche es noch einmal.</string>
+    <string name="home2_new_bot_not_filed">%1$s wurde erstellt, ist aber nicht in %2$s.</string>
+    <string name="home2_try_again">Erneut versuchen</string>
+    <string name="home2_not_now">Nicht jetzt</string>
+    <string name="home2_waiting_count">%1$d warten</string>
 </resources>

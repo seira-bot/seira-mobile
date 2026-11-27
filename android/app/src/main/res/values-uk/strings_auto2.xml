@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Вигляд календаря</string>
     <string name="auto2_view_day">День</string>
     <string name="auto2_view_week">Тиждень</string>
+    <string name="auto2_week_empty_body">Тут з’являються рутини, що виконуються цього тижня.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Дії бота</string>
     <string name="auto2_pin">Закріпити</string>

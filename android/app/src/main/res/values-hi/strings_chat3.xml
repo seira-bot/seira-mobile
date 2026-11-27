@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">संदर्भ छोटा करें</string>
     <string name="chat3_context_compact_sub">पुराने संदेशों का सार बनाता है</string>
     <string name="chat3_context_compacting">छोटा किया जा रहा है…</string>
-    <string name="chat3_context_compacted">संदर्भ छोटा हो गया</string>
+    <string name="chat3_context_compacted">सार बनना शुरू हुआ</string>
+    <string name="chat3_context_wait">जवाब पूरा होने तक रुकें।</string>
     <string name="chat3_context_failed">इस बातचीत को छोटा नहीं किया जा सका। फिर कोशिश करें।</string>
     <string name="chat3_allow_session">इस सेशन के लिए अनुमति दें</string>
 </resources>

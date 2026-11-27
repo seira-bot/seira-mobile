@@ -14,6 +14,7 @@
     <string name="auto2_view_label">カレンダー表示</string>
     <string name="auto2_view_day">日</string>
     <string name="auto2_view_week">週</string>
+    <string name="auto2_week_empty_body">今週実行されるルーティンがここに表示されます。</string>
     <string name="auto2_week_row">%1$s、%2$s、%3$s、%4$s</string>
     <string name="auto2_actions_group">ボットの操作</string>
     <string name="auto2_pin">ピン留め</string>

@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Nie udało się dodać działu. Spróbuj ponownie.</string>
     <string name="home2_department_add">Dodaj</string>
     <string name="home2_department_adding">Dodawanie</string>
+    <string name="home2_add_bots_partial">Nie wszystkie zmiany zostały zapisane. Spróbuj ponownie.</string>
+    <string name="home2_new_bot_not_filed">Utworzono %1$s, ale nie jest w dziale %2$s.</string>
+    <string name="home2_try_again">Spróbuj ponownie</string>
+    <string name="home2_not_now">Nie teraz</string>
+    <string name="home2_waiting_count">Czeka: %1$d</string>
 </resources>

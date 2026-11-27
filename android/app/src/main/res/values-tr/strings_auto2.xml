@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Takvim görünümü</string>
     <string name="auto2_view_day">Gün</string>
     <string name="auto2_view_week">Hafta</string>
+    <string name="auto2_week_empty_body">Bu hafta çalışan rutinler burada görünür.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Bot eylemleri</string>
     <string name="auto2_pin">Sabitle</string>

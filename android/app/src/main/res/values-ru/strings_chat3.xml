@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Сжать контекст</string>
     <string name="chat3_context_compact_sub">Кратко пересказывает старые сообщения</string>
     <string name="chat3_context_compacting">Сжатие…</string>
-    <string name="chat3_context_compacted">Контекст сжат</string>
+    <string name="chat3_context_compacted">Пересказ начат</string>
+    <string name="chat3_context_wait">Подождите, пока ответ закончится.</string>
     <string name="chat3_context_failed">Не удалось сжать этот разговор. Попробуйте ещё раз.</string>
     <string name="chat3_allow_session">Разрешить в этом сеансе</string>
 </resources>

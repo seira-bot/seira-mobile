@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Bağlamı sıkıştır</string>
     <string name="chat3_context_compact_sub">Eski mesajları özetler</string>
     <string name="chat3_context_compacting">Sıkıştırılıyor…</string>
-    <string name="chat3_context_compacted">Bağlam sıkıştırıldı</string>
+    <string name="chat3_context_compacted">Özetleme başladı</string>
+    <string name="chat3_context_wait">Yanıt bitene kadar bekleyin.</string>
     <string name="chat3_context_failed">Bu konuşma sıkıştırılamadı. Tekrar deneyin.</string>
     <string name="chat3_allow_session">Bu oturumda izin ver</string>
 </resources>

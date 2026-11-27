@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">コンテキストを圧縮</string>
     <string name="chat3_context_compact_sub">古いメッセージを要約します</string>
     <string name="chat3_context_compacting">圧縮中…</string>
-    <string name="chat3_context_compacted">コンテキストを圧縮しました</string>
+    <string name="chat3_context_compacted">要約を開始しました</string>
+    <string name="chat3_context_wait">返信が終わるまでお待ちください。</string>
     <string name="chat3_context_failed">この会話を圧縮できませんでした。もう一度お試しください。</string>
     <string name="chat3_allow_session">このセッションでは許可</string>
 </resources>

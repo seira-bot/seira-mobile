@@ -36,4 +36,9 @@
     <string name="home2_department_failed">無法新增部門。請再試一次。</string>
     <string name="home2_department_add">新增</string>
     <string name="home2_department_adding">正在新增</string>
+    <string name="home2_add_bots_partial">部分變更未儲存。請再試一次。</string>
+    <string name="home2_new_bot_not_filed">已建立 %1$s，但它不在 %2$s 中。</string>
+    <string name="home2_try_again">再試一次</string>
+    <string name="home2_not_now">暫時不要</string>
+    <string name="home2_waiting_count">%1$d 個在等待</string>
 </resources>

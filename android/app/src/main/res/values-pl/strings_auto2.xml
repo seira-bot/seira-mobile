@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Widok kalendarza</string>
     <string name="auto2_view_day">Dzień</string>
     <string name="auto2_view_week">Tydzień</string>
+    <string name="auto2_week_empty_body">Rutyny uruchamiane w tym tygodniu pojawią się tutaj.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Akcje bota</string>
     <string name="auto2_pin">Przypnij</string>

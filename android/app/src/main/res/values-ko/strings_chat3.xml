@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">컨텍스트 압축</string>
     <string name="chat3_context_compact_sub">오래된 메시지를 요약해요</string>
     <string name="chat3_context_compacting">압축 중…</string>
-    <string name="chat3_context_compacted">컨텍스트를 압축했어요</string>
+    <string name="chat3_context_compacted">요약을 시작했어요</string>
+    <string name="chat3_context_wait">답변이 끝날 때까지 기다리세요.</string>
     <string name="chat3_context_failed">이 대화를 압축하지 못했어요. 다시 시도하세요.</string>
     <string name="chat3_allow_session">이 세션 동안 허용</string>
 </resources>

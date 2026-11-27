@@ -14,6 +14,7 @@
     <string name="auto2_view_label">日历视图</string>
     <string name="auto2_view_day">日</string>
     <string name="auto2_view_week">周</string>
+    <string name="auto2_week_empty_body">本周运行的例行工作会显示在这里。</string>
     <string name="auto2_week_row">%1$s，%2$s，%3$s，%4$s</string>
     <string name="auto2_actions_group">机器人操作</string>
     <string name="auto2_pin">固定</string>

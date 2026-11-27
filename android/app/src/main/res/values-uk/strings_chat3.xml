@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Стиснути контекст</string>
     <string name="chat3_context_compact_sub">Коротко переказує старі повідомлення</string>
     <string name="chat3_context_compacting">Стиснення…</string>
-    <string name="chat3_context_compacted">Контекст стиснуто</string>
+    <string name="chat3_context_compacted">Переказ розпочато</string>
+    <string name="chat3_context_wait">Зачекайте, доки відповідь закінчиться.</string>
     <string name="chat3_context_failed">Не вдалося стиснути цю розмову. Спробуйте ще раз.</string>
     <string name="chat3_allow_session">Дозволити в цій сесії</string>
 </resources>

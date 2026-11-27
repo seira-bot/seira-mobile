@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Skompresuj kontekst</string>
     <string name="chat3_context_compact_sub">Streszcza starsze wiadomości</string>
     <string name="chat3_context_compacting">Kompresowanie…</string>
-    <string name="chat3_context_compacted">Kontekst skompresowany</string>
+    <string name="chat3_context_compacted">Rozpoczęto streszczanie</string>
+    <string name="chat3_context_wait">Poczekaj, aż odpowiedź się skończy.</string>
     <string name="chat3_context_failed">Nie udało się skompresować tej rozmowy. Spróbuj ponownie.</string>
     <string name="chat3_allow_session">Zezwól w tej sesji</string>
 </resources>

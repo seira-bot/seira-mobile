@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Impossible d’ajouter le département. Réessayez.</string>
     <string name="home2_department_add">Ajouter</string>
     <string name="home2_department_adding">Ajout en cours</string>
+    <string name="home2_add_bots_partial">Certaines modifications n’ont pas été enregistrées. Réessayez.</string>
+    <string name="home2_new_bot_not_filed">%1$s a été créé, mais n’est pas dans %2$s.</string>
+    <string name="home2_try_again">Réessayer</string>
+    <string name="home2_not_now">Pas maintenant</string>
+    <string name="home2_waiting_count">%1$d en attente</string>
 </resources>

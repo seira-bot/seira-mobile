@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Chế độ xem lịch</string>
     <string name="auto2_view_day">Ngày</string>
     <string name="auto2_view_week">Tuần</string>
+    <string name="auto2_week_empty_body">Các tác vụ định kỳ chạy trong tuần này sẽ hiện ở đây.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Thao tác của bot</string>
     <string name="auto2_pin">Ghim</string>

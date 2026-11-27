@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Nén ngữ cảnh</string>
     <string name="chat3_context_compact_sub">Tóm tắt các tin nhắn cũ hơn</string>
     <string name="chat3_context_compacting">Đang nén…</string>
-    <string name="chat3_context_compacted">Đã nén ngữ cảnh</string>
+    <string name="chat3_context_compacted">Đã bắt đầu tóm tắt</string>
+    <string name="chat3_context_wait">Hãy chờ đến khi câu trả lời xong.</string>
     <string name="chat3_context_failed">Không thể nén cuộc trò chuyện này. Hãy thử lại.</string>
     <string name="chat3_allow_session">Cho phép trong phiên này</string>
 </resources>

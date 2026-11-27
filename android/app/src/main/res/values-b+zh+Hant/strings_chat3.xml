@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">壓縮上下文</string>
     <string name="chat3_context_compact_sub">摘要較早的訊息</string>
     <string name="chat3_context_compacting">正在壓縮…</string>
-    <string name="chat3_context_compacted">上下文已壓縮</string>
+    <string name="chat3_context_compacted">已開始摘要</string>
+    <string name="chat3_context_wait">請等回覆結束。</string>
     <string name="chat3_context_failed">無法壓縮此對話。請再試一次。</string>
     <string name="chat3_allow_session">本次工作階段允許</string>
 </resources>

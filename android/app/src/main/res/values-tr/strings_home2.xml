@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Departman eklenemedi. Tekrar deneyin.</string>
     <string name="home2_department_add">Ekle</string>
     <string name="home2_department_adding">Ekleniyor</string>
+    <string name="home2_add_bots_partial">Bazı değişiklikler kaydedilmedi. Tekrar deneyin.</string>
+    <string name="home2_new_bot_not_filed">%1$s oluşturuldu ama %2$s içinde değil.</string>
+    <string name="home2_try_again">Tekrar dene</string>
+    <string name="home2_not_now">Şimdi değil</string>
+    <string name="home2_waiting_count">%1$d bekliyor</string>
 </resources>

@@ -36,4 +36,9 @@
     <string name="home2_department_failed">部署を追加できませんでした。もう一度お試しください。</string>
     <string name="home2_department_add">追加</string>
     <string name="home2_department_adding">追加中</string>
+    <string name="home2_add_bots_partial">一部の変更を保存できませんでした。もう一度お試しください。</string>
+    <string name="home2_new_bot_not_filed">%1$s を作成しましたが、%2$s には入っていません。</string>
+    <string name="home2_try_again">もう一度試す</string>
+    <string name="home2_not_now">今はしない</string>
+    <string name="home2_waiting_count">%1$d 件待ち</string>
 </resources>

@@ -36,4 +36,9 @@
     <string name="home2_department_failed">विभाग जोड़ा नहीं जा सका। फिर कोशिश करें।</string>
     <string name="home2_department_add">जोड़ें</string>
     <string name="home2_department_adding">जोड़ा जा रहा है</string>
+    <string name="home2_add_bots_partial">कुछ बदलाव सहेजे नहीं गए। फिर कोशिश करें।</string>
+    <string name="home2_new_bot_not_filed">%1$s बन गया, लेकिन %2$s में नहीं है।</string>
+    <string name="home2_try_again">फिर कोशिश करें</string>
+    <string name="home2_not_now">अभी नहीं</string>
+    <string name="home2_waiting_count">%1$d इंतज़ार में</string>
 </resources>

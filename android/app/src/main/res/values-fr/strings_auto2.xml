@@ -14,6 +14,7 @@
     <string name="auto2_view_label">Vue du calendrier</string>
     <string name="auto2_view_day">Jour</string>
     <string name="auto2_view_week">Semaine</string>
+    <string name="auto2_week_empty_body">Les routines qui s’exécutent cette semaine s’affichent ici.</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">Actions du bot</string>
     <string name="auto2_pin">Épingler</string>

@@ -14,6 +14,7 @@
     <string name="auto2_view_label">कैलेंडर व्यू</string>
     <string name="auto2_view_day">दिन</string>
     <string name="auto2_view_week">सप्ताह</string>
+    <string name="auto2_week_empty_body">इस हफ़्ते चलने वाले रूटीन यहाँ दिखते हैं।</string>
     <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
     <string name="auto2_actions_group">बॉट कार्रवाइयाँ</string>
     <string name="auto2_pin">पिन करें</string>

@@ -36,4 +36,9 @@
     <string name="home2_department_failed">Не удалось добавить отдел. Попробуйте ещё раз.</string>
     <string name="home2_department_add">Добавить</string>
     <string name="home2_department_adding">Добавление</string>
+    <string name="home2_add_bots_partial">Некоторые изменения не сохранились. Попробуйте ещё раз.</string>
+    <string name="home2_new_bot_not_filed">%1$s создан, но не находится в отделе «%2$s».</string>
+    <string name="home2_try_again">Повторить</string>
+    <string name="home2_not_now">Не сейчас</string>
+    <string name="home2_waiting_count">Ждут: %1$d</string>
 </resources>
