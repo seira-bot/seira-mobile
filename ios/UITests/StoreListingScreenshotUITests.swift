@@ -57,7 +57,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
 
     @MainActor
     private func photographGlance(language: String) {
-        let app = launchFleet(language: language)
+        let app = launchFleet(language: language, activities: true)
         _ = app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 15)
         pause(6)
         XCUIDevice.shared.press(.home)
@@ -83,15 +83,6 @@ final class StoreListingScreenshotUITests: XCTestCase {
         app.terminate()
     }
 
-    private func collapseIsland() {
-        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
-        springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.4)).tap()
-        pause(2)
-        let from = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
-        from.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)))
-        pause(2)
-    }
-
     private func allowLiveActivities() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
         for label in ["Always Allow", "Allow"] {
@@ -107,7 +98,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
     private func photographPairing(language: String) {
         let app = XCUIApplication()
         app.terminate()
-        app.launchArguments = baseArguments(language: language)
+        app.launchArguments = baseArguments(language: language) + ["-store-no-activities"]
         app.launch()
         let connect = app.buttons["Connect computer"]
         if connect.waitForExistence(timeout: 15) {
@@ -123,11 +114,12 @@ final class StoreListingScreenshotUITests: XCTestCase {
     }
 
     @MainActor
-    private func launchFleet(language: String) -> XCUIApplication {
+    private func launchFleet(language: String, activities: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.terminate()
         var arguments = baseArguments(language: language)
         arguments += ["-store-preview", "-listing-preview"]
+        if !activities { arguments.append("-store-no-activities") }
         if language == "id" { arguments.append("-listing-id") }
         app.launchArguments = arguments
         app.launch()
@@ -137,7 +129,6 @@ final class StoreListingScreenshotUITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
         pause(8)
-        if device == "iphone" { collapseIsland() }
         return app
     }
 
