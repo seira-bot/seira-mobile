@@ -9,7 +9,7 @@ struct SettingsToggleRow: View {
     var body: some View {
         Toggle(isOn: $isOn) {
             HStack(spacing: 14) {
-                SettingsRowIcon(symbol: symbol)
+                SettingsLiveIcon(symbol: symbol, isOn: isOn)
                 VStack(alignment: .leading, spacing: 2) {
                     Text(title)
                         .font(.seira(15, .medium))

@@ -20778,6 +20778,28 @@
           }
         }
       }
+    },
+    "Hold to turn on Full": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Segure para ativar o modo Completa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住以开启“完整”"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "按住以開啟「完整」"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

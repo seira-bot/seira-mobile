@@ -107,9 +107,14 @@ struct ApprovalModeSheet: View {
                 .padding(.horizontal, 24)
                 .padding(.top, 24)
                 .padding(.bottom, 8)
-            ForEach(ModeChip.options(current: mode), id: \.self) { option in
-                optionRow(option)
+            if ModeLadder.showsCustom(current: mode) {
+                optionRow(.custom)
             }
+            ApprovalLadder(shown: mode, working: working) { target in
+                choose(target, acknowledged: false)
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 8)
             if let notice {
                 Text(notice.message)
                     .font(.seira(13, .regular))

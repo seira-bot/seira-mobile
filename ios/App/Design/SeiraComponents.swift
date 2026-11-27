@@ -187,39 +187,126 @@ struct SeiraToggleStyle: ToggleStyle {
         Button {
             configuration.isOn.toggle()
         } label: {
-            HStack {
-                configuration.label
-                Spacer(minLength: 12)
-                SeiraSwitch(isOn: configuration.isOn)
-            }
-            .frame(minHeight: 44)
-            .contentShape(Rectangle())
+            configuration.label
         }
-        .buttonStyle(.plain)
+        .buttonStyle(SeiraSwitchRowStyle(isOn: configuration.isOn))
         .feedback(.selection, trigger: configuration.isOn)
         .accessibilityAddTraits(.isButton)
         .accessibilityValue(configuration.isOn ? "On" : "Off")
     }
 }
 
-private struct SeiraSwitch: View {
+private struct SeiraSwitchRowStyle: ButtonStyle {
     let isOn: Bool
 
+    func makeBody(configuration: Configuration) -> some View {
+        HStack {
+            configuration.label
+            Spacer(minLength: 12)
+            SeiraSwitch(isOn: isOn, isPressed: configuration.isPressed)
+        }
+        .frame(minHeight: 44)
+        .contentShape(Rectangle())
+    }
+}
+
+private struct SwitchCheckShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX + rect.width * 0.12, y: rect.minY + rect.height * 0.55))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.4, y: rect.minY + rect.height * 0.82))
+        path.addLine(to: CGPoint(x: rect.minX + rect.width * 0.88, y: rect.minY + rect.height * 0.22))
+        return path
+    }
+}
+
+private struct SeiraSwitch: View {
+    let isOn: Bool
+    let isPressed: Bool
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var stretching = false
+
+    private var trackWidth: CGFloat { 51 }
+    private var trackHeight: CGFloat { 31 }
+    private var knobHeight: CGFloat { 27 }
+    private var inkDiameter: CGFloat { 80 }
+
+    private var widened: Bool { (isPressed || stretching) && !reduceMotion }
+    private var knobWidth: CGFloat { widened ? 33 : 27 }
+    private var knobX: CGFloat { isOn ? trackWidth - 2 - knobWidth : 2 }
+    private var restingKnobCenter: CGFloat { isOn ? trackWidth - 2 - knobHeight / 2 : 2 + knobHeight / 2 }
+
+    private var travelAnimation: Animation {
+        reduceMotion
+            ? Animation.easeOut(duration: SeiraMotion.fast)
+            : Animation.spring(response: 0.28, dampingFraction: 0.61)
+    }
+
+    private var inkAnimation: Animation {
+        reduceMotion
+            ? Animation.easeOut(duration: SeiraMotion.fast)
+            : Animation.timingCurve(0.22, 1, 0.36, 1, duration: 0.28)
+    }
+
+    private var stretchAnimation: Animation {
+        Animation.spring(response: 0.2, dampingFraction: 0.7)
+    }
+
     var body: some View {
-        Capsule()
-            .fill(isOn ? Color.seiraPrimary : Color.seiraTrackOff)
-            .frame(width: 51, height: 31)
-            .overlay(alignment: isOn ? .trailing : .leading) { knob }
-            .seiraAnimation(0.24, value: isOn)
+        track
+            .frame(width: trackWidth, height: trackHeight)
+            .overlay(alignment: .leading) { knob }
+            .onValueChange(of: isOn) { _ in stretch() }
             .accessibilityHidden(true)
     }
 
+    private var track: some View {
+        Capsule()
+            .fill(Color.seiraTrackOff)
+            .overlay(alignment: .leading) { ink }
+            .clipShape(Capsule())
+    }
+
+    @ViewBuilder private var ink: some View {
+        if reduceMotion {
+            Rectangle()
+                .fill(Color.seiraPrimary)
+                .opacity(isOn ? 1 : 0)
+                .animation(inkAnimation, value: isOn)
+        } else {
+            Circle()
+                .fill(Color.seiraPrimary)
+                .frame(width: inkDiameter, height: inkDiameter)
+                .scaleEffect(isOn ? 1 : 0.01)
+                .offset(x: restingKnobCenter - inkDiameter / 2)
+                .animation(inkAnimation, value: isOn)
+        }
+    }
+
     private var knob: some View {
-        Circle()
+        Capsule()
             .fill(isOn ? Color.seiraKnobOn : Color.seiraKnobOff)
-            .frame(width: 27, height: 27)
+            .frame(width: knobWidth, height: knobHeight)
             .shadow(color: .black.opacity(0.18), radius: 2, x: 0, y: 1)
-            .padding(2)
+            .overlay { check }
+            .offset(x: knobX)
+            .animation(travelAnimation, value: isOn)
+            .animation(stretchAnimation, value: widened)
+    }
+
+    private var check: some View {
+        SwitchCheckShape()
+            .trim(from: 0, to: reduceMotion || isOn ? 1 : 0)
+            .stroke(Color.seiraPrimary, style: StrokeStyle(lineWidth: 2.2, lineCap: .round, lineJoin: .round))
+            .frame(width: 11, height: 11)
+            .opacity(reduceMotion ? (isOn ? 1 : 0) : 1)
+            .animation(inkAnimation, value: isOn)
+    }
+
+    private func stretch() {
+        guard !reduceMotion else { return }
+        stretching = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.14) { stretching = false }
     }
 }
 

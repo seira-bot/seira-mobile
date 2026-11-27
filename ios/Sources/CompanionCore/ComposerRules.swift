@@ -46,6 +46,40 @@ public enum ModeRefusalReason: Equatable, Sendable {
     case providerUnsupported, stillConfirming, other
 }
 
+/// The approval ladder in the mode sheet: four steps from Ask to Full.
+public enum ModeLadder {
+    public static let steps: [ApprovalMode] = ApprovalMode.phoneChoices
+
+    /// How long a finger must rest on Full before it counts.
+    public static let holdMilliseconds = 700
+
+    /// The step of a mode, or nil when the mode has no step (Custom, unknown).
+    public static func index(of mode: ApprovalMode?) -> Int? {
+        guard let mode else { return nil }
+        return steps.firstIndex(of: mode)
+    }
+
+    /// Where the mode sits on the track, 0 for Ask to 1 for Full.
+    public static func fraction(of mode: ApprovalMode?) -> Double? {
+        guard let index = index(of: mode) else { return nil }
+        return Double(index) / Double(steps.count - 1)
+    }
+
+    /// The step nearest to a position on the track. A tie goes to the lower step.
+    public static func step(atFraction fraction: Double) -> ApprovalMode {
+        let last = Double(steps.count - 1)
+        let clamped = min(max(fraction.isNaN ? 0 : fraction, 0), 1)
+        let index = Int((clamped * last - 0.5).rounded(.up))
+        return steps[min(max(index, 0), steps.count - 1)]
+    }
+
+    /// Only Full needs a hold, because it never asks again.
+    public static func needsHold(_ mode: ApprovalMode) -> Bool { mode == .full }
+
+    /// Custom has no step, so the sheet shows it as its own row.
+    public static func showsCustom(current: ApprovalMode?) -> Bool { current == .custom }
+}
+
 public enum ModeChangeOutcome: Equatable, Sendable {
     case changed(ApprovalMode?)
     /// The computer needs a yes first. Ask, then call again with `acknowledged` true.

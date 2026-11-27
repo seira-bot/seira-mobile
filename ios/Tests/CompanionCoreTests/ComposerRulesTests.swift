@@ -183,4 +183,61 @@ final class ComposerRulesTests: XCTestCase {
         let out = ComposerReply.outgoing(replied: nil, typed: "Hi", hasAttachments: false, answersQuestion: false)
         XCTAssertEqual(out, ComposerOutgoing(text: "Hi", clearsReply: false))
     }
+
+    // MARK: - Approval ladder
+
+    func testTheLadderHasTheFourPhoneSteps() {
+        XCTAssertEqual(ModeLadder.steps, [.ask, .edits, .auto, .full])
+        XCTAssertEqual(ModeLadder.holdMilliseconds, 700)
+    }
+
+    func testEachStepHasAnIndexAndAFraction() {
+        XCTAssertEqual(ModeLadder.index(of: .ask), 0)
+        XCTAssertEqual(ModeLadder.index(of: .full), 3)
+        XCTAssertEqual(ModeLadder.fraction(of: .ask), 0)
+        XCTAssertEqual(ModeLadder.fraction(of: .edits) ?? -1, 1.0 / 3.0, accuracy: 1e-9)
+        XCTAssertEqual(ModeLadder.fraction(of: .auto) ?? -1, 2.0 / 3.0, accuracy: 1e-9)
+        XCTAssertEqual(ModeLadder.fraction(of: .full), 1)
+    }
+
+    func testNoModeAndCustomHaveNoStep() {
+        XCTAssertNil(ModeLadder.index(of: nil))
+        XCTAssertNil(ModeLadder.index(of: .custom))
+        XCTAssertNil(ModeLadder.fraction(of: nil))
+        XCTAssertNil(ModeLadder.fraction(of: .custom))
+    }
+
+    func testAPositionSnapsToTheNearestStep() {
+        XCTAssertEqual(ModeLadder.step(atFraction: 0), .ask)
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.16), .ask)
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.17), .edits)
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.33), .edits)
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.67), .auto)
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.84), .full)
+        XCTAssertEqual(ModeLadder.step(atFraction: 1), .full)
+    }
+
+    func testATieGoesToTheLowerStep() {
+        XCTAssertEqual(ModeLadder.step(atFraction: 0.5), .edits)
+    }
+
+    func testAPositionOutsideTheTrackIsClamped() {
+        XCTAssertEqual(ModeLadder.step(atFraction: -0.5), .ask)
+        XCTAssertEqual(ModeLadder.step(atFraction: 1.7), .full)
+        XCTAssertEqual(ModeLadder.step(atFraction: .nan), .ask)
+    }
+
+    func testOnlyFullNeedsAHold() {
+        XCTAssertTrue(ModeLadder.needsHold(.full))
+        XCTAssertFalse(ModeLadder.needsHold(.ask))
+        XCTAssertFalse(ModeLadder.needsHold(.edits))
+        XCTAssertFalse(ModeLadder.needsHold(.auto))
+        XCTAssertFalse(ModeLadder.needsHold(.custom))
+    }
+
+    func testCustomShowsOnlyWhileItIsTheCurrentMode() {
+        XCTAssertTrue(ModeLadder.showsCustom(current: .custom))
+        XCTAssertFalse(ModeLadder.showsCustom(current: .ask))
+        XCTAssertFalse(ModeLadder.showsCustom(current: nil))
+    }
 }
