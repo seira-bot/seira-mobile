@@ -34,9 +34,11 @@ final class VoiceNoteUITests: XCTestCase {
         // Pause: the clip is long enough that a hold means the label cannot
         // change — with seconds still to run, continued playback would keep
         // advancing the clock instead of freezing it.
+        // XCUITest takes one to three seconds to deliver a tap on a busy CI
+        // Mac, so read the clock only after the pause lands.
+        play.tap()
         let held = time.label
         XCTAssertTrue(held != "0:00 / 0:06")
-        play.tap()
         Thread.sleep(forTimeInterval: 1.2)
         XCTAssertEqual(time.label, held)
         record("Voice note paused", app)
