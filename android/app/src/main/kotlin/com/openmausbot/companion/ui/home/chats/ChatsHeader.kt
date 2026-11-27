@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
@@ -96,6 +97,7 @@ internal fun HeaderIconButton(
 /**
  * The heading of a group. A foldable one is a button with a chevron that turns
  * to the side when the group is folded; [trailing] holds the buttons at the end.
+ * A folded group shows how many of its bots wait for the person in [waitingCount].
  */
 @Composable
 internal fun GroupHeader(
@@ -106,6 +108,7 @@ internal fun GroupHeader(
     tag: String,
     startPadding: Dp,
     modifier: Modifier = Modifier,
+    waitingCount: Int = 0,
     trailing: @Composable RowScope.() -> Unit = {},
 ) {
     val colors = Seira.colors
@@ -132,7 +135,10 @@ internal fun GroupHeader(
                         .heightIn(min = 48.dp)
                         .clip(RoundedCornerShape(12.dp))
                         .clickable(role = Role.Button, onClick = onToggle)
-                        .semantics(mergeDescendants = true) { stateDescription = if (open) openLabel else foldedLabel }
+                        .semantics(mergeDescendants = true) {
+                            heading()
+                            stateDescription = if (open) openLabel else foldedLabel
+                        }
                         .padding(end = 12.dp),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -155,6 +161,9 @@ internal fun GroupHeader(
                             .size(13.dp)
                             .graphicsLayer { rotationZ = angle },
                     )
+                    if (!open && waitingCount > 0) {
+                        WaitingBadge(waitingCount, Modifier.testTag("$tag.waiting"))
+                    }
                 }
             } else {
                 Text(
@@ -172,6 +181,30 @@ internal fun GroupHeader(
             }
         }
         trailing()
+    }
+}
+
+/** A small accent dot with the number of bots that wait for the person. */
+@Composable
+private fun WaitingBadge(count: Int, modifier: Modifier = Modifier) {
+    val colors = Seira.colors
+    val label = stringResource(R.string.home2_waiting_count, count)
+    Box(
+        modifier = modifier
+            .heightIn(min = 18.dp)
+            .background(colors.accent, CircleShape)
+            .padding(horizontal = 6.dp)
+            .clearAndSetSemantics { contentDescription = label },
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = count.toString(),
+            fontSize = 11.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = colors.onPrimary,
+            maxLines = 1,
+        )
     }
 }
 

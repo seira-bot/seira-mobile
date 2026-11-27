@@ -57,6 +57,19 @@ class ChatPreferences(
     private val _advancedMode = MutableStateFlow(prefs.getBoolean(ADVANCED_MODE, false))
     val advancedMode: StateFlow<Boolean> = _advancedMode.asStateFlow()
 
+    /**
+     * The groups of the Chats tab that the person folded, by group key. Per
+     * phone, so a fold survives opening a chat and restarting the app.
+     */
+    private val _foldedGroups = MutableStateFlow(prefs.getStringSet(FOLDED_GROUPS, null).orEmpty().toSet())
+    val foldedGroups: StateFlow<Set<String>> = _foldedGroups.asStateFlow()
+
+    fun setFoldedGroups(keys: Set<String>) {
+        if (_foldedGroups.value == keys) return
+        prefs.edit().putStringSet(FOLDED_GROUPS, keys.toSet()).commit()
+        _foldedGroups.value = keys.toSet()
+    }
+
     fun setAdvancedMode(on: Boolean) {
         if (_advancedMode.value == on && prefs.contains(ADVANCED_MODE)) return
         prefs.edit().putBoolean(ADVANCED_MODE, on).commit()
@@ -134,6 +147,7 @@ class ChatPreferences(
         private const val ROSTER_DENSITY = "companion.prefs.rosterDensity"
         private const val LIVE_CAPTIONS = "companion.prefs.liveCaptions"
         private const val ADVANCED_MODE = "companion.prefs.advancedMode"
+        private const val FOLDED_GROUPS = "companion.prefs.foldedGroups"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"
