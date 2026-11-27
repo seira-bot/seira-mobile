@@ -1,5 +1,5 @@
 {
-  "note": "Layout and captions for the App Store screenshots. tools/compose.mjs reads this file. Screens come from ../raw/<device>-<lang>-<shot>.png, cast heads from the Play folder android/PlayStore/raw/cast/, night plates from android/PlayStore/graphics/source/bg/, and Geist from android/PlayStore/tools/fonts/. Sizes are canvas pixels. A box is [x, y, width, height] in raw pixels. Card boxes and screen crops are raw pixels. A card lifts one box out of the screen, or out of another raw when it has a src, at a larger scale. Title lines split on \\n, and the {hl} part takes the accent colour. A sub or title can hold one text per device when the devices differ.",
+  "note": "Layout and captions for the App Store screenshots. tools/compose.mjs reads this file. Screens come from ../raw/<device>-<lang>-<shot>.png, cast heads from the Play folder android/PlayStore/raw/cast/, night plates from android/PlayStore/graphics/source/bg/, and Geist from android/PlayStore/tools/fonts/. Sizes are canvas pixels. A box is [x, y, width, height] in raw pixels. Card boxes and screen crops are raw pixels. cropW and cropH keep only the left and top part of a raw screen. A shot with no raw for a device is left out of that layout. A card lifts one box out of the screen, or out of another raw when it has a src, at a larger scale. Title lines split on \\n, and the {hl} part takes the accent colour. A sub or title can hold one text per device when the devices differ.",
   "locales": {
     "en-US": "en",
     "id": "id"
@@ -63,6 +63,36 @@
         "y": 2150,
         "size": 560
       }
+    },
+    "iphone-duo": {
+      "device": "duo",
+      "size": [
+        2007,
+        2853
+      ],
+      "screen": {
+        "y": 760,
+        "width": 1140,
+        "radius": 96,
+        "cropW": 1146
+      },
+      "caption": {
+        "top": 130,
+        "width": 1820,
+        "title": 168,
+        "sub": 68,
+        "gap": 40,
+        "subWidth": 1640
+      },
+      "card": {
+        "scale": 0.82,
+        "radius": 48
+      },
+      "head": {
+        "x": -170,
+        "y": 2130,
+        "size": 760
+      }
     }
   },
   "thread": "M -80 1700 C 300 1520 700 1880 1080 1640 S 1800 1400 2160 1720 S 2900 1900 3240 1600 S 3900 1380 4320 1740 S 5050 1880 5400 1560 S 6100 1440 6600 1700",
@@ -72,7 +102,8 @@
       "plate": "night-b",
       "raw": {
         "iphone": "01-home",
-        "ipad": "01-home"
+        "ipad": "01-home",
+        "duo": "01-home"
       },
       "head": "seira",
       "title": {
@@ -95,6 +126,11 @@
           "y": 1180,
           "radius": 56
         }
+      },
+      "screen": {
+        "duo": {
+          "cropW": 1180
+        }
       }
     },
     {
@@ -102,7 +138,8 @@
       "plate": "night-a",
       "raw": {
         "iphone": "02-approval",
-        "ipad": "02-approval"
+        "ipad": "02-approval",
+        "duo": "02-approval"
       },
       "title": {
         "en-US": "When a bot asks,\n{you decide.}",
@@ -134,6 +171,16 @@
           "width": 1900,
           "y": 1500,
           "radius": 56
+        },
+        "duo": {
+          "box": [
+            40,
+            955,
+            1066,
+            690
+          ],
+          "width": 1560,
+          "radius": 80
         }
       }
     },
@@ -206,7 +253,8 @@
       "plate": "night-a",
       "raw": {
         "iphone": "04-live",
-        "ipad": "04-live"
+        "ipad": "04-live",
+        "duo": "04-live"
       },
       "title": {
         "en-US": "Watch the work\n{come in}",
@@ -235,7 +283,8 @@
       "plate": "night-b",
       "raw": {
         "iphone": "05-look",
-        "ipad": "05-look"
+        "ipad": "05-look",
+        "duo": "05-look"
       },
       "title": {
         "en-US": "Give every bot\n{its own face}",

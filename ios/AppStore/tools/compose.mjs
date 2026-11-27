@@ -118,13 +118,13 @@ const pages = [];
 for (const [layoutName, L] of Object.entries(spec.layouts)) {
   const [W, H] = L.size;
   const k = W / THREAD_W;
-  spec.shots.forEach((shot, i) => {
+  spec.shots.filter((shot) => shot.raw[L.device]).forEach((shot, i) => {
     for (const [loc, lang] of Object.entries(spec.locales)) {
       const rawFile = join(root, "raw", `${L.device}-${lang}-${shot.raw[L.device]}.png`);
       const [rw, rh0] = pngSize(rawFile);
       const sc = { ...L.screen, ...(shot.screen?.[L.device] ?? {}) };
       const rh = sc.cropH ?? rh0;
-      const s = sc.width / rw;
+      const s = sc.width / (sc.cropW ?? rw);
       const sx = Math.round((W - sc.width) / 2);
       const raw = url(rawFile);
       const screenH = Math.round(rh * s);
@@ -133,7 +133,7 @@ for (const [layoutName, L] of Object.entries(spec.layouts)) {
         `<div class="tint"></div>`,
         thread(spec.thread, i, W, H),
         `<div class="window" style="left:${sx}px;top:${sc.y}px;width:${sc.width}px;height:${screenH}px;border-radius:${sc.radius}px">
-  <img src="${raw}" alt="" style="left:0;top:0;width:${sc.width}px"><div class="ring"></div></div>`,
+  <img src="${raw}" alt="" style="left:0;top:0;width:${Math.round(rw * s)}px"><div class="ring"></div></div>`,
       ];
       if (shot.card) {
         for (const c of [].concat(shot.card[L.device] ?? [])) {
