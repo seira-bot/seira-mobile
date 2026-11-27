@@ -30,7 +30,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
         capture("01-home", language: language)
         home.terminate()
 
-        let approval = launchFleet(language: language)
+        let approval = launchFleet(language: language, advanced: true)
         openChat("Scout", in: approval)
         selectThread("preview-thread-scout", in: approval)
         _ = approval.buttons["Allow"].waitForExistence(timeout: 10)
@@ -114,12 +114,13 @@ final class StoreListingScreenshotUITests: XCTestCase {
     }
 
     @MainActor
-    private func launchFleet(language: String, activities: Bool = false) -> XCUIApplication {
+    private func launchFleet(language: String, activities: Bool = false, advanced: Bool = false) -> XCUIApplication {
         let app = XCUIApplication()
         app.terminate()
         var arguments = baseArguments(language: language)
         arguments += ["-store-preview", "-listing-preview"]
         if !activities { arguments.append("-store-no-activities") }
+        if advanced { arguments += ["-companion.prefs.advancedMode", "YES"] }
         if language == "id" { arguments.append("-listing-id") }
         app.launchArguments = arguments
         app.launch()
@@ -140,7 +141,6 @@ final class StoreListingScreenshotUITests: XCTestCase {
         [
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
-            "-companion.prefs.advancedMode", "YES",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ]
