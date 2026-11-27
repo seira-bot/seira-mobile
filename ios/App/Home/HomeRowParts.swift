@@ -166,3 +166,38 @@ struct HomeRowLabels: View {
         }
     }
 }
+
+/// A group chat in the Chats list. Compact density leaves out the line under its name.
+struct HomeRoomRow: View, Equatable {
+    let room: Room
+    let members: [Bot]
+    let lastActivity: Double
+    let today: Date
+    var waiting = false
+    var compact = false
+
+    private var busy: Bool { room.busyBotId != nil }
+
+    private var detail: String {
+        if waiting { return String(localized: "Waiting on you") }
+        return compact ? "" : Chat.room(room).subtitle
+    }
+
+    var body: some View {
+        HStack(spacing: HomeRowMetrics.gap) {
+            HomeRoomFaces(members: members)
+            HomeRowLabels(
+                title: room.name,
+                unread: room.unread && !busy,
+                stamp: busy ? "" : RelativeStamp.list(lastActivity),
+                detail: detail,
+                detailWaiting: waiting,
+                working: busy && !waiting,
+                compact: compact
+            )
+        }
+        .padding(.horizontal, HomeRowMetrics.side)
+        .frame(minHeight: compact ? HomeRowMetrics.compactHeight : HomeRowMetrics.minHeight)
+        .contentShape(Rectangle())
+    }
+}

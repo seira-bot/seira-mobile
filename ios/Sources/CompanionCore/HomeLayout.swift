@@ -56,8 +56,11 @@ public enum HomeLayoutRules {
         }
         let chief = state.unsectionedChief
         let others = state.pinnedBots + state.unsectionedBots
-        let rooms = state.unsectionedChannels + state.botChats
-        let fleetEmpty = chief == nil && others.isEmpty && sections.isEmpty && rooms.isEmpty
+        let shown = Set(sections.compactMap(\.name))
+        let rooms = state.rooms.filter {
+            $0.dm != true && !shown.contains($0.section?.trimmingCharacters(in: .whitespacesAndNewlines) ?? "")
+        } + state.botChats
+        let fleetEmpty = state.bots.allSatisfy { $0.hidden == true } && state.rooms.isEmpty && sections.isEmpty
         var groups: [HomeGroup] = []
         if advanced {
             if !others.isEmpty {
@@ -74,8 +77,8 @@ public enum HomeLayoutRules {
     }
 
     /// A department exists when a bot sits in it or the computer declares it.
-    /// A section that only channels name does not make one. The channels of
-    /// a department follow its bots.
+    /// A section that only channels name does not make one, so its channels
+    /// go to the group chats. The channels of a department follow its bots.
     private static func departments(_ state: CompanionState) -> [HomeGroup] {
         state.sidebarSections
             .filter { !$0.chiefs.isEmpty || !$0.bots.isEmpty || state.declaredSections.contains($0.name) }

@@ -545,12 +545,13 @@ struct ChatListView: View {
 
     private func roomRow(_ room: Room, home: HomeContext) -> some View {
         NavigationLink(value: Chat.room(room)) {
-            CompactRoomRow(
+            HomeRoomRow(
                 room: room,
                 members: members(of: room),
                 lastActivity: home.state.lastVisibleMessage(forThread: room.threadId)?.at ?? 0,
                 today: home.today,
-                waiting: home.waiting.contains(room.id)
+                waiting: home.waiting.contains(room.id),
+                compact: advancedMode && home.compact
             )
             .equatable()
         }

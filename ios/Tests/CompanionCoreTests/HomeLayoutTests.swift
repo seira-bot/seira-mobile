@@ -81,12 +81,21 @@ final class HomeLayoutTests: XCTestCase {
         XCTAssertEqual(ops?.bots.map(\.id), ["ops-chief", "ops-bot"])
     }
 
-    func testASectionOnlyChannelsNameIsNotADepartment() {
+    func testASectionOnlyChannelsNameIsNotADepartmentAndItsChannelsJoinGroupChats() {
         var other = state
         other.rooms.append(room("lone", section: "Lonely"))
         let layout = HomeLayoutRules.layout(other, advanced: false, department: nil)
         XCTAssertFalse(layout.groups.contains { $0.name == "Lonely" })
-        XCTAssertFalse(layout.groups.last?.rooms.contains { $0.id == "lone" } ?? true)
+        XCTAssertEqual(layout.groups.last?.rooms.map(\.id), ["group", "lone", "direct"])
+    }
+
+    func testNoChannelShowsTwice() {
+        var other = state
+        other.rooms.append(room("ops-room", section: "Ops"))
+        other.rooms.append(room("lone", section: "Lonely"))
+        let ids = HomeLayoutRules.layout(other, advanced: false, department: nil).groups.flatMap { $0.rooms.map(\.id) }
+        XCTAssertEqual(ids.count, Set(ids).count)
+        XCTAssertEqual(Set(ids), ["ops-room", "group", "lone", "direct"])
     }
 
     func testAdvancedModeGivesTheChiefItsOwnRow() {
@@ -262,6 +271,10 @@ final class HomeLayoutTests: XCTestCase {
         XCTAssertEqual(DepartmentRules.nameProblem("   ", existing), .empty)
         XCTAssertEqual(DepartmentRules.nameProblem(" Ops ", existing), .exists)
         XCTAssertNil(DepartmentRules.nameProblem(" Marketing ", existing))
+    }
+
+    func testADepartmentNameThatDiffersOnlyInCaseIsADuplicate() {
+        XCTAssertEqual(DepartmentRules.nameProblem("ops", ["Ops"]), .exists)
     }
 
     func testADepartmentNameStopsAtSixtyCharacters() {
