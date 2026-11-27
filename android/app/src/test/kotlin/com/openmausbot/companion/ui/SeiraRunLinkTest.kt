@@ -1,6 +1,7 @@
 package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.OnboardingPairingState
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -138,6 +139,21 @@ class SeiraRunLinkTest {
         PairingAddressHandoff.offer(origin)
         assertEquals(origin, PairingAddressHandoff.take())
         assertNull(PairingAddressHandoff.take())
+    }
+
+    @Test
+    fun `a revoked phone does not keep the address for a later pairing screen`() {
+        PairingAddressHandoff.take()
+        assertFalse(PairingAddressHandoff.offerIfPairingOpens(origin, OnboardingPairingState.REVOKED))
+        assertNull(PairingAddressHandoff.take())
+    }
+
+    @Test
+    fun `a paired or unpaired phone keeps the address for the pairing screen`() {
+        for (state in listOf(OnboardingPairingState.PAIRED, OnboardingPairingState.UNPAIRED)) {
+            assertTrue(PairingAddressHandoff.offerIfPairingOpens(origin, state))
+            assertEquals(origin, PairingAddressHandoff.take())
+        }
     }
 
     @Test

@@ -8,6 +8,7 @@ import android.os.Bundle
 import com.openmausbot.companion.ui.PairingHandoff
 import com.openmausbot.companion.ui.PairingAddressHandoff
 import com.openmausbot.companion.ui.PairingLink
+import com.openmausbot.companion.ui.onboardingPairingState
 import com.openmausbot.companion.ui.SeiraRunLink
 import com.openmausbot.companion.ui.SeiraRunRoute
 
@@ -67,7 +68,10 @@ class PairingLinkActivity : Activity() {
                     session.switchComputer(route.connectionId)
                 }
                 is SeiraRunRoute.FillAddress -> PairingHandoff.runThen(relaunch, ::finish) {
-                    PairingAddressHandoff.offer(route.origin)
+                    PairingAddressHandoff.offerIfPairingOpens(
+                        route.origin,
+                        onboardingPairingState(session.status.value, session.connection.value),
+                    )
                     session.beginPairing()
                 }
                 is SeiraRunRoute.OpenInBrowser -> {

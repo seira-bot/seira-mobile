@@ -1,6 +1,10 @@
 package com.openmausbot.companion.ui
 
 import com.openmausbot.companion.core.Connection
+import com.openmausbot.companion.core.OnboardingContext
+import com.openmausbot.companion.core.OnboardingPairingState
+import com.openmausbot.companion.core.OnboardingRoute
+import com.openmausbot.companion.core.OnboardingRouter
 import com.openmausbot.companion.core.PairingInvite
 import java.net.URI
 import java.net.URLDecoder
@@ -84,6 +88,20 @@ internal object PairingAddressHandoff {
 
     fun offer(origin: String) {
         pending.value = origin
+    }
+
+    /**
+     * Keeps [origin] only when a requested pairing would open the pairing
+     * screen. A revoked phone shows recovery instead, so nothing would take the
+     * address and it would fill a later pairing screen.
+     */
+    fun offerIfPairingOpens(origin: String, pairingState: OnboardingPairingState): Boolean {
+        val route = OnboardingRouter.route(
+            OnboardingContext(pairingState = pairingState, hasSeenWelcome = true, pairingRequested = true),
+        )
+        if (route != OnboardingRoute.PAIRING) return false
+        offer(origin)
+        return true
     }
 
     fun take(): String? {
