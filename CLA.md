@@ -63,7 +63,10 @@ That organization then has the rights of the Maintainer under this agreement.
 Tick this box in the description of your pull request:
 
 ```
-- [x] I have read CLA.md and I agree to it.
+- [x] I have read CLA.md version 1.0 and I agree to it.
 ```
+
+A bot then records your agreement in a comment on the pull request.
+The comment holds your GitHub user name and account id, the CLA version and the time.
 
 Your agreement covers each Contribution that you send to this repository, now and later.
