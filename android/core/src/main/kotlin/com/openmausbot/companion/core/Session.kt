@@ -2819,18 +2819,8 @@ class Session(
     }
 
     /** Move one bot to a department; an empty name means General. True only after the computer answers. */
-    suspend fun moveToDepartment(botId: String, name: String): Boolean {
-        val activeClient = client ?: return false
-        return try {
-            val updatedBots = activeClient.assignSection(name, listOf(botId))
-            currentCoroutineContext().ensureActive()
-            _state.update { state -> updatedBots.fold(state) { current, bot -> current.apply(Frame.Bot(bot)) } }
-            true
-        } catch (error: Throwable) {
-            if (error is kotlinx.coroutines.CancellationException) throw error
-            false
-        }
-    }
+    suspend fun moveToDepartment(botId: String, name: String): Boolean =
+        assignSection(name, listOf(botId), reportsError = false) != null
 
     suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
         val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)

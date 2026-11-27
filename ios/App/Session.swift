@@ -2551,14 +2551,7 @@ final class Session: ObservableObject {
 
     /// Moves one bot to a department; an empty name means General. True only after the computer answers.
     func moveToDepartment(botId: String, name: String) async -> Bool {
-        guard let client else { return false }
-        do {
-            let bots = try await client.assignSection(name: name, botIds: [botId])
-            for bot in bots { state.apply(.bot(bot)) }
-            return true
-        } catch {
-            return false
-        }
+        await assignSection(name: name, botIds: [botId], reportsError: false) != nil
     }
 
     func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
