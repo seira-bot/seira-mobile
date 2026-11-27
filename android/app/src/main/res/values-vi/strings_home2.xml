@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Bot</string>
+    <string name="home2_group_chats">Trò chuyện nhóm</string>
+    <string name="home2_search">Tìm trò chuyện và bot</string>
+    <string name="home2_new_group">Nhóm mới</string>
+    <string name="home2_department_empty">Phòng ban này chưa có bot nào.</string>
+    <string name="home2_show_all">Hiện tất cả trò chuyện</string>
+    <string name="home2_department_actions">Thao tác cho phòng ban %1$s</string>
+    <string name="home2_department_add_bots_label">Thêm hoặc gỡ bot trong %1$s</string>
+    <string name="home2_fold_open">Mở</string>
+    <string name="home2_fold_folded">Đã thu gọn</string>
+    <string name="home2_chief">Chánh văn phòng</string>
+    <string name="home2_waiting">Đang chờ bạn</string>
+    <string name="home2_problem">Cần xem qua</string>
+    <string name="home2_working">Đang làm việc</string>
+    <string name="home2_menu_add_bots">Thêm bot</string>
+    <string name="home2_menu_new_bot">Bot mới tại đây</string>
+    <string name="home2_add_bots_title">Thêm bot vào %1$s</string>
+    <string name="home2_add_bots_save">Lưu</string>
+    <string name="home2_add_bots_saving">Đang lưu</string>
+    <string name="home2_add_bots_failed">Không thể lưu. Hãy thử lại.</string>
+    <string name="home2_add_bots_nothing">Không có bot nào để thêm.</string>
+    <string name="home2_bot_in_department">Trong %1$s</string>
+    <string name="home2_bot_unassigned">Bot</string>
+    <string name="home2_cancel">Hủy</string>
+    <string name="home2_settings_advanced_title">Chế độ nâng cao</string>
+    <string name="home2_settings_advanced_body">Nhiều menu và công cụ hơn, như trên máy tính của bạn.</string>
+    <string name="home2_team_add_department">Thêm phòng ban</string>
+    <string name="home2_team_department_empty">Phòng ban này chưa có bot nào.</string>
+    <string name="home2_department_title">Thêm phòng ban</string>
+    <string name="home2_department_name">Tên phòng ban</string>
+    <string name="home2_department_placeholder">Tiếp thị</string>
+    <string name="home2_department_exists">Tên này đã được dùng.</string>
+    <string name="home2_department_needed">Hãy đặt tên cho phòng ban.</string>
+    <string name="home2_department_failed">Không thể thêm phòng ban. Hãy thử lại.</string>
+    <string name="home2_department_add">Thêm</string>
+    <string name="home2_department_adding">Đang thêm</string>
+</resources>

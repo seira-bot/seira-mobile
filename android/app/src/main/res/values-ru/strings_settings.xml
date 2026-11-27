@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">Нет связи с компьютером</string>
     <string name="settings_reconnect">Подключиться снова</string>
-    <string name="update_banner_downloading">Загрузка обновления…</string>
-    <string name="update_banner_ready">Обновление готово. Перезапустите Seira</string>
-    <string name="update_banner_restart">Перезапустить</string>
-    <string name="settings_check_updates">Проверить обновления</string>
-    <string name="settings_update_checking">Проверяем…</string>
-    <string name="settings_update_found">Загрузка обновления</string>
-    <string name="settings_update_current">Установлена последняя версия</string>
     <string name="ai_usage_title">Использование ИИ</string>
     <string name="ai_usage_window_five_hour">Лимит на 5 часов</string>
     <string name="ai_usage_window_weekly">Недельный лимит</string>
@@ -46,4 +39,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">Токенов: %1$s · ход: 1</string>
     <string name="ai_usage_conversation_cost">%1$s · около %2$s</string>
     <string name="ai_usage_conversation_context">Контекст: %1$s из %2$s</string>
+    <string name="update_banner_downloading">Загрузка обновления…</string>
+    <string name="update_banner_ready">Обновление готово. Перезапустите Seira</string>
+    <string name="update_banner_restart">Перезапустить</string>
+    <string name="settings_check_updates">Проверить обновления</string>
+    <string name="settings_update_checking">Проверяем…</string>
+    <string name="settings_update_found">Загрузка обновления</string>
+    <string name="settings_update_current">Установлена последняя версия</string>
 </resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Botlar</string>
+    <string name="home2_group_chats">Grup sohbetleri</string>
+    <string name="home2_search">Sohbetlerde ve botlarda ara</string>
+    <string name="home2_new_group">Yeni grup</string>
+    <string name="home2_department_empty">Bu departmanda bot yok.</string>
+    <string name="home2_show_all">Tüm sohbetleri göster</string>
+    <string name="home2_department_actions">%1$s departmanı için eylemler</string>
+    <string name="home2_department_add_bots_label">%1$s departmanında bot ekle veya çıkar</string>
+    <string name="home2_fold_open">Açık</string>
+    <string name="home2_fold_folded">Daraltılmış</string>
+    <string name="home2_chief">Kurmay başkanı</string>
+    <string name="home2_waiting">Sizi bekliyor</string>
+    <string name="home2_problem">Göz atılmalı</string>
+    <string name="home2_working">Çalışıyor</string>
+    <string name="home2_menu_add_bots">Bot ekle</string>
+    <string name="home2_menu_new_bot">Buraya yeni bot</string>
+    <string name="home2_add_bots_title">%1$s departmanına bot ekle</string>
+    <string name="home2_add_bots_save">Kaydet</string>
+    <string name="home2_add_bots_saving">Kaydediliyor</string>
+    <string name="home2_add_bots_failed">Kaydedilemedi. Tekrar deneyin.</string>
+    <string name="home2_add_bots_nothing">Eklenecek bot yok.</string>
+    <string name="home2_bot_in_department">%1$s içinde</string>
+    <string name="home2_bot_unassigned">Botlar</string>
+    <string name="home2_cancel">İptal</string>
+    <string name="home2_settings_advanced_title">Gelişmiş mod</string>
+    <string name="home2_settings_advanced_body">Bilgisayarınızdaki gibi daha fazla menü ve araç.</string>
+    <string name="home2_team_add_department">Departman ekle</string>
+    <string name="home2_team_department_empty">Bu departmanda bot yok.</string>
+    <string name="home2_department_title">Departman ekle</string>
+    <string name="home2_department_name">Departman adı</string>
+    <string name="home2_department_placeholder">Pazarlama</string>
+    <string name="home2_department_exists">Bu ad zaten kullanılıyor.</string>
+    <string name="home2_department_needed">Departmana bir ad verin.</string>
+    <string name="home2_department_failed">Departman eklenemedi. Tekrar deneyin.</string>
+    <string name="home2_department_add">Ekle</string>
+    <string name="home2_department_adding">Ekleniyor</string>
+</resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Боты</string>
+    <string name="home2_group_chats">Групповые чаты</string>
+    <string name="home2_search">Поиск чатов и ботов</string>
+    <string name="home2_new_group">Новая группа</string>
+    <string name="home2_department_empty">В этом отделе нет ботов.</string>
+    <string name="home2_show_all">Показать все чаты</string>
+    <string name="home2_department_actions">Действия для отдела «%1$s»</string>
+    <string name="home2_department_add_bots_label">Добавить или убрать ботов в отделе «%1$s»</string>
+    <string name="home2_fold_open">Развёрнуто</string>
+    <string name="home2_fold_folded">Свёрнуто</string>
+    <string name="home2_chief">Руководитель аппарата</string>
+    <string name="home2_waiting">Ждёт вас</string>
+    <string name="home2_problem">Нужно проверить</string>
+    <string name="home2_working">Работает</string>
+    <string name="home2_menu_add_bots">Добавить ботов</string>
+    <string name="home2_menu_new_bot">Новый бот здесь</string>
+    <string name="home2_add_bots_title">Добавить ботов в отдел «%1$s»</string>
+    <string name="home2_add_bots_save">Сохранить</string>
+    <string name="home2_add_bots_saving">Сохранение</string>
+    <string name="home2_add_bots_failed">Не удалось сохранить. Попробуйте ещё раз.</string>
+    <string name="home2_add_bots_nothing">Нет ботов для добавления.</string>
+    <string name="home2_bot_in_department">В отделе «%1$s»</string>
+    <string name="home2_bot_unassigned">Боты</string>
+    <string name="home2_cancel">Отмена</string>
+    <string name="home2_settings_advanced_title">Расширенный режим</string>
+    <string name="home2_settings_advanced_body">Больше меню и инструментов, как на компьютере.</string>
+    <string name="home2_team_add_department">Добавить отдел</string>
+    <string name="home2_team_department_empty">В этом отделе нет ботов.</string>
+    <string name="home2_department_title">Добавить отдел</string>
+    <string name="home2_department_name">Название отдела</string>
+    <string name="home2_department_placeholder">Маркетинг</string>
+    <string name="home2_department_exists">Это название уже занято.</string>
+    <string name="home2_department_needed">Дайте отделу название.</string>
+    <string name="home2_department_failed">Не удалось добавить отдел. Попробуйте ещё раз.</string>
+    <string name="home2_department_add">Добавить</string>
+    <string name="home2_department_adding">Добавление</string>
+</resources>

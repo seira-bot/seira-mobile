@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Zmień nazwę</string>
+    <string name="chat3_menu_copy_markdown">Kopiuj jako Markdown</string>
+    <string name="chat3_menu_download_markdown">Pobierz .md</string>
+    <string name="chat3_menu_activity">Aktywność</string>
+    <string name="chat3_copied">Skopiowano</string>
+    <string name="chat3_rename_heading">Zmień nazwę wątku</string>
+    <string name="chat3_rename_label">Tytuł</string>
+    <string name="chat3_rename_save">Zapisz</string>
+    <string name="chat3_rename_cancel">Anuluj</string>
+    <string name="chat3_rename_failed">Nie udało się zmienić nazwy tego wątku. Spróbuj ponownie.</string>
+    <string name="chat3_tool_teach">Naucz</string>
+    <string name="chat3_tool_teach_a11y">Naucz nowej umiejętności</string>
+    <string name="chat3_tool_goal">Cel</string>
+    <string name="chat3_tool_goal_a11y">Ustaw cel</string>
+    <string name="chat3_tool_context">Kontekst %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Kontekst, wykorzystano %1$d procent. Dotknij, aby zobaczyć szczegóły.</string>
+    <string name="chat3_context_title">Kontekst</string>
+    <string name="chat3_context_bar_a11y">Wykorzystano %1$d procent</string>
+    <string name="chat3_context_usage">Wykorzystano %1$s z %2$s tokenów</string>
+    <string name="chat3_context_compact">Skompresuj kontekst</string>
+    <string name="chat3_context_compact_sub">Streszcza starsze wiadomości</string>
+    <string name="chat3_context_compacting">Kompresowanie…</string>
+    <string name="chat3_context_compacted">Kontekst skompresowany</string>
+    <string name="chat3_context_failed">Nie udało się skompresować tej rozmowy. Spróbuj ponownie.</string>
+    <string name="chat3_allow_session">Zezwól w tej sesji</string>
+</resources>

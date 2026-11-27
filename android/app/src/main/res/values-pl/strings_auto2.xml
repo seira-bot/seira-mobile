@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Co ma się wydarzyć?</string>
+    <string name="auto2_sheet_title">Co ma się wydarzyć?</string>
+    <string name="auto2_describe_label">Opisz to</string>
+    <string name="auto2_describe_placeholder">Codziennie rano o 9 podsumuj moją skrzynkę odbiorczą</string>
+    <string name="auto2_who_sub">Kto ma się tym zająć?</string>
+    <string name="auto2_who_title">Kto ma się tym zająć?</string>
+    <string name="auto2_who_row">%1$s, kto ma się tym zająć? Dotknij, aby zmienić.</string>
+    <string name="auto2_who_selected">%1$s, wybrano</string>
+    <string name="auto2_set_up_yourself">Skonfiguruj samodzielnie</string>
+    <string name="auto2_set_up">Skonfiguruj</string>
+    <string name="auto2_set_up_needs_text">Najpierw opisz, co ma się wydarzyć.</string>
+    <string name="auto2_view_label">Widok kalendarza</string>
+    <string name="auto2_view_day">Dzień</string>
+    <string name="auto2_view_week">Tydzień</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Akcje bota</string>
+    <string name="auto2_pin">Przypnij</string>
+    <string name="auto2_unpin">Odepnij</string>
+    <string name="auto2_mark_unread">Oznacz jako nieprzeczytane</string>
+    <string name="auto2_mark_all_read">Oznacz wszystkie rozmowy jako przeczytane</string>
+    <string name="auto2_move_department">Przenieś do działu</string>
+    <string name="auto2_copy_id">Kopiuj identyfikator rozmowy</string>
+    <string name="auto2_done_pinned">Przypięto</string>
+    <string name="auto2_done_unpinned">Odpięto</string>
+    <string name="auto2_done_unread">Oznaczono jako nieprzeczytane</string>
+    <string name="auto2_done_all_read">Wszystko przeczytane</string>
+    <string name="auto2_done_moved">Przeniesiono</string>
+    <string name="auto2_done_copied">Skopiowano</string>
+    <string name="auto2_failed">Nie udało się zapisać. Spróbuj ponownie.</string>
+    <string name="auto2_department_title">Przenieś do działu</string>
+    <string name="auto2_department_general">Ogólne</string>
+    <string name="auto2_department_current">%1$s, bieżący</string>
+    <string name="auto2_department_new">Nowy dział…</string>
+    <string name="auto2_department_name">Nazwa działu</string>
+    <string name="auto2_department_move">Przenieś</string>
+</resources>

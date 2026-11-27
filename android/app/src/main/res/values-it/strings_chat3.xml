@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Rinomina</string>
+    <string name="chat3_menu_copy_markdown">Copia come Markdown</string>
+    <string name="chat3_menu_download_markdown">Scarica .md</string>
+    <string name="chat3_menu_activity">Attività</string>
+    <string name="chat3_copied">Copiato</string>
+    <string name="chat3_rename_heading">Rinomina conversazione</string>
+    <string name="chat3_rename_label">Titolo</string>
+    <string name="chat3_rename_save">Salva</string>
+    <string name="chat3_rename_cancel">Annulla</string>
+    <string name="chat3_rename_failed">Impossibile rinominare questa conversazione. Riprova.</string>
+    <string name="chat3_tool_teach">Insegna</string>
+    <string name="chat3_tool_teach_a11y">Insegna una nuova abilità</string>
+    <string name="chat3_tool_goal">Obiettivo</string>
+    <string name="chat3_tool_goal_a11y">Imposta un obiettivo</string>
+    <string name="chat3_tool_context">Contesto %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Contesto, %1$d per cento usato. Tocca per i dettagli.</string>
+    <string name="chat3_context_title">Contesto</string>
+    <string name="chat3_context_bar_a11y">%1$d per cento usato</string>
+    <string name="chat3_context_usage">%1$s di %2$s token usati</string>
+    <string name="chat3_context_compact">Compatta il contesto</string>
+    <string name="chat3_context_compact_sub">Riassume i messaggi più vecchi</string>
+    <string name="chat3_context_compacting">Compattazione…</string>
+    <string name="chat3_context_compacted">Contesto compattato</string>
+    <string name="chat3_context_failed">Impossibile compattare questa conversazione. Riprova.</string>
+    <string name="chat3_allow_session">Consenti in questa sessione</string>
+</resources>

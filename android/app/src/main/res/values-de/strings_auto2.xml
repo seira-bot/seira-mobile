@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Was soll passieren?</string>
+    <string name="auto2_sheet_title">Was soll passieren?</string>
+    <string name="auto2_describe_label">Beschreibe es</string>
+    <string name="auto2_describe_placeholder">Jeden Morgen um 9 meinen Posteingang zusammenfassen</string>
+    <string name="auto2_who_sub">Wer soll es übernehmen?</string>
+    <string name="auto2_who_title">Wer soll es übernehmen?</string>
+    <string name="auto2_who_row">%1$s, wer soll es übernehmen? Tippe zum Ändern.</string>
+    <string name="auto2_who_selected">%1$s, ausgewählt</string>
+    <string name="auto2_set_up_yourself">Selbst einrichten</string>
+    <string name="auto2_set_up">Einrichten</string>
+    <string name="auto2_set_up_needs_text">Beschreibe zuerst, was passieren soll.</string>
+    <string name="auto2_view_label">Kalenderansicht</string>
+    <string name="auto2_view_day">Tag</string>
+    <string name="auto2_view_week">Woche</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Bot-Aktionen</string>
+    <string name="auto2_pin">Anheften</string>
+    <string name="auto2_unpin">Anheften aufheben</string>
+    <string name="auto2_mark_unread">Als ungelesen markieren</string>
+    <string name="auto2_mark_all_read">Alle Unterhaltungen als gelesen markieren</string>
+    <string name="auto2_move_department">In Abteilung verschieben</string>
+    <string name="auto2_copy_id">Unterhaltungs-ID kopieren</string>
+    <string name="auto2_done_pinned">Angeheftet</string>
+    <string name="auto2_done_unpinned">Nicht mehr angeheftet</string>
+    <string name="auto2_done_unread">Als ungelesen markiert</string>
+    <string name="auto2_done_all_read">Alles gelesen</string>
+    <string name="auto2_done_moved">Verschoben</string>
+    <string name="auto2_done_copied">Kopiert</string>
+    <string name="auto2_failed">Speichern fehlgeschlagen. Versuche es noch einmal.</string>
+    <string name="auto2_department_title">In Abteilung verschieben</string>
+    <string name="auto2_department_general">Allgemein</string>
+    <string name="auto2_department_current">%1$s, aktuell</string>
+    <string name="auto2_department_new">Neue Abteilung…</string>
+    <string name="auto2_department_name">Name der Abteilung</string>
+    <string name="auto2_department_move">Verschieben</string>
+</resources>
