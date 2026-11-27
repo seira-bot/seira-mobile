@@ -42,7 +42,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.drawscope.Stroke
+import com.openmausbot.companion.ui.HapticCue
+import com.openmausbot.companion.ui.rememberHaptics
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -75,6 +83,7 @@ import kotlinx.coroutines.launch
 internal fun RoutineListPane(
     onOpenChat: (Chat) -> Unit,
     onEdit: (Routine) -> Unit,
+    onWhatShouldHappen: () -> Unit,
     reloadSignal: Int,
     modifier: Modifier = Modifier,
 ) {
@@ -133,6 +142,10 @@ internal fun RoutineListPane(
                 .testTag("automations-list"),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 24.dp),
         ) {
+            item(key = "what-should-happen") {
+                WhatShouldHappenEntry(onClick = onWhatShouldHappen)
+            }
+
             item(key = "intro") {
                 Text(
                     text = stringResource(R.string.automations_intro),
@@ -258,6 +271,47 @@ internal fun RoutineListPane(
             },
         )
     }
+}
+
+/** The inviting top row: a dashed outline, as in the design. */
+@Composable
+private fun WhatShouldHappenEntry(onClick: () -> Unit) {
+    val colors = Seira.colors
+    val shape = RoundedCornerShape(18.dp)
+    val haptics = rememberHaptics()
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp)
+            .heightIn(min = 52.dp)
+            .dashedOutline(colors.line2, shape)
+            .clip(shape)
+            .clickable(role = Role.Button) {
+                haptics.play(HapticCue.SELECT)
+                onClick()
+            }
+            .padding(horizontal = 16.dp)
+            .testTag("automations-what-should-happen"),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(R.string.auto2_entry),
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Medium,
+            color = colors.ink,
+            modifier = Modifier.weight(1f),
+        )
+    }
+}
+
+private fun Modifier.dashedOutline(color: Color, shape: RoundedCornerShape): Modifier = drawBehind {
+    val outline = shape.createOutline(size, layoutDirection, this)
+    val path = (outline as? Outline.Rounded)?.let { Path().apply { addRoundRect(it.roundRect) } } ?: return@drawBehind
+    drawPath(
+        path = path,
+        color = color,
+        style = Stroke(width = 1.dp.toPx(), pathEffect = PathEffect.dashPathEffect(floatArrayOf(6.dp.toPx(), 4.dp.toPx()))),
+    )
 }
 
 @Composable

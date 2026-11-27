@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -60,6 +61,10 @@ import com.openmausbot.companion.core.Routine
 import com.openmausbot.companion.core.RoutineCalendar
 import com.openmausbot.companion.core.RoutineCalendarItem
 import com.openmausbot.companion.core.RoutineRun
+import com.openmausbot.companion.core.RoutineWeekRow
+import com.openmausbot.companion.core.RoutineWeekStatus
+import com.openmausbot.companion.ui.theme.Seira
+import com.openmausbot.companion.ui.theme.SegmentedControl
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -112,6 +117,18 @@ internal fun RoutineCalendarScreen(
     val counts = remember(routines, runs, week) { week.map { RoutineCalendar.items(routines, runs, it, zone).size } }
     val dayItems = remember(routines, runs, selectedDay) { RoutineCalendar.items(routines, runs, selected, zone) }
     fun shiftWeek(weeks: Long) { selectedDay = selected.plusWeeks(weeks).toEpochDay() }
+    var weekMode by rememberSaveable { mutableStateOf(CalendarViewMemory.week) }
+    val weekRows = remember(routines, runs, today) { RoutineCalendar.weekRows(routines, runs, today, zone) }
+
+    fun openItem(item: RoutineCalendarItem) {
+        val target = item.run?.let { NotificationTarget.from(it.botId, it.threadId) }
+        if (target != null) {
+            // A run opens the thread its results went to.
+            scope.launch { session.openNotification(target)?.let(onOpenChat) }
+        } else {
+            item.routine?.let { editor = RoutineEditorTarget.edit(it) }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Row(
@@ -144,7 +161,24 @@ internal fun RoutineCalendarScreen(
             }
         }
 
-        Row(
+        val viewLabel = stringResource(R.string.auto2_view_label)
+        SegmentedControl(
+            options = listOf(
+                stringResource(R.string.auto2_view_day) to null,
+                stringResource(R.string.auto2_view_week) to null,
+            ),
+            selectedIndex = if (weekMode) 1 else 0,
+            onSelect = {
+                weekMode = it == 1
+                CalendarViewMemory.week = weekMode
+            },
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 6.dp)
+                .semantics { contentDescription = viewLabel }
+                .testTag("calendar-view-switch"),
+        )
+
+        if (!weekMode) Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 4.dp, vertical = 6.dp)
@@ -184,7 +218,27 @@ internal fun RoutineCalendarScreen(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(vertical = 8.dp),
         ) {
-            if (dayItems.isEmpty() && !loading) {
+            if (weekMode) {
+                if (weekRows.isEmpty() && !loading) {
+                    item(key = "week-empty") {
+                        Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+                            Text(stringResource(R.string.mobile_calendar_empty_title), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.mobile_calendar_empty_body), fontSize = 14.sp, color = secondaryTint)
+                        }
+                    }
+                }
+                items(weekRows, key = { it.item.id }) { row ->
+                    WeekRunRow(
+                        row = row,
+                        bot = state.bot(row.item.run?.botId ?: row.item.routine?.botId ?: ""),
+                        zone = zone,
+                        locale = locale,
+                        onClick = { openItem(row.item) },
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(start = 20.dp))
+                }
+            }
+            if (!weekMode && dayItems.isEmpty() && !loading) {
                 item(key = "empty") {
                     Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
                         Text(stringResource(R.string.mobile_calendar_empty_title), fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
@@ -192,7 +246,7 @@ internal fun RoutineCalendarScreen(
                     }
                 }
             }
-            items(dayItems, key = { it.id }) { item ->
+            items(if (weekMode) emptyList() else dayItems, key = { it.id }) { item ->
                 CalendarRunRow(
                     item = item,
                     bot = state.bot(item.run?.botId ?: item.routine?.botId ?: ""),
@@ -284,6 +338,65 @@ private fun DayCell(
                 .size(5.dp)
                 .background(if (count > 0) secondaryTint else Color.Transparent, CircleShape),
         )
+    }
+}
+
+/** The last choice of Day or Week, kept while the app runs. */
+internal object CalendarViewMemory {
+    var week: Boolean = false
+}
+
+/** One run in the week list: weekday and time, what, for whom, and how it went. */
+@Composable
+private fun WeekRunRow(
+    row: RoutineWeekRow,
+    bot: Bot?,
+    zone: ZoneId,
+    locale: Locale,
+    onClick: () -> Unit,
+) {
+    val item = row.item
+    val moment = Instant.ofEpochMilli(item.at.toLong()).atZone(zone)
+    val whenText = moment.format(DateTimeFormatter.ofPattern("EEE", locale)) + " " +
+        moment.format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(locale))
+    val name = item.routine?.name ?: item.run?.routineName.orEmpty()
+    val botName = bot?.name ?: localizedMobileCopy(RoutineRules.DELETED_AGENT)
+    val label = when (row.status) {
+        RoutineWeekStatus.COMPLETED -> stringResource(R.string.mobile_completed_1798b3ba)
+        RoutineWeekStatus.FAILED -> stringResource(R.string.automations_status_failed)
+        RoutineWeekStatus.SCHEDULED -> stringResource(R.string.mobile_calendar_scheduled)
+        RoutineWeekStatus.OTHER -> localizedMobileCopy(RoutineRules.runStatusLabel(item.run?.status.orEmpty()))
+    }
+    val tint = when (row.status) {
+        RoutineWeekStatus.COMPLETED -> Seira.colors.success
+        RoutineWeekStatus.FAILED -> Seira.colors.danger
+        RoutineWeekStatus.SCHEDULED -> secondaryTint
+        RoutineWeekStatus.OTHER -> runStatusTint(RoutineRules.runStatus(item.run?.status.orEmpty()))
+    }
+    val description = stringResource(R.string.auto2_week_row, whenText, name, botName, label)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp)
+            .clickable(role = Role.Button, onClick = onClick)
+            .semantics(mergeDescendants = true) { contentDescription = description }
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+            .testTag("calendar-week-row-${item.id}"),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(whenText, fontSize = 13.sp, color = secondaryTint, modifier = Modifier.widthIn(min = 84.dp))
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = name,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Text(text = botName, fontSize = 13.sp, color = secondaryTint, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        }
+        Text(label, fontSize = 13.sp, color = tint)
     }
 }
 
