@@ -22,7 +22,8 @@
     <string name="chat3_context_compact">Compact context</string>
     <string name="chat3_context_compact_sub">Summarizes older messages</string>
     <string name="chat3_context_compacting">Compacting…</string>
-    <string name="chat3_context_compacted">Context compacted</string>
+    <string name="chat3_context_compacted">Summary started</string>
+    <string name="chat3_context_wait">Wait until the reply ends.</string>
     <string name="chat3_context_failed">Could not compact this conversation. Try again.</string>
     <string name="chat3_allow_session">Allow for this session</string>
 </resources>

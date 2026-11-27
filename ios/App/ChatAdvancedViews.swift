@@ -57,48 +57,55 @@ struct ComposerToolChips: View {
 struct ContextSheet: View {
     let meter: ContextMeter
     let phase: CompactPhase
+    let canCompact: Bool
     let onCompact: () -> Void
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Text("Context")
-                .font(.seira(20, .semibold, relativeTo: .title3))
-                .foregroundStyle(Color.seiraInk)
-            bar
-            Text("\(ChatAdvanced.compactCount(meter.tokens)) of \(ChatAdvanced.compactCount(meter.window)) tokens used")
-                .font(.seira(15, .regular, relativeTo: .subheadline))
-                .foregroundStyle(Color.seiraInk2)
-            Button(action: onCompact) {
-                HStack(spacing: 8) {
-                    if phase == .working { ProgressView() }
-                    Text(buttonTitle)
-                        .font(.seira(15, .semibold))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                Text("Context")
+                    .font(.seira(20, .semibold, relativeTo: .title3))
+                    .foregroundStyle(Color.seiraInk)
+                bar
+                Text("\(ChatAdvanced.compactCount(meter.tokens)) of \(ChatAdvanced.compactCount(meter.window)) tokens used")
+                    .font(.seira(15, .regular, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraInk2)
+                Button(action: onCompact) {
+                    HStack(spacing: 8) {
+                        if phase == .working { ProgressView() }
+                        Text(buttonTitle)
+                            .font(.seira(15, .semibold))
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .buttonStyle(SeiraControlButtonStyle(height: 48))
+                .disabled(!canCompact || phase == .working || phase == .done)
+                .accessibilityIdentifier("context-compact")
+                if !canCompact && phase == .idle {
+                    Text("Wait until the reply ends.")
+                        .font(.seira(13, .regular, relativeTo: .footnote))
+                        .foregroundStyle(Color.seiraInk2)
+                }
+                if phase == .failed {
+                    Text("Could not compact this conversation. Try again.")
+                        .font(.seira(13, .regular, relativeTo: .footnote))
+                        .foregroundStyle(Color.seiraWarningText)
+                }
             }
-            .buttonStyle(SeiraControlButtonStyle(height: 48))
-            .disabled(phase == .working || phase == .done)
-            .accessibilityIdentifier("context-compact")
-            if phase == .failed {
-                Text("Could not compact this conversation. Try again.")
-                    .font(.seira(13, .regular, relativeTo: .footnote))
-                    .foregroundStyle(Color.seiraWarningText)
-            }
-            Spacer(minLength: 0)
+            .padding(20)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(20)
-        .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.seiraBg)
-        .presentationDetents([.height(300), .medium])
+        .presentationDetents([.medium, .large])
         .accessibilityIdentifier("context-sheet")
     }
 
     private var buttonTitle: LocalizedStringKey {
         switch phase {
         case .working: return "Compacting…"
-        case .done: return "Context compacted"
+        case .done: return "Summary started"
         default: return "Compact context"
         }
     }

@@ -4,44 +4,45 @@ import UIKit
 
 /// "Bot actions": small things to do with one bot, shown in Advanced mode only.
 /// Each row changes the screen after the computer answers, never before.
+///
+/// The department sheet belongs to the screen that holds this section, so
+/// the section only raises `moving` and reads back the chosen name.
 struct BotActionsSection: View {
     let bot: Bot
+    @Binding var moving: Bool
+    @Binding var pickedDepartment: String?
 
     @AppStorage(PrefKey.advancedMode) private var advancedMode = false
     @EnvironmentObject private var session: Session
     @State private var busy = false
     @State private var answer: String?
     @State private var answerFailed = false
-    @State private var moving = false
     @State private var clearing: Task<Void, Never>?
 
     var body: some View {
-        Group {
-            if advancedMode {
-                Section {
-                    ForEach(BotActionRules.visible(for: bot), id: \.self) { action in
-                        Button { run(action) } label: {
-                            Text(title(for: action))
-                                .foregroundStyle(Color.seiraInk)
-                                .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
-                                .contentShape(Rectangle())
-                        }
-                        .disabled(busy)
-                        .accessibilityIdentifier("bot-action-\(String(describing: action))")
+        if advancedMode {
+            Section {
+                ForEach(BotActionRules.visible(for: bot), id: \.self) { action in
+                    Button { run(action) } label: {
+                        Text(title(for: action))
+                            .foregroundStyle(Color.seiraInk)
+                            .frame(maxWidth: .infinity, minHeight: 44, alignment: .leading)
+                            .contentShape(Rectangle())
                     }
-                } header: {
-                    Text("Bot actions")
-                } footer: {
-                    Text(verbatim: answer ?? "")
-                        .foregroundStyle(answerFailed ? Color.seiraBad : Color.seiraInk2)
-                        .frame(minHeight: 20, alignment: .leading)
-                        .accessibilityIdentifier("bot-action-answer")
+                    .disabled(busy)
+                    .accessibilityIdentifier("bot-action-\(String(describing: action))")
                 }
+            } header: {
+                Text("Bot actions")
+            } footer: {
+                Text(verbatim: answer ?? "")
+                    .foregroundStyle(answerFailed ? Color.seiraBad : Color.seiraInk2)
+                    .frame(minHeight: 20, alignment: .leading)
+                    .accessibilityIdentifier("bot-action-answer")
             }
-        }
-        .sheet(isPresented: $moving) {
-            DepartmentSheet(bot: bot, departments: BotDepartments.names(in: session.state.bots, declared: session.state.declaredSections)) { name in
-                moving = false
+            .onValueChange(of: pickedDepartment) { name in
+                guard let name else { return }
+                pickedDepartment = nil
                 change("Moved") { await session.moveToDepartment(botId: bot.id, name: name) }
             }
         }
@@ -105,7 +106,7 @@ struct BotActionsSection: View {
 }
 
 /// General, the departments the phone knows, and a way to start a new one.
-private struct DepartmentSheet: View {
+struct DepartmentSheet: View {
     let bot: Bot
     let departments: [String]
     let onPick: (String) -> Void
@@ -119,9 +120,9 @@ private struct DepartmentSheet: View {
     var body: some View {
         NavigationStack {
             List {
-                row("", label: "General")
+                row("", label: Text("General"))
                 ForEach(departments, id: \.self) { name in
-                    row(name, label: LocalizedStringKey(name))
+                    row(name, label: Text(verbatim: name))
                 }
                 if naming {
                     VStack(alignment: .leading, spacing: 12) {
@@ -162,14 +163,14 @@ private struct DepartmentSheet: View {
         .presentationDetents([.medium, .large])
     }
 
-    private func row(_ name: String, label: LocalizedStringKey) -> some View {
+    private func row(_ name: String, label: Text) -> some View {
         let isCurrent = BotDepartments.same(current, name)
         return Button {
             Haptics.selection()
             onPick(name)
         } label: {
             HStack {
-                Text(label).foregroundStyle(Color.seiraInk)
+                label.foregroundStyle(Color.seiraInk)
                 Spacer(minLength: 0)
                 if isCurrent { Image(systemName: "checkmark").foregroundStyle(Color.seiraInk) }
             }

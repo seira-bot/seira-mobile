@@ -15,11 +15,22 @@ struct RoutineCalendarView: View {
     @State private var selected = Calendar.current.startOfDay(for: Date())
     @State private var editor: CalendarEditorTarget?
     @State private var showWeek = CalendarViewMemory.week
+    @State private var weekRows: [RoutineWeekRow] = []
 
     init(embedded: Bool = false) { self.embedded = embedded }
 
     private var calendar: Calendar { .current }
     private var week: [Date] { RoutineCalendar.week(containing: selected, calendar: calendar) }
+    private var localeWeek: [Date] {
+        RoutineCalendar.week(containing: selected, calendar: calendar, firstWeekday: calendar.firstWeekday)
+    }
+
+    private func refreshWeekRows() {
+        weekRows = RoutineCalendar.weekRows(
+            routines: routines, runs: runs, containing: selected,
+            calendar: calendar, firstWeekday: calendar.firstWeekday
+        )
+    }
 
     private func items(on day: Date) -> [RoutineCalendarItem] {
         RoutineCalendar.items(routines: routines, runs: runs, day: day, calendar: calendar)
@@ -60,6 +71,8 @@ struct RoutineCalendarView: View {
             .padding(.vertical, 6)
             .accessibilityIdentifier("calendar-view-switch")
             if showWeek {
+                weekNav
+                Divider()
                 weekList
             } else {
                 weekStrip
@@ -68,6 +81,7 @@ struct RoutineCalendarView: View {
             }
         }
         .onValueChange(of: showWeek) { CalendarViewMemory.week = $0 }
+        .onValueChange(of: selected) { _ in refreshWeekRows() }
         .task { await reload() }
         .refreshable { await reload() }
         .sheet(item: $editor) { target in
@@ -102,20 +116,19 @@ struct RoutineCalendarView: View {
     }
 
     private var weekList: some View {
-        let rows = RoutineCalendar.weekRows(routines: routines, runs: runs, from: Date(), calendar: calendar)
-        return List {
-            if rows.isEmpty && !loading {
+        List {
+            if weekRows.isEmpty && !loading {
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Nothing scheduled")
                         .font(.headline)
-                    Text("Routines that run on this day appear here.")
+                    Text("Routines that run this week appear here.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
                 .padding(.vertical, 8)
                 .listRowSeparator(.hidden)
             }
-            ForEach(rows) { row in
+            ForEach(weekRows) { row in
                 WeekRunRow(row: row, bot: session.state.bot(row.item.run?.botId ?? row.item.routine?.botId ?? ""))
                     .contentShape(Rectangle())
                     .onTapGesture { open(row.item) }
@@ -125,6 +138,28 @@ struct RoutineCalendarView: View {
         .overlay {
             if loading && routines.isEmpty && runs.isEmpty { ProgressView() }
         }
+    }
+
+    // MARK: - Week navigation
+
+    private var weekNav: some View {
+        HStack(spacing: 2) {
+            Button { shiftWeek(by: -1) } label: {
+                Image(systemName: "chevron.left").frame(width: 32, height: 44)
+            }
+            .accessibilityLabel("Previous week")
+            Text("\(localeWeek[0], format: .dateTime.day().month(.abbreviated)) – \(localeWeek[6], format: .dateTime.day().month(.abbreviated))")
+                .font(.system(size: 15, weight: .medium))
+                .frame(maxWidth: .infinity)
+            Button { shiftWeek(by: 1) } label: {
+                Image(systemName: "chevron.right").frame(width: 32, height: 44)
+            }
+            .accessibilityLabel("Next week")
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .accessibilityIdentifier("calendar-week-nav")
     }
 
     // MARK: - Week strip
@@ -220,6 +255,7 @@ struct RoutineCalendarView: View {
         routines = loaded.routines
         runs = loaded.runs
         loading = false
+        refreshWeekRows()
     }
 }
 

@@ -34,11 +34,23 @@ final class RoutineWeekTests: XCTestCase {
         return try JSONDecoder().decode(RoutineRun.self, from: Data(json.utf8))
     }
 
-    func testTheWeekListCoversSevenDaysFromTheGivenDay() {
-        let days = RoutineCalendar.nextSevenDays(from: monday, calendar: calendar)
+    func testTheWeekListCoversTheCalendarWeekHoldingTheGivenDay() {
+        let thursday = calendar.date(byAdding: .day, value: 3, to: monday)!
+        let days = RoutineCalendar.week(containing: thursday, calendar: calendar)
         XCTAssertEqual(days.count, 7)
         XCTAssertEqual(days.first, monday)
         XCTAssertEqual(calendar.component(.day, from: days[6]), 11)
+        let sundayFirst = RoutineCalendar.week(containing: thursday, calendar: calendar, firstWeekday: 1)
+        XCTAssertEqual(calendar.component(.day, from: sundayFirst[0]), 4)
+        XCTAssertEqual(calendar.component(.day, from: sundayFirst[6]), 10)
+    }
+
+    func testAPastRunOfThisWeekStaysInTheWeekList() throws {
+        let brief = try routine("brief", schedule: #"{"type":"daily","time":"09:00","weekdays":[1]}"#)
+        let done = try run("r1", routine: "brief", at: at(monday, 9), status: "completed")
+        let friday = calendar.date(byAdding: .day, value: 4, to: monday)!
+        let rows = RoutineCalendar.weekRows(routines: [brief], runs: [done], containing: friday, calendar: calendar)
+        XCTAssertEqual(rows.map(\.status), [.completed])
     }
 
     func testRunsAndProjectionsComeOldestFirstWithTheirStatus() throws {
@@ -48,7 +60,7 @@ final class RoutineWeekTests: XCTestCase {
             try run("r1", routine: "brief", at: at(monday, 9), status: "completed"),
             try run("r2", routine: "brief", at: at(tuesday, 9), status: "failed"),
         ]
-        let rows = RoutineCalendar.weekRows(routines: [brief], runs: runs, from: monday, calendar: calendar)
+        let rows = RoutineCalendar.weekRows(routines: [brief], runs: runs, containing: monday, calendar: calendar)
         XCTAssertEqual(rows.count, 7)
         XCTAssertEqual(rows.map(\.item.at), rows.map(\.item.at).sorted())
         XCTAssertEqual(rows[0].status, .completed)
@@ -59,13 +71,13 @@ final class RoutineWeekTests: XCTestCase {
     func testARunStillMovingIsNeitherCompletedNorFailed() throws {
         let brief = try routine("brief", schedule: #"{"type":"daily","time":"09:00","weekdays":[1]}"#)
         let running = try run("r1", routine: "brief", at: at(monday, 9), status: "running")
-        let rows = RoutineCalendar.weekRows(routines: [brief], runs: [running], from: monday, calendar: calendar)
+        let rows = RoutineCalendar.weekRows(routines: [brief], runs: [running], containing: monday, calendar: calendar)
         XCTAssertEqual(rows.map(\.status), [.other])
     }
 
-    func testRunsOutsideTheSevenDaysAreLeftOut() throws {
+    func testRunsOutsideTheWeekAreLeftOut() throws {
         let before = try run("r1", routine: "brief", at: at(calendar.date(byAdding: .day, value: -1, to: monday)!, 9), status: "completed")
         let after = try run("r2", routine: "brief", at: at(calendar.date(byAdding: .day, value: 7, to: monday)!, 9), status: "completed")
-        XCTAssertTrue(RoutineCalendar.weekRows(routines: [], runs: [before, after], from: monday, calendar: calendar).isEmpty)
+        XCTAssertTrue(RoutineCalendar.weekRows(routines: [], runs: [before, after], containing: monday, calendar: calendar).isEmpty)
     }
 }

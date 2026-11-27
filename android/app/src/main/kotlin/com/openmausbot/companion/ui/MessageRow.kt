@@ -1632,7 +1632,7 @@ private fun CardContent(
                             haptics.play(TactileAction.GRANT_APPROVAL)
                             answering = true
                             scope.launch {
-                                session.allowForSession(chat, card)
+                                session.allowForSession(chat, card, advancedMode)
                                 answering = false
                             }
                         },
