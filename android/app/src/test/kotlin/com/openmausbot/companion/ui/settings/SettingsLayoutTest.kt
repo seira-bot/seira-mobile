@@ -16,6 +16,7 @@ class SettingsLayoutTest {
                 SettingsGroup.CHAT,
                 SettingsGroup.WORKSPACE,
                 SettingsGroup.PRIVACY,
+                SettingsGroup.ADVANCED,
                 SettingsGroup.HELP,
                 SettingsGroup.SIGN_OUT,
                 SettingsGroup.UPDATES,
