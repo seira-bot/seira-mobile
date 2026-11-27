@@ -244,7 +244,7 @@ val OptionCard.outcome: CardOutcome?
                 // An older store kept the button's own text.
                 val option = options.firstOrNull { it.equals(stored, ignoreCase = true) }
                     ?: return CardOutcome.Other(stored)
-                OptionCard.isApproval(option)
+                approves(option)
             }
         }
         if (teamMemoryRequest != null || tool == "propose_team_memory") {
@@ -252,8 +252,8 @@ val OptionCard.outcome: CardOutcome?
         }
         if (presentation == CardPresentation.STANDARD) {
             // A proposal reads as the option it was settled with.
-            val chosen = if (positive) options.firstOrNull { OptionCard.isApproval(it) }
-                else options.firstOrNull { OptionCard.isRefusal(it) }
+            val chosen = if (positive) options.firstOrNull { approves(it) }
+                else options.firstOrNull { refuses(it) }
             val plain = if (positive) "Allow" else "Deny"
             if (chosen != null && !chosen.equals(plain, ignoreCase = true)) {
                 return CardOutcome.Chose(chosen, positive)

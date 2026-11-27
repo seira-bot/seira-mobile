@@ -3106,12 +3106,8 @@ struct CardView: View {
         guard let card = message.card else { return nil }
         let options = card.options
         return options.first { $0.caseInsensitiveCompare("Allow") == .orderedSame }
-            ?? options.first { card.isPermission ? OptionCard.isApproval($0) : !Self.isRefusal($0) }
+            ?? options.first { card.isPermission ? card.approves($0) : !card.refuses($0) }
     }
-
-    /// The quieter button tint only. The wire answer comes from
-    /// `OptionCard.isApproval`.
-    private static func isRefusal(_ option: String) -> Bool { OptionCard.isRefusal(option) }
 
     var body: some View {
         if let card = message.card {
@@ -3334,7 +3330,7 @@ struct CardView: View {
     /// its label needs; in a row, the first answer flexes.
     @ViewBuilder
     private func optionButton(_ option: String, card: OptionCard, stacked: Bool, leading: Bool) -> some View {
-        let refusal = Self.isRefusal(option)
+        let refusal = card.refuses(option)
         let blocked = answering
             || (card.skillRequest != nil && !refusal && card.skillRequest?.reviewedSha256 == nil)
         if leading && !refusal {

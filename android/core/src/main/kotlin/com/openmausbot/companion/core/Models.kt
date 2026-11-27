@@ -107,10 +107,29 @@ data class OptionCard(
     val teamMemoryRequest: TeamMemoryRequest? = null,
     /** Present on the offer to continue on another engine after a usage limit stopped a turn. */
     val quotaSwitch: QuotaSwitchCard? = null,
+    /** The options are the whole answer: no free-text reply. */
+    val fixedOptions: Boolean? = null,
 ) {
     val isPending: Boolean get() =
         requestId != null && answered == null && dismissed != true && expired != true
     val isPermission: Boolean get() = tool != null
+
+    /**
+     * A bot settings card (`app_settings`) offers `[Apply, Not now]` in the person's
+     * language, so its labels cannot be matched by text. By position, the first option
+     * applies the change and the second refuses it. Any other shape is not a settings
+     * card and keeps the label rules.
+     */
+    private val isSettingsChoice: Boolean get() =
+        tool == SETTINGS_TOOL && fixedOptions == true && options.size == 2
+
+    /** True when [choice] is the option that approves this card. */
+    fun approves(choice: String): Boolean =
+        if (isSettingsChoice) choice == options[0] else isApproval(choice)
+
+    /** True when [choice] is the option that refuses this card. */
+    fun refuses(choice: String): Boolean =
+        if (isSettingsChoice) choice == options[1] else isRefusal(choice)
 
     /**
      * A structured ask draws its own card: the model posed real questions with
@@ -119,14 +138,21 @@ data class OptionCard(
      */
     val questions: List<AskQuestion> get() = questionRequest?.questions.orEmpty()
 
-    fun responseBehavior(choice: String): String = responseBehavior(choice, isPermission)
+    fun responseBehavior(choice: String): String = when {
+        !isPermission -> "answer"
+        approves(choice) -> "allow"
+        else -> "deny"
+    }
 
     fun shouldRememberPermission(choice: String): Boolean =
         isPermission && allowKey != null && choice.trim().equals("Always allow", ignoreCase = true)
 
     companion object {
+        private const val SETTINGS_TOOL = "app_settings"
+
         /**
-         * Security invariant: a permission answer is "allow" only for a label in [APPROVALS].
+         * Security invariant: a permission answer is "allow" only for a label in [APPROVALS],
+         * or for the first option of a settings card (see [approves]).
          * The wire contract (`OptionCardData.options` in seira-bot/seira) carries labels only,
          * and a provider may supply its own, so an unknown or localized label answers "deny".
          */

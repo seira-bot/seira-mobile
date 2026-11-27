@@ -1916,6 +1916,7 @@ class Session(
             choice = choice,
             isPermission = card.isPermission,
             reviewedSha256 = card.skillRequest?.reviewedSha256,
+            behavior = card.responseBehavior(choice),
         )
     }
 
@@ -1925,10 +1926,11 @@ class Session(
         choice: String,
         isPermission: Boolean,
         reviewedSha256: String? = null,
+        behavior: String? = null,
     ): String? {
         var outcome: String? = null
         perform {
-            val behavior = OptionCard.responseBehavior(choice, isPermission)
+            val behavior = behavior ?: OptionCard.responseBehavior(choice, isPermission)
             outcome = it.respond(
                 threadId = threadId,
                 requestId = requestId,

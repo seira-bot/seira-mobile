@@ -119,12 +119,12 @@ private struct UpdateRow: View {
                                     } label: {
                                         Text(option)
                                             .font(.system(size: 13, weight: .semibold))
-                                            .foregroundStyle(CardStyle.isRefusal(option) ? Color.primary : .white)
+                                            .foregroundStyle(card.refuses(option) ? Color.primary : .white)
                                             .padding(.horizontal, 14)
                                             .frame(height: 32)
                                             .background(
                                                 Capsule().fill(
-                                                    CardStyle.isRefusal(option)
+                                                    card.refuses(option)
                                                         ? Color.secondary.opacity(0.18)
                                                         : SeiraPalette.color(update.chat.color)
                                                 )

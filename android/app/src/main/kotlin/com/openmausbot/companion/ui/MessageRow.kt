@@ -1599,7 +1599,7 @@ private fun CardContent(
             // The buttons are the card's own options, never a string invented
             // here. Session maps the choice to allow/deny/answer.
             val optionButton: @Composable (String, Modifier) -> Unit = { option, buttonModifier ->
-                val refusal = ApprovalChoices.emphasis(option) == OptionEmphasis.SECONDARY
+                val refusal = card.refuses(option)
                 CardChoiceButton(
                     text = option,
                     primary = !refusal,
