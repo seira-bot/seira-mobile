@@ -155,6 +155,7 @@ private struct BotSettingsTab: View {
                 Button("Delete \(bot.name)", role: .destructive) { confirmingDelete = true }
                     .disabled(busy)
             }
+            BotActionsSection(bot: bot)
         }
         .scrollContentBackground(.hidden)
         .onValueChange(of: notifications) { value in

@@ -216,12 +216,12 @@ struct RoutineEditorView: View {
     @State private var advancedExpanded: Bool
     @State private var saving = false
 
-    init(routine: Routine?, onSaved: @escaping () async -> Void) {
+    init(routine: Routine?, draftPrompt: String = "", draftBotId: String = "", onSaved: @escaping () async -> Void) {
         self.routine = routine
         self.onSaved = onSaved
         _name = State(initialValue: routine?.name ?? "")
-        _prompt = State(initialValue: routine?.prompt ?? "")
-        _botId = State(initialValue: routine?.botId ?? "")
+        _prompt = State(initialValue: routine?.prompt ?? draftPrompt)
+        _botId = State(initialValue: routine?.botId ?? draftBotId)
         _runOn = State(initialValue: routine?.runLocation ?? .maus)
         _runAvailability = State(initialValue: nil)
         _availabilityLoaded = State(initialValue: false)

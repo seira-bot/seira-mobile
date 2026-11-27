@@ -2501,6 +2501,41 @@ final class Session: ObservableObject {
         }
     }
 
+    /// Pins a bot or marks it unread. True only after the computer answers; the bot then shows its new state.
+    func setBotFlags(botId: String, pinned: Bool? = nil, unread: Bool? = nil) async -> Bool {
+        guard let client else { return false }
+        do {
+            let updated = try await client.setBotFlags(botId: botId, pinned: pinned, unread: unread)
+            state.apply(.bot(updated))
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Marks every conversation of one bot read. True only after the computer answers.
+    func markAllRead(botId: String) async -> Bool {
+        guard let client else { return false }
+        do {
+            try await client.markRead(botId: botId)
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Moves one bot to a department; an empty name means General. True only after the computer answers.
+    func moveToDepartment(botId: String, name: String) async -> Bool {
+        guard let client else { return false }
+        do {
+            let bots = try await client.assignSection(name: name, botIds: [botId])
+            for bot in bots { state.apply(.bot(bot)) }
+            return true
+        } catch {
+            return false
+        }
+    }
+
     func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
         guard let client else { return .refused(.failed) }
         do {
