@@ -265,6 +265,50 @@
         }
       }
     },
+    "Routines that run this week appear here.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As rotinas que rodam nesta semana aparecem aqui."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本周运行的例行工作会显示在这里。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "本週執行的例行工作會顯示在這裡。"
+          }
+        }
+      }
+    },
+    "Summary started": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resumo iniciado"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已开始总结"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "已開始摘要"
+          }
+        }
+      }
+    },
     "Voice note position": {
       "localizations": {
         "pt-BR": {
@@ -9279,6 +9323,28 @@
           "stringUnit": {
             "state": "translated",
             "value": "語音"
+          }
+        }
+      }
+    },
+    "Wait until the reply ends.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Espere a resposta terminar."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请等回复结束。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請等回覆結束。"
           }
         }
       }
