@@ -21,6 +21,29 @@ public struct RoutineCalendarItem: Identifiable, Hashable, Sendable {
     public var date: Date { Date(timeIntervalSince1970: at / 1_000) }
 }
 
+/// How a run in the week list is shown. A projection is `scheduled`.
+public enum RoutineWeekStatus: Hashable, Sendable {
+    case completed, failed, scheduled, other
+
+    public init(item: RoutineCalendarItem) {
+        guard let run = item.run else { self = .scheduled; return }
+        switch run.status {
+        case "completed": self = .completed
+        case "failed", "missed": self = .failed
+        default: self = .other
+        }
+    }
+}
+
+/// One line of the week list: `item` on `day` with the way it is shown.
+public struct RoutineWeekRow: Identifiable, Hashable, Sendable {
+    public let day: Date
+    public let item: RoutineCalendarItem
+    public let status: RoutineWeekStatus
+
+    public var id: String { item.id }
+}
+
 public enum RoutineCalendar {
     /// A routine that runs every few minutes would bury a day in receipts.
     /// Keep the newest dozen finished runs per routine; active ones always show.
@@ -33,6 +56,26 @@ public enum RoutineCalendar {
         let weekday = calendar.component(.weekday, from: day) // 1 = Sunday
         let monday = calendar.date(byAdding: .day, value: -((weekday + 5) % 7), to: day) ?? day
         return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: monday) }
+    }
+
+    /// The seven days that start on `date`.
+    public static func nextSevenDays(from date: Date, calendar: Calendar = .current) -> [Date] {
+        let day = calendar.startOfDay(for: date)
+        return (0..<7).compactMap { calendar.date(byAdding: .day, value: $0, to: day) }
+    }
+
+    /// One row for each run or projected run in the seven days from `date`, oldest first.
+    public static func weekRows(
+        routines: [Routine],
+        runs: [RoutineRun],
+        from date: Date,
+        calendar: Calendar = .current
+    ) -> [RoutineWeekRow] {
+        nextSevenDays(from: date, calendar: calendar).flatMap { day in
+            items(routines: routines, runs: runs, day: day, calendar: calendar).map {
+                RoutineWeekRow(day: day, item: $0, status: RoutineWeekStatus(item: $0))
+            }
+        }
     }
 
     /// Everything on one day, in time order.

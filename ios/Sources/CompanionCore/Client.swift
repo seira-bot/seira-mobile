@@ -1414,6 +1414,18 @@ public struct CompanionClient: Sendable {
         ).bot
     }
 
+    /// Pins a bot or marks it unread. Only the given keys go out, the only ones
+    /// a paired phone may change with this route.
+    public func setBotFlags(botId: String, pinned: Bool? = nil, unread: Bool? = nil) async throws -> Bot {
+        guard Self.validRouteID(botId) else { throw APIError.badURL }
+        var body: [String: Any] = [:]
+        if let pinned { body["pinned"] = pinned }
+        if let unread { body["unread"] = unread }
+        var request = try makeRequest("PATCH", "/api/bots/\(botId)", body: body)
+        request.setValue("1", forHTTPHeaderField: "x-seira-companion")
+        return try await send(request, as: BotResponse.self).bot
+    }
+
     /// Moves one bot between no computer and its own server. Exactly one of two
     /// bodies, never a server address or any other field.
     public func setWorksOn(botId: String, ownServer: Bool) async throws -> Bot {

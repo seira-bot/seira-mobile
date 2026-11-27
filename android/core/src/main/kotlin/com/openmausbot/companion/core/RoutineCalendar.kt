@@ -19,6 +19,16 @@ data class RoutineCalendarItem(
     val run: RoutineRun?,
 )
 
+/** How a run in the week list is shown. */
+enum class RoutineWeekStatus { COMPLETED, FAILED, SCHEDULED, OTHER }
+
+/** One line of the week list: [item] on [day] with the way it is shown. */
+data class RoutineWeekRow(
+    val day: LocalDate,
+    val item: RoutineCalendarItem,
+    val status: RoutineWeekStatus,
+)
+
 /**
  * Which runs land on a day — a port of `projectedRoutineItems` in
  * src/lib/routine-calendar.ts (via the iOS `RoutineCalendar`), so the phone and
@@ -36,6 +46,25 @@ object RoutineCalendar {
         val monday = day.minusDays((day.dayOfWeek.value - 1).toLong())
         return (0L until 7L).map { monday.plusDays(it) }
     }
+
+    /** The seven days that start on [from]. */
+    fun nextSevenDays(from: LocalDate): List<LocalDate> = (0L until 7L).map { from.plusDays(it) }
+
+    /** The status a run shows in the week list; a projection is Scheduled. */
+    fun weekStatus(item: RoutineCalendarItem): RoutineWeekStatus {
+        val run = item.run ?: return RoutineWeekStatus.SCHEDULED
+        return when (run.status) {
+            "completed" -> RoutineWeekStatus.COMPLETED
+            "failed", "missed" -> RoutineWeekStatus.FAILED
+            else -> RoutineWeekStatus.OTHER
+        }
+    }
+
+    /** One row for each run or projected run in the seven days from [from], oldest first. */
+    fun weekRows(routines: List<Routine>, runs: List<RoutineRun>, from: LocalDate, zone: ZoneId): List<RoutineWeekRow> =
+        nextSevenDays(from).flatMap { day ->
+            items(routines, runs, day, zone).map { RoutineWeekRow(day, it, weekStatus(it)) }
+        }
 
     /** Everything on one day, in time order. */
     fun items(routines: List<Routine>, runs: List<RoutineRun>, day: LocalDate, zone: ZoneId): List<RoutineCalendarItem> {

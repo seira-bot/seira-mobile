@@ -33,6 +33,7 @@ import com.openmausbot.companion.ui.RoutineEditorTarget
 import com.openmausbot.companion.ui.TouchTarget
 import com.openmausbot.companion.ui.home.automations.AutomationsSegment
 import com.openmausbot.companion.ui.home.automations.RoutineListPane
+import com.openmausbot.companion.ui.home.automations.WhatShouldHappenSheet
 import com.openmausbot.companion.ui.home.inbox.TitleSegment
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
@@ -47,6 +48,7 @@ internal fun AutomationsTab(navigator: CompanionNavigator) {
         mutableStateOf<RoutineEditorTarget?>(null)
     }
     var reloadSignal by remember { mutableIntStateOf(0) }
+    var asking by rememberSaveable { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -95,6 +97,7 @@ internal fun AutomationsTab(navigator: CompanionNavigator) {
             AutomationsSegment.LIST -> RoutineListPane(
                 onOpenChat = navigator::open,
                 onEdit = { editor = RoutineEditorTarget.edit(it) },
+                onWhatShouldHappen = { asking = true },
                 reloadSignal = reloadSignal,
                 modifier = Modifier.weight(1f),
             )
@@ -107,6 +110,16 @@ internal fun AutomationsTab(navigator: CompanionNavigator) {
                 )
             }
         }
+    }
+
+    if (asking) {
+        WhatShouldHappenSheet(
+            onSetUp = { prompt, botId ->
+                asking = false
+                editor = RoutineEditorTarget.drafted(prompt, botId)
+            },
+            onDismiss = { asking = false },
+        )
     }
 
     editor?.let { target ->

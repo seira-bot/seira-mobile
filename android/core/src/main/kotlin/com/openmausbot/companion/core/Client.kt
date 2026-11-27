@@ -800,6 +800,17 @@ class CompanionClient(
             makeRequest("PATCH", "/api/bots/${segment(botId)}", body = patch.toJson()),
         ).bot
 
+    /** Pin or mark unread. Only the given keys go out, the only ones a paired phone may change here. */
+    suspend fun setBotFlags(botId: String, pinned: Boolean? = null, unread: Boolean? = null): Bot {
+        val body = buildJsonObject {
+            pinned?.let { put("pinned", it) }
+            unread?.let { put("unread", it) }
+        }
+        val request = makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body)
+            .newBuilder().header(PAIRED_DEVICE_HEADER, "1").build()
+        return send<BotResponse>(request).bot
+    }
+
     /**
      * Move one bot between no computer and its own server. Exactly one of two
      * bodies, never a server address or any other field.
