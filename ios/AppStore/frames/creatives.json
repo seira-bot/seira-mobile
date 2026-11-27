@@ -8,7 +8,7 @@
     "approval": { "src": "02-approval", "box": [48, 1750, 1226, 704], "radius": 66 },
     "island": { "src": "03-glance-island", "box": [30, 30, 1260, 352], "radius": 176 },
     "table": { "src": "04-live", "box": [48, 1438, 1152, 386], "radius": 60 },
-    "team": { "src": "01-home", "box": [236, 1344, 848, 214], "radius": 48 }
+    "team": { "src": "01-home", "box": [40, 830, 1236, 290], "radius": 48 }
   },
   "assets": [
     {
@@ -24,11 +24,11 @@
       "thread": "M -120 1330 C 520 1080 980 1460 1560 1240 S 2440 860 2960 1120 S 3600 1380 3980 1060",
       "layers": [
         { "crop": "island", "x": 150, "y": 300, "width": 860, "dim": true },
-        { "crop": "team", "x": 240, "y": 800, "width": 760, "dim": true },
+        { "crop": "team", "x": 170, "y": 820, "width": 880, "dim": true },
         { "head": "lumi", "x": 2930, "y": 140, "size": 780, "dim": true },
         { "crop": "table", "x": 2880, "y": 1010, "width": 840, "dim": true },
         { "crop": "approval", "x": 1150, "y": 533, "width": 1010 },
-        { "head": "seira", "x": 1930, "y": 390, "size": 840 }
+        { "head": "seira", "x": 1960, "y": 390, "size": 840 }
       ]
     },
     {
@@ -53,7 +53,7 @@
       },
       "layers": [
         { "crop": "island", "x": 120, "y": 200, "width": 900, "dim": true },
-        { "crop": "team", "x": 2900, "y": 230, "width": 820, "dim": true },
+        { "crop": "team", "x": 2800, "y": 180, "width": 920, "dim": true },
         { "head": "lumi", "x": 60, "y": 1680, "size": 820, "dim": true },
         { "crop": "table", "x": 2920, "y": 2010, "width": 820, "dim": true },
         { "crop": "approval", "x": 1180, "y": 1262, "width": 920 },

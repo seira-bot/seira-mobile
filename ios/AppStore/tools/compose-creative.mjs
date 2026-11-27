@@ -63,11 +63,11 @@ body{position:relative;font-family:Geist,sans-serif;color:#fff;-webkit-font-smoo
 .card{position:absolute;overflow:hidden;box-shadow:0 ${50 * u}px ${110 * u}px rgba(0,0,0,0.65),0 0 ${90 * u}px rgba(255,42,87,0.38)}
 .card img{position:absolute;max-width:none}
 .card .ring{position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 0 0 ${3 * u}px rgba(255,77,109,0.6)}
-.head{position:absolute;filter:drop-shadow(0 ${40 * u}px ${60 * u}px rgba(255,42,87,0.45))}
-.dim{opacity:0.6}
-.card.dim{filter:saturate(0.85) blur(${1.5 * u}px);box-shadow:0 ${40 * u}px ${90 * u}px rgba(0,0,0,0.55)}
+.head{position:absolute;filter:drop-shadow(0 ${16 * u}px ${26 * u}px rgba(120,10,40,0.55))}
+.dim{opacity:0.58}
+.card.dim{filter:blur(${0.8 * u}px);box-shadow:0 ${40 * u}px ${90 * u}px rgba(0,0,0,0.55)}
 .card.dim .ring{box-shadow:inset 0 0 0 ${2 * u}px rgba(255,255,255,0.14)}
-.head.dim{filter:drop-shadow(0 ${30 * u}px ${50 * u}px rgba(0,0,0,0.5)) saturate(0.85) blur(${1.5 * u}px)}
+.head.dim{filter:drop-shadow(0 ${16 * u}px ${26 * u}px rgba(0,0,0,0.5)) blur(${0.8 * u}px)}
 .caption{position:absolute;left:50%;transform:translateX(-50%);text-align:center}
 .title{font-weight:700;line-height:1.04;letter-spacing:-0.03em}
 .title .line{display:block;white-space:nowrap}
