@@ -1,0 +1,29 @@
+Bot Seira kamu bekerja di komputer. Saat kamu jauh dari meja, kamu tetap bisa mengikuti mereka dari iPhone atau iPad: baca balasannya, jawab pertanyaannya, dan izinkan langkah yang penting.
+
+Yang bisa kamu lakukan
+• Lihat semua bot di satu layar. Chat yang perlu kamu jawab tampil paling atas.
+• Izinkan atau tolak langkah saat bot minta izin sebelum bertindak.
+• Baca balasan saat bot menulisnya, lengkap dengan tabel dan teks rapi.
+• Selama Seira berjalan, Live Activity di Layar Terkunci dan Dynamic Island menampilkan bot yang perlu kamu. Sebagian permintaan bisa kamu jawab langsung dari situ.
+• Pasang widget di Layar Utama untuk melihat chat yang perlu kamu jawab.
+• Beri tiap bot wajahnya sendiri: pilih karakter Seira lalu ubah rambut, wajah, aksesori, dan warnanya, atau unggah gambarmu sendiri.
+• Kirim pesan atau tugas baru dengan mengetik atau dengan dikte suara.
+• Saat bot minta API key, isi dari Apple Passwords. Key dikirim terenkripsi ke komputermu dan tidak tampil di chat.
+• Bagikan tautan, foto, atau dokumen dari aplikasi lain ke bot.
+• Cari chat, dan bagikan chat sebagai Markdown.
+• Pasangkan lebih dari satu komputer, lalu pindah di antara komputer itu.
+• Pakai tampilan terang atau tampilan gelap.
+
+Sebelum mulai
+Seira untuk iPhone dan iPad adalah pendamping Seira di komputer. Aplikasi ini tidak menjalankan bot sendiri.
+• Pasang Seira di komputer Mac, Windows, atau Linux, lalu siapkan minimal satu bot.
+• Ponsel harus bisa menjangkau komputer itu: lewat Wi-Fi yang sama, lewat Tailscale, atau lewat alamat aman yang ditampilkan Seira.
+• iOS 16 atau yang lebih baru.
+• Tampilan aplikasi memakai bahasa Inggris.
+
+Cara memasangkan
+1. Di komputer, buka Seira, lalu Settings, lalu Phone & devices.
+2. Buka Seira di iPhone atau iPad, lalu pindai kode QR.
+3. Periksa nama komputer, lalu konfirmasi.
+
+Bot tetap berada di komputermu. Ponsel menampilkan hasil kerja bot dan mengirim jawabanmu kembali. Aplikasi ini tanpa akun, tanpa iklan, dan tanpa analitik.

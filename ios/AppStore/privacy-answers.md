@@ -32,8 +32,7 @@ production hosted service still match this repository.
   may keep only the exact ciphertext in memory for an interrupted-request
   retry; that ciphertext is not persisted. The value is not added to chat,
   preferences, Keychain, diagnostics, or analytics.
-- Privacy policy URL:
-  TBD: Seira privacy policy URL (must be public before store submission)
+- Privacy policy URL: `https://seira.bot/privacy` (section "Seira phone apps")
 
 The iOS app does not receive the hosted account's user ID or the computer's
 hosted installation ID. Email sign-in for optional hosted access happens on the
@@ -55,3 +54,16 @@ is removed when closed.
 Re-evaluate these answers and `PrivacyInfo.xcprivacy` before every upload,
 especially if analytics, push delivery, crash reporting, or content retention
 is added.
+
+## Answers entered in App Store Connect
+
+App Store Connect has no API for App Privacy. Enter these answers on the App Privacy page.
+
+| Data type | Purpose | Linked to the user | Tracking |
+| --- | --- | --- | --- |
+| Contact Info → Email Address | App Functionality | Yes | No |
+| Identifiers → Device ID | App Functionality | Yes | No |
+| Diagnostics → Other Diagnostic Data | App Functionality | Yes | No |
+
+Do not select User Content: the developer does not keep it longer than one request needs.
+Change this table and the App Store Connect page together.
