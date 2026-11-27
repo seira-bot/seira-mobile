@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,6 +38,15 @@ import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Chat
 import com.openmausbot.companion.core.ChatSummary
+import com.openmausbot.companion.core.DepartmentRules
+import com.openmausbot.companion.core.FoldRules
+import com.openmausbot.companion.core.HomeDot
+import com.openmausbot.companion.core.HomeDotRules
+import com.openmausbot.companion.core.HomeGroup
+import com.openmausbot.companion.core.HomeGroupKind
+import com.openmausbot.companion.core.HomeLayoutRules
+import com.openmausbot.companion.core.PlacementOutcome
+import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.RosterBotRow
 import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.WorkspacePickerModel
@@ -97,7 +108,9 @@ internal fun ChatsScreen(
     val reduced = rememberReducedMotion()
 
     var refreshing by remember { mutableStateOf(false) }
-    var folded by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
+    val folded by environment.chatPreferences.foldedGroups.collectAsState()
+    val density by environment.chatPreferences.rosterDensity.collectAsState()
+    val showPreview = density != RosterDensity.COMPACT
     var expandedBots by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
     var collapsedFolders by rememberSaveable(stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
     var creatingThreads by remember { mutableStateOf(emptySet<String>()) }
@@ -110,6 +123,8 @@ internal fun ChatsScreen(
     var newBotFor by rememberSaveable { mutableStateOf<String?>(null) }
     var creatingBot by remember { mutableStateOf(false) }
     var botFailed by remember { mutableStateOf(false) }
+    var unfiled by remember { mutableStateOf<UnfiledBot?>(null) }
+    var refiling by remember { mutableStateOf(false) }
     val workspaceUnnamed = stringResource(R.string.workspace_unnamed)
     val workspacePicker = remember(session, connection?.id) {
         WorkspacePickerModel(connection?.id.orEmpty(), session.workspaceSource) { session.connection.value?.id }
@@ -145,13 +160,13 @@ internal fun ChatsScreen(
     LaunchedEffect(layout.groups.map(HomeGroup::key), sectionFilter) {
         if (sectionFilter == null && fleet.bots.isNotEmpty()) {
             val next = FoldRules.prune(folded, layout.groups.mapTo(mutableSetOf(), HomeGroup::key))
-            if (next != folded) folded = next
+            if (next != folded) environment.chatPreferences.setFoldedGroups(next)
         }
     }
 
     val toggleGroup: (String) -> Unit = { key ->
         haptics.play(HapticCue.SELECT)
-        folded = FoldRules.toggle(folded, key)
+        environment.chatPreferences.setFoldedGroups(FoldRules.toggle(folded, key))
     }
     val toggleBot: (String) -> Unit = { botId ->
         haptics.play(HapticCue.SELECT)
@@ -214,6 +229,9 @@ internal fun ChatsScreen(
         HomeDotRules.of(bot, RosterBotRow(bot, hasPendingCard = bot.id in waiting).status)
     }
     val groupStart = if (advanced) 16.dp else 20.dp
+    val openChatOf: (Bot) -> Unit = { bot ->
+        navigator.open(Chat.BotChat(session.state.value.bot(bot.id) ?: bot))
+    }
 
     PullToRefreshBox(
         isRefreshing = refreshing,
@@ -273,6 +291,7 @@ internal fun ChatsScreen(
                         onCreate = { createThread(chief) },
                         onManage = { managingThreads = Chat.BotChat(chief) },
                         onOpen = navigator::open,
+                        showPreview = showPreview,
                     )
                 }
             }
@@ -294,6 +313,11 @@ internal fun ChatsScreen(
                         tag = "group-header.${group.key}",
                         startPadding = groupStart,
                         modifier = Modifier.padding(top = 4.dp),
+                        waitingCount = if (group.kind == HomeGroupKind.DEPARTMENT) {
+                            HomeDotRules.waitingCount(group.bots.map(statusOf))
+                        } else {
+                            0
+                        },
                         trailing = {
                             when (group.kind) {
                                 HomeGroupKind.BOTS -> if (!advanced) {
@@ -332,35 +356,35 @@ internal fun ChatsScreen(
                 }
                 if (!open) return@forEach
 
-                if (group.kind == HomeGroupKind.GROUPS) {
-                    items(group.rooms.size, key = { "${group.key}-room-${group.rooms[it].id}" }) { index ->
-                        val room = group.rooms[index]
-                        val summary = summariesById[room.id]
-                        GroupChatRow(
-                            room = room,
-                            members = remember(fleet, room) { RosterLayout.memberBots(fleet, room) },
-                            preview = summary?.preview.orEmpty(),
-                            lastActivity = summary?.lastActivity ?: 0.0,
-                            waiting = room.id in waiting,
-                            advanced = advanced,
-                            onOpen = { navigator.open(Chat.RoomChat(room)) },
-                        )
-                    }
-                    return@forEach
-                }
-
-                if (group.kind == HomeGroupKind.DEPARTMENT && group.bots.isEmpty()) {
+                if (group.kind == HomeGroupKind.DEPARTMENT && group.bots.isEmpty() && group.rooms.isEmpty()) {
+                    val name = group.name.orEmpty()
                     item(key = "empty-${group.key}") {
-                        Text(
-                            text = stringResource(R.string.home2_department_empty),
-                            fontSize = 14.sp,
-                            color = Seira.colors.ink3,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .heightIn(min = 48.dp)
-                                .padding(start = groupStart + 4.dp, end = 16.dp, top = 12.dp)
-                                .testTag("department-empty.${group.name}"),
-                        )
+                        if (advanced) {
+                            Text(
+                                text = stringResource(R.string.home2_department_empty),
+                                fontSize = 14.sp,
+                                color = Seira.colors.ink3,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .heightIn(min = 48.dp)
+                                    .padding(start = groupStart + 4.dp, end = 16.dp, top = 12.dp)
+                                    .testTag("department-empty.$name"),
+                            )
+                        } else {
+                            TextButton(
+                                onClick = { openAddBots(name) },
+                                modifier = Modifier
+                                    .padding(start = groupStart - 8.dp)
+                                    .heightIn(min = 48.dp)
+                                    .testTag("department-empty.$name"),
+                            ) {
+                                Text(
+                                    text = stringResource(R.string.home2_menu_add_bots),
+                                    fontSize = 14.sp,
+                                    color = Seira.colors.accentText,
+                                )
+                            }
+                        }
                     }
                     return@forEach
                 }
@@ -386,6 +410,7 @@ internal fun ChatsScreen(
                             onCreate = { createThread(bot) },
                             onManage = { managingThreads = Chat.BotChat(bot) },
                             onOpen = navigator::open,
+                            showPreview = showPreview,
                         )
                     }
                 } else {
@@ -401,6 +426,23 @@ internal fun ChatsScreen(
                                 modifier = modifier,
                             )
                         }
+                    }
+                }
+
+                if (group.rooms.isNotEmpty()) {
+                    items(group.rooms.size, key = { "${group.key}-room-${group.rooms[it].id}" }) { index ->
+                        val room = group.rooms[index]
+                        val summary = summariesById[room.id]
+                        GroupChatRow(
+                            room = room,
+                            members = remember(fleet, room) { RosterLayout.memberBots(fleet, room) },
+                            preview = summary?.preview.orEmpty(),
+                            lastActivity = summary?.lastActivity ?: 0.0,
+                            waiting = room.id in waiting,
+                            advanced = advanced,
+                            onOpen = { navigator.open(Chat.RoomChat(room)) },
+                            showPreview = !advanced || showPreview,
+                        )
                     }
                 }
             }
@@ -470,14 +512,15 @@ internal fun ChatsScreen(
             department = department,
             bots = DepartmentRules.selectable(state),
             onSave = { placement ->
-                var saved = true
-                for (call in placement.calls(department)) {
-                    if (session.assignSection(call.name, call.botIds, reportsError = false) == null) {
-                        saved = false
-                        break
-                    }
+                val calls = placement.calls(department)
+                var succeeded = 0
+                for (call in calls) {
+                    if (session.assignSection(call.name, call.botIds, reportsError = false) == null) break
+                    succeeded++
                 }
-                saved
+                val outcome = PlacementOutcome.of(succeeded, calls.size)
+                if (outcome != PlacementOutcome.SAVED) session.refresh()
+                outcome
             },
             onDismiss = { addBotsFor = null },
         )
@@ -496,9 +539,13 @@ internal fun ChatsScreen(
                             val bot = session.createBot(NewBotRules.spec(name, job, retryKey))
                             if (bot != null) {
                                 haptics.play(TactileAction.CREATE_BOT_SUCCESS)
-                                session.assignSection(department, listOf(bot.id), reportsError = false)
+                                val filed = session.assignSection(department, listOf(bot.id), reportsError = false)
                                 newBotFor = null
-                                navigator.open(Chat.BotChat(session.state.value.bot(bot.id) ?: bot))
+                                if (filed != null) {
+                                    openChatOf(bot)
+                                } else {
+                                    unfiled = UnfiledBot(bot, department)
+                                }
                             } else {
                                 session.actionError = null
                                 botFailed = true
@@ -512,7 +559,57 @@ internal fun ChatsScreen(
             onDismiss = { newBotFor = null },
         )
     }
+
+    unfiled?.let { pending ->
+        AlertDialog(
+            onDismissRequest = {
+                if (!refiling) {
+                    unfiled = null
+                    openChatOf(pending.bot)
+                }
+            },
+            title = {
+                Text(stringResource(R.string.home2_new_bot_not_filed, pending.bot.name, pending.department))
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !refiling,
+                    modifier = Modifier.testTag("new-bot-retry-file"),
+                    onClick = {
+                        refiling = true
+                        scope.launch {
+                            try {
+                                val filed = session.assignSection(
+                                    pending.department,
+                                    listOf(pending.bot.id),
+                                    reportsError = false,
+                                )
+                                if (filed != null) {
+                                    unfiled = null
+                                    openChatOf(pending.bot)
+                                }
+                            } finally {
+                                refiling = false
+                            }
+                        }
+                    },
+                ) { Text(stringResource(R.string.home2_try_again)) }
+            },
+            dismissButton = {
+                TextButton(
+                    enabled = !refiling,
+                    modifier = Modifier.testTag("new-bot-skip-file"),
+                    onClick = {
+                        unfiled = null
+                        openChatOf(pending.bot)
+                    },
+                ) { Text(stringResource(R.string.home2_not_now)) }
+            },
+        )
+    }
 }
+
+private data class UnfiledBot(val bot: Bot, val department: String)
 
 @Composable
 private fun AdvancedBotEntry(
@@ -533,6 +630,7 @@ private fun AdvancedBotEntry(
     onCreate: () -> Unit,
     onManage: () -> Unit,
     onOpen: (Chat) -> Unit,
+    showPreview: Boolean,
 ) {
     val now = rememberSnoozeNow(bot.tasks.orEmpty())
     val row = RosterBotRow(bot, hasPendingCard, queuedThreadIds, now)
@@ -548,6 +646,7 @@ private fun AdvancedBotEntry(
             expanded = expanded,
             onOpen = onOpenRow,
             onToggleThreads = onToggle,
+            showPreview = showPreview,
         )
         AnimatedVisibility(
             visible = expanded,

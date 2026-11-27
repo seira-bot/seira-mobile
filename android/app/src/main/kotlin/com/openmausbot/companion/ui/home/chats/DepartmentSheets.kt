@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
@@ -45,6 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.DepartmentEdit
+import com.openmausbot.companion.core.DepartmentPlacement
+import com.openmausbot.companion.core.DepartmentRules
+import com.openmausbot.companion.core.HomeLayoutRules
+import com.openmausbot.companion.core.PlacementOutcome
 import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.HapticCue
 import com.openmausbot.companion.ui.play
@@ -120,25 +125,27 @@ private fun MenuRow(label: String, tag: String, onClick: () -> Unit) {
 
 /**
  * The bots of the fleet with a check mark on the ones in [department]. Save sends
- * only the difference through [onSave], which answers whether the computer took it.
+ * only the person's own changes through [onSave], which answers what the
+ * computer took. A change made on the computer meanwhile stays.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun AddBotsSheet(
     department: String,
     bots: List<Bot>,
-    onSave: suspend (DepartmentPlacement) -> Boolean,
+    onSave: suspend (DepartmentPlacement) -> PlacementOutcome,
     onDismiss: () -> Unit,
 ) {
     val colors = Seira.colors
     val haptics = rememberHaptics()
     val scope = rememberCoroutineScope()
-    var checked by rememberSaveable(department, stateSaver = StringSetSaver) {
-        mutableStateOf(DepartmentRules.members(bots, department))
-    }
+    var addedIds by rememberSaveable(department, stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
+    var removedIds by rememberSaveable(department, stateSaver = StringSetSaver) { mutableStateOf(emptySet<String>()) }
     var saving by remember { mutableStateOf(false) }
-    var failed by remember { mutableStateOf(false) }
-    val placement = remember(bots, department, checked) { DepartmentRules.diff(bots, department, checked) }
+    var outcome by remember { mutableStateOf<PlacementOutcome?>(null) }
+    val edit = DepartmentEdit(addedIds, removedIds)
+    val members = remember(bots, department) { DepartmentRules.members(bots, department) }
+    val placement = remember(bots, department, addedIds, removedIds) { DepartmentRules.placement(bots, department, edit) }
 
     ModalBottomSheet(
         onDismissRequest = { if (!saving) onDismiss() },
@@ -178,20 +185,24 @@ internal fun AddBotsSheet(
                         BotCheckRow(
                             bot = bot,
                             department = department,
-                            checked = bot.id in checked,
+                            checked = DepartmentRules.isChecked(members, edit, bot.id),
                             enabled = !saving,
                             onToggle = {
                                 haptics.play(HapticCue.SELECT)
-                                failed = false
-                                checked = DepartmentRules.toggle(checked, bot.id)
+                                outcome = null
+                                val next = DepartmentRules.toggle(members, edit, bot.id)
+                                addedIds = next.added
+                                removedIds = next.removed
                             },
                         )
                     }
                 }
             }
-            if (failed) {
+            if (outcome != null) {
                 Text(
-                    text = stringResource(R.string.home2_add_bots_failed),
+                    text = stringResource(
+                        if (outcome == PlacementOutcome.PARTIAL) R.string.home2_add_bots_partial else R.string.home2_add_bots_failed,
+                    ),
                     fontSize = 13.sp,
                     lineHeight = 18.sp,
                     color = colors.warningText,
@@ -209,18 +220,18 @@ internal fun AddBotsSheet(
                 onClick = {
                     if (DepartmentRules.canSave(placement, saving)) {
                         saving = true
-                        failed = false
+                        outcome = null
                         scope.launch {
-                            val saved = try {
+                            val result = try {
                                 onSave(placement)
                             } finally {
                                 saving = false
                             }
-                            if (saved) {
+                            if (result == PlacementOutcome.SAVED) {
                                 haptics.play(HapticCue.SUCCESS)
                                 onDismiss()
                             } else {
-                                failed = true
+                                outcome = result
                             }
                         }
                     }
@@ -247,8 +258,7 @@ private fun BotCheckRow(
             .testTag("add-bots-row.${bot.id}")
             .heightIn(min = 56.dp)
             .clip(RoundedCornerShape(14.dp))
-            .clickable(enabled = enabled, role = Role.Checkbox, onClick = onToggle)
-            .semantics(mergeDescendants = true) { selected = checked }
+            .toggleable(value = checked, enabled = enabled, role = Role.Checkbox, onValueChange = { onToggle() })
             .padding(horizontal = 8.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,

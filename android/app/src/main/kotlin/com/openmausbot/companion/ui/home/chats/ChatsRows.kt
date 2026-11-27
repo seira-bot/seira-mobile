@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.HomeDot
+import com.openmausbot.companion.core.HomeDotRules
+import com.openmausbot.companion.core.HomeLayoutRules
 import com.openmausbot.companion.core.Room
 import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.RelativeStamp
@@ -173,6 +176,7 @@ internal fun AdvancedBotRow(
     expanded: Boolean,
     onOpen: () -> Unit,
     onToggleThreads: () -> Unit,
+    showPreview: Boolean = true,
 ) {
     val colors = Seira.colors
     val reduced = rememberReducedMotion()
@@ -285,14 +289,16 @@ internal fun AdvancedBotRow(
                         )
                     }
                 }
-                Text(
-                    text = preview.ifEmpty { " " },
-                    fontSize = 13.5.sp,
-                    lineHeight = 18.sp,
-                    color = if (waiting) colors.warningText else colors.ink2,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                if (showPreview) {
+                    Text(
+                        text = preview.ifEmpty { " " },
+                        fontSize = 13.5.sp,
+                        lineHeight = 18.sp,
+                        color = if (waiting) colors.warningText else colors.ink2,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
     }
@@ -308,6 +314,7 @@ internal fun GroupChatRow(
     waiting: Boolean,
     advanced: Boolean,
     onOpen: () -> Unit,
+    showPreview: Boolean = true,
 ) {
     val colors = Seira.colors
     val now = remember(lastActivity) { System.currentTimeMillis() }
@@ -357,14 +364,16 @@ internal fun GroupChatRow(
                     )
                 }
             }
-            Text(
-                text = preview.ifEmpty { " " },
-                fontSize = 13.5.sp,
-                lineHeight = 18.sp,
-                color = if (waiting) colors.warningText else colors.ink2,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (showPreview) {
+                Text(
+                    text = preview.ifEmpty { " " },
+                    fontSize = 13.5.sp,
+                    lineHeight = 18.sp,
+                    color = if (waiting) colors.warningText else colors.ink2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }
