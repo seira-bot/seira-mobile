@@ -1565,7 +1565,7 @@ private fun CardContent(
             val optionEnabled: (ApprovalButtonSpec) -> Boolean = { spec ->
                 !answering && (
                     skillRequest == null ||
-                        OptionCard.isRefusal(spec.option) ||
+                        card.refuses(spec.option) ||
                         skillRequest.reviewedSha256 != null
                     )
             }

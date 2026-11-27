@@ -81,6 +81,8 @@ public struct OptionCard: Codable, Hashable, Sendable {
     /// Present on the offer to continue on another engine after a usage
     /// limit stopped a turn.
     public var quotaSwitch: QuotaSwitchCard? = nil
+    /// The options are the whole answer: no free-text reply.
+    public var fixedOptions: Bool? = nil
 
     /// A card is actionable while it is unanswered and still has a request
     /// behind it. Everything else is transcript.
@@ -103,11 +105,31 @@ public struct OptionCard: Codable, Hashable, Sendable {
     /// display text.
     ///
     /// Security invariant: a permission answer is "allow" only for a label in
-    /// `approvals`. The wire contract (`OptionCardData.options` in
+    /// `approvals`, or for the first option of a settings card (see `approves`). The wire contract (`OptionCardData.options` in
     /// seira-bot/seira) carries labels only, and a provider may supply its
     /// own, so an unknown or localized label answers "deny".
     public func responseBehavior(for choice: String) -> String {
-        Self.responseBehavior(for: choice, isPermission: isPermission)
+        guard isPermission else { return "answer" }
+        return approves(choice) ? "allow" : "deny"
+    }
+
+    /// A bot settings card (`app_settings`) offers `[Apply, Not now]` in the
+    /// person's language, so its labels cannot be matched by text. By
+    /// position, the first option applies the change and the second refuses
+    /// it. Any other shape is not a settings card and keeps the label rules.
+    private var isSettingsChoice: Bool {
+        tool == "app_settings" && fixedOptions == true && options.count == 2
+            && options[0] != options[1] && !Self.isRefusal(options[0]) && !Self.isApproval(options[1])
+    }
+
+    /// True when `choice` is the option that approves this card.
+    public func approves(_ choice: String) -> Bool {
+        isSettingsChoice ? choice == options[0] : Self.isApproval(choice)
+    }
+
+    /// True when `choice` is the option that refuses this card.
+    public func refuses(_ choice: String) -> Bool {
+        isSettingsChoice ? choice == options[1] : Self.isRefusal(choice)
     }
 
     /// The ID-only form is used by Live Activity buttons, which carry the

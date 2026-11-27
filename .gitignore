@@ -9,3 +9,6 @@ google-services.json
 /AGENTS.local.md
 /CLAUDE.local.md
 /.leakcheck.local
+
+# Raw App Store captures: download them from the CI artifact. See ios/AppStore/README.md.
+/ios/AppStore/raw/

@@ -270,6 +270,44 @@ class DecodingTest {
         }
     }
 
+    private fun settingsCard(vararg options: String, tool: String = "app_settings", fixed: Boolean? = true) = OptionCard(
+        title = "Change setting",
+        subtitle = "people.signIn",
+        options = options.toList(),
+        requestId = "req-settings",
+        tool = tool,
+        fixedOptions = fixed,
+    )
+
+    @Test
+    fun applyOnASettingsCardAnswersAllowAndNotNowAnswersDeny() {
+        for ((apply, refuse) in listOf("Apply" to "Not now", "Aplicar" to "Agora não", "Terapkan" to "Nanti saja")) {
+            val card = settingsCard(apply, refuse)
+            assertEquals("allow", card.responseBehavior(apply), apply)
+            assertEquals("deny", card.responseBehavior(refuse), refuse)
+            assertEquals("deny", card.responseBehavior("Allow"), "a label that is not an option never allows")
+        }
+    }
+
+    @Test
+    fun aSettingsCardNeedsItsFixedTwoOptionShapeForThePositionRule() {
+        assertEquals("deny", settingsCard("Aplicar", "Agora não", fixed = null).responseBehavior("Aplicar"))
+        assertEquals("deny", settingsCard("Aplicar", "Agora não", fixed = false).responseBehavior("Aplicar"))
+        assertEquals("deny", settingsCard("Aplicar", "Agora não", "Talvez").responseBehavior("Aplicar"))
+        assertEquals("deny", settingsCard("Aplicar", "Agora não", tool = "Bash").responseBehavior("Aplicar"))
+        assertEquals("deny", settingsCard("Cancel", "Apply").responseBehavior("Cancel"))
+        assertEquals("deny", settingsCard("Not now", "Allow").responseBehavior("Not now"))
+        assertEquals("deny", settingsCard("Apply", "Apply").responseBehavior("Apply"))
+    }
+
+    @Test
+    fun otherPermissionCardsKeepTheLabelMapping() {
+        val card = settingsCard("Allow", "Deny", tool = "Bash")
+        assertEquals("allow", card.responseBehavior("Allow"))
+        assertEquals("deny", card.responseBehavior("Deny"))
+        assertEquals("allow", settingsCard("Enable", "Cancel", tool = "stage_skill").responseBehavior("Enable"))
+    }
+
     @Test
     fun aLocalizedApprovalCardAnswersDenyForEveryUnknownLabel() {
         val card = OptionCard(

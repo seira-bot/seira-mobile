@@ -47,7 +47,7 @@ internal object InboxDecisions {
         if (card.isPermission) {
             ApprovalChoices.allowChoice(card.options, isPermission = true)
         } else {
-            card.options.firstOrNull { !ApprovalChoices.isRefusal(it) }
+            card.options.firstOrNull { !card.refuses(it) }
         }
 
     fun title(update: ChatUpdate): String =

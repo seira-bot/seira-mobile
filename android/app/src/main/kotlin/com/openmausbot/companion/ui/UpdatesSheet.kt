@@ -318,7 +318,7 @@ private fun UpdateRow(update: ChatUpdate, face: CharacterMood, onOpen: () -> Uni
                         modifier = Modifier.padding(top = 6.dp),
                     ) {
                         card.options.forEach { option ->
-                            val refusal = ApprovalChoices.emphasis(option) == OptionEmphasis.SECONDARY
+                            val refusal = card.refuses(option)
                             Button(
                                 onClick = {
                                     haptics.play(TactileAction.CHOOSE_APPROVAL)

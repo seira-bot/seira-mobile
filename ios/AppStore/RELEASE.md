@@ -7,7 +7,7 @@ The app is native Swift and uses XcodeGen; EAS commands do not apply.
 1. Enrol in the Apple Developer Program.
 2. Register the bundle IDs `bot.seira.app`, `bot.seira.app.widgets`, and `bot.seira.app.share` (or change them in `project.yml` before the first upload).
 3. Register the App Group `group.bot.seira.shared`. Enable App Groups and Keychain Sharing for the app and Share extension identifiers, then add the group to both. Keep the app's legacy `$(AppIdentifierPrefix)bot.seira.app` Keychain group during upgrades so existing pairings can migrate safely.
-4. Create the matching app in App Store Connect with the name **Seira**, primary category **Productivity**, and a unique SKU.
+4. Create the matching app in App Store Connect with a unique SKU. The listing name is in `en-US/name.txt`. The primary category is **Productivity**.
 5. Create or select Apple Distribution certificates and App Store provisioning profiles for the containing app and both extensions.
 6. Add the review contact details in App Store Connect; do not commit private contact data or App Store Connect keys.
 
@@ -24,12 +24,28 @@ The app is native Swift and uses XcodeGen; EAS commands do not apply.
 
 ## App Store Connect
 
-- Copy the localized text from `en-US/`.
-- Use `privacy-answers.md` and verify it still matches the binary.
-- Use `review-notes.md`, adding a real review contact in App Store Connect.
-- Support URL: `https://github.com/seira-bot/seira/issues`
-- Privacy policy URL: TBD: Seira privacy policy URL (must be public before store submission)
-- Choose manual release for 1.0; enable a phased release after the first production build is stable.
+The listing text and screenshots live in this folder. `tools/asc-listing.mjs` checks them and uploads them with the App Store Connect API. It changes only the version in Prepare for Submission. It never submits and never releases.
+
+| Item | Source |
+| --- | --- |
+| Name, subtitle, description, keywords, promotional text, URLs | `en-US/*.txt`, `id/*.txt` (App Store Connect calls Indonesian `id`) |
+| What's New | `<locale>/release_notes.txt`. App Store Connect refuses it on the first version. |
+| Screenshots | `frames/<locale>/iphone-6.9/` and `frames/<locale>/ipad-13/`. See `README.md`. |
+| App Privacy | `privacy-answers.md`. Verify it against the binary. |
+| Review notes | `review-notes.md`. The review server address and passphrase stay in App Store Connect only. |
+| Support URL | `https://github.com/seira-bot/seira/issues` |
+| Privacy policy URL | `https://seira.bot/privacy` |
+| Category | Productivity |
+
+```bash
+node ios/AppStore/tools/asc-listing.mjs check
+ASC_KEY_ID=... ASC_ISSUER_ID=... ASC_KEY_PATH=... ASC_APP_ID=... node ios/AppStore/tools/asc-listing.mjs text
+ASC_KEY_ID=... ASC_ISSUER_ID=... ASC_KEY_PATH=... ASC_APP_ID=... node ios/AppStore/tools/asc-listing.mjs screenshots --replace
+ASC_KEY_ID=... ASC_ISSUER_ID=... ASC_KEY_PATH=... ASC_APP_ID=... node ios/AppStore/tools/asc-listing.mjs status
+```
+
+- Add a real review contact in App Store Connect. Do not commit private contact data or App Store Connect keys.
+- Choose manual release for 1.0. Enable a phased release after the first production build is stable.
 
 The unsigned simulator CI proves compilation, not distribution signing. Use the workflow below to upload a signed build.
 
@@ -61,7 +77,7 @@ gh workflow run ios-testflight.yml --repo seira-bot/seira-mobile -f ref=main
 - With all four secrets set, the workflow signs the app and uploads it.
 - With no secret set, the workflow makes an unsigned archive. It uploads nothing and shows a NOT UPLOADED warning.
 - With only some secrets set, the workflow stops and names the missing secrets.
-- The run uses Xcode 26 or newer. App Store Connect rejects uploads from older versions.
+- The run uses the `xcode-27` runner image. From April 2027 App Store Connect rejects uploads built with an iOS SDK older than 27.
 
 ### Build number
 

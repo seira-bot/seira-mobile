@@ -62,7 +62,7 @@ internal object ApprovalButtons {
         }
         var filledGiven = false
         return options.map { option ->
-            val refusal = OptionCard.isRefusal(option)
+            val refusal = card.refuses(option)
             val trimmed = option.trim()
             val label = when {
                 trimmed.equals("allow", ignoreCase = true) || trimmed.equals("allow once", ignoreCase = true) ->
