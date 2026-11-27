@@ -66,7 +66,6 @@ internal fun LiveRowIcon(icon: ImageVector, on: Boolean, modifier: Modifier = Mo
     val tint by animateColorAsState(
         if (on) colors.ink2 else colors.ink3,
         if (reduced) tween(0) else tween(SeiraMotion.BASE),
-        label = "liveIconTint",
     )
     val effect = remember { Animatable(0f) }
     val strike = remember { Animatable(if (on) 0f else 1f) }

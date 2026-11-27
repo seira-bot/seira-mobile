@@ -71,10 +71,10 @@ private class Phases(val rotation: State<Float>, val blink: State<Float>, val dr
 @Composable
 private fun rememberPhases(active: Boolean): Phases {
     if (!active) return remember { Phases(mutableFloatStateOf(0f), mutableFloatStateOf(0f), mutableFloatStateOf(0f)) }
-    val loop = rememberInfiniteTransition(label = "themeBodies")
-    val rotation = loop.animateFloat(0f, 360f, infiniteRepeatable(tween(22_000, easing = LinearEasing)), label = "rays")
-    val blink = loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_400, easing = LinearEasing)), label = "stars")
-    val drift = loop.animateFloat(0f, 1f, infiniteRepeatable(tween(4_000, easing = LinearEasing), RepeatMode.Reverse), label = "moon")
+    val loop = rememberInfiniteTransition()
+    val rotation = loop.animateFloat(0f, 360f, infiniteRepeatable(tween(22_000, easing = LinearEasing)))
+    val blink = loop.animateFloat(0f, 1f, infiniteRepeatable(tween(2_400, easing = LinearEasing)))
+    val drift = loop.animateFloat(0f, 1f, infiniteRepeatable(tween(4_000, easing = LinearEasing), RepeatMode.Reverse))
     return remember(rotation, blink, drift) { Phases(rotation, blink, drift) }
 }
 
@@ -92,7 +92,6 @@ internal fun ThemeEclipsePicker(
     val halo by animateFloatAsState(
         index.toFloat(),
         if (reduced) tween(120) else spring(dampingRatio = 0.67f, stiffness = 380f),
-        label = "themeHalo",
     )
     Column(modifier = modifier.fillMaxWidth().padding(vertical = 8.dp)) {
         Text(
@@ -137,7 +136,7 @@ private fun ThemeTile(
     val scope = rememberCoroutineScope()
     var centre by remember { mutableStateOf(Offset.Zero) }
     val phases = rememberPhases(selected && !reduced)
-    val alpha by animateFloatAsState(if (selected) 1f else 0.6f, tween(if (reduced) 0 else 200), label = "themeBodyAlpha")
+    val alpha by animateFloatAsState(if (selected) 1f else 0.6f, tween(if (reduced) 0 else 200))
     val label = stringResource(
         when (mode) {
             ThemeMode.LIGHT -> R.string.theme_mode_light
