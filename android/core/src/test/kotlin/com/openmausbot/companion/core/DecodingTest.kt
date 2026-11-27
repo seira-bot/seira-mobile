@@ -295,6 +295,9 @@ class DecodingTest {
         assertEquals("deny", settingsCard("Aplicar", "Agora não", fixed = false).responseBehavior("Aplicar"))
         assertEquals("deny", settingsCard("Aplicar", "Agora não", "Talvez").responseBehavior("Aplicar"))
         assertEquals("deny", settingsCard("Aplicar", "Agora não", tool = "Bash").responseBehavior("Aplicar"))
+        assertEquals("deny", settingsCard("Cancel", "Apply").responseBehavior("Cancel"))
+        assertEquals("deny", settingsCard("Not now", "Allow").responseBehavior("Not now"))
+        assertEquals("deny", settingsCard("Apply", "Apply").responseBehavior("Apply"))
     }
 
     @Test

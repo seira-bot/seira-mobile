@@ -580,6 +580,9 @@ final class DecodingTests: XCTestCase {
         XCTAssertEqual(settingsCard(["Aplicar", "Agora não"], fixed: false).responseBehavior(for: "Aplicar"), "deny")
         XCTAssertEqual(settingsCard(["Aplicar", "Agora não", "Talvez"]).responseBehavior(for: "Aplicar"), "deny")
         XCTAssertEqual(settingsCard(["Aplicar", "Agora não"], tool: "Bash").responseBehavior(for: "Aplicar"), "deny")
+        XCTAssertEqual(settingsCard(["Cancel", "Apply"]).responseBehavior(for: "Cancel"), "deny")
+        XCTAssertEqual(settingsCard(["Not now", "Allow"]).responseBehavior(for: "Not now"), "deny")
+        XCTAssertEqual(settingsCard(["Apply", "Apply"]).responseBehavior(for: "Apply"), "deny")
     }
 
     func testOtherPermissionCardsKeepTheLabelMapping() {

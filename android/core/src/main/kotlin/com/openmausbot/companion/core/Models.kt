@@ -121,7 +121,8 @@ data class OptionCard(
      * card and keeps the label rules.
      */
     private val isSettingsChoice: Boolean get() =
-        tool == SETTINGS_TOOL && fixedOptions == true && options.size == 2
+        tool == SETTINGS_TOOL && fixedOptions == true && options.size == 2 &&
+            options[0] != options[1] && !isRefusal(options[0]) && !isApproval(options[1])
 
     /** True when [choice] is the option that approves this card. */
     fun approves(choice: String): Boolean =

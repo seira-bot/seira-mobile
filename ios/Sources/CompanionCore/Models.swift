@@ -119,6 +119,7 @@ public struct OptionCard: Codable, Hashable, Sendable {
     /// it. Any other shape is not a settings card and keeps the label rules.
     private var isSettingsChoice: Bool {
         tool == "app_settings" && fixedOptions == true && options.count == 2
+            && options[0] != options[1] && !Self.isRefusal(options[0]) && !Self.isApproval(options[1])
     }
 
     /// True when `choice` is the option that approves this card.
