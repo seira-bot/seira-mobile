@@ -20690,6 +20690,28 @@
           }
         }
       }
+    },
+    "Thread title": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Título da conversa"
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "对话标题"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "對話標題"
+          }
+        }
+      }
     }
   },
   "version": "1.0"

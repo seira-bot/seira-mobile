@@ -75,7 +75,7 @@ struct BotActionsSection: View {
         }
     }
 
-    private func change(_ done: String, _ call: @escaping () async -> Bool) {
+    private func change(_ done: String.LocalizationValue, _ call: @escaping () async -> Bool) {
         guard !busy else { return }
         busy = true
         Task {
@@ -90,7 +90,8 @@ struct BotActionsSection: View {
         }
     }
 
-    private func say(_ text: String, failed: Bool) {
+    private func say(_ key: String.LocalizationValue, failed: Bool) {
+        let text = String(localized: key)
         answer = text
         answerFailed = failed
         UIAccessibility.post(notification: .announcement, argument: text)

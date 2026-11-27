@@ -432,7 +432,7 @@ struct ChatView: View {
             }
         }
         .alert("Rename thread", isPresented: $renamingThread) {
-            TextField("Title", text: $renameText)
+            TextField("Thread title", text: $renameText)
             Button("Cancel", role: .cancel) {}
             Button("Save") { saveRename() }
         }

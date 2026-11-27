@@ -431,7 +431,7 @@ struct ChatListView: View {
         let folded: Bool? = isFoldable(group) ? !open : nil
         switch group.kind {
         case .bots:
-            HomeGroupHeader(title: "Bots", folded: folded, toggle: toggle) {
+            HomeGroupHeader(title: String(localized: "Bots"), folded: folded, toggle: toggle) {
                 if !advancedMode {
                     HomeGroupIconButton(symbol: "magnifyingglass", label: Text("Search chats and bots")) {
                         Haptics.selection()
@@ -456,7 +456,7 @@ struct ChatListView: View {
                 }
             }
         case .groups:
-            HomeGroupHeader(title: "Group chats", folded: folded, toggle: toggle) {
+            HomeGroupHeader(title: String(localized: "Group chats"), folded: folded, toggle: toggle) {
                 HomeGroupIconButton(symbol: "plus", label: Text("New group")) {
                     Haptics.selection()
                     showingNewGroup = true

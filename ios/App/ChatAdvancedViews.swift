@@ -38,17 +38,17 @@ struct ComposerToolChips: View {
 
     private func title(_ tool: ComposerTool) -> String {
         switch tool {
-        case .teach: return "Teach"
-        case .goal: return "Goal"
-        case .context: return "Context \(contextPercent ?? 0)%"
+        case .teach: return String(localized: "Teach")
+        case .goal: return String(localized: "Goal")
+        case .context: return String(localized: "Context \(contextPercent ?? 0)%")
         }
     }
 
     private func accessibilityLabel(_ tool: ComposerTool) -> String {
         switch tool {
-        case .teach: return "Teach a new skill"
-        case .goal: return "Set a goal"
-        case .context: return "Context, \(contextPercent ?? 0) percent used. Tap for details."
+        case .teach: return String(localized: "Teach a new skill")
+        case .goal: return String(localized: "Set a goal")
+        case .context: return String(localized: "Context, \(contextPercent ?? 0) percent used. Tap for details.")
         }
     }
 }

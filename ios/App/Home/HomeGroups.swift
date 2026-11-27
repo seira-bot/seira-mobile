@@ -99,9 +99,9 @@ struct BotTile: View, Equatable {
 
     private var label: String {
         var parts = [bot.name]
-        if bot.chiefOfStaff == true { parts.append("Chief of Staff") }
-        if dot == .waiting { parts.append("Waiting for you") }
-        if dot == .problem { parts.append("Needs a look") }
+        if bot.chiefOfStaff == true { parts.append(String(localized: "Chief of Staff")) }
+        if dot == .waiting { parts.append(String(localized: "Waiting for you")) }
+        if dot == .problem { parts.append(String(localized: "Needs a look")) }
         return parts.joined(separator: ", ")
     }
 
@@ -157,7 +157,7 @@ struct AdvancedBotRow: View, Equatable {
 
     private var detail: String {
         if !preview.isEmpty { return preview }
-        return waiting ? "Waiting on you" : ""
+        return waiting ? String(localized: "Waiting on you") : ""
     }
 
     var body: some View {
@@ -340,8 +340,8 @@ struct AddBotsSheet: View {
         let isOn = current.contains(bot.id)
         let section = bot.section?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let place: String = {
-            if section.isEmpty { return "Bots" }
-            return section == department ? "" : "In \(section)"
+            if section.isEmpty { return String(localized: "Bots") }
+            return section == department ? "" : String(localized: "In \(section)")
         }()
         return Button {
             Haptics.selection()
