@@ -15,10 +15,12 @@ import org.robolectric.shadows.ShadowToast
 class PairingLinkBrowserTest {
     private val context: Context = RuntimeEnvironment.getApplication()
 
+    // Robolectric resolves the plain view intent and ignores the browser selector,
+    // so a seira.run URL would match this app's own link filter and not fail.
     @Test
     fun `a link says so when no browser can open it`() {
         shadowOf(RuntimeEnvironment.getApplication()).checkActivities(true)
-        openInBrowser(context, "https://c-0123456789abcdef0123456789abcdef.seira.run/some/path")
+        openInBrowser(context, "https://example.com/some/path")
         assertEquals(context.getString(R.string.mobile_link_no_browser), ShadowToast.getTextOfLatestToast())
         assertEquals("No browser on this phone can open this link.", ShadowToast.getTextOfLatestToast())
     }
