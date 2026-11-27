@@ -153,15 +153,17 @@ internal fun ModelPickerFields(
 }
 
 /**
- * "Switch model" under a failed turn: changes the model of this conversation
- * only, never the bot's default. [onSwitched] gets the label of the model now
- * in use.
+ * Model picker. From the chat menu ([updatesBotDefault] true) the choice also
+ * becomes the bot's default model. From the failed-turn "Switch model" offer
+ * ([updatesBotDefault] false) it changes only this conversation.
+ * [onSwitched] gets the label of the model now in use.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun ModelPickerSheet(
     bot: Bot,
     unavailable: ModelSelection,
+    updatesBotDefault: Boolean,
     onSwitched: (String) -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -234,7 +236,7 @@ internal fun ModelPickerSheet(
                                 scope.launch {
                                     applying = true
                                     try {
-                                        val updated = session.updateModel(draft, target, quietly = true)
+                                        val updated = session.updateModel(draft, target, quietly = true, updateBotDefault = updatesBotDefault)
                                         if (updated == null) {
                                             switchFailed = true
                                         } else {

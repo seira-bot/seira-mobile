@@ -159,12 +159,16 @@ internal fun SettingsTab(
                         busy = true
                         try {
                             val target = session.state.value.bot(bot.id)?.forTask(bot.threadId) ?: return@launch
-                            session.updateModel(modelDraft, target)?.let { updated ->
-                                savedModel = updated.modelSelection
-                                instanceId = updated.modelSelection.instanceId
-                                modelId = updated.modelSelection.model
-                                effort = updated.modelSelection.effort.orEmpty()
-                            }
+                            val updated = session.updateModel(
+                                modelDraft,
+                                target,
+                                updateBotDefault = session.canAdminister,
+                            )
+                            val shown = updated?.modelSelection ?: savedModel
+                            if (updated != null) savedModel = shown
+                            instanceId = shown.instanceId
+                            modelId = shown.model
+                            effort = shown.effort.orEmpty()
                         } finally {
                             busy = false
                         }

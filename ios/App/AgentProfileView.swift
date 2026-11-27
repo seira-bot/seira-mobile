@@ -498,13 +498,12 @@ struct AgentProfileView: View {
         guard canApplyModel else { return }
         busy = true
         defer { busy = false }
-        if let updated = await session.updateModel(modelDraft, for: current) {
-            let model = updated.projected(forThread: bot.threadId)?.currentTaskModelSelection ?? modelDraft
-            selectedInstanceID = model.instanceId
-            selectedModelID = model.model
-            selectedEffort = model.effort
-            savedModel = model
-        }
+        let updated = await session.updateModel(modelDraft, for: current, updateBotDefault: session.canAdminister)
+        let model = updated.map { $0.projected(forThread: bot.threadId)?.currentTaskModelSelection ?? modelDraft } ?? savedModel
+        selectedInstanceID = model.instanceId
+        selectedModelID = model.model
+        selectedEffort = model.effort
+        savedModel = model
     }
 
     private func selectDefaults(for instanceID: String) {

@@ -255,11 +255,13 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
                                 busy = true
                                 try {
                                     val target = liveBot().forTask(opened.threadId) ?: return@launch
-                                    val updated = session.updateModel(modelDraft, target)
-                                    if (updated != null) {
-                                        savedModel = updated.modelSelection
-                                        showModel(updated.modelSelection)
-                                    }
+                                    val updated = session.updateModel(
+                                        modelDraft,
+                                        target,
+                                        updateBotDefault = session.canAdminister,
+                                    )
+                                    if (updated != null) savedModel = updated.modelSelection
+                                    showModel(updated?.modelSelection ?: savedModel)
                                 } finally {
                                     busy = false
                                 }

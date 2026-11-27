@@ -2513,10 +2513,12 @@ final class Session: ObservableObject {
         return instance?.models.options.first { $0.id == selection.model }?.label ?? selection.model
     }
 
-    func updateModel(_ selection: ModelSelection, for bot: Bot) async -> Bot? {
+    func updateModel(_ selection: ModelSelection, for bot: Bot, updateBotDefault: Bool = false) async -> Bot? {
         guard let client else { return nil }
         do {
-            let updated = try await client.updateModel(botId: bot.id, selection: selection, threadId: bot.threadId)
+            let updated = try await client.updateModel(
+                botId: bot.id, selection: selection, threadId: bot.threadId, updateBotDefault: updateBotDefault
+            )
             guard !Task.isCancelled else { return nil }
             state.apply(.bot(updated))
             return updated
