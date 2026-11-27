@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui.chat.composer
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -31,12 +32,17 @@ import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.ApprovalMode
 import com.openmausbot.companion.ui.PredictiveChip
+import com.openmausbot.companion.ui.chat.ComposerTool
 import com.openmausbot.companion.ui.quickReplyGlyph
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
+import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.seiraTween
 
 internal const val MODE_CHIP_TAG = "composer-mode-chip"
 internal const val GOAL_CHIP_TAG = "composer-goal-chip"
+
+internal fun composerToolTag(tool: ComposerTool): String = "composer-tool.${tool.name.lowercase()}"
 
 private val TOUCH = 48.dp
 private val PILL_HEIGHT = 36.dp
@@ -51,11 +57,15 @@ internal fun ComposerChipRow(
     chips: List<PredictiveChip>,
     onSelectChip: (PredictiveChip) -> Unit,
     modifier: Modifier = Modifier,
+    tools: List<ComposerTool> = emptyList(),
+    contextPercent: Int? = null,
+    onTool: (ComposerTool) -> Unit = {},
 ) {
-    if (!showMode && goal == null && chips.isEmpty()) return
+    if (!showMode && goal == null && chips.isEmpty() && tools.isEmpty()) return
     Row(
         modifier = modifier
             .fillMaxWidth()
+            .animateContentSize(seiraTween(SeiraMotion.BASE))
             .horizontalScroll(rememberScrollState())
             .padding(horizontal = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(2.dp),
@@ -79,6 +89,24 @@ internal fun ComposerChipRow(
                 description = stringResource(R.string.composer_goal_chip, goal),
                 tag = GOAL_CHIP_TAG,
                 soft = true,
+            )
+        }
+        tools.forEach { tool ->
+            val text = when (tool) {
+                ComposerTool.TEACH -> stringResource(R.string.chat3_tool_teach)
+                ComposerTool.GOAL -> stringResource(R.string.chat3_tool_goal)
+                ComposerTool.CONTEXT -> stringResource(R.string.chat3_tool_context, contextPercent ?: 0)
+            }
+            val description = when (tool) {
+                ComposerTool.TEACH -> stringResource(R.string.chat3_tool_teach_a11y)
+                ComposerTool.GOAL -> stringResource(R.string.chat3_tool_goal_a11y)
+                ComposerTool.CONTEXT -> stringResource(R.string.chat3_tool_context_a11y, contextPercent ?: 0)
+            }
+            Pill(
+                text = text,
+                onClick = { onTool(tool) },
+                description = description,
+                tag = composerToolTag(tool),
             )
         }
         chips.forEach { chip ->

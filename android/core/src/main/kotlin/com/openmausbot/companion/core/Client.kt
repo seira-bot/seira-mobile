@@ -1049,12 +1049,14 @@ class CompanionClient(
         behavior: String,
         message: String? = null,
         reviewedSha256: String? = null,
+        always: Boolean = false,
     ): String? {
         val body = buildJsonObject {
             put("requestId", requestId)
             put("behavior", behavior)
             message?.let { put("message", it) }
             reviewedSha256?.let { put("reviewedSha256", it) }
+            if (always && behavior == "allow") put("always", true)
         }
         val raw = perform(makeRequest("POST", "/api/threads/${segment(threadId)}/respond", body = body))
         check(raw)
@@ -1066,6 +1068,11 @@ class CompanionClient(
         } catch (_: IllegalArgumentException) {
             null
         }
+    }
+
+    /** Summarizes the older messages of a bot's thread. The computer answers 202 and works in the background. */
+    suspend fun compact(botId: String, threadId: String? = null) {
+        sendUnit(makeRequest("POST", "/api/bots/${segment(botId)}/compact", body = jsonBody("threadId" to threadId)))
     }
 
     suspend fun alwaysAllow(botId: String, key: String, threadId: String? = null) {
