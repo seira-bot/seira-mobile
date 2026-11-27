@@ -9,15 +9,12 @@ import CompanionCore
 struct ChatListView: View {
     @EnvironmentObject private var session: Session
     @EnvironmentObject private var liveCall: LiveCallController
-    @State private var query = ""
     @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
     @AppStorage(PrefKey.rosterDensity) private var rosterDensity = RosterDensity.default.rawValue
     /// Driven so that making a bot can open it. Value-based navigation alone
     /// cannot push without a tap, and a new bot appearing silently at the
     /// bottom of the roster is a poor answer to pressing +.
     @State private var path = NavigationPath()
-    @State private var searchHits: [SearchHit] = []
-    @State private var searching = false
     @State private var tab = HomeTab.chats
     @AppStorage(PrefKey.advancedMode) private var advancedMode = false
     /// Folded group keys; a group that is not listed is open.
@@ -37,6 +34,7 @@ struct ChatListView: View {
     @State private var creatingThreads = Set<String>()
     @State private var managingThreads: Chat?
     @State private var disclosingLiveCall: Bot?
+    @State private var unplacedBot: UnplacedBot?
     @State private var changingLook: Bot?
     /// The preview lines comfortable rows and search show, folded again only
     /// for a thread that changed. Filled while rendering: it is a cache,
@@ -54,15 +52,13 @@ struct ChatListView: View {
         let approvals = session.state.pendingApprovals
         let updates = session.state.updates(detail: activity, pendingApprovals: approvals)
         let waiting = waitingChats(approvals)
-        // Search's matches: the list and its empty state both read them.
-        let matches: [ChatSummary] = query.isEmpty ? [] : chats
         NavigationStack(path: $path) {
             HomeDrawerLayer(
                 open: $drawerOpen,
                 name: session.connection?.name ?? "You",
                 select: { path.append($0) }
             ) {
-                homeColumn(updates: updates, waiting: waiting, matches: matches)
+                homeColumn(updates: updates, waiting: waiting)
             }
             .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
@@ -107,7 +103,8 @@ struct ChatListView: View {
                     showingWalkie = true
                 }
                 if ProcessInfo.processInfo.arguments.contains("-open-first"),
-                   path.isEmpty, let first = chats.first {
+                   path.isEmpty,
+                   let first = rosterSummaries(previews: false).first(where: { if case .bot = $0.chat { return true } else { return false } }) {
                     path.append(first.chat)
                 }
             }
@@ -172,31 +169,25 @@ struct ChatListView: View {
                     path.append(Chat.bot(bot))
                 }
             }
-            .task(id: query) {
-                let expected = query
-                guard expected.trimmingCharacters(in: .whitespacesAndNewlines).count >= 2 else {
-                    searchHits = []
-                    searching = false
-                    return
+            .alert(
+                Text("\(unplacedBot?.bot.name ?? "") was made, but is not in \(unplacedBot?.department ?? "")."),
+                isPresented: Binding(
+                    get: { unplacedBot != nil },
+                    set: { if !$0 { unplacedBot = nil } }
+                ),
+                presenting: unplacedBot
+            ) { target in
+                Button("Try again") {
+                    Task { await placeNewBot(target.bot, in: target.department) }
                 }
-                searching = true
-                defer {
-                    if query == expected { searching = false }
-                }
-                try? await Task.sleep(for: .milliseconds(250))
-                guard !Task.isCancelled, query == expected else { return }
-                let hits = await session.search(expected)
-                guard !Task.isCancelled, query == expected else { return }
-                searchHits = hits
+                Button("Not now", role: .cancel) { openBot(target.bot) }
             }
         }
     }
 
     // MARK: - Scroll
 
-    private func homeColumn(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
+    private func homeColumn(updates: [ChatUpdate], waiting: Set<String>) -> some View {
         VStack(spacing: 0) {
             HomeTopBar(
                 profileName: session.connection?.name ?? "You",
@@ -216,7 +207,7 @@ struct ChatListView: View {
                     path.append(Chat.bot(bot))
                 }
             }
-            tabContent(updates: updates, waiting: waiting, matches: matches)
+            tabContent(updates: updates, waiting: waiting)
             HomeTabBar(tab: $tab, inboxCount: InboxLogic.badgeCount(updates))
         }
         .frame(maxWidth: CompanionLayout.rosterWidth, maxHeight: .infinity, alignment: .top)
@@ -225,16 +216,14 @@ struct ChatListView: View {
     }
 
     @ViewBuilder
-    private func tabContent(
-        updates: [ChatUpdate], waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
+    private func tabContent(updates: [ChatUpdate], waiting: Set<String>) -> some View {
         switch tab {
         case .chats:
             VStack(spacing: 0) {
                 HomeChatsHeader(
                     newChat: { Haptics.selection(); showingNewChat = true }
                 )
-                rosterScroll(waiting: waiting, matches: matches)
+                rosterScroll(waiting: waiting)
             }
         case .inbox:
             InboxTab { path.append($0) }
@@ -255,37 +244,64 @@ struct ChatListView: View {
         }
     }
 
-    private func rosterScroll(
-        waiting: Set<String>, matches: [ChatSummary]
-    ) -> some View {
-        ScrollViewReader { _ in
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0) {
-                    if query.isEmpty {
-                        homeGroups(waiting: waiting)
-                    } else {
-                        searchResults(matches, waiting: waiting)
-                    }
-                }
-                .padding(.top, Self.listTopInset)
-                .padding(.bottom, Self.listBottomMargin)
+    /// What one pass over the list needs. Worked out once, then each line
+    /// reads from it: no line walks the state again.
+    private struct HomeContext {
+        let state: CompanionState
+        let items: [HomeItem]
+        let waiting: Set<String>
+        let byBot: [String: ChatSummary]
+        let today: Date
+        let queued: Set<String>
+        let held: Set<String>
+        let compact: Bool
+    }
+
+    private func homeContext(waiting: Set<String>) -> HomeContext {
+        let state = session.state
+        let layout = HomeLayoutRules.layout(state, advanced: advancedMode, department: nil)
+        let folded = FoldRules.decode(foldedGroups)
+        let items = HomeItems.build(
+            layout: layout, folded: folded, advanced: advancedMode, expandedBots: expandedBots, waiting: waiting
+        )
+        var byBot: [String: ChatSummary] = [:]
+        if advancedMode {
+            for summary in rosterSummaries(previews: density == .comfortable) {
+                if case let .bot(bot) = summary.chat, byBot[bot.id] == nil { byBot[bot.id] = summary }
             }
-            .refreshable { await session.refresh() }
-            .accessibilityIdentifier("roster-list")
-            .overlay { emptyState(matches: matches) }
         }
+        return HomeContext(
+            state: state,
+            items: items,
+            waiting: waiting,
+            byBot: byBot,
+            today: RosterDay.today,
+            queued: state.queuedThreadIds,
+            held: Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key }),
+            compact: density == .compact
+        )
+    }
+
+    private func rosterScroll(waiting: Set<String>) -> some View {
+        let home = homeContext(waiting: waiting)
+        return ScrollView {
+            LazyVStack(alignment: .leading, spacing: 0) {
+                ForEach(home.items) { item in
+                    itemView(item, home: home)
+                }
+            }
+            .padding(.top, Self.listTopInset)
+            .padding(.bottom, Self.listBottomMargin)
+        }
+        .refreshable { await session.refresh() }
+        .accessibilityIdentifier("roster-list")
+        .overlay { emptyState() }
     }
 
     @ViewBuilder
-    private func emptyState(matches: [ChatSummary]) -> some View {
-        if rosterIsEmpty(matches: matches) {
-            if !query.isEmpty {
-                EmptyStateView(
-                    "Nothing matches",
-                    systemImage: "magnifyingglass",
-                    description: Text("No thread matches \u{201C}\(query)\u{201D}.")
-                )
-            } else if case .offline = session.status {
+    private func emptyState() -> some View {
+        if rosterIsEmpty() {
+            if case .offline = session.status {
                 SeiraEmptyState(
                     icon: "Icons3D/offline",
                     title: "You are offline",
@@ -299,44 +315,6 @@ struct ChatListView: View {
                 )
             }
         }
-    }
-
-    @ViewBuilder
-    private func searchResults(_ matches: [ChatSummary], waiting: Set<String>) -> some View {
-        if !searchHits.isEmpty {
-            HStack {
-                sectionLabel(Text("Messages"))
-                Spacer()
-                if searching { ProgressView().controlSize(.small) }
-            }
-            .padding(.top, 10)
-            .padding(.bottom, 4)
-
-            ForEach(searchHits) { hit in
-                Button {
-                    Task {
-                        if let chat = await session.open(hit) {
-                            Haptics.selection()
-                            path.append(chat)
-                        }
-                    }
-                } label: {
-                    SearchHitRow(hit: hit)
-                }
-                .buttonStyle(HomeRowButtonStyle())
-                .padding(.horizontal, HomeRowMetrics.side)
-            }
-            sectionLabel(Text("Threads"))
-                .padding(.top, 14)
-                .padding(.bottom, 4)
-        } else if searching {
-            ProgressView()
-                .controlSize(.small)
-                .frame(maxWidth: .infinity)
-                .padding(.top, 24)
-        }
-
-        botRows(matches, waiting: waiting)
     }
 
     // MARK: - Home top
@@ -386,49 +364,36 @@ struct ChatListView: View {
     }
 
     @ViewBuilder
-    private func homeGroups(waiting: Set<String>) -> some View {
-        let layout = HomeLayoutRules.layout(session.state, advanced: advancedMode, department: nil)
-        let folded = FoldRules.decode(foldedGroups)
-        let keys = Set(layout.groups.map(\.key))
-        let summaries = rosterSummaries(previews: advancedMode)
-        if advancedMode {
+    private func itemView(_ item: HomeItem, home: HomeContext) -> some View {
+        switch item {
+        case .search:
             HomeSearchRow { Haptics.selection(); path.append(HomeRoute.search) }
-            if let chief = layout.chief {
-                advancedRows([chief], summaries: summaries, waiting: waiting, highlighted: true)
-            }
-        }
-        ForEach(layout.groups) { group in
-            groupView(group, folded: folded, keys: keys, summaries: summaries, waiting: waiting)
+        case let .header(group, open, foldable, waiting):
+            groupHeader(group, open: open, foldable: foldable, waiting: waiting)
+        case let .tiles(_, bots):
+            tileRow(bots, home: home)
+        case let .advancedBot(bot, _, highlighted):
+            advancedRow(bot, highlighted: highlighted, home: home)
+        case let .threads(bot):
+            threadTree(bot, queued: home.queued, held: home.held)
+        case let .room(room, _):
+            roomRow(room, home: home)
+        case let .emptyDepartment(name, advanced):
+            emptyDepartment(name, advanced: advanced)
         }
     }
 
+    private func groupHeader(_ group: HomeGroup, open: Bool, foldable: Bool, waiting: Int) -> some View {
+        let folded: Bool? = foldable ? !open : nil
+        let toggle = { toggleGroup(group.key, keys: HomeLayoutRules.layout(session.state, advanced: advancedMode, department: nil).keys) }
+        return groupHeaderContent(group, folded: folded, toggle: toggle, waiting: waiting)
+            .padding(.top, 6)
+    }
+
     @ViewBuilder
-    private func groupView(
-        _ group: HomeGroup, folded: Set<String>, keys: Set<String>,
-        summaries: [ChatSummary], waiting: Set<String>
+    private func groupHeaderContent(
+        _ group: HomeGroup, folded: Bool?, toggle: @escaping () -> Void, waiting: Int
     ) -> some View {
-        let open = FoldRules.isOpen(folded, group.key)
-        let toggle = { toggleGroup(group.key, folded: folded, keys: keys) }
-        VStack(alignment: .leading, spacing: 0) {
-            groupHeader(group, open: open, toggle: toggle)
-            if open || !isFoldable(group) {
-                groupBody(group, summaries: summaries, waiting: waiting)
-                    .transition(.opacity)
-            }
-        }
-        .padding(.bottom, 6)
-    }
-
-    private func isFoldable(_ group: HomeGroup) -> Bool {
-        switch group.kind {
-        case .department: return true
-        case .bots, .groups: return advancedMode
-        }
-    }
-
-    @ViewBuilder
-    private func groupHeader(_ group: HomeGroup, open: Bool, toggle: @escaping () -> Void) -> some View {
-        let folded: Bool? = isFoldable(group) ? !open : nil
         switch group.kind {
         case .bots:
             HomeGroupHeader(title: String(localized: "Bots"), folded: folded, toggle: toggle) {
@@ -443,7 +408,7 @@ struct ChatListView: View {
         case .department:
             let name = group.name ?? ""
             let target = HomeDepartmentTarget(name: name)
-            HomeGroupHeader(title: name, folded: folded, toggle: toggle) {
+            HomeGroupHeader(title: name, folded: folded, toggle: toggle, waiting: waiting) {
                 HomeGroupIconButton(symbol: "ellipsis", label: Text("Actions for \(name) department")) {
                     Haptics.selection()
                     departmentMenu = target
@@ -467,34 +432,35 @@ struct ChatListView: View {
     }
 
     @ViewBuilder
-    private func groupBody(_ group: HomeGroup, summaries: [ChatSummary], waiting: Set<String>) -> some View {
-        switch group.kind {
-        case .groups:
-            compactRoomRows(group.rooms, waiting: waiting)
-        case .bots, .department:
-            if group.bots.isEmpty {
-                if group.kind == .department {
-                    Text("No bots in this department.")
-                        .font(.seira(13, relativeTo: .footnote))
-                        .foregroundStyle(Color.seiraInk3)
-                        .padding(.horizontal, HomeRowMetrics.side)
-                        .padding(.bottom, 8)
-                }
-            } else if advancedMode {
-                advancedRows(group.bots, summaries: summaries, waiting: waiting, highlighted: false)
-            } else {
-                tileGrid(group.bots, waiting: waiting)
+    private func emptyDepartment(_ name: String, advanced: Bool) -> some View {
+        if advanced {
+            Text("No bots in this department.")
+                .font(.seira(13, relativeTo: .footnote))
+                .foregroundStyle(Color.seiraInk3)
+                .padding(.horizontal, HomeRowMetrics.side)
+                .padding(.bottom, 8)
+        } else {
+            Button {
+                Haptics.selection()
+                addingBotsTo = HomeDepartmentTarget(name: name)
+            } label: {
+                Text("Add bots")
+                    .font(.seira(14, .medium, relativeTo: .subheadline))
+                    .foregroundStyle(Color.seiraAccent)
+                    .frame(minHeight: 44)
+                    .contentShape(Rectangle())
             }
+            .buttonStyle(.plain)
+            .padding(.horizontal, HomeRowMetrics.side)
+            .accessibilityIdentifier("empty-add-bots.\(name)")
         }
     }
 
-    private func tileGrid(_ bots: [Bot], waiting: Set<String>) -> some View {
-        LazyVGrid(
-            columns: Array(repeating: GridItem(.flexible(), spacing: 4), count: HomeLayoutRules.tileColumns),
-            spacing: 8
-        ) {
+    /// One row of up to four tiles; a short last row keeps the tiles' width.
+    private func tileRow(_ bots: [Bot], home: HomeContext) -> some View {
+        HStack(alignment: .top, spacing: 4) {
             ForEach(bots) { bot in
-                let dot = HomeDotRules.of(bot, bot.rosterStatus(hasPendingCard: waiting.contains(bot.id)))
+                let dot = HomeDotRules.of(bot, bot.rosterStatus(hasPendingCard: home.waiting.contains(bot.id)))
                 Button { openBot(bot) } label: {
                     BotTile(bot: bot, dot: dot).equatable()
                 }
@@ -502,8 +468,12 @@ struct ChatListView: View {
                 .accessibilityIdentifier("chat-row.\(bot.id)")
                 .contextMenu { botMenu(bot) }
             }
+            ForEach(0 ..< max(0, HomeLayoutRules.tileColumns - bots.count), id: \.self) { _ in
+                Color.clear.frame(maxWidth: .infinity, minHeight: 1)
+            }
         }
         .padding(.horizontal, 12)
+        .padding(.bottom, 8)
     }
 
     @ViewBuilder
@@ -515,48 +485,29 @@ struct ChatListView: View {
         }
     }
 
-    private func advancedRows(
-        _ bots: [Bot], summaries: [ChatSummary], waiting: Set<String>, highlighted: Bool
-    ) -> some View {
-        let state = session.state
-        let today = RosterDay.today
-        let queued = state.queuedThreadIds
-        let held = Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key })
-        let byBot = Dictionary(
-            summaries.compactMap { summary -> (String, ChatSummary)? in
-                if case let .bot(bot) = summary.chat { return (bot.id, summary) }
-                return nil
-            },
-            uniquingKeysWith: { first, _ in first }
-        )
-        return ForEach(bots) { bot in
-            let summary = byBot[bot.id]
-            VStack(spacing: 0) {
-                AdvancedBotRow(
-                    bot: bot,
-                    preview: summary?.preview ?? "",
-                    at: summary?.lastActivity ?? 0,
-                    today: today,
-                    mood: CharacterMood.forChat(.bot(bot), in: state),
-                    waiting: waiting.contains(bot.id),
-                    expanded: expandedBots.contains(bot.id),
-                    highlighted: highlighted,
-                    toggle: {
-                        Haptics.selection()
-                        withSeiraAnimation(SeiraMotion.base) {
-                            if expandedBots.contains(bot.id) { expandedBots.remove(bot.id) } else { expandedBots.insert(bot.id) }
-                        }
-                    },
-                    open: { openBot(bot) }
-                )
-                .equatable()
-                .accessibilityIdentifier("chat-row.\(bot.id)")
-                .contextMenu { botMenu(bot) }
-                if expandedBots.contains(bot.id) {
-                    threadTree(bot, queued: queued, held: held)
+    private func advancedRow(_ bot: Bot, highlighted: Bool, home: HomeContext) -> some View {
+        let summary = home.byBot[bot.id]
+        return AdvancedBotRow(
+            bot: bot,
+            preview: summary?.preview ?? "",
+            at: summary?.lastActivity ?? 0,
+            today: home.today,
+            mood: CharacterMood.forChat(.bot(bot), in: home.state),
+            waiting: home.waiting.contains(bot.id),
+            expanded: expandedBots.contains(bot.id),
+            highlighted: highlighted,
+            compact: home.compact,
+            toggle: {
+                Haptics.selection()
+                withSeiraAnimation(SeiraMotion.base) {
+                    if expandedBots.contains(bot.id) { expandedBots.remove(bot.id) } else { expandedBots.insert(bot.id) }
                 }
-            }
-        }
+            },
+            open: { openBot(bot) }
+        )
+        .equatable()
+        .accessibilityIdentifier("chat-row.\(bot.id)")
+        .contextMenu { botMenu(bot) }
     }
 
     private func runAfterMenu() {
@@ -568,152 +519,48 @@ struct ChatListView: View {
         }
     }
 
-    private func toggleGroup(_ key: String, folded: Set<String>, keys: Set<String>) {
+    private func toggleGroup(_ key: String, keys: Set<String>) {
         Haptics.selection()
+        let folded = FoldRules.decode(foldedGroups)
         let next = FoldRules.prune(FoldRules.toggle(folded, key), keys)
         withSeiraAnimation(SeiraMotion.base) { foldedGroups = FoldRules.encode(next) }
     }
 
     private func assignNewBot(_ bot: Bot, to department: String) {
         newBotIn = nil
-        Task {
-            _ = await session.assignSection(name: department, botIds: [bot.id], reportsError: false)
+        Task { await placeNewBot(bot, in: department) }
+    }
+
+    /// The bot exists; only its place can fail. Retrying sends the place again, never a second bot.
+    private func placeNewBot(_ bot: Bot, in department: String) async {
+        if await session.assignSection(name: department, botIds: [bot.id], reportsError: false) == nil {
+            Haptics.notification(.error)
+            unplacedBot = UnplacedBot(bot: bot, department: department)
+        } else {
             openBot(bot)
         }
     }
 
     // MARK: - Rooms
 
-    /// In the order the tiles showed them, each stamped with its thread's
-    /// last message the way `chatSummaries` stamps a row.
-    private func compactRoomRows(_ rooms: [Room], waiting: Set<String>) -> some View {
-        let today = RosterDay.today
-        return ForEach(rooms) { room in
-            NavigationLink(value: Chat.room(room)) {
-                CompactRoomRow(
-                    room: room,
-                    members: members(of: room),
-                    lastActivity: session.state.lastVisibleMessage(forThread: room.threadId)?.at ?? 0,
-                    today: today,
-                    waiting: waiting.contains(room.id)
-                )
-                .equatable()
-            }
-            .buttonStyle(HomeRowButtonStyle())
-            .accessibilityIdentifier("chat-row.\(room.id)")
-        }
-    }
-
-    @ViewBuilder
-    private func botRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        switch density {
-        case .comfortable: comfortableRows(rows, waiting: waiting)
-        case .compact: compactRows(rows, waiting: waiting)
-        }
-    }
-
-    /// One line per bot, its threads beneath it once opened. Search results
-    /// can include groups, which get their own one-line row.
-    private func compactRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        let queued = session.state.queuedThreadIds
-        let today = RosterDay.today
-        return ForEach(rows) { summary in
-            switch summary.chat {
-            case let .bot(bot):
-                CompactBotEntry(
-                    bot: bot,
-                    face: CharacterMood.forChat(summary.chat, in: session.state),
-                    lastActivity: summary.lastActivity,
-                    today: today,
-                    hasPendingCard: waiting.contains(bot.id),
-                    queuedThreadIds: queued,
-                    query: query,
-                    expanded: expandedBots.contains(bot.id),
-                    collapsedFolders: collapsedFolders,
-                    creating: creatingThreads.contains(bot.id),
-                    session: session,
-                    toggleExpanded: {
-                        if expandedBots.contains(bot.id) { expandedBots.remove(bot.id) } else { expandedBots.insert(bot.id) }
-                    },
-                    collapse: { expandedBots.remove(bot.id) },
-                    toggleFolder: { key in
-                        if collapsedFolders.contains(key) { collapsedFolders.remove(key) } else { collapsedFolders.insert(key) }
-                    },
-                    beginCreating: { creatingThreads.insert(bot.id).inserted },
-                    endCreating: { creatingThreads.remove(bot.id) },
-                    openRow: {
-                        path.append(session.threadSelection.restoringThread(summary.chat, connectionID: session.connection?.id))
-                    },
-                    open: { chat in path.append(chat) },
-                    manage: { chat in managingThreads = chat }
-                )
-                .equatable()
-            case let .room(room):
-                Button {
-                    path.append(summary.chat)
-                } label: {
-                    CompactRoomRow(
-                        room: room, members: members(of: room),
-                        lastActivity: summary.lastActivity, today: today, waiting: waiting.contains(room.id)
-                    )
-                    .equatable()
-                }
-                .buttonStyle(HomeRowButtonStyle())
-                .accessibilityIdentifier("chat-row.\(room.id)")
-            }
-        }
-    }
-
-    /// Two lines per bot with its "Threads" beneath. As in `compactRows`,
-    /// each row and tree is Equatable on its bot's values and shown
-    /// `.equatable()`, so a publish redraws only the bots that moved.
-    private func comfortableRows(_ rows: [ChatSummary], waiting: Set<String>) -> some View {
-        ForEach(comfortableEntries(rows, waiting: waiting)) { entry in
-            VStack(spacing: 0) {
-                Button {
-                    path.append(session.threadSelection.restoringThread(entry.row.chat, connectionID: session.connection?.id))
-                } label: {
-                    entry.row.equatable()
-                }
-                .buttonStyle(HomeRowButtonStyle())
-                .accessibilityIdentifier("chat-row.\(entry.id)")
-                if case let .bot(bot) = entry.row.chat {
-                    threadTree(bot, queued: entry.queued, held: entry.held)
-                }
-            }
-        }
-    }
-
-    /// Each row worked out before the `ForEach`, so everything it shows is
-    /// in the `ForEach`'s data: the lazy list may skip rebuilding a row whose
-    /// data did not change, and a value read inside the closure instead
-    /// would go stale there.
-    private func comfortableEntries(_ rows: [ChatSummary], waiting: Set<String>) -> [ComfortableEntry] {
-        let state = session.state
-        let today = RosterDay.today
-        let queued = state.queuedThreadIds
-        // The trees' "Queued" marks read the held sends themselves.
-        let held = Set(state.pendingQueued.compactMap { $0.value.isEmpty ? nil : $0.key })
-        return rows.map { summary -> ComfortableEntry in
-            var roomMembers: [Bot] = []
-            if case let .room(room) = summary.chat { roomMembers = members(of: room) }
-            let row = ChatRow(
-                chat: summary.chat,
-                members: roomMembers,
-                preview: summary.preview,
-                at: summary.lastActivity,
-                today: today,
-                state: CharacterMood.forChat(summary.chat, in: state),
-                waiting: waiting.contains(summary.chat.id)
+    private func roomRow(_ room: Room, home: HomeContext) -> some View {
+        NavigationLink(value: Chat.room(room)) {
+            CompactRoomRow(
+                room: room,
+                members: members(of: room),
+                lastActivity: home.state.lastVisibleMessage(forThread: room.threadId)?.at ?? 0,
+                today: home.today,
+                waiting: home.waiting.contains(room.id)
             )
-            return ComfortableEntry(row: row, queued: queued, held: held)
+            .equatable()
         }
+        .buttonStyle(HomeRowButtonStyle())
+        .accessibilityIdentifier("chat-row.\(room.id)")
     }
 
     private func threadTree(_ bot: Bot, queued: Set<String>, held: Set<String>) -> some View {
         BotThreadTree(
             bot: bot,
-            query: $query,
             expandedBots: $expandedBots,
             collapsedFolders: $collapsedFolders,
             creatingThreads: $creatingThreads,
@@ -726,10 +573,6 @@ struct ChatListView: View {
         .equatable()
     }
 
-    private var hasVisibleBots: Bool {
-        session.state.bots.contains { $0.hidden != true }
-    }
-
     private func openNewSection() {
         Haptics.selection()
         showingNewSection = true
@@ -740,28 +583,8 @@ struct ChatListView: View {
     /// The reader's activity level, which the roster preview folds by.
     private var activity: ActivityDetail { ActivityDetail(rawValue: activityDetail) ?? .phoneDefault }
 
-    /// How much each row says, from Settings.
+    /// How much each Advanced row says, from Settings.
     private var density: RosterDensity { RosterDensity(stored: rosterDensity) }
-
-    private var chats: [ChatSummary] {
-        let all = rosterSummaries(previews: true)
-        guard !query.isEmpty else {
-            // rooms live in the strip; the list is bots
-            return all.filter { if case .bot = $0.chat { return true } else { return false } }
-        }
-        let queued = session.state.queuedThreadIds
-        return all.filter {
-            $0.chat.name.localizedCaseInsensitiveContains(query)
-                || $0.chat.subtitle.localizedCaseInsensitiveContains(query)
-                || $0.preview.localizedCaseInsensitiveContains(query)
-                || matchesThread($0.chat, queued: queued)
-        }
-    }
-
-    private func matchesThread(_ chat: Chat, queued: Set<String>) -> Bool {
-        guard case let .bot(bot) = chat else { return false }
-        return !bot.threadGroups(matching: query, queuedThreadIds: queued).isEmpty
-    }
 
     /// Every chat in roster order, as `chatSummaries` lists them. With
     /// previews, each line comes from `previewCache`, which folds a thread
@@ -785,14 +608,6 @@ struct ChatListView: View {
         }
     }
 
-    private func summaries(for bots: [Bot], from all: [ChatSummary]) -> [ChatSummary] {
-        let ids = Set(bots.map(\.id))
-        return all.filter { summary in
-            if case let .bot(bot) = summary.chat { return ids.contains(bot.id) }
-            return false
-        }
-    }
-
     private func waitingChats(_ approvals: [(threadId: String, message: Message)]) -> Set<String> {
         Set(approvals.compactMap { session.state.chat(forThread: $0.threadId)?.id })
     }
@@ -801,85 +616,16 @@ struct ChatListView: View {
         room.memberIds.compactMap { session.state.bot($0) }
     }
 
-    private func rosterIsEmpty(matches: [ChatSummary]) -> Bool {
-        if query.isEmpty {
-            return session.state.bots.allSatisfy { $0.hidden == true } && session.state.rooms.isEmpty
-        }
-        return matches.isEmpty && searchHits.isEmpty && !searching
-    }
-
-    private func sectionLabel(_ text: Text) -> some View {
-        HomeSectionTitle(text: text)
+    private func rosterIsEmpty() -> Bool {
+        session.state.bots.allSatisfy { $0.hidden == true } && session.state.rooms.isEmpty
     }
 }
 
-// MARK: - Rows and tiles
-
-/// One comfortable row as the list worked it out: the row, and what its
-/// thread tree needs beyond the list's own state.
-private struct ComfortableEntry: Identifiable, Equatable {
-    /// Equatable on everything it draws (the whole bot or room).
-    let row: ChatRow
-    let queued: Set<String>
-    let held: Set<String>
-
-    var id: String { row.chat.id }
-}
-
-/// A bot or group in comfortable Home: face, name, time, the last line, and
-/// a warning-coloured line while it waits on the person.
-///
-/// Plain values only, shown `.equatable()` like `CompactBotEntry`, so a row
-/// whose chat has not moved is skipped when the session publishes.
-struct ChatRow: View, Equatable {
-    let chat: Chat
-    /// A group's members, for its two stacked faces; empty for a bot.
-    var members: [Bot] = []
-    let preview: String
-    let at: Double
-    /// The day the list drew on (`RosterDay.today`); see
-    /// `CompactBotEntry.today`. "9:15 AM" must still become "Yesterday".
-    let today: Date
-    var state: CharacterMood = .idle
-    var waiting = false
-
-    /// `Chat`'s own `==` compares identity (id and thread) only; a row
-    /// draws the whole bot or room, so it compares those.
-    static func == (lhs: Self, rhs: Self) -> Bool {
-        lhs.preview == rhs.preview && lhs.at == rhs.at && lhs.today == rhs.today && lhs.state == rhs.state
-            && lhs.waiting == rhs.waiting && lhs.members == rhs.members
-            && sameContent(lhs.chat, rhs.chat)
-    }
-
-    private static func sameContent(_ lhs: Chat, _ rhs: Chat) -> Bool {
-        switch (lhs, rhs) {
-        case let (.bot(left), .bot(right)): return left == right
-        case let (.room(left), .room(right)): return left == right
-        default: return false
-        }
-    }
-
-    private var detail: String {
-        if !preview.isEmpty { return preview }
-        return waiting ? String(localized: "Waiting on you") : ""
-    }
-
-    var body: some View {
-        HStack(spacing: HomeRowMetrics.gap) {
-            HomeRowAvatar(chat: chat, members: members, working: chat.busy && !waiting, waiting: waiting)
-            HomeRowLabels(
-                title: chat.name,
-                unread: chat.unread && !chat.busy,
-                stamp: RelativeStamp.list(at),
-                detail: detail,
-                detailWaiting: waiting,
-                working: chat.busy && !waiting
-            )
-        }
-        .padding(.horizontal, HomeRowMetrics.side)
-        .frame(minHeight: HomeRowMetrics.minHeight)
-        .contentShape(Rectangle())
-    }
+/// A bot that was made for a department but could not be placed there.
+private struct UnplacedBot: Identifiable {
+    let bot: Bot
+    let department: String
+    var id: String { bot.id }
 }
 
 /// The floating pill: who is doing what right now, at a glance.

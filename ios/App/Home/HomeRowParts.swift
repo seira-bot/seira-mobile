@@ -3,6 +3,7 @@ import SwiftUI
 
 enum HomeRowMetrics {
     static let minHeight: CGFloat = 68
+    static let compactHeight: CGFloat = 56
     static let side: CGFloat = 20
     static let avatar: CGFloat = 48
     static let gap: CGFloat = 12
@@ -97,13 +98,15 @@ struct HomeRowLabels: View {
     var detailWaiting = false
     var working = false
     var spinnerLabel: LocalizedStringKey = "Working"
+    /// One line: the line beneath the name shows only when it has something to say.
+    var compact = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             titleLine
-            detailLine
+            if !compact || !detail.isEmpty || unread { detailLine }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }

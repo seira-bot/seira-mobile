@@ -221,8 +221,10 @@ struct SettingsView: View {
                     SettingsLinkLabel(symbol: "bolt", title: "Quick replies")
                 }
                 .buttonStyle(SettingsRowButtonStyle())
-                SettingsDivider()
-                densityRow
+                if advancedMode {
+                    SettingsDivider()
+                    densityRow
+                }
                 if session.connection != nil {
                     SettingsDivider()
                     SettingsToggleRow(
