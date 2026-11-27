@@ -569,6 +569,41 @@ final class DecodingTests: XCTestCase {
         XCTAssertEqual(card.responseBehavior(for: "Deny"), "deny")
     }
 
+    private func settingsCard(
+        _ options: [String], tool: String = "app_settings", fixed: Bool? = true
+    ) -> OptionCard {
+        OptionCard(
+            title: "Change setting", subtitle: "people.signIn", options: options,
+            requestId: "req-settings", tool: tool, fixedOptions: fixed
+        )
+    }
+
+    func testApplyOnASettingsCardAnswersAllowAndNotNowAnswersDeny() {
+        for (apply, refuse) in [("Apply", "Not now"), ("Aplicar", "Agora não"), ("Terapkan", "Nanti saja")] {
+            let card = settingsCard([apply, refuse])
+            XCTAssertEqual(card.responseBehavior(for: apply), "allow", apply)
+            XCTAssertEqual(card.responseBehavior(for: refuse), "deny", refuse)
+            XCTAssertEqual(card.responseBehavior(for: "Allow"), "deny", "a label that is not an option never allows")
+        }
+    }
+
+    func testASettingsCardNeedsItsFixedTwoOptionShapeForThePositionRule() {
+        XCTAssertEqual(settingsCard(["Aplicar", "Agora não"], fixed: nil).responseBehavior(for: "Aplicar"), "deny")
+        XCTAssertEqual(settingsCard(["Aplicar", "Agora não"], fixed: false).responseBehavior(for: "Aplicar"), "deny")
+        XCTAssertEqual(settingsCard(["Aplicar", "Agora não", "Talvez"]).responseBehavior(for: "Aplicar"), "deny")
+        XCTAssertEqual(settingsCard(["Aplicar", "Agora não"], tool: "Bash").responseBehavior(for: "Aplicar"), "deny")
+        XCTAssertEqual(settingsCard(["Cancel", "Apply"]).responseBehavior(for: "Cancel"), "deny")
+        XCTAssertEqual(settingsCard(["Not now", "Allow"]).responseBehavior(for: "Not now"), "deny")
+        XCTAssertEqual(settingsCard(["Apply", "Apply"]).responseBehavior(for: "Apply"), "deny")
+    }
+
+    func testOtherPermissionCardsKeepTheLabelMapping() {
+        let card = settingsCard(["Allow", "Deny"], tool: "Bash")
+        XCTAssertEqual(card.responseBehavior(for: "Allow"), "allow")
+        XCTAssertEqual(card.responseBehavior(for: "Deny"), "deny")
+        XCTAssertEqual(settingsCard(["Enable", "Cancel"], tool: "stage_skill").responseBehavior(for: "Enable"), "allow")
+    }
+
     func testDecodesAReviewedSkillUpdate() throws {
         let json = """
         {

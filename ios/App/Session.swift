@@ -1816,6 +1816,7 @@ final class Session: ObservableObject {
             requestId: requestId,
             choice: choice,
             isPermission: card.isPermission,
+            behavior: card.responseBehavior(for: choice),
             reviewedSha256: card.skillRequest?.reviewedSha256
         )
     }
@@ -1983,12 +1984,13 @@ final class Session: ObservableObject {
         requestId: String,
         choice: String,
         isPermission: Bool,
+        behavior preset: String? = nil,
         reviewedSha256: String? = nil
     ) async {
         await perform {
             // Permission cards answer allow/deny; a question answers with
             // the chosen text. The harness tells them apart by `behavior`.
-            let behavior = OptionCard.responseBehavior(for: choice, isPermission: isPermission)
+            let behavior = preset ?? OptionCard.responseBehavior(for: choice, isPermission: isPermission)
             if behavior != "answer" {
                 try await $0.respond(
                     threadId: threadId,
