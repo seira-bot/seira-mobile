@@ -221,16 +221,9 @@ internal fun SettingsScreen(
                     SettingsGroup.APPEARANCE -> {
                         GroupTitle(stringResource(R.string.mobile_settings_appearance))
                         GroupCard {
-                            val modes = listOf(ThemeMode.LIGHT, ThemeMode.DARK, ThemeMode.AUTO)
-                            ChipChoiceRow(
-                                title = stringResource(R.string.settings2_theme_label),
-                                options = listOf(
-                                    stringResource(R.string.theme_mode_light),
-                                    stringResource(R.string.theme_mode_dark),
-                                    stringResource(R.string.theme_mode_auto),
-                                ),
-                                selectedIndex = modes.indexOf(themeMode).coerceAtLeast(0),
-                                onSelect = { environment.chatPreferences.setThemeMode(modes[it]) },
+                            ThemeEclipsePicker(
+                                selected = themeMode,
+                                onSelect = { environment.chatPreferences.setThemeMode(it) },
                             )
                         }
                         GroupNote(stringResource(R.string.settings_appearance_caption))
@@ -255,7 +248,7 @@ internal fun SettingsScreen(
                                     SwitchRow(
                                         title = stringResource(row.title),
                                         subtitle = stringResource(row.body),
-                                        icon = null,
+                                        icon = row.icon,
                                         checked = channelStates[row.channelId] ?: true,
                                         onToggle = { openChannelSettings(context, row.channelId) },
                                     )

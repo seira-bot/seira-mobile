@@ -1,6 +1,35 @@
 package com.openmausbot.companion.ui.theme
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.PathMeasure
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.clipPath
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlinx.coroutines.launch
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
@@ -285,54 +314,136 @@ fun SeiraSwitch(
     contentDescription: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
 ) {
     val colors = Seira.colors
     val reduced = rememberReducedMotion()
-    val track by animateColorAsState(
+    val source = interactionSource ?: remember { MutableInteractionSource() }
+    val pressed by source.collectIsPressedAsState()
+    val rtl = LocalLayoutDirection.current == LayoutDirection.Rtl
+    val haptics = LocalHapticFeedback.current
+    val scope = rememberCoroutineScope()
+    val currentChecked by rememberUpdatedState(checked)
+    val progress = remember { Animatable(if (checked) 1f else 0f) }
+    val moveSpec: AnimationSpec<Float> = if (reduced) tween(120) else spring(dampingRatio = 0.6f, stiffness = 520f)
+    val flatTrack by animateColorAsState(
         if (checked) colors.primary else colors.switchTrackOff,
-        seiraTween(SeiraMotion.BASE, reduced),
-        label = "switchTrack",
+        tween(120),
+        label = "switchTrackFlat",
     )
     val knob by animateColorAsState(
         if (checked) colors.switchKnobOn else colors.switchKnobOff,
         seiraTween(SeiraMotion.BASE, reduced),
         label = "switchKnob",
     )
-    val travel by animateDpAsState(
-        if (checked) 20.dp else 0.dp,
-        seiraTween(SeiraMotion.BASE + 40, reduced),
-        label = "switchTravel",
+    val knobWidth by animateDpAsState(
+        if (pressed && !reduced && enabled) 33.dp else 27.dp,
+        spring(dampingRatio = 0.6f, stiffness = 520f),
+        label = "switchKnobWidth",
     )
+    var settled by remember { mutableStateOf(false) }
+    LaunchedEffect(checked) {
+        if (settled) haptics.performHapticFeedback(if (checked) HapticFeedbackType.ToggleOn else HapticFeedbackType.ToggleOff)
+        settled = true
+        progress.animateTo(if (checked) 1f else 0f, moveSpec)
+    }
+    val travelPx = with(androidx.compose.ui.platform.LocalDensity.current) { (51.dp - 27.dp - 4.dp).toPx() }
+    val drag = rememberDraggableState { delta ->
+        val step = delta / travelPx * if (rtl) -1f else 1f
+        scope.launch { progress.snapTo((progress.value + step).coerceIn(0f, 1f)) }
+    }
+    val onChange = onCheckedChange
     Box(
         modifier = modifier
             .size(width = 51.dp, height = TouchTarget)
             .then(
-                if (onCheckedChange == null) {
+                if (onChange == null) {
                     Modifier
                 } else {
-                    Modifier.toggleable(
-                        value = checked,
-                        enabled = enabled,
-                        role = Role.Switch,
-                        onValueChange = onCheckedChange,
-                    )
+                    Modifier
+                        .toggleable(
+                            value = checked,
+                            interactionSource = source,
+                            indication = LocalIndication.current,
+                            enabled = enabled,
+                            role = Role.Switch,
+                            onValueChange = onChange,
+                        )
+                        .draggable(
+                            state = drag,
+                            orientation = Orientation.Horizontal,
+                            enabled = enabled,
+                            onDragStopped = {
+                                val target = progress.value > 0.5f
+                                if (target != currentChecked) onChange(target)
+                                scope.launch {
+                                    progress.animateTo(if (target) 1f else 0f, moveSpec)
+                                    if (currentChecked != target) {
+                                        progress.animateTo(if (currentChecked) 1f else 0f, moveSpec)
+                                    }
+                                }
+                            },
+                        )
                 },
             )
             .semantics { this.contentDescription = contentDescription },
         contentAlignment = Alignment.CenterStart,
     ) {
-        Box(
-            modifier = Modifier
-                .size(width = 51.dp, height = 31.dp)
-                .background(track.copy(alpha = track.alpha * if (enabled) 1f else 0.5f), CircleShape),
-        )
-        Box(
-            modifier = Modifier
-                .offset(x = 2.dp + travel)
-                .size(27.dp)
-                .shadow(1.5.dp, CircleShape, clip = false)
-                .background(knob, CircleShape),
-        )
+        Canvas(Modifier.size(width = 51.dp, height = 31.dp)) {
+            val width = size.width
+            val height = size.height
+            val pad = 2.dp.toPx()
+            val baseKnob = 27.dp.toPx()
+            val p = progress.value
+            val stretch = if (reduced) 0f else (abs(progress.velocity) / 6f).coerceIn(0f, 1f) * 8.dp.toPx()
+            val knobW = knobWidth.toPx() + stretch
+            val left = pad + (width - baseKnob - 2 * pad) * p - (knobW - baseKnob) * p
+            val cx = left + knobW / 2
+            val cy = height / 2
+            val fade = if (enabled) 1f else 0.5f
+            val radius = height / 2
+            withTransform({ if (rtl) scale(-1f, 1f, Offset(width / 2, height / 2)) }) {
+                if (reduced) {
+                    drawRoundRect(flatTrack.copy(alpha = flatTrack.alpha * fade), size = size, cornerRadius = CornerRadius(radius))
+                } else {
+                    drawRoundRect(colors.switchTrackOff.copy(alpha = colors.switchTrackOff.alpha * fade), size = size, cornerRadius = CornerRadius(radius))
+                    val reach = hypot(max(cx, width - cx), height / 2) + 1f
+                    val ink = reach * p.coerceIn(0f, 1f)
+                    if (ink > 0f) {
+                        val clip = Path().apply { addRoundRect(RoundRect(0f, 0f, width, height, CornerRadius(radius))) }
+                        clipPath(clip) {
+                            drawCircle(colors.primary.copy(alpha = fade), radius = ink, center = Offset(cx, cy))
+                        }
+                    }
+                }
+                val knobTop = pad
+                val corner = CornerRadius(baseKnob / 2)
+                drawRoundRect(
+                    Color.Black.copy(alpha = 0.16f * fade),
+                    topLeft = Offset(left, knobTop + 1.dp.toPx()),
+                    size = Size(knobW, baseKnob),
+                    cornerRadius = corner,
+                )
+                drawRoundRect(knob, topLeft = Offset(left, knobTop), size = Size(knobW, baseKnob), cornerRadius = corner)
+                val drawn = if (reduced) (if (checked) 1f else 0f) else p.coerceIn(0f, 1f)
+                if (drawn > 0f) {
+                    val unit = 1.dp.toPx()
+                    val check = Path().apply {
+                        moveTo(cx - 4.2f * unit, cy + 0.4f * unit)
+                        lineTo(cx - 1.4f * unit, cy + 3.2f * unit)
+                        lineTo(cx + 4.4f * unit, cy - 3f * unit)
+                    }
+                    val measure = PathMeasure().apply { setPath(check, false) }
+                    val part = Path()
+                    measure.getSegment(0f, measure.length * drawn, part, true)
+                    drawPath(
+                        part,
+                        colors.primary.copy(alpha = fade),
+                        style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
+                    )
+                }
+            }
+        }
     }
 }
 

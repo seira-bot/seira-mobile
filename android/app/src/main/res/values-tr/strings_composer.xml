@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Düzenleme</string>
     <string name="composer_mode_auto">Otomatik</string>
     <string name="composer_mode_full">Tam</string>
+    <string name="composer_mode_hold_full">Tam modunu açmak için basılı tutun</string>
     <string name="composer_mode_custom">Özel</string>
     <string name="composer_mode_ask_sub">Bir şeyi değiştirmeden önce sorar</string>
     <string name="composer_mode_edits_sub">Dosyaları kendi başına düzenler, diğer her şeyden önce sorar</string>

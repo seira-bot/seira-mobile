@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Edycje</string>
     <string name="composer_mode_auto">Auto</string>
     <string name="composer_mode_full">Pełny</string>
+    <string name="composer_mode_hold_full">Przytrzymaj, aby włączyć tryb Pełny</string>
     <string name="composer_mode_custom">Własny</string>
     <string name="composer_mode_ask_sub">Pyta przed jakąkolwiek zmianą</string>
     <string name="composer_mode_edits_sub">Edytuje pliki sam i pyta przed resztą</string>

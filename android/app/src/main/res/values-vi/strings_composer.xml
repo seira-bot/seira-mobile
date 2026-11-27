@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Chỉnh sửa</string>
     <string name="composer_mode_auto">Tự động</string>
     <string name="composer_mode_full">Toàn quyền</string>
+    <string name="composer_mode_hold_full">Nhấn giữ để bật Toàn quyền</string>
     <string name="composer_mode_custom">Tùy chỉnh</string>
     <string name="composer_mode_ask_sub">Hỏi trước khi thay đổi bất cứ điều gì</string>
     <string name="composer_mode_edits_sub">Tự chỉnh sửa tệp và hỏi trước mọi việc khác</string>

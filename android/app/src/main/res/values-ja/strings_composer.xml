@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">編集</string>
     <string name="composer_mode_auto">自動</string>
     <string name="composer_mode_full">フル</string>
+    <string name="composer_mode_hold_full">長押しで「フル」をオンにします</string>
     <string name="composer_mode_custom">カスタム</string>
     <string name="composer_mode_ask_sub">何かを変更する前に確認します</string>
     <string name="composer_mode_edits_sub">ファイルの編集は自動で行い、それ以外は確認します</string>

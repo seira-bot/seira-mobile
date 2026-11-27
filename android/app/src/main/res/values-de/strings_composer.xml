@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Bearbeiten</string>
     <string name="composer_mode_auto">Auto</string>
     <string name="composer_mode_full">Voll</string>
+    <string name="composer_mode_hold_full">Halten, um Voll einzuschalten</string>
     <string name="composer_mode_custom">Benutzerdefiniert</string>
     <string name="composer_mode_ask_sub">Fragt, bevor etwas geändert wird</string>
     <string name="composer_mode_edits_sub">Bearbeitet Dateien selbst und fragt vor allem anderen</string>

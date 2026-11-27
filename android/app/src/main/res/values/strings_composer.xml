@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Edits</string>
     <string name="composer_mode_auto">Auto</string>
     <string name="composer_mode_full">Full</string>
+    <string name="composer_mode_hold_full">Hold to turn on Full</string>
     <string name="composer_mode_custom">Custom</string>
     <string name="composer_mode_ask_sub">Asks before it changes anything</string>
     <string name="composer_mode_edits_sub">Edits files on its own and asks before anything else</string>

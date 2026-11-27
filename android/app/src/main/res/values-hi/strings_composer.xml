@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">संपादन</string>
     <string name="composer_mode_auto">ऑटो</string>
     <string name="composer_mode_full">पूर्ण</string>
+    <string name="composer_mode_hold_full">पूर्ण चालू करने के लिए दबाए रखें</string>
     <string name="composer_mode_custom">कस्टम</string>
     <string name="composer_mode_ask_sub">कुछ भी बदलने से पहले पूछता है</string>
     <string name="composer_mode_edits_sub">फ़ाइलें अपने आप संपादित करता है और बाकी सब से पहले पूछता है</string>

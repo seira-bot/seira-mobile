@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Modifications</string>
     <string name="composer_mode_auto">Auto</string>
     <string name="composer_mode_full">Complet</string>
+    <string name="composer_mode_hold_full">Maintenez pour activer Complet</string>
     <string name="composer_mode_custom">Personnalisé</string>
     <string name="composer_mode_ask_sub">Demande avant de changer quoi que ce soit</string>
     <string name="composer_mode_edits_sub">Modifie les fichiers seul et demande avant le reste</string>

@@ -100,14 +100,14 @@ internal fun ApprovalModeSheet(
                 color = colors.ink,
                 modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
             )
-            for (mode in ModeChip.options(current)) {
-                ModeRow(
-                    mode = mode,
-                    selected = mode == shown,
-                    enabled = mode.phoneCanSet && !working,
-                    onClick = { request(mode, false) },
-                )
+            if (ModeLadder.showsCustom(shown)) {
+                ModeRow(mode = ApprovalMode.CUSTOM, selected = true, enabled = false, onClick = {})
             }
+            ApprovalLadder(
+                shown = shown,
+                enabled = !working,
+                onRequest = { request(it, false) },
+            )
             notice?.let { reason ->
                 Text(
                     text = stringResource(reason),

@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">편집</string>
     <string name="composer_mode_auto">자동</string>
     <string name="composer_mode_full">전체</string>
+    <string name="composer_mode_hold_full">길게 눌러 ‘전체’를 켜세요</string>
     <string name="composer_mode_custom">사용자 지정</string>
     <string name="composer_mode_ask_sub">무언가를 바꾸기 전에 먼저 묻습니다</string>
     <string name="composer_mode_edits_sub">파일은 스스로 편집하고 그 외에는 먼저 묻습니다</string>

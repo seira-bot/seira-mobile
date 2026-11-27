@@ -84,6 +84,29 @@ internal object ModeChip {
     }
 }
 
+internal object ModeLadder {
+    val steps: List<ApprovalMode> = ApprovalMode.phoneChoices
+    const val HOLD_MILLIS = 700L
+
+    fun index(mode: ApprovalMode?): Int? = mode?.let { steps.indexOf(it) }?.takeIf { it >= 0 }
+
+    fun fraction(mode: ApprovalMode?): Float? = index(mode)?.let { it / LAST.toFloat() }
+
+    /** The nearest step. A point halfway between two steps belongs to the lower one. */
+    fun stepAt(fraction: Float): ApprovalMode {
+        val scaled = fraction.coerceIn(0f, 1f) * LAST
+        val lower = kotlin.math.floor(scaled).toInt()
+        val index = if (scaled - lower > 0.5f) lower + 1 else lower
+        return steps[index.coerceIn(0, LAST)]
+    }
+
+    fun needsHold(mode: ApprovalMode): Boolean = mode == ApprovalMode.FULL
+
+    fun showsCustom(current: ApprovalMode?): Boolean = current == ApprovalMode.CUSTOM
+
+    private val LAST get() = steps.size - 1
+}
+
 internal sealed interface ModeChangeOutcome {
     data class Changed(val mode: ApprovalMode?) : ModeChangeOutcome
 

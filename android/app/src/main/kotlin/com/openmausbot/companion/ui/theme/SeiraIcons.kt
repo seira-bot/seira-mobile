@@ -128,6 +128,7 @@ object SeiraIcons {
     val Calendar = strokeIcon("Calendar", "M4 6h16v14H4Z M4 10h16 M8 3v5 M16 3v5")
     val Sliders = strokeIcon("Sliders", "M4 7h9 M17 7h3 M4 17h3 M11 17h9 M15 5v4 M9 15v4")
     val Plug = strokeIcon("Plug", "M9 3v5 M15 3v5 M6 8h12v3a6 6 0 0 1-12 0Z M12 17v4")
+    val Warning = strokeIcon("Warning", "M12 4l9 16H3Z", "M12 10v4 M12 17v.01")
     val Gauge = strokeIcon("Gauge", "M4.5 17a8.5 8.5 0 1 1 15 0", "M12 15l4-5")
     val MoreHorizontal = strokeIcon(
         "MoreHorizontal",
@@ -142,7 +143,7 @@ object SeiraIcons {
             Phone, PhoneOff, Mic, MicOff, Volume2, Captions, Camera, Image, File, CalendarClock,
             Monitor, Flashlight, FlashlightOff, Check, Sun, Moon, Smartphone, User, LogOut,
             Bell, Shield, Download, Laptop, BarChart, Menu, MessageCircle, Inbox, Clock, Users, Network,
-            BookMarked, Calendar, Sliders, Plug, Gauge, MoreHorizontal,
+            BookMarked, Calendar, Sliders, Plug, Gauge, MoreHorizontal, Warning,
         )
     }
 }

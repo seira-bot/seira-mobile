@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Edições</string>
     <string name="composer_mode_auto">Auto</string>
     <string name="composer_mode_full">Total</string>
+    <string name="composer_mode_hold_full">Segure para ativar Total</string>
     <string name="composer_mode_custom">Personalizado</string>
     <string name="composer_mode_ask_sub">Pergunta antes de alterar qualquer coisa</string>
     <string name="composer_mode_edits_sub">Edita arquivos sozinho e pergunta antes de qualquer outra coisa</string>

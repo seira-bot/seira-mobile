@@ -20,6 +20,7 @@ import com.openmausbot.companion.ui.team.TeamMapScreen
 import com.openmausbot.companion.ui.team.TeamMemoryScreen
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.theme.ThemeRevealHost
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraTween
 import kotlin.coroutines.cancellation.CancellationException
@@ -217,112 +218,114 @@ fun CompanionRoot(
         tapCoordinator.onPending(session, target, onPendingTargetConsumed)
     }
 
-    CompanionTheme(mode = themeMode) {
-        // One place for system insets: the app draws edge to edge, and every
-        // screen wants the same answer — keep content clear of the status bar,
-        // the gesture bar, and the keyboard.
-        Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-            Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when (route) {
-                        OnboardingRoute.WELCOME -> WelcomeScreen(
-                            onConnect = ::startPairing,
-                            onSkip = {
-                                // "Not now" is an answer, not a postponement of the same
-                                // screen: it is remembered, and it leads to a home that
-                                // can still connect and still reach Settings.
-                                scope.launch { onboarding.setWelcomeSeen(true) }
-                                session.endPairing()
-                            },
-                        )
-
-                        OnboardingRoute.PAIRING -> {
-                            // Being on this screen *is* the request, and it is what
-                            // keeps the screen up after `PairingScreen` consumes the
-                            // invite that opened it — at which point
-                            // `hasPendingPairingInvite` goes false and this is the only
-                            // thing left holding the route.
-                            LaunchedEffect(Unit) {
-                                onboarding.setWelcomeSeen(true)
-                                session.beginPairing()
-                            }
-                            PairingScreen(
-                                onCancel = {
+    ThemeRevealHost {
+        CompanionTheme(mode = themeMode) {
+            // One place for system insets: the app draws edge to edge, and every
+            // screen wants the same answer — keep content clear of the status bar,
+            // the gesture bar, and the keyboard.
+            Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+                Surface(modifier = Modifier.fillMaxSize().safeDrawingPadding()) {
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        when (route) {
+                            OnboardingRoute.WELCOME -> WelcomeScreen(
+                                onConnect = ::startPairing,
+                                onSkip = {
+                                    // "Not now" is an answer, not a postponement of the same
+                                    // screen: it is remembered, and it leads to a home that
+                                    // can still connect and still reach Settings.
                                     scope.launch { onboarding.setWelcomeSeen(true) }
                                     session.endPairing()
                                 },
                             )
-                        }
 
-                        OnboardingRoute.UNPAIRED_HOME -> if (showingUnpairedSettings) {
-                            // The same Settings screen, minus what needs a pairing.
-                            // Notifications can be recovered from here without first
-                            // entering a connection flow this person just declined.
-                            SettingsScreen(
-                                onBack = { showingUnpairedSettings = false },
-                                onConnect = {
-                                    showingUnpairedSettings = false
+                            OnboardingRoute.PAIRING -> {
+                                // Being on this screen *is* the request, and it is what
+                                // keeps the screen up after `PairingScreen` consumes the
+                                // invite that opened it — at which point
+                                // `hasPendingPairingInvite` goes false and this is the only
+                                // thing left holding the route.
+                                LaunchedEffect(Unit) {
+                                    onboarding.setWelcomeSeen(true)
+                                    session.beginPairing()
+                                }
+                                PairingScreen(
+                                    onCancel = {
+                                        scope.launch { onboarding.setWelcomeSeen(true) }
+                                        session.endPairing()
+                                    },
+                                )
+                            }
+
+                            OnboardingRoute.UNPAIRED_HOME -> if (showingUnpairedSettings) {
+                                // The same Settings screen, minus what needs a pairing.
+                                // Notifications can be recovered from here without first
+                                // entering a connection flow this person just declined.
+                                SettingsScreen(
+                                    onBack = { showingUnpairedSettings = false },
+                                    onConnect = {
+                                        showingUnpairedSettings = false
+                                        startPairing()
+                                    },
+                                )
+                            } else {
+                                UnpairedHomeScreen(
+                                    onConnect = ::startPairing,
+                                    onOpenSettings = { showingUnpairedSettings = true },
+                                )
+                            }
+
+                            OnboardingRoute.NOTIFICATION_PROMPT -> {
+                                NotificationOnboardingScreen(
+                                    enabling = enablingNotifications,
+                                    onEnable = {
+                                        enablingNotifications = true
+                                        scope.launch {
+                                            // Marked before the prompt is launched, the way
+                                            // [PermissionRequests] records every asking as
+                                            // part of launching it: a process that dies while
+                                            // the system sheet is up has still spent the
+                                            // prompt, and re-showing this step afterwards
+                                            // would offer a button the OS silently drops.
+                                            onboarding.setNotificationPromptSeen(true)
+                                            environment.notifications.act()
+                                            enablingNotifications = false
+                                        }
+                                    },
+                                    onSkip = ::finishNotificationStep,
+                                )
+                            }
+
+                            OnboardingRoute.CHATS -> {
+                                PairedScreen(
+                                    resolution = resolution,
+                                    bondGeneration = bondGeneration,
+                                    onCommit = { held, navigator ->
+                                        tapCoordinator.commit(held, navigator, onPendingTargetConsumed)
+                                    },
+                                )
+                            }
+
+                            OnboardingRoute.REVOKED -> UnpairedScreen(
+                                onPairAgain = {
+                                    session.pairAgain()
                                     startPairing()
                                 },
-                            )
-                        } else {
-                            UnpairedHomeScreen(
-                                onConnect = ::startPairing,
-                                onOpenSettings = { showingUnpairedSettings = true },
+                                onChooseAnother = connections.firstOrNull { it.id != connection?.id }
+                                    ?.let { other -> { session.switchComputer(other.id) } },
                             )
                         }
-
-                        OnboardingRoute.NOTIFICATION_PROMPT -> {
-                            NotificationOnboardingScreen(
-                                enabling = enablingNotifications,
-                                onEnable = {
-                                    enablingNotifications = true
-                                    scope.launch {
-                                        // Marked before the prompt is launched, the way
-                                        // [PermissionRequests] records every asking as
-                                        // part of launching it: a process that dies while
-                                        // the system sheet is up has still spent the
-                                        // prompt, and re-showing this step afterwards
-                                        // would offer a button the OS silently drops.
-                                        onboarding.setNotificationPromptSeen(true)
-                                        environment.notifications.act()
-                                        enablingNotifications = false
-                                    }
-                                },
-                                onSkip = ::finishNotificationStep,
-                            )
+                        val pendingShare by environment.shareInbox.pending.collectAsState()
+                        pendingShare?.let { share ->
+                            ShareSheet(pending = share, onDismiss = environment.shareInbox::consume)
                         }
-
-                        OnboardingRoute.CHATS -> {
-                            PairedScreen(
-                                resolution = resolution,
-                                bondGeneration = bondGeneration,
-                                onCommit = { held, navigator ->
-                                    tapCoordinator.commit(held, navigator, onPendingTargetConsumed)
-                                },
-                            )
-                        }
-
-                        OnboardingRoute.REVOKED -> UnpairedScreen(
-                            onPairAgain = {
-                                session.pairAgain()
-                                startPairing()
-                            },
-                            onChooseAnother = connections.firstOrNull { it.id != connection?.id }
-                                ?.let { other -> { session.switchComputer(other.id) } },
-                        )
-                    }
-                    val pendingShare by environment.shareInbox.pending.collectAsState()
-                    pendingShare?.let { share ->
-                        ShareSheet(pending = share, onDismiss = environment.shareInbox::consume)
                     }
                 }
-            }
-            if (route == OnboardingRoute.CHATS) LiveCallScreenHost()
-            // Pairing failures are shown inline on the pairing form, where the
-            // action was — a modal on top of it would say the same thing twice.
-            if (route != OnboardingRoute.PAIRING) {
-                ActionErrorDialog(session)
+                if (route == OnboardingRoute.CHATS) LiveCallScreenHost()
+                // Pairing failures are shown inline on the pairing form, where the
+                // action was — a modal on top of it would say the same thing twice.
+                if (route != OnboardingRoute.PAIRING) {
+                    ActionErrorDialog(session)
+                }
             }
         }
     }

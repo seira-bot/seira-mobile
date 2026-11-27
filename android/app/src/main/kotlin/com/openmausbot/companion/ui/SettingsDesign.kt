@@ -1,5 +1,9 @@
 package com.openmausbot.companion.ui
 
+import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -51,21 +55,25 @@ internal enum class NotificationChannelRow(
     val channelId: String,
     val title: Int,
     val body: Int,
+    val icon: ImageVector,
 ) {
     APPROVAL(
         NotificationMapping.CHANNEL_BLOCKING,
         R.string.settings_notif_approval_title,
         R.string.settings_notif_approval_body,
+        SeiraIcons.Check,
     ),
     DONE(
         NotificationMapping.CHANNEL_DONE,
         R.string.settings_notif_done_title,
         R.string.settings_notif_done_body,
+        SeiraIcons.Bell,
     ),
     ROUTINE(
         NotificationMapping.CHANNEL_ROUTINE_FAILED,
         R.string.settings_notif_routine_title,
         R.string.settings_notif_routine_body,
+        SeiraIcons.Warning,
     ),
 }
 
@@ -135,21 +143,54 @@ internal fun SwitchRow(
     checked: Boolean,
     onToggle: () -> Unit,
 ) {
+    val source = remember { MutableInteractionSource() }
+    val switch: @Composable () -> Unit = {
+        Box(Modifier.clearAndSetSemantics {}) {
+            SeiraSwitch(checked = checked, onCheckedChange = null, contentDescription = title, interactionSource = source)
+        }
+    }
     Box(
-        modifier = Modifier
-            .toggleable(value = checked, role = Role.Switch, onValueChange = { onToggle() }),
+        modifier = Modifier.toggleable(
+            value = checked,
+            interactionSource = source,
+            indication = LocalIndication.current,
+            role = Role.Switch,
+            onValueChange = { onToggle() },
+        ),
     ) {
-        DesignRow(
-            title = title,
-            subtitle = subtitle,
-            icon = icon,
-            minHeight = 64.dp,
-            trailing = {
-                Box(Modifier.clearAndSetSemantics {}) {
-                    SeiraSwitch(checked = checked, onCheckedChange = null, contentDescription = title)
-                }
-            },
-        )
+        if (icon == null) {
+            DesignRow(title = title, subtitle = subtitle, minHeight = 64.dp, trailing = switch)
+        } else {
+            LiveIconRow(title = title, subtitle = subtitle, icon = icon, on = checked, trailing = switch)
+        }
+    }
+}
+
+@Composable
+private fun LiveIconRow(
+    title: String,
+    subtitle: String?,
+    icon: ImageVector,
+    on: Boolean,
+    trailing: @Composable () -> Unit,
+) {
+    val colors = Seira.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 64.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        LiveRowIcon(icon = icon, on = on)
+        Column(modifier = Modifier.weight(1f)) {
+            Text(title, style = SeiraType.bodyMedium.copy(fontSize = 16.sp), color = colors.ink)
+            if (subtitle != null) {
+                Text(subtitle, style = SeiraType.callout, color = colors.ink2, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            }
+        }
+        trailing()
     }
 }
 

@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">编辑</string>
     <string name="composer_mode_auto">自动</string>
     <string name="composer_mode_full">完全</string>
+    <string name="composer_mode_hold_full">按住以开启“完全”</string>
     <string name="composer_mode_custom">自定义</string>
     <string name="composer_mode_ask_sub">更改任何内容前先询问</string>
     <string name="composer_mode_edits_sub">自行编辑文件，其他操作先询问</string>

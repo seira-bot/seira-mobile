@@ -9,6 +9,7 @@
     <string name="composer_mode_edits">Правки</string>
     <string name="composer_mode_auto">Авто</string>
     <string name="composer_mode_full">Повний</string>
+    <string name="composer_mode_hold_full">Утримуйте, щоб увімкнути «Повний»</string>
     <string name="composer_mode_custom">Особливий</string>
     <string name="composer_mode_ask_sub">Питає перед будь-якою зміною</string>
     <string name="composer_mode_edits_sub">Сам редагує файли й питає про все інше</string>

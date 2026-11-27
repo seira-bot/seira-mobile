@@ -289,3 +289,49 @@ class SteerMessageTest {
         assertNull(QueuedSteering.messageRes(SteerOutcome.DONE))
     }
 }
+
+class ModeLadderTest {
+    @Test
+    fun `the ladder has the four phone choices in order`() {
+        assertEquals(listOf(ApprovalMode.ASK, ApprovalMode.EDITS, ApprovalMode.AUTO, ApprovalMode.FULL), ModeLadder.steps)
+        assertEquals(700L, ModeLadder.HOLD_MILLIS)
+    }
+
+    @Test
+    fun `index and fraction cover the steps and skip Custom and null`() {
+        assertEquals(0, ModeLadder.index(ApprovalMode.ASK))
+        assertEquals(3, ModeLadder.index(ApprovalMode.FULL))
+        assertNull(ModeLadder.index(ApprovalMode.CUSTOM))
+        assertNull(ModeLadder.index(null))
+        assertEquals(0f, ModeLadder.fraction(ApprovalMode.ASK))
+        assertEquals(1f / 3f, ModeLadder.fraction(ApprovalMode.EDITS))
+        assertEquals(1f, ModeLadder.fraction(ApprovalMode.FULL))
+        assertNull(ModeLadder.fraction(ApprovalMode.CUSTOM))
+        assertNull(ModeLadder.fraction(null))
+    }
+
+    @Test
+    fun `stepAt picks the nearest step and clamps`() {
+        assertEquals(ApprovalMode.ASK, ModeLadder.stepAt(-0.5f))
+        assertEquals(ApprovalMode.FULL, ModeLadder.stepAt(1.7f))
+        assertEquals(ApprovalMode.ASK, ModeLadder.stepAt(0.16f))
+        assertEquals(ApprovalMode.EDITS, ModeLadder.stepAt(0.17f))
+        assertEquals(ApprovalMode.EDITS, ModeLadder.stepAt(0.5f))
+        assertEquals(ApprovalMode.AUTO, ModeLadder.stepAt(0.51f))
+        assertEquals(ApprovalMode.FULL, ModeLadder.stepAt(0.84f))
+    }
+
+    @Test
+    fun `only Full needs a hold`() {
+        assertTrue(ModeLadder.needsHold(ApprovalMode.FULL))
+        assertFalse(ModeLadder.needsHold(ApprovalMode.AUTO))
+        assertFalse(ModeLadder.needsHold(ApprovalMode.ASK))
+    }
+
+    @Test
+    fun `Custom shows only while it is the current mode`() {
+        assertTrue(ModeLadder.showsCustom(ApprovalMode.CUSTOM))
+        assertFalse(ModeLadder.showsCustom(ApprovalMode.AUTO))
+        assertFalse(ModeLadder.showsCustom(null))
+    }
+}
