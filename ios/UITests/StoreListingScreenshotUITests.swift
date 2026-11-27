@@ -128,7 +128,11 @@ final class StoreListingScreenshotUITests: XCTestCase {
             app.launch()
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
-        pause(8)
+        pause(6)
+        if device == "iphone" && app.buttons["Deny"].exists {
+            app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75)).tap()
+            pause(2)
+        }
         return app
     }
 
