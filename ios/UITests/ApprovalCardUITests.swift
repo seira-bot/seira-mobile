@@ -73,7 +73,7 @@ final class ApprovalCardUITests: XCTestCase {
         }
         let input = app.descendants(matching: .any)["message-input"]
         if !input.waitForExistence(timeout: 3) {
-            let row = app.staticTexts[bot].firstMatch
+            let row = app.buttons["chat-row.preview-\(bot.lowercased())"]
             XCTAssertTrue(row.waitForExistence(timeout: 10), "\(bot) on the roster")
             // The pending approval raises the island over the roster for
             // its first seconds, and a tap then lands on the island.

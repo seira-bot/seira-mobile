@@ -27,6 +27,9 @@ enum PrefKey {
     static let notifyRoutines = "companion.prefs.notifyRoutines"
     /// Captions on the Live call screen. Default on.
     static let liveCaptions = "companion.prefs.liveCaptions"
+    /// The extra menus and tools of the computer's Advanced mode. Per phone,
+    /// off by default.
+    static let advancedMode = "companion.prefs.advancedMode"
 }
 
 extension ActivityDetail {

@@ -775,18 +775,20 @@ class CompanionClient(
     /**
      * Atomically file visible bots under one shared sidebar heading. This is
      * narrower than the desktop's general bot patch: pairing a phone grants
-     * organization, never execution-policy edits.
+     * organization, never execution-policy edits. An empty name moves the bots
+     * out of every department; an empty list makes an empty department.
      */
-    suspend fun assignSection(name: String, botIds: List<String>): List<Bot> = send<SidebarSectionResponse>(
-        makeRequest(
-            "POST",
-            "/api/sidebar-sections",
-            body = buildJsonObject {
-                put("name", name)
-                put("botIds", JsonArray(botIds.map(::JsonPrimitive)))
-            },
-        ),
-    ).bots
+    suspend fun assignSection(name: String, botIds: List<String>): SectionAssignment =
+        send<SidebarSectionResponse>(
+            makeRequest(
+                "POST",
+                "/api/sidebar-sections",
+                body = buildJsonObject {
+                    put("name", name)
+                    put("botIds", JsonArray(botIds.map(::JsonPrimitive)))
+                },
+            ),
+        ).let { SectionAssignment(it.bots, it.sections) }
 
     suspend fun updateProfile(botId: String, patch: BotProfilePatch): Bot {
         val body = CompanionJson.encodeToJsonElement(BotProfilePatch.serializer(), patch).jsonObject
@@ -799,6 +801,17 @@ class CompanionClient(
         send<BotResponse>(
             makeRequest("PATCH", "/api/bots/${segment(botId)}", body = patch.toJson()),
         ).bot
+
+    /** Pin or mark unread. Only the given keys go out, the only ones a paired phone may change here. */
+    suspend fun setBotFlags(botId: String, pinned: Boolean? = null, unread: Boolean? = null): Bot {
+        val body = buildJsonObject {
+            pinned?.let { put("pinned", it) }
+            unread?.let { put("unread", it) }
+        }
+        val request = makeRequest("PATCH", "/api/bots/${segment(botId)}", body = body)
+            .newBuilder().header(PAIRED_DEVICE_HEADER, "1").build()
+        return send<BotResponse>(request).bot
+    }
 
     /**
      * Move one bot between no computer and its own server. Exactly one of two
@@ -1049,12 +1062,14 @@ class CompanionClient(
         behavior: String,
         message: String? = null,
         reviewedSha256: String? = null,
+        always: Boolean = false,
     ): String? {
         val body = buildJsonObject {
             put("requestId", requestId)
             put("behavior", behavior)
             message?.let { put("message", it) }
             reviewedSha256?.let { put("reviewedSha256", it) }
+            if (always && behavior == "allow") put("always", true)
         }
         val raw = perform(makeRequest("POST", "/api/threads/${segment(threadId)}/respond", body = body))
         check(raw)
@@ -1066,6 +1081,11 @@ class CompanionClient(
         } catch (_: IllegalArgumentException) {
             null
         }
+    }
+
+    /** Summarizes the older messages of a bot's thread. The computer answers 202 and works in the background. */
+    suspend fun compact(botId: String, threadId: String? = null) {
+        sendUnit(makeRequest("POST", "/api/bots/${segment(botId)}/compact", body = jsonBody("threadId" to threadId)))
     }
 
     suspend fun alwaysAllow(botId: String, key: String, threadId: String? = null) {

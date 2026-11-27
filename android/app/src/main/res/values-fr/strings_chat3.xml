@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Renommer</string>
+    <string name="chat3_menu_copy_markdown">Copier en Markdown</string>
+    <string name="chat3_menu_download_markdown">Télécharger le .md</string>
+    <string name="chat3_menu_activity">Activité</string>
+    <string name="chat3_copied">Copié</string>
+    <string name="chat3_rename_heading">Renommer le fil</string>
+    <string name="chat3_rename_label">Titre</string>
+    <string name="chat3_rename_save">Enregistrer</string>
+    <string name="chat3_rename_cancel">Annuler</string>
+    <string name="chat3_rename_failed">Impossible de renommer ce fil. Réessayez.</string>
+    <string name="chat3_tool_teach">Enseigner</string>
+    <string name="chat3_tool_teach_a11y">Enseigner une nouvelle compétence</string>
+    <string name="chat3_tool_goal">Objectif</string>
+    <string name="chat3_tool_goal_a11y">Définir un objectif</string>
+    <string name="chat3_tool_context">Contexte %1$d %%</string>
+    <string name="chat3_tool_context_a11y">Contexte, %1$d pour cent utilisé. Touchez pour voir le détail.</string>
+    <string name="chat3_context_title">Contexte</string>
+    <string name="chat3_context_bar_a11y">%1$d pour cent utilisé</string>
+    <string name="chat3_context_usage">%1$s tokens sur %2$s utilisés</string>
+    <string name="chat3_context_compact">Compacter le contexte</string>
+    <string name="chat3_context_compact_sub">Résume les anciens messages</string>
+    <string name="chat3_context_compacting">Compactage…</string>
+    <string name="chat3_context_compacted">Résumé lancé</string>
+    <string name="chat3_context_wait">Attendez la fin de la réponse.</string>
+    <string name="chat3_context_failed">Impossible de compacter cette conversation. Réessayez.</string>
+    <string name="chat3_allow_session">Autoriser pour cette session</string>
+</resources>

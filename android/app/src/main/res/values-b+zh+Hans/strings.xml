@@ -326,6 +326,7 @@
     <string name="mobile_running_steps">正在执行 %1$s 个步骤</string>
     <string name="mobile_ran_steps">已执行 %1$s 个步骤</string>
     <string name="mobile_pairing_failed">配对失败。</string>
+    <string name="mobile_link_no_browser">这部手机上没有可以打开此链接的浏览器。</string>
     <string name="mobile_pairing_no_address">这台电脑没有返回地址。请改为输入其“手机”设置中显示的地址。</string>
     <string name="mobile_pairing_invalid_address">请输入安全的 https:// 地址、192.168.1.42:8810，或 macbook.tail1234.ts.net 这样的名称。</string>
     <string name="mobile_pairing_invalid_qr">这不是 Seira 配对二维码。</string>

@@ -83,6 +83,14 @@ public struct OptionCard: Codable, Hashable, Sendable {
     public var quotaSwitch: QuotaSwitchCard? = nil
     /// The options are the whole answer: no free-text reply.
     public var fixedOptions: Bool? = nil
+    /// The computer honors an answer that allows this tool for the rest of the session.
+    public var allowSession: Bool? = nil
+
+    /// The extra "Allow for this session" button: Advanced mode and a pending
+    /// permission card that says the computer honors it.
+    public func offersSessionAllow(advancedMode: Bool) -> Bool {
+        advancedMode && isPermission && isPending && allowSession == true
+    }
 
     /// A card is actionable while it is unanswered and still has a request
     /// behind it. Everything else is transcript.
@@ -348,6 +356,9 @@ public struct Message: Codable, Hashable, Identifiable, Sendable {
     /// leaves the message's text, which the computer writes for exactly
     /// the clients that cannot read the card.
     public var routineRun: RoutineRunCard?
+    /// `kind == "goal.run"`: the group goal run, patched in place. This build
+    /// draws no card for it; the chip above the composer reads its status.
+    public var goalRun: GoalRunCard?
     /// The message this one follows; nil at the thread root. Two messages
     /// sharing a parent are a fork.
     public var parentId: String?
@@ -466,6 +477,8 @@ public struct BotTask: Codable, Hashable, Sendable {
     public var pinned: Bool? = nil
     /// Newest message time. Absent on older computers; the list uses createdAt.
     public var updatedAt: Double? = nil
+    /// What this thread has spent. Absent on older computers.
+    public var usage: TaskUsage? = nil
 
     /// The time the thread list sorts and stamps by.
     public var listStamp: Double { updatedAt ?? createdAt }
@@ -920,13 +933,23 @@ public struct Fleet: Decodable, Sendable {
     /// Held sends for every bot thread, the same snapshot the
     /// bot.queued frames carry. Older computers omit it.
     public var botQueuedMessages: [String: [QueuedSend]]?
+    /// Department names in the order the computer lists them, empty ones
+    /// included. Older computers omit it, and a list that is not names reads
+    /// as absent, so a known list is never replaced by a guess.
+    public var sections: [String]?
 
-    private enum CodingKeys: String, CodingKey { case bots, groups, botQueuedMessages }
+    private enum CodingKeys: String, CodingKey { case bots, groups, botQueuedMessages, sections }
 
-    public init(bots: [Bot], groups: [Room], botQueuedMessages: [String: [QueuedSend]]? = nil) {
+    public init(
+        bots: [Bot],
+        groups: [Room],
+        botQueuedMessages: [String: [QueuedSend]]? = nil,
+        sections: [String]? = nil
+    ) {
         self.bots = bots
         self.groups = groups
         self.botQueuedMessages = botQueuedMessages
+        self.sections = sections
     }
 
     public init(from decoder: Decoder) throws {
@@ -939,6 +962,7 @@ public struct Fleet: Decodable, Sendable {
             [String: [Lossy<QueuedSend>]].self,
             forKey: .botQueuedMessages
         ))??.mapValues { list in list.compactMap(\.value) }
+        sections = (try? container.decodeIfPresent([String].self, forKey: .sections)) ?? nil
     }
 }
 
@@ -1819,9 +1843,30 @@ struct ActiveBranchResponse: Codable, Sendable {
 struct BotResponse: Codable, Sendable {
     var bot: Bot
 }
-struct SidebarSectionResponse: Codable, Sendable {
+/// What the computer answered to a department change: the bots that moved and,
+/// when it says so, the full list of department names.
+public struct SectionAssignment: Sendable {
+    public var bots: [Bot]
+    public var sections: [String]?
+
+    public init(bots: [Bot], sections: [String]? = nil) {
+        self.bots = bots
+        self.sections = sections
+    }
+}
+struct SidebarSectionResponse: Decodable, Sendable {
     var section: String
     var bots: [Bot]
+    var sections: [String]?
+
+    private enum CodingKeys: String, CodingKey { case section, bots, sections }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        section = try container.decode(String.self, forKey: .section)
+        bots = try container.decode([Bot].self, forKey: .bots)
+        sections = (try? container.decodeIfPresent([String].self, forKey: .sections)) ?? nil
+    }
 }
 struct RoomResponse: Codable, Sendable {
     var group: Room

@@ -3,6 +3,7 @@ import SwiftUI
 
 enum HomeRowMetrics {
     static let minHeight: CGFloat = 68
+    static let compactHeight: CGFloat = 56
     static let side: CGFloat = 20
     static let avatar: CGFloat = 48
     static let gap: CGFloat = 12
@@ -97,13 +98,15 @@ struct HomeRowLabels: View {
     var detailWaiting = false
     var working = false
     var spinnerLabel: LocalizedStringKey = "Working"
+    /// One line: the line beneath the name shows only when it has something to say.
+    var compact = false
 
     @Environment(\.dynamicTypeSize) private var typeSize
 
     var body: some View {
         VStack(alignment: .leading, spacing: 3) {
             titleLine
-            detailLine
+            if !compact || !detail.isEmpty || unread { detailLine }
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
@@ -161,5 +164,40 @@ struct HomeRowLabels: View {
                     .accessibilityLabel("Unread")
             }
         }
+    }
+}
+
+/// A group chat in the Chats list. Compact density leaves out the line under its name.
+struct HomeRoomRow: View, Equatable {
+    let room: Room
+    let members: [Bot]
+    let lastActivity: Double
+    let today: Date
+    var waiting = false
+    var compact = false
+
+    private var busy: Bool { room.busyBotId != nil }
+
+    private var detail: String {
+        if waiting { return String(localized: "Waiting on you") }
+        return compact ? "" : Chat.room(room).subtitle
+    }
+
+    var body: some View {
+        HStack(spacing: HomeRowMetrics.gap) {
+            HomeRoomFaces(members: members)
+            HomeRowLabels(
+                title: room.name,
+                unread: room.unread && !busy,
+                stamp: busy ? "" : RelativeStamp.list(lastActivity),
+                detail: detail,
+                detailWaiting: waiting,
+                working: busy && !waiting,
+                compact: compact
+            )
+        }
+        .padding(.horizontal, HomeRowMetrics.side)
+        .frame(minHeight: compact ? HomeRowMetrics.compactHeight : HomeRowMetrics.minHeight)
+        .contentShape(Rectangle())
     }
 }

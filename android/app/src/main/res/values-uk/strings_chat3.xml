@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Перейменувати</string>
+    <string name="chat3_menu_copy_markdown">Копіювати як Markdown</string>
+    <string name="chat3_menu_download_markdown">Завантажити .md</string>
+    <string name="chat3_menu_activity">Активність</string>
+    <string name="chat3_copied">Скопійовано</string>
+    <string name="chat3_rename_heading">Перейменувати гілку</string>
+    <string name="chat3_rename_label">Назва</string>
+    <string name="chat3_rename_save">Зберегти</string>
+    <string name="chat3_rename_cancel">Скасувати</string>
+    <string name="chat3_rename_failed">Не вдалося перейменувати цю гілку. Спробуйте ще раз.</string>
+    <string name="chat3_tool_teach">Навчити</string>
+    <string name="chat3_tool_teach_a11y">Навчити нової навички</string>
+    <string name="chat3_tool_goal">Ціль</string>
+    <string name="chat3_tool_goal_a11y">Задати ціль</string>
+    <string name="chat3_tool_context">Контекст %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Контекст, використано %1$d відсотків. Торкніться, щоб дізнатися більше.</string>
+    <string name="chat3_context_title">Контекст</string>
+    <string name="chat3_context_bar_a11y">Використано %1$d відсотків</string>
+    <string name="chat3_context_usage">Використано токенів: %1$s із %2$s</string>
+    <string name="chat3_context_compact">Стиснути контекст</string>
+    <string name="chat3_context_compact_sub">Коротко переказує старі повідомлення</string>
+    <string name="chat3_context_compacting">Стиснення…</string>
+    <string name="chat3_context_compacted">Переказ розпочато</string>
+    <string name="chat3_context_wait">Зачекайте, доки відповідь закінчиться.</string>
+    <string name="chat3_context_failed">Не вдалося стиснути цю розмову. Спробуйте ще раз.</string>
+    <string name="chat3_allow_session">Дозволити в цій сесії</string>
+</resources>

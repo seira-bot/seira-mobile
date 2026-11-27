@@ -309,12 +309,18 @@ internal data class RoutineEditorTarget(
     /** An edit must send the flag back unchanged; a new routine sends none. */
     val enabled: Boolean?,
     val seed: Routine?,
+    /** What a new routine starts with when it comes from "What should happen?". */
+    val draftPrompt: String = "",
+    val draftBotId: String = "",
 ) {
     val stateKey: String get() = "routine-editor:${routineId ?: "new"}"
 
     companion object {
         fun new(): RoutineEditorTarget =
             RoutineEditorTarget(routineId = null, enabled = null, seed = null)
+
+        fun drafted(prompt: String, botId: String): RoutineEditorTarget =
+            RoutineEditorTarget(routineId = null, enabled = null, seed = null, draftPrompt = prompt, draftBotId = botId)
 
         fun edit(routine: Routine): RoutineEditorTarget =
             RoutineEditorTarget(routineId = routine.id, enabled = routine.enabled, seed = routine)
@@ -325,7 +331,12 @@ internal data class RoutineEditorTarget(
                 if (target == null) {
                     emptyList()
                 } else {
-                    listOf(target.routineId ?: "", target.enabled?.toString() ?: "")
+                    listOf(
+                        target.routineId ?: "",
+                        target.enabled?.toString() ?: "",
+                        target.draftPrompt,
+                        target.draftBotId,
+                    )
                 }
             },
             restore = { saved ->
@@ -336,6 +347,8 @@ internal data class RoutineEditorTarget(
                         routineId = saved[0].ifEmpty { null },
                         enabled = saved[1].toBooleanStrictOrNull(),
                         seed = null,
+                        draftPrompt = saved.getOrNull(2).orEmpty(),
+                        draftBotId = saved.getOrNull(3).orEmpty(),
                     )
                 }
             },

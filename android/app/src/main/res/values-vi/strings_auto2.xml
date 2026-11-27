@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Điều gì sẽ xảy ra?</string>
+    <string name="auto2_sheet_title">Điều gì sẽ xảy ra?</string>
+    <string name="auto2_describe_label">Mô tả</string>
+    <string name="auto2_describe_placeholder">Mỗi sáng lúc 9 giờ, tóm tắt hộp thư đến của tôi</string>
+    <string name="auto2_who_sub">Ai sẽ làm việc này?</string>
+    <string name="auto2_who_title">Ai sẽ làm việc này?</string>
+    <string name="auto2_who_row">%1$s, ai sẽ làm việc này? Chạm để thay đổi.</string>
+    <string name="auto2_who_selected">%1$s, đã chọn</string>
+    <string name="auto2_set_up_yourself">Tự thiết lập</string>
+    <string name="auto2_set_up">Thiết lập</string>
+    <string name="auto2_set_up_needs_text">Hãy mô tả điều sẽ xảy ra trước.</string>
+    <string name="auto2_view_label">Chế độ xem lịch</string>
+    <string name="auto2_view_day">Ngày</string>
+    <string name="auto2_view_week">Tuần</string>
+    <string name="auto2_week_empty_body">Các tác vụ định kỳ chạy trong tuần này sẽ hiện ở đây.</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Thao tác của bot</string>
+    <string name="auto2_pin">Ghim</string>
+    <string name="auto2_unpin">Bỏ ghim</string>
+    <string name="auto2_mark_unread">Đánh dấu là chưa đọc</string>
+    <string name="auto2_mark_all_read">Đánh dấu tất cả cuộc trò chuyện là đã đọc</string>
+    <string name="auto2_move_department">Chuyển đến phòng ban</string>
+    <string name="auto2_copy_id">Sao chép ID cuộc trò chuyện</string>
+    <string name="auto2_done_pinned">Đã ghim</string>
+    <string name="auto2_done_unpinned">Đã bỏ ghim</string>
+    <string name="auto2_done_unread">Đã đánh dấu là chưa đọc</string>
+    <string name="auto2_done_all_read">Đã đọc hết</string>
+    <string name="auto2_done_moved">Đã chuyển</string>
+    <string name="auto2_done_copied">Đã sao chép</string>
+    <string name="auto2_failed">Không thể lưu. Hãy thử lại.</string>
+    <string name="auto2_department_title">Chuyển đến phòng ban</string>
+    <string name="auto2_department_general">Chung</string>
+    <string name="auto2_department_current">%1$s, hiện tại</string>
+    <string name="auto2_department_new">Phòng ban mới…</string>
+    <string name="auto2_department_name">Tên phòng ban</string>
+    <string name="auto2_department_move">Chuyển</string>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">机器人</string>
+    <string name="home2_group_chats">群聊</string>
+    <string name="home2_search">搜索聊天和机器人</string>
+    <string name="home2_new_group">新建群组</string>
+    <string name="home2_department_empty">此部门里没有机器人。</string>
+    <string name="home2_show_all">显示所有聊天</string>
+    <string name="home2_department_actions">%1$s部门的操作</string>
+    <string name="home2_department_add_bots_label">在%1$s中添加或移除机器人</string>
+    <string name="home2_fold_open">展开</string>
+    <string name="home2_fold_folded">已折叠</string>
+    <string name="home2_chief">幕僚长</string>
+    <string name="home2_waiting">等你处理</string>
+    <string name="home2_problem">需要看一下</string>
+    <string name="home2_working">工作中</string>
+    <string name="home2_menu_add_bots">添加机器人</string>
+    <string name="home2_menu_new_bot">在此新建机器人</string>
+    <string name="home2_add_bots_title">添加机器人到%1$s</string>
+    <string name="home2_add_bots_save">保存</string>
+    <string name="home2_add_bots_saving">正在保存</string>
+    <string name="home2_add_bots_failed">无法保存。请重试。</string>
+    <string name="home2_add_bots_nothing">没有可添加的机器人。</string>
+    <string name="home2_bot_in_department">在%1$s中</string>
+    <string name="home2_bot_unassigned">机器人</string>
+    <string name="home2_cancel">取消</string>
+    <string name="home2_settings_advanced_title">高级模式</string>
+    <string name="home2_settings_advanced_body">像在电脑上一样，提供更多菜单和工具。</string>
+    <string name="home2_team_add_department">添加部门</string>
+    <string name="home2_team_department_empty">此部门里没有机器人。</string>
+    <string name="home2_department_title">添加部门</string>
+    <string name="home2_department_name">部门名称</string>
+    <string name="home2_department_placeholder">市场</string>
+    <string name="home2_department_exists">这个名称已被使用。</string>
+    <string name="home2_department_needed">请为部门起个名称。</string>
+    <string name="home2_department_failed">无法添加部门。请重试。</string>
+    <string name="home2_department_add">添加</string>
+    <string name="home2_department_adding">正在添加</string>
+    <string name="home2_add_bots_partial">部分更改未保存。请重试。</string>
+    <string name="home2_new_bot_not_filed">已创建 %1$s，但它不在 %2$s 中。</string>
+    <string name="home2_try_again">重试</string>
+    <string name="home2_not_now">暂不</string>
+    <string name="home2_waiting_count">%1$d 个在等待</string>
+</resources>

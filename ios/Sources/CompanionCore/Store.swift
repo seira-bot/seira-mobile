@@ -107,6 +107,9 @@ public struct CompanionState: Sendable {
     /// Edits in flight, per thread. Not hydrated and not cleared by a
     /// hydrate: they belong to the request that is still running.
     public var pendingEdits: [String: PendingEdit] = [:]
+    /// Department names the computer lists, in its order. Departments with no
+    /// bot show only because of this list.
+    public private(set) var declaredSections: [String] = []
     /// Mid-turn sends the harness is holding until the running turn settles,
     /// by thread. They are deliberately NOT in messages: appending one now
     /// would make it the active leaf, and the rest of the running turn would
@@ -257,7 +260,7 @@ public struct CompanionState: Sendable {
         let sectionBots = visibleBots.filter {
             $0.chiefOfStaff != true && !Self.isSidebarPinned($0) && Self.sectionName($0.section) != nil
         }
-        var names: [String] = []
+        var names: [String] = declaredSections
         // Match the desktop's natural order: ordinary bots, Chiefs, then
         // channels. Manual desktop-only ordering remains local by design.
         for raw in sectionBots.map(\.section) + sectionChiefs.map(\.section) + visibleChannels.map(\.section) {
@@ -272,6 +275,16 @@ public struct CompanionState: Sendable {
                 channels: visibleChannels.filter { Self.sectionName($0.section) == name }
             )
         }
+    }
+
+    /// Replace the department names. Blank names and repeats drop out.
+    public mutating func setDeclaredSections(_ names: [String]) {
+        var seen: [String] = []
+        for raw in names {
+            guard let name = Self.sectionName(raw), !seen.contains(name) else { continue }
+            seen.append(name)
+        }
+        declaredSections = seen
     }
 
     public var unsectionedChief: Bot? {
@@ -409,6 +422,9 @@ public struct CompanionState: Sendable {
         // so every refresh re-seeds it; landed lines then retire their rows.
         if let queues = fleet.botQueuedMessages {
             replaceBotQueues(queues)
+        }
+        if let names = fleet.sections {
+            setDeclaredSections(names)
         }
         reconcileAllQueued()
     }
@@ -652,6 +668,9 @@ public struct CompanionState: Sendable {
 
         case let .botQueued(queues):
             replaceBotQueues(queues)
+
+        case let .sections(names):
+            setDeclaredSections(names)
 
         case let .liveCall(_, _, call):
             liveCall = call

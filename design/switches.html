@@ -1,0 +1,839 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seira Switch Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<style>
+@property --p { syntax: "<percentage>"; inherits: true; initial-value: 0%; }
+@property --ang { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+
+.concept-stage { padding-bottom: 44px; }
+@media (max-width: 520px) { .concept-stage { padding: 28px 10px 44px; } }
+.rowt { cursor: pointer; transition: background var(--m-fast) var(--ease); -webkit-tap-highlight-color: transparent; }
+.rowt:active { background: color-mix(in srgb, var(--s2) 50%, transparent); }
+.s-row .s-text { min-width: 0; }
+.jx-slot { flex: none; display: flex; margin-right: -6px; }
+
+.jx {
+  --kp: 0; --pr: 0; --jx-on: var(--inv); --jx-knob-on: var(--on-inv);
+  position: relative; flex: none; width: 64px; height: 48px; padding: 0; border: 0; background: transparent;
+  display: grid; place-items: center; cursor: pointer; touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.jx.acc { --jx-on: var(--acc); --jx-knob-on: var(--on-acc); }
+.jx[aria-disabled="true"] { cursor: default; }
+.jx:focus-visible { outline: none; }
+.jx:focus-visible .jx-rail { outline: 2px solid var(--acc); outline-offset: 3px; border-radius: 16px; }
+.jx-rail { position: relative; width: 52px; height: 32px; display: block; }
+.jx-track {
+  position: absolute; inset: 0; border-radius: 16px; overflow: hidden; background: var(--track-off);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.14), 0 0 0 0.5px var(--line);
+}
+.jx-fill { position: absolute; inset: 0; background: var(--jx-on); clip-path: circle(0px at 16px 50%); will-change: clip-path; }
+.jx-knob {
+  position: absolute; left: 0; top: 2px; width: 28px; height: 28px; border-radius: 14px; display: grid; place-items: center;
+  background: color-mix(in srgb, var(--jx-knob-on) calc(var(--kp) * 100%), #fff);
+  box-shadow:
+    0 0 0 0.5px rgba(0, 0, 0, 0.1),
+    0 1px 1px rgba(0, 0, 0, 0.12),
+    0 3px calc(5px + var(--pr) * 6px) rgba(0, 0, 0, calc(0.2 + var(--pr) * 0.08)),
+    inset 0 1px 0 rgba(255, 255, 255, calc(0.95 - var(--kp) * 0.75)),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.07);
+  will-change: transform;
+}
+.jx-shine {
+  position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(circle at 32% 18%, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 55%);
+  opacity: calc(0.1 + var(--pr) * 0.45); mix-blend-mode: soft-light;
+}
+.jx-check { width: 14px; height: 14px; fill: none; stroke: var(--jx-on); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; transform: scale(var(--isx, 1), var(--isy, 1)); }
+.jx-check path { stroke-dasharray: 1 2; stroke-dashoffset: 1; }
+
+.s2-ico { position: relative; --k: var(--acc-fg); color: var(--dim); background: var(--s2); transition: color var(--m-slow) var(--ease), background-color var(--m-slow) var(--ease); }
+.s2-ico[data-kind="ok"] { --k: var(--ok); }
+.s2-ico[data-kind="warn"] { --k: var(--warn); }
+.s2-ico[data-on="true"] { color: var(--k); background: color-mix(in srgb, var(--k) 15%, var(--s2)); }
+.s2-ico svg { width: 18px; height: 18px; overflow: visible; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.s2-ico svg * { transition: opacity var(--m-base) var(--ease), fill var(--m-slow) var(--ease); }
+.bell-body { transform-origin: 12px 4px; }
+.bell-off, .arc { opacity: 0; }
+.s2-ico[data-on="false"] .bell-on { opacity: 0; }
+.s2-ico[data-on="false"] .bell-off { opacity: 1; }
+.slash, .chk { stroke-dasharray: 1 2; stroke-dashoffset: 1; transition: stroke-dashoffset 300ms var(--ease) 70ms; }
+.s2-ico[data-on="false"] .slash, .s2-ico[data-on="true"] .chk { stroke-dashoffset: 0; }
+.s2-ico .pt { position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; border-radius: 50%; background: var(--ok); opacity: 0; pointer-events: none; }
+.s2-ico .pulse { position: absolute; inset: 0; border-radius: 9px; background: var(--warn-fill); opacity: 0; pointer-events: none; }
+.tri { transform-box: fill-box; transform-origin: center; }
+.s2-ico[data-on="true"] .tri-b { fill: color-mix(in srgb, var(--k) 22%, transparent); }
+
+[data-ui="light"] { --led-knob: #ffffff; }
+[data-ui="dark"] { --led-knob: #3a3e47; }
+.led {
+  flex: none; width: 72px; height: 48px; padding: 0; border: 0; background: transparent; cursor: pointer;
+  display: grid; place-items: center; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+}
+.led:focus-visible { outline: none; }
+.led:focus-visible .led-rail { outline: 2px solid var(--acc); outline-offset: 3px; }
+.led-rail {
+  position: relative; width: 64px; height: 32px; border-radius: 10px; background: var(--track-off);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18), 0 0 0 0.5px var(--line);
+  transition: background-color var(--m-slow) var(--ease);
+}
+.led[aria-checked="true"] .led-rail { background: color-mix(in srgb, var(--acc) 14%, var(--track-off)); }
+.led-dots { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); display: grid; grid-template-columns: repeat(9, 3px); grid-auto-rows: 3px; gap: 4px 3px; }
+.led-dots i { position: relative; display: block; width: 3px; height: 3px; border-radius: 50%; background: color-mix(in srgb, var(--fg) 24%, transparent); }
+.led-dots i::after {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--acc);
+  box-shadow: 0 0 5px 1px var(--acc); opacity: 0; transform: scale(0.6);
+  transition: opacity 170ms var(--ease) var(--d, 0ms), transform 220ms var(--ease) var(--d, 0ms);
+}
+.led[aria-checked="true"] .led-dots i::after { opacity: 1; transform: scale(1); }
+.led-knob {
+  position: absolute; left: 3px; top: 3px; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center;
+  background: var(--led-knob); color: var(--dim); translate: 0 0; scale: 1;
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12), 0 2px 5px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: translate 380ms var(--ease-spring), scale var(--m-fast) var(--ease), background-color var(--m-slow) var(--ease), box-shadow var(--m-slow) var(--ease), color var(--m-slow) var(--ease);
+}
+.led[aria-checked="true"] .led-knob {
+  translate: 32px 0; background: var(--acc); color: var(--on-acc);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.1), 0 0 14px -2px var(--acc), 0 2px 5px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.led:active .led-knob { scale: 0.92; }
+.led-t { position: absolute; inset: 0; display: grid; place-items: center; font: 600 8.5px/1 "Geist Mono", ui-monospace, monospace; letter-spacing: 0.04em; transition: opacity var(--m-base) var(--ease); }
+.led-t.t-on { opacity: 0; }
+.led[aria-checked="true"] .t-on { opacity: 1; }
+.led[aria-checked="true"] .t-off { opacity: 0; }
+
+.s4-frag { overflow: hidden; }
+.s4-card { position: relative; }
+.s4-card .s-row { min-height: 84px; }
+.s4-card::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none; opacity: 0;
+  background: conic-gradient(from var(--ang), transparent 0deg, var(--acc) 60deg, transparent 100deg, transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.s4-card.run::after { animation: sweep 1000ms var(--ease) both; }
+@keyframes sweep { 0% { --ang: 0deg; opacity: 1; } 82% { opacity: 1; } 100% { --ang: 360deg; opacity: 0; } }
+.mini {
+  position: relative; flex: none; width: 56px; height: 56px; border-radius: 16px; padding: 8px; background: var(--s2);
+  box-shadow: 0 0 0 0.5px var(--line), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 4px;
+}
+.mini b { display: block; border-radius: 6px; background: color-mix(in srgb, var(--fg) 62%, transparent); transition: opacity 260ms var(--ease), border-radius 260ms var(--ease); }
+.mini b:first-child { background: var(--acc); }
+.mini b:nth-child(5), .mini b:nth-child(6) { grid-area: 2 / 2; opacity: 0; }
+.mini.adv { grid-template-columns: 1fr; grid-template-rows: repeat(6, 1fr); gap: 2px; padding: 8px 9px; }
+.mini.adv b { border-radius: 2px; }
+.mini.adv b:nth-child(5), .mini.adv b:nth-child(6) { grid-area: auto; opacity: 1; }
+.xwrap { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 380ms var(--ease) calc((3 - var(--i, 0)) * 40ms); }
+.xwrap > .xin { overflow: hidden; min-height: 0; }
+.xwrap .xin > * { opacity: 0; transform: translateY(-6px); transition: opacity 260ms var(--ease) calc((3 - var(--i, 0)) * 40ms), transform 380ms var(--ease) calc((3 - var(--i, 0)) * 40ms); }
+[data-adv="true"] .xwrap { grid-template-rows: 1fr; transition-delay: calc(var(--i, 0) * 40ms); }
+[data-adv="true"] .xwrap .xin > * { opacity: 1; transform: none; transition-delay: calc(var(--i, 0) * 40ms); }
+.xcard { box-shadow: none; transition: box-shadow 300ms var(--ease); }
+[data-adv="true"] .xcard { box-shadow: 0 0 0 0.5px var(--line); }
+.xcard .xwrap + .xwrap .s-row::before { content: ""; position: absolute; left: 60px; right: 0; top: 0; height: 1px; background: var(--line); }
+.xhead .xin > * { padding-top: 0; }
+
+.s5-row { z-index: 2; }
+.s5-slot { position: relative; flex: none; width: 76px; height: 48px; margin-right: -4px; display: grid; place-items: center; }
+.s5-cover {
+  position: absolute; inset: 0; z-index: 3; padding: 0; cursor: pointer; border-radius: 12px; border: 1px solid var(--line2);
+  transform-origin: 50% 0; transform: perspective(600px) rotateX(0deg);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--fg) 12%, transparent), color-mix(in srgb, var(--fg) 4%, transparent));
+  -webkit-backdrop-filter: blur(5px) saturate(1.3); backdrop-filter: blur(5px) saturate(1.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 8px 16px -8px rgba(0, 0, 0, 0.45);
+  display: grid; place-items: center; color: var(--mut); overflow: hidden; will-change: transform;
+}
+.s5-cover:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+.s5-cover .hz {
+  position: absolute; left: 0; right: 0; top: 0; height: 9px; border-bottom: 1px solid var(--line2);
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--acc) 15%, transparent) 0 5px, transparent 5px 10px);
+}
+.s5-cover svg { width: 15px; height: 15px; margin-top: 8px; }
+.s5-fuse { position: absolute; left: 16px; right: 14px; bottom: 0; height: 2px; border-radius: 2px; background: var(--acc); transform-origin: left center; transform: scaleX(0); opacity: 0; }
+
+.s6-row .s-title-line { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.s6-text { transition: opacity 300ms var(--ease); }
+.s6-row[data-on="false"] .s6-text { opacity: 0.55; }
+.bot-chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px 2px 6px; border-radius: 99px; background: var(--s2); color: var(--mut); font-size: 11.5px; font-weight: 500; }
+.bot-chip svg { width: 12px; height: 12px; }
+.pw {
+  flex: none; position: relative; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer;
+  --p: 0%; --a: 0deg; -webkit-tap-highlight-color: transparent; user-select: none; -webkit-user-select: none;
+}
+.pw:focus-visible { outline: 2px solid var(--acc); outline-offset: 3px; }
+.pw-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--acc) var(--p), var(--track-off) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 3.5px), #000 calc(100% - 3px));
+}
+.pw-head { position: absolute; inset: 0; transform: rotate(var(--a)); pointer-events: none; opacity: 0; transition: opacity 200ms var(--ease); }
+.pw[aria-checked="true"] .pw-head { opacity: 1; }
+.pw-head::after { content: ""; position: absolute; left: 50%; top: -0.5px; width: 5px; height: 5px; margin-left: -2.5px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 6px var(--acc); }
+.pw-face {
+  position: absolute; inset: 5px; border-radius: 50%; display: grid; place-items: center; color: var(--dim); background: var(--s2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 0 0 0.5px var(--line);
+  transition: transform var(--m-fast) var(--ease), color var(--m-slow) var(--ease), background-color var(--m-slow) var(--ease);
+}
+.pw:active .pw-face { transform: scale(0.9); }
+.pw[aria-checked="true"] .pw-face { color: var(--acc); background: color-mix(in srgb, var(--acc) 12%, var(--s2)); }
+.pw-face svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transition: filter var(--m-slow) var(--ease); }
+.pw[aria-checked="true"] .pw-face svg { filter: drop-shadow(0 0 4px color-mix(in srgb, var(--acc) 75%, transparent)); }
+
+.g-before-stage { display: grid; justify-items: center; }
+.rec { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 28px; }
+@media (max-width: 760px) { .rec { grid-template-columns: 1fr; } }
+.rec-item { background: var(--g-card); border: 1px solid var(--g-line); border-radius: 22px; padding: 18px 20px; display: grid; gap: 6px; }
+.rec-item h3 { margin: 0; font-size: 17px; letter-spacing: -0.015em; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rec-item p { margin: 0; color: var(--g-mut); font-size: 14px; }
+.g-table td.num { font-family: "Geist Mono", ui-monospace, monospace; font-size: 13px; white-space: nowrap; }
+</style>
+</head>
+<body>
+<header data-g-nav="switches.html"></header>
+<main class="g-wrap">
+
+  <section class="g-hero">
+    <span class="g-eyebrow">Papan 02 · Saklar</span>
+    <h1 class="g-h1">On, off, <span class="serif">dan rasanya.</span></h1>
+    <p class="g-lede">Saklar adalah kontrol yang paling sering disentuh di app. Enam konsep ini membuatnya terasa fisik, jelas, dan mahal.</p>
+
+    <div class="g-before">
+      <div>
+        <h3>Sekarang di app</h3>
+        <p>Semua pengaturan memakai kapsul yang sama. Saklar privasi terlihat sama dengan saklar kosmetik, jadi orang tidak tahu mana yang penting.</p>
+      </div>
+      <div class="g-before-stage">
+        <div class="frag" data-ui="dark" data-ui-global>
+          <div class="s-section">Notifications</div>
+          <div class="s-card">
+            <div class="s-row rowt now-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span><span class="s-text"><span class="s-row-title">Needs your OK</span><span class="s-row-sub">When a bot waits for your answer</span></span><button type="button" class="now-switch" role="switch" aria-checked="true" aria-label="Needs your OK"></button></div>
+            <div class="s-row rowt now-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="s-text"><span class="s-row-title">Task finished</span><span class="s-row-sub">When a bot is done with a job</span></span><button type="button" class="now-switch" role="switch" aria-checked="true" aria-label="Task finished"></button></div>
+            <div class="s-row rowt now-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-clock-loop"/></svg></span><span class="s-text"><span class="s-row-title">Routine problems</span><span class="s-row-sub">When a scheduled job fails</span></span><button type="button" class="now-switch" role="switch" aria-checked="false" aria-label="Routine problems"></button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="g-section">
+    <div class="g-section-head">
+      <h2 class="g-h2">Enam konsep, <span class="serif">satu rasa.</span></h2>
+      <p>Setiap stage hidup. Ketuk, geser, atau tekan Space. Ubah tema dengan sakelar di pojok atas.</p>
+    </div>
+
+    <div class="g-grid">
+
+      <article class="concept" id="s1">
+        <div class="concept-stage dots">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Notifications</div>
+            <div class="s-card">
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-bell"/></svg></span><span class="s-text"><span class="s-row-title">Needs your OK</span><span class="s-row-sub">When a bot waits for your answer</span></span><span class="jx-slot" data-jx data-checked="true" data-label="Needs your OK"></span></div>
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="s-text"><span class="s-row-title">Task finished</span><span class="s-row-sub">When a bot is done with a job</span></span><span class="jx-slot" data-jx data-checked="true" data-label="Task finished"></span></div>
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-clock-loop"/></svg></span><span class="s-text"><span class="s-row-title">Routine problems</span><span class="s-row-sub">When a scheduled job fails</span></span><span class="jx-slot" data-jx data-checked="false" data-label="Routine problems"></span></div>
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-sparkles"/></svg></span><span class="s-text"><span class="s-row-title">Daily summary</span><span class="s-row-sub">One short note each morning</span></span><span class="jx-slot" data-jx data-checked="true" data-variant="acc" data-label="Daily summary"></span></div>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk atau geser knob. Baris 4: varian crimson.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S1</span><h3>Jeli</h3></div>
+          <p class="concept-idea">Knob terasa seperti benda jeli. Ia melebar saat disentuh, meregang saat bergerak, dan memipih saat mendarat. Warna "on" tumbuh dari pusat knob seperti tinta.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Sentuh: knob 28 ke 36 pt. Geser: knob meregang sampai 8 pt menurut kecepatan. Mendarat: spring kekakuan 520, redaman 28, overshoot sekitar 9%. Centang tergambar bersama posisi knob.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Buat <code>ToggleStyle</code> sendiri. Knob: <code>Capsule</code> dengan <code>DragGesture(minimumDistance: 0)</code>. Animasi: <code>.spring(response: 0.28, dampingFraction: 0.61)</code>. Centang: <code>Path.trim(from:to:)</code>. Haptic: <code>.sensoryFeedback(.selection, trigger:)</code>. iOS 26: <code>.glassEffect(.regular.interactive())</code> pada knob saat ditekan.</dd></div>
+            <div><dt>Compose</dt><dd><code>Modifier.toggleable(role = Role.Switch)</code> dan <code>draggable(Orientation.Horizontal)</code>. Posisi: <code>Animatable</code> dengan <code>spring(dampingRatio = 0.6f, stiffness = 520f)</code>. Isi on: <code>clipPath</code> lingkaran. Centang: <code>PathMeasure.getSegment</code>. Haptic: <code>HapticFeedbackType.ToggleOn</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd><code>role="switch"</code> dan <code>aria-checked</code>. Space dan Enter bekerja. Area sentuh 64 × 48 pt. Reduce motion: tanpa regang dan spring, knob pindah dalam 120 ms. Fokus tampil sebagai cincin crimson.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya S</span><span class="tag tag-pick">Rekomendasi</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="s2">
+        <div class="concept-stage dots">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Notifications</div>
+            <div class="s-card">
+              <div class="s-row rowt" data-s2="bell">
+                <span class="s-ico s2-ico" data-kind="acc" data-on="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <g class="bell-on"><g class="bell-body"><path d="M6 16.5V11a6 6 0 1 1 12 0v5.5l1.5 2H4.5Z"/><path d="M10 20.5a2 2 0 0 0 4 0"/></g></g>
+                    <g class="bell-off"><path d="M6 11a6 6 0 0 1 9.6-4.8M18 11v5.5l1.5 2H8"/><path d="M10 20.5a2 2 0 0 0 4 0"/></g>
+                    <path class="slash" pathLength="1" d="M3.5 3.5l17 17"/>
+                    <path class="arc" d="M19.8 5a5.2 5.2 0 0 1 2 3.2"/><path class="arc" d="M4.2 5a5.2 5.2 0 0 0-2 3.2"/>
+                  </svg>
+                </span>
+                <span class="s-text"><span class="s-row-title">Needs your OK</span><span class="s-row-sub">When a bot waits for your answer</span></span>
+                <span class="jx-slot" data-jx data-checked="true" data-label="Needs your OK"></span>
+              </div>
+              <div class="s-row rowt" data-s2="ok">
+                <span class="s-ico s2-ico" data-kind="ok" data-on="true">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path class="chk" pathLength="1" d="m7.5 12.5 3 3 6-6.5"/></svg>
+                </span>
+                <span class="s-text"><span class="s-row-title">Task finished</span><span class="s-row-sub">When a bot is done with a job</span></span>
+                <span class="jx-slot" data-jx data-checked="true" data-label="Task finished"></span>
+              </div>
+              <div class="s-row rowt" data-s2="warn">
+                <span class="s-ico s2-ico" data-kind="warn" data-on="true">
+                  <i class="pulse"></i>
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><g class="tri"><path class="tri-b" d="M12 4 3.5 19h17Z"/><path d="M12 10v4M12 16.8h.01"/></g></svg>
+                </span>
+                <span class="s-text"><span class="s-row-title">Routine problems</span><span class="s-row-sub">When a scheduled job fails</span></span>
+                <span class="jx-slot" data-jx data-checked="true" data-label="Routine problems"></span>
+              </div>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk seluruh baris.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S2</span><h3>Ikon hidup</h3></div>
+          <p class="concept-idea">Ikon di setiap baris menunjukkan statusnya sendiri. Lonceng berbunyi, centang meledak jadi partikel, dan segitiga peringatan berdenyut sekali.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Lonceng: goyang 600 ms dengan 2 busur suara. Mati: lonceng berganti bell-off, garis coret tergambar 300 ms, ubin kehilangan warna. Centang: 8 partikel terbang 17 sampai 22 pt dan hilang dalam 520 ms. Segitiga: denyut sekali 600 ms.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Cepat: <code>Image(systemName:)</code> dengan <code>.symbolEffect(.wiggle, value:)</code> dan <code>.contentTransition(.symbolEffect(.replace))</code>. Penuh: <code>KeyframeAnimator</code> dengan <code>rotationEffect(anchor: .top)</code>. Partikel: <code>PhaseAnimator</code> pada 8 <code>Circle</code>. Baris: <code>Button</code> dengan <code>.contentShape(Rectangle())</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Baris: <code>Modifier.toggleable(role = Role.Switch)</code> dan <code>Switch(onCheckedChange = null)</code>. Ikon: <code>AnimatedImageVector.animatedVectorResource</code>. Goyang: <code>Animatable</code> dengan <code>graphicsLayer { rotationZ }</code>. Partikel: <code>Canvas</code> dengan <code>drawCircle</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Satu baris adalah satu <code>switch</code> dengan nama dan subtitle. Ikon <code>aria-hidden</code>. Reduce motion: tanpa goyang, ledakan, dan denyut; ikon berganti langsung. Tinggi baris 60 pt.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya M</span><span class="tag">Pelengkap</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="s3">
+        <div class="concept-stage dots">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Live call</div>
+            <div class="s-card">
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-captions"/></svg></span><span class="s-text"><span class="s-row-title">Live captions</span><span class="s-row-sub">Show the words during a call</span></span><button type="button" class="led" role="switch" aria-checked="false" aria-label="Live captions"><span class="led-rail"><span class="led-dots"></span><span class="led-knob"><span class="led-t t-on">ON</span><span class="led-t t-off">OFF</span></span></span></button></div>
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-speaker"/></svg></span><span class="s-text"><span class="s-row-title">Speak replies</span><span class="s-row-sub">Read the bot's answers out loud</span></span><button type="button" class="led" role="switch" aria-checked="true" aria-label="Speak replies"><span class="led-rail"><span class="led-dots"></span><span class="led-knob"><span class="led-t t-on">ON</span><span class="led-t t-off">OFF</span></span></span></button></div>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk dan lihat gelombang titik.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S3</span><h3>Titik LED</h3></div>
+          <p class="concept-idea">Trek adalah matriks 3 × 9 titik. Saat on, titik menyala berurutan dari kiri ke kanan dengan cahaya lembut. Rasanya teknis dan tetap tenang.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Trek 64 × 32 pt, titik 3 pt. On: titik menyala tiap 12 ms dari kiri ke kanan. Off: gelombang berbalik dari kanan. Knob persegi bulat 26 pt bergeser dengan spring 380 ms dan membawa teks ON atau OFF.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Gambar 27 titik dengan <code>Canvas</code> atau <code>Grid</code> dan <code>Circle</code>. Gelombang: <code>.animation(.easeOut(duration: 0.17).delay(Double(col) * 0.012), value:)</code>. Knob: <code>RoundedRectangle(cornerRadius: 8)</code> dengan <code>.offset</code> dan <code>.spring</code>. Cahaya: <code>.shadow(color:radius:)</code>.</dd></div>
+            <div><dt>Compose</dt><dd><code>Canvas</code> dengan 27 <code>drawCircle</code>. Per kolom: <code>animateFloatAsState(tween(170, delayMillis = col * 12))</code>. Knob: <code>Modifier.offset</code> dengan <code>spring(Spring.DampingRatioMediumBouncy)</code>. Cahaya: <code>drawCircle</code> kedua dengan alfa rendah.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd><code>role="switch"</code> dan <code>aria-checked</code>. Teks ON atau OFF menambah isyarat selain warna. Area sentuh 72 × 48 pt. Reduce motion: titik berubah sekaligus, tanpa gelombang.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 3/5</span><span class="tag">Biaya M</span></div>
+        </div>
+      </article>
+
+      <article class="concept is-wide" id="s4">
+        <div class="concept-stage dots">
+          <div class="frag s4-frag" data-ui="dark" data-ui-global data-adv="false">
+            <div class="s-section">Interface</div>
+            <div class="s-card s4-card">
+              <div class="s-row rowt">
+                <span class="mini" aria-hidden="true"><b></b><b></b><b></b><b></b><b></b><b></b></span>
+                <span class="s-text"><span class="s-row-title">Advanced mode</span><span class="s-row-sub">More controls for bots and chats.</span></span>
+                <span class="jx-slot" data-jx data-checked="false" data-label="Advanced mode"></span>
+              </div>
+            </div>
+            <div class="s-section">General</div>
+            <div class="s-card">
+              <div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg></span><span class="s-text"><span class="s-row-title">Appearance</span></span><span class="s-value">Dark</span><svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg></div>
+              <div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-globe"/></svg></span><span class="s-text"><span class="s-row-title">Language</span></span><span class="s-value">English</span><svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg></div>
+            </div>
+            <div class="s4-extra" inert>
+              <div class="xwrap xhead" style="--i:0"><div class="xin"><div class="s-section">Bot actions</div></div></div>
+              <div class="s-card xcard">
+                <div class="xwrap" style="--i:1"><div class="xin"><div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-people"/></svg></span><span class="s-text"><span class="s-row-title">Move to department</span></span><svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg></div></div></div>
+                <div class="xwrap" style="--i:2"><div class="xin"><div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg></span><span class="s-text"><span class="s-row-title">Mark all as read</span></span><svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg></div></div></div>
+                <div class="xwrap" style="--i:3"><div class="xin"><div class="s-row"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg></span><span class="s-text"><span class="s-row-title">Copy conversation ID</span></span><svg class="s-chev" aria-hidden="true"><use href="#i-chevron"/></svg></div></div></div>
+              </div>
+            </div>
+          </div>
+          <span class="stage-hint">Nyalakan Advanced mode dan lihat daftar tumbuh.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S4</span><h3>Mode Advanced</h3></div>
+          <p class="concept-idea">Saklar ini mengubah tampilan app, jadi gambarnya ikut berubah. Enam blok berubah dari dua kartu besar menjadi enam baris tipis, dan daftar di bawah mengikuti.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Blok memakai FLIP 480 ms dengan overshoot kecil dan jeda 18 ms per blok. Baris tambahan tumbuh dengan jeda 40 ms per baris, 380 ms per baris. Satu garis crimson mengitari tepi kartu 1000 ms setiap mode berubah.</dd></div>
+            <div><dt>SwiftUI</dt><dd>Enam blok: <code>matchedGeometryEffect</code> dalam satu <code>Namespace</code>. Ganti mode: <code>withAnimation(.spring(response: 0.4, dampingFraction: 0.75))</code>. Baris: <code>.transition(.move(edge: .top).combined(with: .opacity))</code> dengan jeda per indeks. Garis tepi: <code>AngularGradient</code> pada <code>strokeBorder</code>.</dd></div>
+            <div><dt>Compose</dt><dd>Blok: <code>SharedTransitionLayout</code> dengan <code>sharedBounds</code>. Baris: <code>AnimatedVisibility(enter = expandVertically() + fadeIn())</code> dengan <code>delayMillis = index * 40</code>. Garis tepi: <code>Brush.sweepGradient</code> dan <code>Animatable</code> untuk sudut.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Baris tersembunyi memakai <code>inert</code>, jadi fokus tidak masuk ke sana. Pembaca layar mengumumkan perubahan jumlah baris. Reduce motion: blok dan baris berganti langsung, tanpa garis tepi.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya L</span><span class="tag tag-pick">Rekomendasi</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="s5">
+        <div class="concept-stage dots">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Live call</div>
+            <div class="s-card">
+              <div class="s-row rowt"><span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-captions"/></svg></span><span class="s-text"><span class="s-row-title">Live captions</span><span class="s-row-sub">Show the words during a call</span></span><span class="jx-slot" data-jx data-checked="true" data-label="Live captions"></span></div>
+              <div class="s-row s5-row">
+                <span class="s-ico"><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></span>
+                <span class="s-text"><span class="s-row-title">Read replies to typed messages</span></span>
+                <span class="s5-slot">
+                  <span class="s5-sw jx-slot" data-jx data-checked="true" data-locked="true" data-label="Read replies to typed messages" style="margin:0"></span>
+                  <button type="button" class="s5-cover" aria-expanded="false" aria-label="Lift the cover to change this setting"><span class="hz"></span><svg class="ic" aria-hidden="true"><use href="#i-lock"/></svg></button>
+                </span>
+                <i class="s5-fuse" aria-hidden="true"></i>
+              </div>
+            </div>
+            <div class="s-caption">When this is off, messages you type during a call and the bot's answers to them are not sent to OpenAI.</div>
+          </div>
+          <span class="stage-hint">Ketuk penutup, lalu saklar. Penutup jatuh sendiri.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S5</span><h3>Tutup pengaman</h3></div>
+          <p class="concept-idea">Saklar privasi dilindungi tutup kaca seperti tombol pesawat. Dua langkah memberi jeda untuk berpikir. Saklar kosmetik tetap terbuka, jadi orang langsung melihat bedanya.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Ketuk 1: tutup terangkat ke -110 derajat dengan perspektif 600 pt (spring 260/19). Setelah 3 detik tanpa sentuhan, tutup jatuh dan memantul sekitar 10 derajat. Garis tipis di bawah baris menunjukkan sisa waktu.</dd></div>
+            <div><dt>SwiftUI</dt><dd><code>rotation3DEffect(.degrees(-110), axis: (x: 1, y: 0, z: 0), anchor: .top, perspective: 0.5)</code>. Kaca: <code>.ultraThinMaterial</code>. Buka: <code>.spring(response: 0.42, dampingFraction: 0.6)</code>. Waktu: <code>Task.sleep(for: .seconds(3))</code>, dibatalkan oleh sentuhan.</dd></div>
+            <div><dt>Compose</dt><dd><code>graphicsLayer { rotationX = angle; transformOrigin = TransformOrigin(0.5f, 0f); cameraDistance = 12f * density }</code>. Sudut: <code>Animatable</code> dengan <code>spring(dampingRatio = 0.5f)</code>. Waktu: <code>LaunchedEffect(lastTouch) { delay(3000) }</code>. Blur latar hanya di API 31 ke atas lewat <code>RenderEffect</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd>Penutup adalah tombol dengan <code>aria-expanded</code>. Saklar tidak bisa difokus saat tertutup. Escape menutup penutup. Reduce motion: penutup memudar, tanpa putaran. Area sentuh 76 × 48 pt.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag">Pelengkap</span></div>
+        </div>
+      </article>
+
+      <article class="concept" id="s6">
+        <div class="concept-stage dots">
+          <div class="frag" data-ui="dark" data-ui-global>
+            <div class="s-section">Automations</div>
+            <div class="s-card">
+              <div class="s-row no-ico s6-row" data-on="true" data-val="65" data-sched="Every day at 09:00">
+                <span class="s-text s6-text"><span class="s-title-line"><span class="s-row-title">Morning brief</span><span class="bot-chip"><svg aria-hidden="true"><use href="#i-bot"/></svg>Atlas</span></span><span class="s-row-sub s6-sub">Every day at 09:00</span></span>
+                <button type="button" class="pw" role="switch" aria-checked="true" aria-label="Morning brief"><span class="pw-ring"></span><span class="pw-head"></span><span class="pw-face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v8"/><path d="M7 6.9a7.4 7.4 0 1 0 10 0"/></svg></span></button>
+              </div>
+              <div class="s-row no-ico s6-row" data-on="true" data-val="30" data-sched="Every 2 hours">
+                <span class="s-text s6-text"><span class="s-title-line"><span class="s-row-title">Inbox sweep</span><span class="bot-chip"><svg aria-hidden="true"><use href="#i-bot"/></svg>Seira</span></span><span class="s-row-sub s6-sub">Every 2 hours</span></span>
+                <button type="button" class="pw" role="switch" aria-checked="true" aria-label="Inbox sweep"><span class="pw-ring"></span><span class="pw-head"></span><span class="pw-face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v8"/><path d="M7 6.9a7.4 7.4 0 1 0 10 0"/></svg></span></button>
+              </div>
+              <div class="s-row no-ico s6-row" data-on="true" data-val="85" data-sched="Mondays at 08:30">
+                <span class="s-text s6-text"><span class="s-title-line"><span class="s-row-title">Weekly report</span><span class="bot-chip"><svg aria-hidden="true"><use href="#i-bot"/></svg>Juno</span></span><span class="s-row-sub s6-sub">Mondays at 08:30</span></span>
+                <button type="button" class="pw" role="switch" aria-checked="true" aria-label="Weekly report"><span class="pw-ring"></span><span class="pw-head"></span><span class="pw-face"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5v8"/><path d="M7 6.9a7.4 7.4 0 1 0 10 0"/></svg></span></button>
+              </div>
+            </div>
+          </div>
+          <span class="stage-hint">Ketuk tombol daya.</span>
+        </div>
+        <div class="concept-meta">
+          <div class="concept-top"><span class="concept-no">S6</span><h3>Cincin routine</h3></div>
+          <p class="concept-idea">Tombol daya bundar membawa cincin progres menuju jalan berikutnya. Saat routine dijeda, cincin menggulung kembali dan baris meredup.</p>
+          <dl class="concept-spec">
+            <div><dt>Gerak</dt><dd>Mati: cincin menggulung 400 ms, teks turun ke 55%, baris kedua berganti "Paused". Nyala: cincin menggulung kembali dengan spring (kekakuan 150, redaman 12, overshoot sekitar 17%). Cincin maju pelan saat terlihat di layar.</dd></div>
+            <div><dt>SwiftUI</dt><dd><code>Circle().trim(from: 0, to: progress)</code> dengan <code>StrokeStyle(lineWidth: 3, lineCap: .round)</code> dan <code>.rotationEffect(.degrees(-90))</code>. Nyala: <code>.spring(response: 0.5, dampingFraction: 0.55)</code>. Mati: <code>.easeInOut(duration: 0.4)</code>. Glyph: <code>Image(systemName: "power")</code> dengan <code>.shadow</code>. Haptic: <code>.sensoryFeedback(.impact(weight: .light), trigger:)</code>.</dd></div>
+            <div><dt>Compose</dt><dd><code>drawArc(startAngle = -90f, sweepAngle = 360f * p, useCenter = false, style = Stroke(width, cap = StrokeCap.Round))</code>. Nilai p: <code>Animatable</code> dengan <code>spring(dampingRatio = 0.55f, stiffness = 150f)</code>. Tombol: <code>Modifier.toggleable(role = Role.Switch)</code>. Teks: <code>Modifier.alpha(0.55f)</code>.</dd></div>
+            <div><dt>Aksesibilitas</dt><dd><code>role="switch"</code> dengan nama routine. Status "Paused" tertulis di teks, bukan hanya di warna. Tombol 44 pt. Reduce motion: cincin langsung ke nilai akhir, tanpa spring.</dd></div>
+          </dl>
+          <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya M</span></div>
+        </div>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="g-section">
+    <div class="g-section-head">
+      <h2 class="g-h2">Penilaian <span class="serif">jujur.</span></h2>
+      <p>Wow mengukur kesan pertama. Jelas mengukur seberapa cepat orang paham status. Biaya mengukur kerja di dua platform.</p>
+    </div>
+    <div class="g-table-wrap">
+      <table class="g-table">
+        <thead><tr><th>Konsep</th><th>Wow (1–5)</th><th>Jelas (1–5)</th><th>Biaya (S/M/L)</th><th>Dipakai di</th></tr></thead>
+        <tbody>
+          <tr><td>S1 Jeli</td><td class="num">4</td><td class="num">5</td><td class="num">S</td><td>Semua saklar di app</td></tr>
+          <tr><td>S2 Ikon hidup</td><td class="num">4</td><td class="num">4</td><td class="num">M</td><td>Settings, Notifications</td></tr>
+          <tr><td>S3 Titik LED</td><td class="num">5</td><td class="num">3</td><td class="num">M</td><td>Live call: Live captions, Speak replies</td></tr>
+          <tr><td>S4 Mode Advanced</td><td class="num">4</td><td class="num">4</td><td class="num">L</td><td>Settings: Advanced mode</td></tr>
+          <tr><td>S5 Tutup pengaman</td><td class="num">5</td><td class="num">5</td><td class="num">M</td><td>Saklar privasi, mis. Read replies to typed messages</td></tr>
+          <tr><td>S6 Cincin routine</td><td class="num">5</td><td class="num">4</td><td class="num">M</td><td>Automations: tiap routine</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="g-section">
+    <div class="g-section-head">
+      <h2 class="g-h2">Rekomendasi: <span class="serif">satu sistem.</span></h2>
+      <p>Satu saklar dasar untuk semua tempat, lalu tiga pelengkap untuk momen yang butuh perhatian.</p>
+    </div>
+    <div class="rec">
+      <div class="rec-item"><h3>S1 Jeli <span class="tag tag-pick">Rekomendasi</span></h3><p>Pakai sebagai saklar untuk seluruh app. Satu komponen, satu rasa, biaya paling kecil.</p></div>
+      <div class="rec-item"><h3>S2 Ikon hidup <span class="tag">Pelengkap</span></h3><p>Pakai di Notifications. Ikon yang bereaksi membuat tiga baris mudah dibedakan.</p></div>
+      <div class="rec-item"><h3>S5 Tutup pengaman <span class="tag">Pelengkap</span></h3><p>Pakai untuk saklar privasi. Dua langkah hanya muncul di tempat yang perlu.</p></div>
+      <div class="rec-item"><h3>S4 Mode Advanced <span class="tag tag-pick">Rekomendasi</span></h3><p>Pakai untuk Advanced mode. Perubahan app terlihat langsung pada gambar dan daftar.</p></div>
+    </div>
+    <p class="g-lede" style="margin-top:22px;font-size:14px">S3 dan S6 tetap pilihan bila owner ingin rasa yang lebih berani di Live call dan Automations.</p>
+  </section>
+
+</main>
+<footer class="g-wrap g-foot">Mockup statis. Warna dari SeiraTheme.swift. <a href="index.html">Kembali ke ringkasan</a></footer>
+
+<script src="assets/kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (s, r) => (r || document).querySelector(s);
+  const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+  const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+  function createJelly(host, o) {
+    o = o || {};
+    const el = document.createElement("button");
+    el.type = "button";
+    el.className = "jx" + (o.variant === "acc" ? " acc" : "");
+    el.setAttribute("role", "switch");
+    el.setAttribute("aria-checked", String(!!o.checked));
+    if (o.label) el.setAttribute("aria-label", o.label);
+    el.innerHTML =
+      '<span class="jx-rail"><span class="jx-track"><span class="jx-fill"></span></span>' +
+      '<span class="jx-knob"><span class="jx-shine"></span><svg class="jx-check" viewBox="0 0 24 24" aria-hidden="true"><path pathLength="1" d="m5 12.5 4.5 4.5L19 7.5"/></svg></span></span>';
+    host.appendChild(el);
+    const rail = $(".jx-rail", el), fill = $(".jx-fill", el), knob = $(".jx-knob", el), chk = $(".jx-check path", el);
+    const S = { p: o.checked ? 1 : 0, press: 0, stretch: 0 };
+    let checked = !!o.checked, locked = false, stopP = null, stopPress = null;
+    const api = { el: el, onChange: o.onChange || null };
+    Object.defineProperty(api, "checked", { get: function () { return checked; } });
+
+    function render() {
+      const pc = clamp(S.p, 0, 1), over = S.p - pc, ao = Math.abs(over);
+      const w = Math.max(22, 28 + 8 * S.press + S.stretch - ao * 40);
+      const sy = 1 - Math.min(0.08, S.stretch * 0.01) + ao * 0.8;
+      const left = 2 + pc * (48 - w);
+      const sx = w / 28;
+      knob.style.transform = "translate3d(" + (left + w / 2 - 14) + "px,0,0) scale(" + sx + "," + sy + ")";
+      knob.style.setProperty("--isx", String(1 / sx));
+      knob.style.setProperty("--isy", String(1 / sy));
+      fill.style.clipPath = "circle(" + pc * 62 + "px at " + (left + w / 2) + "px 50%)";
+      el.style.setProperty("--kp", pc.toFixed(3));
+      el.style.setProperty("--pr", clamp(S.press, 0, 1).toFixed(3));
+      chk.style.strokeDashoffset = String(1 - clamp((pc - 0.45) / 0.5, 0, 1));
+    }
+    function pressTo(v) {
+      if (stopPress) stopPress();
+      stopPress = Seira.spring({ from: S.press, to: v, stiffness: 600, damping: 32, onUpdate: function (x) { S.press = x; render(); } });
+    }
+    function goTo(target, vel) {
+      if (stopP) stopP();
+      stopP = Seira.spring({
+        from: S.p, to: target, velocity: vel || 0, stiffness: 520, damping: 28,
+        onUpdate: function (x, v) { S.p = x; S.stretch = Math.min(8, Math.abs(v || 0) * 1.1); render(); },
+        onDone: function () { S.stretch = 0; render(); }
+      });
+    }
+    function commit(v, vel, silent) {
+      if (v !== checked) {
+        checked = v;
+        el.setAttribute("aria-checked", String(v));
+        Seira.tick(rail, "light");
+        if (!silent && api.onChange) api.onChange(v);
+      }
+      goTo(v ? 1 : 0, vel);
+    }
+    api.toggle = function () {
+      if (locked) return;
+      pressTo(1);
+      setTimeout(function () { pressTo(0); }, 110);
+      commit(!checked, 0);
+    };
+    api.set = function (v, silent) { commit(!!v, 0, silent); };
+    api.setLocked = function (v) {
+      locked = !!v;
+      el.tabIndex = locked ? -1 : 0;
+      el.setAttribute("aria-disabled", String(locked));
+    };
+    if (o.locked) api.setLocked(true);
+
+    let active = false, dragged = false, startP = 0, lastDx = 0;
+    Seira.drag(el, {
+      start: function () {
+        if (locked) { active = false; return; }
+        active = true; dragged = false; startP = S.p; lastDx = 0;
+        if (stopP) stopP();
+        pressTo(1);
+      },
+      move: function (m) {
+        if (!active) return;
+        if (!dragged && Math.abs(m.dx) > 3) dragged = true;
+        if (!dragged) return;
+        S.p = clamp(startP + m.dx / 20, -0.1, 1.1);
+        const dv = Math.abs(m.dx - lastDx);
+        lastDx = m.dx;
+        S.stretch += (Math.min(6, dv * 0.8) - S.stretch) * 0.4;
+        render();
+      },
+      end: function (m) {
+        if (!active) return;
+        active = false;
+        pressTo(0);
+        if (m.e && m.e.type === "pointercancel") { goTo(checked ? 1 : 0, 0); return; }
+        if (!dragged) { commit(!checked, 0); return; }
+        let target = S.p > 0.5;
+        if (Math.abs(m.vx) > 0.4) target = m.vx > 0;
+        commit(target, m.vx * 50);
+      }
+    });
+    el.addEventListener("click", function (e) { if (e.detail === 0) api.toggle(); });
+    render();
+    return api;
+  }
+  window.SeiraJelly = createJelly;
+
+  $$("[data-jx]").forEach(function (slot) {
+    slot.__jx = createJelly(slot, {
+      checked: slot.dataset.checked === "true",
+      label: slot.dataset.label,
+      variant: slot.dataset.variant,
+      locked: slot.dataset.locked === "true"
+    });
+  });
+  $$(".rowt").forEach(function (row) {
+    row.addEventListener("click", function (e) {
+      if (e.target.closest(".jx, .led, .now-switch")) return;
+      const s = $("[data-jx]", row);
+      if (s && s.__jx) { s.__jx.toggle(); return; }
+      const l = $(".led", row);
+      if (l) l.click();
+      const n = $(".now-switch", row);
+      if (n) n.click();
+    });
+  });
+
+  $$(".now-switch").forEach(function (b) {
+    b.addEventListener("click", function () { b.setAttribute("aria-checked", String(b.getAttribute("aria-checked") !== "true")); Seira.tick(b); });
+  });
+
+  const fx = {
+    bell: function (ico) {
+      if (Seira.reduced) return;
+      $(".bell-body", ico).animate(
+        { transform: ["rotate(0deg)", "rotate(-16deg)", "rotate(14deg)", "rotate(-9deg)", "rotate(5deg)", "rotate(0deg)"] },
+        { duration: 600, easing: "ease-out" }
+      );
+      $$(".arc", ico).forEach(function (a, i) {
+        a.animate(
+          [{ opacity: 0 }, { opacity: 1, offset: 0.25 }, { opacity: 0 }],
+          { duration: 600, delay: i * 60, easing: "ease-out" }
+        );
+      });
+    },
+    ok: function (ico) {
+      if (Seira.reduced) return;
+      $$(".pt", ico).forEach(function (p, i) {
+        const a = (i / 8) * Math.PI * 2, d = 17 + (i % 2) * 5;
+        p.animate(
+          [{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: "translate(" + Math.cos(a) * d + "px," + Math.sin(a) * d + "px) scale(0.3)", opacity: 0 }],
+          { duration: 520, easing: "cubic-bezier(.2,.7,.3,1)" }
+        );
+      });
+    },
+    warn: function (ico) {
+      if (Seira.reduced) return;
+      $(".pulse", ico).animate([{ opacity: 0.5, transform: "scale(1)" }, { opacity: 0, transform: "scale(1.9)" }], { duration: 600, easing: "ease-out" });
+      $(".tri", ico).animate({ transform: ["scale(1)", "scale(1.14)", "scale(1)"] }, { duration: 600, easing: "ease-out" });
+    }
+  };
+  $$("[data-s2]").forEach(function (row) {
+    const kind = row.dataset.s2, ico = $(".s2-ico", row), api = $("[data-jx]", row).__jx;
+    if (kind === "ok") for (let i = 0; i < 8; i++) { const p = document.createElement("i"); p.className = "pt"; ico.appendChild(p); }
+    api.onChange = function (on) {
+      ico.dataset.on = String(on);
+      if (on) fx[kind](ico);
+    };
+  });
+
+  $$(".led").forEach(function (btn) {
+    const holder = $(".led-dots", btn);
+    for (let i = 0; i < 27; i++) holder.appendChild(document.createElement("i"));
+    const dots = $$("i", holder), rail = $(".led-rail", btn);
+    function apply(on) {
+      dots.forEach(function (d, i) { const col = i % 9; d.style.setProperty("--d", (on ? col : 8 - col) * 12 + "ms"); });
+      btn.setAttribute("aria-checked", String(on));
+      Seira.tick(rail, "light");
+    }
+    apply(btn.getAttribute("aria-checked") === "true");
+    btn.addEventListener("click", function () { apply(btn.getAttribute("aria-checked") !== "true"); });
+  });
+
+  (function () {
+    const frag = $(".s4-frag"), mini = $(".mini"), card = $(".s4-card"), extra = $(".s4-extra");
+    const api = $("[data-jx]", frag).__jx;
+    const blocks = $$("b", mini);
+    function flip(on) {
+      blocks.forEach(function (b) { b.getAnimations().forEach(function (a) { a.cancel(); }); });
+      const first = blocks.map(function (b) { return b.getBoundingClientRect(); });
+      mini.classList.toggle("adv", on);
+      const last = blocks.map(function (b) { return b.getBoundingClientRect(); });
+      if (Seira.reduced) return;
+      blocks.forEach(function (b, i) {
+        const f = first[i], l = last[i];
+        if (!l.width || !l.height) return;
+        b.animate(
+          [
+            { transformOrigin: "0 0", transform: "translate(" + (f.left - l.left) + "px," + (f.top - l.top) + "px) scale(" + f.width / l.width + "," + f.height / l.height + ")" },
+            { transformOrigin: "0 0", transform: "none" }
+          ],
+          { duration: 480, delay: i * 18, easing: "cubic-bezier(.34,1.4,.5,1)", fill: "backwards" }
+        );
+      });
+    }
+    api.onChange = function (on) {
+      flip(on);
+      frag.dataset.adv = String(on);
+      extra.inert = !on;
+      card.classList.remove("run");
+      void card.offsetWidth;
+      card.classList.add("run");
+    };
+    card.addEventListener("animationend", function () { card.classList.remove("run"); });
+  })();
+
+  (function () {
+    const slot = $(".s5-slot"), cover = $(".s5-cover"), fuse = $(".s5-fuse"), row = $(".s5-row");
+    const sw = $("[data-jx]", slot).__jx;
+    let angle = 0, open = false, stop = null, fuseAnim = null, landed = true;
+    function paint(a) {
+      if (Seira.reduced) {
+        cover.style.transform = "none";
+        cover.style.opacity = open ? "0" : "1";
+        cover.style.pointerEvents = open ? "none" : "";
+        return;
+      }
+      cover.style.transform = "perspective(600px) rotateX(" + a + "deg)";
+      cover.style.opacity = String(1 - Math.min(1, Math.abs(a) / 110) * 0.2);
+    }
+    function arm() {
+      if (fuseAnim) fuseAnim.cancel();
+      fuseAnim = fuse.animate(
+        [{ transform: "scaleX(1)", opacity: 1 }, { transform: "scaleX(0)", opacity: 1 }],
+        { duration: 3000, easing: "linear", fill: "forwards" }
+      );
+      fuseAnim.onfinish = function () { if (open) drop(); };
+    }
+    function lift() {
+      if (open) return;
+      open = true;
+      if (stop) stop();
+      cover.setAttribute("aria-expanded", "true");
+      cover.style.pointerEvents = "none";
+      sw.setLocked(false);
+      Seira.tick(slot, "heavy");
+      stop = Seira.spring({ from: angle, to: -110, stiffness: 260, damping: 19, onUpdate: function (x) { angle = x; paint(x); } });
+      paint(angle);
+      arm();
+      sw.el.focus({ preventScroll: true });
+    }
+    function drop() {
+      if (!open) return;
+      open = false;
+      if (fuseAnim) { fuseAnim.cancel(); fuseAnim = null; }
+      if (stop) stop();
+      const hadFocus = document.activeElement === sw.el;
+      sw.setLocked(true);
+      cover.setAttribute("aria-expanded", "false");
+      landed = false;
+      stop = Seira.spring({
+        from: angle, to: 0, stiffness: 340, damping: 22,
+        onUpdate: function (x) {
+          if (!landed && x >= 0) { landed = true; Seira.tick(slot, "heavy"); }
+          angle = x > 0 ? -x : x;
+          paint(angle);
+        },
+        onDone: function () { angle = 0; paint(0); cover.style.pointerEvents = ""; }
+      });
+      if (Seira.reduced) { cover.style.pointerEvents = ""; angle = 0; }
+      cover.style.pointerEvents = "auto";
+      if (hadFocus) cover.focus({ preventScroll: true });
+    }
+    cover.addEventListener("click", lift);
+    ["pointerdown", "keydown", "focusin"].forEach(function (t) {
+      slot.addEventListener(t, function () { if (open) arm(); });
+    });
+    row.addEventListener("keydown", function (e) { if (e.key === "Escape") drop(); });
+    paint(0);
+  })();
+
+  (function () {
+    const stage = $("#s6 .concept-stage");
+    function tween(from, to, ms, fn, done) {
+      if (Seira.reduced || ms <= 0) { fn(to); if (done) done(); return function () {}; }
+      const t0 = performance.now();
+      let raf = 0;
+      const ease = function (t) { return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2; };
+      (function f(now) {
+        const t = clamp((now - t0) / ms, 0, 1);
+        fn(from + (to - from) * ease(t));
+        if (t < 1) raf = requestAnimationFrame(f); else if (done) done();
+      })(t0);
+      return function () { cancelAnimationFrame(raf); };
+    }
+    function swap(el, text) {
+      if (Seira.reduced) { el.textContent = text; return; }
+      const a = el.animate([{ opacity: 1, transform: "translateY(0)" }, { opacity: 0, transform: "translateY(-4px)" }], { duration: 110, easing: "ease-in" });
+      a.onfinish = function () {
+        el.textContent = text;
+        el.animate([{ opacity: 0, transform: "translateY(4px)" }, { opacity: 1, transform: "none" }], { duration: 180, easing: "cubic-bezier(.2,.8,.2,1)" });
+      };
+    }
+    const rows = $$(".s6-row", stage).map(function (row) {
+      const btn = $(".pw", row), sub = $(".s6-sub", row);
+      const R = { on: row.dataset.on !== "false", val: +row.dataset.val, cur: 0, stop: null, busy: false };
+      function paint(v) {
+        R.cur = v;
+        const c = Math.max(0, v);
+        btn.style.setProperty("--p", c + "%");
+        btn.style.setProperty("--a", c * 3.6 + "deg");
+      }
+      function halt() { if (R.stop) R.stop(); R.stop = null; }
+      function setOn(on) {
+        R.on = on;
+        row.dataset.on = String(on);
+        btn.setAttribute("aria-checked", String(on));
+        Seira.tick(btn, "light");
+        halt();
+        R.busy = true;
+        if (on) {
+          swap(sub, row.dataset.sched);
+          R.stop = Seira.spring({
+            from: R.cur, to: R.val, stiffness: 150, damping: 12,
+            onUpdate: function (x) { paint(x); },
+            onDone: function () { R.busy = false; }
+          });
+        } else {
+          swap(sub, "Paused");
+          R.stop = tween(R.cur, 0, 400, paint, function () { R.busy = false; });
+        }
+      }
+      paint(R.on ? R.val : 0);
+      if (!R.on) sub.textContent = "Paused";
+      btn.addEventListener("click", function () { setOn(!R.on); });
+      R.paint = paint;
+      return R;
+    });
+    let visible = true;
+    if ("IntersectionObserver" in window) {
+      new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(stage);
+    }
+    setInterval(function () {
+      if (!visible || document.hidden || Seira.reduced) return;
+      rows.forEach(function (R) {
+        if (!R.on || R.busy) return;
+        R.val += 0.3;
+        if (R.val >= 100) R.val = 3;
+        R.paint(R.val);
+      });
+    }, 1000);
+  })();
+})();
+</script>
+</body>
+</html>

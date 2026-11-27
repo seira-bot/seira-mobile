@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Đổi tên</string>
+    <string name="chat3_menu_copy_markdown">Sao chép dưới dạng Markdown</string>
+    <string name="chat3_menu_download_markdown">Tải xuống .md</string>
+    <string name="chat3_menu_activity">Hoạt động</string>
+    <string name="chat3_copied">Đã sao chép</string>
+    <string name="chat3_rename_heading">Đổi tên luồng</string>
+    <string name="chat3_rename_label">Tiêu đề</string>
+    <string name="chat3_rename_save">Lưu</string>
+    <string name="chat3_rename_cancel">Hủy</string>
+    <string name="chat3_rename_failed">Không thể đổi tên luồng này. Hãy thử lại.</string>
+    <string name="chat3_tool_teach">Dạy</string>
+    <string name="chat3_tool_teach_a11y">Dạy một kỹ năng mới</string>
+    <string name="chat3_tool_goal">Mục tiêu</string>
+    <string name="chat3_tool_goal_a11y">Đặt mục tiêu</string>
+    <string name="chat3_tool_context">Ngữ cảnh %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Ngữ cảnh, đã dùng %1$d phần trăm. Chạm để xem chi tiết.</string>
+    <string name="chat3_context_title">Ngữ cảnh</string>
+    <string name="chat3_context_bar_a11y">Đã dùng %1$d phần trăm</string>
+    <string name="chat3_context_usage">Đã dùng %1$s trên %2$s token</string>
+    <string name="chat3_context_compact">Nén ngữ cảnh</string>
+    <string name="chat3_context_compact_sub">Tóm tắt các tin nhắn cũ hơn</string>
+    <string name="chat3_context_compacting">Đang nén…</string>
+    <string name="chat3_context_compacted">Đã bắt đầu tóm tắt</string>
+    <string name="chat3_context_wait">Hãy chờ đến khi câu trả lời xong.</string>
+    <string name="chat3_context_failed">Không thể nén cuộc trò chuyện này. Hãy thử lại.</string>
+    <string name="chat3_allow_session">Cho phép trong phiên này</string>
+</resources>

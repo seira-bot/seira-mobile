@@ -4,6 +4,12 @@ import SwiftUI
 struct AutomationsTab: View {
     private enum Mode: Hashable { case list, calendar }
 
+    private struct RoutineDraft: Identifiable {
+        let id = UUID()
+        let prompt: String
+        let botId: String
+    }
+
     @EnvironmentObject private var session: Session
     @State private var mode = Mode.list
     @State private var routines: [Routine] = []
@@ -11,6 +17,9 @@ struct AutomationsTab: View {
     @State private var editing: Routine?
     @State private var creating = false
     @State private var deleting: Routine?
+    @State private var asking = false
+    @State private var pendingDraft: RoutineDraft?
+    @State private var draft: RoutineDraft?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,6 +35,18 @@ struct AutomationsTab: View {
             case .list: list
             case .calendar: RoutineCalendarView(embedded: true)
             }
+        }
+        .sheet(isPresented: $asking, onDismiss: {
+            draft = pendingDraft
+            pendingDraft = nil
+        }) {
+            WhatShouldHappenSheet { prompt, botId in
+                pendingDraft = RoutineDraft(prompt: prompt, botId: botId)
+                asking = false
+            }
+        }
+        .sheet(item: $draft) { draft in
+            RoutineEditorView(routine: nil, draftPrompt: draft.prompt, draftBotId: draft.botId) { await reload() }
         }
         .sheet(isPresented: $creating) {
             RoutineEditorView(routine: nil) { await reload() }
@@ -71,31 +92,63 @@ struct AutomationsTab: View {
         .padding(.vertical, 8)
     }
 
+    private var whatShouldHappenEntry: some View {
+        Button {
+            Haptics.selection()
+            asking = true
+        } label: {
+            Text("What should happen?")
+                .font(.seira(15, .medium, relativeTo: .body))
+                .foregroundStyle(Color.seiraInk)
+                .frame(maxWidth: .infinity, minHeight: 52, alignment: .leading)
+                .padding(.horizontal, 16)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 18)
+                        .strokeBorder(Color.seiraLine2, style: StrokeStyle(lineWidth: 1, dash: [6, 4]))
+                )
+                .contentShape(RoundedRectangle(cornerRadius: 18))
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 16)
+        .padding(.bottom, 8)
+        .accessibilityIdentifier("automations-what-should-happen")
+    }
+
     @ViewBuilder private var list: some View {
         if routines.isEmpty && !loading {
-            EmptyStateView(
-                "No routines",
-                systemImage: "calendar.badge.plus",
-                description: Text("Schedule recurring or one-time agent work.")
-            )
-        } else {
-            List {
-                ForEach(routines) { routine in
-                    AutomationRow(
-                        routine: routine,
-                        bot: session.state.bot(routine.botId),
-                        toggle: { enabled in Task { await toggle(routine, enabled: enabled) } },
-                        edit: { editing = routine },
-                        runNow: { Task { await runNow(routine) } },
-                        delete: { deleting = routine }
-                    )
-                    .listRowBackground(Color.seiraS1)
-                }
+            VStack(spacing: 0) {
+                whatShouldHappenEntry
+                EmptyStateView(
+                    "No routines",
+                    systemImage: "calendar.badge.plus",
+                    description: Text("Schedule recurring or one-time agent work.")
+                )
             }
-            .listStyle(.insetGrouped)
-            .scrollContentBackground(.hidden)
-            .refreshable { await reload() }
+        } else {
+            VStack(spacing: 0) {
+                whatShouldHappenEntry
+                routineList
+            }
         }
+    }
+
+    private var routineList: some View {
+        List {
+            ForEach(routines) { routine in
+                AutomationRow(
+                    routine: routine,
+                    bot: session.state.bot(routine.botId),
+                    toggle: { enabled in Task { await toggle(routine, enabled: enabled) } },
+                    edit: { editing = routine },
+                    runNow: { Task { await runNow(routine) } },
+                    delete: { deleting = routine }
+                )
+                .listRowBackground(Color.seiraS1)
+            }
+        }
+        .listStyle(.insetGrouped)
+        .scrollContentBackground(.hidden)
+        .refreshable { await reload() }
     }
 
     private func reload() async {

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Что должно произойти?</string>
+    <string name="auto2_sheet_title">Что должно произойти?</string>
+    <string name="auto2_describe_label">Опишите</string>
+    <string name="auto2_describe_placeholder">Каждое утро в 9 делай сводку моих входящих</string>
+    <string name="auto2_who_sub">Кто этим займётся?</string>
+    <string name="auto2_who_title">Кто этим займётся?</string>
+    <string name="auto2_who_row">%1$s, кто этим займётся? Нажмите, чтобы изменить.</string>
+    <string name="auto2_who_selected">%1$s, выбрано</string>
+    <string name="auto2_set_up_yourself">Настроить самостоятельно</string>
+    <string name="auto2_set_up">Настроить</string>
+    <string name="auto2_set_up_needs_text">Сначала опишите, что должно произойти.</string>
+    <string name="auto2_view_label">Вид календаря</string>
+    <string name="auto2_view_day">День</string>
+    <string name="auto2_view_week">Неделя</string>
+    <string name="auto2_week_empty_body">Здесь появятся процедуры, которые выполняются на этой неделе.</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Действия бота</string>
+    <string name="auto2_pin">Закрепить</string>
+    <string name="auto2_unpin">Открепить</string>
+    <string name="auto2_mark_unread">Отметить как непрочитанное</string>
+    <string name="auto2_mark_all_read">Отметить все разговоры как прочитанные</string>
+    <string name="auto2_move_department">Переместить в отдел</string>
+    <string name="auto2_copy_id">Скопировать ID разговора</string>
+    <string name="auto2_done_pinned">Закреплено</string>
+    <string name="auto2_done_unpinned">Откреплено</string>
+    <string name="auto2_done_unread">Отмечено как непрочитанное</string>
+    <string name="auto2_done_all_read">Всё прочитано</string>
+    <string name="auto2_done_moved">Перемещено</string>
+    <string name="auto2_done_copied">Скопировано</string>
+    <string name="auto2_failed">Не удалось сохранить. Попробуйте ещё раз.</string>
+    <string name="auto2_department_title">Переместить в отдел</string>
+    <string name="auto2_department_general">Общее</string>
+    <string name="auto2_department_current">%1$s, текущий</string>
+    <string name="auto2_department_new">Новый отдел…</string>
+    <string name="auto2_department_name">Название отдела</string>
+    <string name="auto2_department_move">Переместить</string>
+</resources>

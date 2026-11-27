@@ -590,6 +590,70 @@ class SessionP1Test {
         assertEquals(0, server.requestCount)
     }
 
+    private fun unreadBot(): Bot = bot("b1", "task-a", "task-a", "task-b", "task-c").copy(
+        unread = true,
+        tasks = listOf(
+            BotTask("task-a", "A", 1.0),
+            BotTask("task-b", "B", 2.0, unread = true),
+            BotTask("task-c", "C", 3.0, unread = false),
+        ),
+    )
+
+    @Test
+    fun markAllReadSendsOneReadWithAThreadForEachUnreadThread() = runTest {
+        val session = session { Fleet(listOf(unreadBot()), emptyList()) }
+        session.openNotification(target("b1", "task-a"))
+        repeat(2) { server.enqueue(json("{}")) }
+
+        assertTrue(session.markBotAllRead("b1"))
+
+        val requests = List(2) { server.takeRequest() }
+        assertEquals(List(2) { "/api/bots/b1/read" }, requests.map { it.path })
+        assertEquals(listOf("task-a", "task-b"), requests.map { body(it)["threadId"] })
+    }
+
+    @Test
+    fun markAllReadSucceedsWithoutARequestWhenNothingIsUnread() = runTest {
+        val allRead = unreadBot().copy(unread = false, tasks = listOf(BotTask("task-a", "A", 1.0)))
+        val session = session { Fleet(listOf(allRead), emptyList()) }
+        session.openNotification(target("b1", "task-a"))
+        val before = server.requestCount
+
+        assertTrue(session.markBotAllRead("b1"))
+
+        assertEquals(before, server.requestCount)
+    }
+
+    @Test
+    fun markAllReadFailsWhenOneReadFailsButStillTriesTheRest() = runTest {
+        val session = session { Fleet(listOf(unreadBot()), emptyList()) }
+        session.openNotification(target("b1", "task-a"))
+        server.enqueue(json("""{"error":"busy"}""", code = 500))
+        server.enqueue(json("{}"))
+
+        assertEquals(false, session.markBotAllRead("b1"))
+
+        assertEquals(listOf("task-a", "task-b"), List(2) { body(server.takeRequest())["threadId"] })
+    }
+
+    @Test
+    fun allowForSessionSendsNothingWhenAdvancedModeIsOff() = runTest {
+        val session = session()
+        val chat = Chat.BotChat(bot("b1", "task-a", "task-a"))
+        val card = OptionCard(
+            title = "Run a command?",
+            subtitle = "git status",
+            options = listOf("Allow once", "Deny"),
+            requestId = "r1",
+            tool = "Bash",
+            allowSession = true,
+        )
+
+        assertNull(session.allowForSession(chat, card, advancedMode = false))
+
+        assertEquals(0, server.requestCount)
+    }
+
     private suspend fun TestScope.session(
         otherComputer: Boolean = false,
         hydrate: suspend () -> Fleet = { Fleet(emptyList(), emptyList()) },

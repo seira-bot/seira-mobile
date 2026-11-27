@@ -1,6 +1,10 @@
 package com.openmausbot.companion.ui
 
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.widget.Toast
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import android.content.pm.PackageManager
 import android.net.Uri
 import androidx.compose.runtime.key
@@ -101,6 +105,7 @@ import com.openmausbot.companion.core.takeLastCharacters
 import com.openmausbot.companion.core.target
 import com.openmausbot.companion.core.ModelSelection
 import com.openmausbot.companion.core.transcriptRows
+import com.openmausbot.companion.ui.chat.ChatAdvanced
 import com.openmausbot.companion.ui.chat.ChatDaySeparators
 import com.openmausbot.companion.ui.chat.ChatFindBar
 import com.openmausbot.companion.ui.chat.ChatFindRules
@@ -109,6 +114,11 @@ import com.openmausbot.companion.ui.chat.ChatMembersSheet
 import com.openmausbot.companion.ui.chat.ChatMenuItem
 import com.openmausbot.companion.ui.chat.ChatMenuRules
 import com.openmausbot.companion.ui.chat.ChatMenuSheet
+import com.openmausbot.companion.ui.chat.CompactPhase
+import com.openmausbot.companion.ui.chat.ComposerTool
+import com.openmausbot.companion.ui.chat.ContextSheet
+import com.openmausbot.companion.ui.chat.RenameThreadDialog
+import com.openmausbot.companion.ui.chat.composer.ComposerCommands
 import com.openmausbot.companion.ui.chat.DayKind
 import com.openmausbot.companion.ui.chat.FindHighlight
 import com.openmausbot.companion.ui.chat.LocalFindHighlights
@@ -164,6 +174,8 @@ fun ChatScreen(
     callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
     /** A sign-in card for the built-in browser opens that bot's browser screen. */
     onOpenBrowser: (String) -> Unit = {},
+    /** The menu's Activity row opens the bot's profile on its Activity tab. */
+    onOpenActivity: (String) -> Unit = {},
 ) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
@@ -192,7 +204,7 @@ fun ChatScreen(
                 }
             }
             CompositionLocalProvider(LocalSignInOpen provides signInOpen) {
-                LoadedChat(resolution.chat, state, onBack, onOpenComputer, onOpenOverview, retainsDraft, onResolved, onOpenChat, callsEnabled)
+                LoadedChat(resolution.chat, state, onBack, onOpenComputer, onOpenOverview, retainsDraft, onResolved, onOpenChat, callsEnabled, onOpenActivity)
             }
         }
     }
@@ -239,6 +251,7 @@ private fun LoadedChat(
     onSelectTask: (ChatTarget) -> Unit,
     onOpenChat: (Chat) -> Unit,
     callsEnabled: Boolean,
+    onOpenActivity: (String) -> Unit,
 ) {
     // This screen's selected task, independent of the desktop's selection.
     val threadId = chat.threadId
@@ -293,6 +306,11 @@ private fun LoadedChat(
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     var showingMode by remember(threadId) { mutableStateOf(false) }
     var modeShownFor by remember(threadId) { mutableStateOf<Session.RuntimeBinding?>(null) }
+    val advanced by environment.chatPreferences.advancedMode.collectAsState()
+    var renaming by remember(threadId) { mutableStateOf<RenameDraft?>(null) }
+    var showingContext by remember(threadId) { mutableStateOf(false) }
+    var compactPhase by remember(threadId) { mutableStateOf(CompactPhase.IDLE) }
+    val clipboard = LocalClipboard.current
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
@@ -791,6 +809,11 @@ private fun LoadedChat(
 
     val bot = (chat as? Chat.BotChat)?.bot
     val commands = SlashCommands.forChat(chat)
+    val contextMeter = remember(bot) { bot?.let { ChatAdvanced.contextMeter(ChatAdvanced.currentTask(it)) } }
+    val goalRunning = remember(rawTranscript) { GoalChip.text(rawTranscript) != null }
+    val composerTools = remember(chat, advanced, goalRunning, contextMeter) {
+        ChatAdvanced.tools(chat, advanced, learnAllowed = LEARN_GATE, goalRunning = goalRunning, context = contextMeter)
+    }
     val density = LocalDensity.current
     var headerPx by remember { mutableIntStateOf(0) }
     var composerPx by remember { mutableIntStateOf(0) }
@@ -980,6 +1003,12 @@ private fun LoadedChat(
         // clearer answer than a dead button.
         if (replied != null) replyTarget = null
         scope.launch { session.send(withReply(text), chat) }
+    }
+
+    fun insertCommand(command: SlashCommand) {
+        val effect = command.effect as? SlashEffect.Insert ?: return
+        composer.onTypedChange(ChatAdvanced.insertion(draft, effect.text))
+        publishFrom(composer)
     }
 
     fun selectCommand(command: SlashCommand) {
@@ -1309,6 +1338,21 @@ private fun LoadedChat(
                     showingMode = modeShownFor != null
                 },
                 goal = remember(rawTranscript) { GoalChip.text(rawTranscript) },
+                tools = composerTools,
+                contextPercent = contextMeter?.percent,
+                onTool = { tool ->
+                    haptics.play(HapticCue.SELECT)
+                    when (tool) {
+                        ComposerTool.TEACH -> insertCommand(ComposerCommands.LEARN)
+                        ComposerTool.GOAL -> insertCommand(ComposerCommands.GOAL)
+                        ComposerTool.CONTEXT -> {
+                            dictation.stop()
+                            focusManager.clearFocus()
+                            compactPhase = CompactPhase.IDLE
+                            showingContext = true
+                        }
+                    }
+                },
                 onCancelQueued = { queued ->
                     scope.launch { session.cancelQueued(queued, chat) }
                 },
@@ -1484,6 +1528,7 @@ private fun LoadedChat(
                 creating = creatingThread,
                 decisionWaiting = chat is Chat.RoomChat && pendingApproval,
             ),
+            advanced = advanced,
             onPick = { item ->
                 showingMenu = false
                 when (item) {
@@ -1495,9 +1540,75 @@ private fun LoadedChat(
                     ChatMenuItem.BOT_SCREEN -> onAction(ChatActionId.WATCH_COMPUTER)
                     ChatMenuItem.SHARE_MARKDOWN -> share(scope, environment, threadId, ShareFormat.MARKDOWN)
                     ChatMenuItem.SHARE_JSON -> share(scope, environment, threadId, ShareFormat.JSON)
+                    ChatMenuItem.RENAME -> if (bot != null) {
+                        renaming = RenameDraft(ChatAdvanced.currentTask(bot)?.title.orEmpty())
+                    }
+                    ChatMenuItem.COPY_MARKDOWN -> scope.launch {
+                        val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        clipboard.setClipEntry(
+                            ClipEntry(ClipData.newPlainText(TRANSCRIPT_CLIP_LABEL, exported.data.toString(Charsets.UTF_8))),
+                        )
+                        haptics.play(HapticCue.SUCCESS)
+                        Toast.makeText(context, R.string.chat3_copied, Toast.LENGTH_SHORT).show()
+                    }
+                    ChatMenuItem.DOWNLOAD_MARKDOWN -> scope.launch {
+                        val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        val named = exported.copy(
+                            filename = ChatAdvanced.markdownFileName(
+                                (chat as? Chat.BotChat)?.bot?.let { ChatAdvanced.currentTask(it)?.title },
+                            ),
+                        )
+                        environment.shareTranscript(named, ShareFormat.MARKDOWN)?.let { session.actionError = it }
+                    }
+                    ChatMenuItem.ACTIVITY -> if (bot != null) onOpenActivity(bot.id)
                 }
             },
             onDismiss = { showingMenu = false },
+        )
+    }
+
+    renaming?.let { draft ->
+        RenameThreadDialog(
+            title = draft.title,
+            saving = draft.saving,
+            failed = draft.failed,
+            onTitleChange = { renaming = draft.copy(title = it, failed = false) },
+            onSave = {
+                val target = bot?.let { ChatAdvanced.currentTask(it) }
+                if (bot == null || target == null) {
+                    renaming = draft.copy(failed = true)
+                } else {
+                    renaming = draft.copy(saving = true, failed = false)
+                    scope.launch {
+                        val saved = session.renameTask(target, bot, ChatAdvanced.renameTitle(draft.title))
+                        renaming = if (saved) null else draft.copy(saving = false, failed = true)
+                    }
+                }
+            },
+            onCancel = { renaming = null },
+        )
+    }
+
+    if (showingContext && bot != null && contextMeter != null) {
+        ContextSheet(
+            meter = contextMeter,
+            phase = compactPhase,
+            canCompact = !chat.busy,
+            onCompact = {
+                compactPhase = CompactPhase.WORKING
+                scope.launch {
+                    val started = session.compact(bot)
+                    if (started) {
+                        compactPhase = CompactPhase.DONE
+                        haptics.play(HapticCue.SUCCESS)
+                        delay(COMPACT_CLOSE_MILLIS)
+                        showingContext = false
+                    } else {
+                        compactPhase = CompactPhase.FAILED
+                    }
+                }
+            },
+            onDismiss = { showingContext = false },
         )
     }
 
@@ -1562,6 +1673,14 @@ private fun share(
         environment.shareTranscript(exported, format)?.let { session.actionError = it }
     }
 }
+
+/** The title field of the rename dialog, with what the save is doing. */
+private data class RenameDraft(val title: String, val saving: Boolean = false, val failed: Boolean = false)
+
+/** The learn gate. The phone gets no signal for it, so Teach stays hidden until one exists. */
+private const val LEARN_GATE = false
+private const val COMPACT_CLOSE_MILLIS = 900L
+private const val TRANSCRIPT_CLIP_LABEL = "Seira transcript"
 
 private val LOG_TOP_GAP = 12.dp
 private val LOG_TOP_FALLBACK = 116.dp

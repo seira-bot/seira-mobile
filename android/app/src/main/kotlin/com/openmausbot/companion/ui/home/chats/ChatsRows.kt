@@ -1,218 +1,373 @@
 package com.openmausbot.companion.ui.home.chats
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.customActions
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.R
 import com.openmausbot.companion.core.Bot
+import com.openmausbot.companion.core.HomeDot
+import com.openmausbot.companion.core.HomeDotRules
+import com.openmausbot.companion.core.HomeLayoutRules
 import com.openmausbot.companion.core.Room
-import com.openmausbot.companion.core.RosterBotRow
-import com.openmausbot.companion.core.RosterRowStatus
 import com.openmausbot.companion.ui.CharacterMood
 import com.openmausbot.companion.ui.RelativeStamp
-import com.openmausbot.companion.ui.RoomFaces
-import com.openmausbot.companion.ui.localizedMobileCopy
 import com.openmausbot.companion.ui.theme.IdentityAvatar
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraIcons
 import com.openmausbot.companion.ui.theme.SeiraMotion
+import com.openmausbot.companion.ui.SeiraRoomAvatar
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
 import com.openmausbot.companion.ui.theme.seiraTween
 import java.util.Locale
 
-private val COMFORTABLE_HEIGHT = 66.dp
-private val COMPACT_HEIGHT = 48.dp
-private val COMFORTABLE_FACE = 46.dp
-private val COMPACT_FACE = 32.dp
+private val CHIEF_BADGE = Color(0xFFF0952B)
 
-/** One bot: face, name with its role, one line of what was said, the time, and the thread control. */
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun ChatsBotRow(
+private fun dotColor(dot: HomeDot): Color {
+    val colors = Seira.colors
+    return when (dot) {
+        HomeDot.WAITING -> colors.warning
+        HomeDot.PROBLEM -> colors.danger
+        HomeDot.WORKING -> colors.accent
+        HomeDot.NONE -> Color.Transparent
+    }
+}
+
+@Composable
+private fun dotLabel(dot: HomeDot): String = when (dot) {
+    HomeDot.WAITING -> stringResource(R.string.home2_waiting)
+    HomeDot.PROBLEM -> stringResource(R.string.home2_problem)
+    HomeDot.WORKING -> stringResource(R.string.home2_working)
+    HomeDot.NONE -> ""
+}
+
+/** One row of up to four bot tiles; a short row keeps the tile width of a full one. */
+@Composable
+internal fun TileRow(bots: List<Bot>, modifier: Modifier = Modifier, tile: @Composable (Bot, Modifier) -> Unit) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        bots.forEach { bot -> tile(bot, Modifier.weight(1f)) }
+        repeat(HomeLayoutRules.TILE_COLUMNS - bots.size) { Spacer(Modifier.weight(1f)) }
+    }
+}
+
+/** A bot as a tile: face, name, and a crown or a dot only when it applies. */
+@Composable
+internal fun BotTile(
     bot: Bot,
-    row: RosterBotRow,
-    preview: String,
-    lastActivity: Double,
+    chief: Boolean,
+    dot: HomeDot,
     face: CharacterMood,
-    compact: Boolean,
-    expanded: Boolean,
-    creating: Boolean,
     onOpen: () -> Unit,
-    onToggle: () -> Unit,
-    onNewThread: () -> Unit,
-    onManage: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val colors = Seira.colors
-    val faceSize = if (compact) COMPACT_FACE else COMFORTABLE_FACE
-    val waiting = row.status == RosterRowStatus.WAITING_ON_YOU
-    val working = row.status == RosterRowStatus.WORKING
-    val now = remember(lastActivity) { System.currentTimeMillis() }
-    val stamp = RelativeStamp.list(lastActivity, now, locale = Locale.getDefault())
-    val waitingLabel = stringResource(R.string.mobile_waiting_on_you_edab5b72)
-    val newThread = stringResource(R.string.mobile_new_thread_02057e28)
-    val manageThreads = stringResource(R.string.home_manage_threads)
-    var menuOpen by remember { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Box(modifier = Modifier.weight(1f)) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("chat-row.${bot.id}")
-                    .combinedClickable(
-                        role = Role.Button,
-                        onLongClickLabel = manageThreads,
-                        onLongClick = { menuOpen = true },
-                        onClick = onOpen,
-                    )
-                    .semantics(mergeDescendants = true) {
-                        if (waiting) stateDescription = waitingLabel
-                        customActions = listOf(
-                            CustomAccessibilityAction(newThread) {
-                                if (!creating) onNewThread()
-                                !creating
-                            },
-                            CustomAccessibilityAction(manageThreads) {
-                                onManage()
-                                true
-                            },
-                        )
-                    }
-                    .heightIn(min = if (compact) COMPACT_HEIGHT else COMFORTABLE_HEIGHT)
-                    .padding(start = 20.dp, end = if (row.showsThreadControl) 4.dp else 20.dp)
-                    .padding(vertical = if (compact) 4.dp else 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                IdentityAvatar(bot = bot, size = faceSize, state = face, animated = false)
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-                    NameLine(
-                        name = bot.name,
-                        role = bot.title,
-                        bold = row.unread && !row.busy,
-                        chief = row.showsChiefBadge,
-                    )
-                    if (!compact) {
-                        Text(
-                            text = preview.ifEmpty { " " },
-                            fontSize = 13.sp,
-                            lineHeight = 18.sp,
-                            color = if (waiting) colors.warningText else colors.ink2,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                    }
-                }
-                StatusAndTime(
-                    working = working || creating,
-                    unread = row.showsUnreadDot,
-                    waitingDot = compact && waiting,
-                    stamp = stamp,
-                )
+    val shape = RoundedCornerShape(16.dp)
+    val chiefLabel = stringResource(R.string.home2_chief)
+    val showDot = HomeDotRules.tileShows(dot)
+    val state = dotLabel(dot)
+    Column(
+        modifier = modifier
+            .testTag("chat-row.${bot.id}")
+            .clip(shape)
+            .background(if (chief) colors.s2 else colors.s1, shape)
+            .clickable(role = Role.Button, onClick = onOpen)
+            .semantics(mergeDescendants = true) {
+                if (showDot) stateDescription = state
+                if (chief) contentDescription = "${bot.name}, $chiefLabel"
             }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
-                    text = { Text(newThread) },
-                    leadingIcon = { Icon(SeiraIcons.Plus, contentDescription = null) },
-                    enabled = !creating,
-                    onClick = {
-                        menuOpen = false
-                        onNewThread()
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text(manageThreads) },
-                    onClick = {
-                        menuOpen = false
-                        onManage()
-                    },
+            .padding(horizontal = 4.dp, vertical = 10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        Box(modifier = Modifier.size(60.dp), contentAlignment = Alignment.Center) {
+            IdentityAvatar(bot = bot, size = 56.dp, state = face, animated = false)
+            if (chief) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = 3.dp, y = 3.dp)
+                        .testTag("chief-badge")
+                        .size(22.dp)
+                        .background(CHIEF_BADGE, CircleShape)
+                        .padding(5.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_crown),
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(11.dp),
+                    )
+                }
+            }
+            if (showDot) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(12.dp)
+                        .background(dotColor(dot), CircleShape),
                 )
             }
         }
-        if (row.showsThreadControl) {
-            ThreadsButton(bot = bot, count = row.threadCount, expanded = expanded, onToggle = onToggle)
+        Text(
+            text = bot.name,
+            fontSize = 13.5.sp,
+            lineHeight = 18.sp,
+            fontWeight = FontWeight.Medium,
+            color = colors.ink,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+    }
+}
+
+/** A bot in the Advanced list: the threads chevron, face with its dot, name, time and one line of what was said. */
+@Composable
+internal fun AdvancedBotRow(
+    bot: Bot,
+    chief: Boolean,
+    dot: HomeDot,
+    face: CharacterMood,
+    preview: String,
+    lastActivity: Double,
+    threadCount: Int,
+    expanded: Boolean,
+    onOpen: () -> Unit,
+    onToggleThreads: () -> Unit,
+    showPreview: Boolean = true,
+) {
+    val colors = Seira.colors
+    val reduced = rememberReducedMotion()
+    val shape = RoundedCornerShape(12.dp)
+    val waiting = dot == HomeDot.WAITING
+    val now = remember(lastActivity) { System.currentTimeMillis() }
+    val stamp = RelativeStamp.list(lastActivity, now, locale = Locale.getDefault())
+    val chiefLabel = stringResource(R.string.home2_chief)
+    val state = dotLabel(dot)
+    val angle by animateFloatAsState(
+        targetValue = if (expanded) 90f else 0f,
+        animationSpec = seiraTween(SeiraMotion.BASE, reduced),
+        label = "advanced-threads-chevron",
+    )
+    val threadsLabel = stringResource(R.string.mobile_a11y_bot_threads, bot.name)
+    val threadsState = stringResource(
+        if (expanded) R.string.mobile_a11y_thread_state_expanded else R.string.mobile_a11y_thread_state_collapsed,
+        threadCount,
+    )
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+            .clip(shape)
+            .background(if (chief) colors.s2 else Color.Transparent, shape),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Box(
+            modifier = Modifier
+                .testTag("threads-toggle.${bot.id}")
+                .size(width = 48.dp, height = 60.dp)
+                .clickable(role = Role.Button, onClick = onToggleThreads)
+                .semantics {
+                    contentDescription = threadsLabel
+                    stateDescription = threadsState
+                },
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = SeiraIcons.ChevronRight,
+                contentDescription = null,
+                tint = colors.ink3,
+                modifier = Modifier
+                    .size(14.dp)
+                    .graphicsLayer { rotationZ = angle },
+            )
+        }
+        Row(
+            modifier = Modifier
+                .weight(1f)
+                .testTag("chat-row.${bot.id}")
+                .heightIn(min = 60.dp)
+                .clickable(role = Role.Button, onClick = onOpen)
+                .semantics(mergeDescendants = true) {
+                    if (dot != HomeDot.NONE) stateDescription = state
+                    if (chief) contentDescription = "${bot.name}, $chiefLabel"
+                }
+                .padding(end = 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Box(modifier = Modifier.size(40.dp)) {
+                IdentityAvatar(bot = bot, size = 40.dp, state = face, animated = false)
+                if (dot != HomeDot.NONE) {
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .offset(x = 1.dp, y = 1.dp)
+                            .size(12.dp)
+                            .background(colors.app, CircleShape)
+                            .padding(2.dp)
+                            .background(dotColor(dot), CircleShape),
+                    )
+                }
+            }
+            Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = bot.name,
+                        fontSize = 15.5.sp,
+                        lineHeight = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.ink,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
+                    )
+                    if (chief) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_crown),
+                            contentDescription = null,
+                            tint = colors.accent,
+                            modifier = Modifier
+                                .size(14.dp)
+                                .testTag("chief-badge"),
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
+                    if (stamp.isNotEmpty()) {
+                        Text(
+                            text = stamp,
+                            fontSize = 12.sp,
+                            lineHeight = 16.sp,
+                            color = colors.ink3,
+                            maxLines = 1,
+                            style = LocalTextStyle.current.copy(fontFeatureSettings = "tnum"),
+                        )
+                    }
+                }
+                if (showPreview) {
+                    Text(
+                        text = preview.ifEmpty { " " },
+                        fontSize = 13.5.sp,
+                        lineHeight = 18.sp,
+                        color = if (waiting) colors.warningText else colors.ink2,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
         }
     }
 }
 
-/** One group: its stacked faces, its name, and one line of what was said. */
+/** One group chat: one or two faces, the name with its time, and one line of what was said. */
 @Composable
-internal fun ChatsRoomRow(
+internal fun GroupChatRow(
     room: Room,
     members: List<Bot>,
     preview: String,
     lastActivity: Double,
     waiting: Boolean,
-    compact: Boolean,
+    advanced: Boolean,
     onOpen: () -> Unit,
+    showPreview: Boolean = true,
 ) {
     val colors = Seira.colors
-    val faceSize = if (compact) COMPACT_FACE else COMFORTABLE_FACE
-    val busy = room.busyBotId != null
     val now = remember(lastActivity) { System.currentTimeMillis() }
     val stamp = RelativeStamp.list(lastActivity, now, locale = Locale.getDefault())
-    val waitingLabel = stringResource(R.string.mobile_waiting_on_you_edab5b72)
+    val waitingLabel = stringResource(R.string.home2_waiting)
+    val unread = room.unread
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .testTag("chat-row.${room.id}")
             .clickable(role = Role.Button, onClick = onOpen)
             .semantics(mergeDescendants = true) { if (waiting) stateDescription = waitingLabel }
-            .heightIn(min = if (compact) COMPACT_HEIGHT else COMFORTABLE_HEIGHT)
-            .padding(horizontal = 20.dp)
-            .padding(vertical = if (compact) 4.dp else 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+            .heightIn(min = if (advanced) 56.dp else 66.dp)
+            .padding(start = if (advanced) 18.dp else 16.dp, end = if (advanced) 22.dp else 16.dp)
+            .padding(vertical = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (advanced) 14.dp else 14.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        RoomFaces(members = members, size = faceSize)
-        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(1.dp)) {
-            NameLine(name = room.name, role = "", bold = room.unread && !busy, chief = false)
-            if (!compact) {
+        GroupFaces(members = members, advanced = advanced)
+        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = room.name,
+                    fontSize = if (advanced) 15.sp else 15.5.sp,
+                    lineHeight = 20.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = colors.ink,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(1f, fill = false),
+                )
+                if (unread) {
+                    Box(Modifier.size(8.dp).background(colors.accent, CircleShape))
+                }
+                Spacer(Modifier.weight(1f))
+                if (stamp.isNotEmpty()) {
+                    Text(
+                        text = stamp,
+                        fontSize = 12.5.sp,
+                        lineHeight = 16.sp,
+                        color = colors.ink3,
+                        maxLines = 1,
+                        style = LocalTextStyle.current.copy(fontFeatureSettings = "tnum"),
+                    )
+                }
+            }
+            if (showPreview) {
                 Text(
                     text = preview.ifEmpty { " " },
-                    fontSize = 13.sp,
+                    fontSize = 13.5.sp,
                     lineHeight = 18.sp,
                     color = if (waiting) colors.warningText else colors.ink2,
                     maxLines = 1,
@@ -220,130 +375,46 @@ internal fun ChatsRoomRow(
                 )
             }
         }
-        StatusAndTime(working = busy, unread = room.unread && !busy, waitingDot = compact && waiting, stamp = stamp)
     }
 }
 
+/** Two faces side by side, or one when the group has one member. */
 @Composable
-private fun NameLine(name: String, role: String, bold: Boolean, chief: Boolean) {
+private fun GroupFaces(members: List<Bot>, advanced: Boolean) {
     val colors = Seira.colors
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = name,
-            fontSize = 15.5.sp,
-            lineHeight = 20.sp,
-            fontWeight = if (bold) FontWeight.SemiBold else FontWeight.Medium,
-            color = colors.ink,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f, fill = false),
-        )
-        if (chief) {
-            Icon(
-                painter = painterResource(R.drawable.ic_crown),
-                contentDescription = localizedMobileCopy("Chief of Staff"),
-                tint = colors.accent,
-                modifier = Modifier
-                    .size(14.dp)
-                    .testTag("chief-badge"),
-            )
-        }
-        if (role.isNotEmpty()) {
-            Text(
-                text = role,
-                fontSize = 12.5.sp,
-                lineHeight = 16.sp,
-                color = colors.ink3,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier.weight(1f, fill = false),
-            )
-        }
-    }
-}
-
-@Composable
-private fun StatusAndTime(working: Boolean, unread: Boolean, waitingDot: Boolean, stamp: String) {
-    val colors = Seira.colors
-    val workingLabel = stringResource(R.string.mobile_thread_working)
-    val unreadLabel = stringResource(R.string.mobile_unread_07b032b5)
-    val waitingLabel = stringResource(R.string.mobile_waiting_on_you_edab5b72)
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
+    val box = if (advanced) 40.dp else 52.dp
+    val boxHeight = 40.dp
+    Box(modifier = Modifier.size(width = box, height = boxHeight)) {
+        val first = members.getOrNull(0)
+        val second = members.getOrNull(1)
         when {
-            working -> CircularProgressIndicator(
-                modifier = Modifier
-                    .size(12.dp)
-                    .semantics { contentDescription = workingLabel },
-                strokeWidth = 2.dp,
-                color = colors.success,
+            first == null -> SeiraRoomAvatar(size = 36.dp, modifier = Modifier.align(Alignment.Center))
+            second == null -> IdentityAvatar(
+                bot = first,
+                size = if (advanced) 30.dp else 36.dp,
+                state = CharacterMood.IDLE,
+                animated = false,
+                modifier = Modifier.align(Alignment.Center),
             )
-            waitingDot -> StatusDot(colors.warning, waitingLabel)
-            unread -> StatusDot(colors.accent, unreadLabel)
-        }
-        if (stamp.isNotEmpty() && !working) {
-            Text(
-                text = stamp,
-                fontSize = 12.sp,
-                lineHeight = 16.sp,
-                color = colors.ink3,
-                maxLines = 1,
-                style = LocalTextStyle.current.copy(fontFeatureSettings = "tnum"),
-            )
-        }
-    }
-}
-
-@Composable
-private fun StatusDot(color: Color, label: String) {
-    Box(
-        Modifier
-            .size(8.dp)
-            .background(color, CircleShape)
-            .semantics { contentDescription = label },
-    )
-}
-
-@Composable
-private fun ThreadsButton(bot: Bot, count: Int, expanded: Boolean, onToggle: () -> Unit) {
-    val colors = Seira.colors
-    val reduced = rememberReducedMotion()
-    val angle by animateFloatAsState(
-        targetValue = if (expanded) 90f else 0f,
-        animationSpec = seiraTween(SeiraMotion.BASE, reduced),
-        label = "threads-chevron",
-    )
-    val label = stringResource(R.string.mobile_a11y_bot_threads, bot.name)
-    val state = stringResource(
-        if (expanded) R.string.mobile_a11y_thread_state_expanded else R.string.mobile_a11y_thread_state_collapsed,
-        count,
-    )
-    Row(
-        modifier = Modifier
-            .testTag("threads-toggle.${bot.id}")
-            .heightIn(min = 48.dp)
-            .clickable(role = Role.Button, onClick = onToggle)
-            .semantics(mergeDescendants = true) {
-                contentDescription = label
-                stateDescription = state
+            else -> {
+                val face = if (advanced) 27.dp else 34.dp
+                IdentityAvatar(
+                    bot = first,
+                    size = face,
+                    state = CharacterMood.IDLE,
+                    animated = false,
+                    modifier = Modifier.align(Alignment.TopStart).padding(top = if (advanced) 0.dp else 3.dp),
+                )
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = if (advanced) 0.dp else 3.dp)
+                        .background(colors.app, CircleShape)
+                        .padding(2.dp),
+                ) {
+                    IdentityAvatar(bot = second, size = face - 4.dp, state = CharacterMood.IDLE, animated = false)
+                }
             }
-            .padding(start = 8.dp, end = 16.dp),
-        horizontalArrangement = Arrangement.spacedBy(2.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(text = count.toString(), fontSize = 12.sp, color = colors.ink3)
-        Icon(
-            imageVector = SeiraIcons.ChevronRight,
-            contentDescription = null,
-            tint = colors.ink3,
-            modifier = Modifier
-                .size(16.dp)
-                .graphicsLayer { rotationZ = angle },
-        )
+        }
     }
 }

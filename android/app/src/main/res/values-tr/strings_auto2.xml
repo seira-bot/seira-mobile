@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Ne olmalı?</string>
+    <string name="auto2_sheet_title">Ne olmalı?</string>
+    <string name="auto2_describe_label">Anlatın</string>
+    <string name="auto2_describe_placeholder">Her sabah saat 9\'da gelen kutumu özetle</string>
+    <string name="auto2_who_sub">Bunu kim yapsın?</string>
+    <string name="auto2_who_title">Bunu kim yapsın?</string>
+    <string name="auto2_who_row">%1$s, bunu kim yapsın? Değiştirmek için dokunun.</string>
+    <string name="auto2_who_selected">%1$s, seçildi</string>
+    <string name="auto2_set_up_yourself">Kendiniz kurun</string>
+    <string name="auto2_set_up">Kur</string>
+    <string name="auto2_set_up_needs_text">Önce ne olması gerektiğini anlatın.</string>
+    <string name="auto2_view_label">Takvim görünümü</string>
+    <string name="auto2_view_day">Gün</string>
+    <string name="auto2_view_week">Hafta</string>
+    <string name="auto2_week_empty_body">Bu hafta çalışan rutinler burada görünür.</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Bot eylemleri</string>
+    <string name="auto2_pin">Sabitle</string>
+    <string name="auto2_unpin">Sabitlemeyi kaldır</string>
+    <string name="auto2_mark_unread">Okunmadı olarak işaretle</string>
+    <string name="auto2_mark_all_read">Tüm konuşmaları okundu olarak işaretle</string>
+    <string name="auto2_move_department">Departmana taşı</string>
+    <string name="auto2_copy_id">Konuşma kimliğini kopyala</string>
+    <string name="auto2_done_pinned">Sabitlendi</string>
+    <string name="auto2_done_unpinned">Sabitleme kaldırıldı</string>
+    <string name="auto2_done_unread">Okunmadı olarak işaretlendi</string>
+    <string name="auto2_done_all_read">Hepsi okundu</string>
+    <string name="auto2_done_moved">Taşındı</string>
+    <string name="auto2_done_copied">Kopyalandı</string>
+    <string name="auto2_failed">Kaydedilemedi. Tekrar deneyin.</string>
+    <string name="auto2_department_title">Departmana taşı</string>
+    <string name="auto2_department_general">Genel</string>
+    <string name="auto2_department_current">%1$s, geçerli</string>
+    <string name="auto2_department_new">Yeni departman…</string>
+    <string name="auto2_department_name">Departman adı</string>
+    <string name="auto2_department_move">Taşı</string>
+</resources>

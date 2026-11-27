@@ -92,6 +92,7 @@ internal fun SettingsScreen(
     val themeMode by environment.chatPreferences.themeMode.collectAsState()
     val rosterDensity by environment.chatPreferences.rosterDensity.collectAsState()
     val liveCaptions by environment.chatPreferences.liveCaptions.collectAsState()
+    val advancedMode by environment.chatPreferences.advancedMode.collectAsState()
     val alwaysOnEnabled by environment.alwaysOnEnabled.collectAsState()
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -364,6 +365,18 @@ internal fun SettingsScreen(
                                         Chevron()
                                     }
                                 },
+                            )
+                        }
+                    }
+
+                    SettingsGroup.ADVANCED -> {
+                        GroupCard {
+                            SwitchRow(
+                                title = stringResource(R.string.home2_settings_advanced_title),
+                                subtitle = stringResource(R.string.home2_settings_advanced_body),
+                                icon = null,
+                                checked = advancedMode,
+                                onToggle = { environment.chatPreferences.setAdvancedMode(!advancedMode) },
                             )
                         }
                     }
