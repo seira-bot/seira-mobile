@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">发消息给群组</string>
+    <string name="composer_mode_title">审批</string>
+    <string name="composer_mode_unset">审批</string>
+    <string name="composer_mode_chip_a11y">审批模式：%1$s。点按可更改。</string>
+    <string name="composer_mode_selected">已选择</string>
+    <string name="composer_mode_ask">询问</string>
+    <string name="composer_mode_edits">编辑</string>
+    <string name="composer_mode_auto">自动</string>
+    <string name="composer_mode_full">完全</string>
+    <string name="composer_mode_custom">自定义</string>
+    <string name="composer_mode_ask_sub">更改任何内容前先询问</string>
+    <string name="composer_mode_edits_sub">自行编辑文件，其他操作先询问</string>
+    <string name="composer_mode_auto_sub">自行工作，仅在有风险的步骤询问</string>
+    <string name="composer_mode_full_sub">从不询问。可在电脑上执行任何操作</string>
+    <string name="composer_mode_custom_sub">在桌面应用中设置</string>
+    <string name="composer_mode_refused_full">共享的公司工作区不支持完全访问。</string>
+    <string name="composer_mode_refused_leave_custom">要退出自定义模式，请使用桌面应用。</string>
+    <string name="composer_mode_refused_custom">自定义模式需在桌面应用中设置。</string>
+    <string name="composer_mode_refused_owner">只有所有者可以更改。</string>
+    <string name="composer_mode_refused_provider">此机器人无法在该级别工作。</string>
+    <string name="composer_mode_refused_confirming">上一次更改仍在处理中。请稍后再试。</string>
+    <string name="composer_mode_refused_other">无法更改审批模式。请重试。</string>
+    <string name="composer_mode_confirm_title">开启自动模式？</string>
+    <string name="composer_mode_confirm_body">在自动模式下，机器人会在这台电脑上自行工作，仅在有风险的步骤询问。</string>
+    <string name="composer_mode_confirm_yes">开启自动模式</string>
+    <string name="composer_mode_confirm_no">暂不</string>
+    <string name="composer_goal_chip">目标：%1$s</string>
+    <string name="composer_steer_waiting">暂时无法加入这一轮。它会保留在队列中。</string>
+    <string name="composer_steer_failed">无法将这条消息发送到当前这一轮。请重试。</string>
+    <string name="composer_slash_goal">设定目标，让它一直做到完成</string>
+    <string name="composer_slash_learn">从这段对话草拟一份可重复使用的技能</string>
+    <string name="composer_slash_setup">让这个机器人向你提问并自行完成设置</string>
+    <string name="composer_slash_burst">同时运行多个任务</string>
+</resources>

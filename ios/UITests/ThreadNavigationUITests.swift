@@ -25,11 +25,11 @@ final class ThreadNavigationUITests: XCTestCase {
         let app = launchPreview(islandIntro: "always")
         openGmail(in: app)
 
-        let topBarThreads = app.buttons["header-threads"]
+        let topBarThreads = app.buttons["chat-menu"]
         // The chat header settles late on a loaded CI runner. 5s timed out
         // here while the thread open itself was correct, same as assertThread.
         XCTAssertTrue(topBarThreads.waitForExistence(timeout: 10))
-        topBarThreads.tap()
+        app.openAllThreads()
         let iCloud = app.buttons["thread-preview-icloud"]
         XCTAssertTrue(iCloud.waitForExistence(timeout: 5))
         recordScreenshot("Top bar opens the thread picker", in: app)
@@ -39,7 +39,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
         // The same button switches again: it is the chat's one way to its
         // threads now that the name pill under the face is gone.
-        topBarThreads.tap()
+        app.openAllThreads()
         let weekend = app.buttons["thread-preview-weekend"]
         XCTAssertTrue(weekend.waitForExistence(timeout: 5))
         weekend.tap()
@@ -66,7 +66,7 @@ final class ThreadNavigationUITests: XCTestCase {
         assertThread("Triage Gmail", in: app)
         XCTAssertTrue(transcriptContains("I’m reviewing Gmail here", in: app))
 
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let iCloud = app.buttons["thread-preview-icloud"]
         XCTAssertTrue(iCloud.waitForExistence(timeout: 5))
         XCTAssertTrue(iCloud.label.contains("Unread"))
@@ -135,6 +135,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
         let scroll = app.descendants(matching: .any)["message-preview-gmail-grid-scroll"]
         XCTAssertTrue(scroll.waitForExistence(timeout: 5))
+        dragBelowHeader(token, in: app)
         let before = token.frame.origin.x
         token.swipeLeft()
         XCTAssertLessThan(token.frame.origin.x, before)
@@ -157,48 +158,27 @@ final class ThreadNavigationUITests: XCTestCase {
     }
 
     @MainActor
-    func testHomeSearchFindsSiblingTitlesAndFolders() {
-        homeSearchFindsSiblingTitlesAndFolders(density: nil)
+    func testHomeSearchOpensAPageWithFilters() {
+        homeSearchOpensAPageWithFilters(density: nil)
     }
 
     @MainActor
-    func testHomeSearchFindsSiblingTitlesAndFoldersInComfortable() {
-        homeSearchFindsSiblingTitlesAndFolders(density: "comfortable")
+    func testHomeSearchOpensAPageWithFiltersInComfortable() {
+        homeSearchOpensAPageWithFilters(density: "comfortable")
     }
 
     @MainActor
-    private func homeSearchFindsSiblingTitlesAndFolders(density: String?) {
+    private func homeSearchOpensAPageWithFilters(density: String?) {
         let app = launchPreview(density: density)
-        app.buttons["threads-toggle.preview-pepper"].tap()
-        app.buttons["Search"].tap()
-        let search = app.textFields["Search threads"]
+        app.buttons["home-search"].tap()
+        let search = app.textFields["Search"]
         XCTAssertTrue(search.waitForExistence(timeout: 5))
         search.tap()
         search.typeText("iCloud")
+        for chip in ["All", "Messages", "Bots", "Groups", "Routines"] {
+            XCTAssertTrue(app.buttons[chip].exists, chip)
+        }
         recordScreenshot("Home search for iCloud", in: app)
-
-        XCTAssertTrue(app.buttons["thread.preview-icloud"].waitForExistence(timeout: 5))
-        XCTAssertFalse(app.buttons["thread.preview-gmail"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-weekend"].exists)
-
-        app.buttons["Cancel"].tap()
-        app.buttons["Search"].tap()
-        XCTAssertTrue(search.waitForExistence(timeout: 5))
-        search.tap()
-        search.typeText("Email")
-        XCTAssertTrue(app.buttons["thread.preview-gmail"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.buttons["thread.preview-icloud"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-weekend"].exists)
-        XCTAssertFalse(app.buttons["thread.preview-routine"].exists)
-        recordScreenshot("Home search for Email folder", in: app)
-
-        app.buttons["thread.preview-icloud"].tap()
-        assertThread("Triage iCloud", in: app)
-        app.buttons["Back"].tap()
-        XCTAssertTrue(app.buttons["Cancel"].waitForExistence(timeout: 5))
-        app.buttons["Cancel"].tap()
-        XCTAssertTrue(app.buttons["threads-toggle.preview-pepper"].exists)
-        XCTAssertEqual(app.buttons["threads-toggle.preview-pepper"].value as? String, "Expanded, 3 threads")
     }
 
     @MainActor
@@ -226,7 +206,7 @@ final class ThreadNavigationUITests: XCTestCase {
     func testFailedCreationKeepsThreadPickerOpenWithError() {
         let app = launchPreview()
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let create = app.buttons["new-thread"]
         XCTAssertTrue(create.waitForExistence(timeout: 5))
         // The preview deliberately has no API client, so this cannot write
@@ -268,7 +248,7 @@ final class ThreadNavigationUITests: XCTestCase {
     func testBulkDeletionKeepsCurrentAndWorkingThread() {
         let app = launchPreview(extraArguments: ["-threads-preview-deletion"])
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         app.buttons["select-threads"].tap()
 
         XCTAssertFalse(app.buttons["select-thread-preview-gmail"].isEnabled)
@@ -300,7 +280,7 @@ final class ThreadNavigationUITests: XCTestCase {
             "-threads-preview-deletion", "-threads-preview-deletion-fails-weekend"
         ])
         openGmail(in: app)
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         app.buttons["select-threads"].tap()
         app.buttons["select-all-threads"].tap()
         app.buttons["delete-selected-threads"].tap()
@@ -369,7 +349,7 @@ final class ThreadNavigationUITests: XCTestCase {
 
     @MainActor
     private func selectThread(_ id: String, title: String, in app: XCUIApplication) {
-        app.buttons["header-threads"].tap()
+        app.openAllThreads()
         let row = app.buttons["thread-\(id)"]
         XCTAssertTrue(row.waitForExistence(timeout: 5))
         row.tap()
@@ -378,12 +358,27 @@ final class ThreadNavigationUITests: XCTestCase {
 
     @MainActor
     private func assertThread(_ title: String, in app: XCUIApplication) {
-        let header = app.buttons["header-threads"]
+        let header = app.buttons["chat-menu"]
         let expected = NSPredicate(format: "value == %@", title)
         let appeared = XCTNSPredicateExpectation(predicate: expected, object: header)
         // Thread headers settle late on a loaded CI runner; 5s timed out on
         // PRs 1576 and 1615 while the switch itself was correct.
         XCTAssertEqual(XCTWaiter.wait(for: [appeared], timeout: 10), .completed)
+    }
+
+    /// The chat opens at its end. A row under the floating header or the
+    /// status bar does not get a swipe that starts on it.
+    @MainActor
+    private func dragBelowHeader(_ element: XCUIElement, in app: XCUIApplication) {
+        let header = app.buttons["chat-menu"]
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5))
+        for _ in 0..<6 where element.frame.minY < header.frame.maxY + 12 {
+            start.press(
+                forDuration: 0.05, thenDragTo: start.withOffset(CGVector(dx: 0, dy: 150)),
+                withVelocity: .slow, thenHoldForDuration: 0.3
+            )
+        }
+        XCTAssertGreaterThan(element.frame.minY, header.frame.maxY)
     }
 
     @MainActor

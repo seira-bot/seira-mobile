@@ -72,6 +72,7 @@ final class Session: ObservableObject {
     /// used while notification settings are still loading at launch.
     @Published private(set) var notificationAuthorizationResolved = false
     @Published private(set) var steeringInstanceIds: Set<String> = []
+    @Published private(set) var agentInstanceIds: Set<String> = []
     /// A short-lived desktop handoff waiting for PairingView to present it.
     @Published private(set) var pairingInvite: PairingInvite?
     /// Why the last pairing link could not be used. PairingView shows it
@@ -812,6 +813,7 @@ final class Session: ObservableObject {
         preparedPhoneCredentials.removeAll()
         runtimeGeneration += 1
         steeringInstanceIds = []
+        agentInstanceIds = []
         streamResume = StreamResume()
         state = CompanionState()
         resetAvatarCache()
@@ -925,6 +927,7 @@ final class Session: ObservableObject {
         resetCredentialEntry()
         runtimeGeneration += 1
         steeringInstanceIds = []
+        agentInstanceIds = []
         streamGeneration += 1
         streamTask?.cancel()
         streamTask = nil
@@ -1215,6 +1218,7 @@ final class Session: ObservableObject {
                 let engines = (try? await client.instances()) ?? []
                 guard let self, self.runtimeGeneration == runtime else { return }
                 self.steeringInstanceIds = Set(engines.filter { $0.capabilities?.queueing == true }.map(\.instanceId))
+                self.agentInstanceIds = Set(engines.filter { $0.capabilities?.agentsMcp == true }.map(\.instanceId))
             }
             // Nor must the line: run() waits for this hydrate before it folds
             // another frame, so awaiting the lookup here held the whole
@@ -3139,6 +3143,119 @@ final class Session: ObservableObject {
         case .notDetermined: return "Not enabled"
         @unknown default: return "Unknown"
         }
+    }
+
+    // MARK: - Bot tools, team and computer
+
+    /// One call to the computer. Nil when it failed, with the failure shown.
+    private func call<T>(_ body: (CompanionClient) async throws -> T) async -> T? {
+        guard let client else { return nil }
+        let connectionID = connection?.id
+        do {
+            let value = try await withClient(client, call: body)
+            guard !Task.isCancelled, connection?.id == connectionID else { return nil }
+            return value
+        } catch {
+            guard !Task.isCancelled, connection?.id == connectionID else { return nil }
+            guard !(error is CancellationError), (error as? URLError)?.code != .cancelled else { return nil }
+            actionError = error.localizedDescription
+            return nil
+        }
+    }
+
+    /// Make a bot from the person's answers. The bot joins the list at once.
+    func createBot(_ spec: NewBot) async -> Bot? {
+        guard let bot = await call({ try await $0.createBot(spec) }) else { return nil }
+        state.apply(.bot(bot))
+        return bot
+    }
+
+    /// True once the computer removed the bot; the bot leaves the list at once.
+    func deleteBot(_ bot: Bot) async -> Bool {
+        guard await call({ try await $0.deleteBot(botId: bot.id) }) != nil else { return false }
+        state.apply(.botDeleted(botId: bot.id))
+        return true
+    }
+
+    /// Send a held message into the turn that is running, in place of stopping the turn.
+    /// A steered or vanished entry leaves the queue; one the turn cannot take stays.
+    func steerQueued(_ send: QueuedSend, threadId: String, in chat: Chat) async -> SteerResult? {
+        let destination: MessageDestination
+        switch chat {
+        case let .bot(bot): destination = .bot(id: bot.id, threadId: threadId)
+        case let .room(room): destination = .room(id: room.id, threadId: threadId)
+        }
+        let connectionID = client?.connection.id
+        guard let result = await call({ try await $0.steerQueued(queueId: send.queueId, to: destination) }),
+              client?.connection.id == connectionID else { return nil }
+        switch result {
+        case let .steered(ids):
+            for id in ids + [send.queueId] { state.cancelQueued(queueId: id, threadId: threadId) }
+        case .gone:
+            state.cancelQueued(queueId: send.queueId, threadId: threadId)
+        case .stillQueued:
+            break
+        }
+        return result
+    }
+
+    /// Change how much one conversation may do before it asks. A refusal comes
+    /// back typed so the screen can answer in words; it is not the app-wide error.
+    func setApprovalMode(
+        bot: Bot,
+        threadId: String,
+        mode: ApprovalMode,
+        acknowledgeLocalAuto: Bool = false
+    ) async -> ApprovalModeResult {
+        guard let client else { return .refused(.other(nil)) }
+        do {
+            let updated = try await client.setApprovalMode(
+                botId: bot.id, threadId: threadId, mode: mode, acknowledgeLocalAuto: acknowledgeLocalAuto
+            )
+            guard !Task.isCancelled else { return .refused(.other(nil)) }
+            state.apply(.bot(updated))
+            return .changed(updated, updated.approvalLevel(in: threadId))
+        } catch {
+            return .refused(ApprovalModeRefusal.from(error))
+        }
+    }
+
+    /// The level a conversation runs at now, from what the phone already holds.
+    func approvalMode(bot: Bot, threadId: String) -> ApprovalMode? {
+        (state.bot(bot.id) ?? bot).approvalLevel(in: threadId)
+    }
+
+    func botSkills(for bot: Bot) async -> [BotSkill]? {
+        await call { try await $0.skills(botId: bot.id) }
+    }
+
+    func botData(for bot: Bot) async -> BotData? {
+        await call { try await $0.botData(botId: bot.id) }
+    }
+
+    func botDataPage(for bot: Bot, request: DataPageRequest) async -> DataPage? {
+        await call { try await $0.dataPage(botId: bot.id, request: request) }
+    }
+
+    func teamMap() async -> TeamMap? {
+        await call { try await $0.teamMap() }
+    }
+
+    func deleteConnectorAccount(connectorId: String, accountId: String) async -> Bool {
+        await call({ try await $0.deleteConnectorAccount(connectorId: connectorId, accountId: accountId) }) != nil
+    }
+
+    func computerControl(for bot: Bot, threadId: String? = nil) async -> ComputerControlState? {
+        await call { try await $0.computerControl(botId: bot.id, threadId: threadId) }
+    }
+
+    func controlComputer(
+        for bot: Bot,
+        action: ComputerControlAction,
+        leaseId: String? = nil,
+        threadId: String? = nil
+    ) async -> ComputerControlState? {
+        await call { try await $0.controlComputer(botId: bot.id, action: action, leaseId: leaseId, threadId: threadId) }
     }
 
     private func perform(quietly: Bool = false, _ body: (CompanionClient) async throws -> Void) async {

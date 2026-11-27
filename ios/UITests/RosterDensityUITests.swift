@@ -138,13 +138,13 @@ final class RosterDensityUITests: XCTestCase {
         assertMissing(app.buttons["threads-toggle.roster-atlas"])
     }
 
-    /// The floating Updates bar must never cover the last row: scrolled to
-    /// the end, the row sits wholly above the bar and takes a tap.
+    /// The tab bar must never cover the last row: scrolled to the end, the
+    /// row sits wholly above the bar and takes a tap.
     @MainActor
     func testLastRowClearsTheBottomBarInBothDensities() {
         for (density, lastRow) in [("compact", "chat-row.roster-sage"), ("comfortable", "threads-toggle.roster-sage")] {
             let app = launchRoster(density: density)
-            let bar = app.buttons["updates-button"]
+            let bar = app.buttons["tab-chats"]
             XCTAssertTrue(bar.waitForExistence(timeout: 10))
             let last = app.buttons[lastRow]
             // Scroll until the last row shows, then on to the list's end.
@@ -172,7 +172,7 @@ final class RosterDensityUITests: XCTestCase {
         for density in ["compact", "comfortable"] {
             let app = launchRoster(density: density)
             let list = app.scrollViews["roster-list"]
-            let settings = app.buttons["Settings"]
+            let settings = app.buttons["home-profile"]
             let title = app.staticTexts.matching(NSPredicate(format: "label ==[c] %@", "Needs attention")).firstMatch
             XCTAssertTrue(title.waitForExistence(timeout: 10), density)
             XCTAssertTrue(list.exists, density)
@@ -212,7 +212,7 @@ final class RosterDensityUITests: XCTestCase {
 
     @MainActor
     private func chooseDensity(_ label: String, in app: XCUIApplication) {
-        app.buttons["Settings"].tap()
+        app.buttons["home-profile"].tap()
         let picker = app.buttons["list-density"]
         XCTAssertTrue(picker.waitForExistence(timeout: 5))
         picker.tap()
@@ -236,7 +236,7 @@ final class RosterDensityUITests: XCTestCase {
 
     @MainActor
     private func assertThread(_ title: String, in app: XCUIApplication) {
-        let header = app.buttons["header-threads"]
+        let header = app.buttons["chat-menu"]
         let expected = NSPredicate(format: "value == %@", title)
         let appeared = XCTNSPredicateExpectation(predicate: expected, object: header)
         XCTAssertEqual(XCTWaiter.wait(for: [appeared], timeout: 10), .completed)

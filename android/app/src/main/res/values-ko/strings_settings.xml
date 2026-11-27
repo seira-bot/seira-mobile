@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">5시간 한도</string>
     <string name="ai_usage_window_weekly">주간 한도</string>
     <string name="ai_usage_window_other">기타 한도</string>
-    <string name="ai_usage_window_row">%1$d%% 남음 · %2$s에 초기화</string>
-    <string name="ai_usage_window_row_no_reset">%1$d%% 남음</string>
     <string name="ai_usage_paused_until">%1$s까지 일시중지</string>
     <string name="ai_usage_paused">일시중지됨</string>
     <string name="ai_usage_near_limit">한도에 거의 도달했어요</string>

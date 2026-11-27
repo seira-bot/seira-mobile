@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Approvazione</string>
+    <string name="inbox_kind_question">Domanda</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Rispondi nella chat</string>
+    <string name="inbox_open_in_chat">Apri nella chat</string>
+    <string name="inbox_open_chat_with">Apri la chat con %1$s</string>
+    <string name="inbox_needs_decision">Serve la tua decisione</string>
+    <string name="inbox_news">Novità</string>
+    <string name="inbox_news_finished">%1$s ha completato un\'attività</string>
+    <string name="inbox_news_routine_failed">Problema della routine: %1$s non è riuscita. Tocca per riprovare.</string>
+    <string name="inbox_empty_title">Tutto a posto</string>
+    <string name="inbox_empty_body">In questo momento nulla aspetta una tua risposta.</string>
+    <string name="automations_list">Elenco</string>
+    <string name="automations_calendar">Calendario</string>
+    <string name="automations_intro">Una conversazione è uno scambio con un risultato. Una routine è un lavoro pianificato con una conversazione dei risultati.</string>
+    <string name="automations_pause_named">Metti in pausa %1$s</string>
+    <string name="automations_resume_named">Riprendi %1$s</string>
+    <string name="automations_switch_finished">%1$s, completata</string>
+    <string name="automations_open_results">Apri la conversazione dei risultati</string>
+    <string name="automations_status_failed">Non riuscito</string>
+    <string name="inbox_review_skill_in_chat">Apri la chat per rivedere questa skill.</string>
+    <string name="routines_header_footer">Ogni esecuzione usa il modello, gli strumenti, i permessi, il computer e le app collegate già impostati per l’agente. Gli orari seguono il fuso orario locale del computer collegato.</string>
+</resources>

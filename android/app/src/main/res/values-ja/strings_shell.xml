@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">メニューを開く</string>
+    <string name="shell_close_menu">メニューを閉じる</string>
+    <string name="shell_menu">メニュー</string>
+    <string name="shell_tab_inbox">受信箱</string>
+    <string name="shell_tab_automations">自動化</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="other">%1$d 件があなたを待っています</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="other">受信箱、%1$d 件があなたを待っています</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">すべてのチャット</string>
+    <string name="shell_drawer_departments">部署</string>
+    <string name="shell_drawer_add_department">部署を追加</string>
+    <string name="shell_drawer_team_map">チームマップ</string>
+    <string name="shell_drawer_department_memory">部署のメモリ</string>
+    <plurals name="shell_department_row">
+        <item quantity="other">%1$s、ボット %2$d 体</item>
+    </plurals>
+    <string name="shell_bot_profile_title">ボットのプロフィール</string>
+    <string name="shell_switch_computer">コンピューターを切り替える</string>
+    <string name="shell_error_queued_steer_unsupported">このコンピューターは古すぎるため、待機中のメッセージを実行中のターンに送れません。このコンピューターで Seira を更新してください。</string>
+    <string name="shell_error_reload_memory">このメモリを再読み込みして、もう一度お試しください。</string>
+</resources>

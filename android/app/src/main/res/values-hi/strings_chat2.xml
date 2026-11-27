@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">बॉट की स्क्रीन खोलें</string>
+    <string name="chat2_header_menu">इस चैट के बारे में और</string>
+    <string name="chat2_open_bot">%1$s खोलें</string>
+    <string name="chat2_menu_find">बातचीत में खोजें</string>
+    <string name="chat2_menu_new_thread">नया थ्रेड</string>
+    <string name="chat2_menu_new_thread_creating">थ्रेड बनाया जा रहा है…</string>
+    <string name="chat2_menu_new_thread_decision">पहले प्रतीक्षा कर रहे निर्णय का जवाब दें।</string>
+    <string name="chat2_menu_new_thread_unavailable">यह चैट नया थ्रेड शुरू नहीं कर सकती।</string>
+    <string name="chat2_menu_all_threads">सभी थ्रेड्स</string>
+    <string name="chat2_menu_model">मॉडल</string>
+    <string name="chat2_menu_members">समूह के सदस्य</string>
+    <string name="chat2_menu_bot_screen">बॉट की स्क्रीन</string>
+    <string name="chat2_menu_share">ट्रांसक्रिप्ट साझा करें</string>
+    <string name="chat2_menu_share_markdown">यह थ्रेड Markdown के रूप में</string>
+    <string name="chat2_menu_share_json">JSON के रूप में साझा करें</string>
+    <string name="chat2_find_hint">बातचीत में खोजें</string>
+    <string name="chat2_find_none">कोई परिणाम नहीं</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d मिला</item>
+        <item quantity="other">%1$d मिले</item>
+    </plurals>
+    <string name="chat2_find_previous">पिछला परिणाम</string>
+    <string name="chat2_find_next">अगला परिणाम</string>
+    <string name="chat2_find_close">खोज बंद करें</string>
+    <string name="chat2_msg_react">%1$s से प्रतिक्रिया दें</string>
+    <string name="chat2_msg_reply">जवाब दें</string>
+    <string name="chat2_msg_edit">संदेश संपादित करें</string>
+    <string name="chat2_msg_more">और कार्रवाइयां</string>
+    <string name="chat2_reply_to">%1$s को जवाब</string>
+    <string name="chat2_reply_cancel">जवाब रद्द करें</string>
+    <string name="chat2_reply_you">आप</string>
+    <string name="chat2_work_done">%1$s काम किया</string>
+    <string name="chat2_work_seconds">%1$d सेकंड</string>
+    <string name="chat2_work_minutes">%1$d मिनट %2$02d सेकंड</string>
+    <string name="chat2_work_instant">काम किया</string>
+    <string name="chat2_approval_needed">मंजूरी चाहिए</string>
+    <string name="chat2_day_today">आज</string>
+    <string name="chat2_day_yesterday">कल</string>
+</resources>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Відкрити екран бота</string>
+    <string name="chat2_header_menu">Більше про цей чат</string>
+    <string name="chat2_open_bot">Відкрити: %1$s</string>
+    <string name="chat2_menu_find">Пошук у розмові</string>
+    <string name="chat2_menu_new_thread">Нова гілка</string>
+    <string name="chat2_menu_new_thread_creating">Створення гілки…</string>
+    <string name="chat2_menu_new_thread_decision">Спершу дайте відповідь на рішення, що очікує.</string>
+    <string name="chat2_menu_new_thread_unavailable">У цьому чаті не можна почати нову гілку.</string>
+    <string name="chat2_menu_all_threads">Усі гілки</string>
+    <string name="chat2_menu_model">Модель</string>
+    <string name="chat2_menu_members">Учасники групи</string>
+    <string name="chat2_menu_bot_screen">Екран бота</string>
+    <string name="chat2_menu_share">Поділитися розшифровкою</string>
+    <string name="chat2_menu_share_markdown">Ця гілка у Markdown</string>
+    <string name="chat2_menu_share_json">Поділитися у JSON</string>
+    <string name="chat2_find_hint">Пошук у розмові</string>
+    <string name="chat2_find_none">Нічого не знайдено</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">Знайдено: %1$d</item>
+        <item quantity="few">Знайдено: %1$d</item>
+        <item quantity="many">Знайдено: %1$d</item>
+        <item quantity="other">Знайдено: %1$d</item>
+    </plurals>
+    <string name="chat2_find_previous">Попередній результат</string>
+    <string name="chat2_find_next">Наступний результат</string>
+    <string name="chat2_find_close">Закрити пошук</string>
+    <string name="chat2_msg_react">Відреагувати: %1$s</string>
+    <string name="chat2_msg_reply">Відповісти</string>
+    <string name="chat2_msg_edit">Змінити повідомлення</string>
+    <string name="chat2_msg_more">Інші дії</string>
+    <string name="chat2_reply_to">Відповідь для %1$s</string>
+    <string name="chat2_reply_cancel">Скасувати відповідь</string>
+    <string name="chat2_reply_you">Ви</string>
+    <string name="chat2_work_done">Працював %1$s</string>
+    <string name="chat2_work_seconds">%1$d с</string>
+    <string name="chat2_work_minutes">%1$d хв %2$02d с</string>
+    <string name="chat2_work_instant">Працював</string>
+    <string name="chat2_approval_needed">Потрібне підтвердження</string>
+    <string name="chat2_day_today">Сьогодні</string>
+    <string name="chat2_day_yesterday">Учора</string>
+</resources>

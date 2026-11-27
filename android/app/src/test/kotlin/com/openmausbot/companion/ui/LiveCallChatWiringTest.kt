@@ -136,7 +136,7 @@ class LiveCallChatWiringTest {
         mount { chatScreen() }
         compose.onNodeWithText("via call").assertIsDisplayed()
 
-        compose.onNodeWithContentDescription("Start live call").performClick()
+        compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.waitUntil(10_000) { requests.any { it.path == "/api/live/session" } }
         compose.onNodeWithText("Connecting…").assertIsDisplayed()
         attach()
@@ -148,12 +148,11 @@ class LiveCallChatWiringTest {
         assertEquals("thread-bot-1", body.getValue("threadId").jsonPrimitive.content)
         assertEquals(FakeTransport.OFFER, body.getValue("sdp").jsonPrimitive.content)
         assertEquals("v=0\r\nanswer\r\n", transport.accepted)
-        compose.onNodeWithContentDescription("Start live call").assertDoesNotExist()
 
         compose.onNodeWithContentDescription("Hang up").performClick()
         compose.waitUntil(5_000) { requests.any { it.path == "/api/live/call/end" } }
         compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Live call").fetchSemanticsNodes().isEmpty() }
-        compose.onNodeWithContentDescription("Start live call").assertIsEnabled()
+        compose.onNodeWithContentDescription("Talk with Scout").assertIsEnabled()
         assertEquals(1, transport.closeSent)
     }
 
@@ -174,7 +173,7 @@ class LiveCallChatWiringTest {
     @Test
     fun `a phone's first call says what it sends to OpenAI first, once`() {
         mount(disclosureShown = false) { chatScreen() }
-        compose.onNodeWithContentDescription("Start live call").performClick()
+        compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.onNodeWithText(LiveCallRules.DISCLOSURE).assertIsDisplayed()
         compose.onNodeWithText("Cancel").performClick()
         compose.waitForIdle()
@@ -182,7 +181,7 @@ class LiveCallChatWiringTest {
         assertTrue(requests.none { it.path == "/api/live/session" }, "Cancel starts nothing")
         assertEquals(0, transport.offers)
 
-        compose.onNodeWithContentDescription("Start live call").performClick()
+        compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.onNodeWithText(LiveCallRules.DISCLOSURE).assertIsDisplayed()
         compose.onNodeWithText(LiveCallRules.START_CALL).performClick()
         compose.waitUntil(10_000) { requests.any { it.path == "/api/live/session" } }
@@ -190,8 +189,9 @@ class LiveCallChatWiringTest {
 
         compose.onNodeWithContentDescription("Hang up").performClick()
         compose.waitUntil(5_000) { requests.any { it.path == "/api/live/call/end" } }
-        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Start live call").fetchSemanticsNodes().isNotEmpty() }
-        compose.onNodeWithContentDescription("Start live call").performClick()
+        compose.waitUntil(5_000) { compose.runOnIdle { !scene.environment.liveCalls.state.value.active } }
+        compose.waitUntil(5_000) { compose.onAllNodesWithContentDescription("Talk with Scout").fetchSemanticsNodes().isNotEmpty() }
+        compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.waitUntil(10_000) { requests.count { it.path == "/api/live/session" } == 2 }
         compose.onAllNodesWithText(LiveCallRules.DISCLOSURE).assertCountEquals(0)
     }
@@ -215,7 +215,7 @@ class LiveCallChatWiringTest {
         compose.waitUntil(5_000) { compose.onAllNodesWithText("From your computer").fetchSemanticsNodes().isNotEmpty() }
         compose.onAllNodesWithContentDescription("Mute").assertCountEquals(0)
         // The line is busy: a call from here would only be refused.
-        compose.onNodeWithContentDescription("Start live call").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Talk with Scout").assertDoesNotExist()
 
         compose.onNodeWithText("Hang up").performClick()
         compose.waitUntil(5_000) { requests.any { it.path == "/api/live/call/end" } }
@@ -236,7 +236,7 @@ class LiveCallChatWiringTest {
         mount(bots = listOf(longChat)) { chatScreen(longChat) }
         compose.waitUntil(5_000) { compose.onAllNodesWithText(NEWEST, useUnmergedTree = true).fetchSemanticsNodes().isNotEmpty() }
 
-        compose.onNodeWithContentDescription("Start live call").performClick()
+        compose.onNodeWithContentDescription("Talk with Scout").performClick()
         compose.waitUntil(10_000) { requests.any { it.path == "/api/live/session" } }
         compose.onNodeWithText("Connecting…").assertIsDisplayed()
         assertNewestAbove("Live call")
@@ -281,7 +281,7 @@ class LiveCallChatWiringTest {
         // Reads through runOnIdle: the 201 lands on the main looper, which only
         // an idle sync drains here (no node query in the condition would).
         compose.waitUntil(10_000) { compose.runOnIdle { liveCalls.state.value.phase } == LiveCallPhase.LIVE }
-        compose.onNodeWithContentDescription("Start live call").assertDoesNotExist()
+        compose.onNodeWithContentDescription("Talk with Scout").assertDoesNotExist()
 
         compose.onNodeWithContentDescription("Start dictation").performClick()
         compose.waitForIdle()

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">Все</string>
+    <string name="chats_filter_empty">Здесь нет чатов.</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s ждёт вас.</string>
+    <string name="chats_hero_quiet">Всё спокойно. Ничего не ждёт вас.</string>
+    <string name="search_placeholder">Поиск</string>
+    <string name="search_clear">Очистить поиск</string>
+    <string name="search_filter_routines">Процедуры</string>
+    <string name="search_prompt">Введите текст, чтобы искать по сообщениям.</string>
+    <string name="search_none">Ничего не найдено.</string>
+    <string name="search_failed">Поиск не сработал. Повторите попытку.</string>
+    <string name="newbot_row_subtitle">Сначала вы заполняете короткую форму</string>
+    <string name="newbot_name_label">Имя</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">Задача</string>
+    <string name="newbot_job_placeholder">Что делает</string>
+    <string name="newbot_note">Бот создаётся только после нажатия «Создать».</string>
+    <string name="newbot_create">Создать бота</string>
+    <string name="newbot_creating">Создаём бота</string>
+    <string name="newbot_name_needed">Введите имя, чтобы продолжить.</string>
+    <string name="newbot_failed">Бот не создан. Проверьте соединение и повторите попытку.</string>
+    <string name="newbot_create_group">Создать группу</string>
+    <string name="newbot_group_pick">Выберите хотя бы одного бота.</string>
+    <string name="newbot_section_creates">Создаёт новый раздел (отдел).</string>
+    <string name="newbot_section_needed">Введите имя и выберите хотя бы одного бота.</string>
+</resources>

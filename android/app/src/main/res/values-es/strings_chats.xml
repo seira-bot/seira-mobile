@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">Todos</string>
+    <string name="chats_filter_empty">No hay chats aquí.</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s te necesita.</string>
+    <string name="chats_hero_quiet">Todo tranquilo. Nada te necesita.</string>
+    <string name="search_placeholder">Buscar</string>
+    <string name="search_clear">Borrar búsqueda</string>
+    <string name="search_filter_routines">Rutinas</string>
+    <string name="search_prompt">Escribe para buscar en tus mensajes.</string>
+    <string name="search_none">Sin resultados.</string>
+    <string name="search_failed">La búsqueda no funcionó. Inténtalo de nuevo.</string>
+    <string name="newbot_row_subtitle">Primero rellenas un formulario corto</string>
+    <string name="newbot_name_label">Nombre</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">Función</string>
+    <string name="newbot_job_placeholder">Qué hace</string>
+    <string name="newbot_note">El bot se crea solo cuando tocas Crear.</string>
+    <string name="newbot_create">Crear bot</string>
+    <string name="newbot_creating">Creando el bot</string>
+    <string name="newbot_name_needed">Escribe un nombre para continuar.</string>
+    <string name="newbot_failed">No se creó el bot. Revisa la conexión e inténtalo de nuevo.</string>
+    <string name="newbot_create_group">Crear grupo</string>
+    <string name="newbot_group_pick">Elige al menos un bot.</string>
+    <string name="newbot_section_creates">Crea una sección nueva (departamento).</string>
+    <string name="newbot_section_needed">Escribe un nombre y elige al menos un bot.</string>
+</resources>

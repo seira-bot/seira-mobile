@@ -17,6 +17,7 @@ import com.openmausbot.companion.core.Session
 import com.openmausbot.companion.core.chat
 import com.openmausbot.companion.core.TranscriptRow
 import com.openmausbot.companion.core.webhookContent
+import com.openmausbot.companion.ui.chat.composer.ComposerCommands
 
 /**
  * The decisions the chat and roster screens make that are worth testing without
@@ -551,8 +552,8 @@ object Reactions {
             .sortedBy { it.emoji }
 }
 
-/** The five commands, by what selecting one does rather than by its label. */
-enum class SlashCommandId { COMPUTER, TASKS, DIFF, RETRY, STEER }
+/** The commands, by what selecting one does rather than by its label. */
+enum class SlashCommandId { COMPUTER, TASKS, DIFF, RETRY, STEER, GOAL, LEARN, SETUP, BURST }
 
 /**
  * What a command *is*, which is not always a message.
@@ -570,6 +571,9 @@ sealed interface SlashEffect {
 
     /** Sent immediately, exactly as typing it would have been. */
     data class Send(val prompt: String) : SlashEffect
+
+    /** Written into the field for the person to finish. It goes out as message text when they send it. */
+    data class Insert(val text: String) : SlashEffect
 }
 
 data class SlashCommand(
@@ -581,14 +585,25 @@ data class SlashCommand(
 )
 
 /**
+ * What the paired computer and this chat allow of the four message commands.
+ * A gate with no data on the phone stays false, so its command stays hidden.
+ *
+ * [goal]: the phone can send a message as a goal. [learn]: skill authoring is on and an
+ * engine can use it. [agents]: the bot's engine supports /setup and /burst.
+ */
+data class SlashGates(val goal: Boolean = false, val learn: Boolean = false, val agents: Boolean = false) {
+    companion object {
+        val NONE = SlashGates()
+    }
+}
+
+/**
  * The slash-command HUD — the port of `CommandSkillHUDView` in
  * `ios/App/Composer/CommandSkillHUDView.swift` and the composer that drives it.
  *
- * Local, and deliberately so: these five are the phone's own shortcuts into
- * navigation it already has and prompts the bot already understands. There is no
- * skills endpoint behind them and there must not be one — a HUD that had to ask
- * the computer what it could offer would be empty in exactly the situation the
- * shortcuts exist for.
+ * Local, and deliberately so: the first five are the phone's own shortcuts into
+ * navigation it already has and prompts the bot already understands. The four
+ * message commands show only where [SlashGates] allows them.
  */
 object SlashCommands {
     val ALL: List<SlashCommand> = listOf(
@@ -622,31 +637,52 @@ object SlashCommands {
             description = "Steer and redirect active execution",
             effect = SlashEffect.Send("Pause and explain your current plan"),
         ),
+        ComposerCommands.GOAL,
+        ComposerCommands.LEARN,
+        ComposerCommands.SETUP,
+        ComposerCommands.BURST,
     )
 
-    /** What is left once the computer-only shortcut is gone. */
-    val IN_ROOM: List<SlashCommand> = ALL.filterNot { it.id == SlashCommandId.COMPUTER }
+    private val MESSAGE_COMMANDS: List<SlashCommand> =
+        listOf(ComposerCommands.GOAL, ComposerCommands.LEARN, ComposerCommands.SETUP, ComposerCommands.BURST)
+
+    private val LOCAL: List<SlashCommand> = ALL.filterNot { it in MESSAGE_COMMANDS }
+
+    private val LOCAL_IN_ROOM: List<SlashCommand> = LOCAL.filterNot { it.id == SlashCommandId.COMPUTER }
 
     /** Older sidecars omit room tasks and cannot accept the task routes. */
-    val IN_LEGACY_ROOM: List<SlashCommand> = IN_ROOM.filterNot { it.id == SlashCommandId.TASKS }
+    private val LOCAL_IN_LEGACY_ROOM: List<SlashCommand> = LOCAL_IN_ROOM.filterNot { it.id == SlashCommandId.TASKS }
 
     /**
      * The computer is bot-only. A non-DM room exposes tasks when the paired
      * desktop advertises them through a non-null task list.
      *
-     * Both answers are constants, so the composer can ask on every recomposition
-     * without allocating a list per streamed token.
+     * Without gates every answer is a constant, so the composer can ask on every
+     * recomposition without allocating a list per streamed token.
      */
-    fun forChat(chat: Chat): List<SlashCommand> = when (chat) {
-        is Chat.BotChat -> ALL
-        is Chat.RoomChat -> if (chat.supportsTasks) IN_ROOM else IN_LEGACY_ROOM
+    fun forChat(chat: Chat, gates: SlashGates = SlashGates.NONE): List<SlashCommand> {
+        val local = when (chat) {
+            is Chat.BotChat -> LOCAL
+            is Chat.RoomChat -> if (chat.supportsTasks) LOCAL_IN_ROOM else LOCAL_IN_LEGACY_ROOM
+        }
+        if (gates == SlashGates.NONE) return local
+        val isRoom = chat is Chat.RoomChat
+        val isDm = (chat as? Chat.RoomChat)?.room?.dm == true
+        return local + MESSAGE_COMMANDS.filter { command ->
+            when (command.id) {
+                SlashCommandId.GOAL -> gates.goal && !isDm
+                SlashCommandId.LEARN -> gates.learn
+                SlashCommandId.SETUP, SlashCommandId.BURST -> gates.agents && !isRoom
+                else -> true
+            }
+        }
     }
 
     /**
      * Typing a `/` is the other way in — and typing anything else is the way
      * out, which is why this is the whole answer and not just "should it open".
      */
-    fun opensOnDraft(draft: String): Boolean = draft.startsWith("/")
+    fun opensOnDraft(draft: String): Boolean = draft.startsWith("/") && draft.none { it.isWhitespace() }
 
     /**
      * The HUD state a chat opens with, given the draft it opens with.
@@ -729,7 +765,7 @@ object ComposerAccessories {
      * approval buries the question the screen exists to ask, and offering one
      * under a failure reads as if the turn had worked.
      *
-     * [hasQuickReplies] carries no default for the same reason [PredictiveChipsRow]
+     * [hasQuickReplies] carries no default for the same reason the chip row
      * no longer does: the reader can empty the row, and a call site that forgot
      * to say so would put chips back over an emptied composer.
      */

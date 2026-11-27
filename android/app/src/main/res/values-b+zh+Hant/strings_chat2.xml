@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">開啟機器人的螢幕</string>
+    <string name="chat2_header_menu">此聊天的更多內容</string>
+    <string name="chat2_open_bot">開啟%1$s</string>
+    <string name="chat2_menu_find">在對話中尋找</string>
+    <string name="chat2_menu_new_thread">新執行緒</string>
+    <string name="chat2_menu_new_thread_creating">正在建立執行緒…</string>
+    <string name="chat2_menu_new_thread_decision">請先回答等待中的決定。</string>
+    <string name="chat2_menu_new_thread_unavailable">此聊天無法開始新的執行緒。</string>
+    <string name="chat2_menu_all_threads">所有執行緒</string>
+    <string name="chat2_menu_model">模型</string>
+    <string name="chat2_menu_members">群組成員</string>
+    <string name="chat2_menu_bot_screen">機器人的螢幕</string>
+    <string name="chat2_menu_share">分享對話紀錄</string>
+    <string name="chat2_menu_share_markdown">此執行緒的 Markdown 版本</string>
+    <string name="chat2_menu_share_json">以 JSON 分享</string>
+    <string name="chat2_find_hint">在對話中尋找</string>
+    <string name="chat2_find_none">沒有符合的項目</string>
+    <plurals name="chat2_find_count">
+        <item quantity="other">找到 %1$d 項</item>
+    </plurals>
+    <string name="chat2_find_previous">上一個符合項目</string>
+    <string name="chat2_find_next">下一個符合項目</string>
+    <string name="chat2_find_close">關閉尋找</string>
+    <string name="chat2_msg_react">以 %1$s 回應</string>
+    <string name="chat2_msg_reply">回覆</string>
+    <string name="chat2_msg_edit">編輯訊息</string>
+    <string name="chat2_msg_more">更多操作</string>
+    <string name="chat2_reply_to">正在回覆%1$s</string>
+    <string name="chat2_reply_cancel">取消回覆</string>
+    <string name="chat2_reply_you">你</string>
+    <string name="chat2_work_done">工作了%1$s</string>
+    <string name="chat2_work_seconds">%1$d 秒</string>
+    <string name="chat2_work_minutes">%1$d 分 %2$02d 秒</string>
+    <string name="chat2_work_instant">已工作</string>
+    <string name="chat2_approval_needed">需要核准</string>
+    <string name="chat2_day_today">今天</string>
+    <string name="chat2_day_yesterday">昨天</string>
+</resources>

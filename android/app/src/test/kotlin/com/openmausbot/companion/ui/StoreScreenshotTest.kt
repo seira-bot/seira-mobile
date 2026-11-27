@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.MotionDurationScale
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.test.onAllNodesWithText
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.test.core.app.ApplicationProvider
 import com.openmausbot.companion.core.ActivityDetail
 import com.openmausbot.companion.core.Bot
@@ -32,6 +32,7 @@ import com.openmausbot.companion.core.RosterDensity
 import com.openmausbot.companion.core.SeiraCast
 import com.openmausbot.companion.core.SeiraCastMember
 import com.openmausbot.companion.core.StreamFrame
+import com.openmausbot.companion.ui.home.HomeShell
 import com.openmausbot.companion.storage.ChatPreferences
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.ThemeMode
@@ -255,7 +256,7 @@ class StoreScreenshotTest {
             mode,
             beforeCapture = {
                 compose.waitUntil(10_000) {
-                    compose.onAllNodesWithText("Good morning, Dina").fetchSemanticsNodes().isNotEmpty()
+                    compose.onAllNodesWithTag("roster-list").fetchSemanticsNodes().isNotEmpty()
                 }
             },
         ) {
@@ -265,7 +266,7 @@ class StoreScreenshotTest {
                 LocalCompanion provides scene.environment,
                 LocalHomeHour provides { 9 },
             ) {
-                if (state.bots.isNotEmpty()) RosterScreen(navigator, callsEnabled = false)
+                if (state.bots.isNotEmpty()) HomeShell(navigator, callsEnabled = false)
             }
         }
         assertTrue(file.length() > 0)

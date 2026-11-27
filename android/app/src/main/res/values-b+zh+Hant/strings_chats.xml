@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">全部</string>
+    <string name="chats_filter_empty">這裡沒有聊天。</string>
+    <string name="chats_hero_waiting">%1$s：%2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s需要你。</string>
+    <string name="chats_hero_quiet">一切安靜。沒有什麼需要你。</string>
+    <string name="search_placeholder">搜尋</string>
+    <string name="search_clear">清除搜尋</string>
+    <string name="search_filter_routines">例行任務</string>
+    <string name="search_prompt">輸入以搜尋你的訊息。</string>
+    <string name="search_none">沒有結果。</string>
+    <string name="search_failed">搜尋沒有成功。請再試一次。</string>
+    <string name="newbot_row_subtitle">你先填寫一份簡短的表單</string>
+    <string name="newbot_name_label">名稱</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">職責</string>
+    <string name="newbot_job_placeholder">它做什麼</string>
+    <string name="newbot_note">只有點按「建立」後才會建立機器人。</string>
+    <string name="newbot_create">建立機器人</string>
+    <string name="newbot_creating">正在建立機器人</string>
+    <string name="newbot_name_needed">輸入名稱以繼續。</string>
+    <string name="newbot_failed">機器人沒有建立成功。請檢查連線後再試一次。</string>
+    <string name="newbot_create_group">建立群組</string>
+    <string name="newbot_group_pick">請至少選擇一個機器人。</string>
+    <string name="newbot_section_creates">建立一個新分區（部門）。</string>
+    <string name="newbot_section_needed">輸入名稱並至少選擇一個機器人。</string>
+</resources>

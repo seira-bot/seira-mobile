@@ -16,7 +16,13 @@ struct ActivityRunChip: View {
     var openThread: ((ThreadRef) -> Void)? = nil
     /// The bot's profile, in a bot chat, for the capsule's avatar.
     var faceBot: Bot? = nil
-    @State private var expanded = false
+    @AppStorage(PrefKey.activityDetail) private var activityDetail = ActivityDetail.phoneDefault.rawValue
+    /// Nil until the reader opens or closes the run: then Full starts open and Reduced starts as one line.
+    @State private var toggled: Bool?
+
+    private var expanded: Bool {
+        toggled ?? WorkFold.startsOpen(ActivityDetail(rawValue: activityDetail) ?? .phoneDefault)
+    }
 
     private var running: Bool { items.contains { $0.tool?.ok == nil } }
 
@@ -53,7 +59,7 @@ struct ActivityRunChip: View {
             text: capsuleText, names: speakers, faceBot: faceBot, expanded: expanded,
             label: summary, hint: expanded ? "Hides the steps" : "Shows the steps"
         ) {
-            withSeiraAnimation(SeiraMotion.base) { expanded.toggle() }
+            withSeiraAnimation(SeiraMotion.base) { toggled = !expanded }
             Haptics.selection()
         }
     }

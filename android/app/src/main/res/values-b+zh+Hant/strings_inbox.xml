@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">核准</string>
+    <string name="inbox_kind_question">問題</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">在聊天中回答</string>
+    <string name="inbox_open_in_chat">在聊天中開啟</string>
+    <string name="inbox_open_chat_with">開啟與 %1$s 的聊天</string>
+    <string name="inbox_needs_decision">需要你做決定</string>
+    <string name="inbox_news">動態</string>
+    <string name="inbox_news_finished">%1$s 完成了一項任務</string>
+    <string name="inbox_news_routine_failed">例行工作出問題：%1$s 失敗了。點一下即可重試。</string>
+    <string name="inbox_empty_title">全部處理完畢</string>
+    <string name="inbox_empty_body">目前沒有等待你回答的事項。</string>
+    <string name="automations_list">清單</string>
+    <string name="automations_calendar">行事曆</string>
+    <string name="automations_intro">討論串是一次交流和它的結果。例行工作是依計畫進行的工作，結果集中在一個討論串裡。</string>
+    <string name="automations_pause_named">暫停 %1$s</string>
+    <string name="automations_resume_named">繼續 %1$s</string>
+    <string name="automations_switch_finished">%1$s，已完成</string>
+    <string name="automations_open_results">開啟結果討論串</string>
+    <string name="automations_status_failed">失敗</string>
+    <string name="inbox_review_skill_in_chat">開啟聊天以檢查這個技能。</string>
+    <string name="routines_header_footer">每次執行都使用機器人現有的模型、工具、權限、電腦和已連線的應用程式。時間以已配對電腦的本機時區為準。</string>
+</resources>

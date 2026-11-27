@@ -639,6 +639,10 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     public var hasMore: Bool?
     /// Set when the host set up an own server for this bot. Only its presence is read.
     public var vpsAlias: String?
+    /// The bot's own instructions. Older computers omit them.
+    public var soul: String?
+    /// `default` or `conversational`. Older computers omit it, and a newer one may add values.
+    public var replyStyle: String?
 
     /// Routine results are ordinary tasks; only their per-run executions are hidden.
     public var visibleTasks: [BotTask] {
@@ -816,6 +820,9 @@ public struct ActivityRow: Codable, Hashable, Sendable {
     public var label: String
     /// the arguments the decision log recorded, already redacted
     public var summary: String?
+    public var labelKey: String?
+    public var appKey: String?
+    public var summaryCode: String?
     /// ran | failed | running | allowed | denied | waiting
     public var outcome: String
 }
@@ -830,6 +837,9 @@ public struct TeamMemorySource: Codable, Hashable, Sendable {
     public var threadId: String
     /// epoch milliseconds
     public var at: Double
+    public var messageId: String?
+    public var turnId: String?
+    public var quote: String?
 }
 
 /// One thing every bot in a section shares: a person, a place, a decision,
@@ -841,23 +851,29 @@ public struct TeamMemoryEntry: Codable, Hashable, Identifiable, Sendable {
     public var name: String
     public var detail: String
     public var aliases: [String]
-    /// accepted | proposed
+    /// accepted | proposed | superseded | deleted
     public var status: String
     public var source: TeamMemorySource
     /// epoch milliseconds
     public var updatedAt: Double
+    /// Goes back with every edit or removal; the computer answers 428 without it.
+    public var revision: String?
+    public var pinned: Bool?
+    public var key: String?
 }
 
 public struct TeamMemoryPage: Codable, Hashable, Sendable {
     public var section: String
     public var label: String
     public var entries: [TeamMemoryEntry]
+    public var loadedIds: [String]?
 }
 
 /// What an edit answers with: the edited entry and the whole page.
 public struct TeamMemoryEdit: Codable, Hashable, Sendable {
     public var entry: TeamMemoryEntry?
     public var entries: [TeamMemoryEntry]
+    public var loadedIds: [String]?
 }
 
 public struct GroupResponder: Codable, Hashable, Sendable {
@@ -1060,10 +1076,25 @@ public struct CompanionConnectionMetadata: Decodable, Sendable {
 public struct ComputerControlState: Decodable, Sendable, Equatable {
     public let held: Bool
     public let owned: Bool?
+    public let acquired: Bool?
+    public let released: Bool?
+    public let helpReason: String?
+    public let heldSinceMs: Double?
 
-    public init(held: Bool, owned: Bool? = nil) {
+    public init(
+        held: Bool,
+        owned: Bool? = nil,
+        acquired: Bool? = nil,
+        released: Bool? = nil,
+        helpReason: String? = nil,
+        heldSinceMs: Double? = nil
+    ) {
         self.held = held
         self.owned = owned
+        self.acquired = acquired
+        self.released = released
+        self.helpReason = helpReason
+        self.heldSinceMs = heldSinceMs
     }
 }
 
@@ -1215,11 +1246,16 @@ public struct InstanceCapabilities: Codable, Hashable, Sendable {
     public var queueing: Bool?
     /// The engine has computer tools, so it can work on a cloud computer.
     public var computerMcp: Bool?
+    /// The engine can run other bots as agents, which /setup and /burst need.
+    public var agentsMcp: Bool?
 
-    public init(effortLevels: [String]? = nil, queueing: Bool? = nil, computerMcp: Bool? = nil) {
+    public init(
+        effortLevels: [String]? = nil, queueing: Bool? = nil, computerMcp: Bool? = nil, agentsMcp: Bool? = nil
+    ) {
         self.effortLevels = effortLevels
         self.queueing = queueing
         self.computerMcp = computerMcp
+        self.agentsMcp = agentsMcp
     }
 }
 
@@ -1356,6 +1392,8 @@ public struct BotProfilePatch: Encodable, Sendable {
     public var mascotBody: String?
     public var voice: String?
     public var speakReplies: Bool?
+    public var soul: String?
+    public var replyStyle: ReplyStyle?
 
     /// `avatarUrl` needs three wire states: omitted, a stored path, or JSON
     /// null to clear. A nested optional would technically represent that, but
@@ -1374,7 +1412,9 @@ public struct BotProfilePatch: Encodable, Sendable {
         avatarCrop: AvatarCrop? = nil,
         mascotBody: String? = nil,
         voice: String? = nil,
-        speakReplies: Bool? = nil
+        speakReplies: Bool? = nil,
+        soul: String? = nil,
+        replyStyle: ReplyStyle? = nil
     ) {
         self.name = name
         self.title = title
@@ -1385,10 +1425,12 @@ public struct BotProfilePatch: Encodable, Sendable {
         self.mascotBody = mascotBody
         self.voice = voice
         self.speakReplies = speakReplies
+        self.soul = soul
+        self.replyStyle = replyStyle
     }
 
     private enum CodingKeys: String, CodingKey {
-        case name, title, description, notifications, avatarUrl, avatarCrop, mascotBody, voice, speakReplies
+        case name, title, description, notifications, avatarUrl, avatarCrop, mascotBody, voice, speakReplies, soul, replyStyle
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -1407,6 +1449,8 @@ public struct BotProfilePatch: Encodable, Sendable {
         try values.encodeIfPresent(mascotBody, forKey: .mascotBody)
         try values.encodeIfPresent(voice, forKey: .voice)
         try values.encodeIfPresent(speakReplies, forKey: .speakReplies)
+        try values.encodeIfPresent(soul, forKey: .soul)
+        try values.encodeIfPresent(replyStyle?.rawValue, forKey: .replyStyle)
     }
 }
 
@@ -1697,6 +1741,38 @@ public struct ConnectorStatuses: Codable, Sendable {
 /// The harness's error body. Every non-2xx response carries one.
 public struct APIErrorBody: Codable, Sendable {
     public var error: String
+
+    /// The data routes answer `{"error":{"code","message"}}`; the others a plain string.
+    public var code: String?
+
+    private enum CodingKeys: String, CodingKey { case error }
+
+    private struct Detail: Decodable {
+        var code: String?
+        var message: String
+    }
+
+    public init(error: String, code: String? = nil) {
+        self.error = error
+        self.code = code
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        if let text = try? values.decode(String.self, forKey: .error) {
+            error = text
+            code = nil
+        } else {
+            let detail = try values.decode(Detail.self, forKey: .error)
+            error = detail.message
+            code = detail.code
+        }
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var values = encoder.container(keyedBy: CodingKeys.self)
+        try values.encode(error, forKey: .error)
+    }
 }
 
 /// One frame of a bot's computer, as it arrives on the stream.

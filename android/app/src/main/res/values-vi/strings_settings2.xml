@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · địa chỉ, ghép nối, kết nối lại</string>
+    <string name="settings2_theme_label">Giao diện</string>
+    <string name="settings2_sign_out_title">Đăng xuất?</string>
+    <string name="settings2_sign_out_note">Chỉ gỡ ghép nối khỏi điện thoại này. Ghép nối lại bằng mã trên máy tính của bạn.</string>
+    <string name="settings2_sign_out_footer">Chỉ gỡ ghép nối khỏi điện thoại này. Để điện thoại hoàn toàn không truy cập được máy tính, hãy gỡ điện thoại trên máy tính của bạn.</string>
+    <string name="settings2_apps_remove_title">Gỡ %1$s khỏi %2$s?</string>
+    <string name="settings2_apps_remove_note">Các bot của bạn sẽ mất quyền truy cập tài khoản này. Bạn có thể thêm lại sau.</string>
+    <string name="settings2_apps_remove_content">Gỡ %1$s khỏi %2$s</string>
+    <string name="settings2_apps_remove_failed">Không thể gỡ tài khoản. Hãy thử lại.</string>
+    <string name="settings2_apps_no_match">Không có ứng dụng nào khớp với tìm kiếm.</string>
+    <string name="settings2_usage_left">Còn %1$d%%</string>
+    <string name="settings2_usage_resets">Đặt lại lúc %1$s</string>
+    <string name="computers_paired_title">Máy tính đã ghép nối</string>
+    <string name="computers_tap_to_switch">Chạm để chuyển</string>
+    <string name="computers_save_address">Lưu địa chỉ</string>
+    <string name="computers_bot_screens_title">Màn hình của bot</string>
+    <string name="computers_bot_screens_note">Xem hoặc điều khiển màn hình cần điện thoại này có quyền truy cập máy tính.</string>
+    <string name="computers_bot_cloud_desktop">Máy tính để bàn đám mây</string>
+    <string name="computers_bot_working">Đang làm việc</string>
+    <string name="computers_bot_waiting">Đang chờ đồng đội</string>
+    <string name="computers_bot_idle">Rảnh</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

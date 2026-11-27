@@ -64,6 +64,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
@@ -125,7 +126,12 @@ import kotlinx.coroutines.launch
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildConfig.LIVE_CALLS) {
+fun RosterScreen(
+    navigator: CompanionNavigator,
+    callsEnabled: Boolean = BuildConfig.LIVE_CALLS,
+    embedded: Boolean = false,
+    sectionFilter: String? = null,
+) {
     val environment = LocalCompanion.current
     val session = environment.session
     val scope = rememberCoroutineScope()
@@ -415,14 +421,27 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                     contentPadding = PaddingValues(bottom = barHeight + LIST_END_MARGIN),
                 ) {
                     item(key = "home-header") {
-                        HomeHeader(
-                            greeting = greeting,
-                            initials = HomeGreeting.initials(profile?.name),
-                            onProfile = openSettings,
-                        )
+                        if (embedded) {
+                            Text(
+                                text = greeting,
+                                style = SeiraType.title1,
+                                color = Seira.colors.ink,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("roster-header")
+                                    .padding(start = 20.dp, end = 16.dp, top = 4.dp)
+                                    .semantics { heading() },
+                            )
+                        } else {
+                            HomeHeader(
+                                greeting = greeting,
+                                initials = HomeGreeting.initials(profile?.name),
+                                onProfile = openSettings,
+                            )
+                        }
                     }
                     item(key = "home-banner") { StatusBanner() }
-                    if (RosterLayout.showsGroups(query)) {
+                    if (RosterLayout.showsGroups(query) && sectionFilter == null) {
                         if (chief != null) {
                             item(key = "home-hero") {
                                 val summary = summariesById[chief.id]
@@ -463,110 +482,114 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
                                 )
                             }
                         }
-                        item(key = "home-chats-heading") {
-                            ChatsHeading(
-                                onUpdates = {
-                                    haptics.play(TactileAction.OPEN_UPDATES)
-                                    showingUpdates = true
-                                },
-                                onCalendar = { navigator.push(Destination.Calendar) },
-                                onSettings = openSettings,
-                                computerName = connection?.name,
-                                onComputer = {
-                                    haptics.play(HapticCue.SELECT)
-                                    showingComputers = true
-                                },
-                                onAddComputer = {
-                                    haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
-                                    session.beginPairing()
-                                },
-                                workspaceName = workspaces.current?.takeIf { workspaces.visible }
-                                    ?.let { WorkspaceSheetRules.name(it) ?: workspaceUnnamed },
-                                onWorkspace = {
-                                    haptics.play(HapticCue.SELECT)
-                                    showingWorkspaces = true
-                                },
-                                // The text sits 28 dp under the rail (6 dp of its own, and
-                                // half of the 48 dp row around "Chats").
-                                modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),
-                            )
+                        if (!embedded || workspaces.visible) {
+                            item(key = "home-chats-heading") {
+                                ChatsHeading(
+                                    onUpdates = {
+                                        haptics.play(TactileAction.OPEN_UPDATES)
+                                        showingUpdates = true
+                                    },
+                                    onCalendar = { navigator.push(Destination.Calendar) },
+                                    onSettings = openSettings,
+                                    computerName = connection?.name?.takeIf { !embedded },
+                                    onComputer = {
+                                        haptics.play(HapticCue.SELECT)
+                                        showingComputers = true
+                                    },
+                                    onAddComputer = {
+                                        haptics.play(TactileAction.CONNECT_ANOTHER_COMPUTER)
+                                        session.beginPairing()
+                                    },
+                                    workspaceName = workspaces.current?.takeIf { workspaces.visible }
+                                        ?.let { WorkspaceSheetRules.name(it) ?: workspaceUnnamed },
+                                    onWorkspace = {
+                                        haptics.play(HapticCue.SELECT)
+                                        showingWorkspaces = true
+                                    },
+                                    // The text sits 28 dp under the rail (6 dp of its own, and
+                                    // half of the 48 dp row around "Chats").
+                                    modifier = Modifier.padding(top = if (railShown) 8.dp else 14.dp),
+                                )
+                            }
                         }
                     }
                     if (RosterLayout.showsGroups(query)) {
-                        if (attention.isNotEmpty()) {
-                            item(key = "attention-label") {
-                                SectionLabel(stringResource(R.string.mobile_roster_needs_attention))
-                            }
-                            items(attention, key = { "attention-${it.id}" }) { entry ->
-                                fleet.bots.firstOrNull { it.id == entry.botId }?.let { owner ->
-                                    AttentionRow(entry = entry, bot = owner, onOpen = {
-                                        navigator.open(Chat.BotChat(owner.forTask(entry.task.threadId) ?: owner))
-                                    })
+                        if (sectionFilter == null) {
+                            if (attention.isNotEmpty()) {
+                                item(key = "attention-label") {
+                                    SectionLabel(stringResource(R.string.mobile_roster_needs_attention))
                                 }
-                            }
-                        }
-                        fleet.unsectionedChief?.let { chief ->
-                            summariesById[chief.id]?.let { summary ->
-                                item(key = "chief-${chief.id}") {
-                                    // A one-line row right under Needs attention
-                                    // would read as one more of its rows.
-                                    val apart = compact && attention.isNotEmpty()
-                                    Column(modifier = Modifier.padding(top = if (apart) sectionSpacing else 0.dp)) {
-                                        entry(summary, true)
+                                items(attention, key = { "attention-${it.id}" }) { entry ->
+                                    fleet.bots.firstOrNull { it.id == entry.botId }?.let { owner ->
+                                        AttentionRow(entry = entry, bot = owner, onOpen = {
+                                            navigator.open(Chat.BotChat(owner.forTask(entry.task.threadId) ?: owner))
+                                        })
                                     }
                                 }
                             }
-                        }
-                        val pinned = fleet.pinnedBots.mapNotNull { summariesById[it.id] }
-                        if (pinned.isNotEmpty()) {
-                            item(key = "pinned-label") {
-                                SectionLabel(stringResource(R.string.mobile_roster_pinned))
-                            }
-                            itemsIndexed(pinned, key = { _, summary -> "pinned-${summary.id}" }) { index, summary ->
-                                entry(summary, index == pinned.lastIndex)
-                            }
-                        }
-                        val startNewGroup = {
-                            haptics.play(TactileAction.START_NEW_GROUP)
-                            showingNewGroup = true
-                        }
-                        if (compact) {
-                            // Groups as rows under a title that carries the "+"
-                            // the comfortable strip shows as a tile.
-                            item(key = "groups-title") {
-                                CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup)
-                            }
-                            items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { compactRoom(it) }
-                            if (fleet.botChats.isNotEmpty()) {
-                                item(key = "bot-chats-title") {
-                                    CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null)
+                            fleet.unsectionedChief?.let { chief ->
+                                summariesById[chief.id]?.let { summary ->
+                                    item(key = "chief-${chief.id}") {
+                                        // A one-line row right under Needs attention
+                                        // would read as one more of its rows.
+                                        val apart = compact && attention.isNotEmpty()
+                                        Column(modifier = Modifier.padding(top = if (apart) sectionSpacing else 0.dp)) {
+                                            entry(summary, true)
+                                        }
+                                    }
                                 }
-                                items(fleet.botChats, key = { "bot-chat-${it.id}" }) { compactRoom(it) }
                             }
-                        } else {
-                            if (fleet.unsectionedChannels.isNotEmpty()) {
-                                item(key = "groups-title") { SectionLabel(stringResource(R.string.mobile_groups_ae9629f4)) }
-                            }
-                            items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { comfortableRoom(it) }
-                            if (fleet.botChats.isNotEmpty()) {
-                                item(key = "bot-chats-title") {
-                                    SectionLabel(stringResource(R.string.mobile_bot_threads_ec81acf2))
+                            val pinned = fleet.pinnedBots.mapNotNull { summariesById[it.id] }
+                            if (pinned.isNotEmpty()) {
+                                item(key = "pinned-label") {
+                                    SectionLabel(stringResource(R.string.mobile_roster_pinned))
                                 }
-                                items(fleet.botChats, key = { "bot-chat-${it.id}" }) { comfortableRoom(it) }
+                                itemsIndexed(pinned, key = { _, summary -> "pinned-${summary.id}" }) { index, summary ->
+                                    entry(summary, index == pinned.lastIndex)
+                                }
                             }
-                        }
-                        val unsectioned = fleet.unsectionedBots.mapNotNull { summariesById[it.id] }
-                        if (unsectioned.isNotEmpty()) {
-                            item(key = "bots-label") {
-                                SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4))
+                            val startNewGroup = {
+                                haptics.play(TactileAction.START_NEW_GROUP)
+                                showingNewGroup = true
                             }
-                            itemsIndexed(unsectioned, key = { _, summary -> "bot-${summary.id}" }) { index, summary ->
-                                entry(summary, index == unsectioned.lastIndex)
+                            if (compact) {
+                                // Groups as rows under a title that carries the "+"
+                                // the comfortable strip shows as a tile.
+                                item(key = "groups-title") {
+                                    CompactGroupsTitle(stringResource(R.string.mobile_groups_ae9629f4), onCreate = startNewGroup)
+                                }
+                                items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { compactRoom(it) }
+                                if (fleet.botChats.isNotEmpty()) {
+                                    item(key = "bot-chats-title") {
+                                        CompactGroupsTitle(stringResource(R.string.mobile_bot_threads_ec81acf2), onCreate = null)
+                                    }
+                                    items(fleet.botChats, key = { "bot-chat-${it.id}" }) { compactRoom(it) }
+                                }
+                            } else {
+                                if (fleet.unsectionedChannels.isNotEmpty()) {
+                                    item(key = "groups-title") { SectionLabel(stringResource(R.string.mobile_groups_ae9629f4)) }
+                                }
+                                items(fleet.unsectionedChannels, key = { "group-${it.id}" }) { comfortableRoom(it) }
+                                if (fleet.botChats.isNotEmpty()) {
+                                    item(key = "bot-chats-title") {
+                                        SectionLabel(stringResource(R.string.mobile_bot_threads_ec81acf2))
+                                    }
+                                    items(fleet.botChats, key = { "bot-chat-${it.id}" }) { comfortableRoom(it) }
+                                }
+                            }
+                            val unsectioned = fleet.unsectionedBots.mapNotNull { summariesById[it.id] }
+                            if (unsectioned.isNotEmpty()) {
+                                item(key = "bots-label") {
+                                    SectionLabel(stringResource(R.string.mobile_bots_4ca88ea4))
+                                }
+                                itemsIndexed(unsectioned, key = { _, summary -> "bot-${summary.id}" }) { index, summary ->
+                                    entry(summary, index == unsectioned.lastIndex)
+                                }
                             }
                         }
                         // Chiefs, then the section's channels, then its bots —
                         // the order of `rosterSections` in `ChatListView.swift`.
-                        fleet.sidebarSections.forEach { section ->
+                        fleet.sidebarSections.filter { sectionFilter == null || it.id == sectionFilter }.forEach { section ->
                             item(key = "section-${section.id}") {
                                 SectionLabel(section.name)
                             }
@@ -680,20 +703,22 @@ fun RosterScreen(navigator: CompanionNavigator, callsEnabled: Boolean = BuildCon
             }
         }
 
-        BottomFade(height = 128.dp, modifier = Modifier.align(Alignment.BottomCenter))
-        RosterBottomBar(
-            bar = bar,
-            onBar = { bar = it },
-            onOpenSearch = {
-                haptics.play(TactileAction.OPEN_SEARCH)
-                bar = bar.openSearch()
-            },
-            onNewChat = { showingNewChat = true },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .testTag("roster-bottom-bar")
-                .onSizeChanged { barHeight = with(density) { it.height.toDp() } },
-        )
+        if (!embedded) {
+            BottomFade(height = 128.dp, modifier = Modifier.align(Alignment.BottomCenter))
+            RosterBottomBar(
+                bar = bar,
+                onBar = { bar = it },
+                onOpenSearch = {
+                    haptics.play(TactileAction.OPEN_SEARCH)
+                    bar = bar.openSearch()
+                },
+                onNewChat = { showingNewChat = true },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .testTag("roster-bottom-bar")
+                    .onSizeChanged { barHeight = with(density) { it.height.toDp() } },
+            )
+        }
     }
 
     if (showingWorkspaces && workspaces.visible) {
@@ -1114,7 +1139,7 @@ private fun RosterBottomBar(
 private val BAR_HEIGHT = 52.dp
 
 @Composable
-private fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
+internal fun SearchHitRow(hit: SearchHit, onClick: () -> Unit) {
     val now = remember(hit.id) { System.currentTimeMillis() }
     Row(
         modifier = Modifier

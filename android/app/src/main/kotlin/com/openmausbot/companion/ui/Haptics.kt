@@ -147,12 +147,12 @@ object CompanionHaptics {
      * `Task`, and then the HUD adds its own `Haptics.selection()` — both
      * synchronously, on the one gesture's stack. On a phone that has only the
      * motor, two effects back to back are one muddled buzz — so a command that
-     * sends is felt as a send, and only a command that navigates is felt as a
-     * selection. One gesture, one cue.
+     * sends is felt as a send, and a command that navigates or fills the field is
+     * felt as a selection. One gesture, one cue.
      */
     fun forCommand(effect: SlashEffect): HapticCue? = when (effect) {
         is SlashEffect.Send -> null
-        SlashEffect.OpenComputer, SlashEffect.OpenTasks -> HapticCue.SELECT
+        is SlashEffect.Insert, SlashEffect.OpenComputer, SlashEffect.OpenTasks -> HapticCue.SELECT
     }
 }
 

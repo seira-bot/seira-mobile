@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Nhắn cho nhóm</string>
+    <string name="composer_mode_title">Phê duyệt</string>
+    <string name="composer_mode_unset">Phê duyệt</string>
+    <string name="composer_mode_chip_a11y">Chế độ phê duyệt: %1$s. Chạm để đổi.</string>
+    <string name="composer_mode_selected">Đã chọn</string>
+    <string name="composer_mode_ask">Hỏi</string>
+    <string name="composer_mode_edits">Chỉnh sửa</string>
+    <string name="composer_mode_auto">Tự động</string>
+    <string name="composer_mode_full">Toàn quyền</string>
+    <string name="composer_mode_custom">Tùy chỉnh</string>
+    <string name="composer_mode_ask_sub">Hỏi trước khi thay đổi bất cứ điều gì</string>
+    <string name="composer_mode_edits_sub">Tự chỉnh sửa tệp và hỏi trước mọi việc khác</string>
+    <string name="composer_mode_auto_sub">Tự làm việc và chỉ hỏi ở các bước rủi ro</string>
+    <string name="composer_mode_full_sub">Không bao giờ hỏi. Có thể làm mọi thứ trên máy tính</string>
+    <string name="composer_mode_custom_sub">Thiết lập trong ứng dụng máy tính</string>
+    <string name="composer_mode_refused_full">Toàn quyền không khả dụng trong không gian làm việc công ty dùng chung.</string>
+    <string name="composer_mode_refused_leave_custom">Để rời khỏi Tùy chỉnh, hãy dùng ứng dụng máy tính.</string>
+    <string name="composer_mode_refused_custom">Tùy chỉnh được thiết lập trong ứng dụng máy tính.</string>
+    <string name="composer_mode_refused_owner">Chỉ chủ sở hữu mới đổi được mục này.</string>
+    <string name="composer_mode_refused_provider">Bot này không thể làm việc ở mức đó.</string>
+    <string name="composer_mode_refused_confirming">Thay đổi trước đó vẫn đang được áp dụng. Hãy thử lại sau giây lát.</string>
+    <string name="composer_mode_refused_other">Không đổi được chế độ phê duyệt. Hãy thử lại.</string>
+    <string name="composer_mode_confirm_title">Bật chế độ Tự động?</string>
+    <string name="composer_mode_confirm_body">Ở chế độ Tự động, bot tự làm việc trên máy tính này và chỉ hỏi ở các bước rủi ro.</string>
+    <string name="composer_mode_confirm_yes">Bật Tự động</string>
+    <string name="composer_mode_confirm_no">Để sau</string>
+    <string name="composer_goal_chip">Mục tiêu: %1$s</string>
+    <string name="composer_steer_waiting">Chưa thể tham gia lượt này. Tin nhắn vẫn nằm trong hàng đợi.</string>
+    <string name="composer_steer_failed">Không thể gửi tin nhắn này vào lượt đang chạy. Hãy thử lại.</string>
+    <string name="composer_slash_goal">Đặt mục tiêu và để bot làm đến khi xong</string>
+    <string name="composer_slash_learn">Soạn thảo một kỹ năng có thể tái sử dụng từ cuộc trò chuyện này</string>
+    <string name="composer_slash_setup">Để bot này phỏng vấn bạn và tự thiết lập</string>
+    <string name="composer_slash_burst">Chạy nhiều tác vụ cùng lúc</string>
+</resources>

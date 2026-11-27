@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Zatwierdzenie</string>
+    <string name="inbox_kind_question">Pytanie</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Odpowiedz w czacie</string>
+    <string name="inbox_open_in_chat">Otwórz w czacie</string>
+    <string name="inbox_open_chat_with">Otwórz czat z: %1$s</string>
+    <string name="inbox_needs_decision">Czeka na Twoją decyzję</string>
+    <string name="inbox_news">Nowości</string>
+    <string name="inbox_news_finished">%1$s zakończył(a) zadanie</string>
+    <string name="inbox_news_routine_failed">Problem z rutyną: %1$s się nie udała. Stuknij, aby spróbować ponownie.</string>
+    <string name="inbox_empty_title">Wszystko załatwione</string>
+    <string name="inbox_empty_body">Nic nie czeka teraz na Twoją odpowiedź.</string>
+    <string name="automations_list">Lista</string>
+    <string name="automations_calendar">Kalendarz</string>
+    <string name="automations_intro">Wątek to jedna rozmowa z wynikiem. Rutyna to zaplanowana praca z jednym wątkiem wyników.</string>
+    <string name="automations_pause_named">Wstrzymaj: %1$s</string>
+    <string name="automations_resume_named">Wznów: %1$s</string>
+    <string name="automations_switch_finished">%1$s, ukończona</string>
+    <string name="automations_open_results">Otwórz wątek wyników</string>
+    <string name="automations_status_failed">Nie udało się</string>
+    <string name="inbox_review_skill_in_chat">Otwórz czat, aby przejrzeć tę umiejętność.</string>
+    <string name="routines_header_footer">Każde uruchomienie używa istniejącego modelu, narzędzi, uprawnień, komputera i połączonych aplikacji agenta. Godziny zależą od lokalnej strefy czasowej sparowanego komputera.</string>
+</resources>

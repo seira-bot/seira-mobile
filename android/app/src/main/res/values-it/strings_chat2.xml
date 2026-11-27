@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Apri lo schermo del bot</string>
+    <string name="chat2_header_menu">Altro su questa chat</string>
+    <string name="chat2_open_bot">Apri %1$s</string>
+    <string name="chat2_menu_find">Cerca nella conversazione</string>
+    <string name="chat2_menu_new_thread">Nuova conversazione</string>
+    <string name="chat2_menu_new_thread_creating">Creazione della conversazione…</string>
+    <string name="chat2_menu_new_thread_decision">Rispondi prima alla decisione in attesa.</string>
+    <string name="chat2_menu_new_thread_unavailable">Questa chat non può avviare una nuova conversazione.</string>
+    <string name="chat2_menu_all_threads">Tutte le conversazioni</string>
+    <string name="chat2_menu_model">Modello</string>
+    <string name="chat2_menu_members">Membri del gruppo</string>
+    <string name="chat2_menu_bot_screen">Schermo del bot</string>
+    <string name="chat2_menu_share">Condividi la trascrizione</string>
+    <string name="chat2_menu_share_markdown">Questa conversazione come Markdown</string>
+    <string name="chat2_menu_share_json">Condividi come JSON</string>
+    <string name="chat2_find_hint">Cerca nella conversazione</string>
+    <string name="chat2_find_none">Nessun risultato</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d trovato</item>
+        <item quantity="other">%1$d trovati</item>
+    </plurals>
+    <string name="chat2_find_previous">Risultato precedente</string>
+    <string name="chat2_find_next">Risultato successivo</string>
+    <string name="chat2_find_close">Chiudi la ricerca</string>
+    <string name="chat2_msg_react">Reagisci con %1$s</string>
+    <string name="chat2_msg_reply">Rispondi</string>
+    <string name="chat2_msg_edit">Modifica messaggio</string>
+    <string name="chat2_msg_more">Altre azioni</string>
+    <string name="chat2_reply_to">In risposta a %1$s</string>
+    <string name="chat2_reply_cancel">Annulla la risposta</string>
+    <string name="chat2_reply_you">Tu</string>
+    <string name="chat2_work_done">Ha lavorato per %1$s</string>
+    <string name="chat2_work_seconds">%1$d s</string>
+    <string name="chat2_work_minutes">%1$d min %2$02d s</string>
+    <string name="chat2_work_instant">Ha lavorato</string>
+    <string name="chat2_approval_needed">Serve approvazione</string>
+    <string name="chat2_day_today">Oggi</string>
+    <string name="chat2_day_yesterday">Ieri</string>
+</resources>

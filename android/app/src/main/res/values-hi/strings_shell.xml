@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">मेनू खोलें</string>
+    <string name="shell_close_menu">मेनू बंद करें</string>
+    <string name="shell_menu">मेनू</string>
+    <string name="shell_tab_inbox">इनबॉक्स</string>
+    <string name="shell_tab_automations">ऑटोमेशन</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d आपका इंतज़ार कर रहा है</item>
+        <item quantity="other">%1$d आपका इंतज़ार कर रहे हैं</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">इनबॉक्स, %1$d आपका इंतज़ार कर रहा है</item>
+        <item quantity="other">इनबॉक्स, %1$d आपका इंतज़ार कर रहे हैं</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">सभी चैट</string>
+    <string name="shell_drawer_departments">विभाग</string>
+    <string name="shell_drawer_add_department">विभाग जोड़ें</string>
+    <string name="shell_drawer_team_map">टीम मैप</string>
+    <string name="shell_drawer_department_memory">विभाग की मेमोरी</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d बॉट</item>
+        <item quantity="other">%1$s, %2$d बॉट</item>
+    </plurals>
+    <string name="shell_bot_profile_title">बॉट प्रोफ़ाइल</string>
+    <string name="shell_switch_computer">कंप्यूटर बदलें</string>
+    <string name="shell_error_queued_steer_unsupported">यह कंप्यूटर कतार में लगे संदेश को चल रहे टर्न में भेजने के लिए बहुत पुराना है। इस पर Seira अपडेट करें।</string>
+    <string name="shell_error_reload_memory">इस मेमोरी को फिर से लोड करें और दोबारा कोशिश करें।</string>
+</resources>

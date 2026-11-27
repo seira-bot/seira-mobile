@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">Menüyü aç</string>
+    <string name="shell_close_menu">Menüyü kapat</string>
+    <string name="shell_menu">Menü</string>
+    <string name="shell_tab_inbox">Gelen kutusu</string>
+    <string name="shell_tab_automations">Otomasyonlar</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d seni bekliyor</item>
+        <item quantity="other">%1$d seni bekliyor</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">Gelen kutusu, %1$d seni bekliyor</item>
+        <item quantity="other">Gelen kutusu, %1$d seni bekliyor</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">Tüm sohbetler</string>
+    <string name="shell_drawer_departments">Departmanlar</string>
+    <string name="shell_drawer_add_department">Departman ekle</string>
+    <string name="shell_drawer_team_map">Takım haritası</string>
+    <string name="shell_drawer_department_memory">Departman belleği</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d bot</item>
+        <item quantity="other">%1$s, %2$d bot</item>
+    </plurals>
+    <string name="shell_bot_profile_title">Bot profili</string>
+    <string name="shell_switch_computer">Bilgisayarı değiştir</string>
+    <string name="shell_error_queued_steer_unsupported">Bu bilgisayar, sıradaki bir mesajı çalışan bir tura göndermek için çok eski. Seira uygulamasını bu bilgisayarda güncelle.</string>
+    <string name="shell_error_reload_memory">Bu belleği yeniden yükle ve tekrar dene.</string>
+</resources>

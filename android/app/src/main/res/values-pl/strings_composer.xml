@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Wiadomość do grupy</string>
+    <string name="composer_mode_title">Zatwierdzenia</string>
+    <string name="composer_mode_unset">Zatwierdzenia</string>
+    <string name="composer_mode_chip_a11y">Tryb zatwierdzania: %1$s. Dotknij, aby zmienić.</string>
+    <string name="composer_mode_selected">Wybrano</string>
+    <string name="composer_mode_ask">Pytaj</string>
+    <string name="composer_mode_edits">Edycje</string>
+    <string name="composer_mode_auto">Auto</string>
+    <string name="composer_mode_full">Pełny</string>
+    <string name="composer_mode_custom">Własny</string>
+    <string name="composer_mode_ask_sub">Pyta przed jakąkolwiek zmianą</string>
+    <string name="composer_mode_edits_sub">Edytuje pliki sam i pyta przed resztą</string>
+    <string name="composer_mode_auto_sub">Działa sam i pyta tylko przy ryzykownych krokach</string>
+    <string name="composer_mode_full_sub">Nigdy nie pyta. Może zrobić wszystko na komputerze</string>
+    <string name="composer_mode_custom_sub">Ustawiany w aplikacji na komputer</string>
+    <string name="composer_mode_refused_full">Pełny dostęp nie jest dostępny we wspólnej firmowej przestrzeni roboczej.</string>
+    <string name="composer_mode_refused_leave_custom">Aby wyjść z trybu Własny, użyj aplikacji na komputer.</string>
+    <string name="composer_mode_refused_custom">Tryb Własny ustawia się w aplikacji na komputer.</string>
+    <string name="composer_mode_refused_owner">Tylko właściciel może to zmienić.</string>
+    <string name="composer_mode_refused_provider">Ten bot nie może pracować na tym poziomie.</string>
+    <string name="composer_mode_refused_confirming">Poprzednia zmiana jeszcze trwa. Spróbuj za chwilę.</string>
+    <string name="composer_mode_refused_other">Nie udało się zmienić trybu zatwierdzania. Spróbuj ponownie.</string>
+    <string name="composer_mode_confirm_title">Włączyć tryb Auto?</string>
+    <string name="composer_mode_confirm_body">W trybie Auto bot działa sam na tym komputerze i pyta tylko przy ryzykownych krokach.</string>
+    <string name="composer_mode_confirm_yes">Włącz tryb Auto</string>
+    <string name="composer_mode_confirm_no">Nie teraz</string>
+    <string name="composer_goal_chip">Cel: %1$s</string>
+    <string name="composer_steer_waiting">Nie może jeszcze dołączyć do tej tury. Zostaje w kolejce.</string>
+    <string name="composer_steer_failed">Nie udało się wysłać tej wiadomości do trwającej tury. Spróbuj ponownie.</string>
+    <string name="composer_slash_goal">Ustaw cel i pozwól pracować do końca</string>
+    <string name="composer_slash_learn">Utwórz z tej rozmowy umiejętność wielokrotnego użytku</string>
+    <string name="composer_slash_setup">Pozwól temu botowi przeprowadzić wywiad i skonfigurować się</string>
+    <string name="composer_slash_burst">Uruchom kilka zadań naraz</string>
+</resources>

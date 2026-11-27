@@ -34,8 +34,6 @@
     <string name="ai_usage_window_five_hour">Ліміт на 5 годин</string>
     <string name="ai_usage_window_weekly">Тижневий ліміт</string>
     <string name="ai_usage_window_other">Інший ліміт</string>
-    <string name="ai_usage_window_row">Залишилось %1$d%% · скидання %2$s</string>
-    <string name="ai_usage_window_row_no_reset">Залишилось %1$d%%</string>
     <string name="ai_usage_paused_until">Призупинено до %1$s</string>
     <string name="ai_usage_paused">Призупинено</string>
     <string name="ai_usage_near_limit">Майже вичерпано ліміт</string>

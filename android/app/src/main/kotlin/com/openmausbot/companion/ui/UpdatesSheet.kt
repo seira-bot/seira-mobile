@@ -149,7 +149,7 @@ private fun localizedUpdatesCount(updates: List<ChatUpdate>): String =
     else pluralStringResource(R.plurals.mobile_updates_active_count, updates.size, updates.size)
 
 @Composable
-private fun localizedUpdateLine(line: String): String {
+internal fun localizedUpdateLine(line: String): String {
     if (line == "Queued — waiting for an available slot") {
         return stringResource(R.string.mobile_updates_queued_waiting)
     }
@@ -180,6 +180,20 @@ internal fun MascotStack(looks: List<SeiraLook>, size: Dp = 28.dp, overlap: Dp =
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        UpdatesList(onOpen = onOpen, onEmptyBack = onDismiss)
+    }
+}
+
+/** The active chats grouped by what they need. */
+@Composable
+internal fun UpdatesList(
+    onOpen: (Chat) -> Unit,
+    onEmptyBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    showHeader: Boolean = true,
+    contentPadding: PaddingValues = PaddingValues(bottom = 24.dp),
+) {
     val environment = LocalCompanion.current
     val session = environment.session
     val state by session.state.collectAsState()
@@ -198,8 +212,8 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
         updates.associate { it.id to CharacterMood.forChat(it.chat, state) }
     }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
-        LazyColumn(contentPadding = PaddingValues(bottom = 24.dp)) {
+    LazyColumn(modifier = modifier, contentPadding = contentPadding) {
+        if (showHeader) {
             item(key = "header") {
                 Row(
                     modifier = Modifier
@@ -212,37 +226,37 @@ internal fun UpdatesSheet(onOpen: (Chat) -> Unit, onDismiss: () -> Unit) {
                     Text(localizedUpdatesCount(updates), fontSize = 13.sp, color = secondaryTint)
                 }
             }
+        }
 
-            if (sections.isEmpty()) {
-                item(key = "empty") {
-                    UpdatesEmptyState(onBack = onDismiss, modifier = Modifier.padding(top = 24.dp))
-                }
+        if (sections.isEmpty()) {
+            item(key = "empty") {
+                UpdatesEmptyState(onBack = onEmptyBack, modifier = Modifier.padding(top = 24.dp))
             }
+        }
 
-            sections.forEach { (kind, items) ->
-                item(key = "section-$kind") {
-                    Text(
-                        text = localizedMobileCopy(UpdatesSummary.section(kind)).uppercase(),
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 0.5.sp,
-                        // Needs you wears the colour of the chat that heads it;
-                        // the other two stay quiet.
-                        color = if (kind == UpdateKind.NEEDS_YOU) {
-                            Color(BotPalette.argb(items.first().chat.color))
-                        } else {
-                            secondaryTint
-                        },
-                        modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 2.dp),
-                    )
-                }
-                items(items, key = { it.id }) { update ->
-                    UpdateRow(
-                        update = update,
-                        face = faces[update.id] ?: CharacterMood.IDLE,
-                        onOpen = { onOpen(update.chat) },
-                    )
-                }
+        sections.forEach { (kind, items) ->
+            item(key = "section-$kind") {
+                Text(
+                    text = localizedMobileCopy(UpdatesSummary.section(kind)).uppercase(),
+                    fontSize = 12.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = 0.5.sp,
+                    // Needs you wears the colour of the chat that heads it;
+                    // the other two stay quiet.
+                    color = if (kind == UpdateKind.NEEDS_YOU) {
+                        Color(BotPalette.argb(items.first().chat.color))
+                    } else {
+                        secondaryTint
+                    },
+                    modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 14.dp, bottom = 2.dp),
+                )
+            }
+            items(items, key = { it.id }) { update ->
+                UpdateRow(
+                    update = update,
+                    face = faces[update.id] ?: CharacterMood.IDLE,
+                    onOpen = { onOpen(update.chat) },
+                )
             }
         }
     }

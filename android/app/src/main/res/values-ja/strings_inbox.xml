@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">承認</string>
+    <string name="inbox_kind_question">質問</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">チャットで答える</string>
+    <string name="inbox_open_in_chat">チャットで開く</string>
+    <string name="inbox_open_chat_with">%1$s とのチャットを開く</string>
+    <string name="inbox_needs_decision">判断をお待ちしています</string>
+    <string name="inbox_news">ニュース</string>
+    <string name="inbox_news_finished">%1$s がタスクを完了しました</string>
+    <string name="inbox_news_routine_failed">ルーティンの問題: %1$s が失敗しました。タップして再試行します。</string>
+    <string name="inbox_empty_title">すべて対応済み</string>
+    <string name="inbox_empty_body">今、あなたの返事を待っているものはありません。</string>
+    <string name="automations_list">リスト</string>
+    <string name="automations_calendar">カレンダー</string>
+    <string name="automations_intro">スレッドは、1 つの会話とその結果です。ルーティンは、結果用のスレッドが 1 つある予定済みの作業です。</string>
+    <string name="automations_pause_named">%1$s を一時停止</string>
+    <string name="automations_resume_named">%1$s を再開</string>
+    <string name="automations_switch_finished">%1$s、完了</string>
+    <string name="automations_open_results">結果のスレッドを開く</string>
+    <string name="automations_status_failed">失敗しました</string>
+    <string name="inbox_review_skill_in_chat">チャットを開いてこのスキルを確認してください。</string>
+    <string name="routines_header_footer">実行のたびに、エージェントの既存のモデル、ツール、権限、コンピューター、連携アプリを使います。時刻はペアリング済みコンピューターのローカルタイムゾーンに従います。</string>
+</resources>

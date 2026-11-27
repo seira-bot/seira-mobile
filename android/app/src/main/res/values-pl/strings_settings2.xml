@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="settings2_computer_subtitle">%1$s · adres, parowanie, ponowne połączenie</string>
+    <string name="settings2_theme_label">Motyw</string>
+    <string name="settings2_sign_out_title">Wylogować?</string>
+    <string name="settings2_sign_out_note">Usuwa parowanie tylko z tego telefonu. Sparuj ponownie za pomocą kodu na komputerze.</string>
+    <string name="settings2_sign_out_footer">Usuwa parowanie tylko z tego telefonu. Aby całkowicie odciąć mu dostęp do komputera, usuń telefon na komputerze.</string>
+    <string name="settings2_apps_remove_title">Usunąć %1$s z %2$s?</string>
+    <string name="settings2_apps_remove_note">Twoje boty stracą dostęp do tego konta. Możesz je dodać ponownie później.</string>
+    <string name="settings2_apps_remove_content">Usuń %1$s z %2$s</string>
+    <string name="settings2_apps_remove_failed">Nie udało się usunąć konta. Spróbuj ponownie.</string>
+    <string name="settings2_apps_no_match">Żadna aplikacja nie pasuje do wyszukiwania.</string>
+    <string name="settings2_usage_left">Zostało %1$d%%</string>
+    <string name="settings2_usage_resets">Reset: %1$s</string>
+    <string name="computers_paired_title">Sparowane komputery</string>
+    <string name="computers_tap_to_switch">Dotknij, aby przełączyć</string>
+    <string name="computers_save_address">Zapisz adres</string>
+    <string name="computers_bot_screens_title">Ekrany botów</string>
+    <string name="computers_bot_screens_note">Oglądanie lub sterowanie ekranem wymaga dostępu tego telefonu do komputera.</string>
+    <string name="computers_bot_cloud_desktop">Pulpit w chmurze</string>
+    <string name="computers_bot_working">Pracuje</string>
+    <string name="computers_bot_waiting">Czeka na współpracownika</string>
+    <string name="computers_bot_idle">Bezczynny</string>
+    <string name="computers_bot_subtitle">%1$s · %2$s</string>
+</resources>

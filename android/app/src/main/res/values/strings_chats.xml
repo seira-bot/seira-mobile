@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">All</string>
+    <string name="chats_filter_empty">No chats here.</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s needs you.</string>
+    <string name="chats_hero_quiet">All quiet. Nothing needs you.</string>
+    <string name="search_placeholder">Search</string>
+    <string name="search_clear">Clear search</string>
+    <string name="search_filter_routines">Routines</string>
+    <string name="search_prompt">Type to search your messages.</string>
+    <string name="search_none">No results.</string>
+    <string name="search_failed">The search did not work. Try again.</string>
+    <string name="newbot_row_subtitle">You fill in a short form first</string>
+    <string name="newbot_name_label">Name</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">Job</string>
+    <string name="newbot_job_placeholder">What it does</string>
+    <string name="newbot_note">The bot is created only after you tap Create.</string>
+    <string name="newbot_create">Create bot</string>
+    <string name="newbot_creating">Creating the bot</string>
+    <string name="newbot_name_needed">Enter a name to continue.</string>
+    <string name="newbot_failed">The bot was not created. Check the connection and try again.</string>
+    <string name="newbot_create_group">Create group</string>
+    <string name="newbot_group_pick">Pick at least one bot.</string>
+    <string name="newbot_section_creates">Creates a new section (department).</string>
+    <string name="newbot_section_needed">Enter a name and pick at least one bot.</string>
+</resources>

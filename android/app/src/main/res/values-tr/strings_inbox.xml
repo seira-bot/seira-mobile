@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Onay</string>
+    <string name="inbox_kind_question">Soru</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Sohbette yanıtla</string>
+    <string name="inbox_open_in_chat">Sohbette aç</string>
+    <string name="inbox_open_chat_with">%1$s ile sohbeti aç</string>
+    <string name="inbox_needs_decision">Kararınızı bekliyor</string>
+    <string name="inbox_news">Haberler</string>
+    <string name="inbox_news_finished">%1$s bir görevi bitirdi</string>
+    <string name="inbox_news_routine_failed">Rutin sorunu: %1$s başarısız oldu. Yeniden denemek için dokunun.</string>
+    <string name="inbox_empty_title">Hepsi tamam</string>
+    <string name="inbox_empty_body">Şu anda yanıtınızı bekleyen bir şey yok.</string>
+    <string name="automations_list">Liste</string>
+    <string name="automations_calendar">Takvim</string>
+    <string name="automations_intro">Konu, tek bir konuşma ve onun sonucudur. Rutin, sonuçların toplandığı tek bir konusu olan zamanlanmış iştir.</string>
+    <string name="automations_pause_named">%1$s öğesini duraklat</string>
+    <string name="automations_resume_named">%1$s öğesini sürdür</string>
+    <string name="automations_switch_finished">%1$s, tamamlandı</string>
+    <string name="automations_open_results">Sonuç konusunu aç</string>
+    <string name="automations_status_failed">Başarısız</string>
+    <string name="inbox_review_skill_in_chat">Bu beceriyi incelemek için sohbeti açın.</string>
+    <string name="routines_header_footer">Her çalıştırma ajanın mevcut modelini, araçlarını, izinlerini, bilgisayarını ve bağlı uygulamalarını kullanır. Saatler eşlenen bilgisayarın yerel saat dilimine uyar.</string>
+</resources>

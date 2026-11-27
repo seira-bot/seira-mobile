@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.openmausbot.companion.core.Bot
 
 /**
  * A bot's computer, live — the port of `ios/App/ComputerView.swift`.
@@ -53,8 +54,7 @@ import androidx.compose.ui.unit.sp
  */
 @Composable
 fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) -> Unit = {}) {
-    val environment = LocalCompanion.current
-    val session = environment.session
+    val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
 
     val bot = remember(state, botId) { state.bot(botId) }
@@ -63,41 +63,8 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
         return
     }
 
-    // Enter asks the stream for screens, leave asks it to stop and drops the
-    // frame. Backgrounding does not pass through here: the stream is torn down
-    // whole and resumes with screens still on, which is what iOS does.
-    DisposableEffect(botId) {
-        val watch = ScreenWatch(
-            start = session::watchScreen,
-            stop = session::stopWatchingScreen,
-        )
-        watch.watch(botId)
-        onDispose { watch.release() }
-    }
-
-    val frame = state.screens[botId]
-    val image: ImageBitmap? = remember(frame) {
-        frame?.data
-            ?.let { runCatching { BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
-            ?.asImageBitmap()
-    }
-
     Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        if (image != null) {
-            Image(
-                bitmap = image,
-                contentDescription = stringResource(R.string.mobile_bot_name_s_computer_7637def1, bot.name),
-                contentScale = ContentScale.Fit,
-                modifier = Modifier.fillMaxSize(),
-            )
-        } else {
-            Waiting(
-                headline = ComputerPolicy.waitingHeadline(bot),
-                explanation = ComputerPolicy.IDLE_EXPLANATION.takeIf {
-                    ComputerPolicy.explainsIdle(bot)
-                },
-            )
-        }
+        ComputerFrame(bot = bot, modifier = Modifier.fillMaxSize())
 
         Row(
             modifier = Modifier
@@ -146,6 +113,47 @@ fun ComputerScreen(botId: String, onBack: () -> Unit, onOpenBrowser: (String) ->
                 onClick = { onOpenBrowser(botId) },
                 modifier = Modifier.fillMaxWidth(),
             ) { Text(localizedMobileCopy("Open browser")) }
+        }
+    }
+}
+
+@Composable
+internal fun ComputerFrame(bot: Bot, modifier: Modifier = Modifier) {
+    val session = LocalCompanion.current.session
+    val state by session.state.collectAsState()
+    val botId = bot.id
+
+    DisposableEffect(botId) {
+        val watch = ScreenWatch(
+            start = session::watchScreen,
+            stop = session::stopWatchingScreen,
+        )
+        watch.watch(botId)
+        onDispose { watch.release() }
+    }
+
+    val frame = state.screens[botId]
+    val image: ImageBitmap? = remember(frame) {
+        frame?.data
+            ?.let { runCatching { BitmapFactory.decodeByteArray(it, 0, it.size) }.getOrNull() }
+            ?.asImageBitmap()
+    }
+
+    Box(modifier = modifier) {
+        if (image != null) {
+            Image(
+                bitmap = image,
+                contentDescription = stringResource(R.string.mobile_bot_name_s_computer_7637def1, bot.name),
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            Waiting(
+                headline = ComputerPolicy.waitingHeadline(bot),
+                explanation = ComputerPolicy.IDLE_EXPLANATION.takeIf {
+                    ComputerPolicy.explainsIdle(bot)
+                },
+            )
         }
     }
 }

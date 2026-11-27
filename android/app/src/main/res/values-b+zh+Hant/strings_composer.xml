@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">傳訊息給群組</string>
+    <string name="composer_mode_title">核准</string>
+    <string name="composer_mode_unset">核准</string>
+    <string name="composer_mode_chip_a11y">核准模式：%1$s。點一下即可變更。</string>
+    <string name="composer_mode_selected">已選取</string>
+    <string name="composer_mode_ask">詢問</string>
+    <string name="composer_mode_edits">編輯</string>
+    <string name="composer_mode_auto">自動</string>
+    <string name="composer_mode_full">完整</string>
+    <string name="composer_mode_custom">自訂</string>
+    <string name="composer_mode_ask_sub">變更任何內容前先詢問</string>
+    <string name="composer_mode_edits_sub">自行編輯檔案，其他操作先詢問</string>
+    <string name="composer_mode_auto_sub">自行工作，僅在有風險的步驟詢問</string>
+    <string name="composer_mode_full_sub">從不詢問。可在電腦上執行任何操作</string>
+    <string name="composer_mode_custom_sub">在桌面應用程式中設定</string>
+    <string name="composer_mode_refused_full">共用的公司工作區不支援完整存取。</string>
+    <string name="composer_mode_refused_leave_custom">要離開自訂模式，請使用桌面應用程式。</string>
+    <string name="composer_mode_refused_custom">自訂模式需在桌面應用程式中設定。</string>
+    <string name="composer_mode_refused_owner">只有擁有者可以變更。</string>
+    <string name="composer_mode_refused_provider">此機器人無法在該等級運作。</string>
+    <string name="composer_mode_refused_confirming">上一次變更仍在處理中。請稍後再試。</string>
+    <string name="composer_mode_refused_other">無法變更核准模式。請重試。</string>
+    <string name="composer_mode_confirm_title">開啟自動模式？</string>
+    <string name="composer_mode_confirm_body">在自動模式下，機器人會在這台電腦上自行工作，僅在有風險的步驟詢問。</string>
+    <string name="composer_mode_confirm_yes">開啟自動模式</string>
+    <string name="composer_mode_confirm_no">暫不</string>
+    <string name="composer_goal_chip">目標：%1$s</string>
+    <string name="composer_steer_waiting">暫時無法加入這一輪。它會保留在佇列中。</string>
+    <string name="composer_steer_failed">無法將這則訊息傳送到目前這一輪。請再試一次。</string>
+    <string name="composer_slash_goal">設定目標，讓它一直做到完成</string>
+    <string name="composer_slash_learn">從這段對話草擬一份可重複使用的技能</string>
+    <string name="composer_slash_setup">讓這個機器人訪談你，並自行完成設定</string>
+    <string name="composer_slash_burst">同時執行多個任務</string>
+</resources>

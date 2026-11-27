@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">Tümü</string>
+    <string name="chats_filter_empty">Burada sohbet yok.</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s sana ihtiyaç duyuyor.</string>
+    <string name="chats_hero_quiet">Her şey sakin. Sana ihtiyaç duyan yok.</string>
+    <string name="search_placeholder">Ara</string>
+    <string name="search_clear">Aramayı temizle</string>
+    <string name="search_filter_routines">Rutinler</string>
+    <string name="search_prompt">Mesajlarında aramak için yaz.</string>
+    <string name="search_none">Sonuç yok.</string>
+    <string name="search_failed">Arama çalışmadı. Tekrar dene.</string>
+    <string name="newbot_row_subtitle">Önce kısa bir form doldurursun</string>
+    <string name="newbot_name_label">Ad</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">Görev</string>
+    <string name="newbot_job_placeholder">Ne yapar</string>
+    <string name="newbot_note">Bot, yalnızca Oluştur’a dokunduktan sonra oluşturulur.</string>
+    <string name="newbot_create">Bot oluştur</string>
+    <string name="newbot_creating">Bot oluşturuluyor</string>
+    <string name="newbot_name_needed">Devam etmek için bir ad gir.</string>
+    <string name="newbot_failed">Bot oluşturulmadı. Bağlantını kontrol et ve tekrar dene.</string>
+    <string name="newbot_create_group">Grup oluştur</string>
+    <string name="newbot_group_pick">En az bir bot seç.</string>
+    <string name="newbot_section_creates">Yeni bir bölüm (departman) oluşturur.</string>
+    <string name="newbot_section_needed">Bir ad gir ve en az bir bot seç.</string>
+</resources>

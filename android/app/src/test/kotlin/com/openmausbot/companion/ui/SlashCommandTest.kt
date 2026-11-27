@@ -19,9 +19,11 @@ import kotlin.test.assertTrue
  * `if text == "/"`, and the `else if draft.isEmpty && !current.busy &&
  * !hasPendingApproval` that gates the chips. Not derived from the Kotlin.
  */
+private val MESSAGE_TITLES = listOf("/goal", "/learn", "/setup", "/burst")
+
 class SlashCommandsTest {
     @Test
-    fun `the five commands, in the order the HUD lists them`() {
+    fun `the nine commands, in the order the HUD lists them`() {
         assertEquals(
             listOf(
                 SlashCommandId.COMPUTER,
@@ -29,11 +31,15 @@ class SlashCommandsTest {
                 SlashCommandId.DIFF,
                 SlashCommandId.RETRY,
                 SlashCommandId.STEER,
+                SlashCommandId.GOAL,
+                SlashCommandId.LEARN,
+                SlashCommandId.SETUP,
+                SlashCommandId.BURST,
             ),
             SlashCommands.ALL.map { it.id },
         )
         assertEquals(
-            listOf("/computer", "/threads", "/diff", "/retry", "/steer"),
+            listOf("/computer", "/threads", "/diff", "/retry", "/steer", "/goal", "/learn", "/setup", "/burst"),
             SlashCommands.ALL.map { it.title },
         )
     }
@@ -89,8 +95,42 @@ class SlashCommandsTest {
     }
 
     @Test
-    fun `a bot chat keeps all five`() {
-        assertEquals(SlashCommands.ALL, SlashCommands.forChat(Chat.BotChat(bot())))
+    fun `a bot chat shows the five local commands and hides the four with no phone data`() {
+        assertEquals(
+            listOf("/computer", "/threads", "/diff", "/retry", "/steer"),
+            SlashCommands.forChat(Chat.BotChat(bot())).map { it.title },
+        )
+    }
+
+    @Test
+    fun `every gate open gives a bot all nine`() {
+        val open = SlashGates(goal = true, learn = true, agents = true)
+        assertEquals(SlashCommands.ALL, SlashCommands.forChat(Chat.BotChat(bot()), open))
+    }
+
+    @Test
+    fun `learn needs its own gate, and setup and burst need the agents gate`() {
+        val chat = Chat.BotChat(bot())
+        assertEquals(
+            listOf("/learn"),
+            SlashCommands.forChat(chat, SlashGates(learn = true)).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
+        assertEquals(
+            listOf("/setup", "/burst"),
+            SlashCommands.forChat(chat, SlashGates(agents = true)).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
+    }
+
+    @Test
+    fun `a group never offers setup or burst, and a DM never offers goal`() {
+        val open = SlashGates(goal = true, learn = true, agents = true)
+        val group = SlashCommands.forChat(Chat.RoomChat(room()), open).map { it.title }.filter { it in MESSAGE_TITLES }
+        assertEquals(listOf("/goal", "/learn"), group)
+        val dm = Chat.RoomChat(room().copy(dm = true))
+        assertEquals(
+            listOf("/learn"),
+            SlashCommands.forChat(dm, open).map { it.title }.filter { it in MESSAGE_TITLES },
+        )
     }
 
     @Test
@@ -137,6 +177,28 @@ class SlashCommandsTest {
         assertFalse(SlashCommands.opensOnDraft(""))
         assertFalse(SlashCommands.opensOnDraft("hello /diff"))
         assertFalse(SlashCommands.opensOnDraft(" /diff"))
+    }
+
+    @Test
+    fun `goal, learn, setup and burst insert text that goes out as a message`() {
+        listOf("/goal", "/learn", "/setup", "/burst").forEach { title ->
+            val command = SlashCommands.ALL.single { it.title == title }
+            assertEquals(SlashEffect.Insert("$title "), command.effect)
+            assertTrue(command.description.isNotBlank())
+        }
+    }
+
+    @Test
+    fun `learn and setup say what they do in the desktop words`() {
+        assertEquals("Draft a reusable skill from this conversation", SlashCommands.ALL.single { it.title == "/learn" }.description)
+        assertEquals("Have this bot interview you and set itself up", SlashCommands.ALL.single { it.title == "/setup" }.description)
+    }
+
+    @Test
+    fun `a command with its words after it no longer holds the HUD open`() {
+        assertTrue(SlashCommands.opensOnDraft("/goal"))
+        assertFalse(SlashCommands.opensOnDraft("/goal "))
+        assertFalse(SlashCommands.opensOnDraft("/goal ship the report"))
     }
 
     @Test

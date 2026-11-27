@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Open the bot\'s screen</string>
+    <string name="chat2_header_menu">More about this chat</string>
+    <string name="chat2_open_bot">Open %1$s</string>
+    <string name="chat2_menu_find">Find in conversation</string>
+    <string name="chat2_menu_new_thread">New thread</string>
+    <string name="chat2_menu_new_thread_creating">Creating a thread…</string>
+    <string name="chat2_menu_new_thread_decision">Answer the waiting decision first.</string>
+    <string name="chat2_menu_new_thread_unavailable">This chat cannot start a new thread.</string>
+    <string name="chat2_menu_all_threads">All threads</string>
+    <string name="chat2_menu_model">Model</string>
+    <string name="chat2_menu_members">Group members</string>
+    <string name="chat2_menu_bot_screen">Bot\'s screen</string>
+    <string name="chat2_menu_share">Share transcript</string>
+    <string name="chat2_menu_share_markdown">This thread as Markdown</string>
+    <string name="chat2_menu_share_json">Share as JSON</string>
+    <string name="chat2_find_hint">Find in conversation</string>
+    <string name="chat2_find_none">No matches</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d found</item>
+        <item quantity="other">%1$d found</item>
+    </plurals>
+    <string name="chat2_find_previous">Previous match</string>
+    <string name="chat2_find_next">Next match</string>
+    <string name="chat2_find_close">Close search</string>
+    <string name="chat2_msg_react">React with %1$s</string>
+    <string name="chat2_msg_reply">Reply</string>
+    <string name="chat2_msg_edit">Edit message</string>
+    <string name="chat2_msg_more">More actions</string>
+    <string name="chat2_reply_to">Replying to %1$s</string>
+    <string name="chat2_reply_cancel">Cancel reply</string>
+    <string name="chat2_reply_you">You</string>
+    <string name="chat2_work_done">Worked for %1$s</string>
+    <string name="chat2_work_seconds">%1$ds</string>
+    <string name="chat2_work_minutes">%1$dm %2$02ds</string>
+    <string name="chat2_work_instant">Worked</string>
+    <string name="chat2_approval_needed">Approval needed</string>
+    <string name="chat2_day_today">Today</string>
+    <string name="chat2_day_yesterday">Yesterday</string>
+</resources>

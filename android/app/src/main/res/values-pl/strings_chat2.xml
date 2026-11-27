@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat2_header_screen">Otwórz ekran bota</string>
+    <string name="chat2_header_menu">Więcej o tym czacie</string>
+    <string name="chat2_open_bot">Otwórz: %1$s</string>
+    <string name="chat2_menu_find">Szukaj w rozmowie</string>
+    <string name="chat2_menu_new_thread">Nowy wątek</string>
+    <string name="chat2_menu_new_thread_creating">Tworzenie wątku…</string>
+    <string name="chat2_menu_new_thread_decision">Najpierw odpowiedz na oczekującą decyzję.</string>
+    <string name="chat2_menu_new_thread_unavailable">W tym czacie nie można rozpocząć nowego wątku.</string>
+    <string name="chat2_menu_all_threads">Wszystkie wątki</string>
+    <string name="chat2_menu_model">Model</string>
+    <string name="chat2_menu_members">Członkowie grupy</string>
+    <string name="chat2_menu_bot_screen">Ekran bota</string>
+    <string name="chat2_menu_share">Udostępnij transkrypcję</string>
+    <string name="chat2_menu_share_markdown">Ten wątek jako Markdown</string>
+    <string name="chat2_menu_share_json">Udostępnij jako JSON</string>
+    <string name="chat2_find_hint">Szukaj w rozmowie</string>
+    <string name="chat2_find_none">Brak wyników</string>
+    <plurals name="chat2_find_count">
+        <item quantity="one">%1$d znaleziono</item>
+        <item quantity="few">%1$d znaleziono</item>
+        <item quantity="many">%1$d znaleziono</item>
+        <item quantity="other">%1$d znaleziono</item>
+    </plurals>
+    <string name="chat2_find_previous">Poprzedni wynik</string>
+    <string name="chat2_find_next">Następny wynik</string>
+    <string name="chat2_find_close">Zamknij wyszukiwanie</string>
+    <string name="chat2_msg_react">Zareaguj: %1$s</string>
+    <string name="chat2_msg_reply">Odpowiedz</string>
+    <string name="chat2_msg_edit">Edytuj wiadomość</string>
+    <string name="chat2_msg_more">Więcej akcji</string>
+    <string name="chat2_reply_to">Odpowiedź dla: %1$s</string>
+    <string name="chat2_reply_cancel">Anuluj odpowiedź</string>
+    <string name="chat2_reply_you">Ty</string>
+    <string name="chat2_work_done">Praca trwała %1$s</string>
+    <string name="chat2_work_seconds">%1$d s</string>
+    <string name="chat2_work_minutes">%1$d min %2$02d s</string>
+    <string name="chat2_work_instant">Praca zakończona</string>
+    <string name="chat2_approval_needed">Wymagana zgoda</string>
+    <string name="chat2_day_today">Dzisiaj</string>
+    <string name="chat2_day_yesterday">Wczoraj</string>
+</resources>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">Открыть меню</string>
+    <string name="shell_close_menu">Закрыть меню</string>
+    <string name="shell_menu">Меню</string>
+    <string name="shell_tab_inbox">Входящие</string>
+    <string name="shell_tab_automations">Автоматизации</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d ждёт вас</item>
+        <item quantity="few">%1$d ждут вас</item>
+        <item quantity="many">%1$d ждут вас</item>
+        <item quantity="other">%1$d ждёт вас</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">Входящие, %1$d ждёт вас</item>
+        <item quantity="few">Входящие, %1$d ждут вас</item>
+        <item quantity="many">Входящие, %1$d ждут вас</item>
+        <item quantity="other">Входящие, %1$d ждёт вас</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">Все чаты</string>
+    <string name="shell_drawer_departments">Отделы</string>
+    <string name="shell_drawer_add_department">Добавить отдел</string>
+    <string name="shell_drawer_team_map">Карта команды</string>
+    <string name="shell_drawer_department_memory">Память отдела</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d бот</item>
+        <item quantity="few">%1$s, %2$d бота</item>
+        <item quantity="many">%1$s, %2$d ботов</item>
+        <item quantity="other">%1$s, %2$d бота</item>
+    </plurals>
+    <string name="shell_bot_profile_title">Профиль бота</string>
+    <string name="shell_switch_computer">Сменить компьютер</string>
+    <string name="shell_error_queued_steer_unsupported">Этот компьютер слишком старый, чтобы передать сообщение из очереди в текущий ход. Обновите на нём Seira.</string>
+    <string name="shell_error_reload_memory">Перезагрузите эту память и повторите попытку.</string>
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">Abrir menú</string>
+    <string name="shell_close_menu">Cerrar menú</string>
+    <string name="shell_menu">Menú</string>
+    <string name="shell_tab_inbox">Bandeja</string>
+    <string name="shell_tab_automations">Automatizaciones</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d te espera</item>
+        <item quantity="other">%1$d te esperan</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">Bandeja, %1$d te espera</item>
+        <item quantity="other">Bandeja, %1$d te esperan</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">Todos los chats</string>
+    <string name="shell_drawer_departments">Departamentos</string>
+    <string name="shell_drawer_add_department">Añadir departamento</string>
+    <string name="shell_drawer_team_map">Mapa del equipo</string>
+    <string name="shell_drawer_department_memory">Memoria del departamento</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d bot</item>
+        <item quantity="other">%1$s, %2$d bots</item>
+    </plurals>
+    <string name="shell_bot_profile_title">Perfil del bot</string>
+    <string name="shell_switch_computer">Cambiar de ordenador</string>
+    <string name="shell_error_queued_steer_unsupported">Esta computadora es demasiado antigua para enviar un mensaje en cola a un turno en curso. Actualiza Seira en ella.</string>
+    <string name="shell_error_reload_memory">Vuelve a cargar esta memoria e inténtalo de nuevo.</string>
+</resources>

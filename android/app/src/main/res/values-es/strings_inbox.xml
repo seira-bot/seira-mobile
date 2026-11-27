@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="inbox_kind_approval">Aprobación</string>
+    <string name="inbox_kind_question">Pregunta</string>
+    <string name="inbox_kind_with_bot">%1$s · %2$s</string>
+    <string name="inbox_answer_in_chat">Responder en el chat</string>
+    <string name="inbox_open_in_chat">Abrir en el chat</string>
+    <string name="inbox_open_chat_with">Abrir el chat con %1$s</string>
+    <string name="inbox_needs_decision">Necesita tu decisión</string>
+    <string name="inbox_news">Novedades</string>
+    <string name="inbox_news_finished">%1$s terminó una tarea</string>
+    <string name="inbox_news_routine_failed">Problema de rutina: %1$s falló. Toca para reintentar.</string>
+    <string name="inbox_empty_title">Todo al día</string>
+    <string name="inbox_empty_body">Ahora mismo no hay nada que esperen de ti.</string>
+    <string name="automations_list">Lista</string>
+    <string name="automations_calendar">Calendario</string>
+    <string name="automations_intro">Un hilo es una conversación con un resultado. Una rutina es trabajo programado con un hilo de resultados.</string>
+    <string name="automations_pause_named">Pausar %1$s</string>
+    <string name="automations_resume_named">Reanudar %1$s</string>
+    <string name="automations_switch_finished">%1$s, terminada</string>
+    <string name="automations_open_results">Abrir el hilo de resultados</string>
+    <string name="automations_status_failed">Falló</string>
+    <string name="inbox_review_skill_in_chat">Abre el chat para revisar esta skill.</string>
+    <string name="routines_header_footer">Cada ejecución usa el modelo, las herramientas, los permisos, el ordenador y las apps conectadas que ya tiene el agente. Las horas siguen la zona horaria local del ordenador vinculado.</string>
+</resources>

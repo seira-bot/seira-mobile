@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chats_filter_all">Tất cả</string>
+    <string name="chats_filter_empty">Không có cuộc trò chuyện nào ở đây.</string>
+    <string name="chats_hero_waiting">%1$s: %2$s</string>
+    <string name="chats_hero_waiting_bare">%1$s cần bạn.</string>
+    <string name="chats_hero_quiet">Mọi thứ yên ắng. Không có gì cần bạn.</string>
+    <string name="search_placeholder">Tìm kiếm</string>
+    <string name="search_clear">Xóa tìm kiếm</string>
+    <string name="search_filter_routines">Tác vụ định kỳ</string>
+    <string name="search_prompt">Nhập để tìm trong tin nhắn của bạn.</string>
+    <string name="search_none">Không có kết quả.</string>
+    <string name="search_failed">Tìm kiếm không hoạt động. Hãy thử lại.</string>
+    <string name="newbot_row_subtitle">Trước tiên bạn điền một biểu mẫu ngắn</string>
+    <string name="newbot_name_label">Tên</string>
+    <string name="newbot_name_placeholder">Nova</string>
+    <string name="newbot_job_label">Công việc</string>
+    <string name="newbot_job_placeholder">Bot làm gì</string>
+    <string name="newbot_note">Bot chỉ được tạo sau khi bạn nhấn Tạo.</string>
+    <string name="newbot_create">Tạo bot</string>
+    <string name="newbot_creating">Đang tạo bot</string>
+    <string name="newbot_name_needed">Nhập tên để tiếp tục.</string>
+    <string name="newbot_failed">Chưa tạo được bot. Hãy kiểm tra kết nối và thử lại.</string>
+    <string name="newbot_create_group">Tạo nhóm</string>
+    <string name="newbot_group_pick">Chọn ít nhất một bot.</string>
+    <string name="newbot_section_creates">Tạo một mục mới (phòng ban).</string>
+    <string name="newbot_section_needed">Nhập tên và chọn ít nhất một bot.</string>
+</resources>

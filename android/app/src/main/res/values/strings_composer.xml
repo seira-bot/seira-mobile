@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Message the group</string>
+    <string name="composer_mode_title">Approvals</string>
+    <string name="composer_mode_unset">Approvals</string>
+    <string name="composer_mode_chip_a11y">Approval mode: %1$s. Tap to change.</string>
+    <string name="composer_mode_selected">Selected</string>
+    <string name="composer_mode_ask">Ask</string>
+    <string name="composer_mode_edits">Edits</string>
+    <string name="composer_mode_auto">Auto</string>
+    <string name="composer_mode_full">Full</string>
+    <string name="composer_mode_custom">Custom</string>
+    <string name="composer_mode_ask_sub">Asks before it changes anything</string>
+    <string name="composer_mode_edits_sub">Edits files on its own and asks before anything else</string>
+    <string name="composer_mode_auto_sub">Works on its own and asks only for risky steps</string>
+    <string name="composer_mode_full_sub">Never asks. It can do anything on the computer</string>
+    <string name="composer_mode_custom_sub">Set up in the desktop app</string>
+    <string name="composer_mode_refused_full">Full access is not available on a shared company workspace.</string>
+    <string name="composer_mode_refused_leave_custom">To leave Custom, use the desktop app.</string>
+    <string name="composer_mode_refused_custom">Custom is set up in the desktop app.</string>
+    <string name="composer_mode_refused_owner">Only the owner can change this.</string>
+    <string name="composer_mode_refused_provider">This bot cannot work at that level.</string>
+    <string name="composer_mode_refused_confirming">The last change is still going through. Try again in a moment.</string>
+    <string name="composer_mode_refused_other">Could not change the approval mode. Try again.</string>
+    <string name="composer_mode_confirm_title">Turn on Auto?</string>
+    <string name="composer_mode_confirm_body">In Auto, the bot works on its own on this computer and asks only for risky steps.</string>
+    <string name="composer_mode_confirm_yes">Turn on Auto</string>
+    <string name="composer_mode_confirm_no">Not now</string>
+    <string name="composer_goal_chip">Goal: %1$s</string>
+    <string name="composer_steer_waiting">It cannot join this turn yet. It stays in the queue.</string>
+    <string name="composer_steer_failed">Could not steer this message. Try again.</string>
+    <string name="composer_slash_goal">Set a goal and let it work until done</string>
+    <string name="composer_slash_learn">Draft a reusable skill from this conversation</string>
+    <string name="composer_slash_setup">Have this bot interview you and set itself up</string>
+    <string name="composer_slash_burst">Run several tasks at once</string>
+</resources>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="composer_hint_group">Gruba mesaj</string>
+    <string name="composer_mode_title">Onaylar</string>
+    <string name="composer_mode_unset">Onaylar</string>
+    <string name="composer_mode_chip_a11y">Onay modu: %1$s. Değiştirmek için dokun.</string>
+    <string name="composer_mode_selected">Seçili</string>
+    <string name="composer_mode_ask">Sor</string>
+    <string name="composer_mode_edits">Düzenleme</string>
+    <string name="composer_mode_auto">Otomatik</string>
+    <string name="composer_mode_full">Tam</string>
+    <string name="composer_mode_custom">Özel</string>
+    <string name="composer_mode_ask_sub">Bir şeyi değiştirmeden önce sorar</string>
+    <string name="composer_mode_edits_sub">Dosyaları kendi başına düzenler, diğer her şeyden önce sorar</string>
+    <string name="composer_mode_auto_sub">Kendi başına çalışır, yalnızca riskli adımlarda sorar</string>
+    <string name="composer_mode_full_sub">Hiç sormaz. Bilgisayarda her şeyi yapabilir</string>
+    <string name="composer_mode_custom_sub">Masaüstü uygulamasında ayarlanır</string>
+    <string name="composer_mode_refused_full">Tam erişim, paylaşılan bir şirket çalışma alanında kullanılamaz.</string>
+    <string name="composer_mode_refused_leave_custom">Özel moddan çıkmak için masaüstü uygulamasını kullan.</string>
+    <string name="composer_mode_refused_custom">Özel mod masaüstü uygulamasında ayarlanır.</string>
+    <string name="composer_mode_refused_owner">Bunu yalnızca sahibi değiştirebilir.</string>
+    <string name="composer_mode_refused_provider">Bu bot o seviyede çalışamaz.</string>
+    <string name="composer_mode_refused_confirming">Son değişiklik hâlâ işleniyor. Birazdan tekrar dene.</string>
+    <string name="composer_mode_refused_other">Onay modu değiştirilemedi. Tekrar dene.</string>
+    <string name="composer_mode_confirm_title">Otomatik açılsın mı?</string>
+    <string name="composer_mode_confirm_body">Otomatik modda bot bu bilgisayarda kendi başına çalışır ve yalnızca riskli adımlarda sorar.</string>
+    <string name="composer_mode_confirm_yes">Otomatiği aç</string>
+    <string name="composer_mode_confirm_no">Şimdi değil</string>
+    <string name="composer_goal_chip">Hedef: %1$s</string>
+    <string name="composer_steer_waiting">Bu tura henüz katılamıyor. Sırada bekliyor.</string>
+    <string name="composer_steer_failed">Bu mesaj sürmekte olan tura iletilemedi. Tekrar deneyin.</string>
+    <string name="composer_slash_goal">Bir hedef belirle ve bitene kadar çalışsın</string>
+    <string name="composer_slash_learn">Bu sohbetten yeniden kullanılabilir bir beceri taslağı oluşturun</string>
+    <string name="composer_slash_setup">Bu botun sizinle mülakat yapmasını ve kendini kurmasını sağlayın</string>
+    <string name="composer_slash_burst">Birden çok görevi aynı anda çalıştır</string>
+</resources>

@@ -27,8 +27,6 @@
     <string name="ai_usage_window_five_hour">5-hour limit</string>
     <string name="ai_usage_window_weekly">Weekly limit</string>
     <string name="ai_usage_window_other">Other limit</string>
-    <string name="ai_usage_window_row">%1$d%% left · resets %2$s</string>
-    <string name="ai_usage_window_row_no_reset">%1$d%% left</string>
     <string name="ai_usage_paused_until">Paused until %1$s</string>
     <string name="ai_usage_paused">Paused</string>
     <string name="ai_usage_near_limit">Almost at the limit</string>

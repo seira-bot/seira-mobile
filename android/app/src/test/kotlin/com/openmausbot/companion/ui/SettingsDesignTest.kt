@@ -29,15 +29,6 @@ class SettingsDesignTest {
     val compose = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun `initials use the first letter of up to two words`() {
-        assertEquals("DP", SettingsDesign.initials("Dina Pratama"))
-        assertEquals("D", SettingsDesign.initials("  dina "))
-        assertEquals("DM", SettingsDesign.initials("Dina Maya Pratama"))
-        assertNull(SettingsDesign.initials("   "))
-        assertNull(SettingsDesign.initials("--"))
-    }
-
-    @Test
     fun `a channel the system has not made yet counts as on`() {
         assertTrue(SettingsDesign.channelIsOn(appNotificationsEnabled = true, importance = null))
         assertTrue(SettingsDesign.channelIsOn(true, NotificationManager.IMPORTANCE_HIGH))
@@ -67,25 +58,19 @@ class SettingsDesignTest {
     }
 
     @Test
-    fun `the profile card shows the account from the computer`() {
+    fun `the computer group names the paired computer`() {
         val mac = Connection(id = "c1", name = "Dina's MacBook", host = "127.0.0.1", port = 8810)
         val scene = WiringScene(connection = mac)
         compose.setContent {
             CompositionLocalProvider(LocalCompanion provides scene.environment) {
                 CompanionTheme(darkTheme = false) {
-                    SettingsScreen(
-                        onBack = {},
-                        accounts = AccountInfoSource {
-                            AccountInfo(Profile(name = "Dina Pratama", email = "dina@example.com"))
-                        },
-                    )
+                    SettingsScreen(onBack = {})
                 }
             }
         }
         compose.waitUntil(5_000) { scene.session.connection.value != null }
         compose.waitForIdle()
-        compose.onNodeWithText("Dina Pratama").assertExists()
-        compose.onNodeWithText("dina@example.com").assertExists()
+        compose.onNodeWithText("Dina's MacBook").assertExists()
     }
 
     @Test

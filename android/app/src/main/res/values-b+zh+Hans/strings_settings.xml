@@ -27,8 +27,6 @@
     <string name="ai_usage_window_five_hour">5 小时限额</string>
     <string name="ai_usage_window_weekly">每周限额</string>
     <string name="ai_usage_window_other">其他限额</string>
-    <string name="ai_usage_window_row">剩余 %1$d%% · %2$s重置</string>
-    <string name="ai_usage_window_row_no_reset">剩余 %1$d%%</string>
     <string name="ai_usage_paused_until">暂停至 %1$s</string>
     <string name="ai_usage_paused">已暂停</string>
     <string name="ai_usage_near_limit">即将达到限额</string>

@@ -31,7 +31,7 @@ private fun SeiraColors.toColorScheme(): ColorScheme {
         darkColorScheme(
             primary = primary, onPrimary = onPrimary,
             primaryContainer = control, onPrimaryContainer = ink,
-            secondary = accent, onSecondary = Color.White,
+            secondary = accent, onSecondary = onAccent,
             secondaryContainer = control, onSecondaryContainer = ink,
             tertiary = success, onTertiary = Color.White,
             background = app, onBackground = ink,
@@ -51,7 +51,7 @@ private fun SeiraColors.toColorScheme(): ColorScheme {
         lightColorScheme(
             primary = primary, onPrimary = onPrimary,
             primaryContainer = control, onPrimaryContainer = ink,
-            secondary = accent, onSecondary = Color.White,
+            secondary = accent, onSecondary = onAccent,
             secondaryContainer = control, onSecondaryContainer = ink,
             tertiary = success, onTertiary = Color.White,
             background = app, onBackground = ink,

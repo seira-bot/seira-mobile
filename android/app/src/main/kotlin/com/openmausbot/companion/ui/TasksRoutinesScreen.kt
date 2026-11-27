@@ -75,13 +75,13 @@ import java.util.Locale
  * Tasks & Routines — the port of `ios/App/TasksRoutinesView.swift`.
  *
  * A task is one conversation and result; a routine runs with fresh context and
- * collects results in one thread, with no cron syntax anywhere. Webhook management
+ * collects results in one thread. Webhook management
  * and the cancel/seen operations on a run are not on the paired allowlist and have no
  * control here — only the receipts a webhook run leaves behind.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit) {
+internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit, embedded: Boolean = false) {
     val session = LocalCompanion.current.session
     val state by session.state.collectAsState()
     val scope = rememberCoroutineScope()
@@ -108,29 +108,47 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
     val receipts = remember(runs) { RoutineRules.receipts(runs) }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 10.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            HeaderBackButton(onBack)
-            Text(
-                text = stringResource(R.string.mobile_threads_routines_65d7efcd),
-                fontSize = 17.sp,
-                fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.weight(1f),
-            )
-            ChromeButton(
-                icon = Icons.Filled.Add,
-                contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
-                onClick = { editor = RoutineEditorTarget.new() },
-                size = 36.dp,
-                glyph = 18.dp,
-            )
+        if (embedded) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                ChromeButton(
+                    icon = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
+                    onClick = { editor = RoutineEditorTarget.new() },
+                    size = 36.dp,
+                    glyph = 18.dp,
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 10.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                HeaderBackButton(onBack)
+                Text(
+                    text = stringResource(R.string.mobile_threads_routines_65d7efcd),
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.weight(1f),
+                )
+                ChromeButton(
+                    icon = Icons.Filled.Add,
+                    contentDescription = stringResource(R.string.mobile_new_routine_32809dc6),
+                    onClick = { editor = RoutineEditorTarget.new() },
+                    size = 36.dp,
+                    glyph = 18.dp,
+                )
+            }
+            HorizontalDivider()
         }
-        HorizontalDivider()
 
         PullToRefreshBox(
             isRefreshing = refreshing,
@@ -149,7 +167,7 @@ internal fun TasksRoutinesScreen(onBack: () -> Unit, onOpenChat: (Chat) -> Unit)
                 verticalArrangement = Arrangement.spacedBy(18.dp),
             ) {
                 item(key = "explainer") {
-                    FormSection(header = null, footer = RoutineRules.HEADER_FOOTER) {
+                    FormSection(header = null, footer = stringResource(R.string.routines_header_footer)) {
                         IconNote(
                             text = RoutineRules.HEADER_TASK,
                             painter = R.drawable.ic_chat_bubbles,
@@ -625,7 +643,7 @@ private fun SectionNote(title: String, description: String) {
 }
 
 @Composable
-private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String {
+internal fun localizedRoutineSubtitle(routine: Routine, botName: String?): String {
     val schedule = routine.schedule
     val summary = when (schedule.type) {
         RoutineSchedule.Kind.ONCE -> schedule.at?.let {
@@ -676,7 +694,7 @@ private fun localizedRoutineSubtitle(routine: Routine, botName: String?): String
 }
 
 @Composable
-private fun localizedRoutineRunSubtitle(run: RoutineRun, botName: String?): String = stringResource(
+internal fun localizedRoutineRunSubtitle(run: RoutineRun, botName: String?): String = stringResource(
     R.string.mobile_routine_run_subtitle,
     botName ?: stringResource(R.string.mobile_deleted_agent_ff6eff9d),
     RelativeStamp.dateAndTime(run.scheduledFor, ZoneId.systemDefault(), Locale.getDefault()),

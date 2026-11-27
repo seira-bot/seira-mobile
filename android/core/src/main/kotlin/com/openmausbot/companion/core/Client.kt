@@ -583,7 +583,194 @@ class CompanionClient(
     suspend fun overview(botId: String): BotOverview =
         send(makeRequest("GET", "/api/bots/${segment(botId)}/overview"))
 
-    suspend fun createBot(): Bot = send<CreatedBot>(makeRequest("POST", "/api/bots")).bot
+    suspend fun createBot(): Bot = createBot(NewBot())
+
+    /** Say who a new bot is and how it looks. Anything left null is the computer's to choose. */
+    suspend fun createBot(spec: NewBot): Bot {
+        val body = if (spec.isEmpty) null else buildJsonObject {
+            spec.name?.let { put("name", it) }
+            spec.title?.let { put("title", it) }
+            spec.description?.let { put("description", it) }
+            spec.soul?.let { put("soul", it) }
+            spec.replyStyle?.let { put("replyStyle", it.wire) }
+            spec.color?.let { put("color", it) }
+            spec.mascotBody?.let { put("mascotBody", it) }
+            spec.mascotAccessories?.let { put("mascotAccessories", JsonArray(it.map(::JsonPrimitive))) }
+            spec.mascotFaceColor?.let { put("mascotFaceColor", it) }
+            spec.mascotExpression?.let { put("mascotExpression", it) }
+            spec.retryKey?.let { put("retryKey", it) }
+        }
+        return send<CreatedBot>(makeRequest("POST", "/api/bots", body = body)).bot
+    }
+
+    /** Remove one bot. The computer refuses its default bot. */
+    suspend fun deleteBot(botId: String) {
+        sendUnit(makeRequest("DELETE", "/api/bots/${segment(botId)}"))
+    }
+
+    /**
+     * Change how much one conversation may do before it asks. [mode] must be one
+     * a phone may set; Custom is made on the desktop. Send [acknowledgeLocalAuto]
+     * after the person confirmed the warning for Auto on the computer itself.
+     */
+    suspend fun setApprovalMode(
+        botId: String,
+        threadId: String,
+        mode: ApprovalMode,
+        acknowledgeLocalAuto: Boolean = false,
+    ): Bot {
+        require(mode.phoneCanSet) { "Custom approval is set on the desktop." }
+        return send<TaskPatchResponse>(makeRequest(
+            "PATCH",
+            "/api/bots/${segment(botId)}/tasks/${segment(threadId)}",
+            body = buildJsonObject {
+                put("approvalMode", mode.wire)
+                if (acknowledgeLocalAuto) put("acknowledgeLocalAuto", true)
+            },
+        )).bot
+    }
+
+    /**
+     * Send a held queued message into the turn that is running, without
+     * stopping it. Matched on the harness's own wording like [cancelQueued].
+     */
+    suspend fun steerQueued(queueId: String, to: MessageDestination): SteerResult {
+        if (!isSafeRouteId(queueId)) throw APIError.BadUrl
+        val route = when (to) {
+            is MessageDestination.Bot -> "/api/bots/${safeRouteId(to.id)}/queue/$queueId/steer"
+            is MessageDestination.Room -> "/api/groups/${safeRouteId(to.id)}/queue/$queueId/steer"
+        }
+        try {
+            return send<SteerBody>(makeRequest("POST", route, body = jsonBody("threadId" to to.threadId))).result()
+        } catch (error: APIError.Status) {
+            if (error.code != 404) throw error
+            if (error.serverMessage?.contains(ALREADY_DRAINED, ignoreCase = true) == true) return SteerResult.Gone
+            throw APIError.Status(404, Session.QUEUED_STEER_UNSUPPORTED_MESSAGE)
+        }
+    }
+
+    /** What a bot ran and what it asked about. Read-only. */
+    suspend fun activity(botId: String, limit: Int? = null): List<ActivityRow> {
+        require(limit == null || limit > 0)
+        val query = limit?.let { listOf("limit" to it.toString()) }.orEmpty()
+        return send<ActivityPage>(makeRequest("GET", "/api/bots/${segment(botId)}/activity", query)).rows
+    }
+
+    suspend fun skills(botId: String): List<BotSkill> =
+        send<BotSkillsResponse>(makeRequest("GET", "/api/bots/${segment(botId)}/skills")).skills
+
+    suspend fun botData(botId: String): BotData =
+        send(makeRequest("GET", "/api/bots/${segment(botId)}/data"))
+
+    suspend fun dataPage(botId: String, request: DataPageRequest): DataPage {
+        require((request.table != null) != (request.cardId != null)) { "Ask for a table or a card, not both." }
+        require(request.offset >= 0 && request.limit in 1..DataPageRequest.MAX_LIMIT)
+        val body = buildJsonObject {
+            request.table?.let { put("table", it) }
+            request.cardId?.let { put("cardId", it) }
+            put("offset", request.offset)
+            put("limit", request.limit)
+            request.sortColumn?.let {
+                put("sort", buildJsonObject {
+                    put("column", it)
+                    put("direction", if (request.sortDescending) "desc" else "asc")
+                })
+            }
+            request.filter?.let { put("filter", it) }
+            request.filterColumn?.let { put("filterColumn", it) }
+        }
+        return send(makeRequest("POST", "/api/bots/${segment(botId)}/data/page", body = body))
+    }
+
+    suspend fun teamMap(): TeamMap = send(makeRequest("GET", "/api/team-map"))
+
+    /** [section] is a sidebar heading's name; the empty string is General. */
+    suspend fun teamMemory(section: String): TeamMemoryPage =
+        send(makeRequest("GET", "/api/team-memory", listOf("section" to section)))
+
+    suspend fun addTeamMemory(
+        section: String,
+        kind: TeamMemoryKind,
+        name: String,
+        detail: String = "",
+        aliases: List<String>? = null,
+    ): TeamMemoryEdit = send(makeRequest(
+        "POST",
+        "/api/team-memory",
+        listOf("section" to section),
+        buildJsonObject {
+            put("kind", kind.wire)
+            put("name", name)
+            put("detail", detail)
+            aliases?.let { put("aliases", JsonArray(it.map(::JsonPrimitive))) }
+        },
+    ))
+
+    /** Edit one fact, or accept a proposed one. [revision] is the entry's own, from the last read. */
+    suspend fun updateTeamMemory(
+        section: String,
+        entryId: String,
+        revision: String,
+        name: String? = null,
+        detail: String? = null,
+        aliases: List<String>? = null,
+        kind: TeamMemoryKind? = null,
+        pinned: Boolean? = null,
+        accept: Boolean = false,
+    ): TeamMemoryEdit = send(makeRequest(
+        "PATCH",
+        "/api/team-memory/${segment(entryId)}",
+        listOf("section" to section),
+        buildJsonObject {
+            put("expectedRevision", revision)
+            if (accept) put("accept", true)
+            name?.let { put("name", it) }
+            detail?.let { put("detail", it) }
+            aliases?.let { put("aliases", JsonArray(it.map(::JsonPrimitive))) }
+            kind?.let { put("kind", it.wire) }
+            pinned?.let { put("pinned", it) }
+        },
+    ))
+
+    suspend fun deleteTeamMemory(section: String, entryId: String, revision: String): TeamMemoryEdit = send(
+        makeRequest(
+            "DELETE",
+            "/api/team-memory/${segment(entryId)}",
+            listOf("section" to section, "revision" to revision),
+        ),
+    )
+
+    /** Remove one signed-in account of a connected app. The app's other accounts stay. */
+    suspend fun deleteConnectorAccount(connectorId: String, accountId: String) {
+        sendUnit(makeRequest("DELETE", "/api/connectors/${segment(connectorId)}/accounts/${segment(accountId)}"))
+    }
+
+    suspend fun computerControl(botId: String, threadId: String? = null): ComputerControlState = send(
+        makeRequest("GET", "/api/bots/${segment(botId)}/computer/control", controlQuery(threadId)),
+    )
+
+    /** Take or give back the computer. [leaseId] ties the hold to this phone so it lapses when the phone goes away. */
+    suspend fun computerControl(
+        botId: String,
+        action: ComputerControlAction,
+        leaseId: String? = null,
+        threadId: String? = null,
+        target: String? = null,
+    ): ComputerControlState = send(
+        makeRequest(
+            "POST",
+            "/api/bots/${segment(botId)}/computer/control",
+            controlQuery(threadId),
+            buildJsonObject {
+                put("action", action.wire)
+                leaseId?.let { put("controlLeaseId", it) }
+                target?.let { put("target", it) }
+            },
+        ),
+    )
+
+    private fun controlQuery(threadId: String?): List<Pair<String, String>> =
+        threadId?.let { listOf("threadId" to it) }.orEmpty()
 
     /**
      * Atomically file visible bots under one shared sidebar heading. This is
@@ -1320,9 +1507,9 @@ class CompanionClient(
 
     private fun check(response: RawResponse) {
         if (response.code in 200..299) return
-        val message = runCatching {
-            CompanionJson.decodeFromString<APIErrorBody>(response.data.toString(Charsets.UTF_8)).error
-        }.getOrNull()
+        val text = response.data.toString(Charsets.UTF_8)
+        val message = runCatching { CompanionJson.decodeFromString<APIErrorBody>(text).error }.getOrNull()
+            ?: runCatching { CompanionJson.decodeFromString<DataErrorBody>(text).error.message }.getOrNull()
         throw APIError.Status(response.code, message)
     }
 

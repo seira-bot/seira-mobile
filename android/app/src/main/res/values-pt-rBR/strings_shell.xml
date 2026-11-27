@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shell_open_menu">Abrir menu</string>
+    <string name="shell_close_menu">Fechar menu</string>
+    <string name="shell_menu">Menu</string>
+    <string name="shell_tab_inbox">Caixa de entrada</string>
+    <string name="shell_tab_automations">Automações</string>
+    <plurals name="shell_updates_waiting">
+        <item quantity="one">%1$d espera por você</item>
+        <item quantity="other">%1$d esperam por você</item>
+    </plurals>
+    <plurals name="shell_inbox_waiting">
+        <item quantity="one">Caixa de entrada, %1$d espera por você</item>
+        <item quantity="other">Caixa de entrada, %1$d esperam por você</item>
+    </plurals>
+    <string name="shell_drawer_all_chats">Todos os chats</string>
+    <string name="shell_drawer_departments">Departamentos</string>
+    <string name="shell_drawer_add_department">Adicionar departamento</string>
+    <string name="shell_drawer_team_map">Mapa da equipe</string>
+    <string name="shell_drawer_department_memory">Memória do departamento</string>
+    <plurals name="shell_department_row">
+        <item quantity="one">%1$s, %2$d bot</item>
+        <item quantity="other">%1$s, %2$d bots</item>
+    </plurals>
+    <string name="shell_bot_profile_title">Perfil do bot</string>
+    <string name="shell_switch_computer">Trocar de computador</string>
+    <string name="shell_error_queued_steer_unsupported">Este computador é antigo demais para enviar uma mensagem em fila a um turno em andamento. Atualize o Seira nele.</string>
+    <string name="shell_error_reload_memory">Recarregue esta memória e tente de novo.</string>
+</resources>

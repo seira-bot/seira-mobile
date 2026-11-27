@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -30,37 +31,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.openmausbot.companion.core.QueuedSend
+import com.openmausbot.companion.ui.theme.Seira
 
 /**
  * A message the computer is holding, sitting just above the chat bar.
  *
  * A mid-turn send to a bot that cannot take words into a running turn does
- * not reach the transcript: the harness holds it, because appending it now
- * would make it the active leaf and the rest of the turn would hang off a
- * line the model never saw. Correct — but with nothing on screen it reads as
- * the phone having eaten the message, which is the bug this row fixes.
- *
- * It lives above the composer rather than in the transcript because that is
- * where a thing you have not said yet belongs — still in your hands, next to
- * the field you typed it in. Both actions are words, not glyphs: Steer stops
- * the turn so these words run now (the harness deliberately keeps its queue
- * across an interrupt, which is what makes stopping a send), the pencil
- * takes them back into the chat bar to tweak or extend, and the bin drops
- * them.
+ * not reach the transcript: the harness holds it. The row keeps it in view,
+ * next to the field it was typed in. Steer asks the computer to move the held
+ * words into the running turn without stopping it; the pencil takes them back
+ * into the chat bar, and the bin drops them.
  */
 @Composable
 fun QueuedSendRow(
     send: QueuedSend,
-    /**
-     * Stop the turn so this runs now. Null where the phone cannot interrupt —
-     * a room — so the button is not offered rather than offered and broken.
-     */
+    /** Move these words into the running turn. Null hides the button. */
     onSteer: (() -> Unit)?,
-    /**
-     * The interrupt is in flight. Engines take their time noticing one — codex
-     * needs about six seconds — and a button that looks untouched for six
-     * seconds has, as far as the person is concerned, done nothing.
-     */
+    /** A Steer is in flight; the button shows progress until the computer answers. */
     steering: Boolean,
     /** Pull these words back into the chat bar to change them before they send. */
     onEdit: () -> Unit,
@@ -70,7 +57,7 @@ fun QueuedSendRow(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(18.dp))
-            .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.08f))
+            .background(Seira.colors.s2)
             .padding(start = 12.dp, end = 6.dp, top = 6.dp, bottom = 6.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -88,6 +75,7 @@ fun QueuedSendRow(
                     .clip(RoundedCornerShape(50))
                     .background(MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
                     .clickable(enabled = !steering, role = Role.Button, onClick = onSteer)
+                    .heightIn(min = 48.dp)
                     .padding(horizontal = 11.dp, vertical = 6.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                 verticalAlignment = Alignment.CenterVertically,
@@ -119,8 +107,8 @@ fun QueuedSendRow(
             modifier = Modifier
                 .clip(RoundedCornerShape(50))
                 .clickable(role = Role.Button, onClick = onEdit)
-                .padding(6.dp)
-                .size(16.dp),
+                .size(48.dp)
+                .padding(16.dp),
         )
         Icon(
             imageVector = Icons.Filled.Delete,
@@ -129,8 +117,8 @@ fun QueuedSendRow(
             modifier = Modifier
                 .clip(RoundedCornerShape(50))
                 .clickable(role = Role.Button, onClick = onCancel)
-                .padding(6.dp)
-                .size(16.dp),
+                .size(48.dp)
+                .padding(16.dp),
         )
     }
 }

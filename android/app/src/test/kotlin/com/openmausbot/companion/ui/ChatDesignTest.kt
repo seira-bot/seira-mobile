@@ -74,33 +74,33 @@ class ChatDesignTest {
     // The header
 
     @Test
-    fun `the header has a back button, the name pill and a call button`() {
-        showHeader(ChatCallAction.START)
+    fun `the header has a back button, the name pill, the screen button and the menu`() {
+        showHeader(showScreen = true)
         compose.onNodeWithContentDescription("Back").assertExists()
-        compose.onNodeWithContentDescription("Open ${bot.name} settings").assertExists()
-        compose.onNodeWithContentDescription("Start live call").assertExists()
+        compose.onNodeWithContentDescription("Open ${bot.name}").assertExists()
+        compose.onNodeWithContentDescription("Open the bot's screen").assertExists()
+        compose.onNodeWithContentDescription("More about this chat").assertExists()
         compose.onNodeWithText(bot.name, useUnmergedTree = true).assertExists()
     }
 
     @Test
-    fun `the call button opens a call that is already running`() {
-        showHeader(ChatCallAction.OPEN)
-        compose.onNodeWithContentDescription("Open live call").assertExists()
-        assertEquals(0, compose.onAllNodesWithContentDescription("Start live call").fetchSemanticsNodes().size)
-    }
-
-    @Test
-    fun `the header offers no call where a call is not possible`() {
-        showHeader(ChatCallAction.NONE)
-        compose.onNodeWithContentDescription("Back").assertExists()
+    fun `the header has no call button`() {
+        showHeader(showScreen = true)
         assertEquals(0, compose.onAllNodesWithContentDescription("Start live call").fetchSemanticsNodes().size)
         assertEquals(0, compose.onAllNodesWithContentDescription("Open live call").fetchSemanticsNodes().size)
     }
 
     @Test
+    fun `the header hides the screen button where there is no screen`() {
+        showHeader(showScreen = false)
+        compose.onNodeWithContentDescription("Back").assertExists()
+        assertEquals(0, compose.onAllNodesWithContentDescription("Open the bot's screen").fetchSemanticsNodes().size)
+    }
+
+    @Test
     fun `the header controls are at least 48 dp square`() {
-        showHeader(ChatCallAction.START)
-        listOf("Back", "Start live call", "Open ${bot.name} settings").forEach { description ->
+        showHeader(showScreen = true)
+        listOf("Back", "Open the bot's screen", "More about this chat", "Open ${bot.name}").forEach { description ->
             val bounds = compose.onNodeWithContentDescription(description).getBoundsInRoot()
             assertTrue(bounds.width >= 48.dp && bounds.height >= 48.dp, "$description is ${bounds.width} by ${bounds.height}")
         }
@@ -130,16 +130,16 @@ class ChatDesignTest {
         val items = listOf("Read invoices", "Check totals").mapIndexed { index, name ->
             Message("t$index", Message.Role.BOT, Message.Kind.ACTIVITY, index.toDouble(), tool = ToolActivity(name = name, ok = true))
         }
-        show { ActivityRunChip(items = items, bots = listOf(bot)) }
-        compose.onNodeWithContentDescription("Ran 2 steps, collapsed").assertExists()
+        show { ActivityRunChip(items = items) }
+        compose.onNodeWithContentDescription("Worked, collapsed").assertExists()
         compose.onNodeWithTag(ACTIVITY_CHEVRON_TAG, useUnmergedTree = true).assertExists()
 
-        compose.onNodeWithContentDescription("Ran 2 steps, collapsed").performClick()
-        compose.onNodeWithContentDescription("Ran 2 steps, expanded").assertExists()
+        compose.onNodeWithContentDescription("Worked, collapsed").performClick()
+        compose.onNodeWithContentDescription("Worked, expanded").assertExists()
         compose.onNodeWithTag(ACTIVITY_CHEVRON_TAG, useUnmergedTree = true).assertExists()
 
-        compose.onNodeWithContentDescription("Ran 2 steps, expanded").performClick()
-        compose.onNodeWithContentDescription("Ran 2 steps, collapsed").assertExists()
+        compose.onNodeWithContentDescription("Worked, expanded").performClick()
+        compose.onNodeWithContentDescription("Worked, collapsed").assertExists()
     }
 
     @Test
@@ -160,9 +160,9 @@ class ChatDesignTest {
     @Test
     fun `an approval has Allow and Deny, each 48 dp tall`() {
         showApproval(skill = null)
-        compose.onNodeWithText("Allow").assertIsEnabled()
+        compose.onNodeWithText("Allow once").assertIsEnabled()
         compose.onNodeWithText("Deny").assertIsEnabled()
-        listOf("Allow", "Deny").forEach { label ->
+        listOf("Allow once", "Deny").forEach { label ->
             val height = compose.onNodeWithText(label).getBoundsInRoot().height
             assertTrue(height >= 47.9.dp, "$label is $height tall")
         }
@@ -231,15 +231,16 @@ class ChatDesignTest {
 
     // Scaffolding
 
-    private fun showHeader(call: ChatCallAction) = show {
+    private fun showHeader(showScreen: Boolean) = show {
         ChatHeader(
             chat = chat,
             face = CharacterMood.IDLE,
             status = ChatStatus.IDLE,
             unreadElsewhere = 0,
-            call = call,
+            showScreen = showScreen,
             onBack = {},
-            onCall = {},
+            onOpenScreen = {},
+            onOpenMenu = {},
             onOpenPill = {},
             onHeight = {},
         )

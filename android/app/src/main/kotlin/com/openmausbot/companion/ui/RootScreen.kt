@@ -11,6 +11,13 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.graphicsLayer
+import com.openmausbot.companion.ui.computers.ComputersScreen
+import com.openmausbot.companion.ui.home.HomeShell
+import com.openmausbot.companion.ui.profile.BotProfileScreen
+import com.openmausbot.companion.ui.profile.ProfileTab
+import com.openmausbot.companion.ui.search.SearchScreen
+import com.openmausbot.companion.ui.team.TeamMapScreen
+import com.openmausbot.companion.ui.team.TeamMemoryScreen
 import com.openmausbot.companion.ui.theme.Seira
 import com.openmausbot.companion.ui.theme.SeiraMotion
 import com.openmausbot.companion.ui.theme.rememberReducedMotion
@@ -433,12 +440,33 @@ private fun PairedScreen(
                 },
         ) {
             when (val destination = navigator.current) {
-                Destination.Roster -> RosterScreen(navigator)
+                Destination.Roster -> HomeShell(navigator)
+                Destination.Search -> SearchScreen(onBack = navigator::pop, navigator = navigator)
+                Destination.Computers -> ComputersScreen(
+                    onBack = navigator::pop,
+                    onOpenAiUsage = { navigator.push(Destination.AiUsage) },
+                    onOpenConnectedApps = { navigator.push(Destination.ConnectedApps) },
+                    onOpenBotScreen = { navigator.push(Destination.Computer(it)) },
+                )
+                is Destination.BotProfile -> BotProfileScreen(
+                    botId = destination.botId,
+                    tab = destination.tab,
+                    onBack = navigator::pop,
+                    onOpenChat = { navigator.push(Destination.Chat(it)) },
+                    onOpenBrowser = { navigator.push(Destination.Browser(it)) },
+                    onDeleted = navigator::resetToRoster,
+                )
+                Destination.TeamMap -> TeamMapScreen(
+                    onBack = navigator::pop,
+                    onOpenBot = { navigator.push(Destination.BotProfile(it)) },
+                )
+                Destination.TeamMemory -> TeamMemoryScreen(onBack = navigator::pop)
                 Destination.Settings -> SettingsScreen(
                     onBack = navigator::pop,
                     onOpenRoutines = { navigator.push(Destination.Routines) },
                     onOpenConnectedApps = { navigator.push(Destination.ConnectedApps) },
                     onOpenAiUsage = { navigator.push(Destination.AiUsage) },
+                    onOpenComputers = { navigator.push(Destination.Computers) },
                 )
                 Destination.Routines -> TasksRoutinesScreen(
                     onBack = navigator::pop,
@@ -478,9 +506,13 @@ private fun PairedScreen(
                     botId = destination.botId,
                     onBack = navigator::pop,
                 )
-                is Destination.Overview -> BotOverviewScreen(
+                is Destination.Overview -> BotProfileScreen(
                     botId = destination.botId,
+                    tab = ProfileTab.SETTINGS.key,
                     onBack = navigator::pop,
+                    onOpenChat = { navigator.push(Destination.Chat(it)) },
+                    onOpenBrowser = { navigator.push(Destination.Browser(it)) },
+                    onDeleted = navigator::resetToRoster,
                 )
             }
         }
@@ -494,7 +526,7 @@ private fun ActionErrorDialog(session: Session) {
     AlertDialog(
         onDismissRequest = { session.actionError = null },
         title = { Text(stringResource(R.string.mobile_something_went_wrong_8d886c0b)) },
-        text = { Text(localizedMobileCopy(text)) },
+        text = { Text(localizedActionError(text)) },
         confirmButton = {
             TextButton(onClick = { session.actionError = null }) { Text(stringResource(R.string.mobile_ok_9ce3bd42)) }
         },

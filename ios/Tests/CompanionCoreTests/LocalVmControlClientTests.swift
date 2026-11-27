@@ -69,7 +69,7 @@ final class LocalVmControlClientTests: XCTestCase {
         let lease = "phone-lease-0123456789"
         LocalVmControlStub.responseBody = Data(#"{"held":true,"helpReason":null,"owned":true,"acquired":true}"#.utf8)
         let state = try await client().computerControl(botId: "bot_1", take: true, leaseId: lease)
-        XCTAssertEqual(state, ComputerControlState(held: true, owned: true))
+        XCTAssertEqual(state, ComputerControlState(held: true, owned: true, acquired: true))
         let request = try XCTUnwrap(LocalVmControlStub.capturedRequest)
         XCTAssertEqual(request.url?.path, "/api/bots/bot_1/computer/control")
         XCTAssertEqual(request.value(forHTTPHeaderField: "Content-Type"), "application/json")
