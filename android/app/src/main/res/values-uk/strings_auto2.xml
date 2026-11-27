@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Що має статися?</string>
+    <string name="auto2_sheet_title">Що має статися?</string>
+    <string name="auto2_describe_label">Опишіть</string>
+    <string name="auto2_describe_placeholder">Щоранку о 9-й складай зведення моїх вхідних</string>
+    <string name="auto2_who_sub">Хто цим займеться?</string>
+    <string name="auto2_who_title">Хто цим займеться?</string>
+    <string name="auto2_who_row">%1$s, хто цим займеться? Торкніться, щоб змінити.</string>
+    <string name="auto2_who_selected">%1$s, вибрано</string>
+    <string name="auto2_set_up_yourself">Налаштувати самостійно</string>
+    <string name="auto2_set_up">Налаштувати</string>
+    <string name="auto2_set_up_needs_text">Спершу опишіть, що має статися.</string>
+    <string name="auto2_view_label">Вигляд календаря</string>
+    <string name="auto2_view_day">День</string>
+    <string name="auto2_view_week">Тиждень</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Дії бота</string>
+    <string name="auto2_pin">Закріпити</string>
+    <string name="auto2_unpin">Відкріпити</string>
+    <string name="auto2_mark_unread">Позначити непрочитаним</string>
+    <string name="auto2_mark_all_read">Позначити всі розмови прочитаними</string>
+    <string name="auto2_move_department">Перемістити до відділу</string>
+    <string name="auto2_copy_id">Копіювати ID розмови</string>
+    <string name="auto2_done_pinned">Закріплено</string>
+    <string name="auto2_done_unpinned">Відкріплено</string>
+    <string name="auto2_done_unread">Позначено непрочитаним</string>
+    <string name="auto2_done_all_read">Усе прочитано</string>
+    <string name="auto2_done_moved">Переміщено</string>
+    <string name="auto2_done_copied">Скопійовано</string>
+    <string name="auto2_failed">Не вдалося зберегти. Спробуйте ще раз.</string>
+    <string name="auto2_department_title">Перемістити до відділу</string>
+    <string name="auto2_department_general">Загальне</string>
+    <string name="auto2_department_current">%1$s, поточний</string>
+    <string name="auto2_department_new">Новий відділ…</string>
+    <string name="auto2_department_name">Назва відділу</string>
+    <string name="auto2_department_move">Перемістити</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Cosa deve succedere?</string>
+    <string name="auto2_sheet_title">Cosa deve succedere?</string>
+    <string name="auto2_describe_label">Descrivilo</string>
+    <string name="auto2_describe_placeholder">Ogni mattina alle 9, riassumi la mia posta in arrivo</string>
+    <string name="auto2_who_sub">Chi deve occuparsene?</string>
+    <string name="auto2_who_title">Chi deve occuparsene?</string>
+    <string name="auto2_who_row">%1$s, chi deve occuparsene? Tocca per cambiare.</string>
+    <string name="auto2_who_selected">%1$s, selezionato</string>
+    <string name="auto2_set_up_yourself">Configuralo tu</string>
+    <string name="auto2_set_up">Configura</string>
+    <string name="auto2_set_up_needs_text">Descrivi prima cosa deve succedere.</string>
+    <string name="auto2_view_label">Vista calendario</string>
+    <string name="auto2_view_day">Giorno</string>
+    <string name="auto2_view_week">Settimana</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Azioni del bot</string>
+    <string name="auto2_pin">Fissa</string>
+    <string name="auto2_unpin">Rimuovi</string>
+    <string name="auto2_mark_unread">Segna come non letto</string>
+    <string name="auto2_mark_all_read">Segna tutte le conversazioni come lette</string>
+    <string name="auto2_move_department">Sposta in un reparto</string>
+    <string name="auto2_copy_id">Copia ID conversazione</string>
+    <string name="auto2_done_pinned">Fissato</string>
+    <string name="auto2_done_unpinned">Rimosso</string>
+    <string name="auto2_done_unread">Segnato come non letto</string>
+    <string name="auto2_done_all_read">Tutto letto</string>
+    <string name="auto2_done_moved">Spostato</string>
+    <string name="auto2_done_copied">Copiato</string>
+    <string name="auto2_failed">Impossibile salvare. Riprova.</string>
+    <string name="auto2_department_title">Sposta in un reparto</string>
+    <string name="auto2_department_general">Generale</string>
+    <string name="auto2_department_current">%1$s, attuale</string>
+    <string name="auto2_department_new">Nuovo reparto…</string>
+    <string name="auto2_department_name">Nome del reparto</string>
+    <string name="auto2_department_move">Sposta</string>
+</resources>

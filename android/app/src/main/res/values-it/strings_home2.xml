@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Bot</string>
+    <string name="home2_group_chats">Chat di gruppo</string>
+    <string name="home2_search">Cerca chat e bot</string>
+    <string name="home2_new_group">Nuovo gruppo</string>
+    <string name="home2_department_empty">Nessun bot in questo reparto.</string>
+    <string name="home2_show_all">Mostra tutte le chat</string>
+    <string name="home2_department_actions">Azioni per il reparto %1$s</string>
+    <string name="home2_department_add_bots_label">Aggiungi o rimuovi bot in %1$s</string>
+    <string name="home2_fold_open">Aperto</string>
+    <string name="home2_fold_folded">Ridotto</string>
+    <string name="home2_chief">Capo di gabinetto</string>
+    <string name="home2_waiting">Ti sta aspettando</string>
+    <string name="home2_problem">Da controllare</string>
+    <string name="home2_working">In lavorazione</string>
+    <string name="home2_menu_add_bots">Aggiungi bot</string>
+    <string name="home2_menu_new_bot">Nuovo bot qui</string>
+    <string name="home2_add_bots_title">Aggiungi bot a %1$s</string>
+    <string name="home2_add_bots_save">Salva</string>
+    <string name="home2_add_bots_saving">Salvataggio in corso</string>
+    <string name="home2_add_bots_failed">Impossibile salvare. Riprova.</string>
+    <string name="home2_add_bots_nothing">Nessun bot da aggiungere.</string>
+    <string name="home2_bot_in_department">In %1$s</string>
+    <string name="home2_bot_unassigned">Bot</string>
+    <string name="home2_cancel">Annulla</string>
+    <string name="home2_settings_advanced_title">Modalità avanzata</string>
+    <string name="home2_settings_advanced_body">Più menu e strumenti, come sul tuo computer.</string>
+    <string name="home2_team_add_department">Aggiungi reparto</string>
+    <string name="home2_team_department_empty">Nessun bot in questo reparto.</string>
+    <string name="home2_department_title">Aggiungi reparto</string>
+    <string name="home2_department_name">Nome del reparto</string>
+    <string name="home2_department_placeholder">Marketing</string>
+    <string name="home2_department_exists">Questo nome è già in uso.</string>
+    <string name="home2_department_needed">Dai un nome al reparto.</string>
+    <string name="home2_department_failed">Impossibile aggiungere il reparto. Riprova.</string>
+    <string name="home2_department_add">Aggiungi</string>
+    <string name="home2_department_adding">Aggiunta in corso</string>
+</resources>

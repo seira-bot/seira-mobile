@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Boty</string>
+    <string name="home2_group_chats">Czaty grupowe</string>
+    <string name="home2_search">Szukaj czatów i botów</string>
+    <string name="home2_new_group">Nowa grupa</string>
+    <string name="home2_department_empty">W tym dziale nie ma botów.</string>
+    <string name="home2_show_all">Pokaż wszystkie czaty</string>
+    <string name="home2_department_actions">Akcje działu %1$s</string>
+    <string name="home2_department_add_bots_label">Dodaj lub usuń boty w dziale %1$s</string>
+    <string name="home2_fold_open">Otwarte</string>
+    <string name="home2_fold_folded">Zwinięte</string>
+    <string name="home2_chief">Szef sztabu</string>
+    <string name="home2_waiting">Czeka na Ciebie</string>
+    <string name="home2_problem">Wymaga uwagi</string>
+    <string name="home2_working">Pracuje</string>
+    <string name="home2_menu_add_bots">Dodaj boty</string>
+    <string name="home2_menu_new_bot">Nowy bot tutaj</string>
+    <string name="home2_add_bots_title">Dodaj boty do działu %1$s</string>
+    <string name="home2_add_bots_save">Zapisz</string>
+    <string name="home2_add_bots_saving">Zapisywanie</string>
+    <string name="home2_add_bots_failed">Nie udało się zapisać. Spróbuj ponownie.</string>
+    <string name="home2_add_bots_nothing">Brak botów do dodania.</string>
+    <string name="home2_bot_in_department">W dziale %1$s</string>
+    <string name="home2_bot_unassigned">Boty</string>
+    <string name="home2_cancel">Anuluj</string>
+    <string name="home2_settings_advanced_title">Tryb zaawansowany</string>
+    <string name="home2_settings_advanced_body">Więcej menu i narzędzi, tak jak na komputerze.</string>
+    <string name="home2_team_add_department">Dodaj dział</string>
+    <string name="home2_team_department_empty">W tym dziale nie ma botów.</string>
+    <string name="home2_department_title">Dodaj dział</string>
+    <string name="home2_department_name">Nazwa działu</string>
+    <string name="home2_department_placeholder">Marketing</string>
+    <string name="home2_department_exists">Ta nazwa jest już zajęta.</string>
+    <string name="home2_department_needed">Nadaj działowi nazwę.</string>
+    <string name="home2_department_failed">Nie udało się dodać działu. Spróbuj ponownie.</string>
+    <string name="home2_department_add">Dodaj</string>
+    <string name="home2_department_adding">Dodawanie</string>
+</resources>

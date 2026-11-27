@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">컴퓨터에 연결할 수 없어요</string>
     <string name="settings_reconnect">다시 연결</string>
-    <string name="update_banner_downloading">업데이트 다운로드 중…</string>
-    <string name="update_banner_ready">업데이트 준비 완료. Seira를 다시 시작하세요</string>
-    <string name="update_banner_restart">다시 시작</string>
-    <string name="settings_check_updates">업데이트 확인</string>
-    <string name="settings_update_checking">확인 중…</string>
-    <string name="settings_update_found">업데이트 다운로드 중</string>
-    <string name="settings_update_current">최신 버전이에요</string>
     <string name="ai_usage_title">AI 사용량</string>
     <string name="ai_usage_window_five_hour">5시간 한도</string>
     <string name="ai_usage_window_weekly">주간 한도</string>
@@ -46,4 +39,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">1턴 동안 토큰 %1$s개</string>
     <string name="ai_usage_conversation_cost">%1$s · 약 %2$s</string>
     <string name="ai_usage_conversation_context">컨텍스트 %1$s / %2$s</string>
+    <string name="update_banner_downloading">업데이트 다운로드 중…</string>
+    <string name="update_banner_ready">업데이트 준비 완료. Seira를 다시 시작하세요</string>
+    <string name="update_banner_restart">다시 시작</string>
+    <string name="settings_check_updates">업데이트 확인</string>
+    <string name="settings_update_checking">확인 중…</string>
+    <string name="settings_update_found">업데이트 다운로드 중</string>
+    <string name="settings_update_current">최신 버전이에요</string>
 </resources>

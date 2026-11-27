@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Yeniden adlandır</string>
+    <string name="chat3_menu_copy_markdown">Markdown olarak kopyala</string>
+    <string name="chat3_menu_download_markdown">.md indir</string>
+    <string name="chat3_menu_activity">Etkinlik</string>
+    <string name="chat3_copied">Kopyalandı</string>
+    <string name="chat3_rename_heading">Konuyu yeniden adlandır</string>
+    <string name="chat3_rename_label">Başlık</string>
+    <string name="chat3_rename_save">Kaydet</string>
+    <string name="chat3_rename_cancel">İptal</string>
+    <string name="chat3_rename_failed">Bu konu yeniden adlandırılamadı. Tekrar deneyin.</string>
+    <string name="chat3_tool_teach">Öğret</string>
+    <string name="chat3_tool_teach_a11y">Yeni bir beceri öğret</string>
+    <string name="chat3_tool_goal">Hedef</string>
+    <string name="chat3_tool_goal_a11y">Hedef belirle</string>
+    <string name="chat3_tool_context">Bağlam %%%1$d</string>
+    <string name="chat3_tool_context_a11y">Bağlam, yüzde %1$d kullanıldı. Ayrıntılar için dokunun.</string>
+    <string name="chat3_context_title">Bağlam</string>
+    <string name="chat3_context_bar_a11y">Yüzde %1$d kullanıldı</string>
+    <string name="chat3_context_usage">%2$s tokenın %1$s kadarı kullanıldı</string>
+    <string name="chat3_context_compact">Bağlamı sıkıştır</string>
+    <string name="chat3_context_compact_sub">Eski mesajları özetler</string>
+    <string name="chat3_context_compacting">Sıkıştırılıyor…</string>
+    <string name="chat3_context_compacted">Bağlam sıkıştırıldı</string>
+    <string name="chat3_context_failed">Bu konuşma sıkıştırılamadı. Tekrar deneyin.</string>
+    <string name="chat3_allow_session">Bu oturumda izin ver</string>
+</resources>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">要做什么？</string>
+    <string name="auto2_sheet_title">要做什么？</string>
+    <string name="auto2_describe_label">描述一下</string>
+    <string name="auto2_describe_placeholder">每天早上 9 点，总结我的收件箱</string>
+    <string name="auto2_who_sub">由谁来做？</string>
+    <string name="auto2_who_title">由谁来做？</string>
+    <string name="auto2_who_row">%1$s，由谁来做？点按可更改。</string>
+    <string name="auto2_who_selected">已选择%1$s</string>
+    <string name="auto2_set_up_yourself">自己设置</string>
+    <string name="auto2_set_up">设置</string>
+    <string name="auto2_set_up_needs_text">请先描述要做什么。</string>
+    <string name="auto2_view_label">日历视图</string>
+    <string name="auto2_view_day">日</string>
+    <string name="auto2_view_week">周</string>
+    <string name="auto2_week_row">%1$s，%2$s，%3$s，%4$s</string>
+    <string name="auto2_actions_group">机器人操作</string>
+    <string name="auto2_pin">固定</string>
+    <string name="auto2_unpin">取消固定</string>
+    <string name="auto2_mark_unread">标为未读</string>
+    <string name="auto2_mark_all_read">将所有对话标为已读</string>
+    <string name="auto2_move_department">移到部门</string>
+    <string name="auto2_copy_id">复制对话 ID</string>
+    <string name="auto2_done_pinned">已固定</string>
+    <string name="auto2_done_unpinned">已取消固定</string>
+    <string name="auto2_done_unread">已标为未读</string>
+    <string name="auto2_done_all_read">全部已读</string>
+    <string name="auto2_done_moved">已移动</string>
+    <string name="auto2_done_copied">已复制</string>
+    <string name="auto2_failed">无法保存。请重试。</string>
+    <string name="auto2_department_title">移到部门</string>
+    <string name="auto2_department_general">常规</string>
+    <string name="auto2_department_current">%1$s，当前</string>
+    <string name="auto2_department_new">新建部门…</string>
+    <string name="auto2_department_name">部门名称</string>
+    <string name="auto2_department_move">移动</string>
+</resources>

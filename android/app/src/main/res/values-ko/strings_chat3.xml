@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">이름 바꾸기</string>
+    <string name="chat3_menu_copy_markdown">마크다운으로 복사</string>
+    <string name="chat3_menu_download_markdown">.md 다운로드</string>
+    <string name="chat3_menu_activity">활동</string>
+    <string name="chat3_copied">복사했어요</string>
+    <string name="chat3_rename_heading">스레드 이름 바꾸기</string>
+    <string name="chat3_rename_label">제목</string>
+    <string name="chat3_rename_save">저장</string>
+    <string name="chat3_rename_cancel">취소</string>
+    <string name="chat3_rename_failed">이 스레드의 이름을 바꾸지 못했어요. 다시 시도하세요.</string>
+    <string name="chat3_tool_teach">가르치기</string>
+    <string name="chat3_tool_teach_a11y">새 스킬 가르치기</string>
+    <string name="chat3_tool_goal">목표</string>
+    <string name="chat3_tool_goal_a11y">목표 설정</string>
+    <string name="chat3_tool_context">컨텍스트 %1$d%%</string>
+    <string name="chat3_tool_context_a11y">컨텍스트, %1$d퍼센트 사용 중. 탭하면 자세히 볼 수 있어요.</string>
+    <string name="chat3_context_title">컨텍스트</string>
+    <string name="chat3_context_bar_a11y">%1$d퍼센트 사용 중</string>
+    <string name="chat3_context_usage">토큰 %2$s개 중 %1$s개 사용</string>
+    <string name="chat3_context_compact">컨텍스트 압축</string>
+    <string name="chat3_context_compact_sub">오래된 메시지를 요약해요</string>
+    <string name="chat3_context_compacting">압축 중…</string>
+    <string name="chat3_context_compacted">컨텍스트를 압축했어요</string>
+    <string name="chat3_context_failed">이 대화를 압축하지 못했어요. 다시 시도하세요.</string>
+    <string name="chat3_allow_session">이 세션 동안 허용</string>
+</resources>

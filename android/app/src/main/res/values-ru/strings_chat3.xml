@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Переименовать</string>
+    <string name="chat3_menu_copy_markdown">Скопировать как Markdown</string>
+    <string name="chat3_menu_download_markdown">Скачать .md</string>
+    <string name="chat3_menu_activity">Активность</string>
+    <string name="chat3_copied">Скопировано</string>
+    <string name="chat3_rename_heading">Переименовать ветку</string>
+    <string name="chat3_rename_label">Название</string>
+    <string name="chat3_rename_save">Сохранить</string>
+    <string name="chat3_rename_cancel">Отмена</string>
+    <string name="chat3_rename_failed">Не удалось переименовать эту ветку. Попробуйте ещё раз.</string>
+    <string name="chat3_tool_teach">Обучить</string>
+    <string name="chat3_tool_teach_a11y">Обучить новому навыку</string>
+    <string name="chat3_tool_goal">Цель</string>
+    <string name="chat3_tool_goal_a11y">Задать цель</string>
+    <string name="chat3_tool_context">Контекст %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Контекст, использовано %1$d процентов. Нажмите, чтобы узнать больше.</string>
+    <string name="chat3_context_title">Контекст</string>
+    <string name="chat3_context_bar_a11y">Использовано %1$d процентов</string>
+    <string name="chat3_context_usage">Использовано токенов: %1$s из %2$s</string>
+    <string name="chat3_context_compact">Сжать контекст</string>
+    <string name="chat3_context_compact_sub">Кратко пересказывает старые сообщения</string>
+    <string name="chat3_context_compacting">Сжатие…</string>
+    <string name="chat3_context_compacted">Контекст сжат</string>
+    <string name="chat3_context_failed">Не удалось сжать этот разговор. Попробуйте ещё раз.</string>
+    <string name="chat3_allow_session">Разрешить в этом сеансе</string>
+</resources>

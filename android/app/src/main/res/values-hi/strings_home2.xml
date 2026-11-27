@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">बॉट</string>
+    <string name="home2_group_chats">ग्रुप चैट</string>
+    <string name="home2_search">चैट और बॉट खोजें</string>
+    <string name="home2_new_group">नया ग्रुप</string>
+    <string name="home2_department_empty">इस विभाग में कोई बॉट नहीं है।</string>
+    <string name="home2_show_all">सभी चैट दिखाएँ</string>
+    <string name="home2_department_actions">%1$s विभाग के लिए कार्रवाइयाँ</string>
+    <string name="home2_department_add_bots_label">%1$s में बॉट जोड़ें या हटाएँ</string>
+    <string name="home2_fold_open">खुला</string>
+    <string name="home2_fold_folded">समेटा हुआ</string>
+    <string name="home2_chief">चीफ़ ऑफ़ स्टाफ़</string>
+    <string name="home2_waiting">आपका इंतज़ार कर रहा है</string>
+    <string name="home2_problem">देखने की ज़रूरत है</string>
+    <string name="home2_working">काम कर रहा है</string>
+    <string name="home2_menu_add_bots">बॉट जोड़ें</string>
+    <string name="home2_menu_new_bot">यहाँ नया बॉट</string>
+    <string name="home2_add_bots_title">%1$s में बॉट जोड़ें</string>
+    <string name="home2_add_bots_save">सहेजें</string>
+    <string name="home2_add_bots_saving">सहेजा जा रहा है</string>
+    <string name="home2_add_bots_failed">सहेजा नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="home2_add_bots_nothing">जोड़ने के लिए कोई बॉट नहीं है।</string>
+    <string name="home2_bot_in_department">%1$s में</string>
+    <string name="home2_bot_unassigned">बॉट</string>
+    <string name="home2_cancel">रद्द करें</string>
+    <string name="home2_settings_advanced_title">एडवांस्ड मोड</string>
+    <string name="home2_settings_advanced_body">आपके कंप्यूटर की तरह ज़्यादा मेन्यू और टूल।</string>
+    <string name="home2_team_add_department">विभाग जोड़ें</string>
+    <string name="home2_team_department_empty">इस विभाग में कोई बॉट नहीं है।</string>
+    <string name="home2_department_title">विभाग जोड़ें</string>
+    <string name="home2_department_name">विभाग का नाम</string>
+    <string name="home2_department_placeholder">मार्केटिंग</string>
+    <string name="home2_department_exists">यह नाम पहले से इस्तेमाल में है।</string>
+    <string name="home2_department_needed">विभाग को एक नाम दें।</string>
+    <string name="home2_department_failed">विभाग जोड़ा नहीं जा सका। फिर कोशिश करें।</string>
+    <string name="home2_department_add">जोड़ें</string>
+    <string name="home2_department_adding">जोड़ा जा रहा है</string>
+</resources>

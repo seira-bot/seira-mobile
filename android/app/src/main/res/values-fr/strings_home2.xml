@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Bots</string>
+    <string name="home2_group_chats">Discussions de groupe</string>
+    <string name="home2_search">Rechercher des discussions et des bots</string>
+    <string name="home2_new_group">Nouveau groupe</string>
+    <string name="home2_department_empty">Aucun bot dans ce département.</string>
+    <string name="home2_show_all">Afficher toutes les discussions</string>
+    <string name="home2_department_actions">Actions du département %1$s</string>
+    <string name="home2_department_add_bots_label">Ajouter ou retirer des bots dans %1$s</string>
+    <string name="home2_fold_open">Ouvert</string>
+    <string name="home2_fold_folded">Replié</string>
+    <string name="home2_chief">Chef de cabinet</string>
+    <string name="home2_waiting">Vous attend</string>
+    <string name="home2_problem">À examiner</string>
+    <string name="home2_working">En cours</string>
+    <string name="home2_menu_add_bots">Ajouter des bots</string>
+    <string name="home2_menu_new_bot">Nouveau bot ici</string>
+    <string name="home2_add_bots_title">Ajouter des bots à %1$s</string>
+    <string name="home2_add_bots_save">Enregistrer</string>
+    <string name="home2_add_bots_saving">Enregistrement</string>
+    <string name="home2_add_bots_failed">Échec de l’enregistrement. Réessayez.</string>
+    <string name="home2_add_bots_nothing">Aucun bot à ajouter.</string>
+    <string name="home2_bot_in_department">Dans %1$s</string>
+    <string name="home2_bot_unassigned">Bots</string>
+    <string name="home2_cancel">Annuler</string>
+    <string name="home2_settings_advanced_title">Mode avancé</string>
+    <string name="home2_settings_advanced_body">Plus de menus et d’outils, comme sur votre ordinateur.</string>
+    <string name="home2_team_add_department">Ajouter un département</string>
+    <string name="home2_team_department_empty">Aucun bot dans ce département.</string>
+    <string name="home2_department_title">Ajouter un département</string>
+    <string name="home2_department_name">Nom du département</string>
+    <string name="home2_department_placeholder">Marketing</string>
+    <string name="home2_department_exists">Ce nom est déjà utilisé.</string>
+    <string name="home2_department_needed">Donnez un nom au département.</string>
+    <string name="home2_department_failed">Impossible d’ajouter le département. Réessayez.</string>
+    <string name="home2_department_add">Ajouter</string>
+    <string name="home2_department_adding">Ajout en cours</string>
+</resources>
