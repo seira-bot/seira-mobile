@@ -64,6 +64,8 @@ final class StoreListingScreenshotUITests: XCTestCase {
         pause(6)
         XCUIDevice.shared.press(.home)
         pause(3)
+        allowLiveActivities()
+        pause(3)
         if device == "iphone" {
             let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
             springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.035)).press(forDuration: 1.5)
@@ -76,13 +78,29 @@ final class StoreListingScreenshotUITests: XCTestCase {
         pause(2)
         pressSideButton()
         pause(3)
+        allowLiveActivities()
+        pause(2)
         capture("03-glance-lock", language: language)
         XCUIDevice.shared.press(.home)
         app.terminate()
     }
 
+    private func allowLiveActivities() {
+        let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        let allow = springboard.buttons["Allow"]
+        if allow.waitForExistence(timeout: 3) { allow.tap() }
+    }
+
     @MainActor
     private func photographPairing(language: String) {
+        addUIInterruptionMonitor(withDescription: "Camera access") { alert in
+            let allow = alert.buttons["Allow"]
+            if allow.exists {
+                allow.tap()
+                return true
+            }
+            return false
+        }
         let app = XCUIApplication()
         app.terminate()
         app.launchArguments = baseArguments(language: language)
@@ -90,7 +108,9 @@ final class StoreListingScreenshotUITests: XCTestCase {
         let connect = app.buttons["Connect computer"]
         if connect.waitForExistence(timeout: 15) {
             connect.tap()
-            pause(4)
+            pause(3)
+            app.tap()
+            pause(3)
             capture("06-pair", language: language)
         } else {
             XCTFail("The unpaired screen has no Connect computer button")
@@ -112,7 +132,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
             app.launch()
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
-        pause(2)
+        pause(12)
         return app
     }
 
