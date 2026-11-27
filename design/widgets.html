@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Widget · Seira Design</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<link rel="stylesheet" href="assets/live.css">
+<style>
+:root { --wall-dark: radial-gradient(120% 70% at 85% -5%, #4a1233 0, transparent 58%), radial-gradient(100% 60% at -10% 105%, #0f2a55 0, transparent 60%), #07080b; }
+[data-ui="dark"] { --soon: #b79cff; }
+[data-ui="light"] { --soon: #6a45d1; }
+.st-working { --wc: var(--st-working); --wt: var(--info); --on-wc: #0b0c0e; }
+.st-needs { --wc: var(--st-needs); --wt: var(--warn); --on-wc: #0b0c0e; }
+.st-done { --wc: var(--st-done); --wt: var(--ok); --on-wc: #0b0c0e; }
+.st-failed { --wc: var(--st-failed); --wt: var(--bad); --on-wc: #0b0c0e; }
+.st-soon { --wc: #a78bfa; --wt: var(--soon); --on-wc: #0b0c0e; }
+.st-idle { --wc: var(--s3); --wt: var(--dim); --on-wc: var(--fg); }
+
+.concept-stage.wall { background: var(--wall); padding: 34px 14px; }
+.concept-stage.wall .wcol > span { color: var(--mut); }
+.wg { gap: 8px; }
+.clamp1 { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.clamp2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.w-col { display: flex; flex-direction: column; gap: 8px; flex: 1; min-height: 0; }
+.w-hit { all: unset; box-sizing: border-box; position: absolute; inset: 0; padding: 16px; display: flex; flex-direction: column; gap: 6px; cursor: pointer; border-radius: inherit; }
+.w-hit:focus-visible { outline: 2px solid var(--acc); outline-offset: -4px; }
+.w-top { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.w-top > div { min-width: 0; display: grid; gap: 1px; }
+.w-top .hd.ringed { margin: 4px; }
+.w-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.w-hd .w-t { font-size: 17px; }
+.w-tr { font: 600 12.5px/1 "Geist", sans-serif; color: var(--wt); font-variant-numeric: tabular-nums; display: inline-flex; align-items: center; gap: 4px; }
+.w-tr svg { width: 16px; height: 16px; }
+
+.w-bots { display: grid; gap: 9px; }
+.w-bot { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 13px; height: 36px; padding-left: 4px; }
+.w-bt { display: grid; min-width: 0; line-height: 1.22; }
+.w-bt b { font-size: 14px; font-weight: 600; }
+.w-bt span { font-size: 12.5px; color: var(--mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.w-top2 { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0 2px 4px; }
+.w-seg { display: flex; gap: 3px; margin-top: auto; }
+.w-seg i { flex: 1; height: 4px; border-radius: 2px; background: var(--s3); }
+.w-seg i.d { background: var(--wc); }
+.w-seg i.a { background: linear-gradient(90deg, var(--wc) 55%, var(--s3) 55%); }
+
+.wg.k-talk { background: linear-gradient(160deg, #ff5f85, #c0113c); color: #fff; }
+.k-talk .w-x { color: rgba(255, 255, 255, 0.84); }
+.k-talk .orb { width: 58px; height: 58px; border-radius: 50%; background: rgba(255, 255, 255, 0.2); display: grid; place-items: center; margin-bottom: auto; }
+.k-talk .orb svg { width: 26px; height: 26px; }
+.k-talk .orb .wave { height: 24px; gap: 3px; }
+.k-talk .orb .wave i { width: 3px; }
+.k-talk[data-stage="on"] .orb { background: #fff; color: #c0113c; }
+.wg.and.k-talk { clip-path: var(--cookie); border-radius: 0; box-shadow: none; background: color-mix(in srgb, var(--acc) 30%, var(--s1)); color: var(--fg); }
+.wg.and.k-talk .w-hit { align-items: center; justify-content: center; text-align: center; gap: 8px; }
+.wg.and.k-talk .orb { margin: 0; width: 70px; height: 70px; background: var(--acc); color: var(--on-acc); }
+.wg.and.k-talk[data-stage="on"] .orb { background: var(--fg); color: var(--s1); }
+.wg.and.k-talk .w-x { display: none; }
+
+.w-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.w-stat { background: var(--s2); border-radius: 14px; padding: 8px 10px 9px; display: grid; gap: 2px; }
+.w-stat b { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; font-variant-numeric: tabular-nums; color: var(--wt, var(--fg)); }
+.w-stat span { font-size: 11.5px; color: var(--mut); white-space: nowrap; }
+.w-tls { display: grid; gap: 3px; }
+.w-tl { display: grid; grid-template-columns: 38px 9px 22px minmax(0, 1fr); align-items: center; gap: 8px; height: 32px; font-size: 13px; }
+.w-tl time { font: 500 11.5px/1 "Geist Mono", ui-monospace, monospace; color: var(--dim); text-align: right; }
+.w-tl.now time { color: var(--wt); font-weight: 600; }
+.w-tl > i { width: 9px; height: 9px; border-radius: 50%; background: var(--wc); position: relative; }
+.w-tl + .w-tl > i::before { content: ""; position: absolute; left: 4px; bottom: calc(100% + 3px); width: 1px; height: 20px; background: var(--line2); }
+.w-tl.st-soon > i { background: none; box-shadow: inset 0 0 0 2px var(--wc); }
+.w-tl span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--mut); }
+.w-tl span b { color: var(--fg); font-weight: 600; margin-right: 5px; }
+
+.w-field { display: flex; align-items: center; gap: 8px; height: 44px; border-radius: 22px; background: var(--s2); padding: 0 5px 0 7px; }
+.ph-t { flex: 1; min-width: 0; color: var(--mut); font-size: 14px; white-space: nowrap; }
+.w-field .w-btn { background: var(--s3); }
+.w-logo { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(160deg, #ff5f85, #c0113c); color: #fff; display: grid; place-items: center; flex: none; }
+.w-logo svg { width: 22px; height: 22px; }
+.wg.and.bar .ph-t { font-size: 15px; }
+.wg.and.bar .w-btn.ico { flex: 0 0 44px; height: 44px; }
+
+.w-rt { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 16px; align-items: center; flex: 1; min-height: 0; }
+.w-rl { display: flex; flex-direction: column; gap: 5px; min-width: 0; align-self: stretch; }
+.w-rl .w-btn { flex: none; margin-top: auto; }
+.w-ri { display: flex; gap: 8px; font-size: 13px; align-items: baseline; min-width: 0; }
+.w-ri time { font: 500 11.5px/1 "Geist Mono", ui-monospace, monospace; color: var(--dim); flex: none; width: 64px; }
+.w-ri span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.w-ri:first-child span { font-weight: 600; }
+.w-ri:first-child time { color: var(--wt); }
+.rg-in { display: grid; justify-items: center; gap: 2px; font: 600 13px/1 "Geist", sans-serif; font-variant-numeric: tabular-nums; color: var(--wt); }
+.rg-in small { font-size: 10.5px; font-weight: 500; color: var(--mut); }
+
+.lk { display: grid; justify-items: center; color: #fff; text-align: center; }
+.lk > b { font-size: 96px; line-height: 1; font-weight: 600; letter-spacing: -0.04em; font-variant-numeric: tabular-nums; margin: 4px 0 18px; }
+.acc-i svg { width: 15px; height: 15px; }
+.acc-r { text-align: left; }
+.acc-c > svg, .acc-c .rg-in svg { width: 22px; height: 22px; }
+.acc-c .rg-in { color: #fff; }
+.wfrag.dark { background: linear-gradient(165deg, #33122f, #0d1a36 70%); color: #fff; padding: 22px 16px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 24px 50px -30px rgba(0, 0, 0, 0.8); }
+.wfrag.dark .lk { width: 334px; }
+.wfrag.dark .lk > b { font-size: 76px; }
+.lk-and { display: grid; gap: 16px; }
+.lk-and > b { font-size: 54px; font-weight: 400; line-height: 1; letter-spacing: -0.02em; padding-left: 8px; }
+.ccs { display: flex; gap: 22px; }
+.ccs figure { margin: 0; display: grid; gap: 9px; justify-items: center; font-size: 12px; color: rgba(255, 255, 255, 0.86); }
+.ccs .cc { border: 0; cursor: pointer; }
+.ccs .cc:focus-visible, .qs [role="button"]:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+.wfrag .qs { width: 350px; }
+.qs [role="button"] { cursor: pointer; }
+
+.wgrid { position: absolute; left: 26px; width: 338px; display: grid; gap: 22px; }
+.wrow { display: flex; gap: 22px; }
+.ph.and .wgrid { left: 20px; width: 350px; gap: 14px; }
+.ph.and .wrow { gap: 14px; }
+.ph[data-form="lock"] .ph-screen { background: var(--wall-dark); color: #fff; }
+.stage-bar { display: flex; flex-wrap: wrap; gap: 12px 18px; align-items: center; justify-content: space-between; margin: 0 0 18px; }
+.stage-bar .scenes { margin: 0; }
+
+.now-stage { display: grid; gap: 10px; justify-items: center; padding: 26px 12px; border-radius: 22px; background: var(--wall-dark); }
+.now-stage > span { font: 500 11.5px/1 "Geist Mono", ui-monospace, monospace; color: rgba(255, 255, 255, 0.56); }
+.now-rows { display: grid; gap: 7px; font-size: 13px; }
+.now-rows span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--g-line); margin: 0; padding: 0; list-style: none; }
+.rules li { padding: 20px 22px 22px 0; border-bottom: 1px solid var(--g-line); }
+.rules li + li { padding-left: 22px; border-left: 1px solid var(--g-line); }
+.rules li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+.rules h3 { margin: 0 0 6px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+.rules p { margin: 0; color: var(--g-mut); font-size: 14px; }
+@media (max-width: 860px) {
+  .rules { grid-template-columns: 1fr; }
+  .rules li, .rules li + li { padding: 16px 0; border-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .w-swap > * { animation: none; } }
+</style>
+</head>
+<body>
+<header data-g-nav="widgets.html"></header>
+<main class="g-wrap">
+
+  <section class="g-hero">
+    <span class="g-eyebrow">Papan 06 · Widget</span>
+    <h1 class="g-h1">Layar utama yang <span class="serif">menjawab.</span></h1>
+    <p class="g-lede">Widget Seira sekarang memberi tahu. Papan ini membuat widget bisa menjawab izin, memberi tugas, dan menjalankan routine tanpa membuka app. iPhone dan Android mendapat set yang sama.</p>
+
+    <div class="g-before">
+      <div>
+        <h3>Sekarang di app</h3>
+        <p>iPhone punya lima widget dan satu control. Android punya satu widget Updates 2x2 berisi baris teks, dan satu tile. Papan ini menyamakan keduanya dan menambah tiga widget baru: Today, Quick task, dan Routines.</p>
+      </div>
+      <div class="now-stage" data-ui="dark" id="now"></div>
+    </div>
+  </section>
+
+  <section class="g-section" id="layar">
+    <div class="g-section-head">
+      <h2 class="g-h2">Satu momen, <span class="serif">dua HP.</span></h2>
+      <p>Pilih momen. Semua widget di dua HP berganti isi bersama. Ketuk tombol di dalam widget untuk mengikuti alurnya.</p>
+    </div>
+    <div id="stage"></div>
+  </section>
+
+  <section class="g-section" id="widget">
+    <div class="g-section-head">
+      <h2 class="g-h2">Sembilan widget, <span class="serif">dua platform.</span></h2>
+      <p>Setiap kartu menampilkan bentuk iOS dan Android berdampingan, lalu menyebut isi, aksi, data, dan cara buatnya. Widget mengikuti momen yang kamu pilih di atas.</p>
+    </div>
+    <div class="g-grid" id="catalog"></div>
+  </section>
+
+  <section class="g-section" id="batas">
+    <div class="g-section-head">
+      <h2 class="g-h2">Batas yang mockup ini <span class="serif">patuhi.</span></h2>
+      <p>Setiap widget di papan ini bisa dibuat dengan WidgetKit dan Jetpack Glance. Enam batas di bawah menentukan bentuknya.</p>
+    </div>
+    <ul class="rules">
+      <li><h3>Tanpa kolom ketik</h3><p>Widget tidak bisa menerima ketikan. Kolom tugas membuka layar tulis di app. Chip dan tombol jalan di tempat.</p></li>
+      <li><h3>Tombol jalan tanpa membuka app</h3><p>iOS 17 dan Glance mengizinkan tombol yang menjalankan aksi di latar. Deny, Allow once, dan jawaban cepat memakai cara ini.</p></li>
+      <li><h3>Jam dari sistem</h3><p>Jam kerja dan hitung mundur berjalan oleh sistem. Isi lain berganti hanya saat ada kabar dari komputer.</p></li>
+      <li><h3>Layar kunci menjaga isi</h3><p>Teks perintah tidak tampil di layar kunci Android. Allow once tetap butuh HP tidak terkunci.</p></li>
+      <li><h3>Warna ikut HP</h3><p>Widget mengikuti mode terang, gelap, dan warna tema HP. Warna keadaan bot tetap sama di semua mode.</p></li>
+      <li><h3>Refresh terbatas</h3><p>Sistem membatasi jumlah refresh widget per hari. App me-refresh widget saat komputer mengirim kabar, bukan tiap menit.</p></li>
+    </ul>
+  </section>
+
+  <footer class="g-foot">Seira Design Gallery. Mockup statis untuk review, bukan kode app. Kembali ke <a href="island.html">papan island</a>.</footer>
+</main>
+
+<script src="assets/kit.js"></script>
+<script src="assets/live.js"></script>
+<script>
+(function () {
+  "use strict";
+  const L = window.Live;
+  const { head, ring, ic, up, down, steps, BOTS, ACC } = L;
+  L.injectExtra();
+
+  const cookie = [];
+  for (let i = 0; i < 180; i++) {
+    const a = (i / 180) * 2 * Math.PI;
+    const r = 46.6 + 3.4 * Math.cos(a * 12);
+    cookie.push(`${(50 + r * Math.cos(a)).toFixed(2)}% ${(50 + r * Math.sin(a)).toFixed(2)}%`);
+  }
+  document.documentElement.style.setProperty("--cookie", `polygon(${cookie.join(",")})`);
+
+  const tone = { working: "working", needs: "needs", question: "needs", done: "done", failed: "failed", idle: "idle", soon: "soon" };
+  const mood = { working: "working", needs: "alert", question: "curious", done: "happy", failed: "sad", idle: "sleep", soon: "idle" };
+  const fill = { working: ACC.working, needs: ACC.needs, question: ACC.needs, done: ACC.done, failed: ACC.failed, idle: "#7b808a", soon: ACC.soon };
+  const wave = `<span class="wave" aria-hidden="true">${"<i></i>".repeat(7)}</span>`;
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+  const MOMENTS = [
+    ["working", "Bot bekerja", ACC.working, "<b>Tiga bot bekerja.</b> Setiap widget menampilkan wajah, kalimat, dan jam kerja bot itu."],
+    ["needs", "Butuh kamu", ACC.needs, "<b>Atlas butuh izin.</b> Widget Needs you menampilkan teks perintah utuh. Cincin Atlas menjadi kuning di semua widget."],
+    ["done", "Semua selesai", ACC.done, "<b>Semua tugas selesai.</b> Widget menampilkan hasil dan routine berikutnya."],
+  ];
+
+  const CREW = {
+    working: [
+      ["atlas", "working", "Running the test suite", () => up(224)],
+      ["mira", "working", "Drafting the invoice", () => up(72)],
+      ["juno", "working", "Writing the weekly report", () => up(48)],
+      ["kei", "done", "Resized 24 photos", () => ic("check")],
+      ["nox", "soon", "Backup the shop database", () => "16:00"],
+    ],
+    needs: [
+      ["atlas", "needs", "Needs your OK to run a command", () => ic("hand")],
+      ["mira", "question", "Asks which logo to use", () => ic("bubble")],
+      ["juno", "working", "Writing the weekly report", () => up(48)],
+      ["kei", "done", "Resized 24 photos", () => ic("check")],
+      ["nox", "soon", "Backup the shop database", () => "16:00"],
+    ],
+    done: [
+      ["atlas", "done", "Tests pass, 42 of 42", () => ic("check")],
+      ["mira", "done", "Invoice sent", () => ic("check")],
+      ["juno", "done", "Weekly report posted", () => ic("check")],
+      ["kei", "done", "Resized 24 photos", () => ic("check")],
+      ["nox", "soon", "Backup the shop database", () => "16:00"],
+    ],
+  };
+  const SUM = { working: "3 working", needs: "2 need you", done: "All done" };
+  const BOT = [
+    { st: "working", line: "Running the test suite", trail: () => up(224), steps: [3, 5] },
+    { st: "needs", line: "Needs your OK to run a command", trail: () => ic("hand") },
+    { st: "done", line: "Tests pass, 42 of 42", trail: () => "4 min" },
+    { st: "idle", line: "Idle since 11:42", trail: () => "" },
+  ];
+  const DAY = [
+    ["09:12", "atlas", "done", "Fixed the checkout bug"],
+    ["10:40", "mira", "done", "Sent 3 invoices"],
+    ["11:05", "juno", "done", "Posted the weekly report"],
+  ];
+  const TODAY = {
+    working: { stats: [[6, "done", ""], [3, "working", "working"], [2, "routines", "soon"]], now: ["Now", "atlas", "working", "Running the test suite"] },
+    needs: { stats: [[6, "done", ""], [2, "need you", "needs"], [2, "routines", "soon"]], now: ["Now", "atlas", "needs", "Needs your OK"] },
+    done: { stats: [[9, "done", "done"], [0, "need you", ""], [2, "routines", "soon"]], now: ["11:42", "atlas", "done", "Tests pass, 42 of 42"] },
+  };
+  const PROMPTS = ["Today's orders", "Inbox summary", "Deploy staging"];
+  const ROUTINES = [["16:00", "Backup the shop database"], ["18:00", "Daily sales summary"], ["Mon 09:00", "Weekly report"]];
+
+  const top = (bot, st, title, sub, size) =>
+    `<div class="w-top">${head(bot, mood[st], size || 34, "ringed", fill[st])}<div><div class="w-t clamp1">${title}</div><div class="w-x clamp2">${sub}</div></div></div>`;
+  const botRow = ([bot, st, line, trail]) =>
+    `<div class="w-bot st-${tone[st]}">${head(bot, mood[st], 30, "ringed", fill[st])}<div class="w-bt"><b>${BOTS[bot].name}</b><span>${line}</span></div><span class="w-tr">${trail()}</span></div>`;
+  const tl = ([time, bot, st, text], now) =>
+    `<div class="w-tl st-${tone[st]}${now ? " now" : ""}"><time>${time}</time><i></i>${head(bot, mood[st], 22)}<span><b>${BOTS[bot].name}</b>${text}</span></div>`;
+  const btn = (label, act, cls, icon) =>
+    `<button type="button" class="w-btn ${cls || ""}"${act ? ` data-act="${act}"` : ""}${cls && cls.includes("ico") ? ` aria-label="${label}"` : ""}>${icon ? ic(icon) : ""}${cls && cls.includes("ico") ? "" : label}</button>`;
+
+  const W = {
+    needs(el, m) {
+      const st = el.dataset.stage || (m === "needs" ? "ask" : "clear");
+      if (st === "ask")
+        return `${top("atlas", "needs", "Atlas needs your OK", "Run a command in the shop folder")}<div class="w-cmd">npm run deploy -- --env=staging</div><div class="w-row st-needs">${btn("Deny", "deny")}${btn("Allow once", "allow", "pri", "lock")}</div>`;
+      if (st === "allowed")
+        return `${top("atlas", "working", "Allowed once", "Atlas is running the command")}<div class="w-seg st-working">${steps(3, 5)}</div>`;
+      if (st === "denied") return top("atlas", "idle", "Denied", "Atlas will not run the command");
+      if (st === "question")
+        return `${top("mira", "question", "Mira has a question", "Which logo goes on the invoice?")}<div class="w-row">${btn("New logo", "answer")}${btn("Old logo", "answer")}${btn("Open chat", "", "ico", "bubble")}</div>`;
+      if (st === "sent") return top("mira", "done", "Sent to Mira", esc(el.dataset.ans || ""));
+      return `<button type="button" class="w-hit" data-act="replay" aria-label="Show an approval request">${`<div class="w-top">${head("seira", "happy", 40)}<div><div class="w-t">All clear</div><div class="w-x">${m === "working" ? "3 bots are working" : "9 tasks done today"}</div></div></div>`}<div class="w-x" style="margin-top:auto">Bots ask here when they need you.</div></button>`;
+    },
+    crew(el, m) {
+      const rows = CREW[m];
+      if (el.dataset.size !== "l") return `<div class="w-bots">${rows.slice(0, 3).map(botRow).join("")}</div>`;
+      return `<div class="w-hd"><span class="w-t">Crew</span><span class="w-x">${SUM[m]}</span></div><div class="w-bots" style="gap:11px">${rows.map(botRow).join("")}</div><div class="w-row">${btn("New task", "", "pri", "plus")}${btn("Talk to Seira", "", "ico", "mic")}</div>`;
+    },
+    bot(el, m) {
+      const s = BOT[el.dataset.stage ? Number(el.dataset.stage) : { working: 0, needs: 1, done: 2 }[m]];
+      return `<button type="button" class="w-hit st-${tone[s.st]}" data-act="next" aria-label="Show the next state"><div class="w-top2">${head("atlas", mood[s.st], 46, "ringed", fill[s.st])}<span class="w-tr">${s.trail()}</span></div><div><div class="w-t">Atlas</div><div class="w-x clamp2">${s.line}</div></div>${s.steps ? `<div class="w-seg">${steps(s.steps[0], s.steps[1])}</div>` : ""}</button>`;
+    },
+    talk(el) {
+      const on = el.dataset.stage === "on";
+      return `<button type="button" class="w-hit" data-act="next" aria-label="${on ? "End the call" : "Talk to Seira"}"><span class="orb">${on ? wave : ic("mic")}</span><div><div class="w-t">${on ? "Listening" : el.dataset.p === "and" ? "Talk" : "Talk to Seira"}</div><div class="w-x w-num">${on ? up(0) : "Tap and speak"}</div></div></button>`;
+    },
+    today(el, m) {
+      const t = TODAY[m];
+      const rows = DAY.map((r) => tl(r)).concat(tl(t.now, t.now[0] === "Now"), tl(["16:00", "nox", "soon", "Backup the shop database"]));
+      return `<div class="w-hd"><span class="w-t">Today</span><span class="w-x">Sat 28 Nov</span></div><div class="w-stats">${t.stats.map(([n, l, c]) => `<div class="w-stat${c ? ` st-${c}` : ""}"><b>${n}</b><span>${l}</span></div>`).join("")}</div><div class="w-tls">${rows.join("")}</div><div class="w-row">${btn("New task", "", "pri", "plus")}${btn("Talk to Seira", "", "ico", "mic")}</div>`;
+    },
+    quick(el) {
+      if (el.dataset.size === "bar")
+        return `<i class="w-logo">${ic("seira")}</i><span class="ph-t">Give a bot a task</span>${btn("Speak a task", "", "ico", "mic")}${btn("Send a photo", "", "ico", "camera")}`;
+      if (el.dataset.stage === "sent")
+        return `${top("atlas", "working", "Atlas started", esc(el.dataset.ans || ""))}<div class="w-seg st-working">${steps(0, 5)}</div>`;
+      return `<div class="w-field">${head("seira", "idle", 30)}<span class="ph-t">Give a bot a task</span>${btn("Speak a task", "", "ico", "mic")}${btn("Send a photo", "", "ico", "camera")}</div><div class="w-chips">${PROMPTS.map((p) => `<button type="button" class="w-chip" data-act="send">${p}</button>`).join("")}</div>`;
+    },
+    routine(el) {
+      const run = el.dataset.stage === "run";
+      const c = run ? "working" : "soon";
+      if (el.dataset.size === "s")
+        return `<div class="w-col st-soon">${ring(58, 0.72, ACC.soon, `<span class="rg-in">${down(750)}</span>`, 4)}<div style="margin-top:auto"><div class="w-t clamp2">Backup the shop database</div><div class="w-x">Daily at 16:00</div></div></div>`;
+      return `<div class="w-rt st-${c}">${ring(84, run ? 0.3 : 0.72, fill[c], `<span class="rg-in" style="font-size:17px">${run ? up(0) : down(750)}<small>${run ? "running" : "to go"}</small></span>`, 5)}<div class="w-rl">${ROUTINES.map(([t, n], i) => `<div class="w-ri"><time>${run && !i ? "Now" : t}</time><span>${n}</span></div>`).join("")}${run ? btn("Open chat") : btn("Run now", "run", "pri", "play")}</div></div>`;
+    },
+    accinline(el, m) {
+      return `${ic("seira")}<span>${{ working: "3 bots working", needs: "Atlas needs your OK", done: "All done, next at 16:00" }[m]}</span>`;
+    },
+    accrow(el, m) {
+      const g = { working: [0.6, "seira"], needs: [1, "hand"], done: [1, "check"] }[m];
+      const r = {
+        working: ["3 bots working", "Atlas: Running the test suite", "Mira: Drafting the invoice"],
+        needs: ["Atlas needs your OK", "Run a command in the shop folder", "Open to answer"],
+        done: ["All done", "9 tasks today", "Next: Backup at 16:00"],
+      }[m];
+      return `<span class="acc-c">${ring(54, g[0], "#fff", `<span class="rg-in">${ic(g[1])}</span>`, 4)}</span><div class="acc-r"><b>${r[0]}</b><span>${r[1]}</span><span>${r[2]}</span></div><span class="acc-c">${ic("mic")}</span>`;
+    },
+    lockand(el, m) {
+      const c = {
+        working: [ACC.working, "Atlas is working", "Step 3 of 5", "working", `<div class="an-p">${steps(3, 5)}</div>`],
+        needs: [ACC.needs, "Atlas needs your OK", "Unlock to see the command and answer", "needs", ""],
+        done: [ACC.done, "Atlas finished", "Tests pass, 42 of 42", "done", ""],
+      }[m];
+      return `<div class="an" style="--acc-s:${c[0]}"><div class="an-h"><i class="an-ico">${ic("seira")}</i><span>Seira</span><span>&middot;</span><span>now</span></div><div class="an-b"><div class="an-tx"><div class="an-t">${c[1]}</div><div class="an-x">${c[2]}</div></div>${head("atlas", mood[c[3]], 40)}</div>${c[4]}</div>`;
+    },
+  };
+
+  let moment = "working";
+  const timers = new WeakMap();
+  function render(el) {
+    el.innerHTML = W[el.dataset.w](el, moment);
+    el.classList.remove("w-swap");
+    void el.offsetWidth;
+    el.classList.add("w-swap");
+  }
+  function go(el, stage, thenStage, ms) {
+    clearTimeout(timers.get(el));
+    el.dataset.stage = stage;
+    render(el);
+    if (thenStage != null) timers.set(el, setTimeout(() => go(el, thenStage), ms));
+  }
+  const ACT = {
+    allow: (el) => go(el, "allowed", "question", 1800),
+    deny: (el) => go(el, "denied", "question", 1800),
+    answer: (el, b) => { el.dataset.ans = b.textContent; go(el, "sent", "clear", 1800); },
+    replay: (el) => go(el, "ask"),
+    send: (el, b) => { el.dataset.ans = b.textContent; go(el, "sent", "", 2400); },
+    run: (el) => go(el, "run", "", 3600),
+    next: (el) => {
+      if (el.dataset.w === "talk") return go(el, el.dataset.stage === "on" ? "" : "on");
+      const i = el.dataset.stage ? Number(el.dataset.stage) : { working: 0, needs: 1, done: 2 }[moment];
+      go(el, String((i + 1) % BOT.length));
+    },
+  };
+
+  const slot = (kind, p, size) => `<div class="wg ${p === "and" ? "and " : ""}${size} k-${kind}" data-w="${kind}" data-p="${p}" data-size="${size}"></div>`;
+  const tiles = (n) => "<i></i>".repeat(n);
+  const sbRight = '<span class="sb-r"><i class="sb-sig"></i><i class="sb-wifi"></i><i class="sb-bat"></i></span>';
+
+  document.getElementById("now").innerHTML =
+    `<div class="wg and s"><div class="w-k">Updates</div><div class="now-rows"><span><b>Atlas</b> Needs you</span><span><b>Mira</b> Working</span><span><b>Juno</b> Working</span><span><b>Kei</b> Done</span></div></div><span>Android sekarang: satu widget</span>`;
+
+  document.getElementById("stage").innerHTML = `
+    <div class="stage-bar">
+      <div class="scenes" role="group" aria-label="Momen">${MOMENTS.map(([id, label, color]) => `<button type="button" class="scene-b" data-moment="${id}" aria-pressed="false" style="--sc:${color}"><i></i>${label}</button>`).join("")}</div>
+      <div class="seg" role="group" aria-label="Layar"><button type="button" data-form="home" aria-pressed="true">Layar utama</button><button type="button" data-form="lock" aria-pressed="false">Layar kunci</button></div>
+    </div>
+    <div class="stage2">
+      <div class="stage-col">
+        <div class="plat"><b>iPhone</b> WidgetKit</div>
+        <div class="ph ios" data-ui="dark" data-ui-global data-form="home">
+          <div class="ph-screen">
+            <div class="view v-home on"><div class="ph-home"><div class="wgrid" style="top:66px">${slot("needs", "ios", "m")}<div class="wrow">${slot("bot", "ios", "s")}${slot("talk", "ios", "s")}</div>${slot("crew", "ios", "m")}</div><div class="apps" style="top:610px">${tiles(4)}</div><div class="dock">${tiles(3)}<i class="me">${ic("seira")}</i></div></div></div>
+            <div class="view v-lock"><div class="lk" style="position:absolute;inset:78px 0 auto"><small class="acc-i" data-w="accinline"></small><b>9:41</b><div class="acc-set" data-w="accrow"></div></div><div class="lock-btns"><i></i><i></i></div></div>
+            <div class="sb"><span class="sb-time">9:41</span>${sbRight}</div>
+            <div class="isl" data-form="idle"><span class="lens"></span></div>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+      <div class="stage-col">
+        <div class="plat"><b>Android 16</b> Jetpack Glance</div>
+        <div class="ph and" data-ui="dark" data-ui-global data-form="home">
+          <div class="ph-screen">
+            <div class="view v-home on"><div class="ph-home"><div class="wgrid" style="top:62px">${slot("quick", "and", "bar")}<div class="wrow">${slot("routine", "and", "s")}${slot("talk", "and", "s")}</div>${slot("crew", "and", "m")}</div><div class="apps" style="top:524px">${tiles(8)}</div><div class="gsearch"></div></div></div>
+            <div class="view v-lock"><div class="lock-clock"><b>9:41</b><small>Sat, 28 Nov</small></div><div class="lock-la" data-w="lockand"></div></div>
+            <div class="sb"><span class="sb-time"><span>9:41</span></span>${sbRight}</div>
+            <i class="cam"></i>
+            <div class="homebar"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <p class="now-note" aria-live="polite"></p>`;
+
+  const lockIos = `<div class="wfrag dark"><div class="lk"><small class="acc-i" data-w="accinline"></small><b>9:41</b><div class="acc-set" data-w="accrow"></div></div></div>`;
+  const lockAnd = `<div class="wfrag dark"><div class="lk-and"><b>9:41</b><div data-w="lockand"></div></div></div>`;
+  const ctlIos = `<div class="wfrag dark"><div class="ccs"><figure><button type="button" class="cc on" data-toggle aria-pressed="true" aria-label="Talk to Seira">${ic("mic")}</button><figcaption>Talk</figcaption></figure><figure><button type="button" class="cc" aria-label="New task">${ic("plus")}</button><figcaption>New task</figcaption></figure><figure><button type="button" class="cc" aria-label="Open Seira">${ic("seira")}</button><figcaption>Seira</figcaption></figure></div></div>`;
+  const ctlAnd = `<div class="wfrag dark"><div class="qs"><span>${ic("wifi")}Internet</span><span>${ic("bt")}Bluetooth</span><span class="on" role="button" tabindex="0" data-toggle aria-pressed="true">${ic("mic")}Talk to Seira</span><span role="button" tabindex="0">${ic("plus")}New task</span></div></div>`;
+
+  const tag = { ok: "Sudah ada", new: "Perlu data baru", chk: "Perlu cek" };
+  const CONCEPTS = [
+    {
+      title: "Needs you",
+      idea: "Bot menunggu izin. Kamu menjawab dari layar utama tanpa membuka app.",
+      pieces: [[slot("needs", "ios", "m"), "iOS medium"], [slot("needs", "and", "m"), "Android 4x2"]],
+      isi: "Kepala bot, judul, kalimat, dan teks perintah utuh. Untuk pertanyaan: pilihan jawaban.",
+      aksi: "Deny, Allow once, pilihan jawaban, Open chat. Di mockup, ketuk tombol untuk mengikuti alurnya.",
+      data: [["ok", "jenis izin, judul, teks perintah, pilihan jawaban"]],
+      ios: "Sudah ada (small, medium). <code>Button(intent:)</code>. Allow once butuh HP tidak terkunci.",
+      and: "Baru. Glance <code>actionRunCallback</code> menjawab tanpa membuka app.",
+    },
+    {
+      title: "Crew",
+      idea: "Semua bot dalam satu widget. Cincin warna menunjukkan keadaan setiap bot.",
+      pieces: [[slot("crew", "ios", "m"), "iOS medium"], [slot("crew", "ios", "l"), "iOS large"], [slot("crew", "and", "m"), "Android 4x2"]],
+      isi: "Sampai 3 bot (medium) atau 5 bot (large): kepala, nama, kalimat, dan jam kerja.",
+      aksi: "Ketuk satu baris untuk membuka chat bot itu. Ukuran large punya New task dan mic.",
+      data: [["ok", "daftar bot, keadaan, kalimat, jam mulai"]],
+      ios: "Mengganti widget Working. <code>Link(destination:)</code> per baris, <code>Text(timerInterval:)</code> untuk jam.",
+      and: "Baru. Glance <code>LazyColumn</code>. Jam memakai <code>Chronometer</code> lewat <code>AndroidRemoteViews</code>.",
+    },
+    {
+      title: "Bot",
+      idea: "Satu bot pilihan. Wajah bot berubah sesuai keadaannya.",
+      pieces: [[slot("bot", "ios", "s"), "iOS small"], [slot("bot", "and", "s"), "Android 2x2"]],
+      isi: "Kepala besar dengan cincin keadaan, nama, kalimat, jam, dan langkah kerja.",
+      aksi: "Ketuk untuk membuka chat. Di mockup, ketuk untuk melihat keadaan berikutnya.",
+      data: [["ok", "keadaan, kalimat, jam mulai"], ["new", "langkah kerja"]],
+      ios: "Sudah ada (small). <code>AppIntentConfiguration</code> untuk memilih bot.",
+      and: "Baru. Layar konfigurasi widget untuk memilih bot.",
+    },
+    {
+      title: "Talk",
+      idea: "Satu ketukan untuk bicara dengan Seira.",
+      pieces: [[slot("talk", "ios", "s"), "iOS small"], [slot("talk", "and", "s"), "Android 2x2"]],
+      isi: "Tombol mic. Saat panggilan berjalan: tanda mendengar dan lama panggilan.",
+      aksi: "Ketuk untuk mulai Live call. Ketuk lagi untuk selesai.",
+      data: [["ok", "tidak butuh data dari komputer"]],
+      ios: "Sudah ada (small). <code>widgetURL</code> membuka Live call.",
+      and: "Baru, bentuk cookie Material. <code>actionStartActivity</code> ke Live call.",
+    },
+    {
+      title: "Today",
+      idea: "Rangkuman hari ini: yang selesai, yang menunggu, dan routine berikutnya.",
+      pieces: [[slot("today", "ios", "l"), "iOS large"], [slot("today", "and", "l"), "Android 4x3"]],
+      isi: "Tiga angka, lalu garis waktu: tugas selesai, tugas berjalan, dan routine berikutnya.",
+      aksi: "Ketuk satu baris untuk membuka chat. New task dan mic di bawah.",
+      data: [["chk", "jam selesai tiap tugas dan jumlah per hari"], ["chk", "jadwal routine"]],
+      ios: "Baru (large). App menulis <code>TimelineEntry</code> baru saat ada kabar dari komputer.",
+      and: "Baru (4x3). Glance <code>SizeMode.Responsive</code>.",
+    },
+    {
+      title: "Quick task",
+      idea: "Beri tugas dari layar utama. Prompt yang sering dipakai tinggal satu ketukan.",
+      pieces: [[slot("quick", "ios", "m"), "iOS medium"], [slot("quick", "and", "bar"), "Android 4x1"], [slot("quick", "and", "m"), "Android 4x2"]],
+      isi: "Kolom tugas, mic, kamera, dan 3 prompt terakhir.",
+      aksi: "Kolom membuka layar tulis di app. Chip mengirim prompt itu langsung. Di mockup, ketuk satu chip.",
+      data: [["new", "daftar prompt terakhir, disimpan di HP"], ["chk", "kirim tugas tanpa membuka app"]],
+      ios: "Baru (medium). Kolom memakai <code>Link</code>. Chip memakai <code>Button(intent:)</code>.",
+      and: "Baru (4x1, 4x2). <code>actionStartActivity</code> untuk kolom, <code>actionRunCallback</code> untuk chip.",
+    },
+    {
+      title: "Routines",
+      idea: "Routine berikutnya dan hitung mundurnya.",
+      pieces: [[slot("routine", "ios", "s"), "iOS small"], [slot("routine", "ios", "m"), "iOS medium"], [slot("routine", "and", "m"), "Android 4x2"]],
+      isi: "Cincin hitung mundur, nama routine, dan 3 jadwal berikutnya.",
+      aksi: "Run now menjalankan routine sekarang. Ketuk baris untuk membuka routine.",
+      data: [["chk", "jadwal routine untuk widget"], ["chk", "perintah Run now"]],
+      ios: "Baru (small, medium). <code>Text(timerInterval:)</code> dan <code>ProgressView(timerInterval:)</code>.",
+      and: "Baru (2x2, 4x2). <code>Chronometer</code> hitung mundur.",
+    },
+    {
+      title: "Layar kunci",
+      idea: "Keadaan bot terlihat tanpa membuka kunci.",
+      pieces: [[lockIos, "iOS lock screen"], [lockAnd, "Android lock screen"]],
+      isi: "iOS: satu baris di atas jam, satu lingkaran, satu kotak teks, dan tombol Talk. Android: kartu Live Update tanpa teks perintah.",
+      aksi: "Ketuk untuk membuka app. Izin tetap butuh HP tidak terkunci.",
+      data: [["ok", "keadaan, kalimat, judul izin"]],
+      ios: "Sudah ada (Talk, Updates). <code>accessoryInline</code>, <code>accessoryCircular</code>, <code>accessoryRectangular</code>.",
+      and: "<code>setPublicVersion</code> menyembunyikan teks perintah di layar kunci.",
+    },
+    {
+      title: "Kontrol sistem",
+      idea: "Seira ada di Control Center dan Quick Settings.",
+      pieces: [[ctlIos, "iOS Control Center"], [ctlAnd, "Android Quick Settings"]],
+      isi: "Talk to Seira, New task, dan pintasan ke app.",
+      aksi: "Talk menyalakan dan mematikan Live call. New task membuka layar tulis.",
+      data: [["ok", "tidak butuh data dari komputer"]],
+      ios: "Talk sudah ada. <code>ControlWidgetToggle</code> dan <code>ControlWidgetButton</code>. Bisa dipasang di Action button dan layar kunci.",
+      and: "Tile Talk sudah ada. <code>TileService</code> kedua untuk New task.",
+    },
+  ];
+
+  document.getElementById("catalog").innerHTML = CONCEPTS.map(
+    (c, i) => `
+    <article class="concept is-wide" id="w${i + 1}">
+      <div class="concept-stage wall" data-ui="dark" data-ui-global>
+        <div class="wpair">${c.pieces.map(([html, label]) => `<div class="wcol">${html}<span>${label}</span></div>`).join("")}</div>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">W${i + 1}</span><h3>${c.title}</h3></div>
+        <p class="concept-idea">${c.idea}</p>
+        <dl class="concept-spec">
+          <div><dt>Isi</dt><dd>${c.isi}</dd></div>
+          <div><dt>Aksi</dt><dd>${c.aksi}</dd></div>
+          <div><dt>Data</dt><dd>${c.data.map(([k, t]) => `<span class="data-${k}">${tag[k]}</span> ${t}`).join("<br>")}</dd></div>
+          <div><dt>iOS</dt><dd>${c.ios}</dd></div>
+          <div><dt>Android</dt><dd>${c.and}</dd></div>
+        </dl>
+      </div>
+    </article>`
+  ).join("");
+
+  const note = document.querySelector("#stage .now-note");
+  function setMoment(id) {
+    moment = id;
+    document.querySelectorAll("[data-moment]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.moment === id)));
+    note.innerHTML = MOMENTS.find((m) => m[0] === id)[3];
+    document.querySelectorAll("[data-w]").forEach((el) => {
+      clearTimeout(timers.get(el));
+      delete el.dataset.stage;
+      render(el);
+    });
+  }
+  function setForm(form) {
+    document.querySelectorAll("#stage [data-form]").forEach((el) => {
+      if (el.tagName === "BUTTON") el.setAttribute("aria-pressed", String(el.dataset.form === form));
+      else el.dataset.form = form;
+    });
+    document.querySelectorAll("#stage .view").forEach((v) => v.classList.toggle("on", v.classList.contains(`v-${form}`)));
+  }
+  function toggle(el) {
+    const on = el.getAttribute("aria-pressed") !== "true";
+    el.setAttribute("aria-pressed", String(on));
+    el.classList.toggle("on", on);
+  }
+
+  document.addEventListener("click", (e) => {
+    const m = e.target.closest("[data-moment]");
+    if (m) return setMoment(m.dataset.moment);
+    const f = e.target.closest("button[data-form]");
+    if (f) return setForm(f.dataset.form);
+    const t = e.target.closest("[data-toggle]");
+    if (t) return toggle(t);
+    const b = e.target.closest("[data-act]");
+    if (b) ACT[b.dataset.act](b.closest("[data-w]"), b);
+  });
+  document.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && e.target.matches('span[data-toggle]')) {
+      e.preventDefault();
+      toggle(e.target);
+    }
+  });
+
+  setMoment("working");
+  L.startClock();
+})();
+</script>
+</body>
+</html>

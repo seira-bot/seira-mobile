@@ -7,6 +7,8 @@
     ["switches.html", "Saklar"],
     ["segments.html", "Tab & segmen"],
     ["dials.html", "Dial"],
+    ["island.html", "Island"],
+    ["widgets.html", "Widget"],
   ];
 
   /* Usage: <svg class="ic"><use href="#i-sun"/></svg> */

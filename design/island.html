@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Island dan Live Update · Seira Design</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<link rel="stylesheet" href="assets/live.css">
+<style>
+.now-stage { display: grid; gap: 14px; justify-items: center; padding: 26px 12px; border-radius: 22px; background: #0a0b0f; }
+.now-stage > div { zoom: 0.86; }
+.now-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--acc-s); }
+.now-head { display: flex; align-items: baseline; gap: 6px; font-size: 15px; font-weight: 600; }
+.now-head span { font-size: 13px; font-weight: 500; color: var(--acc-s); }
+.rules { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0; border-top: 1px solid var(--g-line); margin: 0; padding: 0; list-style: none; }
+.rules li { padding: 20px 22px 22px 0; border-bottom: 1px solid var(--g-line); }
+.rules li + li { padding-left: 22px; border-left: 1px solid var(--g-line); }
+.rules li:nth-child(3n + 1) { padding-left: 0; border-left: 0; }
+.rules h3 { margin: 0 0 6px; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; }
+.rules p { margin: 0; color: var(--g-mut); font-size: 14px; }
+@media (max-width: 860px) {
+  .rules { grid-template-columns: 1fr; }
+  .rules li, .rules li + li { padding: 16px 0; border-left: 0; }
+}
+</style>
+</head>
+<body>
+<header data-g-nav="island.html"></header>
+<main class="g-wrap">
+
+  <section class="g-hero">
+    <span class="g-eyebrow">Papan 05 · Island</span>
+    <h1 class="g-h1">Pulau yang <span class="serif">bekerja.</span></h1>
+    <p class="g-lede">Dynamic Island di iPhone dan Live Update di Android sekarang hanya memberi tahu ada sesuatu. Papan ini membuat keduanya menjawab tiga hal: bot sampai di mana, butuh apa, dan apa yang bisa kamu lakukan sekarang.</p>
+
+    <div class="g-before">
+      <div>
+        <h3>Sekarang di app</h3>
+        <p>Bentuk compact berisi kepala bot dan satu titik warna 8 pt. Bentuk expanded berisi nama, satu kata status, dan tiga tombol. Lama kerja, langkah, hasil, dan panggilan tidak tampil.</p>
+      </div>
+      <div class="now-stage" id="now"></div>
+    </div>
+  </section>
+
+  <section class="g-section" id="panggung">
+    <div class="g-section-head">
+      <h2 class="g-h2">Satu adegan, <span class="serif">dua HP.</span></h2>
+      <p>Pilih adegan. Ketuk island untuk membuka dan menutupnya. Tombol di dalam island dan notifikasi berfungsi, jadi kamu bisa mengikuti alurnya.</p>
+    </div>
+    <div id="stage"></div>
+  </section>
+
+  <section class="g-section" id="adegan">
+    <div class="g-section-head">
+      <h2 class="g-h2">Delapan adegan, <span class="serif">semua bentuk.</span></h2>
+      <p>Setiap kartu menampilkan bentuk iOS dan Android berdampingan, lalu menyebut isi, aksi, data, dan cara buatnya.</p>
+    </div>
+    <div class="g-grid" id="catalog"></div>
+  </section>
+
+  <section class="g-section" id="fitur">
+    <div class="g-section-head">
+      <h2 class="g-h2">Dua belas fitur, <span class="serif">dan datanya.</span></h2>
+      <p>Tujuh fitur bisa dibuat dari data yang sudah ada di app. Tiga butuh data baru dari komputer. Dua perlu dicek dulu.</p>
+    </div>
+    <div class="g-table-wrap">
+      <table class="g-table">
+        <thead><tr><th>Fitur</th><th>iOS</th><th>Android</th><th>Data</th></tr></thead>
+        <tbody>
+          <tr><td>Jam kerja berjalan</td><td><span class="g-code">Text(timerInterval:)</span></td><td><span class="g-code">setUsesChronometer</span></td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Island membuka sendiri saat bot butuh izin</td><td><span class="g-code">AlertConfiguration</span></td><td>Heads-up dan chip</td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Izin dengan teks perintah utuh</td><td><span class="g-code">ViewThatFits</span></td><td><span class="g-code">BigTextStyle</span></td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Jawaban cepat untuk pertanyaan</td><td><span class="g-code">Button(intent:)</span></td><td>Aksi dan <span class="g-code">RemoteInput</span></td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Tumpukan bot, tanpa angka</td><td>Array bot di content state</td><td><span class="g-code">BigTextStyle</span></td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Kontrol Live call</td><td>Live Activity panggilan</td><td><span class="g-code">CallStyle</span></td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Jam tangan dan layar selalu nyala</td><td><span class="g-code">supplementalActivityFamilies</span>, <span class="g-code">isLuminanceReduced</span></td><td>Notifikasi ongoing tampil di Wear OS</td><td><span class="data-ok">Sudah ada</span></td></tr>
+          <tr><td>Langkah kerja sebagai segmen</td><td><span class="g-code">Capsule</span> per langkah</td><td><span class="g-code">ProgressStyle</span></td><td><span class="data-new">Perlu data baru</span></td></tr>
+          <tr><td>Ringkasan selesai dan lama kerja</td><td><span class="g-code">dismissalPolicy</span></td><td><span class="g-code">setTimeoutAfter</span></td><td><span class="data-new">Perlu data baru</span></td></tr>
+          <tr><td>Sebab gagal dan Try again</td><td><span class="g-code">Button(intent:)</span></td><td>Aksi notifikasi</td><td><span class="data-new">Perlu data baru</span></td></tr>
+          <tr><td>Stop dari island</td><td><span class="g-code">LiveActivityIntent</span></td><td>Aksi notifikasi</td><td><span class="data-chk">Perlu cek</span></td></tr>
+          <tr><td>Hitung mundur routine</td><td>Push-to-start</td><td><span class="g-code">setChronometerCountDown</span></td><td><span class="data-chk">Perlu cek</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="g-section" id="batas">
+    <div class="g-section-head">
+      <h2 class="g-h2">Batas yang mockup ini <span class="serif">patuhi.</span></h2>
+      <p>Setiap bentuk di papan ini bisa dibuat dengan API resmi. Enam batas di bawah menentukan tata letaknya.</p>
+    </div>
+    <ul class="rules">
+      <li><h3>Tinggi 160 pt</h3><p>Island expanded tidak boleh lebih tinggi dari 160 pt. Setiap adegan di panggung diukur dan muat.</p></li>
+      <li><h3>Kamera di tengah atas</h3><p>Nama bot ada di kiri kamera dan jam ada di kanan. Kalimat, langkah, dan tombol mulai di bawah kamera.</p></li>
+      <li><h3>Gerak saat data berubah</h3><p>Sistem tidak memberi animasi terus-menerus. Wajah dan segmen berganti saat ada update. Hanya jam yang berjalan sendiri.</p></li>
+      <li><h3>Notifikasi standar di Android</h3><p>Live Update menolak layout kustom. Mockup memakai bentuk progress, panggilan, dan teks besar bawaan sistem.</p></li>
+      <li><h3>Izin butuh teks utuh</h3><p>Allow once tampil hanya saat seluruh teks perintah muat, dan hanya jalan saat HP tidak terkunci. Aturan ini tidak berubah.</p></li>
+      <li><h3>Warna, bukan angka</h3><p>Island tidak menghitung bot. Satu titik warna per bot menunjukkan siapa yang butuh kamu.</p></li>
+    </ul>
+  </section>
+
+  <footer class="g-foot">Seira Design Gallery. Mockup statis untuk review, bukan kode app. Lanjut ke <a href="widgets.html">papan widget</a>.</footer>
+</main>
+
+<script src="assets/kit.js"></script>
+<script src="assets/live.js"></script>
+<script>
+(function () {
+  const L = window.Live;
+  L.injectExtra();
+  const acc = L.ACC.needs;
+  document.getElementById("now").innerHTML = `
+    <div class="pc pc-c" style="--cw:200px;--acc-s:${acc}"><span class="lens"></span><div class="icp" style="--cw:200px"><span>${L.head("atlas", "alert", 24)}</span><span class="ct"><i class="now-dot"></i></span></div></div>
+    <div class="pc pc-e" style="--acc-s:${acc};box-shadow:none"><span class="lens"></span><div class="ie"><div class="ie-top"><div class="ie-lead" style="max-width:none">${L.head("atlas", "alert", 30)}<div class="now-head">Atlas <span>Needs you</span></div></div></div><div class="ie-body"><div class="ie-sub"><b>Run a command in the shop folder</b></div><div class="ie-cmd">npm run deploy -- --env=staging</div><div class="btns"><span class="pill">Deny</span><span class="pill pri">Allow once</span><span class="pill">Open chat</span></div></div></div></div>`;
+  L.mountStage(document.getElementById("stage"));
+  L.mountCatalog(document.getElementById("catalog"));
+})();
+</script>
+</body>
+</html>
