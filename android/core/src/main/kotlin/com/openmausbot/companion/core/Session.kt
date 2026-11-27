@@ -174,6 +174,34 @@ class Session(
     private var streamJob: Job? = null
     private var endpointRefreshJob: Job? = null
     private var streamGeneration = 0
+
+    /**
+     * Counts the paired runtimes this session has served. Every point that drops the old runtime's state
+     * (unpair, computer switch, workspace switch, restore) moves it on, so a result that comes back later can tell
+     * that the runtime it was asked of is gone.
+     */
+    @Volatile
+    private var runtimeEpoch = 0
+
+    /** The paired runtime a request was sent to. */
+    internal class RuntimeBinding(val connectionId: String?, val epoch: Int)
+
+    private fun bindRuntime() = RuntimeBinding(_connection.value?.id, runtimeEpoch)
+
+    private fun RuntimeBinding.isCurrent(): Boolean =
+        connectionId != null && _connection.value?.id == connectionId && runtimeEpoch == epoch
+
+    /** Commit a result to the state only while its runtime is the active one. */
+    private fun RuntimeBinding.commit(update: (CompanionState) -> CompanionState): Boolean {
+        if (!isCurrent()) return false
+        _state.update(update)
+        return true
+    }
+
+    /** Show an error only while its runtime is the active one. */
+    private fun RuntimeBinding.reportError(message: String?) {
+        if (isCurrent()) _actionError.value = message
+    }
     private var reconnectDelaySeconds: Long = 0
     /** Resumed streams in a row that closed with nothing after their hello. */
     private var emptyResumes = 0
@@ -718,6 +746,7 @@ class Session(
         reconnectDelaySeconds = 0
         emptyResumes = 0
         screenWatchers = 0
+        runtimeEpoch += 1
         client = null
         token = null
         rotation = CandidateRotation(emptyList())
@@ -973,6 +1002,7 @@ class Session(
     }
 
     private fun configureActiveConnectionLocked(saved: Connection, storedToken: String) {
+        runtimeEpoch += 1
         _connection.value = saved
         token = storedToken
         // A restored pairing walks the desktop's advertised priority, and it walks
@@ -1079,6 +1109,7 @@ class Session(
             attachmentDownloads.clear()
             emptyResumes = 0
             _steeringInstanceIds.value = emptySet()
+            runtimeEpoch += 1
             _state.value = CompanionState()
             notificationSink.setBadge(0)
             _workspaceEpoch.update { it + 1 }
@@ -2012,13 +2043,14 @@ class Session(
 
     suspend fun createBot(spec: NewBot = NewBot()): Bot? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         return try {
             val bot = activeClient.createBot(spec)
-            _state.update { it.apply(Frame.Bot(bot)) }
+            if (!binding.commit { it.apply(Frame.Bot(bot)) }) return null
             bot
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
@@ -2026,18 +2058,20 @@ class Session(
     /** True once the computer removed the bot; the bot leaves the list at once. */
     suspend fun deleteBot(bot: Bot): Boolean = mutateTask(false) { client ->
         client.deleteBot(bot.id)
-        _state.update { it.apply(Frame.BotDeleted(bot.id)) }
+        commit { it.apply(Frame.BotDeleted(bot.id)) }
         true
     }
 
     suspend fun createRoom(name: String?, memberIds: List<String>): Room? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         return try {
             val room = activeClient.createRoom(name, memberIds)
-            _state.update { it.apply(Frame.Room(room)) }
+            if (!binding.commit { it.apply(Frame.Room(room)) }) return null
             room
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            if (error is CancellationException) throw error
+            binding.reportError(error.message)
             null
         }
     }
@@ -2049,14 +2083,15 @@ class Session(
      */
     suspend fun assignSection(name: String, botIds: List<String>): List<Bot>? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         return try {
-            activeClient.assignSection(name, botIds).also { updatedBots ->
-                _state.update { state ->
-                    updatedBots.fold(state) { current, bot -> current.apply(Frame.Bot(bot)) }
-                }
+            val updatedBots = activeClient.assignSection(name, botIds)
+            val committed = binding.commit { state ->
+                updatedBots.fold(state) { current, bot -> current.apply(Frame.Bot(bot)) }
             }
+            if (committed) updatedBots else null
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
@@ -2601,13 +2636,17 @@ class Session(
      * than private only so SessionTaskCrudTest can pin the cancellation
      * contract directly.
      */
-    internal suspend fun <T> mutateTask(offline: T, mutation: suspend (CompanionClient) -> T): T {
+    internal suspend fun <T> mutateTask(offline: T, mutation: suspend RuntimeBinding.(CompanionClient) -> T): T {
         val activeClient = client ?: return offline
+        val binding = bindRuntime()
         return try {
-            mutation(activeClient)
+            val result = binding.mutation(activeClient)
+            currentCoroutineContext().ensureActive()
+            // A result for a runtime that is gone is not this computer's answer.
+            if (binding.isCurrent()) result else offline
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             // Cancellation that lands while the failure is being reported
             // still wins: a cancelled caller throws instead of observing the
             // offline value.
@@ -2618,7 +2657,7 @@ class Session(
 
     suspend fun createTask(forBot: Bot, title: String?): Bot? = mutateTask(null) { client ->
         client.createTask(forBot.id, title).also { updated ->
-            _state.update { it.apply(Frame.Bot(updated)) }
+            commit { it.apply(Frame.Bot(updated)) }
         }
     }
 
@@ -2626,7 +2665,7 @@ class Session(
         if (task.threadId == forBot.threadId) return forBot
         return mutateTask(null) { client ->
             client.switchTask(forBot.id, task.threadId).also { updated ->
-                _state.update { it.apply(Frame.Bot(updated)) }
+                commit { it.apply(Frame.Bot(updated)) }
             }
         }
     }
@@ -2654,7 +2693,7 @@ class Session(
 
     suspend fun deleteTask(task: BotTask, forBot: Bot): Bot? = mutateTask(null) { client ->
         client.deleteTask(forBot.id, task.threadId).also { updated ->
-            _state.update { it.apply(Frame.Bot(updated)) }
+            commit { it.apply(Frame.Bot(updated)) }
         }
     }
 
@@ -2678,7 +2717,7 @@ class Session(
 
     suspend fun createTask(forRoom: Room, title: String?): Room? = mutateTask(null) { client ->
         client.createRoomTask(forRoom.id, title).also { updated ->
-            _state.update { it.apply(Frame.Room(updated)) }
+            commit { it.apply(Frame.Room(updated)) }
         }
     }
 
@@ -2686,7 +2725,7 @@ class Session(
         if (task.threadId == forRoom.threadId) return forRoom
         return mutateTask(null) { client ->
             client.switchRoomTask(forRoom.id, task.threadId).also { updated ->
-                _state.update { it.apply(Frame.Room(updated)) }
+                commit { it.apply(Frame.Room(updated)) }
             }
         }
     }
@@ -2699,31 +2738,33 @@ class Session(
 
     suspend fun deleteTask(task: BotTask, forRoom: Room): Room? = mutateTask(null) { client ->
         client.deleteRoomTask(forRoom.id, task.threadId).also { updated ->
-            _state.update { it.apply(Frame.Room(updated)) }
+            commit { it.apply(Frame.Room(updated)) }
         }
     }
 
     suspend fun updateProfile(patch: BotProfilePatch, forBot: Bot): Bot? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         return try {
             val updated = activeClient.updateProfile(forBot.id, patch)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return null
             updated
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun updateLook(botId: String, patch: BotLookPatch): Bot? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         if (patch.isEmpty) return _state.value.bot(botId)
         return try {
             val updated = activeClient.updateLook(botId, patch)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return null
             updated
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
@@ -2762,13 +2803,15 @@ class Session(
 
     suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
         val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)
+        val binding = bindRuntime()
         return try {
             val updated = activeClient.setWorksOn(bot.id, ownServer)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return WorksOnResult.Refused(WorksOnRefusal.Failed)
             WorksOnResult.Changed(updated)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
+            if (!binding.isCurrent()) return WorksOnResult.Refused(WorksOnRefusal.Failed)
             WorksOnResult.Refused(WorksOnChoice.refusal(error))
         }
     }
@@ -2785,13 +2828,17 @@ class Session(
     ): ApprovalModeResult {
         val activeClient = client
             ?: return ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
+        val binding = bindRuntime()
+        // The answer of a computer that is no longer the paired one says nothing about this one.
+        val retired = ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
         return try {
             val updated = activeClient.setApprovalMode(bot.id, threadId, mode, acknowledgeLocalAuto)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return retired
             ApprovalModeResult.Changed(updated, updated.approvalModeIn(threadId))
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
+            if (!binding.isCurrent()) return retired
             ApprovalModeResult.Refused(ApprovalModeRefusal.from(error))
         }
     }
@@ -2946,14 +2993,15 @@ class Session(
 
     suspend fun generateAvatar(prompt: String, forBot: Bot): Bot? {
         val activeClient = client ?: return null
+        val binding = bindRuntime()
         return try {
             val updated = activeClient.generateAvatar(forBot.id, prompt)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return null
             updated
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
@@ -3245,6 +3293,7 @@ class Session(
     private suspend fun perform(quietly: Boolean = false, body: suspend (CompanionClient) -> Unit) {
         val activeClient = client ?: return
         val connectionId = _connection.value?.id
+        val binding = bindRuntime()
         try {
             body(activeClient)
         } catch (error: APIError) {
@@ -3256,10 +3305,10 @@ class Session(
                     }
                 }
             } else if (!quietly) {
-                _actionError.value = error.message
+                binding.reportError(error.message)
             }
         } catch (error: Throwable) {
-            if (!quietly) _actionError.value = error.message
+            if (!quietly) binding.reportError(error.message)
         }
     }
 

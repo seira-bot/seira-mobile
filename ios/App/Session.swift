@@ -127,6 +127,28 @@ final class Session: ObservableObject {
     /// the replacement's handle.
     private var streamGeneration = 0
     private var runtimeGeneration = 0
+
+    private func bindRuntime() -> RuntimeBinding {
+        RuntimeBinding(generation: runtimeGeneration, connectionID: client?.connection.id)
+    }
+
+    private func isCurrent(_ binding: RuntimeBinding) -> Bool {
+        binding.isCurrent(generation: runtimeGeneration, connectionID: client?.connection.id)
+    }
+
+    /// Fold a result into the state only while the runtime it came from is the active one.
+    @discardableResult
+    private func commit(_ frame: Frame, for binding: RuntimeBinding) -> Bool {
+        guard isCurrent(binding) else { return false }
+        state.apply(frame)
+        return true
+    }
+
+    /// Show an error only while the runtime it came from is the active one.
+    private func report(_ error: Error, for binding: RuntimeBinding) {
+        if isCurrent(binding) { actionError = error.localizedDescription }
+    }
+
     /// Bumped as each Live-call lookup starts. Only the newest one may write
     /// its answer: an older one still out (from before a reconnect, or from
     /// a computer this phone left and came back to) is not newer than it.
@@ -2061,12 +2083,13 @@ final class Session: ObservableObject {
     @discardableResult
     func createBot() async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let bot = try await client.createBot()
-            state.apply(.bot(bot))
+            guard commit(.bot(bot), for: binding) else { return nil }
             return bot
         } catch {
-            actionError = error.localizedDescription
+            report(error, for: binding)
             return nil
         }
     }
@@ -2076,12 +2099,13 @@ final class Session: ObservableObject {
     @discardableResult
     func createRoom(name: String?, memberIds: [String]) async -> Room? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let room = try await client.createRoom(name: name, memberIds: memberIds)
-            state.apply(.room(room))
+            guard commit(.room(room), for: binding) else { return nil }
             return room
         } catch {
-            actionError = error.localizedDescription
+            report(error, for: binding)
             return nil
         }
     }
@@ -2092,12 +2116,14 @@ final class Session: ObservableObject {
     @discardableResult
     func assignSection(name: String, botIds: [String]) async -> [Bot]? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let bots = try await client.assignSection(name: name, botIds: botIds)
+            guard isCurrent(binding) else { return nil }
             for bot in bots { state.apply(.bot(bot)) }
             return bots
         } catch {
-            actionError = error.localizedDescription
+            report(error, for: binding)
             return nil
         }
     }
@@ -2299,21 +2325,23 @@ final class Session: ObservableObject {
     @discardableResult
     func createTask(for bot: Bot, title: String?) async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.createTask(botId: bot.id, title: title)
-            state.apply(.bot(updated))
+            guard commit(.bot(updated), for: binding) else { return nil }
             return updated
-        } catch { actionError = error.localizedDescription; return nil }
+        } catch { report(error, for: binding); return nil }
     }
 
     @discardableResult
     func switchTask(_ task: BotTask, for bot: Bot) async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.switchTask(botId: bot.id, threadId: task.threadId)
-            state.apply(.bot(updated))
+            guard commit(.bot(updated), for: binding) else { return nil }
             return updated
-        } catch { actionError = error.localizedDescription; return nil }
+        } catch { report(error, for: binding); return nil }
     }
 
     @discardableResult
@@ -2408,26 +2436,29 @@ final class Session: ObservableObject {
         }
 #endif
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.deleteTask(botId: bot.id, threadId: task.threadId)
-            state.apply(.bot(updated))
+            guard commit(.bot(updated), for: binding) else { return nil }
             return updated
-        } catch { actionError = error.localizedDescription; return nil }
+        } catch { report(error, for: binding); return nil }
     }
 
     @discardableResult
     func createTask(for room: Room, title: String?) async -> Bool {
         guard let client else { return false }
-        do { state.apply(.room(try await client.createTask(groupId: room.id, title: title))); return true }
-        catch { actionError = error.localizedDescription; return false }
+        let binding = bindRuntime()
+        do { return commit(.room(try await client.createTask(groupId: room.id, title: title)), for: binding) }
+        catch { report(error, for: binding); return false }
     }
 
     @discardableResult
     func switchTask(_ task: BotTask, for room: Room) async -> Bool {
         guard task.threadId != room.threadId else { return true }
         guard let client else { return false }
-        do { state.apply(.room(try await client.switchTask(groupId: room.id, threadId: task.threadId))); return true }
-        catch { actionError = error.localizedDescription; return false }
+        let binding = bindRuntime()
+        do { return commit(.room(try await client.switchTask(groupId: room.id, threadId: task.threadId)), for: binding) }
+        catch { report(error, for: binding); return false }
     }
 
     @discardableResult
@@ -2443,8 +2474,9 @@ final class Session: ObservableObject {
     @discardableResult
     func deleteTask(_ task: BotTask, for room: Room) async -> Bool {
         guard let client else { return false }
-        do { state.apply(.room(try await client.deleteTask(groupId: room.id, threadId: task.threadId))); return true }
-        catch { actionError = error.localizedDescription; return false }
+        let binding = bindRuntime()
+        do { return commit(.room(try await client.deleteTask(groupId: room.id, threadId: task.threadId)), for: binding) }
+        catch { report(error, for: binding); return false }
     }
 
     // MARK: - Agent profile
@@ -2490,37 +2522,39 @@ final class Session: ObservableObject {
 
     func updateModel(_ selection: ModelSelection, for bot: Bot) async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.updateModel(botId: bot.id, selection: selection, threadId: bot.threadId)
-            guard !Task.isCancelled else { return nil }
-            state.apply(.bot(updated))
+            guard !Task.isCancelled, commit(.bot(updated), for: binding) else { return nil }
             return updated
         } catch {
-            if !Task.isCancelled { actionError = error.localizedDescription }
+            if !Task.isCancelled { report(error, for: binding) }
             return nil
         }
     }
 
     func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {
         guard let client else { return .refused(.failed) }
+        let binding = bindRuntime()
         do {
             let updated = try await client.setWorksOn(botId: botId, ownServer: ownServer)
-            state.apply(.bot(updated))
+            guard commit(.bot(updated), for: binding) else { return .refused(.failed) }
             return .changed
         } catch {
+            guard isCurrent(binding) else { return .refused(.failed) }
             return .refused(WorksOnChoice.refusal(error))
         }
     }
 
     func updateProfile(_ patch: BotProfilePatch, for bot: Bot) async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.updateProfile(botId: bot.id, patch: patch)
-            guard !Task.isCancelled else { return nil }
-            state.apply(.bot(updated))
+            guard !Task.isCancelled, commit(.bot(updated), for: binding) else { return nil }
             return updated
         } catch {
-            if !Task.isCancelled { actionError = error.localizedDescription }
+            if !Task.isCancelled { report(error, for: binding) }
             return nil
         }
     }
@@ -2531,10 +2565,10 @@ final class Session: ObservableObject {
         let patch = BotLookPatch(from: original, to: look)
         if patch.isEmpty { return true }
         guard let client else { return false }
+        let binding = bindRuntime()
         do {
             let updated = try await client.updateLook(botId: bot.id, patch: patch)
-            state.apply(.bot(updated))
-            return true
+            return commit(.bot(updated), for: binding)
         } catch {
             return false
         }
@@ -2558,13 +2592,13 @@ final class Session: ObservableObject {
 
     func generateAvatar(prompt: String, for bot: Bot) async -> Bot? {
         guard let client else { return nil }
+        let binding = bindRuntime()
         do {
             let updated = try await client.generateAvatar(botId: bot.id, prompt: prompt)
-            guard !Task.isCancelled else { return nil }
-            state.apply(.bot(updated))
+            guard !Task.isCancelled, commit(.bot(updated), for: binding) else { return nil }
             return updated
         } catch {
-            if !Task.isCancelled { actionError = error.localizedDescription }
+            if !Task.isCancelled { report(error, for: binding) }
             return nil
         }
     }
@@ -3208,14 +3242,16 @@ final class Session: ObservableObject {
         acknowledgeLocalAuto: Bool = false
     ) async -> ApprovalModeResult {
         guard let client else { return .refused(.other(nil)) }
+        let binding = bindRuntime()
         do {
             let updated = try await client.setApprovalMode(
                 botId: bot.id, threadId: threadId, mode: mode, acknowledgeLocalAuto: acknowledgeLocalAuto
             )
-            guard !Task.isCancelled else { return .refused(.other(nil)) }
-            state.apply(.bot(updated))
+            // The answer of a computer that is no longer the paired one says nothing about this one.
+            guard !Task.isCancelled, commit(.bot(updated), for: binding) else { return .refused(.other(nil)) }
             return .changed(updated, updated.approvalLevel(in: threadId))
         } catch {
+            guard isCurrent(binding) else { return .refused(.other(nil)) }
             return .refused(ApprovalModeRefusal.from(error))
         }
     }
