@@ -8,11 +8,17 @@ struct HomeGroupHeader<Trailing: View>: View {
     /// nil: the group does not fold.
     let folded: Bool?
     var toggle: () -> Void = {}
+    /// Bots of this group that wait for the person. Shown only while the group is folded.
+    var waiting = 0
     @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         HStack(spacing: 0) {
             titleBlock
+            if folded == true, waiting > 0 {
+                HomeWaitingBadge(count: waiting)
+                    .padding(.leading, 8)
+            }
             Spacer(minLength: 0)
             trailing()
         }
@@ -55,8 +61,28 @@ struct HomeGroupHeader<Trailing: View>: View {
 }
 
 extension HomeGroupHeader where Trailing == EmptyView {
-    init(title: String, folded: Bool?, toggle: @escaping () -> Void = {}) {
-        self.init(title: title, folded: folded, toggle: toggle) { EmptyView() }
+    init(title: String, folded: Bool?, toggle: @escaping () -> Void = {}, waiting: Int = 0) {
+        self.init(title: title, folded: folded, toggle: toggle, waiting: waiting) { EmptyView() }
+    }
+}
+
+/// A small accent dot with the number of bots that wait for the person.
+struct HomeWaitingBadge: View {
+    let count: Int
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Circle()
+                .fill(Color.seiraAccent)
+                .frame(width: 8, height: 8)
+            Text(verbatim: "\(count)")
+                .font(.seira(12, .semibold, relativeTo: .caption))
+                .monospacedDigit()
+                .foregroundStyle(Color.seiraInk2)
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(Text("Waiting for you"))
+        .accessibilityValue(Text("\(count) waiting"))
     }
 }
 
@@ -144,20 +170,28 @@ struct AdvancedBotRow: View, Equatable {
     let waiting: Bool
     let expanded: Bool
     var highlighted = false
+    /// Compact density: no preview line.
+    var compact = false
     var toggle: () -> Void = {}
     var open: () -> Void = {}
 
     static func == (lhs: Self, rhs: Self) -> Bool {
         lhs.bot == rhs.bot && lhs.preview == rhs.preview && lhs.at == rhs.at && lhs.today == rhs.today
             && lhs.mood == rhs.mood && lhs.waiting == rhs.waiting && lhs.expanded == rhs.expanded
-            && lhs.highlighted == rhs.highlighted
+            && lhs.highlighted == rhs.highlighted && lhs.compact == rhs.compact
     }
+
+    private var rowHeight: CGFloat { compact ? HomeRowMetrics.compactHeight : HomeRowMetrics.minHeight }
 
     private var working: Bool { bot.busy == true && !waiting }
 
     private var detail: String {
-        if !preview.isEmpty { return preview }
+        if !compact, !preview.isEmpty { return preview }
         return waiting ? String(localized: "Waiting on you") : ""
+    }
+
+    private var toggleLabel: Text {
+        expanded ? Text("Hide \(bot.name)'s threads") : Text("Show \(bot.name)'s threads")
     }
 
     var body: some View {
@@ -167,11 +201,11 @@ struct AdvancedBotRow: View, Equatable {
                     .font(.system(size: 12, weight: .semibold))
                     .foregroundStyle(Color.seiraInk3)
                     .rotationEffect(.degrees(expanded ? 90 : 0))
-                    .frame(width: 36, height: HomeRowMetrics.minHeight)
+                    .frame(width: 44, height: max(44, rowHeight))
                     .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .accessibilityLabel(expanded ? "Hide threads" : "Show threads")
+            .accessibilityLabel(toggleLabel)
             .accessibilityIdentifier("row-threads-toggle.\(bot.id)")
 
             Button(action: open) {
@@ -191,16 +225,18 @@ struct AdvancedBotRow: View, Equatable {
                         stamp: RelativeStamp.list(at),
                         detail: detail,
                         detailWaiting: waiting,
-                        working: working
+                        working: working,
+                        compact: compact
                     )
                 }
                 .padding(.trailing, HomeRowMetrics.side)
-                .frame(minHeight: HomeRowMetrics.minHeight)
+                .frame(minHeight: rowHeight)
                 .contentShape(Rectangle())
             }
             .buttonStyle(HomeRowButtonStyle())
+            .accessibilityIdentifier("chat-row.\(bot.id)")
         }
-        .padding(.leading, 8)
+        .padding(.leading, 4)
         .background {
             if highlighted {
                 RoundedRectangle(cornerRadius: 14).fill(Color.seiraAccSoft)
@@ -275,24 +311,33 @@ struct DepartmentMenuSheet: View {
     }
 }
 
-/// Checks mark the bots in the department. Save sends what changed, once.
+/// Checks mark the bots in the department. Save sends what the person changed, once.
 struct AddBotsSheet: View {
     let department: String
 
     @EnvironmentObject private var session: Session
     @Environment(\.dismiss) private var dismiss
-    @State private var checked: Set<String>?
+    @State private var edits = DepartmentEdits()
     @State private var saving = false
-    @State private var failed = false
+    @State private var problem: SaveProblem?
+
+    private enum SaveProblem {
+        case failed, partial
+
+        var text: String {
+            switch self {
+            case .failed: return String(localized: "Could not save. Try again.")
+            case .partial: return String(localized: "Some changes did not save. Try again.")
+            }
+        }
+    }
 
     private var bots: [Bot] { DepartmentRules.selectable(session.state) }
 
-    private var current: Set<String> {
-        checked ?? DepartmentRules.members(bots, department)
-    }
+    private var members: Set<String> { DepartmentRules.members(bots, department) }
 
     private var placement: DepartmentPlacement {
-        DepartmentRules.diff(bots, department, current)
+        edits.placement(bots, members: members)
     }
 
     var body: some View {
@@ -305,13 +350,20 @@ struct AddBotsSheet: View {
                 } else {
                     List {
                         ForEach(bots) { bot in row(bot) }
-                        if failed {
-                            Text("Could not save. Try again.")
-                                .font(.seira(14, relativeTo: .subheadline))
-                                .foregroundStyle(Color.seiraDangerText)
-                        }
                     }
                     .disabled(saving)
+                }
+            }
+            .safeAreaInset(edge: .bottom, spacing: 0) {
+                if let problem {
+                    Text(verbatim: problem.text)
+                        .font(.seira(14, relativeTo: .subheadline))
+                        .foregroundStyle(Color.seiraDangerText)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, HomeRowMetrics.side)
+                        .padding(.vertical, 12)
+                        .background(Color.seiraS1)
+                        .accessibilityIdentifier("add-bots-error")
                 }
             }
             .navigationTitle(Text("Add bots to \(department)"))
@@ -337,7 +389,7 @@ struct AddBotsSheet: View {
     }
 
     private func row(_ bot: Bot) -> some View {
-        let isOn = current.contains(bot.id)
+        let isOn = edits.isChecked(bot.id, members: members)
         let section = bot.section?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
         let place: String = {
             if section.isEmpty { return String(localized: "Bots") }
@@ -345,7 +397,8 @@ struct AddBotsSheet: View {
         }()
         return Button {
             Haptics.selection()
-            checked = DepartmentRules.toggle(current, bot.id)
+            edits.toggle(bot.id, members: members)
+            problem = nil
         } label: {
             HStack(spacing: 12) {
                 SeiraAvatar(bot: bot, size: 36)
@@ -376,22 +429,27 @@ struct AddBotsSheet: View {
         guard DepartmentRules.canSave(placement, saving: saving) else { return }
         let calls = placement.calls(department)
         saving = true
-        failed = false
+        problem = nil
         Task {
+            var saved = 0
             var ok = true
             for call in calls {
                 if await session.assignSection(name: call.name, botIds: call.botIds, reportsError: false) == nil {
                     ok = false
                     break
                 }
+                saved += 1
             }
+            if !ok, saved > 0 { await session.refresh() }
             saving = false
             if ok {
                 Haptics.success()
                 dismiss()
             } else {
-                failed = true
+                let next: SaveProblem = saved > 0 ? .partial : .failed
+                problem = next
                 Haptics.notification(.error)
+                UIAccessibility.post(notification: .announcement, argument: next.text)
             }
         }
     }

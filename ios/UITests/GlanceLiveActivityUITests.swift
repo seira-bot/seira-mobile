@@ -13,12 +13,11 @@ final class GlanceLiveActivityUITests: XCTestCase {
             "-store-preview", "-approval-preview", "-glance-preview",
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
-            "-companion.prefs.rosterDensity", "comfortable",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ]
         app.launch()
-        XCTAssertTrue(app.staticTexts["Mochi"].firstMatch.waitForExistence(timeout: 15), "the preview bot is on the roster")
+        XCTAssertTrue(app.buttons["chat-row.preview-mochi"].waitForExistence(timeout: 15), "the preview bot is on the roster")
         pause(6)
         capture("In the app")
 
