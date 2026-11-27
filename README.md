@@ -66,4 +66,12 @@ git config core.hooksPath scripts/git-hooks
 
 ## License
 
-Apache License 2.0. See [`LICENSE`](LICENSE) and [`NOTICE`](NOTICE).
+Seira mobile is source-available under the [PolyForm Shield License 1.0.0](LICENSE).
+You can read, change and use the code, also in your company.
+You cannot use it in a product that competes with Seira.
+The code from before the license change on 2026-11-27 stays under the [Apache License 2.0](LICENSE-APACHE).
+[`LICENSING.md`](LICENSING.md) tells which code is which, and [`NOTICE`](NOTICE) lists the third-party parts.
+
+## Contributing
+
+Agree to the [contributor license agreement](CLA.md) before you send a pull request.
