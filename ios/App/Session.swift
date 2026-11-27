@@ -2090,14 +2090,15 @@ final class Session: ObservableObject {
     /// request. The server commits the batch before returning, then these
     /// folds make the roster move immediately instead of waiting for SSE.
     @discardableResult
-    func assignSection(name: String, botIds: [String]) async -> [Bot]? {
+    func assignSection(name: String, botIds: [String], reportsError: Bool = true) async -> [Bot]? {
         guard let client else { return nil }
         do {
-            let bots = try await client.assignSection(name: name, botIds: botIds)
-            for bot in bots { state.apply(.bot(bot)) }
-            return bots
+            let assignment = try await client.assignSection(name: name, botIds: botIds)
+            for bot in assignment.bots { state.apply(.bot(bot)) }
+            if let names = assignment.sections { state.setDeclaredSections(names) }
+            return assignment.bots
         } catch {
-            actionError = error.localizedDescription
+            if reportsError { actionError = error.localizedDescription }
             return nil
         }
     }

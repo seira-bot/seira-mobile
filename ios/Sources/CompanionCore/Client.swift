@@ -1627,15 +1627,16 @@ public struct CompanionClient: Sendable {
     /// This uses a narrow batch route instead of the desktop's general bot
     /// PATCH, so a paired phone can change organization without gaining any
     /// execution-policy controls and without leaving a half-created section.
-    public func assignSection(name: String, botIds: [String]) async throws -> [Bot] {
-        try await send(
+    public func assignSection(name: String, botIds: [String]) async throws -> SectionAssignment {
+        let response = try await send(
             try makeRequest(
                 "POST",
                 "/api/sidebar-sections",
                 body: ["name": name, "botIds": botIds]
             ),
             as: SidebarSectionResponse.self
-        ).bots
+        )
+        return SectionAssignment(bots: response.bots, sections: response.sections)
     }
 
     @discardableResult

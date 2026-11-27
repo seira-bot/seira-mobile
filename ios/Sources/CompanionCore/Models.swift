@@ -920,13 +920,23 @@ public struct Fleet: Decodable, Sendable {
     /// Held sends for every bot thread, the same snapshot the
     /// bot.queued frames carry. Older computers omit it.
     public var botQueuedMessages: [String: [QueuedSend]]?
+    /// Department names in the order the computer lists them, empty ones
+    /// included. Older computers omit it, and a list that is not names reads
+    /// as absent, so a known list is never replaced by a guess.
+    public var sections: [String]?
 
-    private enum CodingKeys: String, CodingKey { case bots, groups, botQueuedMessages }
+    private enum CodingKeys: String, CodingKey { case bots, groups, botQueuedMessages, sections }
 
-    public init(bots: [Bot], groups: [Room], botQueuedMessages: [String: [QueuedSend]]? = nil) {
+    public init(
+        bots: [Bot],
+        groups: [Room],
+        botQueuedMessages: [String: [QueuedSend]]? = nil,
+        sections: [String]? = nil
+    ) {
         self.bots = bots
         self.groups = groups
         self.botQueuedMessages = botQueuedMessages
+        self.sections = sections
     }
 
     public init(from decoder: Decoder) throws {
@@ -939,6 +949,7 @@ public struct Fleet: Decodable, Sendable {
             [String: [Lossy<QueuedSend>]].self,
             forKey: .botQueuedMessages
         ))??.mapValues { list in list.compactMap(\.value) }
+        sections = (try? container.decodeIfPresent([String].self, forKey: .sections)) ?? nil
     }
 }
 
@@ -1819,9 +1830,30 @@ struct ActiveBranchResponse: Codable, Sendable {
 struct BotResponse: Codable, Sendable {
     var bot: Bot
 }
-struct SidebarSectionResponse: Codable, Sendable {
+/// What the computer answered to a department change: the bots that moved and,
+/// when it says so, the full list of department names.
+public struct SectionAssignment: Sendable {
+    public var bots: [Bot]
+    public var sections: [String]?
+
+    public init(bots: [Bot], sections: [String]? = nil) {
+        self.bots = bots
+        self.sections = sections
+    }
+}
+struct SidebarSectionResponse: Decodable, Sendable {
     var section: String
     var bots: [Bot]
+    var sections: [String]?
+
+    private enum CodingKeys: String, CodingKey { case section, bots, sections }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        section = try container.decode(String.self, forKey: .section)
+        bots = try container.decode([Bot].self, forKey: .bots)
+        sections = (try? container.decodeIfPresent([String].self, forKey: .sections)) ?? nil
+    }
 }
 struct RoomResponse: Codable, Sendable {
     var group: Room

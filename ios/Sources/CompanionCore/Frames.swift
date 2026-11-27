@@ -46,6 +46,8 @@ public enum Frame: Sendable {
     case botQueued(queues: [String: [QueuedSend]])
     case room(Room)
     case roomDeleted(groupId: String)
+    /// The department names, in order. The frame replaces the phone's list.
+    case sections([String])
     /// Something worth interrupting for.
     case notify(NotificationFrame)
     /// A live frame of a bot's computer (base64). Only sent to clients that
@@ -65,7 +67,7 @@ public enum Frame: Sendable {
 extension Frame: Decodable {
     private enum CodingKeys: String, CodingKey {
         case kind, cursor, resumed, threadId, message, activeLeafId
-        case bot, botId, group, groupId, notification, png, mime, state, event, queues, call
+        case bot, botId, group, groupId, notification, png, mime, state, event, queues, call, sections
     }
 
     public init(from decoder: Decoder) throws {
@@ -115,6 +117,12 @@ extension Frame: Decodable {
             self = .room(try container.decode(Room.self, forKey: .group))
         case "group.deleted":
             self = .roomDeleted(groupId: try container.decode(String.self, forKey: .groupId))
+        case "sections":
+            if let names = try? container.decode([String].self, forKey: .sections) {
+                self = .sections(names)
+            } else {
+                self = .unknown(kind: kind)
+            }
         case "notify":
             self = .notify(try container.decode(NotificationFrame.self, forKey: .notification))
         case "screen":
