@@ -685,6 +685,11 @@ data class Fleet(
      * reads as absent, never as an empty queue.
      */
     val botQueuedMessages: Map<String, List<QueuedSend>>? = null,
+    /**
+     * Department names in creation order, empty departments included. Older
+     * computers omit it; a missing or unreadable list reads as absent.
+     */
+    val sections: List<String>? = null,
 )
 
 object FleetSerializer : KSerializer<Fleet> {
@@ -715,6 +720,7 @@ object FleetSerializer : KSerializer<Fleet> {
                     }
                 }
             }.getOrNull(),
+            sections = objectValue["sections"].sectionNamesOrNull(),
         )
     }
 
@@ -731,8 +737,17 @@ object FleetSerializer : KSerializer<Fleet> {
                     }
                 })
             }
+            value.sections?.let { names -> put("sections", JsonArray(names.map(::JsonPrimitive))) }
         })
     }
+}
+
+/** The names of a `sections` array, or null when the element is missing or is not a list of strings. */
+internal fun kotlinx.serialization.json.JsonElement?.sectionNamesOrNull(): List<String>? {
+    val array = this as? JsonArray ?: return null
+    return runCatching {
+        array.map { (it as? JsonPrimitive)?.takeIf { primitive -> primitive.isString }?.content ?: error("not a name") }
+    }.getOrNull()
 }
 
 @Serializable
@@ -1515,9 +1530,16 @@ internal data class LiveConflictBody(
 @Serializable
 internal data class RoomResponse(val group: Room)
 
-/** The narrow sidebar organizer route returns just the affected bots. */
+/** The narrow sidebar organizer route returns the affected bots and the department names. */
 @Serializable
-internal data class SidebarSectionResponse(val section: String, val bots: List<Bot>)
+internal data class SidebarSectionResponse(
+    val section: String,
+    val bots: List<Bot>,
+    val sections: List<String>? = null,
+)
+
+/** What the organizer route answered: the changed bots and, when sent, every department name. */
+data class SectionAssignment(val bots: List<Bot>, val sections: List<String>?)
 
 @Serializable
 internal data class VoiceListResponse(val voices: List<Voice>, val error: String? = null)

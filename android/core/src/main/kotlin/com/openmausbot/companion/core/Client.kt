@@ -775,18 +775,20 @@ class CompanionClient(
     /**
      * Atomically file visible bots under one shared sidebar heading. This is
      * narrower than the desktop's general bot patch: pairing a phone grants
-     * organization, never execution-policy edits.
+     * organization, never execution-policy edits. An empty name moves the bots
+     * out of every department; an empty list makes an empty department.
      */
-    suspend fun assignSection(name: String, botIds: List<String>): List<Bot> = send<SidebarSectionResponse>(
-        makeRequest(
-            "POST",
-            "/api/sidebar-sections",
-            body = buildJsonObject {
-                put("name", name)
-                put("botIds", JsonArray(botIds.map(::JsonPrimitive)))
-            },
-        ),
-    ).bots
+    suspend fun assignSection(name: String, botIds: List<String>): SectionAssignment =
+        send<SidebarSectionResponse>(
+            makeRequest(
+                "POST",
+                "/api/sidebar-sections",
+                body = buildJsonObject {
+                    put("name", name)
+                    put("botIds", JsonArray(botIds.map(::JsonPrimitive)))
+                },
+            ),
+        ).let { SectionAssignment(it.bots, it.sections) }
 
     suspend fun updateProfile(botId: String, patch: BotProfilePatch): Bot {
         val body = CompanionJson.encodeToJsonElement(BotProfilePatch.serializer(), patch).jsonObject
