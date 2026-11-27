@@ -50,6 +50,19 @@ class ChatPreferences(
     private val _liveCaptions = MutableStateFlow(prefs.getBoolean(LIVE_CAPTIONS, true))
     val liveCaptions: StateFlow<Boolean> = _liveCaptions.asStateFlow()
 
+    /**
+     * Whether the phone shows the extra menus and tools of the computer's
+     * Advanced mode. Per phone and off by default, like the desktop switch.
+     */
+    private val _advancedMode = MutableStateFlow(prefs.getBoolean(ADVANCED_MODE, false))
+    val advancedMode: StateFlow<Boolean> = _advancedMode.asStateFlow()
+
+    fun setAdvancedMode(on: Boolean) {
+        if (_advancedMode.value == on && prefs.contains(ADVANCED_MODE)) return
+        prefs.edit().putBoolean(ADVANCED_MODE, on).commit()
+        _advancedMode.value = on
+    }
+
     fun setLiveCaptions(on: Boolean) {
         if (_liveCaptions.value == on && prefs.contains(LIVE_CAPTIONS)) return
         prefs.edit().putBoolean(LIVE_CAPTIONS, on).commit()
@@ -120,6 +133,7 @@ class ChatPreferences(
         private const val THEME_MODE = "companion.prefs.themeMode"
         private const val ROSTER_DENSITY = "companion.prefs.rosterDensity"
         private const val LIVE_CAPTIONS = "companion.prefs.liveCaptions"
+        private const val ADVANCED_MODE = "companion.prefs.advancedMode"
 
         private fun threadKey(connectionId: String, botId: String): String =
             "thread.last-opened.${connectionId.length}:$connectionId$botId"
