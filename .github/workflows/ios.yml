@@ -313,7 +313,8 @@ jobs:
           for test in manifest:
               for item in test.get("attachments", []):
                   name = re.sub(r"_\d+_[0-9A-Fa-f-]{36}$", "", os.path.splitext(item["suggestedHumanReadableName"])[0])
-                  shutil.copy(os.path.join(raw, item["exportedFileName"]), os.path.join(out, name + ".png"))
+                  if re.match(r"(iphone|ipad)-", name):
+                      shutil.copy(os.path.join(raw, item["exportedFileName"]), os.path.join(out, name + ".png"))
           PY
             xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
           done
