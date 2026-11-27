@@ -23,11 +23,13 @@ final class ResponsivenessUITests: XCTestCase {
 
     @MainActor
     func testShortChatTypingAndThreadSwitchingDuringBusyFleet() {
-        let app = launchBusyFleet()
-        // Home lists each working thread under "Needs attention" at the
-        // top. Gmail streams, so its row is there; Pepper's own row comes
-        // after more than twenty of those rows, below the screen.
-        let gmail = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", "Triage Gmail, Pepper")).firstMatch
+        let app = launchBusyFleet(advanced: true)
+        // The Advanced home opens Pepper's threads from the chevron of its
+        // row. Pepper sits below the twenty fixture bots, so scroll to it.
+        let toggle = app.buttons["row-threads-toggle.preview-pepper"]
+        XCTAssertTrue(app.revealOnRoster(toggle))
+        toggle.tap()
+        let gmail = app.buttons["thread.preview-gmail"]
         XCTAssertTrue(app.revealOnRoster(gmail))
         gmail.tap()
         selectThread("preview-gmail", title: "Triage Gmail", in: app)
@@ -170,7 +172,7 @@ final class ResponsivenessUITests: XCTestCase {
     /// `detail` is the Activity setting. The phone's default, Hidden, sends a
     /// working bot's reply to the status line; Full streams it as a bubble
     /// in the transcript, which is the case these tests are about.
-    private func launchBusyFleet(detail: String? = nil) -> XCUIApplication {
+    private func launchBusyFleet(detail: String? = nil, advanced: Bool = false) -> XCUIApplication {
         continueAfterFailure = false
         let app = XCUIApplication()
         addTeardownBlock { app.terminate() }
@@ -183,6 +185,7 @@ final class ResponsivenessUITests: XCTestCase {
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ] + (detail.map { ["-companion.prefs.activityDetail", $0] } ?? [])
+            + (advanced ? ["-companion.prefs.advancedMode", "YES"] : [])
         app.launch()
         // A first launch can come up before the preview store is read;
         // StopButtonUITests meets the same thing the same way.

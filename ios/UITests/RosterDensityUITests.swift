@@ -24,7 +24,9 @@ final class RosterDensityUITests: XCTestCase {
         XCTAssertFalse(app.staticTexts["Good evening"].exists)
         XCTAssertFalse(app.buttons["All"].exists)
         XCTAssertFalse(app.buttons["Groups"].exists)
+        XCTAssertFalse(app.buttons["row-threads-toggle.roster-pepper"].exists)
         XCTAssertFalse(app.buttons["threads-toggle.roster-pepper"].exists)
+        XCTAssertTrue(app.buttons["chat-row.roster-pepper"].exists || reveal(app.buttons["chat-row.roster-pepper"], in: app))
         recordScreenshot("Simple home", in: app)
     }
 
@@ -42,16 +44,30 @@ final class RosterDensityUITests: XCTestCase {
     }
 
     @MainActor
-    func testFoldingADepartmentHidesItsBots() {
+    func testFoldingADepartmentHidesItsBotsInAdvancedMode() {
         let app = launchRoster(advanced: true)
-        XCTAssertTrue(reveal(app.buttons["chat-row.roster-atlas"], in: app))
-        let fold = app.buttons.matching(NSPredicate(format: "identifier BEGINSWITH %@", "group-fold-")).element(boundBy: 1)
+        assertFoldHidesBots(of: "Engineering", bot: "roster-forge", in: app)
+    }
+
+    @MainActor
+    func testFoldingADepartmentHidesItsTilesInSimpleMode() {
+        let app = launchRoster(advanced: false)
+        assertFoldHidesBots(of: "Growth", bot: "roster-ledger", in: app)
+    }
+
+    @MainActor
+    private func assertFoldHidesBots(of department: String, bot: String, in app: XCUIApplication) {
+        let fold = app.buttons["group-fold-\(department)"]
         XCTAssertTrue(reveal(fold, in: app))
+        let member = app.buttons["chat-row.\(bot)"]
+        XCTAssertTrue(member.waitForExistence(timeout: 5), "\(bot) shows while \(department) is open")
         XCTAssertEqual(fold.value as? String, "Open")
         fold.tap()
         XCTAssertEqual(fold.value as? String, "Folded")
+        assertMissing(member)
         fold.tap()
         XCTAssertEqual(fold.value as? String, "Open")
+        XCTAssertTrue(member.waitForExistence(timeout: 5), "\(bot) returns when \(department) opens again")
     }
 
     // MARK: - Helpers

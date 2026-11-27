@@ -58,7 +58,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
     @MainActor
     private func photographGlance(language: String) {
         let app = launchFleet(language: language, activities: true)
-        _ = app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 15)
+        _ = app.buttons["chat-row.preview-scout"].waitForExistence(timeout: 15)
         pause(6)
         XCUIDevice.shared.press(.home)
         pause(3)
@@ -127,7 +127,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
             app.terminate()
             app.launch()
         }
-        XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
+        XCTAssertTrue(app.buttons["chat-row.preview-scout"].waitForExistence(timeout: 20), "Scout is on the roster")
         pause(6)
         if device == "iphone" && app.buttons["Deny"].exists {
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75)).tap()
@@ -140,7 +140,6 @@ final class StoreListingScreenshotUITests: XCTestCase {
         [
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
-            "-companion.prefs.rosterDensity", "comfortable",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"
         ]
@@ -149,7 +148,7 @@ final class StoreListingScreenshotUITests: XCTestCase {
     @MainActor
     private func openChat(_ name: String, in app: XCUIApplication) {
         let input = app.descendants(matching: .any)["message-input"]
-        let row = app.staticTexts[name].firstMatch
+        let row = app.buttons["chat-row.preview-\(name.lowercased())"]
         for _ in 0..<3 where !input.exists {
             if row.exists { row.tap() }
             _ = input.waitForExistence(timeout: 4)
@@ -179,9 +178,9 @@ final class StoreListingScreenshotUITests: XCTestCase {
     private func openChangeLook(_ name: String, in app: XCUIApplication) {
         let candidates = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@", name))
             .allElementsBoundByIndex
-            .filter { $0.frame.width <= 100 }
+            .filter { $0.frame.width <= 200 }
         guard let item = candidates.min(by: { $0.frame.minY < $1.frame.minY }) else {
-            XCTFail("\(name) is not on the team rail")
+            XCTFail("\(name) is not on the home list")
             return
         }
         item.press(forDuration: 1.2)
