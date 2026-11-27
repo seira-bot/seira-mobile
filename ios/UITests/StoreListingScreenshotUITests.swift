@@ -1,7 +1,7 @@
 import XCTest
 
 /// Photographs the App Store listing from the bundled ListingPreview fleets. The workflow sets
-/// STORE_DEVICE (`iphone` or `ipad`) through TEST_RUNNER_STORE_DEVICE and prepares the simulator.
+/// STORE_DEVICE (`iphone`, `ipad` or `duo`) through TEST_RUNNER_STORE_DEVICE and prepares the simulator.
 /// Each attachment is named `<device>-<language>-<shot>`.
 final class StoreListingScreenshotUITests: XCTestCase {
     private var device: String {
@@ -129,11 +129,15 @@ final class StoreListingScreenshotUITests: XCTestCase {
         }
         XCTAssertTrue(app.staticTexts["Scout"].firstMatch.waitForExistence(timeout: 20), "Scout is on the roster")
         pause(6)
-        if device == "iphone" && app.buttons["Deny"].exists {
+        if isCompact(app) && app.buttons["Deny"].exists {
             app.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.75)).tap()
             pause(2)
         }
         return app
+    }
+
+    private func isCompact(_ app: XCUIApplication) -> Bool {
+        app.windows.firstMatch.frame.width < 600
     }
 
     private func baseArguments(language: String) -> [String] {
