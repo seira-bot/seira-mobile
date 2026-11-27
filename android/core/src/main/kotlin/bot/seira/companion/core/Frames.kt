@@ -1,5 +1,6 @@
 package bot.seira.companion.core
 
+import bot.seira.companion.core.Bot as CoreBot
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
@@ -249,7 +250,7 @@ private fun Frame.toJsonObject(output: JsonEncoder): JsonObject = buildJsonObjec
         }
         is Frame.Bot -> {
             put("kind", "bot")
-            put("bot", output.json.encodeToJsonElement(bot.seira.companion.core.Bot.serializer(), bot))
+            put("bot", output.json.encodeToJsonElement(CoreBot.serializer(), bot))
         }
         is Frame.BotDeleted -> {
             put("kind", "bot.deleted")
