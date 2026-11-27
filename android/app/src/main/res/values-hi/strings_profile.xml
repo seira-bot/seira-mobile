@@ -84,4 +84,5 @@
     <string name="team_memory_delete_title">यह नोट हटाएँ?</string>
     <string name="team_memory_delete_body">बॉट अब “%1$s” नहीं पढ़ेंगे।</string>
     <string name="team_memory_changed">यह नोट बदल गया है। सबसे नया दिखाया जा रहा है।</string>
+    <string name="voice_engine_change_on_computer">आवाज़ इंजन अपने कंप्यूटर पर बदलें।</string>
 </resources>

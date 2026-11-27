@@ -2935,6 +2935,7 @@ class Session(
 
     /** This pairing may read the model list and continue at a limit reset. */
     val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false
+    val canChangeVoiceEngine: Boolean get() = _connection.value?.canChangeVoiceEngine ?: false
 
     private val _modelListForbidden = MutableStateFlow(false)
 

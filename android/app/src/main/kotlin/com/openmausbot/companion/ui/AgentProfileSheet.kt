@@ -305,6 +305,7 @@ internal fun AgentProfileSheet(bot: Bot, onDismiss: () -> Unit, onOpenOverview: 
 
                 VoiceSection(
                     config = config,
+                    canChangeEngine = session.canChangeVoiceEngine,
                     switching = switchingEngine,
                     onSwitchEngine = { next ->
                         // The desktop's Voice engine group: one field of the
@@ -486,25 +487,51 @@ internal fun ChoicePicker(
  * has to be over what is mounted. `VoiceSectionWiringTest` mounts exactly this.
  *
  * The engine picker rides above the branch: like the desktop's Voice engine
- * group it is drawn in every state, because switching away is how you repair
- * an engine whose credential is missing.
+ * group it is drawn in every state where [canChangeEngine] holds, because
+ * switching away is how you repair an engine whose credential is missing.
+ * Where it does not hold, the engine shows as text with a pointer to the
+ * computer.
  */
 @Composable
 internal fun VoiceSection(
     config: ConfigStatus?,
+    canChangeEngine: Boolean = true,
     switching: Boolean = false,
     onSwitchEngine: (VoiceProvider) -> Unit = {},
     canSpeak: @Composable () -> Unit,
 ) {
     val copy = ProfileRules.voiceCopy(config)
+    val engine = (config?.voiceProvider ?: VoiceProvider.ELEVENLABS).wire
     FormSection(header = "Voice", footer = copy.footer) {
-        ChoicePicker(
-            label = stringResource(R.string.mobile_voice_engine_3b4d8dea),
-            choices = ProfileRules.providerChoices(),
-            selected = (config?.voiceProvider ?: VoiceProvider.ELEVENLABS).wire,
-            onSelect = { next -> onSwitchEngine(VoiceProvider.fromWire(next)) },
-            enabled = !switching,
-        )
+        if (canChangeEngine) {
+            ChoicePicker(
+                label = stringResource(R.string.mobile_voice_engine_3b4d8dea),
+                choices = ProfileRules.providerChoices(),
+                selected = engine,
+                onSelect = { next -> onSwitchEngine(VoiceProvider.fromWire(next)) },
+                enabled = !switching,
+            )
+        } else {
+            Row(
+                modifier = Modifier.fillMaxWidth().heightIn(min = MIN_TOUCH_TARGET),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(text = stringResource(R.string.mobile_voice_engine_3b4d8dea), fontSize = 15.sp)
+                Text(
+                    text = localizedMobileCopy(
+                        ProfileRules.providerChoices().firstOrNull { it.id == engine }?.label.orEmpty(),
+                    ),
+                    fontSize = 15.sp,
+                    color = secondaryTint,
+                )
+            }
+            Text(
+                text = stringResource(R.string.voice_engine_change_on_computer),
+                fontSize = 13.sp,
+                color = secondaryTint,
+            )
+        }
         if (copy.unconfiguredNotice != null) {
             IconNote(text = copy.unconfiguredNotice, painter = R.drawable.ic_volume_off)
         } else {

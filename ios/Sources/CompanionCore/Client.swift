@@ -104,6 +104,11 @@ public struct Connection: Codable, Hashable, Identifiable, Sendable {
         return serverScopes?.contains("admin") == true
     }
 
+    /// Whether this phone may save the voice engine. The write goes through
+    /// the server's config route, which a companion pairing never allows and a
+    /// server pairing allows only with the `admin` scope.
+    public var canChangeVoiceEngine: Bool { pairedWithServer && canAdminister }
+
     /// The representation `URLComponents.host` accepts for a literal IPv6
     /// address. It adds brackets exactly once and leaves DNS/IPv4 names alone.
     /// A scope zone on a link-local IPv6 address is intentionally retained;

@@ -82,4 +82,5 @@
     <string name="team_memory_delete_title">删除这条笔记？</string>
     <string name="team_memory_delete_body">机器人将不再读取“%1$s”。</string>
     <string name="team_memory_changed">这条笔记已更改，正在显示最新内容。</string>
+    <string name="voice_engine_change_on_computer">请在你的电脑上更改语音引擎。</string>
 </resources>

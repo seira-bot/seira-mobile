@@ -59,6 +59,7 @@ final class Session: ObservableObject {
     /// `Connection.canAdminister`. Views hide owner-only controls when this
     /// is false rather than offer buttons the server would answer 403 to.
     var canAdminister: Bool { connection?.canAdminister ?? false }
+    var canChangeVoiceEngine: Bool { connection?.canChangeVoiceEngine ?? false }
     /// Paired with a server directly rather than through the companion
     /// sidecar: see `Connection.pairedWithServer`.
     var pairedWithServer: Bool { connection?.pairedWithServer ?? false }

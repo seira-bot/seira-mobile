@@ -84,4 +84,5 @@
     <string name="team_memory_delete_title">Bu not silinsin mi?</string>
     <string name="team_memory_delete_body">Botlar “%1$s” notunu okumayı bırakır.</string>
     <string name="team_memory_changed">Bu not değişti. En güncel hâli gösteriliyor.</string>
+    <string name="voice_engine_change_on_computer">Ses motorunu bilgisayarınızda değiştirin.</string>
 </resources>

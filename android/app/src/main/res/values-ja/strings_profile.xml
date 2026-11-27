@@ -82,4 +82,5 @@
     <string name="team_memory_delete_title">このメモを削除しますか？</string>
     <string name="team_memory_delete_body">ボットは「%1$s」を読まなくなります。</string>
     <string name="team_memory_changed">このメモは変更されました。最新の内容を表示しています。</string>
+    <string name="voice_engine_change_on_computer">音声エンジンはお使いのコンピュータで変更してください。</string>
 </resources>
