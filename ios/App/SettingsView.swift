@@ -16,6 +16,7 @@ struct SettingsView: View {
     @AppStorage(PrefKey.notifyUpdates) private var notifyUpdates = true
     @AppStorage(PrefKey.notifyRoutines) private var notifyRoutines = true
     @AppStorage(PrefKey.liveCaptions) private var liveCaptions = true
+    @AppStorage(PrefKey.advancedMode) private var advancedMode = false
     private let onConnect: (() -> Void)?
 
     init(onConnect: (() -> Void)? = nil) {
@@ -33,6 +34,7 @@ struct SettingsView: View {
                 Group {
                     languageSection
                     workspaceSection
+                    advancedSection
                     helpSection
                     signOutButton
                     SettingsFooter()
@@ -310,6 +312,21 @@ struct SettingsView: View {
                     }
                     .buttonStyle(SettingsRowButtonStyle())
                 }
+            }
+        }
+    }
+
+    private var advancedSection: some View {
+        VStack(spacing: 0) {
+            SettingsSectionHeader(title: "Advanced")
+            SettingsCard {
+                SettingsToggleRow(
+                    symbol: "slider.horizontal.3",
+                    title: "Advanced mode",
+                    subtitle: "More menus and tools, as on your computer.",
+                    isOn: $advancedMode
+                )
+                .accessibilityIdentifier("advanced-mode")
             }
         }
     }
