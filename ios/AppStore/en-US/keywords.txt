@@ -1,1 +1,1 @@
-ai,agent,assistant,automation,developer,chat,workflow,approval,remote,productivity
+agent,assistant,automation,approval,remote,control,chat,workflow,desktop,tasks,team,llm,mac

@@ -256,29 +256,28 @@ jobs:
           cd ios
           out="$RUNNER_TEMP/store-screenshots"
           mkdir -p "$out"
-          runtime_id=$(xcrun simctl list runtimes -j | python3 -c '
-          import json, sys
+          xcrun simctl list runtimes
+          picks=$(xcrun simctl list runtimes -j | python3 -c '
+          import json, re, sys
           runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("identifier", "").startswith("com.apple.CoreSimulator.SimRuntime.iOS")]
           if not runtimes: raise SystemExit("No iOS simulator runtime is available")
           runtimes.sort(key=lambda r: tuple(int(p) for p in r["version"].split(".")))
-          print(runtimes[-1]["identifier"])
+          runtime = runtimes[-1]
+          def newest(pattern):
+              types = [t for t in runtime["supportedDeviceTypes"] if re.fullmatch(pattern, t["name"])]
+              if not types: raise SystemExit("No simulator type matches " + pattern + " on " + runtime["name"])
+              types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
+              return types[-1]["identifier"]
+          print(runtime["identifier"], newest(r"iPhone \d+ Pro Max"), newest(r"iPad Pro 13-inch.*"))
           ')
-          pick_type() {
-            xcrun simctl list devicetypes -j | python3 -c '
-          import json, re, sys
-          pattern = sys.argv[1]
-          types = [t for t in json.load(sys.stdin)["devicetypes"] if re.fullmatch(pattern, t["name"])]
-          if not types: raise SystemExit("No simulator type matches " + pattern)
-          types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
-          print(types[-1]["identifier"])
-          ' "$1"
-          }
+          echo "Picked: $picks"
+          read -r runtime_id iphone_type ipad_type <<< "$picks"
           status=0
           for device in iphone ipad; do
             if [ "$device" = iphone ]; then
-              type_id=$(pick_type 'iPhone \d+ Pro Max')
+              type_id="$iphone_type"
             else
-              type_id=$(pick_type 'iPad Pro 13-inch.*')
+              type_id="$ipad_type"
             fi
             simulator_id=$(xcrun simctl create "seira-store-${device}-${GITHUB_RUN_ID}" "$type_id" "$runtime_id")
             xcrun simctl boot "$simulator_id"
