@@ -85,6 +85,8 @@ final class StoreListingScreenshotUITests: XCTestCase {
 
     private func collapseIsland() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
+        springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.08, dy: 0.4)).tap()
+        pause(2)
         let from = springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.1))
         from.press(forDuration: 0.1, thenDragTo: springboard.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0)))
         pause(2)
