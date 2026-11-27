@@ -95,7 +95,7 @@ final class NotificationCoordinator: NSObject, UNUserNotificationCenterDelegate 
 
         // A replay after a short disconnect must reconcile a missed alert,
         // but a repeated frame must not draw it twice.
-        let identifier = "openmaus.\(notification.threadId).\(sequence.map(String.init) ?? notification.title)"
+        let identifier = "seira.\(notification.threadId).\(sequence.map(String.init) ?? notification.title)"
         center.add(UNNotificationRequest(
             identifier: identifier,
             content: communicationContent(from: content, notification: notification, avatar: avatar),

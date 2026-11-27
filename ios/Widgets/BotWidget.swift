@@ -169,14 +169,14 @@ enum ChatIdentityStore {
         guard all[entity.id] != entity else { return }
         all[entity.id] = entity
         guard let directory = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: OpenMausSharedConfiguration.appGroupIdentifier
+            forSecurityApplicationGroupIdentifier: SeiraSharedConfiguration.appGroupIdentifier
         ), let data = try? JSONEncoder().encode(Array(all.values)) else { return }
         try? data.write(to: directory.appendingPathComponent(fileName), options: .atomic)
     }
 
     static func saved() -> [String: ChatEntity] {
         guard let directory = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: OpenMausSharedConfiguration.appGroupIdentifier
+            forSecurityApplicationGroupIdentifier: SeiraSharedConfiguration.appGroupIdentifier
         ), let data = try? Data(contentsOf: directory.appendingPathComponent(fileName)) else { return [:] }
         let identities = (try? JSONDecoder().decode([ChatEntity].self, from: data)) ?? []
         return Dictionary(identities.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })

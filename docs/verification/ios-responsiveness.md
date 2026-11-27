@@ -34,16 +34,16 @@ Generate the project with `cd ios && xcodegen generate`. Create a disposable
 iPhone simulator and use its explicit ID:
 
 ```sh
-xcodebuild -project OpenMausCompanion.xcodeproj -scheme OpenMausCompanion \
+xcodebuild -project SeiraCompanion.xcodeproj -scheme SeiraCompanion \
   -configuration Debug -destination 'platform=iOS Simulator,id=SIMULATOR_ID' \
   -derivedDataPath /tmp/omb-ios-responsiveness-build \
   -resultBundlePath /tmp/omb-ios-responsiveness-iphone.xcresult \
   -parallel-testing-enabled NO \
-  -only-testing:OpenMausCompanionUITests/ResponsivenessUITests \
-  -only-testing:OpenMausCompanionUITests/ThreadNavigationUITests \
-  -only-testing:OpenMausCompanionUITests/TranscriptPresentationUITests \
-  -only-testing:OpenMausCompanionUITests/RosterDensityUITests \
-  -only-testing:OpenMausCompanionUITests/SwipeBackUITests \
+  -only-testing:SeiraCompanionUITests/ResponsivenessUITests \
+  -only-testing:SeiraCompanionUITests/ThreadNavigationUITests \
+  -only-testing:SeiraCompanionUITests/TranscriptPresentationUITests \
+  -only-testing:SeiraCompanionUITests/RosterDensityUITests \
+  -only-testing:SeiraCompanionUITests/SwipeBackUITests \
   CODE_SIGNING_ALLOWED=NO test
 ```
 

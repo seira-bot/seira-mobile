@@ -8,7 +8,7 @@ import SwiftUI
 import WidgetKit
 
 @main
-struct OpenMausWidgets: WidgetBundle {
+struct SeiraWidgets: WidgetBundle {
     var body: some Widget {
         GlanceActivityWidget()
         BotActivityWidget()

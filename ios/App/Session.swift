@@ -495,7 +495,7 @@ final class Session: ObservableObject {
     /// only the first should ever send someone back to the pairing screen.
     private func restore() {
         restorePending = false
-        registry = OpenMausSharedConnectionStore.loadRegistry()
+        registry = SeiraSharedConnectionStore.loadRegistry()
         connections = registry.connections
         // The Share extension can target any saved computer, not only the
         // one active at launch. Move every inactive pre-extension token into
@@ -640,7 +640,7 @@ final class Session: ObservableObject {
                 )
             }
         } saveConnection: {
-            OpenMausSharedConnectionStore.saveRegistry(updatedRegistry)
+            SeiraSharedConnectionStore.saveRegistry(updatedRegistry)
         }
 
         stopActiveRuntime()
@@ -947,7 +947,7 @@ final class Session: ObservableObject {
     }
 
     private func persistRegistry() {
-        OpenMausSharedConnectionStore.saveRegistry(registry)
+        SeiraSharedConnectionStore.saveRegistry(registry)
     }
 
     private func persistActiveConnection(_ updated: Connection) {
@@ -1772,7 +1772,7 @@ final class Session: ObservableObject {
     ) throws -> DownloadedFile {
         let manager = FileManager.default
         let root = manager.temporaryDirectory
-            .appendingPathComponent("OpenMausBotFilePreviews", isDirectory: true)
+            .appendingPathComponent("SeiraFilePreviews", isDirectory: true)
         let directory = root.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try Task.checkCancellation()
         try manager.createDirectory(
@@ -1806,7 +1806,7 @@ final class Session: ObservableObject {
 
     private static func removeStaleFilePreviews() {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("OpenMausBotFilePreviews", isDirectory: true)
+            .appendingPathComponent("SeiraFilePreviews", isDirectory: true)
         try? FileManager.default.removeItem(at: root)
     }
 
