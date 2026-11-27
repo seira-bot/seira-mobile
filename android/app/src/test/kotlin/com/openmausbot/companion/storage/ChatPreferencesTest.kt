@@ -39,6 +39,21 @@ class ChatPreferencesTest {
     }
 
     @Test
+    fun `no group is folded on a fresh install`() {
+        assertEquals(emptySet(), store("chat-folded-fresh").foldedGroups.value)
+    }
+
+    @Test
+    fun `folded groups survive a new preferences instance`() {
+        val name = "chat-folded-saved"
+        store(name).setFoldedGroups(setOf("department:Ops", "groups"))
+        assertEquals(setOf("department:Ops", "groups"), store(name).foldedGroups.value)
+
+        store(name).setFoldedGroups(emptySet())
+        assertEquals(emptySet(), store(name).foldedGroups.value)
+    }
+
+    @Test
     fun `live captions are on until the person turns them off`() {
         assertEquals(true, store("chat-captions-fresh").liveCaptions.value)
     }
