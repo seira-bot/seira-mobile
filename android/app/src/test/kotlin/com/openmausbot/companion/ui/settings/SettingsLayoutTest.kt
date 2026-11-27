@@ -57,7 +57,7 @@ class SettingsLayoutTest {
             updatesAvailable = false,
         )
         assertEquals(
-            listOf(SettingsGroup.APPEARANCE, SettingsGroup.NOTIFICATIONS, SettingsGroup.CHAT, SettingsGroup.HELP),
+            listOf(SettingsGroup.APPEARANCE, SettingsGroup.NOTIFICATIONS, SettingsGroup.CHAT, SettingsGroup.ADVANCED, SettingsGroup.HELP),
             groups,
         )
     }
