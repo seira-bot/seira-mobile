@@ -31,8 +31,9 @@ class NativeSurfacesManifestTest {
 
     @Test
     fun `the launcher reads the static shortcuts and the Talk shortcut sends the talk action`() {
-        val activity = component("activity", ".MainActivity")
-        val meta = activity.getElementsByTagName("meta-data").item(0) as Element
+        val alias = component("activity-alias", "com.openmausbot.companion.MainActivity")
+        assertEquals(".MainActivity", alias.getAttributeNS(android, "targetActivity"))
+        val meta = alias.getElementsByTagName("meta-data").item(0) as Element
         assertEquals("android.app.shortcuts", meta.getAttributeNS(android, "name"))
         assertEquals("@xml/shortcuts", meta.getAttributeNS(android, "resource"))
 

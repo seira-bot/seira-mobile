@@ -19,4 +19,5 @@ test("the launcher alias in the manifest is allowed", () => {
   const line = '<activity-alias android:name="com.openmausbot.companion.MainActivity"';
   assert.deepEqual(checkLine("android/app/src/main/AndroidManifest.xml", line), []);
   assert.equal(checkLine("android/app/A.kt", line).length, 1);
+  assert.deepEqual(checkLine("android/app/src/test/kotlin/bot/seira/companion/NativeSurfacesManifestTest.kt", 'component("activity-alias", "com.openmausbot.companion.MainActivity")'), []);
 });

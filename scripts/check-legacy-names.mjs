@@ -22,6 +22,7 @@ const RULES = [
 ];
 const ALLOWED = [
   { path: /(?:^|\/)AndroidManifest\.xml$/, text: /android:name="com\.openmausbot\.companion\.MainActivity"/ },
+  { path: /^android\/app\/src\/test\/.*ManifestTest\.kt$/, text: /"com\.openmausbot\.companion\.MainActivity"/ },
 ];
 
 export function checkLine(path, text) {
