@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">Dein Computer ist nicht erreichbar</string>
     <string name="settings_reconnect">Erneut verbinden</string>
-    <string name="update_banner_downloading">Update wird heruntergeladen…</string>
-    <string name="update_banner_ready">Update bereit. Starte Seira neu</string>
-    <string name="update_banner_restart">Neu starten</string>
-    <string name="settings_check_updates">Nach Updates suchen</string>
-    <string name="settings_update_checking">Wird geprüft…</string>
-    <string name="settings_update_found">Update wird heruntergeladen</string>
-    <string name="settings_update_current">Auf dem neuesten Stand</string>
     <string name="ai_usage_title">KI-Nutzung</string>
     <string name="ai_usage_window_five_hour">5-Stunden-Limit</string>
     <string name="ai_usage_window_weekly">Wochenlimit</string>
@@ -46,4 +39,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">%1$s Tokens in 1 Durchgang</string>
     <string name="ai_usage_conversation_cost">%1$s · etwa %2$s</string>
     <string name="ai_usage_conversation_context">Kontext %1$s von %2$s</string>
+    <string name="update_banner_downloading">Update wird heruntergeladen…</string>
+    <string name="update_banner_ready">Update bereit. Starte Seira neu</string>
+    <string name="update_banner_restart">Neu starten</string>
+    <string name="settings_check_updates">Nach Updates suchen</string>
+    <string name="settings_update_checking">Wird geprüft…</string>
+    <string name="settings_update_found">Update wird heruntergeladen</string>
+    <string name="settings_update_current">Auf dem neuesten Stand</string>
 </resources>

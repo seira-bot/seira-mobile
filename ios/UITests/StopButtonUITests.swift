@@ -21,7 +21,7 @@ final class StopButtonUITests: XCTestCase {
 
     @MainActor
     private func open(_ name: String, in app: XCUIApplication) {
-        let row = app.staticTexts[name].firstMatch
+        let row = app.buttons["chat-row.preview-\(name.lowercased())"]
         XCTAssertTrue(row.waitForExistence(timeout: 10), "\(name) on the roster")
         let input = app.descendants(matching: .any)["message-input"]
         // The preview's pending approval raises the island over the roster

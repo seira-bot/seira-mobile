@@ -324,6 +324,21 @@ Beberapa fitur butuh Seira terbaru di komputer.
 </id>
 ```
 
+### Catatan rilis update 1.2.0
+
+Isi teks ini saat rilis 1.2.0 dibuat di Console:
+
+```text
+<en-US>
+Chats now groups your bots by department, as on your computer. Fold a department, add bots to it, or make a new bot right inside it. Turn on Advanced mode in Settings for more tools: rename a chat, copy or save it as Markdown, see and compact the context, and allow a step for the rest of a session. Automations asks "What should happen?" and sets up the routine for you. The calendar has a Week view.
+Some features need the newest Seira on your computer.
+</en-US>
+<id>
+Chats kini mengelompokkan bot per departemen, sama seperti di komputer. Lipat departemen, tambahkan bot, atau buat bot baru langsung di dalamnya. Nyalakan Advanced mode di Settings untuk alat tambahan: ganti nama chat, salin atau simpan sebagai Markdown, lihat dan ringkas konteks, dan izinkan satu langkah untuk sisa sesi. Automations bertanya "What should happen?" lalu menyiapkan routine. Kalender punya tampilan Week.
+Beberapa fitur butuh Seira terbaru di komputer.
+</id>
+```
+
 ## Negara dan rollout
 
 - Negara: 178 negara dan wilayah, termasuk "rest of world". Terkirim dengan

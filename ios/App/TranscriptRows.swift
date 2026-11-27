@@ -174,6 +174,12 @@ struct TranscriptActions: Equatable {
         await session.alwaysAllow(bot: bot, card: card)
     }
 
+    @MainActor
+    func allowForSession(_ card: OptionCard, advancedMode: Bool) async {
+        guard let chat = liveChat else { return }
+        await session.allowForSession(chat: chat, card: card, advancedMode: advancedMode)
+    }
+
     /// A question only ever answers with text, never allow or deny.
     @MainActor
     func answerQuestion(requestId: String, choice: String) async {

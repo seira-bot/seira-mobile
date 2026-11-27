@@ -2051,6 +2051,30 @@ final class Session: ObservableObject {
         await perform { try await $0.alwaysAllow(botId: bot.id, key: key, threadId: bot.threadId) }
     }
 
+    /// Allow this tool for the rest of the session. Sent only when the card says the
+    /// computer honors it; the phone never invents the grant.
+    func allowForSession(chat: Chat, card: OptionCard, advancedMode: Bool) async {
+        guard card.offersSessionAllow(advancedMode: advancedMode), let requestId = card.requestId else { return }
+        await perform {
+            try await $0.respond(
+                threadId: chat.threadId,
+                requestId: requestId,
+                behavior: "allow",
+                reviewedSha256: nil,
+                always: true
+            )
+        }
+    }
+
+    /// Summarize the older messages of a bot's thread. True once the computer accepted the request.
+    func compact(bot: Bot) async -> Bool {
+        guard let client else { return false }
+        do {
+            try await client.compact(botId: bot.id, threadId: bot.threadId)
+            return true
+        } catch { actionError = error.localizedDescription; return false }
+    }
+
     /// Make a new bot. The harness chooses its name, colour and greeting, so
     /// one made here is indistinguishable from one made on the desktop.
     ///
@@ -2090,14 +2114,15 @@ final class Session: ObservableObject {
     /// request. The server commits the batch before returning, then these
     /// folds make the roster move immediately instead of waiting for SSE.
     @discardableResult
-    func assignSection(name: String, botIds: [String]) async -> [Bot]? {
+    func assignSection(name: String, botIds: [String], reportsError: Bool = true) async -> [Bot]? {
         guard let client else { return nil }
         do {
-            let bots = try await client.assignSection(name: name, botIds: botIds)
-            for bot in bots { state.apply(.bot(bot)) }
-            return bots
+            let assignment = try await client.assignSection(name: name, botIds: botIds)
+            for bot in assignment.bots { state.apply(.bot(bot)) }
+            if let names = assignment.sections { state.setDeclaredSections(names) }
+            return assignment.bots
         } catch {
-            actionError = error.localizedDescription
+            if reportsError { actionError = error.localizedDescription }
             return nil
         }
     }
@@ -2499,6 +2524,39 @@ final class Session: ObservableObject {
             if !Task.isCancelled { actionError = error.localizedDescription }
             return nil
         }
+    }
+
+    /// Pins a bot or marks it unread. True only after the computer answers; the bot then shows its new state.
+    func setBotFlags(botId: String, pinned: Bool? = nil, unread: Bool? = nil) async -> Bool {
+        guard let client else { return false }
+        do {
+            let updated = try await client.setBotFlags(botId: botId, pinned: pinned, unread: unread)
+            state.apply(.bot(updated))
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    /// Marks every unread conversation of one bot read, one request for each.
+    /// True only after every request succeeds; a partial failure reloads the bot.
+    func markAllRead(botId: String) async -> Bool {
+        guard let client, let bot = state.bot(botId) else { return false }
+        var allRead = true
+        for threadId in bot.unreadThreadIds {
+            do {
+                try await client.markRead(botId: botId, threadId: threadId)
+            } catch {
+                allRead = false
+            }
+        }
+        if !allRead { Task { await refresh() } }
+        return allRead
+    }
+
+    /// Moves one bot to a department; an empty name means General. True only after the computer answers.
+    func moveToDepartment(botId: String, name: String) async -> Bool {
+        await assignSection(name: name, botIds: [botId], reportsError: false) != nil
     }
 
     func setWorksOn(botId: String, ownServer: Bool) async -> WorksOnOutcome {

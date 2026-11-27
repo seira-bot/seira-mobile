@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">무엇을 할까요?</string>
+    <string name="auto2_sheet_title">무엇을 할까요?</string>
+    <string name="auto2_describe_label">설명하기</string>
+    <string name="auto2_describe_placeholder">매일 아침 9시에 받은편지함 요약해 줘</string>
+    <string name="auto2_who_sub">누가 할까요?</string>
+    <string name="auto2_who_title">누가 할까요?</string>
+    <string name="auto2_who_row">%1$s, 누가 할까요? 탭해서 변경하세요.</string>
+    <string name="auto2_who_selected">%1$s, 선택됨</string>
+    <string name="auto2_set_up_yourself">직접 설정하기</string>
+    <string name="auto2_set_up">설정하기</string>
+    <string name="auto2_set_up_needs_text">먼저 무엇을 할지 설명하세요.</string>
+    <string name="auto2_view_label">캘린더 보기</string>
+    <string name="auto2_view_day">일</string>
+    <string name="auto2_view_week">주</string>
+    <string name="auto2_week_empty_body">이번 주에 실행되는 루틴이 여기에 표시돼요.</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">봇 작업</string>
+    <string name="auto2_pin">고정</string>
+    <string name="auto2_unpin">고정 해제</string>
+    <string name="auto2_mark_unread">읽지 않음으로 표시</string>
+    <string name="auto2_mark_all_read">모든 대화를 읽음으로 표시</string>
+    <string name="auto2_move_department">부서로 이동</string>
+    <string name="auto2_copy_id">대화 ID 복사</string>
+    <string name="auto2_done_pinned">고정했어요</string>
+    <string name="auto2_done_unpinned">고정을 해제했어요</string>
+    <string name="auto2_done_unread">읽지 않음으로 표시했어요</string>
+    <string name="auto2_done_all_read">모두 읽음</string>
+    <string name="auto2_done_moved">이동했어요</string>
+    <string name="auto2_done_copied">복사했어요</string>
+    <string name="auto2_failed">저장하지 못했어요. 다시 시도하세요.</string>
+    <string name="auto2_department_title">부서로 이동</string>
+    <string name="auto2_department_general">일반</string>
+    <string name="auto2_department_current">%1$s, 현재</string>
+    <string name="auto2_department_new">새 부서…</string>
+    <string name="auto2_department_name">부서 이름</string>
+    <string name="auto2_department_move">이동</string>
+</resources>

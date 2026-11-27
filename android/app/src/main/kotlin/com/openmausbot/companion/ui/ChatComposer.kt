@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.windowInsetsPadding
 import com.openmausbot.companion.ui.chat.ReplyStrip
+import com.openmausbot.companion.ui.chat.ComposerTool
 import com.openmausbot.companion.ui.chat.composer.ComposerChipRow
 import com.openmausbot.companion.ui.chat.composer.ComposerRound
 import com.openmausbot.companion.ui.chat.composer.RoundButton
@@ -237,6 +238,9 @@ internal fun ChatComposer(
     mode: ApprovalMode? = null,
     onMode: () -> Unit = {},
     goal: String? = null,
+    tools: List<ComposerTool> = emptyList(),
+    contextPercent: Int? = null,
+    onTool: (ComposerTool) -> Unit = {},
 ) {
     val colors = Seira.colors
     val canSend = AttachmentImportRules.canSend(draft, attachments.size, preparing, sending)
@@ -356,6 +360,9 @@ internal fun ChatComposer(
                 goal = goal,
                 chips = if (accessory == ComposerAccessory.CHIPS) chips else emptyList(),
                 onSelectChip = onSelectChip,
+                tools = tools,
+                contextPercent = contextPercent,
+                onTool = onTool,
             )
         }
 

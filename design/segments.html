@@ -1,0 +1,1034 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seira Tabs Board</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400..600&family=Instrument+Serif:ital@0;1&display=swap">
+<link rel="stylesheet" href="assets/seira.css">
+<style>
+.concept-stage.is-off *, .concept-stage.is-off *::before, .concept-stage.is-off *::after { animation-play-state: paused !important; }
+button { -webkit-tap-highlight-color: transparent; }
+[data-ui] button:focus-visible, [data-ui] input:focus-visible, [data-ui] [tabindex]:focus-visible { outline: 2px solid var(--acc); outline-offset: 2px; border-radius: 12px; }
+.av {
+  --h: 20; --l1: .46; --l2: .3; --tx: oklch(.96 .02 var(--h));
+  display: inline-grid; place-items: center; flex: none; width: 40px; height: 40px; border-radius: 50%;
+  font-weight: 600; font-size: 15px; color: var(--tx);
+  background: linear-gradient(150deg, oklch(var(--l1) .1 var(--h)), oklch(var(--l2) .06 var(--h)));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 0 0 1px var(--line);
+}
+[data-ui="light"] .av { --l1: .88; --l2: .78; --tx: oklch(.3 .09 var(--h)); }
+.s-card .s-row + .s-row::before { left: 16px; }
+.s-card .s-row.has-ico + .s-row::before { left: 60px; }
+
+.now-chips { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 0; margin-top: 14px; }
+.now-chips::-webkit-scrollbar { display: none; }
+.now-chip {
+  flex: none; min-height: 44px; padding: 0 16px; border-radius: 999px; border: 1px solid var(--line2);
+  background: var(--s1); color: var(--mut); font-size: 14px; font-weight: 500; cursor: pointer;
+}
+.now-chip[aria-pressed="true"] { background: var(--s3); color: var(--fg); }
+.now-cap { font-family: "Geist Mono", ui-monospace, monospace; font-size: 11px; color: var(--dim); margin: 0 4px 8px; letter-spacing: .02em; }
+
+.t1-stage { display: flex; align-items: center; justify-content: center; gap: 56px; width: 100%; }
+.t1-notes { list-style: none; margin: 0; padding: 0; display: grid; gap: 20px; max-width: 290px; }
+.t1-notes li { display: grid; grid-template-columns: 30px 1fr; gap: 12px; font-size: 14px; color: var(--g-mut); }
+.t1-notes b {
+  width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
+  font: 500 12px "Geist Mono", ui-monospace, monospace; color: var(--g-acc); background: var(--g-acc-soft);
+}
+@media (max-width: 820px) { .t1-stage { flex-direction: column; gap: 28px; } .t1-notes { max-width: 340px; } }
+#t1-body:focus-visible { outline-offset: -3px; }
+.t1-panel { padding: 6px 14px 140px; }
+.t1-dept { font: 500 11.5px "Geist Mono", ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); padding: 16px 6px 8px; }
+.t1-row { display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 9px 14px; position: relative; }
+.t1-row + .t1-row::before { content: ""; position: absolute; left: 66px; right: 0; top: 0; height: 1px; background: var(--line); }
+.t1-meta { display: grid; justify-items: end; gap: 6px; font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.t1-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--acc); box-shadow: 0 0 0 3px var(--acc-soft); }
+.t1-fade { position: absolute; left: 0; right: 0; bottom: 0; height: 110px; z-index: 12; pointer-events: none; background: linear-gradient(to bottom, transparent, color-mix(in srgb, var(--bg) 78%, transparent)); }
+.t1-dock { position: absolute; left: 14px; right: 14px; bottom: 24px; height: 60px; z-index: 15; }
+.t1-pill, .t1-orb {
+  position: absolute; top: 0; height: 60px; border-radius: 999px;
+  background: var(--glass); -webkit-backdrop-filter: blur(20px) saturate(1.8); backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid var(--line2);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.3), inset 0 -1px 0 rgba(0,0,0,.12), 0 14px 30px -10px rgba(0,0,0,.55), 0 2px 6px rgba(0,0,0,.2);
+}
+[data-ui="light"] .t1-pill, [data-ui="light"] .t1-orb {
+  box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(16,18,24,.05), 0 14px 30px -10px rgba(16,18,24,.32), 0 2px 6px rgba(16,18,24,.1);
+}
+.t1-pill::before, .t1-orb::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background: radial-gradient(120% 80% at 18% -25%, rgba(255,255,255,.3), transparent 58%);
+}
+[data-ui="light"] .t1-pill::before, [data-ui="light"] .t1-orb::before { background: radial-gradient(120% 80% at 18% -25%, rgba(255,255,255,.95), transparent 58%); }
+.t1-pill { left: 0; width: 100%; cursor: default; transition: width 520ms var(--ease-spring), box-shadow 240ms var(--ease); }
+.t1-pill.is-min { width: 64px; cursor: pointer; }
+.t1-pill.is-press { box-shadow: inset 0 1px 0 rgba(255,255,255,.4), 0 18px 36px -10px rgba(0,0,0,.6), 0 0 0 4px var(--acc-soft); }
+.t1-clip { position: absolute; inset: 6px; border-radius: 999px; overflow: hidden; }
+.t1-tabs { position: absolute; left: 0; top: 0; height: 100%; width: calc(var(--tw, 80px) * 3); transform: translateX(var(--off, 0px)); transition: transform 520ms var(--ease-spring); touch-action: none; user-select: none; -webkit-user-select: none; }
+.t1-lens {
+  position: absolute; left: 0; top: 0; height: 100%; width: var(--tw, 80px); border-radius: 999px; will-change: transform;
+  background: linear-gradient(180deg, rgba(255,255,255,.2), rgba(255,255,255,.07));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4), inset 0 -1px 0 rgba(0,0,0,.25), 0 6px 16px -6px rgba(0,0,0,.5);
+  transition: opacity 220ms var(--ease);
+}
+[data-ui="light"] .t1-lens { background: linear-gradient(180deg, rgba(16,18,24,.09), rgba(16,18,24,.04)); box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 0 rgba(16,18,24,.06), 0 6px 14px -6px rgba(16,18,24,.3); }
+.t1-pill.is-min .t1-lens { opacity: 0; }
+.t1-tab {
+  position: absolute; top: 0; height: 100%; width: var(--tw, 80px); border: 0; background: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+  color: var(--mut); font-size: 10.5px; font-weight: 500; letter-spacing: .01em; transition: color 200ms var(--ease), opacity 240ms var(--ease);
+}
+.t1-tab[aria-selected="true"] { color: var(--fg); }
+.t1-tab .ico { position: relative; display: grid; place-items: center; transition: transform 520ms var(--ease-spring), color 200ms; }
+.t1-tab .ico svg { width: 23px; height: 23px; }
+.t1-tab[aria-selected="true"] .ico { color: var(--acc); }
+.t1-tab .lbl { transition: opacity 200ms var(--ease); }
+.t1-badge {
+  position: absolute; top: -5px; left: 12px; min-width: 17px; height: 17px; padding: 0 5px; border-radius: 9px;
+  background: var(--acc); color: var(--on-acc); font-size: 10.5px; font-weight: 600; line-height: 17px; text-align: center;
+  font-variant-numeric: tabular-nums; box-shadow: 0 0 0 2px var(--s1);
+}
+.t1-pill.is-min .t1-tab { pointer-events: none; }
+.t1-pill.is-min .t1-tab:not([aria-selected="true"]) { opacity: 0; }
+.t1-pill.is-min .t1-tab .lbl { opacity: 0; }
+.t1-pill.is-min .t1-tab .ico { transform: translateY(6px); }
+.t1-orb {
+  right: 0; width: 60px; display: grid; place-items: center; color: var(--fg); cursor: pointer;
+  transform: scale(.4); opacity: 0; pointer-events: none; transform-origin: 70% 50%;
+  transition: transform 520ms var(--ease-spring), opacity 200ms var(--ease);
+}
+.t1-orb svg { width: 24px; height: 24px; }
+.t1-orb.is-on { transform: none; opacity: 1; pointer-events: auto; }
+.t1-orb:active { transform: scale(.92); }
+
+.t2-frag { height: 570px; display: flex; flex-direction: column; padding-bottom: 12px; }
+.t2-head { display: flex; align-items: center; gap: 14px; padding: 6px 4px 16px; }
+.t2-head .av { width: 56px; height: 56px; font-size: 22px; }
+.t2-name { font-size: 22px; font-weight: 600; letter-spacing: -.02em; line-height: 1.15; }
+.t2-role { font-size: 13px; color: var(--dim); }
+.t2-strip { position: relative; display: flex; padding: 4px; border-radius: 16px; background: var(--s2); box-shadow: inset 0 0 0 1px var(--line); flex: none; }
+.t2-pill { position: absolute; top: 4px; left: 0; height: 44px; width: 70px; border-radius: 12px; background: var(--s3); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 2px rgba(0,0,0,.25); will-change: transform; }
+[data-ui="light"] .t2-pill { background: var(--s1); box-shadow: 0 1px 2px rgba(16,18,24,.14), 0 4px 10px -4px rgba(16,18,24,.18); }
+.t2-tab { position: relative; z-index: 1; flex: 1 1 auto; height: 44px; padding: 0 9px; border: 0; background: none; border-radius: 12px; cursor: pointer; font-size: 13.5px; font-weight: 500; color: var(--dim); white-space: nowrap; }
+.t2-pager { flex: 1; min-height: 0; margin-top: 12px; display: flex; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; }
+.t2-pager::-webkit-scrollbar { display: none; }
+.t2-page { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; scroll-snap-stop: always; overflow-y: auto; padding: 2px 2px 8px; scrollbar-width: none; }
+.t2-empty { height: 100%; display: grid; place-content: center; justify-items: center; gap: 10px; text-align: center; padding: 0 28px; color: var(--dim); font-size: 14px; }
+.t2-empty .ic { width: 30px; height: 30px; color: var(--mut); }
+.t2-screen { aspect-ratio: 16 / 10; border-radius: 16px; background: var(--s2); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden; position: relative; margin-bottom: 12px; }
+.t2-screen .bar { height: 22px; display: flex; align-items: center; gap: 5px; padding: 0 10px; background: var(--s3); }
+.t2-screen .bar i { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); opacity: .6; }
+.t2-screen .ln { position: absolute; left: 14px; height: 7px; border-radius: 4px; background: var(--s3); }
+.t2-screen .cur { position: absolute; width: 12px; height: 12px; border-radius: 50%; background: var(--acc); right: 26%; top: 56%; box-shadow: 0 0 0 5px var(--acc-soft); animation: t2cur 2.6s ease-in-out infinite; }
+@keyframes t2cur { 50% { transform: translate(-30px, -16px); } }
+
+.t3-seg { height: 52px; padding: 4px; border-radius: 16px; background: var(--s2); box-shadow: inset 0 0 0 1px var(--line); margin-top: 12px; }
+.t3-inner { position: relative; height: 44px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.t3-vis { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; pointer-events: none; }
+.t3-vis span { display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--mut); }
+.t3-vis.inv span { color: var(--on-inv); }
+.t3-vis .ic { width: 17px; height: 17px; }
+.t3-thumb { position: absolute; left: 0; top: 0; height: 44px; border-radius: 12px; background: var(--inv); box-shadow: 0 1px 1px rgba(0,0,0,.25), 0 6px 14px -6px rgba(0,0,0,.5); pointer-events: none; will-change: transform; }
+.t3-btns { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; z-index: 3; }
+.t3-btns button { border: 0; background: transparent; color: transparent; cursor: pointer; border-radius: 12px; font-size: 14px; }
+.t3-btns button svg { color: transparent; }
+.t3-row { display: flex; align-items: center; gap: 12px; padding: 0 14px; height: 64px; position: relative; overflow: hidden; transition: height 460ms var(--ease-spring); transition-delay: calc(var(--i) * 30ms); }
+.t3-row + .t3-row::before { content: ""; position: absolute; left: 66px; right: 0; top: 0; height: 1px; background: var(--line); transition: left 460ms var(--ease-spring); transition-delay: calc(var(--i) * 30ms); }
+.t3-row .av { transition: width 460ms var(--ease-spring), height 460ms var(--ease-spring), font-size 460ms var(--ease-spring); transition-delay: calc(var(--i) * 30ms); }
+.t3-row .s-text { gap: 0; }
+.t3-row .s-row-title { transition: font-size 300ms var(--ease); transition-delay: calc(var(--i) * 30ms); }
+.t3-prev { max-height: 20px; opacity: 1; margin-top: 2px; transition: max-height 380ms var(--ease), opacity 220ms var(--ease), margin 380ms var(--ease); transition-delay: calc(var(--i) * 30ms); }
+.t3-time { font-size: 12px; color: var(--dim); font-variant-numeric: tabular-nums; }
+.t3-list.is-compact .t3-row { height: 44px; }
+.t3-list.is-compact .t3-row + .t3-row::before { left: 50px; }
+.t3-list.is-compact .t3-row .av { width: 28px; height: 28px; font-size: 12px; }
+.t3-list.is-compact .s-row-title { font-size: 14px; }
+.t3-list.is-compact .t3-prev { max-height: 0; opacity: 0; margin-top: 0; }
+
+.t4-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 4px 0 16px; }
+.t4-head .s-title { margin: 0 4px; }
+.t4-btn { width: 48px; height: 48px; border-radius: 50%; border: 0; display: grid; place-items: center; cursor: pointer; background: var(--s1); color: var(--fg); box-shadow: 0 0 0 1px var(--line2), var(--shadow-sm); transition: transform 280ms var(--ease-spring), background-color 200ms; flex: none; }
+.t4-btn:active { transform: scale(.9); }
+.t4-btn[aria-checked="true"] { background: var(--s3); }
+.t4-ico { position: relative; width: 24px; height: 24px; display: block; }
+.t4-ico i {
+  position: absolute; border-radius: 2px; background: currentColor;
+  left: calc(var(--lx) * 1px); top: calc(var(--ly) * 1px); width: calc(var(--lw) * 1px); height: calc(var(--lh) * 1px);
+  transition: left 520ms var(--ease-spring), top 520ms var(--ease-spring), width 520ms var(--ease-spring), height 520ms var(--ease-spring), border-radius 520ms var(--ease-spring), background-color 240ms var(--ease);
+  transition-delay: calc(var(--n) * 24ms);
+}
+.t4-ico i.d { background: var(--acc); }
+.t4-ico[data-state="cal"] i { left: calc(var(--cx) * 1px); top: calc(var(--cy) * 1px); width: calc(var(--cw) * 1px); height: calc(var(--ch) * 1px); border-radius: 2.5px; background: currentColor; }
+.t4-views { display: grid; }
+.t4-pane { grid-area: 1 / 1; min-width: 0; opacity: 0; visibility: hidden; transform: translateX(28px); transition: opacity 220ms var(--ease), transform 460ms var(--ease-spring), visibility 0s linear 220ms; }
+.t4-pane.is-list { transform: translateX(-28px); }
+.t4-pane.is-on { opacity: 1; visibility: visible; transform: none; transition: opacity 320ms var(--ease) 60ms, transform 520ms var(--ease-spring) 60ms, visibility 0s; }
+.t4-pane .rise { opacity: 0; transform: translateY(10px); transition: opacity 200ms var(--ease), transform 200ms var(--ease); }
+.t4-pane.is-on .rise { opacity: 1; transform: none; transition: opacity 360ms var(--ease), transform 520ms var(--ease-spring); transition-delay: calc(120ms + var(--i) * 34ms); }
+.t4-week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; padding: 8px; }
+.t4-col { display: grid; justify-items: center; align-content: start; gap: 6px; padding: 10px 0 12px; border-radius: 14px; min-height: 154px; background: var(--s2); }
+.t4-col.today { box-shadow: inset 0 0 0 1.5px var(--acc); background: var(--acc-soft); }
+.t4-col .dow { font: 500 10.5px "Geist Mono", ui-monospace, monospace; color: var(--dim); }
+.t4-col .dn { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.t4-col.today .dn { background: var(--inv); color: var(--on-inv); }
+.t4-run { width: 9px; height: 9px; border-radius: 50%; }
+.t4-run.c { background: var(--inv); }
+.t4-run.s { box-shadow: inset 0 0 0 1.5px var(--dim); }
+.t4-legend { display: flex; gap: 16px; padding: 12px 6px 0; font-size: 12.5px; color: var(--dim); }
+.t4-legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+.t5-sec + .t5-sec { margin-top: 22px; }
+.t5-group { display: flex; gap: 3px; height: 56px; }
+.t5-btn {
+  flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; gap: 8px; border: 0; cursor: pointer;
+  background: var(--s2); color: var(--mut); font-size: 15px; font-weight: 500; letter-spacing: -.005em;
+  border-radius: 28px 8px 8px 28px;
+  transition: flex-grow 420ms var(--ease-spring), border-radius 420ms var(--ease-spring), transform 300ms var(--ease-spring), background-color 200ms var(--ease), color 200ms var(--ease);
+}
+.t5-btn:last-child { border-radius: 8px 28px 28px 8px; }
+.t5-btn:hover { background: var(--s3); }
+.t5-btn[aria-checked="true"] { background: var(--inv); color: var(--on-inv); border-radius: 28px; box-shadow: 0 6px 16px -8px rgba(0,0,0,.6); }
+.t5-btn.is-down { flex-grow: 1.3; transform: scale(.97); }
+.t5-group:has(.is-down) .t5-btn:not(.is-down) { flex-grow: .8; }
+.t5-btn .ic, .t5-btn svg.ic { width: 22px; height: 22px; }
+.t5-chk { display: grid; grid-template-columns: 0fr; opacity: 0; transition: grid-template-columns 420ms var(--ease-spring), opacity 200ms var(--ease); }
+.t5-chk > span { overflow: hidden; display: flex; align-items: center; min-width: 0; }
+.t5-chk .ic { width: 18px; height: 18px; margin-right: 2px; }
+.t5-btn[aria-checked="true"] .t5-chk { grid-template-columns: 1fr; opacity: 1; }
+.t5-wv { opacity: .55; }
+.t5-btn[aria-checked="true"] .t5-wv { animation: t5wave 1.4s ease-in-out infinite; animation-delay: calc(var(--k) * 170ms); }
+@keyframes t5wave { 0%, 100% { opacity: .2; } 40% { opacity: 1; } }
+.t5-btn[aria-checked="true"] .t5-ear { animation: t5ear 2.8s ease-in-out infinite; transform-origin: center; }
+@keyframes t5ear { 0%, 100% { transform: scale(1); opacity: .85; } 50% { transform: scale(1.12); opacity: 1; } }
+
+.t6-search { display: flex; align-items: center; gap: 10px; height: 48px; padding: 0 14px; border-radius: 16px; background: var(--s1); box-shadow: 0 0 0 1px var(--line); margin: 2px 2px 12px; transition: box-shadow 200ms var(--ease); }
+.t6-search:focus-within { box-shadow: 0 0 0 1.5px var(--acc), 0 0 0 5px var(--ring); }
+.t6-search .ic { color: var(--dim); }
+.t6-input { flex: 1; min-width: 0; height: 44px; border: 0; background: transparent; color: var(--fg); font: inherit; font-size: 15px; outline: none; }
+.t6-input::placeholder { color: var(--dim); }
+[data-ui] .t6-input:focus-visible { outline: none; }
+.t6-scroll { overflow-x: auto; overflow-y: hidden; scrollbar-width: none; -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%); mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%); margin: 0 -14px; }
+.t6-scroll::-webkit-scrollbar { display: none; }
+.t6-track { position: relative; display: flex; gap: 8px; padding: 4px 18px; width: max-content; }
+.t6-goo { position: absolute; inset: 0; filter: url(#t6-goo); pointer-events: none; }
+.t6-blob { position: absolute; left: 0; top: 4px; height: 44px; width: 60px; border-radius: 999px; background: var(--inv); will-change: transform; }
+.t6-blob.b { top: 9px; height: 34px; }
+.t6-chip {
+  position: relative; z-index: 1; flex: none; height: 44px; display: inline-flex; align-items: center; padding: 0 16px; white-space: nowrap;
+  border-radius: 999px; border: 1px solid var(--line2); background: transparent; color: var(--mut); font-size: 14px; font-weight: 500; cursor: pointer;
+  transition: color 160ms var(--ease), border-color 200ms var(--ease);
+}
+.t6-chip[aria-checked="true"] { color: var(--on-inv); border-color: transparent; transition-delay: 90ms, 0ms; }
+.t6-x { display: grid; grid-template-columns: 0fr; opacity: 0; transition: grid-template-columns 400ms var(--ease-spring), opacity 220ms var(--ease); }
+.t6-x > span { overflow: hidden; min-width: 0; display: flex; align-items: center; }
+.t6-chip[aria-checked="true"] .t6-x { grid-template-columns: 1fr; opacity: 1; }
+.t6-x .ic { width: 16px; height: 16px; margin-right: 7px; }
+.t6-cnt { margin-left: 7px; font-size: 12px; font-variant-numeric: tabular-nums; opacity: .75; }
+.t6-results { list-style: none; margin: 14px 0 0; padding: 0; min-height: 232px; }
+.t6-row { display: flex; align-items: center; gap: 12px; min-height: 58px; padding: 6px 4px; animation: t6in 460ms var(--ease-spring) both; animation-delay: calc(var(--i) * 45ms); }
+.t6-row + .t6-row { border-top: 1px solid var(--line); }
+.t6-row .s-ico { width: 36px; height: 36px; border-radius: 11px; }
+.t6-meta { font: 11.5px "Geist Mono", ui-monospace, monospace; color: var(--dim); }
+.t6-none { padding: 24px 4px; color: var(--dim); font-size: 14px; animation: t6in 400ms var(--ease-spring) both; }
+@keyframes t6in { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
+
+.rec-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 28px 0 0; padding: 0; list-style: none; }
+.rec-list li { display: grid; gap: 8px; padding: 18px 20px; border: 1px solid var(--g-line); border-radius: 22px; background: var(--g-card); color: var(--g-mut); font-size: 14.5px; }
+.rec-list li strong { color: var(--g-ink); font-weight: 600; }
+.rec-list .rec-top { display: flex; align-items: center; gap: 10px; }
+@media (max-width: 820px) { .rec-list { grid-template-columns: 1fr; } }
+.g-foot p { margin: 0 0 8px; }
+.g-foot a { color: var(--g-mut); }
+</style>
+</head>
+<body>
+<header data-g-nav="segments.html"></header>
+
+<main class="g-wrap">
+
+<section class="g-hero">
+  <span class="g-eyebrow">Papan 03 · Tab &amp; segmen</span>
+  <h1 class="g-h1">Pindah tempat <span class="serif">tanpa lompatan.</span></h1>
+  <p class="g-lede">Enam konsep untuk tab bar, strip tab, kontrol dua pilihan, dan chip filter. Setiap konsep bisa dicoba dengan mouse, sentuhan, dan keyboard.</p>
+
+  <div class="g-before">
+    <div>
+      <h3>Sekarang di app</h3>
+      <p>Penanda pilihan melompat dari satu posisi ke posisi lain. Kontrol dua pilihan mirip tab bar, dan filter tidak menampilkan jumlah hasil.</p>
+    </div>
+    <div class="frag" data-ui="dark" data-ui-global>
+      <div class="now-cap">CALENDAR</div>
+      <div class="now-seg" id="now-seg">
+        <button type="button" aria-pressed="true">Day</button>
+        <button type="button" aria-pressed="false">Week</button>
+      </div>
+      <div class="now-chips" id="now-chips">
+        <button type="button" class="now-chip" aria-pressed="true">All</button>
+        <button type="button" class="now-chip" aria-pressed="false">Messages</button>
+        <button type="button" class="now-chip" aria-pressed="false">Bots</button>
+        <button type="button" class="now-chip" aria-pressed="false">Groups</button>
+        <button type="button" class="now-chip" aria-pressed="false">Routines</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="g-section" id="konsep">
+  <div class="g-section-head">
+    <h2 class="g-h2">Konsep <span class="serif">yang bisa dicoba</span></h2>
+    <p>Gulir, tarik, ketuk, dan tekan tombol panah. Gunakan saklar Light/Dark di atas untuk melihat dua tema.</p>
+  </div>
+
+  <div class="g-grid">
+
+    <article class="concept is-wide" id="t1">
+      <div class="concept-stage dots">
+        <div class="t1-stage">
+          <div class="device" style="--dw:300px">
+            <div class="device-screen" data-ui="dark" data-ui-global>
+              <div class="device-island"></div>
+              <div class="device-status"><span>9:41</span><span class="sb-icons"><i style="width:16px;height:9px"></i><i style="width:14px;height:9px"></i><i style="width:22px;height:10px;border-radius:3px"></i></span></div>
+              <div class="device-body" id="t1-body" tabindex="0" role="region" aria-label="Screen content">
+                <section class="t1-panel" role="tabpanel" id="t1-p0" aria-labelledby="t1-tab0"></section>
+                <section class="t1-panel" role="tabpanel" id="t1-p1" aria-labelledby="t1-tab1" hidden>
+                  <h2 class="s-title">Inbox</h2>
+                  <div style="display:grid;gap:12px">
+                    <div class="s-card"><div class="s-row"><span class="av" style="--h:20">N</span><div class="s-text"><div class="s-row-title">Nova needs your OK</div><div class="s-row-sub">Approve the new pricing page copy</div></div><span class="s-value" style="font-size:12px">09:30</span></div></div>
+                    <div class="s-card"><div class="s-row"><span class="av" style="--h:230">A</span><div class="s-text"><div class="s-row-title">Atlas finished a task</div><div class="s-row-sub">Landing page deployed, 3 checks passed</div></div><span class="s-value" style="font-size:12px">09:12</span></div></div>
+                    <div class="s-card"><div class="s-row"><span class="av" style="--h:350">S</span><div class="s-text"><div class="s-row-title">Seira has a question</div><div class="s-row-sub">Which department should own the weekly report?</div></div><span class="s-value" style="font-size:12px">08:55</span></div></div>
+                  </div>
+                </section>
+                <section class="t1-panel" role="tabpanel" id="t1-p2" aria-labelledby="t1-tab2" hidden>
+                  <h2 class="s-title">Automations</h2>
+                  <div class="s-card">
+                    <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-sparkles"/></svg></span><div class="s-text"><div class="s-row-title">Morning brief</div><div class="s-row-sub">09:00 · Atlas</div></div><svg class="ic s-chev"><use href="#i-chevron"/></svg></div>
+                    <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-tray"/></svg></span><div class="s-text"><div class="s-row-title">Inbox sweep</div><div class="s-row-sub">Every 2 hours · Seira</div></div><svg class="ic s-chev"><use href="#i-chevron"/></svg></div>
+                    <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-calendar"/></svg></span><div class="s-text"><div class="s-row-title">Weekly report</div><div class="s-row-sub">Mon 08:30 · Juno</div></div><svg class="ic s-chev"><use href="#i-chevron"/></svg></div>
+                  </div>
+                </section>
+              </div>
+              <div class="t1-fade"></div>
+              <div class="t1-dock" id="t1-dock">
+                <div class="t1-pill">
+                  <div class="t1-clip">
+                    <div class="t1-tabs" role="tablist" aria-label="Main">
+                      <span class="t1-lens" aria-hidden="true"></span>
+                      <button class="t1-tab" role="tab" id="t1-tab0" aria-controls="t1-p0" aria-selected="true" type="button" style="left:0"><span class="ico"><svg class="ic"><use href="#i-chats"/></svg></span><span class="lbl">Chats</span></button>
+                      <button class="t1-tab" role="tab" id="t1-tab1" aria-controls="t1-p1" aria-selected="false" tabindex="-1" type="button" style="left:var(--tw)"><span class="ico"><svg class="ic"><use href="#i-tray"/></svg><span class="t1-badge">3</span></span><span class="lbl">Inbox</span></button>
+                      <button class="t1-tab" role="tab" id="t1-tab2" aria-controls="t1-p2" aria-selected="false" tabindex="-1" type="button" style="left:calc(var(--tw) * 2)"><span class="ico"><svg class="ic"><use href="#i-clock-loop"/></svg></span><span class="lbl">Automations</span></button>
+                    </div>
+                  </div>
+                </div>
+                <button class="t1-orb" type="button" aria-label="Search" tabindex="-1"><svg class="ic"><use href="#i-search"/></svg></button>
+              </div>
+              <div class="device-home"></div>
+            </div>
+          </div>
+          <ul class="t1-notes">
+            <li><b>1</b><span>Tarik jari melintasi bar untuk berpindah tab. Lensa mengikuti jari dan meregang saat bergerak cepat.</span></li>
+            <li><b>2</b><span>Gulir daftar Chats ke bawah. Bar mengecil menjadi satu ikon dan satu tombol cari.</span></li>
+            <li><b>3</b><span>Gulir ke atas atau ketuk pil kecil. Bar kembali penuh dengan pegas.</span></li>
+          </ul>
+        </div>
+        <span class="stage-hint">Tarik di bar / gulir daftar</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T1</span><h3>Tab bar kaca</h3></div>
+        <p class="concept-idea">Tab bar mengambang di atas konten seperti iOS 26. Lensa kaca menandai tab aktif, dan bar mengecil saat daftar digulir.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Lensa memakai pegas (kaku 520, redam 30) dan meregang sampai 22% menurut kecepatan. Bar mengecil dalam 520 ms dengan pegas, setelah gulir lebih dari 40 px.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>TabView</code> dengan <code>.tabBarMinimizeBehavior(.onScrollDown)</code> dan <code>Tab(role: .search)</code> untuk bola cari. Lensa khusus: <code>.glassEffect()</code> di dalam <code>GlassEffectContainer</code>, dipakai seperlunya.</dd></div>
+          <div><dt>Compose</dt><dd><code>HorizontalFloatingToolbar</code> dengan <code>FloatingToolbarDefaults.exitAlwaysScrollBehavior</code> dan <code>Modifier.nestedScroll</code>. Lensa: <code>Animatable</code> plus <code>detectHorizontalDragGestures</code>. Blur latar butuh library seperti Haze.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>tablist</code>, <code>tab</code>, <code>tabpanel</code> dengan panah kiri/kanan. Target 60 px. Reduce motion: lensa langsung pindah, bar tidak beranimasi.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag tag-pick">Rekomendasi</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="t2">
+      <div class="concept-stage dots">
+        <div class="frag t2-frag" data-ui="dark" data-ui-global id="t2-root">
+          <div class="t2-head"><span class="av" style="--h:230">A</span><div><div class="t2-name">Atlas</div><div class="t2-role">Design lead</div></div></div>
+          <div class="t2-strip" role="tablist" aria-label="Bot profile">
+            <span class="t2-pill" aria-hidden="true"></span>
+            <button class="t2-tab" role="tab" id="t2-tab0" aria-controls="t2-p0" aria-selected="true" type="button">Activity</button>
+            <button class="t2-tab" role="tab" id="t2-tab1" aria-controls="t2-p1" aria-selected="false" tabindex="-1" type="button">Settings</button>
+            <button class="t2-tab" role="tab" id="t2-tab2" aria-controls="t2-p2" aria-selected="false" tabindex="-1" type="button">Library</button>
+            <button class="t2-tab" role="tab" id="t2-tab3" aria-controls="t2-p3" aria-selected="false" tabindex="-1" type="button">Computer</button>
+          </div>
+          <div class="t2-pager">
+            <section class="t2-page" role="tabpanel" id="t2-p0" aria-labelledby="t2-tab0">
+              <div class="s-card">
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-clock-loop"/></svg></span><div class="s-text"><div class="s-row-title">Ran Morning brief</div></div><span class="s-value">09:00</span></div>
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-pencil"/></svg></span><div class="s-text"><div class="s-row-title">Edited 3 files</div></div><span class="s-value">08:52</span></div>
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-hand"/></svg></span><div class="s-text"><div class="s-row-title">Asked for approval</div></div><span class="s-value">08:40</span></div>
+              </div>
+            </section>
+            <section class="t2-page" role="tabpanel" id="t2-p1" aria-labelledby="t2-tab1">
+              <div class="s-card">
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-brain"/></svg></span><div class="s-text"><div class="s-row-title">Model</div></div><span class="s-value">Default</span></div>
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-mic"/></svg></span><div class="s-text"><div class="s-row-title">Voice</div></div><span class="s-value">Calm</span></div>
+                <div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-bell"/></svg></span><div class="s-text"><div class="s-row-title">Agent notifications</div></div><button class="now-switch" id="t2-sw" role="switch" aria-checked="true" aria-label="Agent notifications" type="button"></button></div>
+              </div>
+            </section>
+            <section class="t2-page" role="tabpanel" id="t2-p2" aria-labelledby="t2-tab2">
+              <div class="t2-empty"><svg class="ic"><use href="#i-book"/></svg><span>Nothing here yet. Tables and notes that Atlas makes show up here.</span></div>
+            </section>
+            <section class="t2-page" role="tabpanel" id="t2-p3" aria-labelledby="t2-tab3">
+              <div class="t2-screen" aria-hidden="true"><div class="bar"><i></i><i></i><i></i></div><span class="ln" style="top:40px;width:46%"></span><span class="ln" style="top:58px;width:62%"></span><span class="ln" style="top:76px;width:34%"></span><span class="ln" style="top:94px;width:54%"></span><span class="cur"></span></div>
+              <div class="s-card"><div class="s-row has-ico"><span class="s-ico"><svg class="ic"><use href="#i-globe"/></svg></span><div class="s-text"><div class="s-row-title">Browser</div></div><svg class="ic s-chev"><use href="#i-chevron"/></svg></div></div>
+            </section>
+          </div>
+        </div>
+        <span class="stage-hint">Geser halaman / ketuk tab</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T2</span><h3>Tab ikut jari</h3></div>
+        <p class="concept-idea">Pil tab mengikuti posisi geser halaman setiap frame. Lebar dan posisinya berubah halus, dan warna label ikut bergeser.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Posisi dan lebar pil dihitung dari <code>scrollLeft / lebar halaman</code>. Warna label bercampur linear antara --dim dan --fg. Ketuk tab: gulir halus sekitar 350 ms.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>ScrollView(.horizontal)</code> dengan <code>.scrollTargetBehavior(.paging)</code> dan <code>.onScrollGeometryChange</code> untuk progres. Pil memakai <code>offset</code> dan <code>frame(width:)</code> hasil interpolasi.</dd></div>
+          <div><dt>Compose</dt><dd><code>HorizontalPager</code> dengan <code>currentPageOffsetFraction</code>. Indikator khusus di <code>SecondaryScrollableTabRow</code> memakai <code>lerp</code>. Ketuk: <code>animateScrollToPage</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>tablist</code>, <code>tab</code>, <code>tabpanel</code>. Panah kiri/kanan, Home, End. Target 44 px. Reduce motion: halaman pindah tanpa gulir halus.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya M</span><span class="tag tag-pick">Rekomendasi</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="t3">
+      <div class="concept-stage dots">
+        <div class="frag" data-ui="dark" data-ui-global id="t3-root">
+          <div class="s-section">Display</div>
+          <div class="s-card" style="padding:16px">
+            <div class="s-row-title" id="t3-lbl">List density</div>
+            <div class="t3-seg">
+              <div class="t3-inner" role="radiogroup" aria-labelledby="t3-lbl">
+                <div class="t3-vis" aria-hidden="true"><span><svg class="ic"><use href="#i-rows"/></svg>Comfortable</span><span><svg class="ic"><use href="#i-rows-dense"/></svg>Compact</span></div>
+                <span class="t3-thumb" aria-hidden="true"></span>
+                <div class="t3-vis inv" aria-hidden="true"><span><svg class="ic"><use href="#i-rows"/></svg>Comfortable</span><span><svg class="ic"><use href="#i-rows-dense"/></svg>Compact</span></div>
+                <div class="t3-btns">
+                  <button type="button" role="radio" aria-checked="true" tabindex="0"><svg class="ic"><use href="#i-rows"/></svg>Comfortable</button>
+                  <button type="button" role="radio" aria-checked="false" tabindex="-1"><svg class="ic"><use href="#i-rows-dense"/></svg>Compact</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="s-section">Preview</div>
+          <div class="s-card"><div class="t3-list" id="t3-list"></div></div>
+        </div>
+        <span class="stage-hint">Tarik atau ketuk penanda</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T3</span><h3>Kepadatan hidup</h3></div>
+        <p class="concept-idea">Penanda berupa blok tinta solid. Label di bawah blok berubah warna lewat lapisan label yang dipotong. Daftar di bawahnya berubah rapat seketika.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Blok memakai pegas (kaku 420, redam 32) dan bisa ditarik. Baris berubah 64 ke 44 px selama 460 ms, tertunda 30 ms per baris. Pratinjau menyusut lewat tinggi dan opacity.</dd></div>
+          <div><dt>SwiftUI</dt><dd>Dua lapisan label dengan <code>.mask</code> berbentuk blok. Posisi memakai <code>matchedGeometryEffect</code>. Animasi: <code>withAnimation(.spring(duration: 0.4, bounce: 0.2))</code> dan <code>.animation(_:value:)</code> dengan jeda per baris.</dd></div>
+          <div><dt>Compose</dt><dd>Lapisan kedua digambar dengan <code>drawWithContent</code> dan <code>clipRect</code>. Posisi: <code>animateFloatAsState(spring())</code>. Baris: <code>animateDpAsState</code> dan <code>AnimatedVisibility(expandVertically)</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>radiogroup</code> dan <code>radio</code> dengan <code>aria-checked</code>. Panah kiri/kanan. Target 44 px. Reduce motion: blok dan baris langsung pindah.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya M</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="t4">
+      <div class="concept-stage dots">
+        <div class="frag" data-ui="dark" data-ui-global id="t4-root">
+          <div class="t4-head">
+            <h3 class="s-title">Automations</h3>
+            <button class="t4-btn" id="t4-btn" type="button" role="switch" aria-checked="false" aria-label="Calendar">
+              <span class="t4-ico" id="t4-ico" data-state="list" aria-hidden="true"></span>
+            </button>
+          </div>
+          <span class="sr-only" id="t4-live" aria-live="polite">List</span>
+          <div class="t4-views">
+            <div class="t4-pane is-list is-on" id="t4-list">
+              <div class="s-card">
+                <div class="s-row has-ico rise" style="--i:0"><span class="s-ico"><svg class="ic"><use href="#i-sparkles"/></svg></span><div class="s-text"><div class="s-row-title">Morning brief</div><div class="s-row-sub">09:00 · Atlas</div></div></div>
+                <div class="s-row has-ico rise" style="--i:1"><span class="s-ico"><svg class="ic"><use href="#i-tray"/></svg></span><div class="s-text"><div class="s-row-title">Inbox sweep</div><div class="s-row-sub">Every 2 hours · Seira</div></div></div>
+                <div class="s-row has-ico rise" style="--i:2"><span class="s-ico"><svg class="ic"><use href="#i-calendar"/></svg></span><div class="s-text"><div class="s-row-title">Weekly report</div><div class="s-row-sub">Mon 08:30 · Juno</div></div></div>
+              </div>
+            </div>
+            <div class="t4-pane" id="t4-cal">
+              <div class="s-card"><div class="t4-week" id="t4-week"></div></div>
+              <div class="t4-legend"><span><i class="t4-run c"></i>Completed</span><span><i class="t4-run s"></i>Scheduled</span></div>
+            </div>
+          </div>
+        </div>
+        <span class="stage-hint">Ketuk tombol bulat</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T4</span><h3>Morf List/Calendar</h3></div>
+        <p class="concept-idea">Satu tombol bulat berganti dua tampilan. Enam kotak kecil di ikon berubah bentuk dari daftar menjadi kisi, dan isi layar ikut bergeser.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Tiap kotak ikon berpindah 520 ms dengan pegas, tertunda 24 ms per kotak. Isi layar bergeser 28 px sambil memudar. Kolom minggu muncul bertahap 34 ms.</dd></div>
+          <div><dt>SwiftUI</dt><dd>Enam <code>RoundedRectangle</code> dengan <code>.frame</code> dan <code>.offset</code> yang dianimasikan <code>withAnimation(.spring)</code>. Isi layar: <code>.transition(.asymmetric(insertion:removal:))</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>updateTransition</code> dengan <code>animateDp</code> per kotak. Isi layar: <code>AnimatedContent</code> dengan <code>slideInHorizontally + fadeIn</code>. Tombol: <code>Modifier.toggleable(role = Role.Switch)</code>.</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>role="switch"</code> dengan nama "Calendar". Status "List" atau "Calendar" dibacakan. Target 48 px. Reduce motion: ikon dan isi langsung berganti.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya S</span></div>
+      </div>
+    </article>
+
+    <article class="concept" id="t5">
+      <div class="concept-stage dots">
+        <div class="frag" data-ui="dark" data-ui-global>
+          <div class="t5-sec">
+            <div class="s-section" id="t5a-l">Calendar</div>
+            <div class="s-card" style="padding:12px">
+              <div class="t5-group" role="radiogroup" aria-labelledby="t5a-l">
+                <button class="t5-btn" type="button" role="radio" aria-checked="true" tabindex="0"><span class="t5-chk"><span><svg class="ic"><use href="#i-check"/></svg></span></span>Day</button>
+                <button class="t5-btn" type="button" role="radio" aria-checked="false" tabindex="-1"><span class="t5-chk"><span><svg class="ic"><use href="#i-check"/></svg></span></span>Week</button>
+              </div>
+            </div>
+          </div>
+          <div class="t5-sec">
+            <div class="s-section" id="t5b-l">Sound output</div>
+            <div class="s-card" style="padding:12px">
+              <div class="t5-group" role="radiogroup" aria-labelledby="t5b-l">
+                <button class="t5-btn" type="button" role="radio" aria-checked="true" tabindex="0">
+                  <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 9.5H7L11 5.8v12.4L7 14.5H3.5Z"/><path class="t5-wv" style="--k:0" d="M14 10a3 3 0 0 1 0 4"/><path class="t5-wv" style="--k:1" d="M16.4 8a6 6 0 0 1 0 8"/><path class="t5-wv" style="--k:2" d="M18.8 6a9 9 0 0 1 0 12"/></svg>Speaker</button>
+                <button class="t5-btn" type="button" role="radio" aria-checked="false" tabindex="-1"><svg class="ic t5-ear" aria-hidden="true"><use href="#i-earpiece"/></svg>Earpiece</button>
+              </div>
+            </div>
+            <div class="s-caption">Applies to calls on this iPhone. A connected headset takes the call instead.</div>
+          </div>
+        </div>
+        <span class="stage-hint">Tahan tombol untuk merasakan</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T5</span><h3>Grup bersambung</h3></div>
+        <p class="concept-idea">Tombol bersambung ala Material 3 Expressive. Tombol yang ditekan melebar, tetangganya menyempit, dan yang terpilih menjadi pil penuh.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Celah 3 px, sudut dalam 8 px. Tekan: flex-grow 1,3 dan skala 0,97. Pilih: sudut menjadi pil dalam 420 ms dengan pegas. Gelombang suara berjalan 1,4 s, ikon earpiece berdenyut 2,8 s.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>HStack(spacing: 3)</code> dengan <code>UnevenRoundedRectangle</code> dan <code>ButtonStyle</code> yang membaca <code>configuration.isPressed</code>. Gelombang: <code>symbolEffect(.variableColor.iterative)</code> pada <code>speaker.wave.3</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>ButtonGroup</code> dengan <code>ToggleButton</code> dan <code>ButtonGroupDefaults.connectedLeadingButtonShapes()</code>. Lebar saat ditekan: <code>Modifier.animateWidth(interactionSource)</code> (Material 3 Expressive).</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>radiogroup</code> dan <code>radio</code>. Panah kiri/kanan. Tinggi 56 px. Reduce motion: tidak ada gelombang atau denyut, bentuk langsung berganti.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 4/5</span><span class="tag">Jelas 5/5</span><span class="tag">Biaya S</span></div>
+      </div>
+    </article>
+
+    <article class="concept is-wide" id="t6">
+      <div class="concept-stage dots">
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><filter id="t6-goo" x="-20%" y="-60%" width="140%" height="220%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceGraphic" stdDeviation="6" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 20 -9"/></filter></defs></svg>
+        <div class="frag" data-ui="dark" data-ui-global id="t6-root" style="padding-bottom:20px">
+          <label class="t6-search"><svg class="ic"><use href="#i-search"/></svg><input class="t6-input" type="search" placeholder="Search" aria-label="Search" autocomplete="off"></label>
+          <div class="t6-scroll" id="t6-scroll">
+            <div class="t6-track" id="t6-track">
+              <div class="t6-goo" aria-hidden="true"><span class="t6-blob b"></span><span class="t6-blob a"></span></div>
+            </div>
+          </div>
+          <ul class="t6-results" id="t6-results" aria-live="polite"></ul>
+        </div>
+        <span class="stage-hint">Ketuk chip / panah kiri-kanan</span>
+      </div>
+      <div class="concept-meta">
+        <div class="concept-top"><span class="concept-no">T6</span><h3>Chip magnet</h3></div>
+        <p class="concept-idea">Hanya chip terpilih yang membuka ikon dan jumlah hasil. Gumpalan tinta menarik diri dari chip lama ke chip baru, lalu daftar hasil muncul bertahap.</p>
+        <dl class="concept-spec">
+          <div><dt>Gerak</dt><dd>Dua gumpalan: depan (kaku 520) dan belakang (kaku 180) menyatu lewat filter goo (blur 6, ambang alfa). Chip membuka 400 ms. Hasil muncul 45 ms per baris. Baris chip menggulir ke tengah.</dd></div>
+          <div><dt>SwiftUI</dt><dd><code>ScrollViewReader.scrollTo(id, anchor: .center)</code> dan <code>.scrollEdgeEffectStyle(.soft, for: .horizontal)</code>. Gumpalan: <code>Canvas</code> dengan <code>addFilter(.alphaThreshold)</code> dan <code>.blur</code>, atau <code>matchedGeometryEffect</code>.</dd></div>
+          <div><dt>Compose</dt><dd><code>LazyRow</code> dengan <code>animateScrollToItem</code>, <code>FilterChip</code>, dan <code>AnimatedVisibility</code> untuk jumlah. Gumpalan: <code>RenderEffect</code> blur dengan filter warna AGSL (Android 12 ke atas).</dd></div>
+          <div><dt>Aksesibilitas</dt><dd><code>radiogroup</code> dan <code>radio</code>. Panah kiri/kanan memilih chip. Hasil dibacakan lewat <code>aria-live</code>. Chip 44 px. Reduce motion: gumpalan langsung pindah.</dd></div>
+        </dl>
+        <div class="concept-tags"><span class="tag">Wow 5/5</span><span class="tag">Jelas 4/5</span><span class="tag">Biaya L</span></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<section class="g-section" id="penilaian">
+  <div class="g-section-head">
+    <h2 class="g-h2">Penilaian</h2>
+    <p>Wow dan Jelas memakai skala 1 sampai 5. Biaya: S kecil, M sedang, L besar.</p>
+  </div>
+  <div class="g-table-wrap">
+    <table class="g-table">
+      <thead><tr><th>Konsep</th><th>Wow (1–5)</th><th>Jelas (1–5)</th><th>Biaya (S/M/L)</th><th>Dipakai di</th></tr></thead>
+      <tbody>
+        <tr><td>T1 Tab bar kaca</td><td>5</td><td>5</td><td>M</td><td>Tab bar bawah: Chats, Inbox, Automations</td></tr>
+        <tr><td>T2 Tab ikut jari</td><td>4</td><td>5</td><td>M</td><td>Profil bot: Activity, Settings, Library, Computer</td></tr>
+        <tr><td>T3 Kepadatan hidup</td><td>5</td><td>4</td><td>M</td><td>List density, dan kontrol 2–3 pilihan lain</td></tr>
+        <tr><td>T4 Morf List/Calendar</td><td>4</td><td>4</td><td>S</td><td>Automations: List dan Calendar</td></tr>
+        <tr><td>T5 Grup bersambung</td><td>4</td><td>5</td><td>S</td><td>Calendar Day/Week, Sound output (alternatif Android)</td></tr>
+        <tr><td>T6 Chip magnet</td><td>5</td><td>4</td><td>L</td><td>Filter hasil di Search</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="g-section" id="rekomendasi">
+  <div class="g-section-head">
+    <h2 class="g-h2">Rekomendasi <span class="serif">kami</span></h2>
+    <p>Mulai dari dua konsep dengan dampak terbesar. Sisanya mengikuti gaya yang sama.</p>
+  </div>
+  <ul class="rec-list">
+    <li><div class="rec-top"><span class="concept-no">T1</span><span class="tag tag-pick">Rekomendasi</span></div><span><strong>Tab bar utama.</strong> Pakai T1 untuk Chats, Inbox, dan Automations di iOS.</span></li>
+    <li><div class="rec-top"><span class="concept-no">T2</span><span class="tag tag-pick">Rekomendasi</span></div><span><strong>Tab profil bot.</strong> Pakai T2 untuk Activity, Settings, Library, dan Computer.</span></li>
+    <li><div class="rec-top"><span class="concept-no">T3</span></div><span><strong>Kontrol 2–3 pilihan.</strong> Pakai gaya tinta terbalik T3 di setiap segmented control.</span></li>
+    <li><div class="rec-top"><span class="concept-no">T5</span></div><span><strong>Versi Android.</strong> Pakai T5 sebagai alternatif bergaya Material untuk kontrol dua pilihan.</span></li>
+    <li><div class="rec-top"><span class="concept-no">T4</span></div><span><strong>Opsional.</strong> Pakai T4 di Automations bila tim ingin tombol List/Calendar yang berubah bentuk.</span></li>
+    <li><div class="rec-top"><span class="concept-no">T6</span></div><span><strong>Opsional.</strong> Pakai T6 di Search setelah tampilan jumlah hasil siap.</span></li>
+  </ul>
+</section>
+</main>
+
+<footer class="g-wrap g-foot">
+  <p>Sumber riset:
+    <a href="https://developer.apple.com/videos/play/wwdc2025/323/" target="_blank" rel="noopener">WWDC25 323, tab bar minimize</a> ·
+    <a href="https://codelabs.developers.google.com/codelabs/mdc-102-objc" target="_blank" rel="noopener">M3 Expressive</a></p>
+  <p>Mockup statis. Warna dari SeiraTheme.swift.</p>
+  <p><a href="index.html">Kembali ke ringkasan</a></p>
+</footer>
+
+<script src="assets/kit.js"></script>
+<script>
+(function () {
+  "use strict";
+  var S = window.Seira;
+  var $ = function (s, r) { return (r || document).querySelector(s); };
+  var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var lerp = function (a, b, t) { return a + (b - a) * t; };
+  var av = function (name, h) { return '<span class="av" style="--h:' + h + '">' + name.charAt(0) + '</span>'; };
+
+  if ("IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { e.target.classList.toggle("is-off", !e.isIntersecting); });
+    }, { rootMargin: "80px" });
+    $$(".concept-stage").forEach(function (s) { io.observe(s); });
+  }
+
+  (function () {
+    var seg = $("#now-seg");
+    $$("button", seg).forEach(function (b) {
+      b.addEventListener("click", function () {
+        $$("button", seg).forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      });
+    });
+    var chips = $$("#now-chips .now-chip");
+    chips.forEach(function (b) {
+      b.addEventListener("click", function () {
+        chips.forEach(function (o) { o.setAttribute("aria-pressed", String(o === b)); });
+      });
+    });
+  })();
+
+  (function () {
+    var CH = [
+      ["Design", [["Seira", "Draft ready for review", "09:41", 350], ["Atlas", "Deployed the landing page", "09:12", 230], ["Nova", "Needs your OK", "08:50", 20, true]]],
+      ["Ops", [["Juno", "Weekly numbers are in", "Yesterday", 160], ["Kirin", "Paused", "Mon", 285], ["Mira", "Invoice batch sent", "Mon", 60], ["Piper", "Two meetings moved", "Sun", 320]]],
+      ["Research", [["Sage", "Summary of 12 sources", "Sat", 200], ["Wren", "Waiting for a link", "Fri", 130], ["Otis", "Done for today", "Thu", 40]]]
+    ];
+    var p0 = $("#t1-p0");
+    p0.innerHTML = '<h2 class="s-title">Chats</h2>' + CH.map(function (d) {
+      return '<div class="t1-dept">' + d[0] + '</div><div class="s-card">' + d[1].map(function (r) {
+        return '<div class="t1-row">' + av(r[0], r[3]) + '<div class="s-text"><div class="s-row-title">' + r[0] + '</div><div class="s-row-sub">' + r[1] + '</div></div><div class="t1-meta"><span>' + r[2] + '</span>' + (r[4] ? '<i class="t1-dot"></i>' : '') + '</div></div>';
+      }).join("") + '</div>';
+    }).join("");
+
+    var body = $("#t1-body"), dock = $("#t1-dock"), pill = $(".t1-pill", dock), tabs = $(".t1-tabs", dock),
+      lens = $(".t1-lens", dock), orb = $(".t1-orb", dock);
+    var tabEls = $$(".t1-tab", dock), panels = $$(".t1-panel", $("#t1"));
+    var cur = 0, tw = 80, lx = 0, lv = 0, ps = 1, min = false, stopLens = null, stopPress = null, lt = 0;
+
+    function renderLens() {
+      var st = clamp(Math.abs(lv) / 2600, 0, 0.22);
+      lens.style.transform = "translate3d(" + lx + "px,0,0) scale(" + ((1 + st) * ps) + "," + ((1 - st * 0.45) * ps) + ")";
+    }
+    function lensTo(t, vel) {
+      if (stopLens) stopLens();
+      stopLens = S.spring({ from: lx, to: t, velocity: vel || 0, stiffness: 520, damping: 30, onUpdate: function (v, vv) { lx = v; lv = vv || 0; renderLens(); } });
+    }
+    function press(on) {
+      pill.classList.toggle("is-press", on);
+      if (stopPress) stopPress();
+      stopPress = S.spring({ from: ps, to: on ? 1.16 : 1, stiffness: 520, damping: 26, onUpdate: function (v) { ps = v; renderLens(); } });
+    }
+    function applyOff() {
+      tabs.style.setProperty("--off", (min ? -(cur * tw) + (52 - tw) / 2 : 0) + "px");
+    }
+    function measure() {
+      tw = (dock.clientWidth - 12) / 3;
+      tabs.style.setProperty("--tw", tw + "px");
+      if (!stopLens) { lx = cur * tw; renderLens(); }
+      applyOff();
+    }
+    function bounce(el) {
+      if (S.reduced || !el || !el.animate || min) return;
+      el.animate([
+        { transform: "translateY(0) scale(1)" },
+        { transform: "translateY(-5px) scale(1.14)", offset: 0.35 },
+        { transform: "translateY(1px) scale(.96)", offset: 0.7 },
+        { transform: "translateY(0) scale(1)" }
+      ], { duration: 460, easing: "cubic-bezier(.2,.8,.2,1)" });
+    }
+    function setMin(v) {
+      if (v === min) return;
+      min = v;
+      pill.classList.toggle("is-min", v);
+      orb.classList.toggle("is-on", v);
+      orb.tabIndex = v ? 0 : -1;
+      applyOff();
+    }
+    var last = 0, hold = 0;
+    function select(i, o) {
+      o = o || {};
+      if (i === cur) return;
+      cur = i;
+      tabEls.forEach(function (b, j) { b.setAttribute("aria-selected", String(j === i)); b.tabIndex = j === i ? 0 : -1; });
+      panels.forEach(function (p, j) { p.hidden = j !== i; });
+      body.scrollTop = 0; last = 0; hold = 0;
+      setMin(false);
+      applyOff();
+      S.tick(tabEls[i]);
+      bounce($(".ico", tabEls[i]));
+      var p = panels[i];
+      if (!S.reduced && p.animate) p.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 280, easing: "cubic-bezier(.2,.8,.2,1)" });
+      if (o.lens !== false) lensTo(i * tw);
+    }
+    function idxAt(px) {
+      var r = tabs.getBoundingClientRect();
+      return clamp(Math.floor((px - r.left) / tw), 0, 2);
+    }
+    S.drag(tabs, {
+      start: function (e) {
+        if (min) return;
+        tabs.dataset.on = "1";
+        lt = performance.now();
+        var r = tabs.getBoundingClientRect();
+        press(true);
+        lensTo(clamp(e.clientX - r.left - tw / 2, 0, tw * 2));
+        select(idxAt(e.clientX), { lens: false });
+      },
+      move: function (m) {
+        if (tabs.dataset.on !== "1") return;
+        var r = tabs.getBoundingClientRect();
+        var nx = clamp(m.x - r.left - tw / 2, 0, tw * 2);
+        if (stopLens) { stopLens(); stopLens = null; }
+        var t = performance.now();
+        lv = lv * 0.6 + ((nx - lx) / Math.max(1, t - lt) * 1000) * 0.4;
+        lt = t; lx = nx; renderLens();
+        select(idxAt(m.x), { lens: false });
+      },
+      end: function (m) {
+        if (tabs.dataset.on !== "1") return;
+        tabs.dataset.on = "";
+        press(false);
+        lensTo(cur * tw, m.vx * 1000);
+      }
+    });
+    tabs.addEventListener("click", function (e) {
+      if (e.detail !== 0) return;
+      var b = e.target.closest(".t1-tab");
+      if (!b) return;
+      if (min) { setMin(false); hold = body.scrollTop + 40; return; }
+      select(tabEls.indexOf(b));
+    });
+    tabs.addEventListener("keydown", function (e) {
+      var k = e.key, i = cur;
+      if (k === "ArrowRight") i = (cur + 1) % 3;
+      else if (k === "ArrowLeft") i = (cur + 2) % 3;
+      else if (k === "Home") i = 0;
+      else if (k === "End") i = 2;
+      else return;
+      e.preventDefault();
+      select(i);
+      tabEls[i].focus();
+    });
+    pill.addEventListener("click", function () {
+      if (!min) return;
+      setMin(false); hold = body.scrollTop + 40; S.tick(pill);
+    });
+    orb.addEventListener("click", function () {
+      S.tick(orb);
+      if (!S.reduced && orb.animate) orb.animate([{ transform: "scale(1)" }, { transform: "scale(1.14)" }, { transform: "scale(1)" }], { duration: 420, easing: "cubic-bezier(.2,.8,.2,1)" });
+    });
+    var busy = false;
+    body.addEventListener("scroll", function () {
+      if (busy) return;
+      busy = true;
+      requestAnimationFrame(function () {
+        busy = false;
+        var t = body.scrollTop, d = t - last;
+        last = t;
+        if (t <= 8 || d < -4) { setMin(false); hold = 0; }
+        else if (d > 2 && t > 40 && t > hold) setMin(true);
+      });
+    }, { passive: true });
+    if ("ResizeObserver" in window) new ResizeObserver(measure).observe(dock);
+    measure();
+  })();
+
+  (function () {
+    var root = $("#t2-root"), strip = $(".t2-strip", root), tabs = $$(".t2-tab", root), pill = $(".t2-pill", root),
+      pager = $(".t2-pager", root), pages = $$(".t2-page", root);
+    var cur = 0, geo = [], raf = 0, pending = null, pTimer = 0;
+    function measure() { geo = tabs.map(function (t) { return { l: t.offsetLeft, w: t.offsetWidth }; }); render(); }
+    function paintAria() {
+      tabs.forEach(function (t, j) { t.setAttribute("aria-selected", String(j === cur)); t.tabIndex = j === cur ? 0 : -1; });
+      pages.forEach(function (p, j) { if (j === cur) p.removeAttribute("inert"); else p.setAttribute("inert", ""); });
+    }
+    function render() {
+      raf = 0;
+      if (!geo.length) return;
+      var w = pager.clientWidth || 1;
+      var p = clamp(pager.scrollLeft / w, 0, tabs.length - 1);
+      var i = Math.min(Math.floor(p), tabs.length - 2), f = p - i;
+      pill.style.transform = "translate3d(" + lerp(geo[i].l, geo[i + 1].l, f) + "px,0,0)";
+      pill.style.width = lerp(geo[i].w, geo[i + 1].w, f) + "px";
+      tabs.forEach(function (t, j) {
+        var a = 1 - Math.min(1, Math.abs(p - j));
+        t.style.color = "color-mix(in srgb, var(--fg) " + Math.round(a * 100) + "%, var(--dim))";
+      });
+      var near = Math.round(p);
+      if (pending !== null) {
+        if (near === pending) { pending = null; }
+        return;
+      }
+      if (near !== cur) { cur = near; paintAria(); S.tick(tabs[cur]); }
+    }
+    function go(i, focus) {
+      if (i === cur && Math.abs(pager.scrollLeft - i * pager.clientWidth) < 2) return;
+      cur = i; pending = i; paintAria(); S.tick(tabs[i]);
+      clearTimeout(pTimer); pTimer = setTimeout(function () { pending = null; }, 900);
+      pager.scrollTo({ left: i * pager.clientWidth, behavior: S.reduced ? "auto" : "smooth" });
+      if (focus) tabs[i].focus();
+    }
+    pager.addEventListener("scroll", function () { if (!raf) raf = requestAnimationFrame(render); }, { passive: true });
+    pager.addEventListener("pointerdown", function () { pending = null; });
+    tabs.forEach(function (t, i) { t.addEventListener("click", function () { go(i); }); });
+    strip.addEventListener("keydown", function (e) {
+      var n = tabs.length, i = cur;
+      if (e.key === "ArrowRight") i = (cur + 1) % n;
+      else if (e.key === "ArrowLeft") i = (cur + n - 1) % n;
+      else if (e.key === "Home") i = 0;
+      else if (e.key === "End") i = n - 1;
+      else return;
+      e.preventDefault(); go(i, true);
+    });
+    var sw = $("#t2-sw");
+    sw.addEventListener("click", function () { sw.setAttribute("aria-checked", String(sw.getAttribute("aria-checked") !== "true")); S.tick(sw); });
+    if ("ResizeObserver" in window) new ResizeObserver(measure).observe(strip);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+    paintAria(); measure();
+  })();
+
+  (function () {
+    var root = $("#t3-root"), inner = $(".t3-inner", root), thumb = $(".t3-thumb", root), inv = $(".t3-vis.inv", root),
+      radios = $$("[role=radio]", root), list = $("#t3-list");
+    var DATA = [["Seira", "Draft ready for review", "09:41", 350], ["Atlas", "Deployed the landing page", "09:12", 230], ["Nova", "Needs your OK", "08:50", 20], ["Juno", "Weekly numbers are in", "Yesterday", 160], ["Kirin", "Paused", "Mon", 285]];
+    list.innerHTML = DATA.map(function (r, i) {
+      return '<div class="t3-row" style="--i:' + i + '">' + av(r[0], r[3]) + '<div class="s-text"><div class="s-row-title">' + r[0] + '</div><div class="s-row-sub t3-prev">' + r[1] + '</div></div><span class="t3-time">' + r[2] + '</span></div>';
+    }).join("");
+    var idx = 0, x = 0, w2 = 0, stop = null, on = false, lt = 0, lx0 = 0;
+    function paint() {
+      thumb.style.width = w2 + "px";
+      thumb.style.transform = "translate3d(" + x + "px,0,0)";
+      inv.style.clipPath = "inset(0px " + Math.max(0, inner.clientWidth - (x + w2)) + "px 0px " + x + "px round 12px)";
+    }
+    function springTo(t, v) {
+      if (stop) stop();
+      stop = S.spring({ from: x, to: t, velocity: v || 0, stiffness: 420, damping: 32, onUpdate: function (val) { x = val; paint(); } });
+    }
+    function setIdx(i, silent) {
+      if (i !== idx) {
+        idx = i;
+        radios.forEach(function (r, j) { r.setAttribute("aria-checked", String(j === i)); r.tabIndex = j === i ? 0 : -1; });
+        list.classList.toggle("is-compact", i === 1);
+        if (!silent) S.tick(thumb);
+      }
+    }
+    function measure() { w2 = inner.clientWidth / 2; if (!stop) x = idx * w2; paint(); }
+    S.drag(inner, {
+      start: function (e) {
+        on = true; lt = performance.now();
+        var r = inner.getBoundingClientRect();
+        springTo(clamp(e.clientX - r.left - w2 / 2, 0, w2));
+      },
+      move: function (m) {
+        if (!on) return;
+        if (stop) { stop(); stop = null; }
+        var r = inner.getBoundingClientRect();
+        x = clamp(m.x - r.left - w2 / 2, 0, w2); paint();
+        setIdx(x > w2 / 2 ? 1 : 0);
+      },
+      end: function (m) {
+        if (!on) return;
+        on = false;
+        var proj = x + m.vx * 1000 * 0.12;
+        var i = proj > w2 / 2 ? 1 : 0;
+        setIdx(i);
+        springTo(i * w2, m.vx * 1000);
+      }
+    });
+    radios.forEach(function (r, j) {
+      r.addEventListener("click", function (e) { if (e.detail === 0) { setIdx(j); springTo(j * w2); } });
+    });
+    inner.addEventListener("keydown", function (e) {
+      var i = idx;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") i = 1;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = 0;
+      else return;
+      e.preventDefault(); setIdx(i); springTo(i * w2); radios[i].focus();
+    });
+    if ("ResizeObserver" in window) new ResizeObserver(measure).observe(inner);
+    measure();
+  })();
+
+  (function () {
+    var btn = $("#t4-btn"), ico = $("#t4-ico"), live = $("#t4-live"), lp = $("#t4-list"), cp = $("#t4-cal"), week = $("#t4-week");
+    var L = [[2, 3, 4, 4], [8, 3, 14, 4], [2, 10, 4, 4], [8, 10, 14, 4], [2, 17, 4, 4], [8, 17, 14, 4]];
+    var C = [[1.5, 4], [9, 4], [16.5, 4], [1.5, 13], [9, 13], [16.5, 13]];
+    ico.innerHTML = L.map(function (l, n) {
+      var c = C[n];
+      return '<i class="' + (n % 2 === 0 ? "d" : "") + '" style="--n:' + n + ";--lx:" + l[0] + ";--ly:" + l[1] + ";--lw:" + l[2] + ";--lh:" + l[3] + ";--cx:" + c[0] + ";--cy:" + c[1] + ";--cw:6;--ch:7\"></i>";
+    }).join("");
+    var days = [["M", 23, "cc"], ["T", 24, "cc"], ["W", 25, "c"], ["T", 26, "cc"], ["F", 27, "cs", true], ["S", 28, "s"], ["S", 29, ""]];
+    week.innerHTML = days.map(function (d, i) {
+      return '<div class="t4-col rise' + (d[3] ? " today" : "") + '" style="--i:' + i + '"><span class="dow">' + d[0] + '</span><span class="dn">' + d[1] + '</span>' +
+        d[2].split("").map(function (r) { return '<i class="t4-run ' + r + '"></i>'; }).join("") + "</div>";
+    }).join("");
+    var cal = false;
+    function set(v) {
+      cal = v;
+      btn.setAttribute("aria-checked", String(v));
+      ico.dataset.state = v ? "cal" : "list";
+      lp.classList.toggle("is-on", !v); cp.classList.toggle("is-on", v);
+      lp.setAttribute("aria-hidden", String(v)); cp.setAttribute("aria-hidden", String(!v));
+      if (v) lp.setAttribute("inert", ""); else lp.removeAttribute("inert");
+      if (v) cp.removeAttribute("inert"); else cp.setAttribute("inert", "");
+      live.textContent = v ? "Calendar" : "List";
+      S.tick(btn);
+    }
+    btn.addEventListener("click", function () { set(!cal); });
+    cp.setAttribute("inert", ""); cp.setAttribute("aria-hidden", "true");
+  })();
+
+  $$(".t5-group").forEach(function (g) {
+    var btns = $$("[role=radio]", g), cur = 0;
+    function set(i, focus) {
+      if (i !== cur) {
+        cur = i;
+        btns.forEach(function (b, j) { b.setAttribute("aria-checked", String(j === i)); b.tabIndex = j === i ? 0 : -1; });
+        S.tick(btns[i]);
+      }
+      if (focus) btns[i].focus();
+    }
+    btns.forEach(function (b, i) {
+      b.addEventListener("click", function () { set(i); });
+      b.addEventListener("pointerdown", function () { b.classList.add("is-down"); });
+      ["pointerup", "pointercancel", "pointerleave", "blur"].forEach(function (ev) {
+        b.addEventListener(ev, function () { b.classList.remove("is-down"); });
+      });
+    });
+    g.addEventListener("keydown", function (e) {
+      var n = btns.length, fwd = e.key === "ArrowRight" || e.key === "ArrowDown", back = e.key === "ArrowLeft" || e.key === "ArrowUp";
+      if (!fwd && !back) return;
+      e.preventDefault();
+      set(fwd ? (cur + 1) % n : (cur + n - 1) % n, true);
+    });
+  });
+
+  (function () {
+    var root = $("#t6-root"), scroller = $("#t6-scroll"), track = $("#t6-track"), goo = $(".t6-goo", track),
+      blobA = $(".t6-blob.a", track), blobB = $(".t6-blob.b", track), list = $("#t6-results"), input = $(".t6-input", root);
+    var CHIPS = [["all", "All", "layers", 34], ["messages", "Messages", "chats", 24], ["bots", "Bots", "bot", 5], ["groups", "Groups", "people", 2], ["routines", "Routines", "clock-loop", 3]];
+    var DATA = {
+      all: [["chats", "Weekly numbers are in", "Juno", "Yesterday"], ["bot", "Atlas", "Design lead", "Bot"], ["people", "Design", "5 bots", "Group"], ["clock-loop", "Morning brief", "09:00 · Atlas", "Routine"]],
+      messages: [["chats", "Deployed the landing page", "Atlas", "09:12"], ["chats", "Draft ready for review", "Seira", "09:41"], ["chats", "Needs your OK", "Nova", "08:50"], ["chats", "Weekly numbers are in", "Juno", "Yesterday"]],
+      bots: [["bot", "Atlas", "Design lead", "Online"], ["bot", "Seira", "Chief of staff", "Online"], ["bot", "Nova", "Copy and review", "Away"], ["bot", "Juno", "Reporting", "Online"]],
+      groups: [["people", "Design", "Seira, Atlas, Nova", "3 bots"], ["people", "Ops", "Juno, Kirin, Mira, Piper", "4 bots"]],
+      routines: [["clock-loop", "Morning brief", "09:00 · Atlas", "Daily"], ["clock-loop", "Inbox sweep", "Every 2 hours · Seira", "Hourly"], ["clock-loop", "Weekly report", "Mon 08:30 · Juno", "Weekly"]]
+    };
+    var frag = document.createDocumentFragment();
+    var chips = CHIPS.map(function (c, i) {
+      var b = document.createElement("button");
+      b.type = "button"; b.className = "t6-chip"; b.setAttribute("role", "radio");
+      b.setAttribute("aria-checked", String(i === 0)); b.tabIndex = i === 0 ? 0 : -1; b.dataset.key = c[0];
+      b.innerHTML = '<span class="t6-x"><span>' + S.icon(c[2]) + '</span></span>' + c[1] + '<span class="t6-x"><span class="t6-cnt">' + c[3] + '</span></span>';
+      frag.appendChild(b);
+      return b;
+    });
+    track.appendChild(frag);
+    track.setAttribute("role", "radiogroup"); track.setAttribute("aria-label", "Search filter");
+    var cur = 0;
+    var A = { l: 0, w: 60, vl: 0, vw: 0 }, B = { l: 0, w: 60, vl: 0, vw: 0 };
+    var raf = 0, until = 0, last = 0, stopped = false;
+    function paint() {
+      blobA.style.transform = "translate3d(" + A.l + "px,0,0)"; blobA.style.width = Math.max(0, A.w) + "px";
+      blobB.style.transform = "translate3d(" + B.l + "px,0,0)"; blobB.style.width = Math.max(0, B.w) + "px";
+    }
+    function snap() {
+      var c = chips[cur]; A.l = B.l = c.offsetLeft; A.w = B.w = c.offsetWidth; A.vl = A.vw = B.vl = B.vw = 0; paint();
+    }
+    function integ(o, tl, tw, k, c, dt) {
+      var moving = false;
+      [["l", "vl", tl], ["w", "vw", tw]].forEach(function (p) {
+        var a = -k * (o[p[0]] - p[2]) - c * o[p[1]];
+        o[p[1]] += a * dt; o[p[0]] += o[p[1]] * dt;
+        if (Math.abs(o[p[1]]) > 0.05 || Math.abs(o[p[0]] - p[2]) > 0.05) moving = true;
+      });
+      return moving;
+    }
+    function frame(now) {
+      var dt = Math.min(0.032, (now - last) / 1000); last = now;
+      var c = chips[cur], tl = c.offsetLeft, tw = c.offsetWidth;
+      var m1 = integ(A, tl, tw, 520, 30, dt), m2 = integ(B, tl, tw, 180, 20, dt);
+      paint();
+      var want = clamp(tl + tw / 2 - scroller.clientWidth / 2, 0, Math.max(0, scroller.scrollWidth - scroller.clientWidth));
+      var diff = want - scroller.scrollLeft, m3 = false;
+      if (!stopped && Math.abs(diff) > 0.5) { scroller.scrollLeft += diff * 0.18; m3 = true; }
+      if (m1 || m2 || m3 || now < until) raf = requestAnimationFrame(frame);
+      else { raf = 0; snap(); }
+    }
+    function run() {
+      stopped = false;
+      if (S.reduced) { snap(); scroller.scrollLeft = clamp(chips[cur].offsetLeft + chips[cur].offsetWidth / 2 - scroller.clientWidth / 2, 0, scroller.scrollWidth); return; }
+      until = performance.now() + 800;
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(frame); }
+    }
+    ["pointerdown", "wheel", "touchstart"].forEach(function (ev) { scroller.addEventListener(ev, function () { stopped = true; }, { passive: true }); });
+
+    function render() {
+      var key = chips[cur].dataset.key, q = input.value.trim().toLowerCase();
+      var rows = DATA[key].filter(function (r) { return !q || (r[1] + " " + r[2]).toLowerCase().indexOf(q) !== -1; });
+      list.innerHTML = rows.length ? rows.map(function (r, i) {
+        return '<li class="t6-row" style="--i:' + i + '"><span class="s-ico">' + S.icon(r[0]) + '</span><div class="s-text"><div class="s-row-title">' + r[1] + '</div><div class="s-row-sub">' + r[2] + '</div></div><span class="t6-meta">' + r[3] + '</span></li>';
+      }).join("") : '<li class="t6-none">No results</li>';
+    }
+    function select(i, focus) {
+      if (i !== cur) {
+        cur = i;
+        chips.forEach(function (b, j) { b.setAttribute("aria-checked", String(j === i)); b.tabIndex = j === i ? 0 : -1; });
+        S.tick(chips[i]);
+        render();
+      }
+      run();
+      if (focus) chips[i].focus({ preventScroll: true });
+    }
+    chips.forEach(function (b, i) { b.addEventListener("click", function () { select(i); }); });
+    track.addEventListener("keydown", function (e) {
+      var n = chips.length, i;
+      if (e.key === "ArrowRight" || e.key === "ArrowDown") i = (cur + 1) % n;
+      else if (e.key === "ArrowLeft" || e.key === "ArrowUp") i = (cur + n - 1) % n;
+      else if (e.key === "Home") i = 0;
+      else if (e.key === "End") i = n - 1;
+      else return;
+      e.preventDefault(); select(i, true);
+    });
+    input.addEventListener("input", render);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(snap);
+    window.addEventListener("resize", snap);
+    render(); snap();
+    setTimeout(snap, 120);
+  })();
+})();
+</script>
+</body>
+</html>

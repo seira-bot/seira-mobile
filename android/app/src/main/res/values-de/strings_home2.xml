@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Bots</string>
+    <string name="home2_group_chats">Gruppenchats</string>
+    <string name="home2_search">Chats und Bots suchen</string>
+    <string name="home2_new_group">Neue Gruppe</string>
+    <string name="home2_department_empty">Keine Bots in dieser Abteilung.</string>
+    <string name="home2_show_all">Alle Chats anzeigen</string>
+    <string name="home2_department_actions">Aktionen für die Abteilung %1$s</string>
+    <string name="home2_department_add_bots_label">Bots in %1$s hinzufügen oder entfernen</string>
+    <string name="home2_fold_open">Geöffnet</string>
+    <string name="home2_fold_folded">Eingeklappt</string>
+    <string name="home2_chief">Stabschef</string>
+    <string name="home2_waiting">Wartet auf dich</string>
+    <string name="home2_problem">Braucht einen Blick</string>
+    <string name="home2_working">In Arbeit</string>
+    <string name="home2_menu_add_bots">Bots hinzufügen</string>
+    <string name="home2_menu_new_bot">Neuer Bot hier</string>
+    <string name="home2_add_bots_title">Bots zu %1$s hinzufügen</string>
+    <string name="home2_add_bots_save">Speichern</string>
+    <string name="home2_add_bots_saving">Wird gespeichert</string>
+    <string name="home2_add_bots_failed">Speichern fehlgeschlagen. Versuche es noch einmal.</string>
+    <string name="home2_add_bots_nothing">Keine Bots zum Hinzufügen.</string>
+    <string name="home2_bot_in_department">In %1$s</string>
+    <string name="home2_bot_unassigned">Bots</string>
+    <string name="home2_cancel">Abbrechen</string>
+    <string name="home2_settings_advanced_title">Erweiterter Modus</string>
+    <string name="home2_settings_advanced_body">Mehr Menüs und Werkzeuge, wie an deinem Computer.</string>
+    <string name="home2_team_add_department">Abteilung hinzufügen</string>
+    <string name="home2_team_department_empty">Keine Bots in dieser Abteilung.</string>
+    <string name="home2_department_title">Abteilung hinzufügen</string>
+    <string name="home2_department_name">Name der Abteilung</string>
+    <string name="home2_department_placeholder">Marketing</string>
+    <string name="home2_department_exists">Dieser Name wird schon verwendet.</string>
+    <string name="home2_department_needed">Gib der Abteilung einen Namen.</string>
+    <string name="home2_department_failed">Die Abteilung konnte nicht hinzugefügt werden. Versuche es noch einmal.</string>
+    <string name="home2_department_add">Hinzufügen</string>
+    <string name="home2_department_adding">Wird hinzugefügt</string>
+    <string name="home2_add_bots_partial">Einige Änderungen wurden nicht gespeichert. Versuche es noch einmal.</string>
+    <string name="home2_new_bot_not_filed">%1$s wurde erstellt, ist aber nicht in %2$s.</string>
+    <string name="home2_try_again">Erneut versuchen</string>
+    <string name="home2_not_now">Nicht jetzt</string>
+    <string name="home2_waiting_count">%1$d warten</string>
+</resources>

@@ -83,7 +83,11 @@ fixture thread stores fifty messages without parent links, so its chat shows
 only the newest under the live reply; Gmail's six rows are the larger page.
 Per-action times, redraw counts and screenshots are attached. Existing
 suites protect tables, initial scroll landing, narration folds, reasoning,
-roster density, search, navigation and swipe-back.
+the Simple and Advanced home, department folding, search, navigation and
+swipe-back. The home list builds one lazy line per group header, tile row, bot
+row and thread list, so a fleet of 60 bots in 20 departments scrolls without
+building whole groups. In Advanced mode, **List density** sets the bot rows:
+compact hides the preview line, comfortable shows it.
 
 This proves the synthetic workload and native workflows, not the reported
 physical iPhone freeze, real-network throughput, memory-pressure behavior or

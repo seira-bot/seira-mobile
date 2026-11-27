@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="home2_bots">Боти</string>
+    <string name="home2_group_chats">Групові чати</string>
+    <string name="home2_search">Пошук чатів і ботів</string>
+    <string name="home2_new_group">Нова група</string>
+    <string name="home2_department_empty">У цьому відділі немає ботів.</string>
+    <string name="home2_show_all">Показати всі чати</string>
+    <string name="home2_department_actions">Дії для відділу «%1$s»</string>
+    <string name="home2_department_add_bots_label">Додати або прибрати ботів у відділі «%1$s»</string>
+    <string name="home2_fold_open">Розгорнуто</string>
+    <string name="home2_fold_folded">Згорнуто</string>
+    <string name="home2_chief">Керівник апарату</string>
+    <string name="home2_waiting">Чекає на вас</string>
+    <string name="home2_problem">Потрібно перевірити</string>
+    <string name="home2_working">Працює</string>
+    <string name="home2_menu_add_bots">Додати ботів</string>
+    <string name="home2_menu_new_bot">Новий бот тут</string>
+    <string name="home2_add_bots_title">Додати ботів до відділу «%1$s»</string>
+    <string name="home2_add_bots_save">Зберегти</string>
+    <string name="home2_add_bots_saving">Збереження</string>
+    <string name="home2_add_bots_failed">Не вдалося зберегти. Спробуйте ще раз.</string>
+    <string name="home2_add_bots_nothing">Немає ботів для додавання.</string>
+    <string name="home2_bot_in_department">У відділі «%1$s»</string>
+    <string name="home2_bot_unassigned">Боти</string>
+    <string name="home2_cancel">Скасувати</string>
+    <string name="home2_settings_advanced_title">Розширений режим</string>
+    <string name="home2_settings_advanced_body">Більше меню та інструментів, як на комп’ютері.</string>
+    <string name="home2_team_add_department">Додати відділ</string>
+    <string name="home2_team_department_empty">У цьому відділі немає ботів.</string>
+    <string name="home2_department_title">Додати відділ</string>
+    <string name="home2_department_name">Назва відділу</string>
+    <string name="home2_department_placeholder">Маркетинг</string>
+    <string name="home2_department_exists">Ця назва вже зайнята.</string>
+    <string name="home2_department_needed">Дайте відділу назву.</string>
+    <string name="home2_department_failed">Не вдалося додати відділ. Спробуйте ще раз.</string>
+    <string name="home2_department_add">Додати</string>
+    <string name="home2_department_adding">Додавання</string>
+    <string name="home2_add_bots_partial">Деякі зміни не збереглися. Спробуйте ще раз.</string>
+    <string name="home2_new_bot_not_filed">%1$s створено, але він не у відділі «%2$s».</string>
+    <string name="home2_try_again">Спробувати знову</string>
+    <string name="home2_not_now">Не зараз</string>
+    <string name="home2_waiting_count">Чекають: %1$d</string>
+</resources>

@@ -14,11 +14,23 @@ struct RoutineCalendarView: View {
     @State private var loading = true
     @State private var selected = Calendar.current.startOfDay(for: Date())
     @State private var editor: CalendarEditorTarget?
+    @State private var showWeek = CalendarViewMemory.week
+    @State private var weekRows: [RoutineWeekRow] = []
 
     init(embedded: Bool = false) { self.embedded = embedded }
 
     private var calendar: Calendar { .current }
     private var week: [Date] { RoutineCalendar.week(containing: selected, calendar: calendar) }
+    private var localeWeek: [Date] {
+        RoutineCalendar.week(containing: selected, calendar: calendar, firstWeekday: calendar.firstWeekday)
+    }
+
+    private func refreshWeekRows() {
+        weekRows = RoutineCalendar.weekRows(
+            routines: routines, runs: runs, containing: selected,
+            calendar: calendar, firstWeekday: calendar.firstWeekday
+        )
+    }
 
     private func items(on day: Date) -> [RoutineCalendarItem] {
         RoutineCalendar.items(routines: routines, runs: runs, day: day, calendar: calendar)
@@ -50,10 +62,26 @@ struct RoutineCalendarView: View {
 
     private var screen: some View {
         VStack(spacing: 0) {
-            weekStrip
-            Divider()
-            dayList
+            Picker("Calendar view", selection: $showWeek) {
+                Text("Day").tag(false)
+                Text("Week").tag(true)
+            }
+            .pickerStyle(.segmented)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 6)
+            .accessibilityIdentifier("calendar-view-switch")
+            if showWeek {
+                weekNav
+                Divider()
+                weekList
+            } else {
+                weekStrip
+                Divider()
+                dayList
+            }
         }
+        .onValueChange(of: showWeek) { CalendarViewMemory.week = $0 }
+        .onValueChange(of: selected) { _ in refreshWeekRows() }
         .task { await reload() }
         .refreshable { await reload() }
         .sheet(item: $editor) { target in
@@ -85,6 +113,53 @@ struct RoutineCalendarView: View {
         .overlay {
             if loading && routines.isEmpty && runs.isEmpty { ProgressView() }
         }
+    }
+
+    private var weekList: some View {
+        List {
+            if weekRows.isEmpty && !loading {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Nothing scheduled")
+                        .font(.headline)
+                    Text("Routines that run this week appear here.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.vertical, 8)
+                .listRowSeparator(.hidden)
+            }
+            ForEach(weekRows) { row in
+                WeekRunRow(row: row, bot: session.state.bot(row.item.run?.botId ?? row.item.routine?.botId ?? ""))
+                    .contentShape(Rectangle())
+                    .onTapGesture { open(row.item) }
+            }
+        }
+        .listStyle(.plain)
+        .overlay {
+            if loading && routines.isEmpty && runs.isEmpty { ProgressView() }
+        }
+    }
+
+    // MARK: - Week navigation
+
+    private var weekNav: some View {
+        HStack(spacing: 2) {
+            Button { shiftWeek(by: -1) } label: {
+                Image(systemName: "chevron.left").frame(width: 32, height: 44)
+            }
+            .accessibilityLabel("Previous week")
+            Text("\(localeWeek[0], format: .dateTime.day().month(.abbreviated)) – \(localeWeek[6], format: .dateTime.day().month(.abbreviated))")
+                .font(.system(size: 15, weight: .medium))
+                .frame(maxWidth: .infinity)
+            Button { shiftWeek(by: 1) } label: {
+                Image(systemName: "chevron.right").frame(width: 32, height: 44)
+            }
+            .accessibilityLabel("Next week")
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .accessibilityIdentifier("calendar-week-nav")
     }
 
     // MARK: - Week strip
@@ -180,7 +255,12 @@ struct RoutineCalendarView: View {
         routines = loaded.routines
         runs = loaded.runs
         loading = false
+        refreshWeekRows()
     }
+}
+
+private enum CalendarViewMemory {
+    static var week = false
 }
 
 private enum CalendarEditorTarget: Identifiable {
@@ -188,6 +268,54 @@ private enum CalendarEditorTarget: Identifiable {
     case edit(Routine)
     var id: String { routine?.id ?? "new" }
     var routine: Routine? { if case let .edit(value) = self { value } else { nil } }
+}
+
+/// One run in the week list: weekday and time, what, for whom, and how it went.
+private struct WeekRunRow: View {
+    let row: RoutineWeekRow
+    let bot: Bot?
+
+    private var name: String { row.item.routine?.name ?? row.item.run?.routineName ?? "" }
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 12) {
+            Text(row.item.date, format: .dateTime.weekday(.abbreviated).hour().minute())
+                .font(.system(size: 13).monospacedDigit())
+                .foregroundStyle(.secondary)
+                .frame(minWidth: 84, alignment: .leading)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(verbatim: name)
+                    .font(.system(size: 15, weight: .medium))
+                    .lineLimit(2)
+                (bot.map { Text(verbatim: $0.name) } ?? Text("Deleted agent"))
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            status
+        }
+        .frame(minHeight: 44)
+        .alignmentGuide(.listRowSeparatorLeading) { _ in 0 }
+        .accessibilityElement(children: .combine)
+    }
+
+    @ViewBuilder
+    private var status: some View {
+        switch row.status {
+        case .completed:
+            Text("Completed").font(.caption).foregroundStyle(Color.seiraSuccess)
+        case .failed:
+            Text("Failed").font(.caption).foregroundStyle(Color.seiraBad)
+        case .scheduled:
+            Text("Scheduled").font(.caption).foregroundStyle(.secondary)
+        case .other:
+            if let run = row.item.run {
+                Text(run.status == "waiting" ? "Needs you" : LocalizedStringKey(run.status.capitalized))
+                    .font(.caption)
+                    .foregroundStyle(run.status.routineStatusTint)
+            }
+        }
+    }
 }
 
 /// One run on the day: when, what, for whom, and how it went.

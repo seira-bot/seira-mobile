@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="auto2_entry">Que doit-il se passer ?</string>
+    <string name="auto2_sheet_title">Que doit-il se passer ?</string>
+    <string name="auto2_describe_label">Décrivez-le</string>
+    <string name="auto2_describe_placeholder">Chaque matin à 9 h, résume ma boîte de réception</string>
+    <string name="auto2_who_sub">Qui doit s’en charger ?</string>
+    <string name="auto2_who_title">Qui doit s’en charger ?</string>
+    <string name="auto2_who_row">%1$s, qui doit s’en charger ? Touchez pour changer.</string>
+    <string name="auto2_who_selected">%1$s, sélectionné</string>
+    <string name="auto2_set_up_yourself">Le configurer vous-même</string>
+    <string name="auto2_set_up">Configurer</string>
+    <string name="auto2_set_up_needs_text">Décrivez d’abord ce qui doit se passer.</string>
+    <string name="auto2_view_label">Vue du calendrier</string>
+    <string name="auto2_view_day">Jour</string>
+    <string name="auto2_view_week">Semaine</string>
+    <string name="auto2_week_empty_body">Les routines qui s’exécutent cette semaine s’affichent ici.</string>
+    <string name="auto2_week_row">%1$s, %2$s, %3$s, %4$s</string>
+    <string name="auto2_actions_group">Actions du bot</string>
+    <string name="auto2_pin">Épingler</string>
+    <string name="auto2_unpin">Désépingler</string>
+    <string name="auto2_mark_unread">Marquer comme non lu</string>
+    <string name="auto2_mark_all_read">Marquer toutes les conversations comme lues</string>
+    <string name="auto2_move_department">Déplacer vers un département</string>
+    <string name="auto2_copy_id">Copier l’ID de la conversation</string>
+    <string name="auto2_done_pinned">Épinglé</string>
+    <string name="auto2_done_unpinned">Désépinglé</string>
+    <string name="auto2_done_unread">Marqué comme non lu</string>
+    <string name="auto2_done_all_read">Tout est lu</string>
+    <string name="auto2_done_moved">Déplacé</string>
+    <string name="auto2_done_copied">Copié</string>
+    <string name="auto2_failed">Échec de l’enregistrement. Réessayez.</string>
+    <string name="auto2_department_title">Déplacer vers un département</string>
+    <string name="auto2_department_general">Général</string>
+    <string name="auto2_department_current">%1$s, actuel</string>
+    <string name="auto2_department_new">Nouveau département…</string>
+    <string name="auto2_department_name">Nom du département</string>
+    <string name="auto2_department_move">Déplacer</string>
+</resources>

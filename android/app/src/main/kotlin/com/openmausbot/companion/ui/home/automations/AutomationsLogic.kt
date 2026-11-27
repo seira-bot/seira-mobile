@@ -1,5 +1,6 @@
 package com.openmausbot.companion.ui.home.automations
 
+import com.openmausbot.companion.core.Bot
 import com.openmausbot.companion.core.Routine
 import com.openmausbot.companion.core.RoutineRun
 import com.openmausbot.companion.ui.RoutineRules
@@ -20,6 +21,13 @@ internal object AutomationsRules {
     fun resultsRun(routineId: String, runs: List<RoutineRun>): RoutineRun? =
         runs.filter { it.routineId == routineId && !it.threadId.isNullOrBlank() }
             .maxByOrNull { it.scheduledFor }
+
+    /** Seira when it is there, otherwise the first bot. */
+    fun defaultAssistant(bots: List<Bot>): Bot? =
+        bots.firstOrNull { it.name.equals("Seira", ignoreCase = true) } ?: bots.firstOrNull()
+
+    /** "Set it up" waits for a sentence. */
+    fun canSetUp(prompt: String): Boolean = prompt.isNotBlank()
 
     fun tone(status: String): ReceiptTone = when (RoutineRules.runStatus(status)) {
         RoutineRules.RunStatus.COMPLETED -> ReceiptTone.SUCCESS

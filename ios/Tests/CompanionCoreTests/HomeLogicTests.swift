@@ -12,15 +12,6 @@ final class HomeLogicTests: XCTestCase {
         return bot
     }
 
-    func testChatFilterShowsTheRightKinds() {
-        XCTAssertTrue(HomeChatFilter.all.showsBots)
-        XCTAssertTrue(HomeChatFilter.all.showsGroups)
-        XCTAssertTrue(HomeChatFilter.bots.showsBots)
-        XCTAssertFalse(HomeChatFilter.bots.showsGroups)
-        XCTAssertFalse(HomeChatFilter.groups.showsBots)
-        XCTAssertTrue(HomeChatFilter.groups.showsGroups)
-    }
-
     func testSearchFilterShowsTheRightSections() {
         XCTAssertTrue(HomeSearchFilter.all.showsMessages && HomeSearchFilter.all.showsRoutines)
         XCTAssertTrue(HomeSearchFilter.messages.showsMessages)

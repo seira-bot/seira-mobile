@@ -23,13 +23,6 @@
     <string name="settings_version_footer">Seira %1$s</string>
     <string name="settings_state_offline">コンピューターに接続できません</string>
     <string name="settings_reconnect">再接続</string>
-    <string name="update_banner_downloading">アップデートをダウンロード中…</string>
-    <string name="update_banner_ready">アップデートの準備ができました。Seira を再起動してください</string>
-    <string name="update_banner_restart">再起動</string>
-    <string name="settings_check_updates">アップデートを確認</string>
-    <string name="settings_update_checking">確認中…</string>
-    <string name="settings_update_found">アップデートをダウンロード中</string>
-    <string name="settings_update_current">最新の状態です</string>
     <string name="ai_usage_title">AI 使用量</string>
     <string name="ai_usage_window_five_hour">5時間の上限</string>
     <string name="ai_usage_window_weekly">週間の上限</string>
@@ -46,4 +39,11 @@
     <string name="ai_usage_conversation_tokens_one_turn">1ターンで%1$sトークン</string>
     <string name="ai_usage_conversation_cost">%1$s · 約%2$s</string>
     <string name="ai_usage_conversation_context">コンテキスト %1$s / %2$s</string>
+    <string name="update_banner_downloading">アップデートをダウンロード中…</string>
+    <string name="update_banner_ready">アップデートの準備ができました。Seira を再起動してください</string>
+    <string name="update_banner_restart">再起動</string>
+    <string name="settings_check_updates">アップデートを確認</string>
+    <string name="settings_update_checking">確認中…</string>
+    <string name="settings_update_found">アップデートをダウンロード中</string>
+    <string name="settings_update_current">最新の状態です</string>
 </resources>

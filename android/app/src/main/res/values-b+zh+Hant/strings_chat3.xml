@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">重新命名</string>
+    <string name="chat3_menu_copy_markdown">複製為 Markdown</string>
+    <string name="chat3_menu_download_markdown">下載 .md</string>
+    <string name="chat3_menu_activity">活動</string>
+    <string name="chat3_copied">已複製</string>
+    <string name="chat3_rename_heading">重新命名執行緒</string>
+    <string name="chat3_rename_label">標題</string>
+    <string name="chat3_rename_save">儲存</string>
+    <string name="chat3_rename_cancel">取消</string>
+    <string name="chat3_rename_failed">無法重新命名此執行緒。請再試一次。</string>
+    <string name="chat3_tool_teach">傳授</string>
+    <string name="chat3_tool_teach_a11y">傳授新技能</string>
+    <string name="chat3_tool_goal">目標</string>
+    <string name="chat3_tool_goal_a11y">設定目標</string>
+    <string name="chat3_tool_context">上下文 %1$d%%</string>
+    <string name="chat3_tool_context_a11y">上下文，已使用 %1$d%%。點一下查看詳細資料。</string>
+    <string name="chat3_context_title">上下文</string>
+    <string name="chat3_context_bar_a11y">已使用 %1$d%%</string>
+    <string name="chat3_context_usage">已使用 %1$s / %2$s 個詞元</string>
+    <string name="chat3_context_compact">壓縮上下文</string>
+    <string name="chat3_context_compact_sub">摘要較早的訊息</string>
+    <string name="chat3_context_compacting">正在壓縮…</string>
+    <string name="chat3_context_compacted">已開始摘要</string>
+    <string name="chat3_context_wait">請等回覆結束。</string>
+    <string name="chat3_context_failed">無法壓縮此對話。請再試一次。</string>
+    <string name="chat3_allow_session">本次工作階段允許</string>
+</resources>

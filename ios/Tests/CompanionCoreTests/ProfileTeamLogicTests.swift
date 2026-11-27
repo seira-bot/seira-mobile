@@ -107,6 +107,14 @@ final class ProfileTeamLogicTests: XCTestCase {
         XCTAssertEqual(layout.groups[1].bots.map(\.id), ["b"])
     }
 
+    func testTeamLayoutKeepsAnEmptyDepartmentTheComputerListed() {
+        var state = CompanionState()
+        state.setDeclaredSections(["Empty"])
+        let layout = TeamMapRules.layout(state)
+        XCTAssertEqual(layout.groups.map(\.name), ["Empty"])
+        XCTAssertEqual(layout.groups[0].bots, [])
+    }
+
     func testTeamLayoutOfNoBotsIsEmpty() {
         XCTAssertTrue(TeamMapRules.layout(CompanionState()).isEmpty)
     }

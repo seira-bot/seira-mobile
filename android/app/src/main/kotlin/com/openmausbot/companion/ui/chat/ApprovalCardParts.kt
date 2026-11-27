@@ -54,6 +54,13 @@ internal object ApprovalButtons {
             ApprovalChoices.showsAlwaysAllow(card, chat) &&
             card.options.any { OptionCard.isApproval(it) && !isAlways(it) }
 
+    /**
+     * The extra "Allow for this session" button: Advanced mode, a pending permission card that says
+     * the computer honors it, and no skill review, which needs its own hash on the answer.
+     */
+    fun offersSessionAllow(card: OptionCard, advancedMode: Boolean): Boolean =
+        card.offersSessionAllow(advancedMode) && !card.stacksOptions && card.skillRequest == null
+
     fun layout(card: OptionCard, chat: Chat): List<ApprovalButtonSpec> {
         val movesAlways = movesAlways(card, chat)
         val options = card.options.filterNot { movesAlways && isAlways(it) }

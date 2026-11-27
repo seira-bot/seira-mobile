@@ -18,6 +18,7 @@ struct TeamMapPage: View {
     @EnvironmentObject private var session: Session
     @Environment(\.returnToChats) private var returnToChats
     @State private var map: TeamMap?
+    @State private var addingDepartment = false
 
     var body: some View {
         let layout = TeamMapRules.layout(session.state)
@@ -31,10 +32,26 @@ struct TeamMapPage: View {
             ForEach(layout.groups) { group in
                 Section {
                     ForEach(group.bots) { botRow($0) }
+                    if group.bots.isEmpty {
+                        Text("No bots in this department.").font(.caption).foregroundStyle(Color.seiraMut)
+                    }
                 } header: {
                     if let name = group.name { Text(verbatim: name) } else { Text("Bots") }
                 }
             }
+            Section {
+                Button {
+                    Haptics.selection()
+                    addingDepartment = true
+                } label: {
+                    Label("Add department", systemImage: "plus")
+                        .frame(minHeight: 44)
+                }
+                .accessibilityIdentifier("add-department")
+            }
+        }
+        .sheet(isPresented: $addingDepartment) {
+            AddDepartmentSheet().environmentObject(session)
         }
         .navigationTitle("Team map")
         .navigationBarTitleDisplayMode(.inline)

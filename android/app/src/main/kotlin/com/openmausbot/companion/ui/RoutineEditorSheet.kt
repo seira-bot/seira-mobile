@@ -113,9 +113,9 @@ internal fun RoutineEditorSheet(
     val zone = remember { ZoneId.systemDefault() }
 
     var name by rememberSaveable { mutableStateOf(seed?.name ?: "") }
-    var prompt by rememberSaveable { mutableStateOf(seed?.prompt ?: "") }
+    var prompt by rememberSaveable { mutableStateOf(seed?.prompt ?: opened.draftPrompt) }
     var agent by rememberSaveable(stateSaver = AgentChoiceSaver) {
-        mutableStateOf(AgentChoice(seed?.botId ?: ""))
+        mutableStateOf(AgentChoice(seed?.botId ?: opened.draftBotId))
     }
     var runOn by rememberSaveable(stateSaver = RunLocationSaver) {
         mutableStateOf(seed?.runLocation ?: RoutineRunLocation.MAUS)

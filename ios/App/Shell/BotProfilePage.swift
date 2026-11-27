@@ -114,6 +114,8 @@ private struct BotSettingsTab: View {
     @State private var notifications: Bool
     @State private var busy = false
     @State private var confirmingDelete = false
+    @State private var movingToDepartment = false
+    @State private var pickedDepartment: String?
 
     init(bot: Bot, onDeleted: @escaping () -> Void) {
         self.bot = bot
@@ -155,8 +157,18 @@ private struct BotSettingsTab: View {
                 Button("Delete \(bot.name)", role: .destructive) { confirmingDelete = true }
                     .disabled(busy)
             }
+            BotActionsSection(bot: bot, moving: $movingToDepartment, pickedDepartment: $pickedDepartment)
         }
         .scrollContentBackground(.hidden)
+        .sheet(isPresented: $movingToDepartment) {
+            DepartmentSheet(
+                bot: bot,
+                departments: BotDepartments.names(in: session.state.bots, declared: session.state.declaredSections)
+            ) { name in
+                movingToDepartment = false
+                pickedDepartment = name
+            }
+        }
         .onValueChange(of: notifications) { value in
             guard value != bot.notifications else { return }
             Task { _ = await session.updateProfile(BotProfilePatch(notifications: value), for: bot) }

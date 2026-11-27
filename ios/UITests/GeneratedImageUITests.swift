@@ -6,12 +6,13 @@ final class GeneratedImageUITests: XCTestCase {
         let app = XCUIApplication()
         app.terminate()
         app.launchArguments = ["-store-preview", "-threads-preview", "-images-preview",
+            "-companion.prefs.advancedMode", "YES",
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
             "-companion.onboarding.welcomeSeen", "YES",
             "-companion.onboarding.notificationsSeen", "YES"]
         app.launch()
-        let toggle = app.buttons["threads-toggle.preview-pepper"]
+        let toggle = app.buttons["row-threads-toggle.preview-pepper"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 10))
         toggle.tap()
         app.buttons["thread.preview-gmail"].tap()

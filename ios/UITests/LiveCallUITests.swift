@@ -511,7 +511,7 @@ final class LiveCallUITests: XCTestCase {
         let app = XCUIApplication()
         app.terminate()
         let disclosure = disclosureShown.map { ["-companion.prefs.liveDisclosureShown", $0 ? "YES" : "NO"] } ?? []
-        app.launchArguments = ["-store-preview", "-threads-preview", "-live-call-preview"] + extra + disclosure + [
+        app.launchArguments = ["-store-preview", "-threads-preview", "-live-call-preview", "-companion.prefs.advancedMode", "YES"] + extra + disclosure + [
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", "never",
             "-companion.onboarding.welcomeSeen", "YES",
@@ -526,7 +526,7 @@ final class LiveCallUITests: XCTestCase {
 
     @MainActor
     private func openGmail(_ app: XCUIApplication) {
-        let toggle = app.buttons["threads-toggle.preview-pepper"]
+        let toggle = app.buttons["row-threads-toggle.preview-pepper"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 10))
         toggle.tap()
         let gmail = app.buttons["thread.preview-gmail"]
