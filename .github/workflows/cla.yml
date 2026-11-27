@@ -29,10 +29,27 @@ jobs:
             const { owner, repo } = context.repo;
             const author = pr.user;
 
-            const maintainer = ["OWNER", "MEMBER"].includes(pr.author_association);
             const bot = author.type === "Bot" || author.login.endsWith("[bot]");
-            if (maintainer || bot) {
-              core.info(`${author.login} does not need the CLA.`);
+            if (bot) {
+              core.info(`${author.login} is a bot and does not need the CLA.`);
+              return;
+            }
+
+            // GitHub reports a private organization member as CONTRIBUTOR in
+            // author_association, so read the repository role instead.
+            let role = "none";
+            try {
+              const { data } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner,
+                repo,
+                username: author.login,
+              });
+              role = data.role_name ?? data.permission;
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            if (["admin", "maintain"].includes(role)) {
+              core.info(`${author.login} has the ${role} role and does not need the CLA.`);
               return;
             }
 
