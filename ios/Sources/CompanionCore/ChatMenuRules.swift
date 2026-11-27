@@ -2,12 +2,14 @@ import Foundation
 
 public enum ChatMenuItem: String, CaseIterable, Sendable {
     case find, newThread, allThreads, model, members, botScreen, share
+    /// Advanced mode only.
+    case rename, copyMarkdown, downloadMarkdown, activity
 }
 
 public enum ChatMenuRules {
     /// A bot has a model and a screen but no members. A group lists its
     /// members and has no model or screen. Without threads there are no thread items.
-    public static func items(_ chat: Chat) -> [ChatMenuItem] {
+    public static func items(_ chat: Chat, advanced: Bool = false) -> [ChatMenuItem] {
         var items: [ChatMenuItem] = [.find]
         if chat.supportsTasks { items += [.newThread, .allThreads] }
         switch chat {
@@ -15,6 +17,11 @@ public enum ChatMenuRules {
         case .room: items.append(.members)
         }
         items.append(.share)
+        if advanced {
+            if chat.isBot { items.append(.rename) }
+            items += [.copyMarkdown, .downloadMarkdown]
+            if chat.isBot { items.append(.activity) }
+        }
         return items
     }
 

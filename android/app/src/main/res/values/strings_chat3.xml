@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat3_menu_rename">Rename</string>
+    <string name="chat3_menu_copy_markdown">Copy as Markdown</string>
+    <string name="chat3_menu_download_markdown">Download .md</string>
+    <string name="chat3_menu_activity">Activity</string>
+    <string name="chat3_copied">Copied</string>
+    <string name="chat3_rename_heading">Rename thread</string>
+    <string name="chat3_rename_label">Title</string>
+    <string name="chat3_rename_save">Save</string>
+    <string name="chat3_rename_cancel">Cancel</string>
+    <string name="chat3_rename_failed">Could not rename this thread. Try again.</string>
+    <string name="chat3_tool_teach">Teach</string>
+    <string name="chat3_tool_teach_a11y">Teach a new skill</string>
+    <string name="chat3_tool_goal">Goal</string>
+    <string name="chat3_tool_goal_a11y">Set a goal</string>
+    <string name="chat3_tool_context">Context %1$d%%</string>
+    <string name="chat3_tool_context_a11y">Context, %1$d percent used. Tap for details.</string>
+    <string name="chat3_context_title">Context</string>
+    <string name="chat3_context_bar_a11y">%1$d percent used</string>
+    <string name="chat3_context_usage">%1$s of %2$s tokens used</string>
+    <string name="chat3_context_compact">Compact context</string>
+    <string name="chat3_context_compact_sub">Summarizes older messages</string>
+    <string name="chat3_context_compacting">Compacting…</string>
+    <string name="chat3_context_compacted">Context compacted</string>
+    <string name="chat3_context_failed">Could not compact this conversation. Try again.</string>
+    <string name="chat3_allow_session">Allow for this session</string>
+</resources>

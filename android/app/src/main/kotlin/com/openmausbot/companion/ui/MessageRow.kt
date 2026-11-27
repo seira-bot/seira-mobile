@@ -14,6 +14,9 @@ import com.openmausbot.companion.ui.chat.ApprovalButton
 import com.openmausbot.companion.ui.chat.ApprovalButtonRow
 import com.openmausbot.companion.ui.chat.ApprovalButtonSpec
 import com.openmausbot.companion.ui.chat.ApprovalButtons
+import com.openmausbot.companion.ui.chat.ApprovalLabel
+import com.openmausbot.companion.ui.chat.ApprovalLook
+import com.openmausbot.companion.ui.chat.SESSION_ALLOW_TAG
 import com.openmausbot.companion.ui.chat.LocalReplyHandler
 import com.openmausbot.companion.ui.chat.MessageActionRow
 import com.openmausbot.companion.ui.chat.MessageActionRules
@@ -1380,6 +1383,7 @@ private fun CardContent(
 ) {
     val card = message.card ?: return
     val session = LocalCompanion.current.session
+    val advancedMode by LocalCompanion.current.chatPreferences.advancedMode.collectAsState()
     val scope = rememberCoroutineScope()
     var answering by answeringState
     var armed by armedState
@@ -1616,6 +1620,25 @@ private fun CardContent(
                         }
                     },
                 )
+                if (ApprovalButtons.offersSessionAllow(card, advancedMode)) {
+                    ApprovalButton(
+                        spec = ApprovalButtonSpec(
+                            stringResource(R.string.chat3_allow_session),
+                            ApprovalLabel.OWN,
+                            ApprovalLook.OUTLINED,
+                        ),
+                        enabled = !answering,
+                        onClick = {
+                            haptics.play(TactileAction.GRANT_APPROVAL)
+                            answering = true
+                            scope.launch {
+                                session.allowForSession(chat, card)
+                                answering = false
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth().testTag(SESSION_ALLOW_TAG),
+                    )
+                }
             }
 
             // A question also takes words: under its options, or on its own

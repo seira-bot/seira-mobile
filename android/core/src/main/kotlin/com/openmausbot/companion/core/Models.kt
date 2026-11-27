@@ -109,6 +109,8 @@ data class OptionCard(
     val quotaSwitch: QuotaSwitchCard? = null,
     /** The options are the whole answer: no free-text reply. */
     val fixedOptions: Boolean? = null,
+    /** The computer accepts "allow for the rest of this provider session" on this permission card. */
+    val allowSession: Boolean? = null,
 ) {
     val isPending: Boolean get() =
         requestId != null && answered == null && dismissed != true && expired != true
@@ -144,6 +146,13 @@ data class OptionCard(
         approves(choice) -> "allow"
         else -> "deny"
     }
+
+    /**
+     * The extra "Allow for this session" button. Advanced mode only, and only on a pending permission
+     * card whose computer said it honors the grant. Nothing else may send `always`.
+     */
+    fun offersSessionAllow(advancedMode: Boolean): Boolean =
+        advancedMode && isPermission && isPending && allowSession == true
 
     fun shouldRememberPermission(choice: String): Boolean =
         isPermission && allowKey != null && choice.trim().equals("Always allow", ignoreCase = true)

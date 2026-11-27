@@ -1950,6 +1950,22 @@ class Session(
         )
     }
 
+    /** Allows [card] for the rest of the provider session. Sends nothing unless the card offers it. */
+    suspend fun allowForSession(chat: Chat, card: OptionCard): String? {
+        val requestId = card.requestId ?: return null
+        if (!card.offersSessionAllow(advancedMode = true)) return null
+        var outcome: String? = null
+        perform {
+            outcome = it.respond(
+                threadId = chat.threadId,
+                requestId = requestId,
+                behavior = "allow",
+                always = true,
+            )
+        }
+        return outcome
+    }
+
     suspend fun answer(
         threadId: String,
         requestId: String,
@@ -2634,6 +2650,12 @@ class Session(
     suspend fun renameTask(task: BotTask, forBot: Bot, title: String): Boolean = mutateTask(false) { client ->
         client.renameTask(forBot.id, task.threadId, title)
         refresh()
+        true
+    }
+
+    /** Starts a summary of the older messages in [forBot]'s thread. True when the computer took the request. */
+    suspend fun compact(forBot: Bot, threadId: String? = forBot.threadId): Boolean = mutateTask(false) { client ->
+        client.compact(forBot.id, threadId)
         true
     }
 

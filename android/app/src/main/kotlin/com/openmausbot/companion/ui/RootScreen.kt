@@ -492,6 +492,7 @@ private fun PairedScreen(
                     onBack = navigator::pop,
                     onOpenComputer = { navigator.push(Destination.Computer(it)) },
                     onOpenOverview = { navigator.push(Destination.Overview(it)) },
+                    onOpenActivity = { navigator.push(Destination.BotProfile(it)) },
                     // Push Computer keeps the chat under the top; pop to roster does not.
                     retainsDraft = navigator::retainsChatDraft,
                     onOpenChat = navigator::open,

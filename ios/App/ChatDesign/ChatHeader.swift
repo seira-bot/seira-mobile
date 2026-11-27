@@ -194,6 +194,10 @@ private struct ChatMenuButton: View, Equatable {
         case .members: return "Members"
         case .botScreen: return "Bot screen"
         case .share: return "Share"
+        case .rename: return "Rename"
+        case .copyMarkdown: return "Copy as Markdown"
+        case .downloadMarkdown: return "Download .md"
+        case .activity: return "Activity"
         }
     }
 
@@ -206,6 +210,10 @@ private struct ChatMenuButton: View, Equatable {
         case .members: return "person.2"
         case .botScreen: return "display"
         case .share: return "square.and.arrow.up"
+        case .rename: return "pencil"
+        case .copyMarkdown: return "doc.on.doc"
+        case .downloadMarkdown: return "arrow.down.doc"
+        case .activity: return "clock"
         }
     }
 }
