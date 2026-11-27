@@ -329,6 +329,7 @@
     <string name="mobile_pairing_no_address">Máy tính đó không trả về địa chỉ nào. Hãy nhập địa chỉ hiển thị trong cài đặt Điện thoại.</string>
     <string name="mobile_pairing_invalid_address">Hãy nhập địa chỉ https:// bảo mật, 192.168.1.42:8810 hoặc một tên như macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">Đây không phải mã QR ghép nối của Seira.</string>
+    <string name="mobile_link_no_browser">Không tìm thấy trình duyệt web để mở liên kết này.</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="other">và %1$d địa chỉ khác của máy tính này</item>
     </plurals>

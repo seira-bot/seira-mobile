@@ -331,6 +331,7 @@
     <string name="mobile_pairing_no_address">उस कंप्यूटर ने पते के साथ जवाब नहीं दिया। इसके बजाय फ़ोन सेटिंग्स में दिखने वाला पता दर्ज करें।</string>
     <string name="mobile_pairing_invalid_address">सुरक्षित https:// पता, 192.168.1.42:8810, या macbook.tail1234.ts.net जैसा नाम दर्ज करें।</string>
     <string name="mobile_pairing_invalid_qr">यह Seira का जोड़ने वाला QR कोड नहीं है।</string>
+    <string name="mobile_link_no_browser">इस लिंक को खोलने के लिए कोई वेब ब्राउज़र नहीं मिला।</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="one">और इस कंप्यूटर के %1$d और पते</item>
         <item quantity="other">और इस कंप्यूटर के %1$d और पते</item>

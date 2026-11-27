@@ -331,6 +331,7 @@
     <string name="mobile_pairing_no_address">Ese ordenador no respondió con una dirección. Escribe la dirección que aparece en los ajustes de Teléfono.</string>
     <string name="mobile_pairing_invalid_address">Escribe una dirección https:// segura, 192.168.1.42:8810 o un nombre como macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">Ese no es un código QR de vinculación de Seira.</string>
+    <string name="mobile_link_no_browser">No se encontró ningún navegador web para abrir este enlace.</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="one">y %1$d dirección más de este ordenador</item>
         <item quantity="other">y %1$d direcciones más de este ordenador</item>

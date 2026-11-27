@@ -5,6 +5,7 @@ import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import com.openmausbot.companion.ui.PairingHandoff
 import com.openmausbot.companion.ui.PairingAddressHandoff
 import com.openmausbot.companion.ui.PairingLink
@@ -101,9 +102,16 @@ class PairingLinkActivity : Activity() {
             selector = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        try {
-            startActivity(view)
-        } catch (_: ActivityNotFoundException) {
+        startOrExplain(view, { startActivity(it) }) {
+            Toast.makeText(applicationContext, R.string.mobile_link_no_browser, Toast.LENGTH_LONG).show()
         }
+    }
+}
+
+internal fun startOrExplain(view: Intent, start: (Intent) -> Unit, explain: () -> Unit) {
+    try {
+        start(view)
+    } catch (_: ActivityNotFoundException) {
+        explain()
     }
 }

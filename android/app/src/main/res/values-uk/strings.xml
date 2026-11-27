@@ -335,6 +335,7 @@
     <string name="mobile_pairing_no_address">Той комп’ютер не відповів адресою. Натомість введіть адресу з налаштувань телефона.</string>
     <string name="mobile_pairing_invalid_address">Введіть захищену адресу https://, 192.168.1.42:8810 або ім’я на кшталт macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">Це не QR-код підключення Seira.</string>
+    <string name="mobile_link_no_browser">Не знайдено веб-браузера, щоб відкрити це посилання.</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="one">і ще %1$d адреса цього комп’ютера</item>
         <item quantity="few">і ще %1$d адреси цього комп’ютера</item>

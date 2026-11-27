@@ -329,6 +329,7 @@
     <string name="mobile_pairing_no_address">해당 컴퓨터가 주소로 응답하지 않았어요. 휴대폰 설정에 표시된 주소를 직접 입력하세요.</string>
     <string name="mobile_pairing_invalid_address">보안 https:// 주소, 192.168.1.42:8810, 또는 macbook.tail1234.ts.net 같은 이름을 입력하세요.</string>
     <string name="mobile_pairing_invalid_qr">Seira 연결 QR 코드가 아니에요.</string>
+    <string name="mobile_link_no_browser">이 링크를 열 웹 브라우저를 찾을 수 없습니다.</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="other">외 이 컴퓨터의 주소 %1$d개</item>
     </plurals>

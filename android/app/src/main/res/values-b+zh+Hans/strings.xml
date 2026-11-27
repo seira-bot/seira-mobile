@@ -329,6 +329,7 @@
     <string name="mobile_pairing_no_address">这台电脑没有返回地址。请改为输入其“手机”设置中显示的地址。</string>
     <string name="mobile_pairing_invalid_address">请输入安全的 https:// 地址、192.168.1.42:8810，或 macbook.tail1234.ts.net 这样的名称。</string>
     <string name="mobile_pairing_invalid_qr">这不是 Seira 配对二维码。</string>
+    <string name="mobile_link_no_browser">找不到可以打开此链接的网页浏览器。</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="other">以及这台电脑的另外 %1$d 个地址</item>
     </plurals>

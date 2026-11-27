@@ -332,6 +332,7 @@
     <string name="mobile_pairing_no_address">That computer did not answer with an address. Enter the address shown in Phone settings instead.</string>
     <string name="mobile_pairing_invalid_address">Enter a secure https:// address, 192.168.1.42:8810, or a name like macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">That is not a Seira pairing QR code.</string>
+    <string name="mobile_link_no_browser">No web browser was found to open this link.</string>
     <plurals name="mobile_pairing_other_addresses">
         <item quantity="one">and %1$d more of this computer\'s addresses</item>
         <item quantity="other">and %1$d more of this computer\'s addresses</item>
