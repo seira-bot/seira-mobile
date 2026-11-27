@@ -236,6 +236,74 @@ class SessionRuntimeIsolationTest {
         assertTrue(session.state.value.bots.isEmpty())
     }
 
+    private val unreadScout = scout.copy(
+        unread = true,
+        tasks = listOf(BotTask("thread-1", "Task 1", 1.0), BotTask("thread-2", "Task 2", 2.0, unread = true)),
+    )
+
+    private suspend fun TestScope.sessionShowingUnreadBot(gate: Gate): Session {
+        val session = session(gate, Fleet(listOf(unreadScout), emptyList()))
+        // Opening the task loads the bot into the state without a request to the gate.
+        session.openNotification(requireNotNull(NotificationTarget.from("bot-1", "thread-1")))
+        assertEquals(listOf("thread-1", "thread-2"), session.state.value.bot("bot-1")?.unreadThreadIds())
+        return session
+    }
+
+    @Test
+    fun aMarkAllReadThatOutlivesAComputerSwitchSendsNoFurtherRequest() = runTest {
+        val gate = Gate(status = 200, body = "{}")
+        val session = sessionShowingUnreadBot(gate)
+
+        val result = async { session.markBotAllRead("bot-1") }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertEquals(false, result.await(), "a batch of the old computer reports nothing for the new one")
+        assertEquals(1, gate.requests.get(), "the second read must not be sent once the runtime retired")
+    }
+
+    @Test
+    fun aMarkAllReadStillSendsEveryReadWhenTheComputerDoesNotChange() = runTest {
+        val gate = Gate(status = 200, body = "{}")
+        val session = sessionShowingUnreadBot(gate)
+
+        val result = async { session.markBotAllRead("bot-1") }
+        gate.awaitParked()
+        gate.release()
+
+        assertEquals(true, result.await(), "control")
+        assertEquals(2, gate.requests.get())
+    }
+
+    @Test
+    fun aTranscriptExportAnsweredByTheOldComputerIsDropped() = runTest {
+        val gate = Gate(status = 200, body = "old computer transcript")
+        val session = session(gate)
+
+        val shown = session.runtimeBinding()!!
+        val result = async { session.export("thread-1", "md") }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertNull(result.await(), "the old computer's transcript must not reach the new computer's screen")
+        assertEquals(false, session.isCurrent(shown), "the screen that asked must see its runtime retired")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aTranscriptExportStillArrivesWhenTheComputerDoesNotChange() = runTest {
+        val gate = Gate(status = 200, body = "transcript")
+        val session = session(gate)
+
+        val result = async { session.export("thread-1", "md") }
+        gate.awaitParked()
+        gate.release()
+
+        assertEquals("transcript", result.await()?.data?.toString(Charsets.UTF_8), "control")
+    }
+
     @Test
     fun theRuntimeEpochMovesOnWhenTheComputerChanges() = runTest {
         val session = session(Gate(status = 200, body = "{}"))
@@ -269,7 +337,7 @@ class SessionRuntimeIsolationTest {
         assertEquals(pro, session.connection.value)
     }
 
-    private suspend fun TestScope.session(gate: Gate): Session {
+    private suspend fun TestScope.session(gate: Gate, fleet: Fleet = Fleet(emptyList(), emptyList())): Session {
         val session = Session(
             scope = backgroundScope,
             connectionStore = RegistryStore(ConnectionRegistry(listOf(air, pro), air.id)),
@@ -278,7 +346,7 @@ class SessionRuntimeIsolationTest {
             deviceNameProvider = { "Pixel" },
             clientFactory = { connection, token -> CompanionClient(connection, token, gate.http) },
             eventsFn = { _, _, _ -> flow { awaitCancellation() } },
-            hydrateFn = { _, _ -> Fleet(emptyList(), emptyList()) },
+            hydrateFn = { _, _ -> fleet },
         )
         session.awaitRestored()
         return session

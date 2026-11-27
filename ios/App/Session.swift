@@ -2611,17 +2611,13 @@ final class Session: ObservableObject {
     func markAllRead(botId: String) async -> Bool {
         guard let client, let bot = state.bot(botId) else { return false }
         let binding = bindRuntime()
-        var allRead = true
-        for threadId in bot.unreadThreadIds {
-            do {
-                try await client.markRead(botId: botId, threadId: threadId)
-            } catch {
-                allRead = false
-            }
+        // The batch stops before its next request once the runtime retires.
+        let outcome = await RuntimeBatch.run(bot.unreadThreadIds, isCurrent: { self.isCurrent(binding) }) { threadId in
+            try await client.markRead(botId: botId, threadId: threadId)
         }
-        guard isCurrent(binding) else { return false }
-        if !allRead { Task { await refresh() } }
-        return allRead
+        guard case let .finished(failures) = outcome else { return false }
+        if failures > 0 { Task { await refresh() } }
+        return failures == 0
     }
 
     /// Moves one bot to a department; an empty name means General. True only after the computer answers.

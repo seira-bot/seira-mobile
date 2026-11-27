@@ -1544,7 +1544,9 @@ private fun LoadedChat(
                         renaming = RenameDraft(ChatAdvanced.currentTask(bot)?.title.orEmpty())
                     }
                     ChatMenuItem.COPY_MARKDOWN -> scope.launch {
+                        val shown = session.runtimeBinding() ?: return@launch
                         val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        if (!session.isCurrent(shown)) return@launch
                         clipboard.setClipEntry(
                             ClipEntry(ClipData.newPlainText(TRANSCRIPT_CLIP_LABEL, exported.data.toString(Charsets.UTF_8))),
                         )
@@ -1552,7 +1554,9 @@ private fun LoadedChat(
                         Toast.makeText(context, R.string.chat3_copied, Toast.LENGTH_SHORT).show()
                     }
                     ChatMenuItem.DOWNLOAD_MARKDOWN -> scope.launch {
+                        val shown = session.runtimeBinding() ?: return@launch
                         val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        if (!session.isCurrent(shown)) return@launch
                         val named = exported.copy(
                             filename = ChatAdvanced.markdownFileName(
                                 (chat as? Chat.BotChat)?.bot?.let { ChatAdvanced.currentTask(it)?.title },
@@ -1669,7 +1673,9 @@ private fun share(
 ) {
     scope.launch {
         val session = environment.session
+        val shown = session.runtimeBinding() ?: return@launch
         val exported = session.export(threadId, format.wire) ?: return@launch
+        if (!session.isCurrent(shown)) return@launch
         environment.shareTranscript(exported, format)?.let { session.actionError = it }
     }
 }

@@ -2872,11 +2872,17 @@ class Session(
      * True only after every request succeeds; a partial failure reloads the bot.
      */
     suspend fun markBotAllRead(botId: String): Boolean {
-        val (activeClient, binding) = bound() ?: return false
-        val unreadIds = _state.value.bot(botId)?.unreadThreadIds() ?: return false
+        // The client, its binding and the unread ids come from one runtime: capture all three under one lock.
+        val (activeClient, binding, unreadIds) = synchronized(runtimeLock) {
+            val active = client ?: return false
+            val ids = _state.value.bot(botId)?.unreadThreadIds() ?: return false
+            Triple(active, RuntimeBinding(_connection.value?.id, _runtimeEpoch.value), ids)
+        }
         if (unreadIds.isEmpty()) return true
         var allRead = true
         for (threadId in unreadIds) {
+            // Stop the batch as soon as its runtime retires: no request goes to the next computer's bot.
+            if (!binding.stillCurrent()) return false
             try {
                 activeClient.markBotRead(botId, threadId)
                 currentCoroutineContext().ensureActive()
@@ -3377,6 +3383,8 @@ class Session(
         val (activeClient, binding) = bound() ?: return null
         return try {
             val exported = activeClient.export(threadId, format)
+            // A transcript of a retired runtime is never handed to the screen.
+            if (!binding.stillCurrent()) return null
             ExportedTranscript(exported.data, exported.filename, exported.contentType)
         } catch (error: Throwable) {
             binding.reportError(error.message)

@@ -30,3 +30,33 @@ public struct RuntimeBinding: Equatable, Sendable {
         isCurrent(generation: current.generation, connectionID: current.connectionID)
     }
 }
+
+/// A batch of requests, one for each item, that belongs to one runtime.
+///
+/// The batch checks the runtime before every request and once more at the end.
+/// When the runtime retires, the batch sends no further request and reports
+/// `.retired`, so no request reaches the bot of the computer that replaced it.
+public enum RuntimeBatch {
+    public enum Outcome: Equatable, Sendable {
+        case retired
+        case finished(failures: Int)
+    }
+
+    @MainActor
+    public static func run<Item>(
+        _ items: [Item],
+        isCurrent: () -> Bool,
+        request: (Item) async throws -> Void
+    ) async -> Outcome {
+        var failures = 0
+        for item in items {
+            guard isCurrent() else { return .retired }
+            do {
+                try await request(item)
+            } catch {
+                failures += 1
+            }
+        }
+        return isCurrent() ? .finished(failures: failures) : .retired
+    }
+}
