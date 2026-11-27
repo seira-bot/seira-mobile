@@ -1420,11 +1420,23 @@ private fun LoadedChat(
     }
 
     if (showingMode && bot != null) {
-        ApprovalModeSheet(
-            current = bot.approvalModeIn(threadId),
-            change = { mode, acknowledged -> session.setApprovalMode(bot, threadId, mode, acknowledged) },
-            onDismiss = { showingMode = false },
-        )
+        // The sheet belongs to the computer that was paired when it opened. When the phone serves another one
+        // (switch, unpair, re-pair or workspace change) the sheet closes with its pending answer and confirmation,
+        // and a change it still sends is refused before any request leaves the phone.
+        val shownFor = remember { session.runtimeBinding() }
+        val liveEpoch by session.runtimeEpoch.collectAsState()
+        val liveConnection by session.connection.collectAsState()
+        val sameRuntime = shownFor != null && liveEpoch == shownFor.epoch && liveConnection?.id == shownFor.connectionId
+        LaunchedEffect(sameRuntime) { if (!sameRuntime) showingMode = false }
+        if (sameRuntime) {
+            ApprovalModeSheet(
+                current = session.approvalMode(bot, threadId),
+                change = { mode, acknowledged ->
+                    session.setApprovalMode(bot, threadId, mode, acknowledged, expected = shownFor)
+                },
+                onDismiss = { showingMode = false },
+            )
+        }
     }
 
     if (showingSchedule && bot != null) {

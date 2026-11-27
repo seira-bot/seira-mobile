@@ -2,6 +2,7 @@ package com.openmausbot.companion.core
 
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -139,6 +140,109 @@ class SessionRuntimeIsolationTest {
     }
 
     @Test
+    fun aModelChangeAnsweredByTheOldComputerIsDropped() = runTest {
+        val changed = scout.copy(modelSelection = ModelSelection("i", "other"))
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(changed)}}""")
+        val session = session(gate)
+
+        val result = async { session.updateModel(ModelSelection("i", "other"), scout) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertNull(result.await(), "the old computer's bot is not this computer's answer")
+        assertTrue(session.state.value.bots.isEmpty(), "approval information of the old computer must not be applied")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aThreadReadThatFailsOnTheOldComputerShowsNoErrorOnTheNewOne() = runTest {
+        val gate = Gate(status = 500, body = """{"error":"old computer failed"}""")
+        val session = session(gate)
+
+        val read = async { session.loadThread("thread-1") }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+        read.await()
+
+        assertNull(session.actionError, "an error of the old computer must not show on the new one")
+    }
+
+    @Test
+    fun aRefusedSignInOfTheOldComputerDoesNotRevokeTheNewOne() = runTest {
+        val gate = Gate(status = 401, body = """{"error":"old session revoked"}""")
+        val session = session(gate)
+
+        val call = async { session.interrupt(scout) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+        call.await()
+
+        assertTrue(session.status.value !is Session.Status.Unauthorized, "the new computer is not unauthorized")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aRequestStartedBeforeASwitchBackToTheSameComputerIsStillRetired() = runTest {
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
+        val session = session(gate)
+
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        gate.awaitParked()
+        switchToPro(session)
+        session.switchComputer(air.id)
+        runCurrent()
+        assertEquals(air, session.connection.value, "the same pairing id is active again")
+        gate.release()
+
+        assertTrue(result.await() is ApprovalModeResult.Refused, "a replaced runtime with the same id is another runtime")
+        assertTrue(session.state.value.bots.isEmpty())
+    }
+
+    @Test
+    fun aWorkspaceChangeRetiresARequestOfTheSamePairing() = runTest {
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
+        val session = session(gate)
+
+        val result = async { session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS) }
+        gate.awaitParked()
+        session.reloadAfterWorkspaceChange(air.id)
+        runCurrent()
+        gate.release()
+
+        assertTrue(result.await() is ApprovalModeResult.Refused, "the answer belongs to the workspace that was left")
+        assertTrue(session.state.value.bots.isEmpty())
+    }
+
+    @Test
+    fun anApprovalSheetOpenedForAnotherComputerSendsNothing() = runTest {
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout)}}""")
+        val session = session(gate)
+        val shownFor = session.runtimeBinding()
+        assertTrue(shownFor != null && session.isCurrent(shownFor), "the binding is current while nothing changes")
+        switchToPro(session)
+        assertTrue(!session.isCurrent(shownFor!!), "the binding of the left computer is retired")
+
+        val result = session.setApprovalMode(scout, "thread-1", ApprovalMode.EDITS, expected = shownFor)
+
+        assertTrue(result is ApprovalModeResult.Refused)
+        assertEquals(0, gate.requests.get(), "a retired sheet must not reach the network")
+        assertTrue(session.state.value.bots.isEmpty())
+    }
+
+    @Test
+    fun theRuntimeEpochMovesOnWhenTheComputerChanges() = runTest {
+        val session = session(Gate(status = 200, body = "{}"))
+        val before = session.runtimeEpoch.value
+
+        switchToPro(session)
+
+        assertTrue(session.runtimeEpoch.value > before)
+    }
+
+    @Test
     fun theSameCallsStillWorkWhenTheComputerDoesNotChange() = runTest {
         val edited = scout.copy()
         val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(edited)}}""")
@@ -179,8 +283,10 @@ class SessionRuntimeIsolationTest {
     private class Gate(private val status: Int, private val body: String) {
         private val started = CountDownLatch(1)
         private val released = CountDownLatch(1)
+        val requests = AtomicInteger()
 
         val http: OkHttpClient = OkHttpClient.Builder().addInterceptor { chain ->
+            requests.incrementAndGet()
             started.countDown()
             check(released.await(5, TimeUnit.SECONDS)) { "request was never released" }
             Response.Builder()

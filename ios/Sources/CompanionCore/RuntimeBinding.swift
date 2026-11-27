@@ -21,4 +21,12 @@ public struct RuntimeBinding: Equatable, Sendable {
     public func isCurrent(generation currentGeneration: Int, connectionID currentConnectionID: String?) -> Bool {
         connectionID != nil && generation == currentGeneration && connectionID == currentConnectionID
     }
+
+    /// True while this binding names the same runtime as `current`: the same
+    /// pairing and the same generation. A view that was shown for one runtime
+    /// uses this to refuse to act once the app serves another, even when the
+    /// pairing id is the same (re-pair, restore, workspace switch).
+    public func isCurrent(against current: RuntimeBinding) -> Bool {
+        isCurrent(generation: current.generation, connectionID: current.connectionID)
+    }
 }

@@ -155,6 +155,7 @@ class Session(
     val pairingRequested: StateFlow<Boolean> = _pairingRequested.asStateFlow()
 
     private var registry = ConnectionRegistry()
+    @Volatile
     private var client: CompanionClient? = null
 
     /** The one switch this phone started and has not finished. Used once, whatever its result. */
@@ -176,32 +177,66 @@ class Session(
     private var streamGeneration = 0
 
     /**
-     * Counts the paired runtimes this session has served. Every point that drops the old runtime's state
-     * (unpair, computer switch, workspace switch, restore) moves it on, so a result that comes back later can tell
-     * that the runtime it was asked of is gone.
+     * Guards the identity of the paired runtime: [client], the active connection id and [_runtimeEpoch].
+     * A request captures all of them in one step ([bound]). A result is checked and written to the state in one
+     * step ([commit]). Every point that retires a runtime changes them inside the same lock. The lock is never
+     * held across a network call, only across the short capture, check and write.
      */
-    @Volatile
-    private var runtimeEpoch = 0
+    private val runtimeLock = Any()
 
-    /** The paired runtime a request was sent to. */
-    internal class RuntimeBinding(val connectionId: String?, val epoch: Int)
+    private val _runtimeEpoch = MutableStateFlow(0)
 
-    private fun bindRuntime() = RuntimeBinding(_connection.value?.id, runtimeEpoch)
+    /**
+     * Counts the paired runtimes this session has served. Every point that drops the old runtime's state
+     * (unpair, computer switch, re-pair, workspace switch, restore) moves it on, so a result that comes back later
+     * can tell that the runtime it was asked of is gone. Screens watch it to close what they showed for the old one.
+     */
+    val runtimeEpoch: StateFlow<Int> = _runtimeEpoch.asStateFlow()
 
-    private fun RuntimeBinding.isCurrent(): Boolean =
-        connectionId != null && _connection.value?.id == connectionId && runtimeEpoch == epoch
+    /** The paired runtime a request was sent to: the pairing id and the epoch that pairing had at that time. */
+    data class RuntimeBinding(val connectionId: String?, val epoch: Int)
+
+    /** A client together with the runtime it belongs to, captured in one step. */
+    private data class Bound(val client: CompanionClient, val binding: RuntimeBinding)
+
+    private fun bound(): Bound? = synchronized(runtimeLock) {
+        val active = client ?: return null
+        Bound(active, RuntimeBinding(_connection.value?.id, _runtimeEpoch.value))
+    }
+
+    /** The runtime the phone is serving now, or null when no computer is paired and ready. */
+    fun runtimeBinding(): RuntimeBinding? = bound()?.binding
+
+    /** True while [binding] is the runtime the phone is serving. */
+    fun isCurrent(binding: RuntimeBinding): Boolean = synchronized(runtimeLock) { binding.isCurrentLocked() }
+
+    private fun RuntimeBinding.isCurrentLocked(): Boolean =
+        connectionId != null && client != null && _connection.value?.id == connectionId && _runtimeEpoch.value == epoch
+
+    private fun RuntimeBinding.isCurrent(): Boolean = isCurrent(this)
+
+    /** Moves the epoch on. Call only inside [runtimeLock], together with the change that retires the runtime. */
+    private fun retireRuntimeLocked() {
+        _runtimeEpoch.value += 1
+    }
 
     /** Commit a result to the state only while its runtime is the active one. */
-    private fun RuntimeBinding.commit(update: (CompanionState) -> CompanionState): Boolean {
-        if (!isCurrent()) return false
+    private fun RuntimeBinding.commit(update: (CompanionState) -> CompanionState): Boolean = synchronized(runtimeLock) {
+        if (!isCurrentLocked()) return false
         _state.update(update)
-        return true
+        true
     }
 
     /** Show an error only while its runtime is the active one. */
-    private fun RuntimeBinding.reportError(message: String?) {
-        if (isCurrent()) _actionError.value = message
+    private fun RuntimeBinding.reportError(message: String?) = synchronized(runtimeLock) {
+        if (isCurrentLocked()) _actionError.value = message
     }
+
+    /** Mark the connection unauthorized only while the runtime that was refused is the active one. */
+    private fun RuntimeBinding.markUnauthorized() = synchronized(runtimeLock) {
+        if (isCurrentLocked()) _status.value = Status.Unauthorized
+    }
+
     private var reconnectDelaySeconds: Long = 0
     /** Resumed streams in a row that closed with nothing after their hello. */
     private var emptyResumes = 0
@@ -361,13 +396,17 @@ class Session(
                 stopActiveRuntimeLocked()
                 registry = updatedRegistry
                 _connections.value = registry.connections
-                _connection.value = stored
                 token = pairedToken
                 // The route that just redeemed leads this session; later launches return to the
                 // desktop's security-prioritized typed order.
                 rotation = CandidateRotation(liveRoutes(stored, winner))
-                client = clientFactory(stored, pairedToken)
-                _state.value = CompanionState()
+                val pairedClient = clientFactory(stored, pairedToken)
+                synchronized(runtimeLock) {
+                    retireRuntimeLocked()
+                    _connection.value = stored
+                    client = pairedClient
+                    _state.value = CompanionState()
+                }
                 _restoreState.value = RestoreState.Ready
                 _pairingRequested.value = false
             } finally {
@@ -746,11 +785,13 @@ class Session(
         reconnectDelaySeconds = 0
         emptyResumes = 0
         screenWatchers = 0
-        runtimeEpoch += 1
-        client = null
         token = null
         rotation = CandidateRotation(emptyList())
-        _state.value = CompanionState()
+        synchronized(runtimeLock) {
+            retireRuntimeLocked()
+            client = null
+            _state.value = CompanionState()
+        }
         notificationSink.setBadge(0)
     }
 
@@ -1002,8 +1043,6 @@ class Session(
     }
 
     private fun configureActiveConnectionLocked(saved: Connection, storedToken: String) {
-        runtimeEpoch += 1
-        _connection.value = saved
         token = storedToken
         // A restored pairing walks the desktop's advertised priority, and it walks
         // it credential-safely: a connection already on a protected route never
@@ -1013,7 +1052,12 @@ class Session(
             if (saved.pairedWithServer) liveRoutes(saved, saved.activeEndpoint) else saved.orderedEndpoints,
         )
         val first = rotation.currentEndpoint?.let(saved::dialing) ?: saved
-        client = clientFactory(first, storedToken)
+        val configuredClient = clientFactory(first, storedToken)
+        synchronized(runtimeLock) {
+            retireRuntimeLocked()
+            _connection.value = saved
+            client = configuredClient
+        }
         _restoreState.value = RestoreState.Ready
         _status.value = Status.Connecting
     }
@@ -1109,8 +1153,10 @@ class Session(
             attachmentDownloads.clear()
             emptyResumes = 0
             _steeringInstanceIds.value = emptySet()
-            runtimeEpoch += 1
-            _state.value = CompanionState()
+            synchronized(runtimeLock) {
+                retireRuntimeLocked()
+                _state.value = CompanionState()
+            }
             notificationSink.setBadge(0)
             _workspaceEpoch.update { it + 1 }
             streamJob?.cancel()
@@ -1597,10 +1643,10 @@ class Session(
      * words simply vanish from the phone until the turn settles. [text] is
      * what the person typed; the harness echoes back only an id.
      */
-    private fun record(receipt: SendReceipt, text: String, fallbackThreadId: String) {
+    private fun RuntimeBinding.record(receipt: SendReceipt, text: String, fallbackThreadId: String) {
         val queued = receipt as? SendReceipt.Queued ?: return
         val threadId = queued.threadId.ifEmpty { fallbackThreadId }
-        _state.update { it.rememberQueued(QueuedSend(queued.queueId, text), threadId) }
+        commit { it.rememberQueued(QueuedSend(queued.queueId, text), threadId) }
     }
 
     /**
@@ -1611,22 +1657,21 @@ class Session(
     /** True only when the computer confirmed cancellation, so an
      * edit never hands back words that already joined a turn. */
     suspend fun cancelQueued(send: QueuedSend, chat: Chat): Boolean {
-        val activeClient = client ?: return false
+        val (activeClient, binding) = bound() ?: return false
         val destination = when (chat) {
             is Chat.BotChat -> MessageDestination.Bot(chat.bot.id, chat.threadId)
             is Chat.RoomChat -> MessageDestination.Room(chat.room.id, chat.threadId)
         }
         try {
             val cancelled = activeClient.cancelQueued(send.queueId, destination)
-            if (client !== activeClient) return false
-            _state.update { it.forgetQueued(send.queueId, chat.threadId) }
+            if (!binding.commit { it.forgetQueued(send.queueId, chat.threadId) }) return false
             return cancelled
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (client !== activeClient) return false
-            if (error.isUnauthorized) _status.value = Status.Unauthorized
-            _actionError.value = error.message
+            if (!binding.isCurrent()) return false
+            if (error.isUnauthorized) binding.markUnauthorized()
+            binding.reportError(error.message)
             return false
         }
     }
@@ -1638,25 +1683,26 @@ class Session(
      * Null when offline or when the computer refused (the reason is the action error).
      */
     suspend fun steerQueued(send: QueuedSend, chat: Chat): SteerResult? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         val destination = when (chat) {
             is Chat.BotChat -> MessageDestination.Bot(chat.bot.id, chat.threadId)
             is Chat.RoomChat -> MessageDestination.Room(chat.room.id, chat.threadId)
         }
         try {
             val result = activeClient.steerQueued(send.queueId, destination)
-            if (client !== activeClient) return null
             if (result !is SteerResult.StillQueued) {
                 val gone = (result as? SteerResult.Steered)?.queueIds.orEmpty() + send.queueId
-                _state.update { state -> gone.fold(state) { next, id -> next.forgetQueued(id, chat.threadId) } }
+                if (!binding.commit { state -> gone.fold(state) { next, id -> next.forgetQueued(id, chat.threadId) } }) return null
+            } else if (!binding.isCurrent()) {
+                return null
             }
             return result
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (client !== activeClient) return null
-            if (error.isUnauthorized) _status.value = Status.Unauthorized
-            _actionError.value = error.message
+            if (!binding.isCurrent()) return null
+            if (error.isUnauthorized) binding.markUnauthorized()
+            binding.reportError(error.message)
             return null
         }
     }
@@ -1668,13 +1714,13 @@ class Session(
      * person — "stop the running turn first") on failure.
      */
     suspend fun updateClaude(instanceId: String): ClaudeUpdateResult {
-        val activeClient = client ?: return ClaudeUpdateResult.Failed("This computer is offline.")
+        val (activeClient, binding) = bound() ?: return ClaudeUpdateResult.Failed("This computer is offline.")
         return try {
             ClaudeUpdateResult.Updated(activeClient.updateClaude(instanceId))
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (error.isUnauthorized) _status.value = Status.Unauthorized
+            if (error.isUnauthorized) binding.markUnauthorized()
             ClaudeUpdateResult.Failed(error.message ?: "Claude Code could not be updated.")
         }
     }
@@ -1700,16 +1746,16 @@ class Session(
      * this returns true.
      */
     suspend fun send(text: String, attachments: List<PendingMessageAttachment>, to: Chat): Boolean {
-        val activeClient = client ?: run {
+        val (activeClient, binding) = bound() ?: run {
             _actionError.value = "This computer is offline."
             return false
         }
-        val connectionId = _connection.value?.id
-        _actionError.value = null
+        val connectionId = binding.connectionId
+        binding.reportError(null)
         return try {
             AttachmentPolicy.validate(attachments)
             if (text.isBlank() && attachments.isEmpty()) {
-                _actionError.value = "Write a message or attach a file first."
+                binding.reportError("Write a message or attach a file first.")
                 return false
             }
             if (attachments.any { it.kind == PendingMessageAttachment.Kind.IMAGE }) {
@@ -1717,11 +1763,11 @@ class Session(
                     activeClient.imageCapableInstanceIds()
                 } catch (error: APIError.Status) {
                     if (error.code != 404) throw error
-                    _actionError.value = "Update Seira on this computer before sending images."
+                    binding.reportError("Update Seira on this computer before sending images.")
                     return false
                 }
                 if (!imageSupported(to, capable)) {
-                    _actionError.value = imageCompatibilityMessage(to)
+                    binding.reportError(imageCompatibilityMessage(to))
                     return false
                 }
             }
@@ -1759,24 +1805,20 @@ class Session(
             // carries the <attached-file …> tags the harness reads, and a
             // held message is a person's own words waiting, not transport.
             // An attachment-only send has no words, so it falls back.
-            record(receipt, text.trim().ifEmpty { message }, to.threadId)
+            binding.record(receipt, text.trim().ifEmpty { message }, to.threadId)
             attachmentSendIds.remove(key)
-            _actionError.value = null
+            binding.reportError(null)
             true
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
             if (error.isUnauthorized) {
-                gate.withLock {
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
             }
-            _actionError.value = error.message
+            binding.reportError(error.message)
             false
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            binding.reportError(error.message)
             false
         }
     }
@@ -1808,12 +1850,12 @@ class Session(
         reportError: Boolean = true,
         cacheResult: Boolean = false,
     ): DownloadedFile? {
-        val activeClient = client ?: run {
+        val (activeClient, binding) = bound() ?: run {
             if (reportError) _actionError.value = "This computer is offline."
             return null
         }
-        val connectionId = _connection.value?.id
-        if (reportError) _actionError.value = null
+        val connectionId = binding.connectionId
+        if (reportError) binding.reportError(null)
         return try {
             val id = connectionId ?: throw APIError.Transport("This computer is offline.")
             val download = attachmentDownloads.getOrLoad(
@@ -1833,16 +1875,12 @@ class Session(
             throw error
         } catch (error: APIError) {
             if (error.isUnauthorized) {
-                gate.withLock {
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
             }
-            if (reportError) _actionError.value = error.message
+            if (reportError) binding.reportError(error.message)
             null
         } catch (error: Throwable) {
-            if (reportError) _actionError.value = error.message
+            if (reportError) binding.reportError(error.message)
             null
         }
     }
@@ -2009,9 +2047,8 @@ class Session(
      * the caller can keep the words when they did not land.
      */
     suspend fun answerInWords(chat: Chat, card: OptionCard, answer: String): TypedAnswerResult {
-        val activeClient = client ?: return TypedAnswerResult.Failed("This computer is offline.")
+        val (activeClient, binding) = bound() ?: return TypedAnswerResult.Failed("This computer is offline.")
         val requestId = card.requestId ?: return TypedAnswerResult.Gone
-        val connectionId = _connection.value?.id
         return try {
             val outcome = activeClient.respond(
                 threadId = chat.threadId,
@@ -2024,11 +2061,7 @@ class Session(
             throw error
         } catch (error: APIError) {
             if (error.isUnauthorized) {
-                gate.withLock {
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
             }
             TypedAnswerResult.Failed(error.message ?: "Couldn't send this message. Try again.")
         } catch (error: Throwable) {
@@ -2042,8 +2075,7 @@ class Session(
     }
 
     suspend fun createBot(spec: NewBot = NewBot()): Bot? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val bot = activeClient.createBot(spec)
             if (!binding.commit { it.apply(Frame.Bot(bot)) }) return null
@@ -2063,8 +2095,7 @@ class Session(
     }
 
     suspend fun createRoom(name: String?, memberIds: List<String>): Room? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val room = activeClient.createRoom(name, memberIds)
             if (!binding.commit { it.apply(Frame.Room(room)) }) return null
@@ -2082,8 +2113,7 @@ class Session(
      * returned bot snapshots and let SSE reconcile later desktop-side changes.
      */
     suspend fun assignSection(name: String, botIds: List<String>): List<Bot>? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val updatedBots = activeClient.assignSection(name, botIds)
             val committed = binding.commit { state ->
@@ -2103,8 +2133,7 @@ class Session(
      */
     suspend fun pressWidget(chat: Chat, press: WidgetPress): WidgetPressResult {
         val botChat = chat as? Chat.BotChat ?: return WidgetPressResult.Refused(null)
-        val activeClient = client ?: return WidgetPressResult.Failed
-        val connectionId = _connection.value?.id
+        val (activeClient, binding) = bound() ?: return WidgetPressResult.Failed
         return try {
             activeClient.sendWidgetAction(botChat.bot.id, botChat.threadId, press)
             WidgetPressResult.Sent
@@ -2112,11 +2141,7 @@ class Session(
             throw error
         } catch (error: APIError.Status) {
             if (error.isUnauthorized) {
-                gate.withLock {
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
                 WidgetPressResult.Failed
             } else {
                 WidgetPressResult.Refused(error.serverMessage)
@@ -2152,8 +2177,7 @@ class Session(
 
     /** Press one button of a burst card. The card shows the failure; nothing is reported twice. */
     suspend fun burstAction(burstId: String, action: BurstAction, edit: BurstEdit? = null): BurstOutcome {
-        val activeClient = client ?: return BurstOutcome.Failed(OFFLINE_MESSAGE)
-        val connectionId = _connection.value?.id
+        val (activeClient, binding) = bound() ?: return BurstOutcome.Failed(OFFLINE_MESSAGE)
         return try {
             activeClient.burstAction(burstId, action, edit)
             BurstOutcome.Done
@@ -2161,11 +2185,7 @@ class Session(
             throw error
         } catch (error: APIError) {
             if (error.isUnauthorized) {
-                gate.withLock {
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
             }
             BurstOutcome.Failed((error as? APIError.Status)?.serverMessage)
         } catch (_: Throwable) {
@@ -2205,19 +2225,19 @@ class Session(
      * rather than guessed at, as the desktop and the iPhone do.
      */
     suspend fun endLiveCall(callId: String): LiveCallState? {
-        val connectionId = _connection.value?.id
+        val binding = runtimeBinding() ?: return null
         val ended = try {
             liveCallRequest { it.endLiveCall(callId) }
         } catch (error: CancellationException) {
             throw error
         } catch (error: Exception) {
             val gone = (error as? APIError.Status)?.code == 404
-            if (gone && _connection.value?.id == connectionId && _state.value.showsRunningLiveCall(callId)) {
+            if (gone && binding.isCurrent() && _state.value.showsRunningLiveCall(callId)) {
                 liveCall()
             }
             return null
         }
-        if (_connection.value?.id == connectionId) _state.update { it.applyLiveCallEnd(callId, ended) }
+        if (!binding.commit { it.applyLiveCallEnd(callId, ended) }) return null
         return ended
     }
 
@@ -2228,7 +2248,7 @@ class Session(
      * none, or the read failed.
      */
     suspend fun liveCall(): LiveCallState? {
-        val connectionId = _connection.value?.id
+        val binding = runtimeBinding() ?: return null
         val readAt = _state.value.liveCallRevision
         val call = try {
             liveCallRequest { liveCallFn(it) }
@@ -2237,7 +2257,7 @@ class Session(
         } catch (_: Exception) {
             return null
         }
-        if (_connection.value?.id == connectionId) _state.update { it.applyLiveCallLookup(call, readAt) }
+        if (!binding.commit { it.applyLiveCallLookup(call, readAt) }) return null
         return call
     }
 
@@ -2248,19 +2268,12 @@ class Session(
         liveCallRequest { it.updateLiveSettings(patch) }
 
     private suspend fun <T> liveCallRequest(body: suspend (CompanionClient) -> T): T {
-        val activeClient = client ?: throw APIError.Transport(OFFLINE_MESSAGE)
-        val connectionId = _connection.value?.id
+        val (activeClient, binding) = bound() ?: throw APIError.Transport(OFFLINE_MESSAGE)
         return try {
             body(activeClient)
         } catch (error: APIError) {
-            if (error.isUnauthorized) {
-                gate.withLock {
-                    // Only the live computer's 401 may mark this session revoked.
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
-            }
+            // Only the live computer's 401 may mark this session revoked.
+            if (error.isUnauthorized) binding.markUnauthorized()
             throw error
         }
     }
@@ -2444,13 +2457,13 @@ class Session(
     }
 
     suspend fun loadThread(threadId: String) {
-        val activeClient = client ?: return
+        val (activeClient, binding) = bound() ?: return
         try {
             val page = activeClient.messages(threadId, limit = 50)
-            _state.update { it.merge(page, threadId) }
+            binding.commit { it.merge(page, threadId) }
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
         }
     }
 
@@ -2459,13 +2472,14 @@ class Session(
     }
 
     suspend fun loadOlder(threadId: String) {
-        val activeClient = client ?: return
+        val (activeClient, binding) = bound() ?: return
         val oldest = _state.value.transcript(threadId).firstOrNull() ?: return
         try {
             val page = activeClient.messages(threadId, before = oldest.id, limit = 50)
-            _state.update { it.prepend(page, threadId) }
+            binding.commit { it.prepend(page, threadId) }
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            binding.reportError(error.message)
         }
     }
 
@@ -2479,29 +2493,30 @@ class Session(
     suspend fun search(query: String): List<SearchHit> {
         val trimmed = query.trim()
         if (trimmed.length < 2) return emptyList()
-        val activeClient = client ?: return emptyList()
+        val (activeClient, binding) = bound() ?: return emptyList()
         return try {
-            activeClient.search(trimmed)
+            activeClient.search(trimmed).takeIf { binding.isCurrent() } ?: emptyList()
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            binding.reportError(error.message)
             emptyList()
         }
     }
 
     suspend fun open(hit: SearchHit): Chat? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val botId = hit.botId
             if (botId != null) {
-                if (_state.value.bot(botId)?.forTask(hit.threadId) == null && !refreshNavigationState(activeClient)) return null
+                if (_state.value.bot(botId)?.forTask(hit.threadId) == null && !refreshNavigationState(activeClient, binding)) return null
                 val bot = _state.value.bot(botId)?.forTask(hit.threadId)
                     ?: throw APIError.Status(404, THREAD_GONE_MESSAGE)
                 if (!hit.onActivePath) {
                     val leaf = activeClient.setActiveBranch(bot.id, hit.messageId, hit.threadId)
-                    _state.update { it.apply(Frame.Thread(hit.threadId, leaf)) }
+                    if (!binding.commit { it.apply(Frame.Thread(hit.threadId, leaf)) }) return null
                 }
                 val page = activeClient.messagesAround(hit.threadId, hit.messageId)
-                _state.update { it.merge(page, hit.threadId) }
+                if (!binding.commit { it.merge(page, hit.threadId) }) return null
                 _focusedMessageId.value = hit.messageId
                 return _state.value.chat(ChatTarget.Bot(bot.id, hit.threadId))
             }
@@ -2510,16 +2525,17 @@ class Session(
                 var room = _state.value.rooms.firstOrNull { it.id == groupId } ?: return null
                 if (room.threadId != hit.threadId) {
                     room = activeClient.switchRoomTask(room.id, hit.threadId)
-                    _state.update { it.apply(Frame.Room(room)) }
+                    if (!binding.commit { it.apply(Frame.Room(room)) }) return null
                 }
                 val page = activeClient.messagesAround(hit.threadId, hit.messageId)
-                _state.update { it.merge(page, hit.threadId) }
+                if (!binding.commit { it.merge(page, hit.threadId) }) return null
                 _focusedMessageId.value = hit.messageId
                 return _state.value.chat(ChatTarget.Room(groupId, hit.threadId))
             }
             null
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            if (error is kotlinx.coroutines.CancellationException) throw error
+            binding.reportError(error.message)
             null
         }
     }
@@ -2527,21 +2543,20 @@ class Session(
     suspend fun openNotification(target: NotificationTarget): Chat? {
         awaitRestored()
         return notificationGate.withLock {
-            val activeClient = client
-            if (activeClient == null) {
+            val (activeClient, binding) = bound() ?: run {
                 _actionError.value = "Pair this phone with your computer to open that task."
                 return@withLock null
             }
 
             try {
                 _state.value.roomOwningTask(target.threadId)?.let { room ->
-                    return@withLock openRoomNotification(activeClient, room, target.threadId)
+                    return@withLock openRoomNotification(activeClient, binding, room, target.threadId)
                 }
 
                 if (_state.value.bot(target.botId)?.forTask(target.threadId) == null) {
-                    if (!refreshNavigationState(activeClient)) return@withLock null
+                    if (!refreshNavigationState(activeClient, binding)) return@withLock null
                     _state.value.roomOwningTask(target.threadId)?.let { room ->
-                        return@withLock openRoomNotification(activeClient, room, target.threadId)
+                        return@withLock openRoomNotification(activeClient, binding, room, target.threadId)
                     }
                 }
 
@@ -2551,25 +2566,25 @@ class Session(
                     ?: throw APIError.Status(404, THREAD_GONE_MESSAGE))
             } catch (error: Throwable) {
                 if (error is kotlinx.coroutines.CancellationException) throw error
-                if (client !== activeClient) return@withLock null
-                _actionError.value = error.message
+                if (!binding.isCurrent()) return@withLock null
+                binding.reportError(error.message)
                 null
             }
         }
     }
 
     /** Refresh only navigation metadata; keep already loaded scrollback and live tails. */
-    private suspend fun refreshNavigationState(activeClient: CompanionClient): Boolean {
+    private suspend fun refreshNavigationState(activeClient: CompanionClient, binding: RuntimeBinding): Boolean {
         val before = _state.value
         val fleet = hydrateFn(activeClient, 50)
         currentCoroutineContext().ensureActive()
         return gate.withLock {
-            if (client !== activeClient) return@withLock false
             // A newer live frame wins over this HTTP snapshot, including when
             // a fresh connection has not established an SSE cursor yet.
-            _state.update { current ->
+            val committed = binding.commit { current ->
                 if (current !== before) current else current.copy(bots = fleet.bots, rooms = fleet.groups)
             }
+            if (!committed) return@withLock false
             notificationSink.setBadge(_state.value.unreadCount)
             true
         }
@@ -2578,14 +2593,14 @@ class Session(
     /** A room notification can name any channel task, not just the active one. */
     private suspend fun openRoomNotification(
         activeClient: CompanionClient,
+        binding: RuntimeBinding,
         room: Room,
         threadId: String,
     ): Chat.RoomChat {
         if (room.threadId == threadId) return Chat.RoomChat(room)
         val switched = activeClient.switchRoomTask(room.id, threadId)
         currentCoroutineContext().ensureActive()
-        if (client !== activeClient) throw CancellationException("The active computer changed.")
-        _state.update { it.apply(Frame.Room(switched)) }
+        if (!binding.commit { it.apply(Frame.Room(switched)) }) throw CancellationException("The active computer changed.")
         return Chat.RoomChat(_state.value.rooms.firstOrNull { it.id == room.id } ?: switched)
     }
 
@@ -2605,15 +2620,14 @@ class Session(
      */
     suspend fun openThread(ref: ThreadRef): Bot? {
         currentCoroutineContext().ensureActive()
-        val activeClient = client
-        if (activeClient == null) {
+        val (activeClient, binding) = bound() ?: run {
             _actionError.value = "Pair this phone with your computer to open that thread."
             return null
         }
-        _actionError.value = null
+        binding.reportError(null)
         return try {
             if (_state.value.bot(ref.botId)?.forTask(ref.threadId) == null) {
-                if (!refreshNavigationState(activeClient)) return null
+                if (!refreshNavigationState(activeClient, binding)) return null
             }
             val selected = _state.value.bot(ref.botId)
                 ?: throw APIError.Status(404, "That agent no longer exists.")
@@ -2621,8 +2635,8 @@ class Session(
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
             currentCoroutineContext().ensureActive()
-            if (client !== activeClient) return null
-            _actionError.value = error.message
+            if (!binding.isCurrent()) return null
+            binding.reportError(error.message)
             null
         }
     }
@@ -2637,8 +2651,7 @@ class Session(
      * contract directly.
      */
     internal suspend fun <T> mutateTask(offline: T, mutation: suspend RuntimeBinding.(CompanionClient) -> T): T {
-        val activeClient = client ?: return offline
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return offline
         return try {
             val result = binding.mutation(activeClient)
             currentCoroutineContext().ensureActive()
@@ -2703,14 +2716,14 @@ class Session(
      * rename does.
      */
     suspend fun snoozeTask(task: BotTask, forBot: Bot, snoozedUntil: Long?): Boolean {
-        val activeClient = client ?: return false
+        val (activeClient, binding) = bound() ?: return false
         return try {
             activeClient.snoozeTask(forBot.id, task.threadId, snoozedUntil)
             refresh()
             true
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             false
         }
     }
@@ -2743,8 +2756,7 @@ class Session(
     }
 
     suspend fun updateProfile(patch: BotProfilePatch, forBot: Bot): Bot? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val updated = activeClient.updateProfile(forBot.id, patch)
             currentCoroutineContext().ensureActive()
@@ -2758,8 +2770,7 @@ class Session(
     }
 
     suspend fun updateLook(botId: String, patch: BotLookPatch): Bot? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         if (patch.isEmpty) return _state.value.bot(botId)
         return try {
             val updated = activeClient.updateLook(botId, patch)
@@ -2777,33 +2788,33 @@ class Session(
      * depends on which engines are installed and signed in there.
      */
     suspend fun modelInstances(): List<Instance> {
-        val activeClient = client ?: return emptyList()
+        val (activeClient, binding) = bound() ?: return emptyList()
         return try {
             activeClient.instances()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             emptyList()
         }
     }
 
     suspend fun updateModel(selection: ModelSelection, forBot: Bot, quietly: Boolean = false): Bot? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val updated = activeClient.updateModel(forBot.id, selection, forBot.threadId)
             currentCoroutineContext().ensureActive()
-            _state.update { it.apply(Frame.Bot(updated)) }
+            // The Bot can carry approval information of the computer it came from: it is kept only for that computer.
+            if (!binding.commit { it.apply(Frame.Bot(updated)) }) return null
             updated.forTask(forBot.threadId)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            if (!quietly) _actionError.value = error.message
+            if (!quietly) binding.reportError(error.message)
             null
         }
     }
 
     suspend fun setWorksOn(bot: Bot, ownServer: Boolean): WorksOnResult {
-        val activeClient = client ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return WorksOnResult.Refused(WorksOnRefusal.Failed)
         return try {
             val updated = activeClient.setWorksOn(bot.id, ownServer)
             currentCoroutineContext().ensureActive()
@@ -2819,18 +2830,21 @@ class Session(
     /**
      * Change how much one conversation may do before it asks. A refusal comes
      * back typed so the screen can answer in words; it is not the app-wide error.
+     * [expected] is the runtime the screen showed when it was opened; when the phone serves another one now, the
+     * change is refused before any request is sent.
      */
     suspend fun setApprovalMode(
         bot: Bot,
         threadId: String,
         mode: ApprovalMode,
         acknowledgeLocalAuto: Boolean = false,
+        expected: RuntimeBinding? = null,
     ): ApprovalModeResult {
-        val activeClient = client
-            ?: return ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
-        val binding = bindRuntime()
         // The answer of a computer that is no longer the paired one says nothing about this one.
         val retired = ApprovalModeResult.Refused(ApprovalModeRefusal.Other(null))
+        val (activeClient, binding) = bound() ?: return retired
+        // A sheet shown for one computer never changes the mode of another: no request leaves the phone.
+        if (expected != null && expected != binding) return retired
         return try {
             val updated = activeClient.setApprovalMode(bot.id, threadId, mode, acknowledgeLocalAuto)
             currentCoroutineContext().ensureActive()
@@ -2845,7 +2859,7 @@ class Session(
 
     /** The level a conversation runs at now, from what the phone already holds. */
     fun approvalMode(bot: Bot, threadId: String): ApprovalMode? =
-        (_state.value.bot(bot.id) ?: bot).approvalModeIn(threadId)
+        _state.value.bot(bot.id)?.approvalModeIn(threadId)
 
     suspend fun botActivity(bot: Bot, limit: Int? = null): List<ActivityRow>? =
         mutateTask(null) { it.activity(bot.id, limit) }
@@ -2922,12 +2936,16 @@ class Session(
      * it is remembered for the session and raises no error banner.
      */
     suspend fun switchableModels(): ModelListResult {
-        val activeClient = client ?: return ModelListResult.Failed
+        val (activeClient, binding) = bound() ?: return ModelListResult.Failed
         if (!canAdminister) return ModelListResult.Forbidden.also { _modelListForbidden.value = true }
         return try {
-            ModelListResult.Loaded(activeClient.instances()).also { _modelListForbidden.value = false }
+            val instances = activeClient.instances()
+            // The list and the forbidden flag of a computer that is gone say nothing about this one.
+            if (!binding.isCurrent()) return ModelListResult.Failed
+            ModelListResult.Loaded(instances).also { _modelListForbidden.value = false }
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
+            if (!binding.isCurrent()) return ModelListResult.Failed
             if (error is APIError.Status && error.code == 403) {
                 _modelListForbidden.value = true
                 ModelListResult.Forbidden
@@ -2950,7 +2968,7 @@ class Session(
 
     /** Ask the computer to continue this turn when the limit resets. A 403 hides the action. */
     suspend fun continueAtReset(chat: Chat.BotChat): Boolean {
-        val activeClient = client ?: return false
+        val (activeClient, binding) = bound() ?: return false
         if (!canAdminister) return false
         return try {
             activeClient.limitResetContinue(chat.bot.id, chat.threadId)
@@ -2960,7 +2978,7 @@ class Session(
             if (error is APIError.Status && error.code == 403) {
                 _limitResetForbidden.value = true
             } else {
-                _actionError.value = error.message
+                binding.reportError(error.message)
             }
             false
         }
@@ -2972,7 +2990,7 @@ class Session(
         forBot: Bot,
         crop: AvatarCrop,
     ): Bot? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val avatarUrl = activeClient.uploadAvatar(data, mime)
             currentCoroutineContext().ensureActive()
@@ -2986,14 +3004,13 @@ class Session(
             )
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun generateAvatar(prompt: String, forBot: Bot): Bot? {
-        val activeClient = client ?: return null
-        val binding = bindRuntime()
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val updated = activeClient.generateAvatar(forBot.id, prompt)
             currentCoroutineContext().ensureActive()
@@ -3017,23 +3034,23 @@ class Session(
     }
 
     suspend fun voiceOptions(): List<Voice> {
-        val activeClient = client ?: return emptyList()
+        val (activeClient, binding) = bound() ?: return emptyList()
         return try {
             activeClient.voices()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             emptyList()
         }
     }
 
     suspend fun previewVoice(voiceId: String, forBot: Bot): ByteArray? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.previewVoice("Hello, I'm ${forBot.name}.", voiceId)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
@@ -3050,45 +3067,45 @@ class Session(
      * afterwards, because every engine names its own voices.
      */
     suspend fun switchVoiceProvider(provider: VoiceProvider): ConfigStatus? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.updateVoiceProvider(provider)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun loadConnectorCatalog(): ConnectorCatalog? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.connectorCatalog()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun loadAllConnectorStatuses(): ConnectorStatuses? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.allConnectorStatuses()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun authorizeConnector(slug: String, alias: String?): URI? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.authorizeConnector(slug, alias)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
@@ -3125,11 +3142,11 @@ class Session(
         get() = AiUsageRules.hidden(_aiUsageHiddenFor.value, _connection.value?.id)
 
     suspend fun aiUsage(refresh: Boolean = false): AiUsageResult {
-        val activeClient = client ?: return AiUsageResult.Failed
-        val connectionId = _connection.value?.id
+        val (activeClient, binding) = bound() ?: return AiUsageResult.Failed
+        val connectionId = binding.connectionId
         return try {
             val report = activeClient.engineLimits(refresh)
-            if (client !== activeClient) return AiUsageResult.Failed
+            if (!binding.isCurrent()) return AiUsageResult.Failed
             if ((report == null || report.engines.isEmpty()) && connectionId != null) {
                 _aiUsageHiddenFor.value = connectionId
             }
@@ -3137,19 +3154,19 @@ class Session(
         } catch (error: CancellationException) {
             throw error
         } catch (error: APIError) {
-            if (client !== activeClient) return AiUsageResult.Failed
-            if (error.isUnauthorized) _status.value = Status.Unauthorized
+            if (!binding.isCurrent()) return AiUsageResult.Failed
+            if (error.isUnauthorized) binding.markUnauthorized()
             AiUsageResult.Failed
         }
     }
 
     suspend fun loadRoutines(): RoutinesResponse {
-        val activeClient = client ?: return RoutinesResponse(emptyList(), emptyList())
+        val (activeClient, binding) = bound() ?: return RoutinesResponse(emptyList(), emptyList())
         return try {
             activeClient.routines()
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             RoutinesResponse(emptyList(), emptyList())
         }
     }
@@ -3160,21 +3177,20 @@ class Session(
      * failed read should leave one section absent, not error the profile.
      */
     suspend fun loadOverview(botId: String, quiet: Boolean = false): BotOverview? {
-        val activeClient = client ?: return null
-        val connectionId = _connection.value?.id
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val overview = activeClient.overview(botId)
             currentCoroutineContext().ensureActive()
-            overview.takeIf { _connection.value?.id == connectionId }
+            overview.takeIf { binding.isCurrent() }
         } catch (error: Throwable) {
             if (error is CancellationException) throw error
-            if (!quiet && _connection.value?.id == connectionId) _actionError.value = error.message
+            if (!quiet) binding.reportError(error.message)
             null
         }
     }
 
     suspend fun loadRoutineRunAvailability(): RoutineRunAvailability? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             coroutineScope {
                 val config = async { activeClient.config() }
@@ -3183,63 +3199,63 @@ class Session(
             }
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun saveRoutine(input: RoutineInput, id: String?): Routine? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             if (id == null) activeClient.createRoutine(input) else activeClient.updateRoutine(id, input)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun setRoutineEnabled(routine: Routine, enabled: Boolean): Routine? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.setRoutineEnabled(routine.id, enabled)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun runRoutine(routine: Routine): RoutineRun? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             activeClient.runRoutine(routine.id)
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
     suspend fun deleteRoutine(routine: Routine): Boolean {
-        val activeClient = client ?: return false
+        val (activeClient, binding) = bound() ?: return false
         return try {
             activeClient.deleteRoutine(routine.id)
             true
         } catch (error: Throwable) {
             if (error is kotlinx.coroutines.CancellationException) throw error
-            _actionError.value = error.message
+            binding.reportError(error.message)
             false
         }
     }
 
     suspend fun react(to: Message, inThreadId: String, emoji: String) {
-        val activeClient = client ?: return
+        val (activeClient, binding) = bound() ?: return
         try {
             val patched = activeClient.toggleReaction(inThreadId, to.id, emoji)
-            _state.update { it.apply(Frame.MessagePatch(inThreadId, patched)) }
+            binding.commit { it.apply(Frame.MessagePatch(inThreadId, patched)) }
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            binding.reportError(error.message)
         }
     }
 
@@ -3252,15 +3268,12 @@ class Session(
     suspend fun edit(message: Message, forBot: Bot, text: String) {
         if (client == null) return
         val threadId = forBot.threadId
-        val connectionId = _connection.value?.id
         val pending = PendingEdit(message.id, text, baseLeafId = _state.value.botForThread(threadId)?.activeLeafId)
         _state.update { it.copy(pendingEdits = it.pendingEdits + (threadId to pending)) }
         try {
             perform { activeClient ->
                 val fork = activeClient.edit(forBot.id, message.id, text, threadId, pending.requestId)
-                if (fork != null && _connection.value?.id == connectionId) {
-                    _state.update { it.adoptEdit(fork, threadId, expectedPending = pending) }
-                }
+                if (fork != null) commit { it.adoptEdit(fork, threadId, expectedPending = pending) }
             }
         } finally {
             _state.update {
@@ -3270,40 +3283,34 @@ class Session(
     }
 
     suspend fun switchVersion(to: Message, forBot: Bot) {
-        val activeClient = client ?: return
+        val (activeClient, binding) = bound() ?: return
         try {
             val leaf = activeClient.setActiveBranch(forBot.id, to.id, forBot.threadId)
-            _state.update { it.apply(Frame.Thread(forBot.threadId, leaf)) }
+            binding.commit { it.apply(Frame.Thread(forBot.threadId, leaf)) }
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            binding.reportError(error.message)
         }
     }
 
     suspend fun export(threadId: String, format: String): ExportedTranscript? {
-        val activeClient = client ?: return null
+        val (activeClient, binding) = bound() ?: return null
         return try {
             val exported = activeClient.export(threadId, format)
             ExportedTranscript(exported.data, exported.filename, exported.contentType)
         } catch (error: Throwable) {
-            _actionError.value = error.message
+            binding.reportError(error.message)
             null
         }
     }
 
-    private suspend fun perform(quietly: Boolean = false, body: suspend (CompanionClient) -> Unit) {
-        val activeClient = client ?: return
-        val connectionId = _connection.value?.id
-        val binding = bindRuntime()
+    private suspend fun perform(quietly: Boolean = false, body: suspend RuntimeBinding.(CompanionClient) -> Unit) {
+        val (activeClient, binding) = bound() ?: return
         try {
-            body(activeClient)
+            binding.body(activeClient)
         } catch (error: APIError) {
+            // Only the live computer's 401 may mark this session revoked.
             if (error.isUnauthorized) {
-                gate.withLock {
-                    // Only the live computer's 401 may mark this session revoked.
-                    if (connectionId != null && _connection.value?.id == connectionId) {
-                        _status.value = Status.Unauthorized
-                    }
-                }
+                binding.markUnauthorized()
             } else if (!quietly) {
                 binding.reportError(error.message)
             }
