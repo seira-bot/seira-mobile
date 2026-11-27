@@ -234,6 +234,7 @@ struct AdvancedBotRow: View, Equatable {
                 .contentShape(Rectangle())
             }
             .buttonStyle(HomeRowButtonStyle())
+            .accessibilityIdentifier("chat-row.\(bot.id)")
         }
         .padding(.leading, 4)
         .background {

@@ -506,7 +506,6 @@ struct ChatListView: View {
             open: { openBot(bot) }
         )
         .equatable()
-        .accessibilityIdentifier("chat-row.\(bot.id)")
         .contextMenu { botMenu(bot) }
     }
 
