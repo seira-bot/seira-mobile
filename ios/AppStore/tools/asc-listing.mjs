@@ -325,7 +325,7 @@ async function uploadLibraryImage(libId, locale, rel, file, spec, name) {
   for (let i = 0; i < 60; i++) {
     const now = (await api("GET", `/v1/appAssetLibraryImages/${id}`)).data.attributes;
     if (READY.has(now.state)) return { id, state: now.state };
-    if (now.state === "FAILED" || now.state === "REJECTED") throw new Error(`${locale} ${rel}: ${now.state} ${now.stateDetails ?? ""}`.trim());
+    if (now.state === "FAILED" || now.state === "REJECTED") throw new Error(`${locale} ${rel}: ${now.state} ${now.stateDetails ? JSON.stringify(now.stateDetails) : ""}`.trim());
     await sleep(3000);
   }
   throw new Error(`${locale} ${rel}: still not ready after 3 minutes`);
