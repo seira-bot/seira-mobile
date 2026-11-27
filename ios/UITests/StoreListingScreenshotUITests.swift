@@ -25,25 +25,16 @@ final class StoreListingScreenshotUITests: XCTestCase {
 
         let approval = launchFleet(language: language)
         openChat("Scout", in: approval)
+        selectThread("preview-thread-scout", in: approval)
         _ = approval.buttons["Allow"].waitForExistence(timeout: 10)
         pause(1)
         capture("02-approval", language: language)
 
-        let header = approval.buttons["header-threads"]
-        if header.waitForExistence(timeout: 5) {
-            header.tap()
-            let invoices = approval.buttons["thread-preview-thread-invoices"]
-            if invoices.waitForExistence(timeout: 5) {
-                invoices.tap()
-                _ = approval.staticTexts.containing(NSPredicate(format: "label CONTAINS 'INV-1042'")).firstMatch
-                    .waitForExistence(timeout: 10)
-                pause(2)
-                capture("04-live", language: language)
-            } else {
-                XCTFail("The invoice chat is not in the thread list")
-            }
-        } else {
-            XCTFail("The chat has no thread button")
+        if selectThread("preview-thread-invoices", in: approval) {
+            _ = approval.staticTexts.containing(NSPredicate(format: "label CONTAINS 'INV-1042'")).firstMatch
+                .waitForExistence(timeout: 10)
+            pause(2)
+            capture("04-live", language: language)
         }
         approval.terminate()
 
@@ -155,6 +146,24 @@ final class StoreListingScreenshotUITests: XCTestCase {
             _ = input.waitForExistence(timeout: 4)
         }
         XCTAssertTrue(input.exists, "\(name)'s chat opened")
+    }
+
+    @MainActor @discardableResult
+    private func selectThread(_ id: String, in app: XCUIApplication) -> Bool {
+        let header = app.buttons["header-threads"]
+        guard header.waitForExistence(timeout: 10) else {
+            XCTFail("The chat has no thread button")
+            return false
+        }
+        header.tap()
+        let thread = app.buttons["thread-\(id)"]
+        guard thread.waitForExistence(timeout: 5) else {
+            XCTFail("\(id) is not in the thread list")
+            return false
+        }
+        thread.tap()
+        pause(2)
+        return true
     }
 
     @MainActor
