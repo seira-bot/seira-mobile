@@ -8,7 +8,7 @@ import SwiftUI
 /// values and is Equatable on them, as `CompactBotEntry` is, so a publish
 /// that did not move its bot skips it.
 ///
-/// The list's own state (the search, which bots and folders are open, which
+/// The list's own state (which bots and folders are open, which
 /// bot is making a thread) is read through bindings to that state, as
 /// before: the tree follows every keystroke and tap even when the lazy list
 /// does not rebuild its row. They are the list's `@State` projections, one
@@ -18,8 +18,6 @@ import SwiftUI
 struct BotThreadTree: View, Equatable {
     /// The bot as the state holds it now.
     let bot: Bot
-    /// The roster search: a match lists the bot's threads.
-    @Binding var query: String
     /// Bots whose thread list is open.
     @Binding var expandedBots: Set<String>
     /// Closed folders, keyed `botID:folderID`, for every bot.
@@ -46,21 +44,13 @@ struct BotThreadTree: View, Equatable {
     /// waiting for the next snapshot. Mirrors the desktop's useSnoozeExpiry.
     @State private var snoozeTick = 0
 
-    private var searching: Bool {
-        !query.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-    }
-
     private var creating: Bool { creatingThreads.contains(bot.id) }
 
     var body: some View {
         let _ = snoozeTick
-        let isExpanded = searching || expandedBots.contains(bot.id)
-        let matching = bot.name.localizedCaseInsensitiveContains(query) ? "" : query
-        let groups = bot.threadGroups(matching: matching, queuedThreadIds: queuedThreadIds)
-        // With nothing to match, the list is the whole tree: count it, not a second sort.
-        let count = matching.isEmpty
-            ? groups.reduce(0) { $0 + $1.tasks.count }
-            : bot.rosterThreadCount(queuedThreadIds: queuedThreadIds)
+        let isExpanded = expandedBots.contains(bot.id)
+        let groups = bot.threadGroups(queuedThreadIds: queuedThreadIds)
+        let count = groups.reduce(0) { $0 + $1.tasks.count }
         let nextSnoozeExpiry = bot.visibleTasks.nextSnoozeExpiry()
         VStack(alignment: .leading, spacing: 0) {
             header(isExpanded: isExpanded, count: count)
@@ -101,7 +91,6 @@ struct BotThreadTree: View, Equatable {
             .accessibilityLabel("\(bot.name)'s threads")
             .accessibilityValue(isExpanded ? "Expanded, \(count) threads" : "Collapsed, \(count) threads")
             .accessibilityIdentifier("threads-toggle.\(bot.id)")
-            .disabled(searching)
 
             if isExpanded {
                 Button { createThread() } label: {
@@ -121,7 +110,7 @@ struct BotThreadTree: View, Equatable {
     private func folderGroup(_ folder: BotProject, tasks: [BotTask]) -> some View {
         let key = "\(bot.id):\(folder.id)"
         return DisclosureGroup(isExpanded: Binding(
-            get: { searching || !collapsedFolders.contains(key) },
+            get: { !collapsedFolders.contains(key) },
             set: { value in
                 if value { collapsedFolders.remove(key) } else { collapsedFolders.insert(key) }
             }

@@ -2,9 +2,11 @@ package com.openmausbot.companion
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import com.openmausbot.companion.ui.PairingHandoff
 import com.openmausbot.companion.ui.PairingAddressHandoff
 import com.openmausbot.companion.ui.PairingLink
@@ -71,7 +73,7 @@ class PairingLinkActivity : Activity() {
                     session.beginPairing()
                 }
                 is SeiraRunRoute.OpenInBrowser -> {
-                    openInBrowser(route.url)
+                    openInBrowser(this, route.url)
                     finish()
                 }
                 SeiraRunRoute.Ignore -> PairingHandoff.runThen(relaunch, ::finish) {}
@@ -95,15 +97,21 @@ class PairingLinkActivity : Activity() {
             deliver = session::receivePairingURL,
         )
     }
+}
 
-    private fun openInBrowser(url: String) {
-        val view = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-            selector = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        }
-        try {
-            startActivity(view)
-        } catch (_: ActivityNotFoundException) {
-        }
+/**
+ * Opens [url] in a browser app only. No plain `ACTION_VIEW` fallback: an
+ * `https://c-….seira.run` link would come back to this app through App Links
+ * and loop.
+ */
+internal fun openInBrowser(context: Context, url: String) {
+    val view = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+        selector = Intent.makeMainSelectorActivity(Intent.ACTION_MAIN, Intent.CATEGORY_APP_BROWSER)
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    try {
+        context.startActivity(view)
+    } catch (_: ActivityNotFoundException) {
+        Toast.makeText(context.applicationContext, R.string.mobile_link_no_browser, Toast.LENGTH_SHORT).show()
     }
 }

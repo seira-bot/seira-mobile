@@ -332,6 +332,7 @@
     <string name="mobile_running_steps">Виконується кроків: %1$s</string>
     <string name="mobile_ran_steps">Виконано кроків: %1$s</string>
     <string name="mobile_pairing_failed">Не вдалося під’єднати.</string>
+    <string name="mobile_link_no_browser">На цьому телефоні немає браузера, який може відкрити це посилання.</string>
     <string name="mobile_pairing_no_address">Той комп’ютер не відповів адресою. Натомість введіть адресу з налаштувань телефона.</string>
     <string name="mobile_pairing_invalid_address">Введіть захищену адресу https://, 192.168.1.42:8810 або ім’я на кшталт macbook.tail1234.ts.net.</string>
     <string name="mobile_pairing_invalid_qr">Це не QR-код підключення Seira.</string>

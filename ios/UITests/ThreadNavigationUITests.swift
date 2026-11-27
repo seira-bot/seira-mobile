@@ -9,13 +9,13 @@ final class ThreadNavigationUITests: XCTestCase {
         openGmail(in: app)
         selectThread("preview-icloud", title: "Triage iCloud", in: app)
         app.buttons["Back"].tap()
-        app.buttons.containing(.staticText, identifier: "Pepper").firstMatch.tap()
+        app.buttons["chat-row.preview-pepper"].tap()
         recordScreenshot("Bot reopened after choosing iCloud", in: app)
         assertThread("Triage iCloud", in: app)
         app.terminate()
         app.launch()
-        XCTAssertTrue(app.buttons["threads-toggle.preview-pepper"].waitForExistence(timeout: 10))
-        app.buttons.containing(.staticText, identifier: "Pepper").firstMatch.tap()
+        XCTAssertTrue(app.buttons["row-threads-toggle.preview-pepper"].waitForExistence(timeout: 10))
+        app.buttons["chat-row.preview-pepper"].tap()
         assertThread("Triage iCloud", in: app)
         recordScreenshot("Remembered iCloud thread after relaunch", in: app)
     }
@@ -268,10 +268,11 @@ final class ThreadNavigationUITests: XCTestCase {
         assertThread("Triage Gmail", in: app)
         XCTAssertTrue(transcriptContains("I’m reviewing Gmail here", in: app))
         app.buttons["Back"].tap()
-        // One thread left is the bot itself: the compact roster drops the
-        // thread control, and the row opens that thread.
+        // One thread is left, so the opened list holds only that thread.
         XCTAssertTrue(app.buttons["chat-row.preview-pepper"].waitForExistence(timeout: 5))
-        assertMissing(app.buttons["threads-toggle.preview-pepper"])
+        XCTAssertTrue(app.buttons["thread.preview-gmail"].waitForExistence(timeout: 5))
+        assertMissing(app.buttons["thread.preview-icloud"])
+        assertMissing(app.buttons["thread.preview-weekend"])
     }
 
     @MainActor
@@ -300,6 +301,7 @@ final class ThreadNavigationUITests: XCTestCase {
         recordScreenshot("Partial bulk deletion keeps the remaining thread selected", in: app)
     }
 
+    /// These tests run the Advanced home, which lists threads under each bot.
     /// `density` nil starts from the install default (compact), whatever an
     /// earlier run saved; otherwise that density for this launch only.
     @MainActor
@@ -315,6 +317,7 @@ final class ThreadNavigationUITests: XCTestCase {
             ?? ["-reset-list-density"]
         app.launchArguments = [
             "-store-preview", "-threads-preview",
+            "-companion.prefs.advancedMode", "YES",
             "-AppleLanguages", "(en)", "-AppleLocale", "en_US",
             "-companion.prefs.islandIntro", islandIntro,
             "-companion.onboarding.welcomeSeen", "YES",
@@ -328,14 +331,15 @@ final class ThreadNavigationUITests: XCTestCase {
             app.terminate()
             app.launch()
         }
-        XCTAssertTrue(app.buttons["threads-toggle.preview-pepper"].waitForExistence(timeout: 10))
+        XCTAssertTrue(app.buttons["row-threads-toggle.preview-pepper"].waitForExistence(timeout: 10))
         return app
     }
 
     @MainActor
     private func openGmail(in app: XCUIApplication) {
+        app.buttons["row-threads-toggle.preview-pepper"].tap()
         let toggle = app.buttons["threads-toggle.preview-pepper"]
-        toggle.tap()
+        XCTAssertTrue(toggle.waitForExistence(timeout: 5))
         XCTAssertEqual(toggle.value as? String, "Expanded, 3 threads")
         let gmail = app.buttons["thread.preview-gmail"]
         XCTAssertTrue(gmail.waitForExistence(timeout: 5))

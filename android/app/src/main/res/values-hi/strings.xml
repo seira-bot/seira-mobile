@@ -328,6 +328,7 @@
     <string name="mobile_running_steps">%1$s चरण चल रहे हैं</string>
     <string name="mobile_ran_steps">%1$s चरण चले</string>
     <string name="mobile_pairing_failed">जोड़ना विफल रहा।</string>
+    <string name="mobile_link_no_browser">इस फ़ोन का कोई भी ब्राउज़र यह लिंक नहीं खोल सकता।</string>
     <string name="mobile_pairing_no_address">उस कंप्यूटर ने पते के साथ जवाब नहीं दिया। इसके बजाय फ़ोन सेटिंग्स में दिखने वाला पता दर्ज करें।</string>
     <string name="mobile_pairing_invalid_address">सुरक्षित https:// पता, 192.168.1.42:8810, या macbook.tail1234.ts.net जैसा नाम दर्ज करें।</string>
     <string name="mobile_pairing_invalid_qr">यह Seira का जोड़ने वाला QR कोड नहीं है।</string>
