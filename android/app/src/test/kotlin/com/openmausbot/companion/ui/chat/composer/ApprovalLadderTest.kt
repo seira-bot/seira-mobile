@@ -55,7 +55,9 @@ class ApprovalLadderTest {
         showLadder()
         compose.mainClock.autoAdvance = false
         compose.onNodeWithTag(modeRowTag(ApprovalMode.FULL)).performTouchInput { down(center) }
-        compose.mainClock.advanceTimeBy(800)
+        compose.mainClock.advanceTimeByFrame()
+        compose.waitForIdle()
+        repeat(55) { compose.mainClock.advanceTimeByFrame() }
         assertEquals(listOf(ApprovalMode.FULL), requests)
         compose.onNodeWithTag(modeRowTag(ApprovalMode.FULL)).performTouchInput { up() }
         compose.mainClock.advanceTimeBy(100)
