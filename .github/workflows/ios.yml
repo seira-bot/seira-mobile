@@ -25,6 +25,15 @@ on:
         description: "Photograph the App Store listing on an iPhone and an iPad simulator"
         type: boolean
         default: false
+      store_devices:
+        description: "Devices to photograph. Pick one device while you fix a failure."
+        type: choice
+        options: [both, iphone, ipad]
+        default: both
+      store_tests:
+        description: "Test methods of StoreListingScreenshotUITests, separated by spaces (for example testEnglishListing). Empty runs all of them."
+        type: string
+        default: ""
       store_runner:
         description: "Runner label for the store screenshots"
         type: string
@@ -129,7 +138,7 @@ jobs:
     needs: build
     if: github.event_name == 'workflow_dispatch' && inputs.ui_tests
     runs-on: macos-latest
-    timeout-minutes: 120
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -228,7 +237,7 @@ jobs:
     name: App Store screenshots
     if: github.event_name == 'workflow_dispatch' && inputs.store_screenshots
     runs-on: ${{ inputs.store_runner }}
-    timeout-minutes: 120
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -250,8 +259,29 @@ jobs:
           xcodegen generate
 
       - name: Photograph the listing on each device
+        env:
+          STORE_DEVICES: ${{ inputs.store_devices }}
+          STORE_TESTS: ${{ inputs.store_tests }}
         run: |
           set -uo pipefail
+          case "${STORE_DEVICES:-both}" in
+            both) devices="iphone ipad" ;;
+            iphone) devices="iphone" ;;
+            ipad) devices="ipad" ;;
+            *) echo "::error::Not a device choice: $STORE_DEVICES"; exit 1 ;;
+          esac
+          only=()
+          set -f
+          for name in $STORE_TESTS; do
+            case "$name" in
+              *[!A-Za-z0-9_]*) echo "::error::Not a test method name: $name"; exit 1 ;;
+            esac
+            only+=("-only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests/$name")
+          done
+          set +f
+          if [ "${#only[@]}" -eq 0 ]; then
+            only=("-only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests")
+          fi
           xcodebuild -version
           cd ios
           out="$RUNNER_TEMP/store-screenshots"
@@ -279,7 +309,7 @@ jobs:
           echo "Picked: $picks"
           read -r runtime_id iphone_type ipad_type <<< "$picks"
           status=0
-          for device in iphone ipad; do
+          for device in $devices; do
             if [ "$device" = iphone ]; then
               type_id="$iphone_type"
             else
@@ -300,7 +330,7 @@ jobs:
               -clonedSourcePackagesDirPath "$HOME/spm-packages" \
               -resultBundlePath "$bundle" \
               -parallel-testing-enabled NO \
-              -only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests \
+              ${only[@]+"${only[@]}"} \
               CODE_SIGNING_ALLOWED=NO \
               test || status=$?
             raw="$RUNNER_TEMP/store-raw-${device}"
@@ -317,6 +347,7 @@ jobs:
                       shutil.copy(os.path.join(raw, item["exportedFileName"]), os.path.join(out, name + ".png"))
           PY
             xcrun simctl delete "$simulator_id" >/dev/null 2>&1 || true
+            if [ "$status" -ne 0 ]; then break; fi
           done
           ls -la "$out"
           exit "$status"

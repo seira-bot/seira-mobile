@@ -22,6 +22,19 @@ Compose). The server and the wire contract live in `seira-bot/seira`.
 - Before you claim that a change works, run the matching list in
   `docs/verification/`.
 
+## macOS CI minutes
+
+A macOS minute costs ten times a Linux minute, and this private repo pays for every minute.
+
+- Do not use a CI run to find compile errors one at a time.
+- Before you start a new run, read the full log and the result bundle of the failed run.
+- Fix every failure that you find. Then start one new run.
+- To fix a failure, run only the failed part: `ui_test_classes`, `store_devices` or `store_tests`.
+- Start no more than three manual runs of `ios.yml` on one branch on one day.
+- After the third failed run, stop and report to the maintainer.
+- Run the Android unit tests and the debug build on a Linux machine before you push. CI is the last check.
+- Start `ios-testflight.yml` only for a build that goes to testers.
+
 ## Comments
 
 Write a comment only for what the code cannot say:
