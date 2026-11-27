@@ -261,14 +261,20 @@ jobs:
           import json, re, sys
           runtimes = [r for r in json.load(sys.stdin)["runtimes"] if r.get("isAvailable") and r.get("identifier", "").startswith("com.apple.CoreSimulator.SimRuntime.iOS")]
           if not runtimes: raise SystemExit("No iOS simulator runtime is available")
-          runtimes.sort(key=lambda r: tuple(int(p) for p in r["version"].split(".")))
-          runtime = runtimes[-1]
-          def newest(pattern):
+          runtimes.sort(key=lambda r: tuple(int(p) for p in r["version"].split(".")), reverse=True)
+          def newest(runtime, pattern):
               types = [t for t in runtime["supportedDeviceTypes"] if re.fullmatch(pattern, t["name"])]
-              if not types: raise SystemExit("No simulator type matches " + pattern + " on " + runtime["name"])
               types.sort(key=lambda t: int(re.search(r"\d+", t["name"]).group()))
-              return types[-1]["identifier"]
-          print(runtime["identifier"], newest(r"iPhone \d+ Pro Max"), newest(r"iPad Pro 13-inch.*"))
+              return types[-1]["identifier"] if types else None
+          for runtime in runtimes:
+              iphone = newest(runtime, r"iPhone \d+ Pro Max")
+              ipad = newest(runtime, r"iPad Pro 13-inch.*")
+              if iphone and ipad:
+                  print(runtime["identifier"], iphone, ipad)
+                  raise SystemExit(0)
+          for runtime in runtimes:
+              print(runtime["identifier"], [t["name"] for t in runtime["supportedDeviceTypes"]], file=sys.stderr)
+          raise SystemExit("No runtime has both an iPhone Pro Max and an iPad Pro 13-inch type")
           ')
           echo "Picked: $picks"
           read -r runtime_id iphone_type ipad_type <<< "$picks"
