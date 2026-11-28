@@ -1179,6 +1179,10 @@ final class Session: ObservableObject {
                     return
                 }
                 log.error("stream failed: \(error.localizedDescription, privacy: .public)")
+                // Another request found that the computer refused this
+                // phone. A retry cannot fix that, and a network error must
+                // not cover the unpaired screen (CI, 2026-11-28).
+                if status == .unauthorized { return }
                 status = .offline(failureMessage(for: error))
             }
 
@@ -1187,6 +1191,7 @@ final class Session: ObservableObject {
             // not the laptop's should not hammer it.
             reconnectDelay = reconnectDelay == 0 ? 1 : min(reconnectDelay * 2, 15)
             try? await Task.sleep(nanoseconds: reconnectDelay * 1_000_000_000)
+            if status == .unauthorized { return }
         }
     }
 
