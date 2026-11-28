@@ -1,6 +1,7 @@
 package bot.seira.companion.core
 
 import java.util.concurrent.CountDownLatch
+import java.util.concurrent.CopyOnWriteArrayList
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
@@ -16,11 +17,14 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
+import okio.Buffer
 
 /**
  * A session call that is still in flight when the paired computer changes must
@@ -331,6 +335,215 @@ class SessionRuntimeIsolationTest {
         assertNull(session.actionError)
     }
 
+    private fun approvalBot(mode: String) = scout.copy(
+        approvalMode = mode,
+        tasks = listOf(BotTask("thread-1", "Task 1", 1.0, approvalMode = mode)),
+    )
+
+    @Test
+    fun aPinAnsweredByTheOldComputerIsDroppedWithItsApprovalInformation() = runTest {
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(approvalBot("full").copy(pinned = true))}}""")
+        val session = session(gate)
+
+        val result = async { session.setBotFlags("bot-1", pinned = true) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertEquals(false, result.await(), "a pin of the old computer is not a pin on the new one")
+        assertTrue(session.state.value.bots.isEmpty(), "the old computer's bot must not appear on the new one")
+        assertNull(session.approvalMode(scout, "thread-1"), "no approval level of the old computer may show on the new one")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aPinStillCommitsWhenTheComputerDoesNotChange() = runTest {
+        val gate = Gate(status = 200, body = """{"bot":${CompanionJson.encodeToString(scout.copy(pinned = true))}}""")
+        val session = session(gate)
+
+        val result = async { session.setBotFlags("bot-1", pinned = true) }
+        gate.awaitParked()
+        gate.release()
+
+        assertEquals(true, result.await(), "control")
+        assertEquals(true, session.state.value.bot("bot-1")?.pinned)
+    }
+
+    @Test
+    fun aMoveToADepartmentAnsweredByTheOldComputerChangesNothingOnTheNewOne() = runTest {
+        val moved = scout.copy(section = "Ops")
+        val gate = Gate(status = 200, body = """{"section":"Ops","sections":["Ops"],"bots":[${CompanionJson.encodeToString(moved)}]}""")
+        val session = session(gate)
+
+        val result = async { session.moveToDepartment("bot-1", "Ops") }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertEquals(false, result.await(), "the old computer's answer is not a move on the new one")
+        assertTrue(session.state.value.bots.isEmpty())
+        assertTrue(session.state.value.declaredSections.isEmpty(), "department names of the old computer must not carry over")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aMoveToADepartmentStillCommitsWhenTheComputerDoesNotChange() = runTest {
+        val moved = scout.copy(section = "Ops")
+        val gate = Gate(status = 200, body = """{"section":"Ops","sections":["Ops"],"bots":[${CompanionJson.encodeToString(moved)}]}""")
+        val session = session(gate)
+
+        val result = async { session.moveToDepartment("bot-1", "Ops") }
+        gate.awaitParked()
+        gate.release()
+
+        assertEquals(true, result.await(), "control")
+        assertEquals(listOf("Ops"), session.state.value.declaredSections)
+        assertEquals("Ops", session.state.value.bot("bot-1")?.section)
+    }
+
+    @Test
+    fun aFailedDepartmentChangeOnTheOldComputerRaisesNoErrorOnTheNewOne() = runTest {
+        val gate = Gate(status = 500, body = """{"error":"old computer failed"}""")
+        val session = session(gate)
+
+        val result = async { session.assignSection("Ops", listOf("bot-1")) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertNull(result.await())
+        assertNull(session.actionError, "an error of the old computer must not show on the new one")
+    }
+
+    @Test
+    fun aDepartmentNameDoesNotSurviveAComputerSwitch() = runTest {
+        val gate = Gate(status = 200, body = """{"section":"Ops","sections":["Ops"],"bots":[]}""")
+        val session = session(gate)
+
+        val result = async { session.assignSection("Ops", emptyList()) }
+        gate.awaitParked()
+        gate.release()
+        result.await()
+        assertEquals(listOf("Ops"), session.state.value.declaredSections, "control")
+
+        switchToPro(session)
+
+        assertTrue(session.state.value.declaredSections.isEmpty(), "an empty department of one computer must not show on the next")
+    }
+
+    @Test
+    fun aCompactAnsweredByTheOldComputerGivesTheOfflineValue() = runTest {
+        val gate = Gate(status = 202, body = "{}")
+        val session = session(gate)
+
+        val result = async { session.compact(scout) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertEquals(false, result.await(), "the old computer took the request, the new one did not")
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aFailedCompactOnTheOldComputerRaisesNoErrorOnTheNewOne() = runTest {
+        val gate = Gate(status = 500, body = """{"error":"old computer failed"}""")
+        val session = session(gate)
+
+        val result = async { session.compact(scout) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+
+        assertEquals(false, result.await())
+        assertNull(session.actionError, "an error of the old computer must not show on the new one")
+    }
+
+    @Test
+    fun aCompactStillReportsTheRequestWhenTheComputerDoesNotChange() = runTest {
+        val gate = Gate(status = 202, body = "{}")
+        val session = session(gate)
+
+        val result = async { session.compact(scout) }
+        gate.awaitParked()
+        gate.release()
+
+        assertEquals(true, result.await(), "control")
+        assertEquals(1, gate.requests.get())
+    }
+
+    private val sessionAllowCard = OptionCard(
+        title = "Run a command?",
+        subtitle = "git status",
+        options = listOf("Allow once", "Deny", "Always allow"),
+        requestId = "r1",
+        tool = "Bash",
+        allowSession = true,
+    )
+
+    @Test
+    fun anAllowForTheSessionSendsNothingUnlessTheCardOffersIt() = runTest {
+        val gate = Gate(status = 200, body = "{}")
+        gate.release()
+        val session = session(gate)
+        val chat = Chat.BotChat(scout)
+
+        session.allowForSession(chat, sessionAllowCard, advancedMode = false)
+        session.allowForSession(chat, sessionAllowCard.copy(allowSession = null), advancedMode = true)
+        session.allowForSession(chat, sessionAllowCard.copy(tool = null), advancedMode = true)
+        session.allowForSession(chat, sessionAllowCard.copy(answered = "Allow once"), advancedMode = true)
+        session.allowForSession(chat, sessionAllowCard.copy(requestId = null), advancedMode = true)
+
+        assertEquals(0, gate.requests.get(), "no request may leave the phone")
+    }
+
+    @Test
+    fun anAllowForTheSessionSendsOneAllowWithAlwaysWhileTheComputerStays() = runTest {
+        val gate = Gate(status = 200, body = "{}")
+        val session = session(gate)
+
+        val result = async { session.allowForSession(Chat.BotChat(scout), sessionAllowCard, advancedMode = true) }
+        gate.awaitParked()
+        gate.release()
+        result.await()
+
+        assertEquals(1, gate.requests.get(), "control")
+        val sent = CompanionJson.parseToJsonElement(gate.bodies.single()).jsonObject
+        assertEquals("allow", sent.getValue("behavior").jsonPrimitive.content)
+        assertEquals("true", sent.getValue("always").jsonPrimitive.content)
+        assertEquals("r1", sent.getValue("requestId").jsonPrimitive.content)
+    }
+
+    @Test
+    fun aFailedAllowForTheSessionOnTheOldComputerRaisesNoErrorOnTheNewOne() = runTest {
+        val gate = Gate(status = 500, body = """{"error":"old computer failed"}""")
+        val session = session(gate)
+
+        val result = async { session.allowForSession(Chat.BotChat(scout), sessionAllowCard, advancedMode = true) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+        result.await()
+
+        assertNull(session.actionError, "an error of the old computer must not show on the new one")
+        assertTrue(session.state.value.bots.isEmpty())
+    }
+
+    @Test
+    fun aRefusedAllowForTheSessionOfTheOldComputerDoesNotRevokeTheNewOne() = runTest {
+        val gate = Gate(status = 401, body = """{"error":"unauthorized"}""")
+        val session = session(gate)
+
+        val result = async { session.allowForSession(Chat.BotChat(scout), sessionAllowCard, advancedMode = true) }
+        gate.awaitParked()
+        switchToPro(session)
+        gate.release()
+        result.await()
+
+        assertEquals(pro, session.connection.value)
+        assertTrue(session.status.value !is Session.Status.Unauthorized, "a 401 of the old computer must not revoke the new one")
+    }
+
     private suspend fun TestScope.switchToPro(session: Session) {
         session.switchComputer(pro.id)
         runCurrent()
@@ -357,9 +570,11 @@ class SessionRuntimeIsolationTest {
         private val started = CountDownLatch(1)
         private val released = CountDownLatch(1)
         val requests = AtomicInteger()
+        val bodies = CopyOnWriteArrayList<String>()
 
         val http: OkHttpClient = OkHttpClient.Builder().addInterceptor { chain ->
             requests.incrementAndGet()
+            chain.request().body?.let { body -> bodies.add(Buffer().also { sink -> body.writeTo(sink) }.readUtf8()) }
             started.countDown()
             check(released.await(5, TimeUnit.SECONDS)) { "request was never released" }
             Response.Builder()
