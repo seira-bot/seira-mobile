@@ -1,0 +1,216 @@
+package bot.seira.companion.ui
+
+import android.app.Application
+import android.content.Context
+import bot.seira.companion.audio.LiveCallApi
+import bot.seira.companion.audio.LiveCallAudioRoute
+import bot.seira.companion.audio.LiveCallManager
+import bot.seira.companion.audio.LiveCallPreferences
+import bot.seira.companion.audio.LiveCallTransportFactory
+import bot.seira.companion.audio.SessionLiveCallApi
+import bot.seira.companion.audio.VoicePreviewPlayer
+import bot.seira.companion.audio.VoiceNotePlayer
+import bot.seira.companion.avatar.AvatarImageStore
+import bot.seira.companion.core.APIError
+import bot.seira.companion.core.Connection
+import bot.seira.companion.core.ConnectionRegistry
+import bot.seira.companion.core.ConnectionRegistryRestore
+import bot.seira.companion.core.ConnectionStore
+import bot.seira.companion.core.Fleet
+import bot.seira.companion.core.Session
+import bot.seira.companion.core.StreamFrame
+import bot.seira.companion.core.TokenStore
+import bot.seira.companion.dictation.SpeechDictation
+import bot.seira.companion.discovery.CompanionDiscovery
+import bot.seira.companion.discovery.DiscoveryState
+import bot.seira.companion.permissions.CompanionPermissions
+import bot.seira.companion.sharing.ShareInbox
+import bot.seira.companion.storage.ChatPreferences
+import bot.seira.companion.storage.OnboardingPreferences
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.coroutines.EmptyCoroutineContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import okhttp3.OkHttpClient
+import org.robolectric.RuntimeEnvironment
+
+/**
+ * A whole [CompanionEnvironment] around a real [Session], for the screens whose
+ * behaviour is a *call* rather than a value.
+ *
+ * `OnboardingScene` does this for the first-run router; this is the same idea
+ * one screen down, where what has to be measured is whether a button or a
+ * lifecycle event reaches the session at all. The session is real because that
+ * is the point: a fake that records `refresh()` would agree with a screen that
+ * calls it in the wrong place, or twice.
+ *
+ * Two seams answer the two questions:
+ *
+ * - [streamStarts] counts *collections* of the event stream, and only
+ *   `connect()` and `refresh()` start one. It is incremented inside the flow
+ *   builder, so building the flow costs nothing and only collecting it counts.
+ * - [events] hands each stream its own body, so a test can hold one open —
+ *   which is what keeps `refresh()` in flight long enough to observe.
+ *
+ * A connection makes the session build a real client against whatever address
+ * it was given, so a test that needs traffic can point it at a socket.
+ */
+internal class WiringScene(
+    connection: Connection? = null,
+    token: String? = "device-token",
+    /** An isolated fleet for conversation fixtures; older wiring scenes stay empty. */
+    fleet: Fleet = Fleet(emptyList(), emptyList()),
+    /** The transcript voice-note player; null builds a real one, tests inject a fake. */
+    voiceNotes: VoiceNotePlayer? = null,
+    /** A fake WebRTC transport for the call bar tests; null builds the production manager, which never creates media on its own. */
+    liveTransports: LiveCallTransportFactory? = null,
+    /** The computer's side of a call, with [liveTransports]; null goes through the real session. */
+    liveApi: LiveCallApi? = null,
+    /** The phone's clock as the call manager reads it, with [liveTransports]. */
+    liveClock: () -> Long = System::currentTimeMillis,
+    /** Whether this phone already made a Live call (the first-call disclosure is behind it), with [liveTransports]. */
+    liveDisclosureShown: Boolean = true,
+    /** The HTTP client of the session, for a test that answers its requests from a local server. */
+    httpClient: OkHttpClient = OkHttpClient(),
+    /** More computers saved on this phone, each with its device token; [connection] stays the active one. */
+    otherComputers: List<Pair<Connection, String>> = emptyList(),
+    /** The body of the nth stream (1-based). Hangs by default, like a live SSE. */
+    private val events: (Int) -> Flow<StreamFrame> = { flow { awaitCancellation() } },
+) {
+    private val context: Context = RuntimeEnvironment.getApplication() as Application
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+
+    /** How many times something opened the event stream. */
+    val streamStarts = AtomicInteger(0)
+
+    private val onboarding = OnboardingPreferences(
+        prefs = context.getSharedPreferences(
+            "wiring-scene-${SCENES.incrementAndGet()}",
+            Context.MODE_PRIVATE,
+        ),
+        // Inline rather than Dispatchers.IO: a Compose test's clock does not wait
+        // for a real background thread.
+        io = EmptyCoroutineContext,
+    )
+
+    val session = Session(
+        scope = scope,
+        connectionStore = FakeConnectionStore(connection, otherComputers.map { it.first }),
+        tokenStore = FakeTokenStore(connection?.id, token, otherComputers),
+        onboardingStore = onboarding,
+        deviceNameProvider = { "Pixel" },
+        httpClient = httpClient,
+        eventsFn = { _, _, _ -> flow { emitAll(events(streamStarts.incrementAndGet())) } },
+        hydrateFn = { _, _ -> fleet },
+        metadataFn = { throw APIError.Status(404) },
+    )
+
+    /** The call manager, built before the players so they can ask it, as the app does. */
+    private val liveCalls: LiveCallManager = if (liveTransports == null) {
+        LiveCallManager(context, session, scope)
+    } else {
+        LiveCallManager(
+            api = liveApi ?: SessionLiveCallApi(session),
+            scope = scope,
+            transports = liveTransports,
+            audio = SilentAudio,
+            preferences = MemoryPreferences(disclosureShown = liveDisclosureShown),
+            clock = liveClock,
+        )
+    }
+
+    val environment = CompanionEnvironment(
+        session = session,
+        permissions = CompanionPermissions(sdkInt = 34, granted = { true }),
+        discovery = SilentDiscovery,
+        onboarding = onboarding,
+        chatPreferences = ChatPreferences(context),
+        camera = CameraPermissionController(isGranted = { true }, request = {}),
+        mic = MicPermissionController(isGranted = { true }, request = {}),
+        notifications = NotificationPermissionController(
+            isGranted = { true },
+            canRequest = { false },
+            shouldShowRationale = { false },
+            hasAskedBefore = { true },
+            request = {},
+            openSettings = {},
+        ),
+        avatars = AvatarImageStore(fetch = { null }),
+        voicePreview = VoicePreviewPlayer(context, liveCallHoldsAudio = { liveCalls.state.value.holdsMedia }),
+        voiceNotes = voiceNotes ?: VoiceNotePlayer(context, liveCallHoldsAudio = { liveCalls.state.value.holdsMedia }),
+        liveCalls = liveCalls,
+        dictation = SpeechDictation(
+            context = context,
+            hasRecordAudio = { false },
+            requestRecordAudio = { it(false) },
+            preferredLanguages = { listOf("en-US") },
+        ),
+        chatDrafts = ChatDraftHolder(),
+        requestPermissions = {},
+        openAppSettings = {},
+        shareTranscript = { _, _ -> null },
+        shareInbox = ShareInbox(),
+        alwaysOnEnabled = MutableStateFlow(false),
+        onToggleAlwaysOn = {},
+    )
+
+    private object SilentDiscovery : CompanionDiscovery {
+        override fun discover(): Flow<DiscoveryState> = emptyFlow()
+    }
+
+    /** A fresh speaker choice per scene, so scenes cannot read each other's. */
+    private class MemoryPreferences(
+        override var speaker: Boolean = true,
+        override var disclosureShown: Boolean = true,
+    ) : LiveCallPreferences
+
+    private object SilentAudio : LiveCallAudioRoute {
+        override fun begin(speaker: Boolean, onFocusLost: () -> Unit) = Unit
+        override fun setSpeaker(speaker: Boolean) = Unit
+        override fun end() = Unit
+    }
+
+    private class FakeConnectionStore(private var saved: Connection?, others: List<Connection>) : ConnectionStore {
+        private var registry = ConnectionRegistry(listOfNotNull(saved) + others, saved?.id)
+        override suspend fun load(): Connection? = saved
+        override suspend fun save(connection: Connection) {
+            saved = connection
+        }
+        override suspend fun clear() {
+            saved = null
+        }
+        override suspend fun loadRegistry(): ConnectionRegistryRestore =
+            ConnectionRegistryRestore(ConnectionRegistry(registry.connections, saved?.id), migratedLegacyConnection = false)
+        override suspend fun saveRegistry(registry: ConnectionRegistry) {
+            this.registry = registry
+            saved = registry.activeConnection
+        }
+    }
+
+    private class FakeTokenStore(id: String?, token: String?, others: List<Pair<Connection, String>>) : TokenStore {
+        private val tokens = linkedMapOf<String, String>().apply {
+            if (id != null && token != null) put(id, token)
+            others.forEach { (computer, otherToken) -> put(computer.id, otherToken) }
+        }
+        override suspend fun save(connectionId: String, token: String) {
+            tokens[connectionId] = token
+        }
+        override suspend fun read(connectionId: String): TokenStore.ReadResult =
+            tokens[connectionId]?.let(TokenStore.ReadResult::Found) ?: TokenStore.ReadResult.Missing
+        override suspend fun remove(connectionId: String) {
+            tokens.remove(connectionId)
+        }
+    }
+
+    private companion object {
+        /** One preferences file per scene, so scenes cannot read each other. */
+        val SCENES = AtomicInteger(0)
+    }
+}

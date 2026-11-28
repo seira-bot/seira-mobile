@@ -74,13 +74,13 @@ enum ShareItemLoader {
         guard providers.count <= AttachmentPolicy.maximumItems else {
             throw ShareItemLoadingError.tooManyItems
         }
-        OpenMausSharedInbox.removeDirectories(olderThan: 0)
+        SeiraSharedInbox.removeDirectories(olderThan: 0)
         guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: OpenMausSharedConfiguration.appGroupIdentifier
+            forSecurityApplicationGroupIdentifier: SeiraSharedConfiguration.appGroupIdentifier
         ) else { throw ShareItemLoadingError.appGroupUnavailable }
 
         let inboxRoot = container.appendingPathComponent(
-            OpenMausSharedInbox.directoryName,
+            SeiraSharedInbox.directoryName,
             isDirectory: true
         )
         let inbox = inboxRoot

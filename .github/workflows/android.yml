@@ -55,7 +55,10 @@ jobs:
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37.0" > /dev/null
 
       - name: Core tests, app unit tests and debug build
-        run: ./gradlew --no-daemon :core:test :app:testDebugUnitTest :app:assembleDebug
+        run: ./gradlew --no-daemon :core:test :app:testDebugUnitTest :app:assembleDebug :app:verifyReleaseLauncherManifest
+
+      - name: Release signing refuses partial and renamed settings
+        run: node ../scripts/check-release-signing.mjs
 
       - name: Keep the test reports
         if: failure()
