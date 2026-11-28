@@ -60,6 +60,10 @@ body{position:relative;font-family:Geist,sans-serif;color:#fff;-webkit-font-smoo
 .tint{position:absolute;inset:0}
 .thread{position:absolute;left:0;top:0}
 .window,.card{position:absolute;overflow:hidden}
+.bar{position:absolute;left:0;top:0;right:0;display:flex;align-items:center;gap:var(--dot-gap);padding-left:var(--dot-gap);background:#26262b}
+.bar i{display:block;width:var(--dot);height:var(--dot);border-radius:50%;background:#ff5f57}
+.bar i:nth-child(2){background:#febc2e}
+.bar i:nth-child(3){background:#28c840}
 .window img,.card img{position:absolute;max-width:none}
 .ring{position:absolute;inset:0;border-radius:inherit;pointer-events:none}
 .head{position:absolute}
@@ -103,6 +107,7 @@ const thread = (d, index, W, H) => {
 };
 
 const css = (L, k) => `
+.window{--dot:${L.chrome?.dot ?? 0}px;--dot-gap:${L.chrome?.gap ?? 0}px}
 .tint{background:radial-gradient(${900 * k}px ${700 * k}px at 50% ${180 * k}px,rgba(124,44,112,0.55),rgba(124,44,112,0) 70%),linear-gradient(180deg,rgba(20,10,22,0.35),rgba(20,10,22,0) 40%)}
 .caption{top:${L.caption.top}px;width:${L.caption.width}px;gap:${L.caption.gap}px}
 .title{width:${L.caption.width}px;font-size:${L.caption.title}px;font-weight:700;line-height:1.04;letter-spacing:-0.03em}
@@ -120,20 +125,22 @@ for (const [layoutName, L] of Object.entries(spec.layouts)) {
   const k = W / THREAD_W;
   spec.shots.filter((shot) => shot.raw[L.device]).forEach((shot, i) => {
     for (const [loc, lang] of Object.entries(spec.locales)) {
-      const rawFile = join(root, "raw", `${L.device}-${lang}-${shot.raw[L.device]}.png`);
+      const rawFile = join(root, "raw", `${L.rawDevice ?? L.device}-${lang}-${shot.raw[L.device]}.png`);
       const [rw, rh0] = pngSize(rawFile);
       const sc = { ...L.screen, ...(shot.screen?.[L.device] ?? {}) };
       const rh = sc.cropH ?? rh0;
       const s = sc.width / (sc.cropW ?? rw);
       const sx = Math.round((W - sc.width) / 2);
       const raw = url(rawFile);
-      const screenH = Math.round(rh * s);
+      const bar = L.chrome?.bar ?? 0;
+      const screenH = bar + Math.round(rh * s);
+      const top = bar - Math.round((sc.cropY ?? 0) * s);
       const parts = [
         `<img class="plate" src="${url(play, "graphics", "source", "bg", shot.plate + ".jpg")}" alt="">`,
         `<div class="tint"></div>`,
         thread(spec.thread, i, W, H),
         `<div class="window" style="left:${sx}px;top:${sc.y}px;width:${sc.width}px;height:${screenH}px;border-radius:${sc.radius}px">
-  <img src="${raw}" alt="" style="left:0;top:0;width:${Math.round(rw * s)}px"><div class="ring"></div></div>`,
+  <img src="${raw}" alt="" style="left:0;top:${top}px;width:${Math.round(rw * s)}px">${bar ? `<div class="bar" style="height:${bar}px"><i></i><i></i><i></i></div>` : ""}<div class="ring"></div></div>`,
       ];
       if (shot.card) {
         for (const c of [].concat(shot.card[L.device] ?? [])) {
@@ -150,10 +157,10 @@ for (const [layoutName, L] of Object.entries(spec.layouts)) {
   <img src="${url(cFile)}" alt="" style="left:${Math.round(-bx * kc)}px;top:${Math.round(-by * kc)}px;width:${Math.round(cw * kc)}px"><div class="ring"></div></div>`);
         }
       }
-      if (shot.head) {
+      if (shot.head && L.head) {
         parts.push(`<img class="head" src="${url(play, "raw", "cast", shot.head + ".png")}" alt="" style="left:${L.head.x}px;top:${L.head.y}px;width:${L.head.size}px">`);
       }
-      parts.push(`<div class="caption"><div class="title">${title(text(shot.title, L.device, loc))}</div><div class="sub">${esc(text(shot.sub, L.device, loc))}</div></div>`);
+      parts.push(`<div class="caption"><div class="title">${title(text(shot.title, L.textDevice ?? L.device, loc))}</div><div class="sub">${esc(text(shot.sub, L.textDevice ?? L.device, loc))}</div></div>`);
       const name = `${loc}__${layoutName}__${shot.id}`;
       writeFileSync(join(out, name + ".html"), page(W, H, css(L, k), parts.join("\n"), fitTitle.toString()));
       pages.push({ name, width: W, height: H, target: `frames/${loc}/${layoutName}/${shot.id}.png` });
