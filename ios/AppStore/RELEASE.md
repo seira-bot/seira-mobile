@@ -29,7 +29,7 @@ The listing text and screenshots live in this folder. `tools/asc-listing.mjs` ch
 | Item | Source |
 | --- | --- |
 | Name, subtitle, description, keywords, promotional text, URLs | `en-US/*.txt`, `id/*.txt` (App Store Connect calls Indonesian `id`) |
-| What's New | `<locale>/release_notes.txt`. App Store Connect refuses it on the first version. |
+| What's New | `<locale>/release_notes.txt`. App Store Connect refuses it on the first version. `asc-release.mjs submit` fills it on an update before it submits. |
 | Screenshots | `frames/<locale>/iphone-6.9/` and `frames/<locale>/ipad-13/`. See `README.md`. |
 | App Privacy | `privacy-answers.md`. Verify it against the binary. |
 | Review notes | `review-notes.md`. The review server address and passphrase stay in App Store Connect only. |

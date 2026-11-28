@@ -6,10 +6,12 @@ import {
   checkComplete,
   decideVersion,
   describePlan,
+  isUpdate,
   openSubmission,
   pickBuild,
   reviewDetailAttributes,
   runSubmit,
+  whatsNewPatches,
 } from "./asc-release.mjs";
 
 const APP = "app1";
@@ -71,6 +73,13 @@ function fakeAsc(seed = {}) {
     if (method === "GET" && (m = path.match(/^\/v1\/appScreenshotSets\/set-([\w-]+?)-(APP_\w+)\/appScreenshots$/))) {
       const l = (state.locs[state.currentVersion] ?? state.locs.default).find((x) => x.locale === m[1]);
       return ok(Array.from({ length: l.shots[m[2]] }, (_, i) => ({ id: `s${i}` })));
+    }
+    if (method === "PATCH" && (m = path.match(/^\/v1\/appStoreVersionLocalizations\/loc-([\w-]+)$/))) {
+      for (const list of Object.values(state.locs)) {
+        const l = list.find((x) => x.locale === m[1]);
+        if (l) Object.assign(l.attributes, body.data.attributes);
+      }
+      return ok({ id: `loc-${m[1]}` });
     }
     if (method === "GET" && path === `/v1/apps/${APP}/reviewSubmissions`) {
       return ok(state.submissions.filter((s) => s.attributes.platform === q.get("filter[platform]") && s.attributes.state === q.get("filter[state]")));
@@ -371,4 +380,78 @@ test("plan tells what each platform needs", async () => {
   });
   assert.equal(await describePlan(client, APP, "IOS", "1.2.2"), "IOS: skip, 1.0 is waiting for review");
   assert.equal(await describePlan(client, APP, "MAC_OS", "1.2.2"), "MAC_OS: rename 1.0 → 1.2.2, wait for build, then submit");
+});
+
+test("isUpdate is true only when another version was released", () => {
+  const v = (id, state) => ({ id, versionString: "1", state });
+  assert.equal(isUpdate([v("a", "PREPARE_FOR_SUBMISSION")], "a"), false);
+  assert.equal(isUpdate([v("a", "PREPARE_FOR_SUBMISSION"), v("b", "WAITING_FOR_REVIEW")], "a"), false);
+  assert.equal(isUpdate([v("a", "PREPARE_FOR_SUBMISSION"), v("b", "READY_FOR_SALE")], "a"), true);
+  assert.equal(isUpdate([v("a", "PREPARE_FOR_SUBMISSION"), v("b", "REPLACED_WITH_NEW_VERSION")], "a"), true);
+  assert.equal(isUpdate([v("a", "READY_FOR_SALE")], "a"), false);
+});
+
+test("whatsNewPatches skips a filled locale, trims, and rejects a long text", () => {
+  const locs = [
+    { id: "1", locale: "en-US", attributes: { whatsNew: "" } },
+    { id: "2", locale: "id", attributes: { whatsNew: "Sudah ada" } },
+  ];
+  assert.deepEqual(whatsNewPatches(locs, () => "  Fixes.\n"), [{ id: "1", locale: "en-US", whatsNew: "Fixes." }]);
+  assert.throws(() => whatsNewPatches(locs, () => "x".repeat(4001)), /en-US.*4000/);
+});
+
+const iosLoc = (whatsNew) => ({ ...goodLoc(["APP_IPHONE_67", "APP_IPAD_PRO_3GEN_129"]), attributes: { description: "d", keywords: "k", supportUrl: "https://x.test", ...(whatsNew === undefined ? {} : { whatsNew }) } });
+const iosSeed = (released, locs) => ({
+  versions: [...(released ? [ver("i0", "IOS", "1.0", "READY_FOR_SALE")] : []), ver("i1", "IOS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+  builds: [build("b1", "IOS", "1.2.2", "6.4", "VALID")],
+  details: { i1: detail },
+  locs: { default: locs },
+});
+const iosOpts = () => opts({ platform: "IOS" });
+const patchCalls = (state) => state.calls.filter((c) => c.startsWith("PATCH /v1/appStoreVersionLocalizations"));
+
+test("a first version gets no What's New and is submitted", async () => {
+  const { state, client } = fakeAsc(iosSeed(false, [iosLoc()]));
+  state.currentVersion = "default";
+  const r = await runSubmit(client, iosOpts(), { ...deps(), readNotes: () => assert.fail("must not read notes") });
+  assert.equal(r.status, "submitted");
+  assert.deepEqual(patchCalls(state), []);
+});
+
+test("an update with an empty What's New gets the release notes, then is submitted", async () => {
+  const { state, client } = fakeAsc(iosSeed(true, [iosLoc(""), { ...iosLoc(undefined), locale: "id" }]));
+  state.currentVersion = "default";
+  const d = deps();
+  const r = await runSubmit(client, iosOpts(), { ...d, readNotes: (l) => `notes ${l}\n` });
+  assert.equal(r.status, "submitted");
+  assert.deepEqual(patchCalls(state), ["PATCH /v1/appStoreVersionLocalizations/loc-en-US", "PATCH /v1/appStoreVersionLocalizations/loc-id"]);
+  assert.equal(state.locs.default[0].attributes.whatsNew, "notes en-US");
+  assert.match(d.lines.join("\n"), /IOS: what's new set for en-US/);
+  assert.ok(state.calls.some((c) => c.includes("reviewSubmission")));
+});
+
+test("an update keeps a What's New that is already set", async () => {
+  const { state, client } = fakeAsc(iosSeed(true, [iosLoc("Kept")]));
+  state.currentVersion = "default";
+  const r = await runSubmit(client, iosOpts(), { ...deps(), readNotes: () => assert.fail("must not read notes") });
+  assert.equal(r.status, "submitted");
+  assert.deepEqual(patchCalls(state), []);
+  assert.equal(state.locs.default[0].attributes.whatsNew, "Kept");
+});
+
+test("an update with a locale that has no release notes stops before the submission", async () => {
+  const { state, client } = fakeAsc(iosSeed(true, [iosLoc(""), { ...iosLoc(""), locale: "id" }]));
+  state.currentVersion = "default";
+  const readNotes = (l) => {
+    if (l === "id") throw new Error("ENOENT");
+    return "notes";
+  };
+  await assert.rejects(runSubmit(client, iosOpts(), { ...deps(), readNotes }), /No release notes for id/);
+  assert.ok(!state.calls.some((c) => c.includes("reviewSubmission")));
+});
+
+test("checkComplete reports a missing whatsNew only for an update", () => {
+  const locs = [{ locale: "en-US", attributes: { description: "d", keywords: "k", supportUrl: "u" }, screenshots: { APP_DESKTOP: 1 } }];
+  assert.deepEqual(checkComplete("MAC_OS", locs), []);
+  assert.deepEqual(checkComplete("MAC_OS", locs, { update: true }), ["en-US has no whatsNew"]);
 });
