@@ -311,10 +311,11 @@ struct ChatView: View {
     }
 
     var body: some View {
+        let _ = busyFleetPass("chat")
         // Read the transcript once for this render. Pagination changes the
         // array as a unit; repeatedly reaching through ObservableObject for
         // every row only recomputes the same value.
-        let snapshot = transcriptSnapshot
+        let snapshot = busyFleetMeasured("snapshot") { transcriptSnapshot }
         // A VStack with the composer as a sibling, rather than a scroll view
         // with `.safeAreaInset`. The inset version sized itself to its
         // content, so a short transcript left the composer floating in the
@@ -345,6 +346,7 @@ struct ChatView: View {
             if case let .bot(bot) = current { ComputerView(bot: bot) }
         }
         .task(id: threadId) { await enterThread() }
+        .task(id: threadId) { await session.keepOpen(threadId) }
         .onValueChange(of: selectedThreadWasRemoved) { removed in
             if removed { dismiss() }
         }
@@ -1111,6 +1113,10 @@ struct ChatView: View {
                     .font(.caption2)
                     .accessibilityIdentifier("transcript-row-redraws")
                     .accessibilityValue(String(TranscriptRedrawProbe.rows))
+                Text(verbatim: "main thread")
+                    .font(.caption2)
+                    .accessibilityIdentifier("busy-fleet-probe")
+                    .accessibilityValue(BusyFleetProbe.summary)
             }
             .allowsHitTesting(false)
         }

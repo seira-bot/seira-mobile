@@ -10,8 +10,9 @@ import os
 /// Answers the four Live routes and the config the way the harness would.
 /// Installed by Session when the app is launched with `-live-call-preview`.
 ///
-/// `-live-call-preview-slow-start` holds the start's 201 back for a few
-/// seconds, so a test can hang up while the bar still says "Calling…";
+/// `-live-call-preview-slow-start` holds the start's 201 back until the
+/// app gives that start up, so a test can hang up while the bar still says
+/// "Calling…" however slow the simulator is, and the 201 always lands late;
 /// `-live-call-preview-slow-config` does the same to the settings sheet's
 /// first read, so a test can change a setting before it lands;
 /// `-live-call-preview-settings-unreachable` fails the settings' write and
@@ -24,9 +25,20 @@ final class LiveCallPreviewProtocol: URLProtocol {
     static let call = #"{"callId":"preview-call","botId":"preview-pepper","threadId":"preview-gmail","client":"ios","voice":"marin","startedAt":1789088400000,"status":"live"}"#
     static let endedCall = #"{"callId":"preview-call","botId":"preview-pepper","threadId":"preview-gmail","client":"ios","voice":"marin","startedAt":1789088400000,"status":"ended","endReason":"hung-up"}"#
     static let slowAnswer: TimeInterval = 3
+    /// The longest `-live-call-preview-slow-start` holds a start's 201 when
+    /// the app never gives the start up.
+    static let slowStartLimit: TimeInterval = 30
     static let remoteCallId = "preview-remote-call"
     /// A held answer, dropped if URLSession stops the request first.
     private var heldAnswer: DispatchWorkItem?
+    /// Set when the app gives up a start that waits on its 201.
+    private static let startAbandoned = OSAllocatedUnfairLock(initialState: false)
+
+    /// The controller gave up the start it was making (a hang-up while
+    /// calling, mostly): a held 201 may now land.
+    static func noteStartAbandoned() {
+        startAbandoned.withLock { $0 = true }
+    }
     /// Set once `-live-call-preview-revoke` has refused a request: from then
     /// on the computer refuses everything this phone asks, as it does a
     /// phone it unpaired.
@@ -55,6 +67,7 @@ final class LiveCallPreviewProtocol: URLProtocol {
         let status: Int
         let body: String
         var delay: TimeInterval = 0
+        var holdUntilAbandoned = false
         let settingsUnreachable = arguments.contains("-live-call-preview-settings-unreachable")
         if method == "GET", path == "/api/attachments/preview-voice-note.mp3" {
             // The thread's voice note, so a test can see it held back during a call.
@@ -85,7 +98,10 @@ final class LiveCallPreviewProtocol: URLProtocol {
         switch (method, path) {
         case ("POST", "/api/live/session"):
             (status, body) = (201, #"{"call":\#(Self.call),"transport":{"type":"webrtc","sdp":"v=0\r\ns=preview\r\n"}}"#)
-            if arguments.contains("-live-call-preview-slow-start") { delay = Self.slowAnswer }
+            if arguments.contains("-live-call-preview-slow-start") {
+                Self.startAbandoned.withLock { $0 = false }
+                holdUntilAbandoned = true
+            }
         case ("POST", "/api/live/call/end"):
             // The remote bar hangs up the other device's call; everything
             // else here ends this phone's.
@@ -121,13 +137,30 @@ final class LiveCallPreviewProtocol: URLProtocol {
             client?.urlProtocol(self, didLoad: Data(body.utf8))
             client?.urlProtocolDidFinishLoading(self)
         }
-        if delay > 0 {
+        if holdUntilAbandoned {
+            answerOnceAbandoned(answer, waited: 0)
+        } else if delay > 0 {
             let held = DispatchWorkItem(block: answer)
             heldAnswer = held
             DispatchQueue.global().asyncAfter(deadline: .now() + delay, execute: held)
         } else {
             answer()
         }
+    }
+
+    /// Looks twice a second; the answer goes the look after the app gave
+    /// the start up, so it lands after the hang-up was handled.
+    private func answerOnceAbandoned(_ answer: @escaping () -> Void, waited: TimeInterval) {
+        let abandoned = Self.startAbandoned.withLock { $0 }
+        let look = DispatchWorkItem { [weak self] in
+            if abandoned || waited >= Self.slowStartLimit {
+                answer()
+            } else {
+                self?.answerOnceAbandoned(answer, waited: waited + 0.5)
+            }
+        }
+        heldAnswer = look
+        DispatchQueue.global().asyncAfter(deadline: .now() + 0.5, execute: look)
     }
 
     override func stopLoading() {

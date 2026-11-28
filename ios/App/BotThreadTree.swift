@@ -47,6 +47,7 @@ struct BotThreadTree: View, Equatable {
     private var creating: Bool { creatingThreads.contains(bot.id) }
 
     var body: some View {
+        let _ = busyFleetPass("tree")
         let _ = snoozeTick
         let isExpanded = expandedBots.contains(bot.id)
         let groups = bot.threadGroups(queuedThreadIds: queuedThreadIds)

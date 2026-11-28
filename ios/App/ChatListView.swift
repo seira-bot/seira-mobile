@@ -46,19 +46,24 @@ struct ChatListView: View {
     private static let listBottomMargin: CGFloat = 16
 
     var body: some View {
-        // Read once per render. The island, the pill (twice: the bar lays
-        // out both of its widths) and every row's waiting hand all start
-        // from the same approvals, and each walk of them visits every thread.
-        let approvals = session.state.pendingApprovals
-        let updates = session.state.updates(detail: activity, pendingApprovals: approvals)
-        let waiting = waitingChats(approvals)
+        let _ = busyFleetPass("home")
         NavigationStack(path: $path) {
             HomeDrawerLayer(
                 open: $drawerOpen,
                 name: session.connection?.name ?? "You",
                 select: { path.append($0) }
             ) {
-                homeColumn(updates: updates, waiting: waiting)
+                CoveredHome(covered: !path.isEmpty) {
+                    let _ = busyFleetPass("homeColumn")
+                    // Read once per render. The island, the pill (twice: the
+                    // bar lays out both of its widths) and every row's
+                    // waiting hand all start from the same approvals, and
+                    // each walk of them visits every thread.
+                    let approvals = session.state.pendingApprovals
+                    let updates = busyFleetMeasured("updates") { session.state.updates(detail: activity, pendingApprovals: approvals) }
+                    homeColumn(updates: updates, waiting: waitingChats(approvals))
+                }
+                .equatable()
             }
             .background(Color.seiraApp.ignoresSafeArea())
             .toolbar(.hidden, for: .navigationBar)
@@ -185,6 +190,17 @@ struct ChatListView: View {
         }
     }
 
+    /// The home under a pushed page. Nobody sees it, so it skips the
+    /// session's publishes until the stack is back at the home.
+    private struct CoveredHome<Content: View>: View, Equatable {
+        let covered: Bool
+        @ViewBuilder let content: () -> Content
+
+        static func == (lhs: Self, rhs: Self) -> Bool { lhs.covered && rhs.covered }
+
+        var body: some View { content() }
+    }
+
     // MARK: - Scroll
 
     private func homeColumn(updates: [ChatUpdate], waiting: Set<String>) -> some View {
@@ -283,7 +299,7 @@ struct ChatListView: View {
     }
 
     private func rosterScroll(waiting: Set<String>) -> some View {
-        let home = homeContext(waiting: waiting)
+        let home = busyFleetMeasured("roster") { homeContext(waiting: waiting) }
         return ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(home.items) { item in
@@ -717,6 +733,7 @@ struct StatusBanner: View {
     @EnvironmentObject private var session: Session
 
     var body: some View {
+        let _ = busyFleetPass("status")
         Group {
             switch session.status {
             case .live, .unpaired:

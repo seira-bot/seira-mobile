@@ -105,6 +105,7 @@ struct RootView: View {
     @AppStorage(CompanionOnboardingPreferences.pendingNotificationOnboardingKey)
     private var notificationOnboardingPending = false
     var body: some View {
+        let _ = busyFleetPass("root")
         Group {
             switch route {
             case .welcome:

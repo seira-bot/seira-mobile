@@ -132,6 +132,7 @@ struct BotTile: View, Equatable {
     }
 
     var body: some View {
+        let _ = busyFleetPass("homeTile")
         VStack(spacing: 6) {
             SeiraAvatar(bot: bot, size: 56)
                 .overlay(alignment: .topTrailing) {
@@ -195,6 +196,7 @@ struct AdvancedBotRow: View, Equatable {
     }
 
     var body: some View {
+        let _ = busyFleetPass("homeRow")
         HStack(spacing: 0) {
             Button(action: toggle) {
                 Image(systemName: "chevron.right")
