@@ -1281,6 +1281,10 @@ class Session(
                     _status.value = Status.Unauthorized
                     return
                 }
+                // Another request found that the computer refused this phone. A
+                // retry cannot fix that, and a network error must not cover the
+                // unpaired screen.
+                if (_status.value == Status.Unauthorized) return
                 val message = failureMessage(error)
                 _status.value = Status.Offline(_routeAdvice.value?.text ?: message)
             }
@@ -1288,6 +1292,7 @@ class Session(
             if (!currentCoroutineContext().isActive) return
             reconnectDelaySeconds = if (reconnectDelaySeconds == 0L) 1L else minOf(reconnectDelaySeconds * 2, 15L)
             delay(reconnectDelaySeconds * 1_000)
+            if (_status.value == Status.Unauthorized) return
         }
     }
 

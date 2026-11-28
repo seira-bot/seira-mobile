@@ -165,6 +165,37 @@ class SessionLiveCallTest {
     }
 
     @Test
+    fun aNetworkErrorOnTheNextStreamRetryKeepsTheUnpairedState() = runBlocking<Unit> {
+        val opened = AtomicInteger()
+        val drop = CompletableDeferred<Unit>()
+        val session = session(
+            events = {
+                val attempt = opened.incrementAndGet()
+                flow {
+                    emit(StreamFrame(Frame.Hello(cursor = "fixture:1", resumed = false)))
+                    if (attempt == 1) {
+                        drop.await()
+                        throw java.net.SocketException("connection reset")
+                    }
+                    awaitCancellation()
+                }
+            },
+        )
+        try {
+            session.connect()
+            withTimeout(5_000) { session.status.first { it is Session.Status.Live } }
+            assertFailsWith<APIError.Status> { session.startLiveCall("b1", "t1", "v=0\r\n") }
+            withTimeout(5_000) { session.status.first { it is Session.Status.Unauthorized } }
+            drop.complete(Unit)
+            delay(1_800)
+            assertEquals(Session.Status.Unauthorized, session.status.value)
+            assertEquals(1, opened.get(), "the stream loop stopped and did not retry")
+        } finally {
+            session.disconnect()
+        }
+    }
+
+    @Test
     fun aStartAnsweredAfterSwitchingComputersIsClosedOnItsOriginalComputer() = runBlocking<Unit> {
         val other = MockWebServer()
         val otherRequests = ConcurrentLinkedQueue<RecordedRequest>()
@@ -304,6 +335,7 @@ class SessionLiveCallTest {
         /** What the stream carries after its hello. */
         frames: Flow<StreamFrame> = emptyFlow(),
         otherConnection: Connection? = null,
+        events: (suspend () -> Flow<StreamFrame>)? = null,
     ): Session {
         val connection = Connection(id = "fixture", name = "Fixture", host = "127.0.0.1", port = server.port)
         val session = Session(
@@ -314,7 +346,7 @@ class SessionLiveCallTest {
             deviceNameProvider = { "Fixture phone" },
             httpClient = http,
             eventsFn = { _, _, _ ->
-                flow {
+                events?.invoke() ?: flow {
                     emit(StreamFrame(Frame.Hello(cursor = "fixture:1", resumed = false)))
                     emitAll(frames)
                     awaitCancellation()
