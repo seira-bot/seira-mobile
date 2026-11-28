@@ -3,11 +3,14 @@
 // CompanionCore picks the focus; this file keeps the system activity equal
 // to it. The stream is foreground-only and there is no push path, so the
 // activity is exact while the app is alive.
+#if !targetEnvironment(macCatalyst)
 import ActivityKit
+#endif
 import Combine
 import CompanionCore
 import Foundation
 
+#if !targetEnvironment(macCatalyst)
 /// ActivityKit's content API is iOS 16.2, so the coordinator is never built on anything older.
 @available(iOS 16.2, *)
 @MainActor
@@ -169,6 +172,8 @@ final class GlanceCoordinator {
         return options.first { OptionCard.isRefusal($0) } ?? "Deny"
     }
 }
+
+#endif
 
 #if DEBUG
 extension CompanionState {
