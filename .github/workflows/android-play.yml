@@ -161,10 +161,10 @@ jobs:
       - name: Build the release bundle
         working-directory: android
         env:
-          OPENMAUSBOT_KEYSTORE_FILE: ${{ steps.mode.outputs.publish == 'true' && format('{0}/upload.p12', runner.temp) || '' }}
-          OPENMAUSBOT_KEYSTORE_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD || '' }}
-          OPENMAUSBOT_KEY_ALIAS: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_ALIAS || '' }}
-          OPENMAUSBOT_KEY_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_PASSWORD || '' }}
+          SEIRA_KEYSTORE_FILE: ${{ steps.mode.outputs.publish == 'true' && format('{0}/upload.p12', runner.temp) || '' }}
+          SEIRA_KEYSTORE_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD || '' }}
+          SEIRA_KEY_ALIAS: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_ALIAS || '' }}
+          SEIRA_KEY_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_PASSWORD || '' }}
         run: ./gradlew --no-daemon :app:bundleRelease
 
       - name: Check that the bundle is signed
