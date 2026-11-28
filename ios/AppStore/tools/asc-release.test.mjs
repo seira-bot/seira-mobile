@@ -122,18 +122,18 @@ const deps = () => {
   const sleeps = [];
   return { lines, sleeps, log: (l) => lines.push(l), sleep: async (ms) => sleeps.push(ms) };
 };
-const opts = (over) => ({ appId: APP, platform: "MAC_OS", version: "1.2.0", build: "6.4", waitMinutes: 90, submit: true, ...over });
+const opts = (over) => ({ appId: APP, platform: "MAC_OS", version: "1.2.2", build: "6.4", waitMinutes: 90, submit: true, ...over });
 
 test("decideVersion: a live or processing version of the target is done", () => {
   for (const state of ["READY_FOR_SALE", "PENDING_DEVELOPER_RELEASE", "PROCESSING_FOR_APP_STORE"]) {
-    const d = decideVersion([{ id: "a", versionString: "1.2.0", state }], "1.2.0");
+    const d = decideVersion([{ id: "a", versionString: "1.2.2", state }], "1.2.2");
     assert.equal(d.action, "done", state);
   }
 });
 
 test("decideVersion: a version in review makes the platform skip", () => {
   for (const state of ["WAITING_FOR_REVIEW", "IN_REVIEW", "PENDING_APPLE_RELEASE", "ACCEPTED"]) {
-    const d = decideVersion([{ id: "a", versionString: "1.0", state }], "1.2.0");
+    const d = decideVersion([{ id: "a", versionString: "1.0", state }], "1.2.2");
     assert.equal(d.action, "skip", state);
     assert.match(d.reason, /1\.0 is /);
   }
@@ -141,11 +141,11 @@ test("decideVersion: a version in review makes the platform skip", () => {
 
 test("decideVersion: an editable version is renamed or used, else a new one is created", () => {
   for (const state of ["PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY"]) {
-    assert.equal(decideVersion([{ id: "a", versionString: "1.0", state }], "1.2.0").action, "rename", state);
+    assert.equal(decideVersion([{ id: "a", versionString: "1.0", state }], "1.2.2").action, "rename", state);
   }
-  assert.equal(decideVersion([{ id: "a", versionString: "1.2.0", state: "PREPARE_FOR_SUBMISSION" }], "1.2.0").action, "use");
-  assert.equal(decideVersion([{ id: "a", versionString: "1.0", state: "READY_FOR_SALE" }], "1.2.0").action, "create");
-  assert.equal(decideVersion([], "1.2.0").action, "create");
+  assert.equal(decideVersion([{ id: "a", versionString: "1.2.2", state: "PREPARE_FOR_SUBMISSION" }], "1.2.2").action, "use");
+  assert.equal(decideVersion([{ id: "a", versionString: "1.0", state: "READY_FOR_SALE" }], "1.2.2").action, "create");
+  assert.equal(decideVersion([], "1.2.2").action, "create");
 });
 
 test("pickBuild: valid, failed, processing, none, and a chosen number", () => {
@@ -184,7 +184,7 @@ test("openSubmission and autoSubmitOff", () => {
 });
 
 test("a version that is already live is done with no write", async () => {
-  const { state, client } = fakeAsc({ versions: [ver("m1", "MAC_OS", "1.2.0", "READY_FOR_SALE")] });
+  const { state, client } = fakeAsc({ versions: [ver("m1", "MAC_OS", "1.2.2", "READY_FOR_SALE")] });
   const d = deps();
   const r = await runSubmit(client, opts(), d);
   assert.equal(r.status, "done");
@@ -204,7 +204,7 @@ test("a version in review is skipped with exit 0 and no write (iOS 1.0 case)", a
 test("an editable version is renamed, gets the build and the review details, and is submitted", async () => {
   const { state, client } = fakeAsc({
     versions: [ver("i1", "IOS", "1.0", "WAITING_FOR_REVIEW"), ver("m1", "MAC_OS", "1.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     details: { i1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
   });
@@ -213,7 +213,7 @@ test("an editable version is renamed, gets the build and the review details, and
   const r = await runSubmit(client, opts(), d);
   assert.equal(r.status, "submitted");
   const mac = state.versions.find((v) => v.id === "m1");
-  assert.equal(mac.attributes.versionString, "1.2.0");
+  assert.equal(mac.attributes.versionString, "1.2.2");
   assert.equal(mac.attributes.releaseType, "AFTER_APPROVAL");
   assert.equal(mac.build, "b1");
   assert.deepEqual(state.details.m1, reviewDetailAttributes({ attributes: detail }));
@@ -226,8 +226,8 @@ test("an editable version is renamed, gets the build and the review details, and
 
 test("the log never shows review detail values", async () => {
   const { state, client } = fakeAsc({
-    versions: [ver("i1", "IOS", "1.0", "READY_FOR_SALE"), ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    versions: [ver("i1", "IOS", "1.0", "READY_FOR_SALE"), ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     details: { i1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
   });
@@ -241,7 +241,7 @@ test("the log never shows review detail values", async () => {
 test("with no version for the platform, a new one is created", async () => {
   const { state, client } = fakeAsc({
     versions: [ver("i1", "IOS", "1.0", "READY_FOR_SALE")],
-    builds: [build("b1", "IOS", "1.2.0", "6.4", "VALID")],
+    builds: [build("b1", "IOS", "1.2.2", "6.4", "VALID")],
     details: { i1: detail },
     locs: { default: [goodLoc(["APP_IPHONE_67", "APP_IPAD_PRO_3GEN_129"])] },
   });
@@ -249,7 +249,7 @@ test("with no version for the platform, a new one is created", async () => {
   const r = await runSubmit(client, opts({ platform: "IOS" }), deps());
   assert.equal(r.status, "submitted");
   const created = state.versions.find((v) => v.id !== "i1");
-  assert.equal(created.attributes.versionString, "1.2.0");
+  assert.equal(created.attributes.versionString, "1.2.2");
   assert.equal(created.attributes.platform, "IOS");
   assert.equal(created.build, "b1");
   assert.ok(state.calls.includes("POST /v1/appStoreVersions"));
@@ -258,7 +258,7 @@ test("with no version for the platform, a new one is created", async () => {
 test("an INVALID build stops the run", async () => {
   const { state, client } = fakeAsc({
     versions: [ver("m1", "MAC_OS", "1.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "INVALID")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "INVALID")],
   });
   await assert.rejects(runSubmit(client, opts(), deps()), /6\.4 is INVALID/);
   assert.deepEqual(wrote(state), []);
@@ -267,7 +267,7 @@ test("an INVALID build stops the run", async () => {
 test("a build that stays in processing times out after the wait", async () => {
   const { state, client } = fakeAsc({
     versions: [ver("m1", "MAC_OS", "1.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "PROCESSING")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "PROCESSING")],
   });
   const d = deps();
   await assert.rejects(runSubmit(client, opts({ waitMinutes: 3 }), d), /no valid build for 1\.2\.0 after 3 minutes/);
@@ -279,8 +279,8 @@ test("a build that stays in processing times out after the wait", async () => {
 test("a build that becomes VALID while the script waits is used", async () => {
   let polls = 0;
   const { state, client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "PROCESSING")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "PROCESSING")],
     details: { m1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
     onBuildPoll: (s) => {
@@ -303,8 +303,8 @@ test("with no build and a wait of 0, a pending run skips and changes nothing", a
 
 test("a pending run uses the newest valid build with no build number", async () => {
   const { state, client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.3", "VALID", "2026-11-28T08:00:00Z"), build("b2", "MAC_OS", "1.2.0", "6.4", "VALID", "2026-11-28T09:00:00Z")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.3", "VALID", "2026-11-28T08:00:00Z"), build("b2", "MAC_OS", "1.2.2", "6.4", "VALID", "2026-11-28T09:00:00Z")],
     details: { m1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
   });
@@ -316,8 +316,8 @@ test("a pending run uses the newest valid build with no build number", async () 
 
 test("a macOS version with no review details and no iOS source stops the run", async () => {
   const { client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
   });
   await assert.rejects(runSubmit(client, opts(), deps()), /no review details to copy/);
@@ -325,8 +325,8 @@ test("a macOS version with no review details and no iOS source stops the run", a
 
 test("an incomplete listing stops the run before the submission", async () => {
   const { state, client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     details: { m1: detail },
     locs: { default: [goodLoc([])] },
   });
@@ -337,8 +337,8 @@ test("an incomplete listing stops the run before the submission", async () => {
 
 test("submit false attaches the build and sends nothing to App Review", async () => {
   const { state, client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     details: { m1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
   });
@@ -351,8 +351,8 @@ test("submit false attaches the build and sends nothing to App Review", async ()
 
 test("an open review submission is reused and an item is not added twice", async () => {
   const { state, client } = fakeAsc({
-    versions: [ver("m1", "MAC_OS", "1.2.0", "PREPARE_FOR_SUBMISSION")],
-    builds: [build("b1", "MAC_OS", "1.2.0", "6.4", "VALID")],
+    versions: [ver("m1", "MAC_OS", "1.2.2", "PREPARE_FOR_SUBMISSION")],
+    builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "VALID")],
     details: { m1: detail },
     locs: { default: [goodLoc(["APP_DESKTOP"])] },
     submissions: [{ id: "rs1", attributes: { platform: "MAC_OS", state: "READY_FOR_REVIEW" } }],
@@ -369,6 +369,6 @@ test("plan tells what each platform needs", async () => {
   const { client } = fakeAsc({
     versions: [ver("i1", "IOS", "1.0", "WAITING_FOR_REVIEW"), ver("m1", "MAC_OS", "1.0", "PREPARE_FOR_SUBMISSION")],
   });
-  assert.equal(await describePlan(client, APP, "IOS", "1.2.0"), "IOS: skip, 1.0 is waiting for review");
-  assert.equal(await describePlan(client, APP, "MAC_OS", "1.2.0"), "MAC_OS: rename 1.0 → 1.2.0, wait for build, then submit");
+  assert.equal(await describePlan(client, APP, "IOS", "1.2.2"), "IOS: skip, 1.0 is waiting for review");
+  assert.equal(await describePlan(client, APP, "MAC_OS", "1.2.2"), "MAC_OS: rename 1.0 → 1.2.2, wait for build, then submit");
 });
