@@ -10,10 +10,11 @@
 // platform and sends the version to App Review. It skips a platform that already has a version
 // in review or live. "pending" runs "submit" for both platforms with the builds that already
 // exist. "review-detail" copies the review details of the newest iOS version that has them.
+// On an update version, "submit" fills an empty What's New from <locale>/release_notes.txt.
 // The environment variable APPLE_AUTO_SUBMIT=false works like --no-submit.
 // It reads ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_PATH and ASC_APP_ID, as asc-listing.mjs does.
 // It never prints review details.
-import { appendFileSync } from "node:fs";
+import { appendFileSync, readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { createClient, env } from "./asc-api.mjs";
 
@@ -21,6 +22,13 @@ export const PLATFORMS = ["IOS", "MAC_OS"];
 export const DONE_STATES = new Set(["READY_FOR_SALE", "PENDING_DEVELOPER_RELEASE", "PROCESSING_FOR_APP_STORE"]);
 export const IN_FLIGHT_STATES = new Set(["WAITING_FOR_REVIEW", "IN_REVIEW", "PENDING_APPLE_RELEASE", "ACCEPTED"]);
 export const EDITABLE_STATES = new Set(["PREPARE_FOR_SUBMISSION", "DEVELOPER_REJECTED", "REJECTED", "METADATA_REJECTED", "INVALID_BINARY"]);
+export const RELEASED_STATES = new Set([
+  ...DONE_STATES,
+  "REPLACED_WITH_NEW_VERSION",
+  "DEVELOPER_REMOVED_FROM_SALE",
+  "REMOVED_FROM_SALE",
+]);
+export const WHATS_NEW_MAX = 4000;
 export const REQUIRED_SCREENSHOTS = {
   IOS: ["APP_IPHONE_67", "APP_IPAD_PRO_3GEN_129"],
   MAC_OS: ["APP_DESKTOP"],
@@ -70,6 +78,31 @@ export function pickBuild(builds, number) {
   return { status: "processing", build };
 }
 
+// An update is a version of a platform that already had a released version.
+export const isUpdate = (versions, targetId) => versions.some((v) => v.id !== targetId && RELEASED_STATES.has(v.state));
+
+export function readReleaseNotes(locale) {
+  return readFileSync(new URL(`../${locale}/release_notes.txt`, import.meta.url), "utf8");
+}
+
+// locs: [{ id, locale, attributes }]. Returns [{ id, locale, whatsNew }] for the locales with an empty whatsNew.
+export function whatsNewPatches(locs, readNotes) {
+  const patches = [];
+  for (const loc of locs) {
+    if (loc.attributes.whatsNew) continue;
+    let text = "";
+    try {
+      text = String(readNotes(loc.locale) ?? "").trim();
+    } catch {
+      text = "";
+    }
+    if (!text) throw new Error(`No release notes for ${loc.locale}. Fill in ios/AppStore/${loc.locale}/release_notes.txt.`);
+    if (text.length > WHATS_NEW_MAX) throw new Error(`The release notes for ${loc.locale} have ${text.length} characters. The limit is ${WHATS_NEW_MAX}.`);
+    patches.push({ id: loc.id, locale: loc.locale, whatsNew: text });
+  }
+  return patches;
+}
+
 export function reviewDetailAttributes(detail) {
   const out = {};
   for (const key of REVIEW_DETAIL_FIELDS) {
@@ -80,13 +113,14 @@ export function reviewDetailAttributes(detail) {
 }
 
 // locs: [{ locale, attributes, screenshots: { <displayType>: count } }]. Returns the problems.
-export function checkComplete(platform, locs) {
+export function checkComplete(platform, locs, { update = false } = {}) {
   const problems = [];
   if (!locs.length) problems.push("the version has no localization");
   for (const loc of locs) {
     for (const field of ["description", "keywords", "supportUrl"]) {
       if (!loc.attributes[field]) problems.push(`${loc.locale} has no ${field}`);
     }
+    if (update && !loc.attributes.whatsNew) problems.push(`${loc.locale} has no whatsNew`);
     for (const type of REQUIRED_SCREENSHOTS[platform]) {
       if (!loc.screenshots[type]) problems.push(`${loc.locale} has no ${type} screenshot`);
     }
@@ -167,7 +201,7 @@ async function getLocalizations(client, versionId) {
       const shots = await client.listAll(`/v1/appScreenshotSets/${set.id}/appScreenshots?limit=50`);
       screenshots[set.attributes.screenshotDisplayType] = shots.length;
     }
-    out.push({ locale: loc.attributes.locale, attributes: loc.attributes, screenshots });
+    out.push({ id: loc.id, locale: loc.attributes.locale, attributes: loc.attributes, screenshots });
   }
   return out;
 }
@@ -273,7 +307,18 @@ export async function runSubmit(client, opts, deps = {}) {
   const detail = await ensureReviewDetail(client, appId, platform, target, log);
   if (detail === "missing" && platform !== "IOS") throw new Error(`${platform}: no review details to copy. Fill them in App Store Connect.`);
 
-  const problems = checkComplete(platform, await getLocalizations(client, target.id));
+  const update = isUpdate(await getVersions(client, appId, platform), target.id);
+  if (update) {
+    const patches = whatsNewPatches(await getLocalizations(client, target.id), deps.readNotes ?? readReleaseNotes);
+    for (const p of patches) {
+      await client.api("PATCH", `/v1/appStoreVersionLocalizations/${p.id}`, {
+        data: { type: "appStoreVersionLocalizations", id: p.id, attributes: { whatsNew: p.whatsNew } },
+      });
+      log(`${platform}: what's new set for ${p.locale}`);
+    }
+  }
+
+  const problems = checkComplete(platform, await getLocalizations(client, target.id), { update });
   if (problems.length) throw new Error(`${platform}: the listing is not complete, nothing was submitted: ${problems.join("; ")}`);
 
   if (!submit) {
