@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Builds the Android Seira mascot data from a seira-bot/seira clone:
-//   - android/app/src/main/kotlin/com/openmausbot/companion/character/SeiraBodies.kt
+//   - android/app/src/main/kotlin/bot/seira/companion/character/SeiraBodies.kt
 //   - android/app/src/main/assets/seira-mascot/**  (head, hair and accessory pictures)
 //
 // Usage: SEIRA_REPO=<seira clone> node scripts/gen-seira-bodies-kotlin.mjs [--check]
@@ -20,7 +20,7 @@ if (!seira || !existsSync(join(seira, "packages/phone-protocol/src/carved-bodies
 }
 const check = process.argv.includes("--check");
 
-const KOTLIN_OUT = join(repo, "android/app/src/main/kotlin/com/openmausbot/companion/character/SeiraBodies.kt");
+const KOTLIN_OUT = join(repo, "android/app/src/main/kotlin/bot/seira/companion/character/SeiraBodies.kt");
 const ASSETS_OUT = join(repo, "android/app/src/main/assets/seira-mascot");
 // The sizes the app draws from. The desktop ships more; two cover every avatar from a row to the call screen.
 const SIZES = [88, 256];
@@ -92,7 +92,7 @@ for (const [id, s] of Object.entries(placement.accessories)) {
 const kotlin = `// GENERATED FILE. Do not edit by hand.
 // Source: packages/phone-protocol/src/carved-bodies.ts and src/assets/seira-accessory/placement.json in seira-bot/seira.
 // Command: SEIRA_REPO=<seira clone> node scripts/gen-seira-bodies-kotlin.mjs
-package com.openmausbot.companion.character
+package bot.seira.companion.character
 
 internal class SeiraPoint(val x: Float, val y: Float)
 

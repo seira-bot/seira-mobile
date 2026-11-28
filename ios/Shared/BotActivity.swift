@@ -3,9 +3,10 @@
 //
 // One activity per bot that is doing something: needs you, or working.
 // Quiet bots have no activity, the same rule as the Updates pill.
+import Foundation
+#if !targetEnvironment(macCatalyst)
 import ActivityKit
 import AppIntents
-import Foundation
 import CompanionCore
 
 struct BotActivityAttributes: ActivityAttributes {
@@ -60,3 +61,4 @@ struct AnswerApprovalIntent: LiveActivityIntent {
         return .result()
     }
 }
+#endif

@@ -59,6 +59,7 @@ final class Session: ObservableObject {
     /// `Connection.canAdminister`. Views hide owner-only controls when this
     /// is false rather than offer buttons the server would answer 403 to.
     var canAdminister: Bool { connection?.canAdminister ?? false }
+    var canChangeVoiceEngine: Bool { connection?.canChangeVoiceEngine ?? false }
     /// Paired with a server directly rather than through the companion
     /// sidecar: see `Connection.pairedWithServer`.
     var pairedWithServer: Bool { connection?.pairedWithServer ?? false }
@@ -495,7 +496,7 @@ final class Session: ObservableObject {
     /// only the first should ever send someone back to the pairing screen.
     private func restore() {
         restorePending = false
-        registry = OpenMausSharedConnectionStore.loadRegistry()
+        registry = SeiraSharedConnectionStore.loadRegistry()
         connections = registry.connections
         // The Share extension can target any saved computer, not only the
         // one active at launch. Move every inactive pre-extension token into
@@ -640,7 +641,7 @@ final class Session: ObservableObject {
                 )
             }
         } saveConnection: {
-            OpenMausSharedConnectionStore.saveRegistry(updatedRegistry)
+            SeiraSharedConnectionStore.saveRegistry(updatedRegistry)
         }
 
         stopActiveRuntime()
@@ -947,7 +948,7 @@ final class Session: ObservableObject {
     }
 
     private func persistRegistry() {
-        OpenMausSharedConnectionStore.saveRegistry(registry)
+        SeiraSharedConnectionStore.saveRegistry(registry)
     }
 
     private func persistActiveConnection(_ updated: Connection) {
@@ -1772,7 +1773,7 @@ final class Session: ObservableObject {
     ) throws -> DownloadedFile {
         let manager = FileManager.default
         let root = manager.temporaryDirectory
-            .appendingPathComponent("OpenMausBotFilePreviews", isDirectory: true)
+            .appendingPathComponent("SeiraFilePreviews", isDirectory: true)
         let directory = root.appendingPathComponent(UUID().uuidString, isDirectory: true)
         try Task.checkCancellation()
         try manager.createDirectory(
@@ -1806,7 +1807,7 @@ final class Session: ObservableObject {
 
     private static func removeStaleFilePreviews() {
         let root = FileManager.default.temporaryDirectory
-            .appendingPathComponent("OpenMausBotFilePreviews", isDirectory: true)
+            .appendingPathComponent("SeiraFilePreviews", isDirectory: true)
         try? FileManager.default.removeItem(at: root)
     }
 
@@ -2513,10 +2514,12 @@ final class Session: ObservableObject {
         return instance?.models.options.first { $0.id == selection.model }?.label ?? selection.model
     }
 
-    func updateModel(_ selection: ModelSelection, for bot: Bot) async -> Bot? {
+    func updateModel(_ selection: ModelSelection, for bot: Bot, updateBotDefault: Bool = false) async -> Bot? {
         guard let client else { return nil }
         do {
-            let updated = try await client.updateModel(botId: bot.id, selection: selection, threadId: bot.threadId)
+            let updated = try await client.updateModel(
+                botId: bot.id, selection: selection, threadId: bot.threadId, updateBotDefault: updateBotDefault
+            )
             guard !Task.isCancelled else { return nil }
             state.apply(.bot(updated))
             return updated

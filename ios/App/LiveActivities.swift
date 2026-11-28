@@ -1,5 +1,13 @@
-import ActivityKit
 import Foundation
+#if targetEnvironment(macCatalyst)
+
+/// ActivityKit is unavailable in Mac Catalyst (SDK 26), so a Mac never requests a Live Activity.
+@MainActor
+final class LiveActivityBridge {
+    func attach(to session: Session) {}
+}
+#else
+import ActivityKit
 
 /// The scene does not want an `#available` around a stored property, so the bridge owns the
 /// coordinator where it is available and does nothing where it is not.
@@ -33,3 +41,4 @@ final class LiveActivityBridge {
     }
 #endif
 }
+#endif

@@ -1,6 +1,7 @@
 // The Glance Live Activity: the one bot that needs you most, on the lock
 // screen and in the Dynamic Island. The head is the bot's own mascot; the
 // colour of the state is the only count of attention, never a number.
+#if !targetEnvironment(macCatalyst)
 import ActivityKit
 import AppIntents
 import CompanionCore
@@ -262,3 +263,4 @@ private struct GlancePill: View {
             .background(Capsule().fill(fill))
     }
 }
+#endif

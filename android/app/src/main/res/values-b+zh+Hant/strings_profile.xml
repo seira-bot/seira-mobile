@@ -82,4 +82,5 @@
     <string name="team_memory_delete_title">刪除這則筆記？</string>
     <string name="team_memory_delete_body">機器人將不再讀取「%1$s」。</string>
     <string name="team_memory_changed">這則筆記已變更，正在顯示最新內容。</string>
+    <string name="voice_engine_change_on_computer">請在你的電腦上更改語音引擎。</string>
 </resources>

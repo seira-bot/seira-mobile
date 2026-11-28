@@ -198,7 +198,7 @@
           "role": "bot",
           "kind": "text",
           "at": 1789092360000,
-          "text": "Here is the triage, with the capture from https://discord.com/channels/1496552238640926740/1496552239077261322/1556297319635763815 attached.\n\n| Issue | What | Where |\n|---|---|---|\n| MOCA-293 | Open PR #2295 covers it \u2014 but only the desktop half of the fix | server/conversation/turn-runner.ts |\n| MOCA-300 | Box provisioning omits LLM credentials on first boot | cloudflare/box/provision.ts |\n\n```\nopenmausbot --trace --thread preview-images --since 2026-10-05T09:00:00Z --verbose\n```",
+          "text": "Here is the triage, with the capture from https://discord.com/channels/1496552238640926740/1496552239077261322/1556297319635763815 attached.\n\n| Issue | What | Where |\n|---|---|---|\n| MOCA-293 | Open PR #2295 covers it \u2014 but only the desktop half of the fix | server/conversation/turn-runner.ts |\n| MOCA-300 | Box provisioning omits LLM credentials on first boot | cloudflare/box/provision.ts |\n\n```\nseira --trace --thread preview-images --since 2026-10-05T09:00:00Z --verbose\n```",
           "attachments": [
             {
               "kind": "image",

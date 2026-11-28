@@ -36,7 +36,7 @@ Robolectric also does not measure text widths. The layout test uses hard line br
 3. Post a sample for each state. The sample receiver exists in debug builds only. It reads no session and uses no network.
 
 ```bash
-adb shell am broadcast -n bot.seira.companion/com.openmausbot.companion.glance.GlanceDemoReceiver --es state needs
+adb shell am broadcast -n bot.seira.companion/bot.seira.companion.glance.GlanceDemoReceiver --es state needs
 ```
 
 States: `working`, `needs`, `needs_long`, `question`, `failed`, `done`, `could_not_send`, `clear`.
