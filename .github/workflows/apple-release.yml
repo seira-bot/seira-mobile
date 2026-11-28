@@ -184,6 +184,24 @@ jobs:
           cd ios
           xcodegen generate
 
+      - name: Register a Mac for Mac Catalyst signing
+        # Apple makes no Mac Catalyst development profile while the team has no Mac device.
+        if: matrix.platform == 'macos'
+        env:
+          ASC_KEY_P8_BASE64: ${{ secrets.ASC_KEY_P8_BASE64 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          hw=$(system_profiler SPHardwareDataType)
+          udid=$(printf '%s\n' "$hw" | awk -F': ' '/Provisioning UDID/ { print $2; exit }')
+          [ -n "$udid" ] || udid=$(printf '%s\n' "$hw" | awk -F': ' '/Hardware UUID/ { print $2; exit }')
+          if [ -n "$udid" ]; then echo "::add-mask::$udid"; fi
+          ( umask 077; printf '%s' "$ASC_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/asc-device.p8" )
+          status=0
+          ASC_KEY_PATH="$RUNNER_TEMP/asc-device.p8" node ios/AppStore/tools/asc-device.mjs ensure-mac --udid "$udid" || status=$?
+          rm -f "$RUNNER_TEMP/asc-device.p8"
+          exit "$status"
+
       - name: Import the Mac installer certificate
         if: matrix.platform == 'macos'
         env:
