@@ -82,4 +82,5 @@
     <string name="team_memory_delete_title">Xóa ghi chú này?</string>
     <string name="team_memory_delete_body">Các bot ngừng đọc “%1$s”.</string>
     <string name="team_memory_changed">Ghi chú này đã thay đổi. Đang hiển thị bản mới nhất.</string>
+    <string name="voice_engine_change_on_computer">Hãy đổi công cụ giọng nói trên máy tính của bạn.</string>
 </resources>

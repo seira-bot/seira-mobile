@@ -88,4 +88,5 @@
     <string name="team_memory_delete_title">Usunąć tę notatkę?</string>
     <string name="team_memory_delete_body">Boty przestaną czytać „%1$s”.</string>
     <string name="team_memory_changed">Ta notatka się zmieniła. Pokazano najnowszą.</string>
+    <string name="voice_engine_change_on_computer">Zmień silnik głosu na swoim komputerze.</string>
 </resources>

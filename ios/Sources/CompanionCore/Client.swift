@@ -104,6 +104,11 @@ public struct Connection: Codable, Hashable, Identifiable, Sendable {
         return serverScopes?.contains("admin") == true
     }
 
+    /// Whether this phone may save the voice engine. The write goes through
+    /// the server's config route, which a companion pairing never allows and a
+    /// server pairing allows only with the `admin` scope.
+    public var canChangeVoiceEngine: Bool { pairedWithServer && canAdminister }
+
     /// The representation `URLComponents.host` accepts for a literal IPv6
     /// address. It adds brackets exactly once and leaves DNS/IPv4 names alone.
     /// A scope zone on a link-local IPv6 address is intentionally retained;
@@ -1438,16 +1443,22 @@ public struct CompanionClient: Sendable {
     }
 
     /// A captured thread uses the task route, which cannot change siblings or
-    /// the profile default. Omitting it retains the legacy narrow model API.
-    public func updateModel(botId: String, selection: ModelSelection, threadId: String? = nil) async throws -> Bot {
+    /// the profile default unless `updateBotDefault` is true. Omitting the
+    /// thread retains the legacy narrow model API.
+    public func updateModel(
+        botId: String,
+        selection: ModelSelection,
+        threadId: String? = nil,
+        updateBotDefault: Bool = false
+    ) async throws -> Bot {
         guard Self.validRouteID(botId) else { throw APIError.badURL }
         if let threadId {
             guard Self.validRouteID(threadId) else { throw APIError.badURL }
             let model = try JSONSerialization.jsonObject(with: JSONEncoder().encode(selection))
+            var body: [String: Any] = ["modelSelection": model, "requireAvailableModel": true]
+            if updateBotDefault { body["updateBotDefault"] = true }
             return try await send(
-                try makeRequest("PATCH", "/api/bots/\(botId)/tasks/\(threadId)", body: [
-                    "modelSelection": model, "requireAvailableModel": true,
-                ]),
+                try makeRequest("PATCH", "/api/bots/\(botId)/tasks/\(threadId)", body: body),
                 as: BotResponse.self
             ).bot
         }

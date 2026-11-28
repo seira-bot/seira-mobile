@@ -51,7 +51,7 @@ final class BotTaskStatusTests: XCTestCase {
 
     func testWaitingOnTeammateDecodesAdditively() throws {
         let wired = try JSONDecoder().decode(BotTask.self, from: Data("""
-        {"threadId":"t","title":"T","createdAt":1,"busy":false,"activity":"idle","waitingOnTeammate":true}
+        {"threadId":"t","title":"T","createdAt":1,"busy":false,"activity":"idle","waitingForTeammates":true}
         """.utf8))
         XCTAssertEqual(wired.waitingOnTeammate, true)
         XCTAssertFalse(wired.isWorking)
@@ -61,6 +61,21 @@ final class BotTaskStatusTests: XCTestCase {
         {"threadId":"t","title":"T","createdAt":1}
         """.utf8))
         XCTAssertNil(legacy.waitingOnTeammate)
+    }
+
+    func testComputersWaitingForTeammatesFlagReachesTheBotAndItsThreads() throws {
+        let bot = try JSONDecoder().decode(Bot.self, from: Data("""
+        {"id":"scout","threadId":"a","name":"Scout","title":"","description":"",
+         "notifications":true,"color":"blue","unread":false,"createdAt":1,
+         "modelSelection":{"instanceId":"default","model":"default"},
+         "waitingForTeammates":true,
+         "tasks":[{"threadId":"a","title":"A","createdAt":0,"waitingForTeammates":true},
+                  {"threadId":"b","title":"B","createdAt":0}]}
+        """.utf8))
+        XCTAssertEqual(bot.waitingOnTeammate, true)
+        XCTAssertEqual(bot.tasks?.first { $0.threadId == "a" }?.waitingOnTeammate, true)
+        XCTAssertEqual(bot.projected(forThread: "a")?.waitingOnTeammate, true)
+        XCTAssertNil(bot.tasks?.first { $0.threadId == "b" }?.waitingOnTeammate)
     }
 
     func testProjectionCarriesTheWaitIntoThreadViews() throws {
