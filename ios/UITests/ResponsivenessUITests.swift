@@ -43,15 +43,18 @@ final class ResponsivenessUITests: XCTestCase {
         XCTAssertTrue(input.waitForExistence(timeout: 10))
         waitForRowsToSettle(redraws)
         let redrawsBefore = counter(redraws)
+        let typingProbe = probe(app)
         let typingStarted = Date()
         input.tap()
         input.typeText("Busy Gmail draft")
         XCTAssertEqual(input.value as? String, "Busy Gmail draft")
         let typing = record("Typed Gmail draft", started: typingStarted, progress: progress)
+        noteMainThread(from: typingProbe, to: probe(app), seconds: typing, while: "typing into Gmail")
         pause(2)
         let gmailRedraws = counter(redraws) - redrawsBefore
         noteRedraws(gmailRedraws, while: "typing into Gmail and for 2 s after, other threads streaming")
 
+        let switchingProbe = probe(app)
         let switchingStarted = Date()
         selectThread("preview-icloud", title: "Triage iCloud", in: app)
         XCTAssertNotEqual(input.value as? String, "Busy Gmail draft")
@@ -67,6 +70,7 @@ final class ResponsivenessUITests: XCTestCase {
             format: "label CONTAINS %@", "I am reviewing iCloud here"
         )).firstMatch.exists)
         let switching = record("Switched iCloud and returned with Gmail draft", started: switchingStarted, progress: progress)
+        noteMainThread(from: switchingProbe, to: probe(app), seconds: switching, while: "switching to iCloud and back")
         let after = cursorSequence(progress)
         XCTAssertGreaterThan(after, before, "The flood must advance during the actions")
         XCTAssertLessThan(after, 36_000, "The actions must finish while the flood is still active")
@@ -248,6 +252,45 @@ final class ResponsivenessUITests: XCTestCase {
             if now == last { return }
             last = now
         }
+    }
+
+    /// The app's `BusyFleetProbe` summary as numbers: `awake`, `t.<name>`
+    /// seconds with `t.<name>#` passes, and `n.<name>` passes.
+    @MainActor
+    private func probe(_ app: XCUIApplication) -> [String: Double] {
+        let element = app.staticTexts["busy-fleet-probe"]
+        guard element.exists else { return [:] }
+        var out: [String: Double] = [:]
+        for part in (element.value as? String ?? "").split(separator: ";") {
+            let pair = part.split(separator: "=", maxSplits: 1).map(String.init)
+            guard pair.count == 2 else { continue }
+            let numbers = pair[1].split(separator: "/").compactMap { Double($0) }
+            if numbers.count == 2 {
+                out[pair[0] + "#"] = numbers[0]
+                out[pair[0]] = numbers[1]
+            } else if let number = numbers.first {
+                out[pair[0]] = number
+            }
+        }
+        return out
+    }
+
+    @MainActor
+    private func noteMainThread(from before: [String: Double], to after: [String: Double], seconds: TimeInterval, while action: String) {
+        func delta(_ key: String) -> Double { (after[key] ?? 0) - (before[key] ?? 0) }
+        let awake = delta("awake")
+        var lines = [String(format: "Main thread awake %.2f s of %.2f s (%.0f%%)", awake, seconds, seconds > 0 ? awake / seconds * 100 : 0)]
+        for key in after.keys.sorted() where key.hasPrefix("t.") && !key.hasSuffix("#") {
+            lines.append("\(key): " + String(format: "%.3f s in %.0f passes", delta(key), delta(key + "#")))
+        }
+        for key in after.keys.sorted() where key.hasPrefix("n.") {
+            lines.append("\(key): \(Int(delta(key))) passes")
+        }
+        let note = XCTAttachment(string: lines.joined(separator: "\n"))
+        note.name = "Main thread while \(action)"
+        note.lifetime = .keepAlways
+        add(note)
+        print("busy-fleet-probe \(action): " + lines.joined(separator: "; "))
     }
 
     @MainActor

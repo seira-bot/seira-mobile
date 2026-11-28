@@ -46,11 +46,12 @@ struct ChatListView: View {
     private static let listBottomMargin: CGFloat = 16
 
     var body: some View {
+        let _ = busyFleetPass("home")
         // Read once per render. The island, the pill (twice: the bar lays
         // out both of its widths) and every row's waiting hand all start
         // from the same approvals, and each walk of them visits every thread.
         let approvals = session.state.pendingApprovals
-        let updates = session.state.updates(detail: activity, pendingApprovals: approvals)
+        let updates = busyFleetMeasured("updates") { session.state.updates(detail: activity, pendingApprovals: approvals) }
         let waiting = waitingChats(approvals)
         NavigationStack(path: $path) {
             HomeDrawerLayer(
@@ -283,7 +284,7 @@ struct ChatListView: View {
     }
 
     private func rosterScroll(waiting: Set<String>) -> some View {
-        let home = homeContext(waiting: waiting)
+        let home = busyFleetMeasured("roster") { homeContext(waiting: waiting) }
         return ScrollView {
             LazyVStack(alignment: .leading, spacing: 0) {
                 ForEach(home.items) { item in
@@ -717,6 +718,7 @@ struct StatusBanner: View {
     @EnvironmentObject private var session: Session
 
     var body: some View {
+        let _ = busyFleetPass("status")
         Group {
             switch session.status {
             case .live, .unpaired:

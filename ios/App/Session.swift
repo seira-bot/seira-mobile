@@ -457,6 +457,7 @@ final class Session: ObservableObject {
             fleet.apply(.bot(bot))
         }
         state = fleet
+        BusyFleetProbe.start()
         streamTask = Task { [weak self] in
             let events = AsyncThrowingStream<StreamFrame, Error> { continuation in
                 let producer = Task.detached {
@@ -476,7 +477,7 @@ final class Session: ObservableObject {
             do {
                 for try await batch in eventBatches(events) {
                     guard !Task.isCancelled, let self else { return }
-                    self.applyStreamBatch(batch)
+                    BusyFleetProbe.measure("fold") { self.applyStreamBatch(batch) }
                 }
             } catch { /* offline fixture cancellation */ }
         }

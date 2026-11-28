@@ -55,6 +55,7 @@ struct TaskManagerView: View {
     }
 
     var body: some View {
+        let _ = busyFleetPass("threads")
         let current = self.current
         let tasks = self.tasks(of: current)
         NavigationStack {
