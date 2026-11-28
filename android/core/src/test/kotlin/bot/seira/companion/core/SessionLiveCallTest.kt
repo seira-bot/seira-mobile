@@ -335,7 +335,7 @@ class SessionLiveCallTest {
         /** What the stream carries after its hello. */
         frames: Flow<StreamFrame> = emptyFlow(),
         otherConnection: Connection? = null,
-        events: (suspend () -> Flow<StreamFrame>)? = null,
+        events: (() -> Flow<StreamFrame>)? = null,
     ): Session {
         val connection = Connection(id = "fixture", name = "Fixture", host = "127.0.0.1", port = server.port)
         val session = Session(
