@@ -8,6 +8,10 @@ final class LiveActivityBridge {
     private var coordinator: AnyObject?
 
     func attach(to session: Session) {
+#if targetEnvironment(macCatalyst)
+        // Live Activities have no surface on a Mac, so none is requested.
+        return
+#else
         guard #available(iOS 16.2, *) else { return }
 #if DEBUG
         if ProcessInfo.processInfo.arguments.contains("-store-no-activities") {
@@ -19,6 +23,7 @@ final class LiveActivityBridge {
         let coordinator = (self.coordinator as? GlanceCoordinator) ?? GlanceCoordinator()
         coordinator.attach(to: session)
         self.coordinator = coordinator
+#endif
     }
 
 #if DEBUG

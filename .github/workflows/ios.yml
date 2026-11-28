@@ -133,6 +133,68 @@ jobs:
           fi
           echo "No expression or function body took the type checker over ${fail_over_ms} ms."
 
+  catalyst:
+    name: Mac Catalyst build
+    runs-on: xcode-27
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Show the Xcode version
+        run: xcodebuild -version
+
+      - name: Restore the Swift package cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/spm-packages
+            ~/Library/Caches/org.swift.swiftpm
+          key: spm-${{ runner.os }}-${{ hashFiles('ios/project.yml', 'ios/Package.swift') }}
+          restore-keys: spm-${{ runner.os }}-
+
+      - name: Generate the Xcode project
+        run: |
+          brew install xcodegen
+          cd ios
+          xcodegen generate
+
+      - name: Keep compiling after the first error
+        run: |
+          defaults write com.apple.dt.Xcode IDEBuildingContinueBuildingAfterErrors -bool YES
+          defaults write com.apple.dt.xcodebuild IDEBuildingContinueBuildingAfterErrors -bool YES
+
+      - name: Build the app for Mac Catalyst
+        # No code signing. The scheme builds both extensions as app dependencies.
+        run: |
+          set -o pipefail
+          cd ios
+          xcodebuild \
+            -project SeiraCompanion.xcodeproj \
+            -scheme SeiraCompanion \
+            -configuration Debug \
+            -destination 'generic/platform=macOS,variant=Mac Catalyst' \
+            -derivedDataPath "$RUNNER_TEMP/derived-data" \
+            -clonedSourcePackagesDirPath "$HOME/spm-packages" \
+            CODE_SIGNING_ALLOWED=NO \
+            build > "$RUNNER_TEMP/xcodebuild.log" 2>&1 \
+            || { grep -E '(error|fatal error):' "$RUNNER_TEMP/xcodebuild.log" | sed -E 's#^.*/ios/#ios/#' | sort -u | head -200; tail -40 "$RUNNER_TEMP/xcodebuild.log"; exit 1; }
+          tail -5 "$RUNNER_TEMP/xcodebuild.log"
+
+      - name: The app holds both extensions and keeps the iOS bundle ID
+        run: |
+          app=$(find "$RUNNER_TEMP/derived-data/Build/Products" -maxdepth 2 -name 'SeiraCompanion.app' -path '*maccatalyst*' | head -1)
+          test -n "$app" || { echo "::error::No Mac Catalyst app in the build products"; find "$RUNNER_TEMP/derived-data/Build/Products" -maxdepth 2; exit 1; }
+          echo "App: $app"
+          ls "$app/Contents/PlugIns"
+          for appex in SeiraCompanionWidgets.appex SeiraShareExtension.appex; do
+            test -d "$app/Contents/PlugIns/$appex" || { echo "::error::Missing $appex in Contents/PlugIns"; exit 1; }
+          done
+          id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app/Contents/Info.plist")
+          test "$id" = "bot.seira.app" || { echo "::error::CFBundleIdentifier is $id, not bot.seira.app"; exit 1; }
+          echo "CFBundleIdentifier is $id"
+
   ui-tests:
     name: UI tests (iPhone simulator)
     needs: build
