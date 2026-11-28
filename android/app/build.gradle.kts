@@ -1,4 +1,7 @@
+import com.android.build.api.artifact.SingleArtifact
 import java.util.Properties
+import javax.xml.parsers.DocumentBuilderFactory
+import org.w3c.dom.Element
 
 plugins {
     id("com.android.application")
@@ -22,8 +25,8 @@ if (hasGoogleServices) apply(plugin = "com.google.gms.google-services")
 //     keys: `storeFile` (a path, absolute or relative to `android/`),
 //     `storePassword`, `keyAlias`, and optionally `keyPassword`.
 //   * the environment — for CI, where the material arrives as secrets:
-//     OPENMAUSBOT_KEYSTORE_FILE, OPENMAUSBOT_KEYSTORE_PASSWORD,
-//     OPENMAUSBOT_KEY_ALIAS, and optionally OPENMAUSBOT_KEY_PASSWORD.
+//     SEIRA_KEYSTORE_FILE, SEIRA_KEYSTORE_PASSWORD,
+//     SEIRA_KEY_ALIAS, and optionally SEIRA_KEY_PASSWORD.
 //
 // The environment wins over the file, so a runner cannot silently inherit a
 // stale `keystore.properties` left behind in a cached workspace.
@@ -38,27 +41,47 @@ private val keystoreProperties = Properties().apply {
     if (file.isFile) file.inputStream().use(::load)
 }
 
+// Up to 1.2.1 the environment names began with OPENMAUSBOT_ instead of SEIRA_.
+// A host that still sets them meant to sign this build. Without this check the
+// build would come out unsigned, or signed with a stale `keystore.properties`.
+// It stops instead, and it never reads the retired values.
+private val retiredSigningVariables = listOf(
+    "OPENMAUSBOT_KEYSTORE_FILE",
+    "OPENMAUSBOT_KEYSTORE_PASSWORD",
+    "OPENMAUSBOT_KEY_ALIAS",
+    "OPENMAUSBOT_KEY_PASSWORD",
+).filter { !System.getenv(it).isNullOrBlank() }
+if (retiredSigningVariables.isNotEmpty()) {
+    error(
+        retiredSigningVariables.joinToString(
+            prefix = "Release signing variables were renamed. Use ",
+            separator = ", ",
+            postfix = ", and unset the old names.",
+        ) { "SEIRA_${it.removePrefix("OPENMAUSBOT_")} instead of $it" }
+    )
+}
+
 private fun signingMaterial(property: String, environment: String): String? =
     (System.getenv(environment) ?: keystoreProperties.getProperty(property))
         ?.takeIf(String::isNotBlank)
 
-private val storeFilePath = signingMaterial("storeFile", "OPENMAUSBOT_KEYSTORE_FILE")
-private val storePasswordValue = signingMaterial("storePassword", "OPENMAUSBOT_KEYSTORE_PASSWORD")
-private val keyAliasValue = signingMaterial("keyAlias", "OPENMAUSBOT_KEY_ALIAS")
+private val storeFilePath = signingMaterial("storeFile", "SEIRA_KEYSTORE_FILE")
+private val storePasswordValue = signingMaterial("storePassword", "SEIRA_KEYSTORE_PASSWORD")
+private val keyAliasValue = signingMaterial("keyAlias", "SEIRA_KEY_ALIAS")
 // A PKCS12 keystore — keytool's default since JDK 9, and what `-storetype PKCS12`
 // produces — holds one password for the store and the key alike, so the key
 // password may be left out rather than repeated.
 private val keyPasswordValue =
-    signingMaterial("keyPassword", "OPENMAUSBOT_KEY_PASSWORD") ?: storePasswordValue
+    signingMaterial("keyPassword", "SEIRA_KEY_PASSWORD") ?: storePasswordValue
 
 // All three required values, or none of them. A build handed some of them is a
 // build somebody meant to sign, and answering that with an unsigned APK would
 // hand back something that looks finished and cannot be published. It stops here
 // instead, naming what is missing.
 private val releaseSigningMaterial = mapOf(
-    "storeFile / OPENMAUSBOT_KEYSTORE_FILE" to storeFilePath,
-    "storePassword / OPENMAUSBOT_KEYSTORE_PASSWORD" to storePasswordValue,
-    "keyAlias / OPENMAUSBOT_KEY_ALIAS" to keyAliasValue,
+    "storeFile / SEIRA_KEYSTORE_FILE" to storeFilePath,
+    "storePassword / SEIRA_KEYSTORE_PASSWORD" to storePasswordValue,
+    "keyAlias / SEIRA_KEY_ALIAS" to keyAliasValue,
 )
 private val releaseKeystore: java.io.File? = when {
     releaseSigningMaterial.values.all { it == null } -> null
@@ -77,7 +100,7 @@ private val releaseKeystore: java.io.File? = when {
 // The one line to edit at a release. `versionCode` is derived from it below, so
 // there is no second number to bump and no way to build a new version under a
 // code the Play Store has already accepted.
-private val appVersionName = "1.2.0"
+private val appVersionName = "1.2.2"
 
 // Play orders uploads by `versionCode` alone and refuses one it has already
 // seen, so the code has to rise whenever the name does — and rise in the
@@ -99,7 +122,7 @@ private val appVersionCode = run {
 }
 
 android {
-    namespace = "com.openmausbot.companion"
+    namespace = "bot.seira.companion"
     compileSdk = 37
 
     defaultConfig {
@@ -210,6 +233,69 @@ android {
 
 kotlin {
     jvmToolchain(17)
+}
+
+// A build with LIVE_CALLS false (the Play build) must not offer the Talk
+// shortcut or the Talk tile, because the listing declares no calls. The other
+// builds keep both. The launcher alias must stay, or icons that phones pinned
+// before 1.2.2 stop working. This reads the merged manifest of the variant.
+abstract class VerifyLauncherManifest : DefaultTask() {
+    @get:InputFile
+    @get:PathSensitive(PathSensitivity.NONE)
+    abstract val manifest: RegularFileProperty
+
+    @get:Input
+    abstract val liveCalls: Property<Boolean>
+
+    @TaskAction
+    fun verify() {
+        val ns = "http://schemas.android.com/apk/res/android"
+        val document = DocumentBuilderFactory.newInstance()
+            .apply { isNamespaceAware = true }
+            .newDocumentBuilder()
+            .parse(manifest.get().asFile)
+        fun elements(tag: String) = document.getElementsByTagName(tag)
+            .let { nodes -> (0 until nodes.length).map { nodes.item(it) as Element } }
+        fun Element.name() = getAttributeNS(ns, "name")
+
+        val alias = elements("activity-alias").singleOrNull { it.name() == LEGACY_LAUNCHER }
+            ?: throw GradleException("The launcher alias $LEGACY_LAUNCHER is missing.")
+        val categories = alias.getElementsByTagName("category")
+        if ((0 until categories.length).none { (categories.item(it) as Element).name() == "android.intent.category.LAUNCHER" }) {
+            throw GradleException("The launcher alias $LEGACY_LAUNCHER has no LAUNCHER category.")
+        }
+
+        val shortcutHosts = elements("meta-data")
+            .filter { it.name() == "android.app.shortcuts" }
+            .map { (it.parentNode as Element).name() }
+        val expectedHosts = if (liveCalls.get()) listOf(LEGACY_LAUNCHER) else emptyList()
+        if (shortcutHosts != expectedHosts) {
+            throw GradleException("Static shortcuts are on $shortcutHosts. Expected $expectedHosts.")
+        }
+
+        val talkTile = elements("service").any { it.name().endsWith(".tile.TalkTileService") }
+        if (talkTile != liveCalls.get()) {
+            throw GradleException("TalkTileService is ${if (talkTile) "present" else "missing"} with LIVE_CALLS ${liveCalls.get()}.")
+        }
+    }
+
+    private companion object {
+        const val LEGACY_LAUNCHER = "com.openmausbot.companion.MainActivity"
+    }
+}
+
+androidComponents {
+    onVariants { variant ->
+        val suffix = variant.name.replaceFirstChar(Char::uppercase)
+        val verify = tasks.register<VerifyLauncherManifest>("verify${suffix}LauncherManifest") {
+            manifest.set(variant.artifacts.get(SingleArtifact.MERGED_MANIFEST))
+            liveCalls.set(
+                variant.buildConfigFields!!.getting("LIVE_CALLS").map { it.value.toString() == "true" },
+            )
+        }
+        tasks.matching { it.name == "assemble$suffix" || it.name == "bundle$suffix" }
+            .configureEach { dependsOn(verify) }
+    }
 }
 
 dependencies {

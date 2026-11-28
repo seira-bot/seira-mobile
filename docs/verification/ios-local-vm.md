@@ -25,7 +25,7 @@ holding a fresh pairing code from this run can use it.
 
 Use a disposable simulator:
 
-1. Build the `OpenMausCompanion` scheme with a team and local signing, as in
+1. Build the `SeiraCompanion` scheme with a team and local signing, as in
    the [iOS runbook](../../ios/TESTING.md), and install it on a fresh simulator.
 2. Pair by opening
    `seira://pair?address=127.0.0.1:PORT&code=CODE` in the simulator with

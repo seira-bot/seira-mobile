@@ -49,12 +49,14 @@ copy of them.
 ## Status
 
 The code comes from the companion apps as they were on 2026-10-06, with
-their full history. App names, store IDs and icons are Seira. Internal code
-names (Swift and Kotlin types, packages, the Android `namespace`, the
-XcodeGen project) keep their old names. The apps read both the OpenMausBot
-and the Seira protocol identifiers: the pairing URL scheme, the pairing token,
-the well-known path and the health app id. They send the OpenMausBot
-identifiers, including the mDNS service name, until a later desktop release.
+their full history. App names, store IDs, icons and code names are Seira:
+the Android packages are `bot.seira.companion.*` and the Xcode project is
+`SeiraCompanion`. Only wire identifiers keep the OpenMausBot names. The apps
+read both the OpenMausBot and the Seira protocol identifiers: the pairing URL
+scheme, the pairing token, the well-known path and the health app id. They
+send the OpenMausBot identifiers, including the mDNS service name and the
+push notification categories, until a later desktop release.
+`node scripts/check-legacy-names.mjs` stops old code names from coming back.
 
 ## Layout
 
@@ -76,7 +78,7 @@ Needs macOS, Xcode and [XcodeGen](https://github.com/yonaskolb/XcodeGen).
 ```sh
 cd ios
 xcodegen generate
-open OpenMausCompanion.xcodeproj
+open SeiraCompanion.xcodeproj
 ```
 
 </td><td>

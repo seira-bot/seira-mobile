@@ -1,14 +1,14 @@
 # XcodeGen spec. The .xcodeproj is generated, not committed — a project
 # file is a merge-conflict machine and nothing in it is worth reviewing.
 #
-#   brew install xcodegen && cd ios && xcodegen generate && open OpenMausCompanion.xcodeproj
+#   brew install xcodegen && cd ios && xcodegen generate && open SeiraCompanion.xcodeproj
 #
 # XcodeGen is a development tool, not a dependency of the app: the app's one
 # dependency is the WebRTC package below, for Live calls. If you'd rather not
 # install XcodeGen, make an iOS App target in Xcode by hand, add the App/
 # folder, the local CompanionCore package and the WebRTC package — the
 # Info.plist keys below are the part that is easy to miss.
-name: OpenMausCompanion
+name: SeiraCompanion
 options:
   bundleIdPrefix: bot.seira
   deploymentTarget:
@@ -47,18 +47,18 @@ packages:
     exactVersion: 153.0.0
 
 schemes:
-  OpenMausCompanion:
+  SeiraCompanion:
     build:
       targets:
-        OpenMausCompanion: all
-        OpenMausCompanionUITests: [test]
+        SeiraCompanion: all
+        SeiraCompanionUITests: [test]
     test:
       config: Debug
       targets:
-        - OpenMausCompanionUITests
+        - SeiraCompanionUITests
 
 targets:
-  OpenMausCompanion:
+  SeiraCompanion:
     type: application
     platform: iOS
     sources:
@@ -71,19 +71,19 @@ targets:
       - package: CompanionCore
         product: CompanionCore
       - package: WebRTC
-      - target: OpenMausCompanionWidgets
-      - target: OpenMausShareExtension
+      - target: SeiraCompanionWidgets
+      - target: SeiraShareExtension
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bot.seira.app
-        MARKETING_VERSION: "1.2.0"
+        MARKETING_VERSION: "1.2.2"
         CURRENT_PROJECT_VERSION: "6"
         SWIFT_VERSION: "5.9"
         TARGETED_DEVICE_FAMILY: "1,2"
         # The catalog lives in App/, which is already a source path.
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     entitlements:
-      path: App/OpenMausCompanion.entitlements
+      path: App/SeiraCompanion.entitlements
       properties:
         com.apple.security.application-groups:
           - group.bot.seira.shared
@@ -105,7 +105,7 @@ targets:
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
         LSApplicationCategoryType: public.app-category.productivity
         ITSAppUsesNonExemptEncryption: false
-        OpenMausKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
+        SeiraKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
         # The bot's Live Activity — its face and ask in the Dynamic Island
         # and on the lock screen.
         NSSupportsLiveActivities: true
@@ -179,26 +179,26 @@ targets:
               NSExceptionAllowsInsecureHTTPLoads: true
 
   # Native navigation coverage uses bundled synthetic data and no pairing.
-  OpenMausCompanionUITests:
+  SeiraCompanionUITests:
     type: bundle.ui-testing
     platform: iOS
     sources:
       - path: UITests
     dependencies:
-      - target: OpenMausCompanion
+      - target: SeiraCompanion
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bot.seira.app.uitests
         SWIFT_VERSION: "5.9"
         TARGETED_DEVICE_FAMILY: "1,2"
         GENERATE_INFOPLIST_FILE: YES
-        TEST_TARGET_NAME: OpenMausCompanion
+        TEST_TARGET_NAME: SeiraCompanion
 
   # The system share sheet can send a link, text, image, or document straight
   # to a paired bot without first opening the containing app. Connection
   # metadata lives in the App Group; the bearer remains in the shared
   # Keychain access group.
-  OpenMausShareExtension:
+  SeiraShareExtension:
     type: app-extension
     platform: iOS
     sources:
@@ -210,14 +210,14 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bot.seira.app.share
-        MARKETING_VERSION: "1.2.0"
+        MARKETING_VERSION: "1.2.2"
         CURRENT_PROJECT_VERSION: "6"
         SWIFT_VERSION: "5.9"
         TARGETED_DEVICE_FAMILY: "1,2"
         APPLICATION_EXTENSION_API_ONLY: YES
         SKIP_INSTALL: true
     entitlements:
-      path: ShareExtension/OpenMausShareExtension.entitlements
+      path: ShareExtension/SeiraShareExtension.entitlements
       properties:
         com.apple.security.application-groups:
           - group.bot.seira.shared
@@ -229,7 +229,7 @@ targets:
         CFBundleDisplayName: Seira
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        OpenMausKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
+        SeiraKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
         # ATS is evaluated for URLSession work performed by the extension too.
         # Mirror the containing app's narrow local/Tailscale exceptions so a
         # share can reach the same already-paired routes. Local-network privacy
@@ -254,7 +254,7 @@ targets:
   # The Live Activity lives in a widget extension, alongside the home-screen
   # widgets. It shares the mascot's drawing and data with the app, and the
   # activity contract in Shared/.
-  OpenMausCompanionWidgets:
+  SeiraCompanionWidgets:
     type: app-extension
     platform: iOS
     # Live Activities and the Dynamic Island arrived in 16.1, so this
@@ -281,7 +281,7 @@ targets:
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: bot.seira.app.widgets
-        MARKETING_VERSION: "1.2.0"
+        MARKETING_VERSION: "1.2.2"
         CURRENT_PROJECT_VERSION: "6"
         SWIFT_VERSION: "5.9"
         TARGETED_DEVICE_FAMILY: "1,2"
@@ -292,7 +292,7 @@ targets:
     # keychain access group carries the tokens its answer intent will ask
     # for.
     entitlements:
-      path: Widgets/OpenMausCompanionWidgets.entitlements
+      path: Widgets/SeiraCompanionWidgets.entitlements
       properties:
         com.apple.security.application-groups:
           - group.bot.seira.shared
@@ -304,6 +304,6 @@ targets:
         CFBundleDisplayName: Seira
         CFBundleShortVersionString: $(MARKETING_VERSION)
         CFBundleVersion: $(CURRENT_PROJECT_VERSION)
-        OpenMausKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
+        SeiraKeychainAccessGroup: $(AppIdentifierPrefix)group.bot.seira.shared
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension

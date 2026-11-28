@@ -19,7 +19,7 @@ extension WidgetSnapshotStore {
     /// reader and writer in the extension goes through this one door.
     static func makeAppGroupStore() -> WidgetSnapshotStore? {
         FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: OpenMausSharedConfiguration.appGroupIdentifier
+            forSecurityApplicationGroupIdentifier: SeiraSharedConfiguration.appGroupIdentifier
         ).map { WidgetSnapshotStore(directory: $0) }
     }
 }

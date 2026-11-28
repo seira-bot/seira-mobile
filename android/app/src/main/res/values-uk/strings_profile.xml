@@ -88,4 +88,5 @@
     <string name="team_memory_delete_title">Видалити цю нотатку?</string>
     <string name="team_memory_delete_body">Боти перестануть читати «%1$s».</string>
     <string name="team_memory_changed">Цю нотатку змінено. Показано найновішу версію.</string>
+    <string name="voice_engine_change_on_computer">Змініть голосовий рушій на вашому комп’ютері.</string>
 </resources>

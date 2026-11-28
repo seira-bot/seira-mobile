@@ -451,7 +451,12 @@ public struct BotTask: Codable, Hashable, Sendable {
     /// settled yet (#1223): a wait, not work. Newer computers send it while
     /// leaving busy/activity idle, so older builds simply see the thread
     /// idle instead of spinning a work glyph for the whole teammate run.
-    public var waitingOnTeammate: Bool?
+    /// The computer sends it as `waitingForTeammates`.
+    public var waitingForTeammates: Bool?
+    public var waitingOnTeammate: Bool? {
+        get { waitingForTeammates }
+        set { waitingForTeammates = newValue }
+    }
     public var unread: Bool?
     public var approvalMode: String?
     public var autoApprove: Bool?
@@ -618,8 +623,13 @@ public struct Bot: Codable, Hashable, Identifiable, Sendable {
     public var activity: String?
     /// A dispatched teammate has not settled yet; the bot itself is waiting
     /// on it rather than working (#1223). Carries the active thread's wait;
-    /// per-thread waits live on the task.
-    public var waitingOnTeammate: Bool?
+    /// per-thread waits live on the task. The computer sends it as
+    /// `waitingForTeammates`.
+    public var waitingForTeammates: Bool?
+    public var waitingOnTeammate: Bool? {
+        get { waitingForTeammates }
+        set { waitingForTeammates = newValue }
+    }
     public var pinned: Bool?
     public var hidden: Bool?
     /// Desktop sidebar section. Missing or blank means the built-in Bots area.
