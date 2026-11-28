@@ -111,7 +111,10 @@ const build = (id, platform, preRelease, number, processingState, uploadedDate =
   preRelease,
   attributes: { version: number, processingState, uploadedDate, expired: false },
 });
-const goodLoc = (types) => ({ locale: "en-US", attributes: { description: "d", keywords: "k", supportUrl: "https://x.test" }, shots: Object.fromEntries(types.map((t) => [t, 3])) });
+const goodLoc = (types) => {
+  const shots = Object.fromEntries(types.map((t) => [t, 3]));
+  return { locale: "en-US", attributes: { description: "d", keywords: "k", supportUrl: "https://x.test" }, shots, screenshots: shots };
+};
 const detail = { contactFirstName: "A", contactEmail: SECRET, demoAccountPassword: SECRET, notes: SECRET, demoAccountRequired: true };
 const wrote = (state) => state.calls.filter((c) => !c.startsWith("GET"));
 const deps = () => {
