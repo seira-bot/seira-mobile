@@ -261,6 +261,19 @@ final class ServerPairingTests: XCTestCase {
         }
     }
 
+    func testOnlyAnAdminScopedServerPairingMayChangeTheVoiceEngine() throws {
+        let companion = Connection(name: "Ada's computer", host: "192.0.2.9", port: 8810)
+        XCTAssertFalse(companion.canChangeVoiceEngine)
+
+        var server = try XCTUnwrap(Connection.parse("https://c-7f3a9c.openmausbot.com"))
+        server.serverEnvironmentId = "env_7f3a9c"
+        server.serverScopes = ["client"]
+        XCTAssertFalse(server.canChangeVoiceEngine)
+
+        server.serverScopes = ["admin", "client"]
+        XCTAssertTrue(server.canChangeVoiceEngine)
+    }
+
     func testOnlyAnAdminScopedServerSessionMayAdminister() throws {
         let companion = Connection(name: "Ada's computer", host: "192.168.1.9", port: 8810)
         XCTAssertTrue(companion.canAdminister, "the sidecar applies its own policy to each request")

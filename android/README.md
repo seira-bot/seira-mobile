@@ -103,8 +103,8 @@ The signing key belongs to the maintainer and never enters this repository.
 Create a key once, outside any clone of this repository:
 
 ```sh
-keytool -genkeypair -v -keystore ~/openmausbot-release.jks \
-  -storetype PKCS12 -alias openmausbot -keyalg RSA -keysize 4096 -validity 10000
+keytool -genkeypair -v -keystore ~/seira-release.jks \
+  -storetype PKCS12 -alias seira -keyalg RSA -keysize 4096 -validity 10000
 ```
 
 Then, for each release:
@@ -113,7 +113,7 @@ Then, for each release:
 # whichever build-tools version is installed; any recent one works
 APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)/apksigner"
 
-"$APKSIGNER" sign --ks ~/openmausbot-release.jks --ks-key-alias openmausbot \
+"$APKSIGNER" sign --ks ~/seira-release.jks --ks-key-alias seira \
   --out app-release.apk app-release-unsigned.apk
 
 "$APKSIGNER" verify --verbose --print-certs app-release.apk
@@ -135,29 +135,82 @@ silently inherit a stale `keystore.properties` from a cached workspace.
 `android/keystore.properties` (gitignored):
 
 ```properties
-storeFile=/absolute/path/to/openmausbot-release.jks
+storeFile=/absolute/path/to/seira-release.jks
 storePassword=…
-keyAlias=openmausbot
+keyAlias=seira
 keyPassword=…
 ```
 
 or the environment, for CI secrets:
 
 ```
-OPENMAUSBOT_KEYSTORE_FILE
-OPENMAUSBOT_KEYSTORE_PASSWORD
-OPENMAUSBOT_KEY_ALIAS
-OPENMAUSBOT_KEY_PASSWORD   # optional; PKCS12 reuses the store password
+SEIRA_KEYSTORE_FILE
+SEIRA_KEYSTORE_PASSWORD
+SEIRA_KEY_ALIAS
+SEIRA_KEY_PASSWORD   # optional; PKCS12 reuses the store password
 ```
 
 Supply all of it or none of it. A build handed only part of the material stops
 and names what is missing, rather than quietly producing an unsigned APK that
 looks finished and cannot be published.
 
+Up to 1.2.1 these variables began with `OPENMAUSBOT_`. A build that finds any
+of the old names stops and asks for the `SEIRA_` names. It does not use the old
+values, and it does not fall back to `keystore.properties`.
+`node scripts/check-release-signing.mjs` checks each of these cases.
+
 Both paths declare v2 and v3 signature schemes. v3 is what makes the key
 rotatable later: without a v3 block there is no signing lineage for a new key to
 prove it descends from the old one. v1 stays off — it is JAR signing, for
 Android 6 and below, which `minSdk 26` already excludes.
+
+## Publishing to Google Play from CI
+
+The workflow `.github/workflows/android-play.yml` builds the signed release bundle
+and sends it to Google Play. It uses `scripts/play-publish.mjs`, which calls the
+Google Play Android Developer API and needs only Node.
+
+To release:
+
+1. Change `appVersionName` in `app/build.gradle.kts`.
+2. Add the release notes in `android/PlayStore/release-notes/<version>/`.
+   Follow `android/PlayStore/release-notes/README.md`.
+3. Merge the change into `main`.
+4. Push the tag. The tag must match `appVersionName`. It starts a release to the `production` track.
+
+```sh
+git tag android-vX.Y.Z && git push origin android-vX.Y.Z
+```
+
+To pick the track, the status, a rollout percent or a dry run, start it by hand:
+
+```sh
+gh workflow run android-play.yml -f track=internal
+```
+
+The workflow builds only the commit of the branch or tag that it runs on.
+Let the environment `play-store` accept only `main` and tags `android-v*`.
+The workflow keeps the bundle and `mapping.txt` as run artifacts for 90 days.
+
+Set these secrets in the GitHub environment `play-store`:
+
+| Secret | Content |
+|--------|---------|
+| `ANDROID_UPLOAD_KEYSTORE_BASE64` | The upload keystore file, encoded in base64 |
+| `ANDROID_UPLOAD_KEYSTORE_PASSWORD` | The keystore password |
+| `ANDROID_UPLOAD_KEY_ALIAS` | The key alias in the keystore |
+| `ANDROID_UPLOAD_KEY_PASSWORD` | The key password. Optional: leave it out when it equals the keystore password |
+| `ANDROID_GOOGLE_SERVICES_JSON` | The content of `google-services.json` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | The JSON key of the Google Cloud service account |
+
+With none of the five required secrets, the workflow builds an unsigned bundle and uploads
+nothing. With only some of them, it fails and names the missing ones.
+
+One-time setup in Google:
+
+1. Create a Google Cloud service account and enable the Google Play Android Developer API in its project.
+2. In Play Console, open Users and permissions and invite the service account.
+3. Give it release permissions for this app.
 
 ## Versioning
 

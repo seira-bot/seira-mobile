@@ -193,9 +193,14 @@ final class StoreListingScreenshotUITests: XCTestCase {
             XCTFail("\(name) is not on the home list")
             return
         }
-        item.press(forDuration: 1.2)
+        // A long press can be lost on a busy simulator: press again until
+        // the menu shows, at most three times.
         let change = app.buttons["Change look"]
-        if change.waitForExistence(timeout: 5) {
+        for _ in 0..<3 where !change.exists {
+            item.press(forDuration: 1.2)
+            _ = change.waitForExistence(timeout: 5)
+        }
+        if change.exists {
             change.tap()
             let hair = app.buttons["Hair"]
             if hair.waitForExistence(timeout: 5) { hair.tap() }

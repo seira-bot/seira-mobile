@@ -84,4 +84,5 @@
     <string name="team_memory_delete_title">Diese Notiz löschen?</string>
     <string name="team_memory_delete_body">Bots lesen „%1$s“ nicht mehr.</string>
     <string name="team_memory_changed">Diese Notiz hat sich geändert. Die neueste Fassung wird angezeigt.</string>
+    <string name="voice_engine_change_on_computer">Ändere die Sprach-Engine auf deinem Computer.</string>
 </resources>

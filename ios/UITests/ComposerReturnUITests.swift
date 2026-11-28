@@ -16,7 +16,16 @@ final class ComposerReturnUITests: XCTestCase {
         let input = app.descendants(matching: .any).matching(identifier: "message-input").firstMatch
         XCTAssertTrue(input.waitForExistence(timeout: 5))
         input.tap()
+        app.waitForKeyboardKeys()
         input.typeText("first line")
+        // On a slow simulator the keys went away as the last letter landed
+        // (CI, 2026-11-27), with the draft typed. What is under test is the
+        // keyboard's Return, so bring the keyboard back at the draft's end.
+        if !app.keyboards.firstMatch.exists {
+            print("composer-return: the keyboard went away after typing; tapping the draft's end")
+            input.coordinate(withNormalizedOffset: CGVector(dx: 0.95, dy: 0.5)).tap()
+            app.waitForKeyboardKeys()
+        }
 
         let keys = app.keyboards.buttons
         let returnKey = keys.matching(NSPredicate(format: "label ==[c] 'return'")).firstMatch

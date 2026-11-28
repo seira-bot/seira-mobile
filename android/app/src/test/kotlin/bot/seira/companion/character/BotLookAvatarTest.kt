@@ -1,0 +1,115 @@
+package bot.seira.companion.character
+
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.graphics.Color
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.activity.ComponentActivity
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.unit.dp
+import androidx.test.core.app.ApplicationProvider
+import bot.seira.companion.core.Bot
+import bot.seira.companion.core.ModelSelection
+import bot.seira.companion.core.SeiraLook
+import bot.seira.companion.shortcuts.BotIcons
+import bot.seira.companion.shortcuts.BotIdentity
+import bot.seira.companion.ui.BotAvatar
+import bot.seira.companion.ui.LocalCompanion
+import bot.seira.companion.ui.WiringScene
+import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.robolectric.RobolectricTestRunner
+import org.robolectric.annotation.Config
+import org.robolectric.annotation.GraphicsMode
+
+@RunWith(RobolectricTestRunner::class)
+@Config(sdk = [34], qualifiers = "w390dp-h844dp-xxhdpi")
+@GraphicsMode(GraphicsMode.Mode.NATIVE)
+class BotLookAvatarTest {
+    @get:Rule
+    val rule = createAndroidComposeRule<ComponentActivity>()
+
+    private val bot = Bot(
+        id = "b1",
+        threadId = "thread-b1",
+        name = "Dina Pratama",
+        title = "research",
+        description = "",
+        notifications = true,
+        color = "blue",
+        unread = false,
+        modelSelection = ModelSelection("instance-1", "model-1"),
+        createdAt = 0.0,
+        mascotBody = "cursor",
+        mascotAccessories = listOf("glasses"),
+    )
+
+    @Test
+    fun `a bot without a photo draws the carved avatar of its look`() {
+        val scene = WiringScene()
+        rule.setContent {
+            CompositionLocalProvider(LocalCompanion provides scene.environment) {
+                Column {
+                    BotAvatar(bot = bot, size = 64.dp, animated = false, contentDescription = "bot")
+                    CarvedAvatar(look = SeiraLook.from(bot), size = 64.dp, contentDescription = "carved")
+                }
+            }
+        }
+        rule.waitForIdle()
+        val drawn = capture("bot")
+        val carved = capture("carved")
+        assertTrue(colours(carved) > 1, "the carved avatar drew nothing")
+        assertTrue(colours(drawn) > 1, "the bot avatar drew nothing")
+        val differs = differing(drawn, carved)
+        assertTrue(differs < drawn.width * drawn.height / 100, "$differs pixels differ")
+    }
+
+    @Test
+    fun `an icon without a photo draws the character on the plate`() {
+        val context = ApplicationProvider.getApplicationContext<android.content.Context>()
+        val identity = BotIdentity.of(bot)
+        assertEquals("cursor", identity.mascotBody)
+        assertEquals(listOf("glasses"), identity.mascotAccessories)
+        val character = BotIcons.character(context, identity)
+        val plate = BotIcons.characterPlate(bot.color)
+
+        val circle = BotIcons.circle(null, bot.name, bot.color, character = character)
+        assertNotEquals(plate, circle.getPixel(circle.width / 2, circle.height / 2))
+        assertTrue(Color.alpha(circle.getPixel(circle.width / 2, circle.height / 2)) == 255)
+
+        val adaptive = BotIcons.adaptive(null, bot.name, bot.color, character = character)
+        assertNotEquals(plate, adaptive.getPixel(adaptive.width / 2, adaptive.height / 2))
+    }
+
+    private fun capture(description: String): Bitmap {
+        val decor = rule.activity.window.decorView
+        val metrics = decor.resources.displayMetrics
+        val window = Bitmap.createBitmap(metrics.widthPixels, metrics.heightPixels, Bitmap.Config.ARGB_8888)
+        decor.layout(0, 0, metrics.widthPixels, metrics.heightPixels)
+        decor.draw(Canvas(window))
+        val bounds = rule.onNodeWithContentDescription(description).fetchSemanticsNode().boundsInRoot
+        return Bitmap.createBitmap(
+            window, bounds.left.toInt(), bounds.top.toInt(), bounds.width.toInt(), bounds.height.toInt(),
+        )
+    }
+
+    private fun colours(bitmap: Bitmap): Int {
+        val seen = HashSet<Int>()
+        for (y in 0 until bitmap.height) for (x in 0 until bitmap.width) seen.add(bitmap.getPixel(x, y))
+        return seen.size
+    }
+
+    private fun differing(a: Bitmap, b: Bitmap): Int {
+        var count = 0
+        for (y in 0 until minOf(a.height, b.height)) for (x in 0 until minOf(a.width, b.width)) {
+            if (a.getPixel(x, y) != b.getPixel(x, y)) count++
+        }
+        return count
+    }
+}

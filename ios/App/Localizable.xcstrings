@@ -18975,6 +18975,28 @@
         }
       }
     },
+    "Change the voice engine on your computer.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mude o mecanismo de voz no seu computador."
+          }
+        },
+        "zh-Hans": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "请在你的电脑上更改语音引擎。"
+          }
+        },
+        "zh-Hant": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "請在你的電腦上變更語音引擎。"
+          }
+        }
+      }
+    },
     "Change this mode on your computer.": {
       "localizations": {
         "pt-BR": {

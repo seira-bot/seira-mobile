@@ -82,4 +82,5 @@
     <string name="team_memory_delete_title">이 메모를 삭제할까요?</string>
     <string name="team_memory_delete_body">봇이 “%1$s”을(를) 더 이상 읽지 않습니다.</string>
     <string name="team_memory_changed">이 메모가 변경되었습니다. 최신 내용을 표시합니다.</string>
+    <string name="voice_engine_change_on_computer">음성 엔진은 컴퓨터에서 변경하세요.</string>
 </resources>

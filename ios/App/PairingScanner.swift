@@ -8,7 +8,9 @@
 import AVFoundation
 import SwiftUI
 import UIKit
+#if !targetEnvironment(macCatalyst)
 import VisionKit
+#endif
 
 @MainActor
 final class PairingCamera: ObservableObject {
@@ -24,12 +26,21 @@ final class PairingCamera: ObservableObject {
 
     /// `DataScannerViewController` needs iOS 16 and a supported camera.
     var scannerReady: Bool {
+#if targetEnvironment(macCatalyst)
+        // VisionKit's DataScannerViewController is unavailable in Mac Catalyst (SDK 26).
+        false
+#else
         DataScannerViewController.isSupported && DataScannerViewController.isAvailable
+#endif
     }
 
     /// If access was granted in Settings, the screen recovers when the person
     /// returns instead of requiring it to reopen.
     func resolve() async {
+#if targetEnvironment(macCatalyst)
+        access = .allowed
+        return
+#else
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             access = .allowed
@@ -38,17 +49,29 @@ final class PairingCamera: ObservableObject {
         default:
             access = .denied
         }
+#endif
     }
 
     private static func currentAccess() -> Access {
+#if targetEnvironment(macCatalyst)
+        return .allowed
+#else
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized: return .allowed
         case .notDetermined: return .unresolved
         default: return .denied
         }
+#endif
     }
 }
 
+#if targetEnvironment(macCatalyst)
+struct PairingQRScanner: View {
+    let onPayload: (String) -> Bool
+
+    var body: some View { EmptyView() }
+}
+#else
 struct PairingQRScanner: UIViewControllerRepresentable {
     /// Return true to accept the code and stop reading, false to keep scanning.
     let onPayload: (String) -> Bool
@@ -115,3 +138,4 @@ struct PairingQRScanner: UIViewControllerRepresentable {
         }
     }
 }
+#endif

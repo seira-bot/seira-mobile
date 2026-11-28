@@ -1,0 +1,229 @@
+name: Android Play
+
+# Builds the signed release bundle and sends it to Google Play.
+# A tag android-vX.Y.Z releases to the production track. A manual run picks the
+# track, the status, the rollout and a dry run: gh workflow run android-play.yml
+# The run builds only github.sha, the commit that the environment rules check.
+# The five required secrets live in the environment `play-store`. With none of
+# them, the run builds an unsigned bundle and uploads nothing. With some of
+# them, it fails.
+on:
+  push:
+    tags: ["android-v*"]
+  workflow_dispatch:
+    inputs:
+      track:
+        description: "Play track"
+        type: choice
+        options: [internal, alpha, production]
+        default: internal
+      status:
+        description: "Release status"
+        type: choice
+        options: [completed, draft]
+        default: completed
+      rollout:
+        description: "Rollout percent from 1 to 100. Empty means 100."
+        type: string
+        required: false
+        default: ""
+      dry_run:
+        description: "Validate the release and delete the edit without a commit"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-play
+  cancel-in-progress: false
+
+jobs:
+  release:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: play-store
+    steps:
+      - name: Check which secrets are set
+        id: mode
+        env:
+          ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          ANDROID_UPLOAD_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD }}
+          ANDROID_UPLOAD_KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
+          ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+        run: |
+          set_names=""
+          missing=""
+          for name in ANDROID_UPLOAD_KEYSTORE_BASE64 ANDROID_UPLOAD_KEYSTORE_PASSWORD ANDROID_UPLOAD_KEY_ALIAS ANDROID_GOOGLE_SERVICES_JSON PLAY_SERVICE_ACCOUNT_JSON; do
+            if [ -n "${!name}" ]; then set_names="$set_names $name"; else missing="$missing $name"; fi
+          done
+          if [ -z "$missing" ]; then
+            echo "publish=true" >> "$GITHUB_OUTPUT"
+          elif [ -z "$set_names" ]; then
+            echo "publish=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::No Play secret is set. The bundle is NOT UPLOADED. This run only builds an unsigned bundle."
+          else
+            echo "::error::Some Play secrets are set, but these are missing:${missing}. Set all five or none."
+            exit 1
+          fi
+
+      - name: Resolve the inputs
+        id: inputs
+        env:
+          EVENT: ${{ github.event_name }}
+          INPUT_TRACK: ${{ inputs.track }}
+          INPUT_STATUS: ${{ inputs.status }}
+          INPUT_ROLLOUT: ${{ inputs.rollout }}
+          INPUT_DRY_RUN: ${{ inputs.dry_run }}
+        run: |
+          if [ "$EVENT" = "push" ]; then
+            track=production; status=completed; rollout=""; dry_run=false
+          else
+            track="$INPUT_TRACK"; status="$INPUT_STATUS"; rollout="$INPUT_ROLLOUT"; dry_run="$INPUT_DRY_RUN"
+          fi
+          case "$track" in
+            internal|alpha|production) ;;
+            *) echo "::error::The track must be internal, alpha or production."; exit 1 ;;
+          esac
+          case "$status" in
+            completed|draft) ;;
+            *) echo "::error::The status must be completed or draft."; exit 1 ;;
+          esac
+          if [ -n "$rollout" ]; then
+            if ! printf '%s' "$rollout" | grep -Eq '^[0-9]{1,3}$' || [ "$rollout" -lt 1 ] || [ "$rollout" -gt 100 ]; then
+              echo "::error::The rollout must be empty or a whole number from 1 to 100."
+              exit 1
+            fi
+            if [ "$rollout" -lt 100 ] && [ "$status" = "draft" ]; then
+              echo "::error::A rollout below 100 cannot use the draft status."
+              exit 1
+            fi
+          fi
+          {
+            echo "track=$track"
+            echo "status=$status"
+            echo "rollout=$rollout"
+            echo "dry_run=$dry_run"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Read the app version
+        id: version
+        env:
+          EVENT: ${{ github.event_name }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          version=$(sed -n 's/^private val appVersionName = "\([0-9][0-9.]*\)"$/\1/p' android/app/build.gradle.kts | head -1)
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$'; then
+            echo "::error::The app version in android/app/build.gradle.kts is not valid."
+            exit 1
+          fi
+          if [ "$EVENT" = "push" ] && [ "$TAG" != "android-v$version" ]; then
+            echo "::error::The tag $TAG does not match the app version $version in android/app/build.gradle.kts."
+            exit 1
+          fi
+          echo "name=$version" >> "$GITHUB_OUTPUT"
+          echo "Version $version"
+
+      - uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+          cache-dependency-path: |
+            android/**/*.gradle.kts
+            android/gradle/wrapper/gradle-wrapper.properties
+
+      - name: Install the Android SDK platform
+        # compileSdk 37 is not on the runner image.
+        run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37.0" > /dev/null
+
+      - name: Core tests and app unit tests
+        working-directory: android
+        run: ./gradlew --no-daemon :core:test :app:testDebugUnitTest
+
+      - name: Write the signing material
+        if: steps.mode.outputs.publish == 'true'
+        env:
+          ANDROID_UPLOAD_KEYSTORE_BASE64: ${{ secrets.ANDROID_UPLOAD_KEYSTORE_BASE64 }}
+          ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+        run: |
+          ( umask 077
+            printf '%s' "$ANDROID_UPLOAD_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/upload.p12"
+            printf '%s' "$ANDROID_GOOGLE_SERVICES_JSON" > android/app/google-services.json )
+
+      - name: Build the release bundle
+        working-directory: android
+        env:
+          SEIRA_KEYSTORE_FILE: ${{ steps.mode.outputs.publish == 'true' && format('{0}/upload.p12', runner.temp) || '' }}
+          SEIRA_KEYSTORE_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEYSTORE_PASSWORD || '' }}
+          SEIRA_KEY_ALIAS: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_ALIAS || '' }}
+          SEIRA_KEY_PASSWORD: ${{ steps.mode.outputs.publish == 'true' && secrets.ANDROID_UPLOAD_KEY_PASSWORD || '' }}
+        run: ./gradlew --no-daemon :app:bundleRelease
+
+      - name: Check that the bundle is signed
+        if: steps.mode.outputs.publish == 'true'
+        run: |
+          # keytool exits 0 for an unsigned file too, so look for the certificate digest.
+          if ! keytool -printcert -jarfile android/app/build/outputs/bundle/release/app-release.aab 2>/dev/null | grep -q "SHA256:"; then
+            echo "::error::The release bundle has no signing certificate."
+            exit 1
+          fi
+
+      - name: Keep the bundle and the mapping file
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: android-release-${{ steps.version.outputs.name }}-${{ github.run_id }}
+          path: |
+            android/app/build/outputs/bundle/release/app-release.aab
+            android/app/build/outputs/mapping/release/mapping.txt
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Publish to Google Play
+        if: steps.mode.outputs.publish == 'true'
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          VERSION: ${{ steps.version.outputs.name }}
+          TRACK: ${{ steps.inputs.outputs.track }}
+          STATUS: ${{ steps.inputs.outputs.status }}
+          ROLLOUT: ${{ steps.inputs.outputs.rollout }}
+          DRY_RUN: ${{ steps.inputs.outputs.dry_run }}
+        run: |
+          args=(
+            --package bot.seira.companion
+            --aab android/app/build/outputs/bundle/release/app-release.aab
+            --track "$TRACK"
+            --version-name "$VERSION"
+            --status "$STATUS"
+          )
+          if [ -n "$ROLLOUT" ]; then args+=(--rollout "$ROLLOUT"); fi
+          if [ "$DRY_RUN" = "true" ]; then args+=(--dry-run); fi
+          node scripts/play-publish.mjs "${args[@]}"
+
+      - name: Delete the signing material
+        if: always()
+        run: rm -f "$RUNNER_TEMP/upload.p12" android/app/google-services.json
+
+      - name: Write the run summary
+        if: always()
+        env:
+          PUBLISH: ${{ steps.mode.outputs.publish }}
+          TRACK: ${{ steps.inputs.outputs.track }}
+          STATUS: ${{ steps.inputs.outputs.status }}
+          DRY_RUN: ${{ steps.inputs.outputs.dry_run }}
+          VERSION: ${{ steps.version.outputs.name }}
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          if [ "$PUBLISH" = "true" ] && [ "$JOB_STATUS" = "success" ]; then
+            if [ "$DRY_RUN" = "true" ]; then mode="Dry run, nothing committed"; else mode="Sent to Google Play"; fi
+          else
+            mode="NOT UPLOADED"
+          fi
+          echo "Android Play: $mode. Track ${TRACK:-unknown}, status ${STATUS:-unknown}, version ${VERSION:-unknown}." >> "$GITHUB_STEP_SUMMARY"

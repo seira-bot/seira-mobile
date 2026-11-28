@@ -46,7 +46,7 @@ ssh <host> 'bash -lc "cd <repo>/android && systemd-run --user --scope -q -p Memo
 4. Record: `adb shell screenrecord --size 720x1600 /sdcard/launch.mp4`, and in a second shell start the app:
 
 ```bash
-adb shell am start --splashscreen-show-icon -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n bot.seira.companion/com.openmausbot.companion.MainActivity
+adb shell am start --splashscreen-show-icon -W -a android.intent.action.MAIN -c android.intent.category.LAUNCHER -n bot.seira.companion/bot.seira.companion.MainActivity
 ```
 
 5. Pull the video and step through it at 20 frames a second. No frame between the splash and the first screen may be white or black.

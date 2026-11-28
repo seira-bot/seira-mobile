@@ -53,12 +53,15 @@ struct ComposerModeChip: View {
     let threadId: String
     @EnvironmentObject private var session: Session
     @State private var showingSheet = false
+    /// The runtime this chip was tapped on. The sheet is shown for it and for no other.
+    @State private var shownRuntime: RuntimeBinding?
 
     private var mode: ApprovalMode { session.approvalMode(bot: bot, threadId: threadId) ?? .ask }
 
     var body: some View {
         Button {
             Haptics.selection()
+            shownRuntime = session.currentRuntimeBinding()
             showingSheet = true
         } label: {
             HStack(spacing: 6) {
@@ -80,10 +83,17 @@ struct ComposerModeChip: View {
         .accessibilityLabel("Approvals")
         .accessibilityValue(Text(mode.title))
         .accessibilityIdentifier("composer-mode-chip")
+        // A new runtime (another computer, a re-pair, a workspace switch) retires the sheet that was open for the old one.
+        .onValueChange(of: session.runtimeGeneration) { _ in
+            showingSheet = false
+            shownRuntime = nil
+        }
         .sheet(isPresented: $showingSheet) {
-            ApprovalModeSheet(bot: bot, threadId: threadId)
-                .environmentObject(session)
-                .presentationDetents([.medium])
+            if let runtime = shownRuntime {
+                ApprovalModeSheet(bot: bot, threadId: threadId, runtime: runtime)
+                    .environmentObject(session)
+                    .presentationDetents([.medium])
+            }
         }
     }
 }
@@ -91,13 +101,15 @@ struct ComposerModeChip: View {
 struct ApprovalModeSheet: View {
     let bot: Bot
     let threadId: String
+    /// The runtime the person saw when this sheet opened. Every read and every change is bound to it.
+    let runtime: RuntimeBinding
     @EnvironmentObject private var session: Session
     @Environment(\.dismiss) private var dismiss
     @State private var working = false
     @State private var notice: ModeRefusalReason?
     @State private var confirming: ApprovalMode?
 
-    private var mode: ApprovalMode? { session.approvalMode(bot: bot, threadId: threadId) }
+    private var mode: ApprovalMode? { session.approvalMode(bot: bot, threadId: threadId, for: runtime) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -128,6 +140,7 @@ struct ApprovalModeSheet: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(Color.seiraApp)
         .accessibilityIdentifier("approval-mode-sheet")
+        .onValueChange(of: session.runtimeGeneration) { _ in retireIfReplaced() }
         .alert("Turn on Auto?", isPresented: Binding(get: { confirming != nil }, set: { if !$0 { confirming = nil } })) {
             Button("Cancel", role: .cancel) { confirming = nil }
             Button("Turn on Auto") {
@@ -170,15 +183,34 @@ struct ApprovalModeSheet: View {
         .accessibilityIdentifier("approval-mode.\(option.rawValue)")
     }
 
+    /// Close the sheet, and drop the pending confirmation and notice, once the runtime it was shown for is gone.
+    private func retireIfReplaced() {
+        guard !session.isCurrent(runtime) else { return }
+        confirming = nil
+        notice = nil
+        dismiss()
+    }
+
     private func choose(_ target: ApprovalMode, acknowledged: Bool) {
+        guard session.isCurrent(runtime) else {
+            retireIfReplaced()
+            return
+        }
         guard target != mode, !working else { return }
         working = true
         notice = nil
         Task {
             let outcome = await ModeChange.request(current: mode, target: target, acknowledged: acknowledged) { mode, ack in
-                await session.setApprovalMode(bot: bot, threadId: threadId, mode: mode, acknowledgeLocalAuto: ack)
+                await session.setApprovalMode(
+                    bot: bot, threadId: threadId, mode: mode, acknowledgeLocalAuto: ack, expected: runtime
+                )
             }
             working = false
+            // The answer belongs to the runtime the sheet was shown for; once it is gone, nothing is shown or confirmed.
+            guard session.isCurrent(runtime) else {
+                retireIfReplaced()
+                return
+            }
             switch outcome {
             case .changed:
                 dismiss()

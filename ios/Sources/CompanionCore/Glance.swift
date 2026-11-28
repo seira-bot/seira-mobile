@@ -331,7 +331,7 @@ public enum Glance {
             return [BotTask(
                 threadId: bot.threadId, title: "", createdAt: bot.createdAt,
                 modelSelection: bot.modelSelection, busy: bot.busy, activity: bot.activity,
-                waitingOnTeammate: bot.waitingOnTeammate, unread: bot.unread,
+                waitingForTeammates: bot.waitingForTeammates, unread: bot.unread,
                 approvalMode: bot.approvalMode, autoApprove: bot.autoApprove, alwaysAllow: bot.alwaysAllow
             )]
         }

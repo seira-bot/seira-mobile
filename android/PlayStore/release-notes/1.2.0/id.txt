@@ -1,0 +1,2 @@
+Chats kini mengelompokkan bot per departemen, sama seperti di komputer. Lipat departemen, tambahkan bot, atau buat bot baru langsung di dalamnya. Nyalakan Advanced mode di Settings untuk alat tambahan: ganti nama chat, salin atau simpan sebagai Markdown, lihat dan ringkas konteks, dan izinkan satu langkah untuk sisa sesi. Automations bertanya "What should happen?" lalu menyiapkan routine. Kalender punya tampilan Week.
+Beberapa fitur butuh Seira terbaru di komputer.
