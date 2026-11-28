@@ -7,6 +7,7 @@ import {
   decideVersion,
   describePlan,
   isUpdate,
+  nextBuild,
   openSubmission,
   pickBuild,
   reviewDetailAttributes,
@@ -454,4 +455,16 @@ test("checkComplete reports a missing whatsNew only for an update", () => {
   const locs = [{ locale: "en-US", attributes: { description: "d", keywords: "k", supportUrl: "u" }, screenshots: { APP_DESKTOP: 1 } }];
   assert.deepEqual(checkComplete("MAC_OS", locs), []);
   assert.deepEqual(checkComplete("MAC_OS", locs, { update: true }), ["en-US has no whatsNew"]);
+});
+
+test("nextBuild numbers a build after the highest one", () => {
+  assert.equal(nextBuild([], 6), "6.1");
+  assert.equal(nextBuild(["6.2", "6.6", "6.5"], 6), "6.7");
+  assert.equal(nextBuild(["6.6"], 7), "7.1");
+  assert.equal(nextBuild(["6.10", "6.9"], 6), "6.11");
+  assert.equal(nextBuild(["8.3"], 6), "8.4");
+  assert.equal(nextBuild(["6.6.2"], 6), "6.7");
+  assert.equal(nextBuild(["abc", "6.1"], 6), "6.2");
+  assert.equal(nextBuild(["7"], 6), "7.1");
+  assert.equal(nextBuild(["abc"], 6), "6.1");
 });
