@@ -54,8 +54,30 @@ jobs:
         # compileSdk 37 is not on the runner image.
         run: yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "platforms;android-37.0" > /dev/null
 
+      # Robolectric downloads its android-all jar from Maven Central into
+      # ~/.m2 on the first test that needs it. A failed download fails the
+      # test class (seira-mobile#139). Keep the jars between runs. The key
+      # follows the Gradle file that pins the Robolectric version, and an
+      # older cache is a valid fallback.
+      - name: Restore the Robolectric jars
+        id: robolectric-cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-jars-${{ runner.os }}-${{ hashFiles('android/app/build.gradle.kts') }}
+          restore-keys: |
+            robolectric-jars-${{ runner.os }}-
+
       - name: Core tests, app unit tests and debug build
         run: ./gradlew --no-daemon :core:test :app:testDebugUnitTest :app:assembleDebug :app:verifyReleaseLauncherManifest
+
+      # Save also when a test failed: the jars are good once they are down.
+      - name: Save the Robolectric jars
+        if: ${{ always() && steps.robolectric-cache.outputs.cache-hit != 'true' }}
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.m2/repository/org/robolectric
+          key: robolectric-jars-${{ runner.os }}-${{ hashFiles('android/app/build.gradle.kts') }}
 
       - name: Release signing refuses partial and renamed settings
         run: node ../scripts/check-release-signing.mjs
