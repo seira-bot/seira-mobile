@@ -270,7 +270,7 @@ test("a build that stays in processing times out after the wait", async () => {
     builds: [build("b1", "MAC_OS", "1.2.2", "6.4", "PROCESSING")],
   });
   const d = deps();
-  await assert.rejects(runSubmit(client, opts({ waitMinutes: 3 }), d), /no valid build for 1\.2\.0 after 3 minutes/);
+  await assert.rejects(runSubmit(client, opts({ waitMinutes: 3 }), d), /no valid build for 1\.2\.2 after 3 minutes/);
   assert.equal(d.sleeps.length, 3);
   assert.ok(d.sleeps.every((ms) => ms === 60_000));
   assert.deepEqual(wrote(state), []);
