@@ -177,12 +177,14 @@ To release:
 git tag android-vX.Y.Z && git push origin android-vX.Y.Z
 ```
 
-To pick the ref, the track, the status, a rollout percent or a dry run, start it by hand:
+To pick the track, the status, a rollout percent or a dry run, start it by hand:
 
 ```sh
 gh workflow run android-play.yml -f track=internal
 ```
 
+The workflow builds only the commit of the branch or tag that it runs on.
+Let the environment `play-store` accept only `main` and tags `android-v*`.
 The workflow keeps the bundle and `mapping.txt` as run artifacts for 90 days.
 
 Set these secrets in the GitHub environment `play-store`:

@@ -2,19 +2,16 @@ name: Android Play
 
 # Builds the signed release bundle and sends it to Google Play.
 # A tag android-vX.Y.Z releases to the production track. A manual run picks the
-# ref, the track, the status, the rollout and a dry run. The five required
-# secrets live in the environment `play-store`. With none of them, the run
-# builds an unsigned bundle and uploads nothing. With some of them, it fails.
+# track, the status, the rollout and a dry run: gh workflow run android-play.yml
+# The run builds only github.sha, the commit that the environment rules check.
+# The five required secrets live in the environment `play-store`. With none of
+# them, the run builds an unsigned bundle and uploads nothing. With some of
+# them, it fails.
 on:
   push:
     tags: ["android-v*"]
   workflow_dispatch:
     inputs:
-      ref:
-        description: "Branch, tag or commit to build"
-        type: string
-        required: true
-        default: main
       track:
         description: "Play track"
         type: choice
@@ -77,23 +74,16 @@ jobs:
         id: inputs
         env:
           EVENT: ${{ github.event_name }}
-          INPUT_REF: ${{ inputs.ref }}
           INPUT_TRACK: ${{ inputs.track }}
           INPUT_STATUS: ${{ inputs.status }}
           INPUT_ROLLOUT: ${{ inputs.rollout }}
           INPUT_DRY_RUN: ${{ inputs.dry_run }}
-          PUSH_SHA: ${{ github.sha }}
         run: |
           if [ "$EVENT" = "push" ]; then
-            ref="$PUSH_SHA"; track=production; status=completed; rollout=""; dry_run=false
+            track=production; status=completed; rollout=""; dry_run=false
           else
-            ref="$INPUT_REF"; track="$INPUT_TRACK"; status="$INPUT_STATUS"; rollout="$INPUT_ROLLOUT"; dry_run="$INPUT_DRY_RUN"
+            track="$INPUT_TRACK"; status="$INPUT_STATUS"; rollout="$INPUT_ROLLOUT"; dry_run="$INPUT_DRY_RUN"
           fi
-          case "$ref" in
-            ""|-*|*..*|*[!A-Za-z0-9._/-]*)
-              echo "::error::The ref is not valid."
-              exit 1 ;;
-          esac
           case "$track" in
             internal|alpha|production) ;;
             *) echo "::error::The track must be internal, alpha or production."; exit 1 ;;
@@ -113,7 +103,6 @@ jobs:
             fi
           fi
           {
-            echo "ref=$ref"
             echo "track=$track"
             echo "status=$status"
             echo "rollout=$rollout"
@@ -122,7 +111,6 @@ jobs:
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ steps.inputs.outputs.ref }}
           persist-credentials: false
 
       - name: Read the app version
