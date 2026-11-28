@@ -414,3 +414,9 @@ For Swift errors, the compiler's own output is the most useful thing — file,
 line, and message. For runtime problems, the harness log is usually more
 informative than the phone: it is where the pairing, auth and stream decisions
 are actually made.
+
+## Mac Catalyst build
+
+The iOS app also builds for Mac Catalyst with the same bundle ID, so one purchase covers iPhone, iPad and Mac.
+The CI job "Mac Catalyst build" compiles it without code signing and checks that the app holds both extensions.
+Mac entitlements are in `ios/Entitlements/macCatalyst/`. Pairing on a Mac uses the typed address and code, because the QR scanner needs a camera API that Mac Catalyst does not have.

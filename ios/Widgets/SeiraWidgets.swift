@@ -3,15 +3,19 @@
 // snapshot. The face is the carved Seira head with the mood of the state —
 // the system renders a snapshot, so it cannot move here, but it changes
 // with every update.
-import ActivityKit
 import SwiftUI
 import WidgetKit
+#if !targetEnvironment(macCatalyst)
+import ActivityKit
+#endif
 
 @main
 struct SeiraWidgets: WidgetBundle {
     var body: some Widget {
+#if !targetEnvironment(macCatalyst)
         GlanceActivityWidget()
         BotActivityWidget()
+#endif
         NeedsYouWidget()
         UpdatesDigestWidget()
         WorkingMonitorWidget()
@@ -25,6 +29,7 @@ struct SeiraWidgets: WidgetBundle {
     }
 }
 
+#if !targetEnvironment(macCatalyst)
 struct BotActivityWidget: Widget {
     var body: some WidgetConfiguration {
         ActivityConfiguration(for: BotActivityAttributes.self) { context in
@@ -187,3 +192,4 @@ private struct OrbitingFace: View {
         }
     }
 }
+#endif
