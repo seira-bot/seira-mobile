@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createPublicKey, createVerify, generateKeyPairSync } from "node:crypto";
+import { createVerify, generateKeyPairSync } from "node:crypto";
 import fs from "node:fs";
 import http from "node:http";
 import os from "node:os";
@@ -176,7 +176,7 @@ test("the JWT carries the claims and a valid RS256 signature", async () => {
     assert.equal(payload.aud, `${mock.base}/token`);
     assert.equal(payload.exp - payload.iat, 3600);
     const verifier = createVerify("RSA-SHA256").update(`${header}.${claims}`);
-    assert.ok(verifier.verify(createPublicKey(publicKey), Buffer.from(signature, "base64url")));
+    assert.ok(verifier.verify(publicKey, Buffer.from(signature, "base64url")));
   } finally {
     await mock.close();
   }
