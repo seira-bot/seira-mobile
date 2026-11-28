@@ -129,6 +129,69 @@ class DictationTest {
         )
     }
 
+    // --- Recognizer rewrites of words it already spoke (seira-mobile#112) --
+
+    /** Feed partials one by one, like the speech session does. */
+    private fun transcriptAfter(vararg partials: String): String =
+        partials.fold("") { current, partial -> Dictation.updateTranscript(current, partial) }
+
+    @Test
+    fun aPunctuationChangeInTheFirstWordIsNotANewSegment() {
+        assertEquals("Iya.", transcriptAfter("Iya", "Iya."))
+        assertEquals(
+            "Halo apa kabar hari ini",
+            transcriptAfter("Halo", "Halo, apa kabar", "Halo apa kabar hari ini"),
+        )
+    }
+
+    @Test
+    fun aCaseChangeInTheFirstWordIsNotANewSegment() {
+        assertEquals(
+            "Hello there my friend",
+            transcriptAfter("hello there", "Hello there my friend"),
+        )
+    }
+
+    @Test
+    fun aRewriteThatDropsTheFirstWordsDoesNotRepeatThem() {
+        // Partials from seira-mobile#112: the recognizer first heard "Iya"
+        // twice, then dropped the first one.
+        assertEquals(
+            "Iya dari tadi kenapa berulang",
+            transcriptAfter(
+                "Iya",
+                "Iya.",
+                "Iya. Iya dari tadi",
+                "Iya. Iya dari tadi kenapa?",
+                "Iya dari tadi kenapa berulang",
+            ),
+        )
+    }
+
+    @Test
+    fun aBacktrackWithDifferentPunctuationKeepsTheLongerTranscript() {
+        assertEquals(
+            "Halo, apa kabar",
+            Dictation.updateTranscript("Halo, apa kabar", "Halo apa"),
+        )
+    }
+
+    @Test
+    fun aNewSegmentThatSharesTwoWordsWithTheTailIsStillAppended() {
+        assertEquals(
+            "kita makan nasi goreng nasi goreng enak",
+            Dictation.updateTranscript("kita makan nasi goreng", "nasi goreng enak"),
+        )
+    }
+
+    @Test
+    fun aNewSegmentAfterPunctuatedTextIsStillAppended() {
+        assertEquals(
+            "Halo, apa kabar? Saya baik.",
+            transcriptAfter("Halo, apa kabar?", "Saya baik."),
+        )
+    }
+
     @Test
     fun preferredLanguageComesFirst() {
         val locales = Dictation.localeCandidates(

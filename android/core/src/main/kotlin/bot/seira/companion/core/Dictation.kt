@@ -77,19 +77,59 @@ object Dictation {
         // Same segment with a brief backtrack: keep the longer version.
         if (current.startsWith(new)) return current
 
+        // The recognizer rewrites punctuation and case in words it already
+        // spoke ("Iya" -> "Iya." or "Halo, apa" -> "Halo apa"). Compare words
+        // without them, so a rewrite is not taken for a new segment.
+        val currentWords = comparableWords(current)
+        val newWords = comparableWords(new)
+
+        // Same segment: the new words continue the current words.
+        if (currentWords.isNotEmpty() && newWords.startsWith(currentWords)) return new
+
+        // Same segment with a brief backtrack: keep the longer version.
+        if (currentWords.startsWith(newWords)) return current
+
         // Same segment with a word-level revision: most leading words match.
-        val currentWords = current.split(" ").filter { it.isNotEmpty() }
-        val newWords = new.split(" ").filter { it.isNotEmpty() }
         val commonWordCount = currentWords
             .zip(newWords)
-            .takeWhile { it.first.lowercase() == it.second.lowercase() }
+            .takeWhile { it.first == it.second }
             .count()
         if (commonWordCount >= 2 && commonWordCount * 2 >= currentWords.size) {
             return new
         }
 
+        // Same segment, but the recognizer dropped the first words it had
+        // heard ("Iya Iya dari tadi" -> "Iya dari tadi"). The new words start
+        // with the tail of the current words, so take the newest reading.
+        if (continuesFromTail(currentWords, newWords)) return new
+
         // New segment after a pause: append, separated by a space.
         return draft(base = current, transcript = new)
+    }
+
+    private const val MINIMUM_TAIL_WORDS = 3
+
+    /** Words without case or punctuation. Words that are only punctuation go away. */
+    private fun comparableWords(text: String): List<String> =
+        text.split(Regex("\\s+"))
+            .map { word -> word.filter(Char::isLetterOrDigit).lowercase() }
+            .filter { it.isNotEmpty() }
+
+    private fun List<String>.startsWith(prefix: List<String>): Boolean =
+        prefix.size <= size && prefix.indices.all { this[it] == prefix[it] }
+
+    /**
+     * True when [newWords] start with the last words of [currentWords], and
+     * those words are at least [MINIMUM_TAIL_WORDS] and half of the current
+     * text. Fewer shared words could be a new segment that repeats a phrase.
+     */
+    private fun continuesFromTail(currentWords: List<String>, newWords: List<String>): Boolean {
+        val longest = minOf(currentWords.size, newWords.size)
+        for (length in longest downTo MINIMUM_TAIL_WORDS) {
+            if (length * 2 < currentWords.size) return false
+            if (currentWords.takeLast(length) == newWords.take(length)) return true
+        }
+        return false
     }
 
     /**
