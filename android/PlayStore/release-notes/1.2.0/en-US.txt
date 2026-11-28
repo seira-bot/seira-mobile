@@ -1,0 +1,2 @@
+Chats now groups your bots by department, as on your computer. Fold a department, add bots to it, or make a new bot right inside it. Turn on Advanced mode in Settings for more tools: rename a chat, copy or save it as Markdown, see and compact the context, and allow a step for the rest of a session. Automations asks "What should happen?" and sets up the routine for you. The calendar has a Week view.
+Some features need the newest Seira on your computer.
