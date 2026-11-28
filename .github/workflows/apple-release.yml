@@ -128,13 +128,13 @@ jobs:
           fi
           ( umask 077; printf '%s' "$ASC_KEY_P8_BASE64" | base64 --decode > "$RUNNER_TEMP/asc.p8" )
           status=0
-          build=$(ASC_KEY_PATH="$RUNNER_TEMP/asc.p8" node ios/AppStore/tools/asc-release.mjs next-build --base "$project_build") || status=$?
+          build_number=$(ASC_KEY_PATH="$RUNNER_TEMP/asc.p8" node ios/AppStore/tools/asc-release.mjs next-build --base "$project_build") || status=$?
           rm -f "$RUNNER_TEMP/asc.p8"
           if [ "$status" -ne 0 ]; then
             echo "::error::Could not read the build numbers from App Store Connect."
             exit 1
           fi
-          if ! printf '%s' "$build" | grep -Eq '^[0-9]+\.[0-9]+$'; then
+          if ! printf '%s' "$build_number" | grep -Eq '^[0-9]+\.[0-9]+$'; then
             echo "::error::The next build number is not valid."
             exit 1
           fi
@@ -149,11 +149,11 @@ jobs:
           {
             echo "mode=release"
             echo "version=$marketing"
-            echo "build=$build"
+            echo "build=$build_number"
             echo "build_matrix=$build"
             echo "submit_matrix=$submit"
           } >> "$GITHUB_OUTPUT"
-          echo "Version $marketing, build $build, platforms $platforms."
+          echo "Version $marketing, build $build_number, platforms $platforms."
           if [ "$AUTO_SUBMIT" = "false" ]; then
             echo "::notice::APPLE_AUTO_SUBMIT is false. The builds are uploaded and nothing goes to App Review."
           fi
