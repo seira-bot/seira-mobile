@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import bot.seira.companion.core.Routine
 import bot.seira.companion.core.RoutineRunLocation
 import bot.seira.companion.core.RoutineSchedule
+import bot.seira.companion.core.Session
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import bot.seira.companion.ui.theme.GlassCircleButton
@@ -304,6 +305,7 @@ private fun LoadedChat(
     var creatingThread by remember(chatId) { mutableStateOf(false) }
     var showingPlus by remember(threadId) { mutableStateOf(false) }
     var showingMode by remember(threadId) { mutableStateOf(false) }
+    var modeShownFor by remember(threadId) { mutableStateOf<Session.RuntimeBinding?>(null) }
     val advanced by environment.chatPreferences.advancedMode.collectAsState()
     var renaming by remember(threadId) { mutableStateOf<RenameDraft?>(null) }
     var showingContext by remember(threadId) { mutableStateOf(false) }
@@ -1332,7 +1334,8 @@ private fun LoadedChat(
                 onMode = {
                     dictation.stop()
                     focusManager.clearFocus()
-                    showingMode = true
+                    modeShownFor = session.runtimeBinding()
+                    showingMode = modeShownFor != null
                 },
                 goal = remember(rawTranscript) { GoalChip.text(rawTranscript) },
                 tools = composerTools,
@@ -1463,12 +1466,32 @@ private fun LoadedChat(
         )
     }
 
-    if (showingMode && bot != null) {
-        ApprovalModeSheet(
-            current = bot.approvalModeIn(threadId),
-            change = { mode, acknowledged -> session.setApprovalMode(bot, threadId, mode, acknowledged) },
-            onDismiss = { showingMode = false },
-        )
+    val shownFor = modeShownFor
+    if (showingMode && bot != null && shownFor != null) {
+        // The sheet belongs to the computer that was paired when the chip was pressed. When the phone serves another
+        // one (switch, unpair, re-pair or workspace change) the sheet closes with its pending answer and confirmation,
+        // and a change it still sends is refused before any request leaves the phone.
+        val liveEpoch by session.runtimeEpoch.collectAsState()
+        val liveConnection by session.connection.collectAsState()
+        val sameRuntime = liveEpoch == shownFor.epoch && liveConnection?.id == shownFor.connectionId
+        LaunchedEffect(sameRuntime) {
+            if (!sameRuntime) {
+                showingMode = false
+                modeShownFor = null
+            }
+        }
+        if (sameRuntime) {
+            ApprovalModeSheet(
+                current = session.approvalMode(bot, threadId),
+                change = { mode, acknowledged ->
+                    session.setApprovalMode(bot, threadId, mode, acknowledged, expected = shownFor)
+                },
+                onDismiss = {
+                    showingMode = false
+                    modeShownFor = null
+                },
+            )
+        }
     }
 
     if (showingSchedule && bot != null) {
@@ -1521,7 +1544,9 @@ private fun LoadedChat(
                         renaming = RenameDraft(ChatAdvanced.currentTask(bot)?.title.orEmpty())
                     }
                     ChatMenuItem.COPY_MARKDOWN -> scope.launch {
+                        val shown = session.runtimeBinding() ?: return@launch
                         val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        if (!session.isCurrent(shown)) return@launch
                         clipboard.setClipEntry(
                             ClipEntry(ClipData.newPlainText(TRANSCRIPT_CLIP_LABEL, exported.data.toString(Charsets.UTF_8))),
                         )
@@ -1529,7 +1554,9 @@ private fun LoadedChat(
                         Toast.makeText(context, R.string.chat3_copied, Toast.LENGTH_SHORT).show()
                     }
                     ChatMenuItem.DOWNLOAD_MARKDOWN -> scope.launch {
+                        val shown = session.runtimeBinding() ?: return@launch
                         val exported = session.export(threadId, ShareFormat.MARKDOWN.wire) ?: return@launch
+                        if (!session.isCurrent(shown)) return@launch
                         val named = exported.copy(
                             filename = ChatAdvanced.markdownFileName(
                                 (chat as? Chat.BotChat)?.bot?.let { ChatAdvanced.currentTask(it)?.title },
@@ -1647,7 +1674,9 @@ private fun share(
 ) {
     scope.launch {
         val session = environment.session
+        val shown = session.runtimeBinding() ?: return@launch
         val exported = session.export(threadId, format.wire) ?: return@launch
+        if (!session.isCurrent(shown)) return@launch
         environment.shareTranscript(exported, format)?.let { session.actionError = it }
     }
 }
