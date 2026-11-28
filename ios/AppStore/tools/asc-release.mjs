@@ -5,12 +5,14 @@
 //   node ios/AppStore/tools/asc-release.mjs submit --version X.Y.Z --platform IOS|MAC_OS [--build N] [--wait-minutes 90] [--no-submit]
 //   node ios/AppStore/tools/asc-release.mjs pending --version X.Y.Z
 //   node ios/AppStore/tools/asc-release.mjs review-detail --platform IOS|MAC_OS
+//   node ios/AppStore/tools/asc-release.mjs next-build --base N
 //
 // "plan" only reads. "submit" waits for the build, puts it on the App Store version of that
 // platform and sends the version to App Review. It skips a platform that already has a version
 // in review or live. "pending" runs "submit" for both platforms with the builds that already
 // exist. "review-detail" copies the review details of the newest iOS version that has them.
 // On an update version, "submit" fills an empty What's New from <locale>/release_notes.txt.
+// "next-build" prints the next build number: higher than every build of the app, never below <N>.1.
 // The environment variable APPLE_AUTO_SUBMIT=false works like --no-submit.
 // It reads ASC_KEY_ID, ASC_ISSUER_ID, ASC_KEY_PATH and ASC_APP_ID, as asc-listing.mjs does.
 // It never prints review details.
@@ -341,6 +343,24 @@ export async function describePlan(client, appId, platform, version) {
   return `${platform}: ${what}, ${next}, then submit`;
 }
 
+export function nextBuild(numbers, base) {
+  const parsed = numbers
+    .filter((n) => typeof n === "string" && /^\d+(\.\d+){0,2}$/.test(n))
+    .map((n) => n.split(".").map(Number));
+  const compare = (a, b) => {
+    for (let i = 0; i < Math.max(a.length, b.length); i++) {
+      const d = (a[i] ?? 0) - (b[i] ?? 0);
+      if (d !== 0) return d;
+    }
+    return 0;
+  };
+  const floor = [base, 1];
+  if (parsed.length === 0) return floor.join(".");
+  const max = parsed.reduce((a, b) => (compare(a, b) >= 0 ? a : b));
+  const bumped = [max[0], (max[1] ?? 0) + 1];
+  return (compare(bumped, floor) >= 0 ? bumped : floor).join(".");
+}
+
 // ---- CLI ----
 
 function parseArgs(argv) {
@@ -353,6 +373,7 @@ function parseArgs(argv) {
     else if (a === "--platform") flags.platform = rest[++i];
     else if (a === "--build") flags.build = rest[++i];
     else if (a === "--wait-minutes") flags.waitMinutes = Number(rest[++i]);
+    else if (a === "--base") flags.base = rest[++i];
     else throw new Error(`Unknown option ${a}`);
   }
   return { cmd, flags };
@@ -439,7 +460,15 @@ async function main(argv) {
     return result === "missing" ? 1 : 0;
   }
 
-  console.log("usage: asc-release.mjs plan|submit|pending|review-detail  (see the top of the file)");
+  if (cmd === "next-build") {
+    if (!/^\d+$/.test(flags.base ?? "")) throw new Error("--base must be a non-negative integer");
+    const builds = await client.listAll(`/v1/builds?filter[app]=${appId}&limit=200&fields[builds]=version`);
+    console.error(`${builds.length} builds found.`);
+    console.log(nextBuild(builds.map((b) => b.attributes?.version), Number(flags.base)));
+    return 0;
+  }
+
+  console.log("usage: asc-release.mjs plan|submit|pending|review-detail|next-build  (see the top of the file)");
   return 2;
 }
 

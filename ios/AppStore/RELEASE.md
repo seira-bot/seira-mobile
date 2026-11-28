@@ -82,7 +82,8 @@ gh workflow run ios-testflight.yml --repo seira-bot/seira-mobile -f ref=main
 ### Build number
 
 - The workflow uses the input `build_number` when you set it.
-- Otherwise it uses `<CURRENT_PROJECT_VERSION in project.yml>.<run number>`, for example `6.14`.
+- Otherwise it uses the next number after the highest build of the app in App Store Connect, for example `6.7`.
+- `CURRENT_PROJECT_VERSION` in `project.yml` is the lowest first part of the number.
 - The app and both extensions get the same build number.
 - The app version comes from `MARKETING_VERSION` in `project.yml`.
 
@@ -112,7 +113,7 @@ The script `tools/asc-release.mjs` does the App Store Connect steps. It needs th
    - `skipped`: another version of that platform is already in review or waits for release.
    - `done`: the version is already live or processing.
 
-The build number is `<CURRENT_PROJECT_VERSION in project.yml>.<run number>`. iOS and macOS use the same number.
+The build number is the next number after the highest build in App Store Connect. iOS and macOS use the same number.
 
 ### What the script decides
 
