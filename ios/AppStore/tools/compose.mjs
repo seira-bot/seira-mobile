@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // Writes one HTML page for each App Store screenshot.
-// Usage: node compose.mjs <out-dir>
+// Usage: node compose.mjs <out-dir> [filter]
+// A filter writes only the pages whose name (<locale>__<layout>__<shot>) holds it.
 // Input: ../frames/shots.json and the raw simulator screenshots in ../raw/
 // (<device>-<lang>-<shot>.png). The look is shared with the Google Play frames,
 // so the night plates, the cast heads and Geist come from ../../../android/PlayStore/.
@@ -16,6 +17,7 @@ const play = resolve(root, "..", "..", "android", "PlayStore");
 const out = resolve(process.argv[2] ?? join(root, ".build", "pages"));
 mkdirSync(out, { recursive: true });
 
+const filter = process.argv[3] ?? "";
 const spec = JSON.parse(readFileSync(join(root, "frames", "shots.json"), "utf8"));
 const ACCENT = "#FF4D6D";
 const THREAD_W = 1080;
@@ -46,7 +48,7 @@ const title = (text) =>
     .join("");
 
 // A text is one string per locale, or one set of strings per device.
-const text = (value, device, loc) => (value[loc] ?? value[device]?.[loc]);
+const text = (value, device, loc) => (value[device]?.[loc] ?? value[loc]);
 // A box is [x, y, w, h], or one box per locale.
 const pick = (box, loc) => (Array.isArray(box) ? box : box[loc]);
 
@@ -125,6 +127,8 @@ for (const [layoutName, L] of Object.entries(spec.layouts)) {
   const k = W / THREAD_W;
   spec.shots.filter((shot) => shot.raw[L.device]).forEach((shot, i) => {
     for (const [loc, lang] of Object.entries(spec.locales)) {
+      const name = `${loc}__${layoutName}__${shot.id}`;
+      if (!name.includes(filter)) continue;
       const rawFile = join(root, "raw", `${L.rawDevice ?? L.device}-${lang}-${shot.raw[L.device]}.png`);
       const [rw, rh0] = pngSize(rawFile);
       const sc = { ...L.screen, ...(shot.screen?.[L.device] ?? {}) };
@@ -161,7 +165,6 @@ for (const [layoutName, L] of Object.entries(spec.layouts)) {
         parts.push(`<img class="head" src="${url(play, "raw", "cast", shot.head + ".png")}" alt="" style="left:${L.head.x}px;top:${L.head.y}px;width:${L.head.size}px">`);
       }
       parts.push(`<div class="caption"><div class="title">${title(text(shot.title, L.textDevice ?? L.device, loc))}</div><div class="sub">${esc(text(shot.sub, L.textDevice ?? L.device, loc))}</div></div>`);
-      const name = `${loc}__${layoutName}__${shot.id}`;
       writeFileSync(join(out, name + ".html"), page(W, H, css(L, k), parts.join("\n"), fitTitle.toString()));
       pages.push({ name, width: W, height: H, target: `frames/${loc}/${layoutName}/${shot.id}.png` });
     }

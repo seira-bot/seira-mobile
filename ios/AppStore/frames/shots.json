@@ -97,7 +97,7 @@
     "mac": {
       "device": "mac",
       "rawDevice": "ipad",
-      "textDevice": "ipad",
+      "textDevice": "mac",
       "size": [
         2880,
         1800
@@ -145,7 +145,11 @@
       },
       "sub": {
         "en-US": "The iPhone and iPad app for Seira on your computer.",
-        "id": "Aplikasi iPhone dan iPad untuk Seira di komputermu."
+        "id": "Aplikasi iPhone dan iPad untuk Seira di komputermu.",
+        "mac": {
+          "en-US": "The companion app for Seira, now on your Mac.",
+          "id": "Aplikasi pendamping Seira, kini di Mac-mu."
+        }
       },
       "card": {
         "ipad": {
@@ -222,7 +226,7 @@
       },
       "screen": {
         "mac": {
-          "cropY": 1250
+          "cropY": 1472
         }
       }
     },
@@ -244,6 +248,10 @@
           "id": "Selama Seira berjalan, Dynamic Island dan Lock Screen menampilkan bot yang perlu kamu."
         },
         "ipad": {
+          "en-US": "While Seira runs, the Lock Screen shows the bot that needs you.",
+          "id": "Selama Seira berjalan, Lock Screen menampilkan bot yang perlu kamu."
+        },
+        "mac": {
           "en-US": "While Seira runs, the Lock Screen shows the bot that needs you.",
           "id": "Selama Seira berjalan, Lock Screen menampilkan bot yang perlu kamu."
         }
@@ -328,7 +336,7 @@
       },
       "screen": {
         "mac": {
-          "cropY": 1000
+          "cropY": 1160
         }
       }
     },
