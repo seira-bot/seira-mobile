@@ -1,10 +1,11 @@
 // The Glance Live Activity's contract, compiled into the app and the widget
 // extension. One activity shows the focus bot; the bot lives in the content
 // state, so the activity never has to be replaced when the focus changes.
-import ActivityKit
-import AppIntents
 import CompanionCore
 import Foundation
+#if !targetEnvironment(macCatalyst)
+import ActivityKit
+import AppIntents
 
 struct GlanceActivityAttributes: ActivityAttributes {
     public typealias ContentState = GlanceContent
@@ -62,6 +63,8 @@ struct GlanceAllowOnceIntent: LiveActivityIntent {
         return .result()
     }
 }
+
+#endif
 
 extension GlanceContent {
     var look: SeiraLook {

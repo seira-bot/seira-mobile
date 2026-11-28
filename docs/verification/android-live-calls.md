@@ -108,7 +108,7 @@ $SDK/emulator/emulator -avd YOUR_ARM64_API35_PLUS_AVD -no-snapshot &      # add 
 $SDK/platform-tools/adb wait-for-device
 until [ "$($SDK/platform-tools/adb shell getprop sys.boot_completed | tr -d '\r')" = "1" ]; do sleep 5; done
 $SDK/platform-tools/adb install -r android/app/build/outputs/apk/preview/app-preview.apk
-$SDK/platform-tools/adb shell am start -n bot.seira.companion.preview/com.openmausbot.companion.MainActivity
+$SDK/platform-tools/adb shell am start -n bot.seira.companion.preview/bot.seira.companion.MainActivity
 ```
 
 In Seira Preview, tap Connect my computer, then Other ways to connect, and

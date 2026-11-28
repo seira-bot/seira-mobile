@@ -128,6 +128,22 @@ final class BotModelClientTests: XCTestCase {
         XCTAssertEqual(updated.tasks?.first?.projectId, "project-1")
     }
 
+    func testThreadModelWriteCanAskForTheBotDefaultToo() async throws {
+        BotModelRequestStub.responseBody = Self.botResponse(effort: nil)
+
+        _ = try await client.updateModel(
+            botId: "bot-1",
+            selection: ModelSelection(instanceId: "codex", model: "gpt-5"),
+            threadId: "thread-a",
+            updateBotDefault: true
+        )
+
+        let data = try XCTUnwrap(BotModelRequestStub.capturedBody)
+        let body = try XCTUnwrap(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        XCTAssertEqual(Set(body.keys), ["modelSelection", "requireAvailableModel", "updateBotDefault"])
+        XCTAssertEqual(body["updateBotDefault"] as? Bool, true)
+    }
+
     func testThreadModelWriteRejectsUnsafeThreadBeforeNetworking() async throws {
         do {
             _ = try await client.updateModel(botId: "bot-1", selection: ModelSelection(instanceId: "codex", model: "gpt-5"), threadId: "../other")

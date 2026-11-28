@@ -21,8 +21,8 @@
         <receiver android:name=".lifecycle.AlwaysOnBootReceiver" tools:node="remove" />
         <service android:name=".audio.LiveCallService" tools:node="remove" />
         <service android:name=".tile.TalkTileService" tools:node="remove" />
-        <activity android:name=".MainActivity">
+        <activity-alias android:name="com.openmausbot.companion.MainActivity">
             <meta-data android:name="android.app.shortcuts" tools:node="remove" />
-        </activity>
+        </activity-alias>
     </application>
 </manifest>

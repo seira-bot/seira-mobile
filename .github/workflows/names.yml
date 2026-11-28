@@ -1,0 +1,36 @@
+name: Names
+
+# Fails when a file or path uses a legacy OpenMaus code name.
+on:
+  pull_request:
+    paths:
+      - "android/**"
+      - "ios/**"
+      - "scripts/**"
+      - "docs/**"
+      - ".github/workflows/**"
+  push:
+    branches: [main]
+    paths:
+      - "android/**"
+      - "ios/**"
+      - "scripts/**"
+      - "docs/**"
+      - ".github/workflows/**"
+
+permissions:
+  contents: read
+
+jobs:
+  names:
+    name: Legacy names
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # The runner image ships Node.
+      - run: node scripts/check-legacy-names.mjs
+      - run: node --test scripts/check-legacy-names.test.mjs

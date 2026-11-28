@@ -29,7 +29,7 @@ The listing text and screenshots live in this folder. `tools/asc-listing.mjs` ch
 | Item | Source |
 | --- | --- |
 | Name, subtitle, description, keywords, promotional text, URLs | `en-US/*.txt`, `id/*.txt` (App Store Connect calls Indonesian `id`) |
-| What's New | `<locale>/release_notes.txt`. App Store Connect refuses it on the first version. |
+| What's New | `<locale>/release_notes.txt`. App Store Connect refuses it on the first version. `asc-release.mjs submit` fills it on an update before it submits. |
 | Screenshots | `frames/<locale>/iphone-6.9/` and `frames/<locale>/ipad-13/`. See `README.md`. |
 | App Privacy | `privacy-answers.md`. Verify it against the binary. |
 | Review notes | `review-notes.md`. The review server address and passphrase stay in App Store Connect only. |
@@ -82,10 +82,87 @@ gh workflow run ios-testflight.yml --repo seira-bot/seira-mobile -f ref=main
 ### Build number
 
 - The workflow uses the input `build_number` when you set it.
-- Otherwise it uses `<CURRENT_PROJECT_VERSION in project.yml>.<run number>`, for example `6.14`.
+- Otherwise it uses the next number after the highest build of the app in App Store Connect, for example `6.7`.
+- `CURRENT_PROJECT_VERSION` in `project.yml` is the lowest first part of the number.
 - The app and both extensions get the same build number.
 - The app version comes from `MARKETING_VERSION` in `project.yml`.
 
 ### After the upload
 
 App Store Connect processes the build for several minutes. Testers then install the build from TestFlight on a real iPhone. Run the real-iPhone pass from the list above.
+
+## Automatic release
+
+The workflow `apple-release.yml` builds the iOS app and the macOS app (Mac Catalyst, same bundle ID).
+It uploads both to App Store Connect. Then it puts each build on its App Store version and sends the version to App Review.
+The script `tools/asc-release.mjs` does the App Store Connect steps. It needs the secrets of the environment `app-store`.
+
+| Start | What happens |
+| --- | --- |
+| Push a tag `ios-vX.Y.Z` | Build, upload and submit both apps. The tag must equal `MARKETING_VERSION` in `ios/project.yml`. If it differs, the run fails before the build. |
+| Run by hand | Choose `platforms` (`both`, `ios`, `macos`) and `submit`. |
+| Every day at 01:17 UTC | Send the builds of the newest `ios-v*` tag that are not yet in review or live. |
+
+### Release a version
+
+1. Set `MARKETING_VERSION` in `ios/project.yml` and merge it to `main`.
+2. Push the tag: `git tag ios-vX.Y.Z && git push origin ios-vX.Y.Z`. Use the same version as in step 1.
+3. Wait for the run. The submit job waits up to 90 minutes for App Store Connect to process each build.
+4. Check the result in the run summary. Each platform shows one of these results:
+   - `submitted`: the version is in App Review. It releases after approval.
+   - `skipped`: another version of that platform is already in review or waits for release.
+   - `done`: the version is already live or processing.
+
+The build number is the next number after the highest build in App Store Connect. iOS and macOS use the same number.
+
+### What the script decides
+
+- It skips a platform that has a version in review. The next daily run tries again.
+- It renames the editable version to the new version, or creates one.
+- It copies the review details from the newest iOS version when the macOS version has none.
+- It does not submit when the listing is not complete. Each locale needs a description, keywords, a support URL and the screenshots of the platform. iOS needs iPhone 6.7" and iPad 13". macOS needs `APP_DESKTOP`.
+- It never prints review details.
+
+Preview the decisions without a change:
+
+```bash
+ASC_KEY_ID=... ASC_ISSUER_ID=... ASC_KEY_PATH=... ASC_APP_ID=... node ios/AppStore/tools/asc-release.mjs plan --version X.Y.Z
+```
+
+### Stop the submission
+
+- Set the repository variable `APPLE_AUTO_SUBMIT` to `false`. The workflow uploads the builds and sends nothing to App Review.
+- For one run, start the workflow by hand and turn `submit` off. This uploads to TestFlight only.
+
+```bash
+gh workflow run apple-release.yml --repo seira-bot/seira-mobile -f platforms=both -f submit=false
+```
+
+### Optional secrets for the Mac installer
+
+The macOS upload needs a Mac Installer Distribution certificate. By default Xcode uses the cloud-managed certificate.
+If the macOS export fails on the installer signature, make that certificate and add it to the environment `app-store`:
+
+- `MAC_INSTALLER_P12_BASE64`: the `.p12` file, encoded with base64.
+- `MAC_INSTALLER_P12_PASSWORD`: the password of the `.p12` file.
+
+Set both or neither. The job puts the certificate in a temporary keychain and deletes the keychain at the end.
+
+### Failed runs
+
+- If one build fails, the other build stays uploaded. The daily run then submits the platform that has a valid build.
+- To build one platform again, start the workflow by hand and choose that platform. The log of a failed build is in the artifact `xcodebuild-logs-<platform>`.
+- The environment `app-store` accepts the branch `main` and the tags `ios-v*` only.
+
+### macOS listing
+
+The macOS version has its own text and screenshots in App Store Connect.
+
+```bash
+node ios/AppStore/tools/asc-listing.mjs text --platform MAC_OS
+node ios/AppStore/tools/asc-listing.mjs screenshots --platform MAC_OS --replace
+node ios/AppStore/tools/asc-release.mjs review-detail --platform MAC_OS
+node ios/AppStore/tools/asc-listing.mjs status --platform MAC_OS
+```
+
+App Store Connect refuses "What's New" on the first version of a platform. The script skips it for that version.

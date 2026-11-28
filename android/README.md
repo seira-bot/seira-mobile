@@ -103,8 +103,8 @@ The signing key belongs to the maintainer and never enters this repository.
 Create a key once, outside any clone of this repository:
 
 ```sh
-keytool -genkeypair -v -keystore ~/openmausbot-release.jks \
-  -storetype PKCS12 -alias openmausbot -keyalg RSA -keysize 4096 -validity 10000
+keytool -genkeypair -v -keystore ~/seira-release.jks \
+  -storetype PKCS12 -alias seira -keyalg RSA -keysize 4096 -validity 10000
 ```
 
 Then, for each release:
@@ -113,7 +113,7 @@ Then, for each release:
 # whichever build-tools version is installed; any recent one works
 APKSIGNER="$(ls -d "$ANDROID_HOME"/build-tools/* | tail -1)/apksigner"
 
-"$APKSIGNER" sign --ks ~/openmausbot-release.jks --ks-key-alias openmausbot \
+"$APKSIGNER" sign --ks ~/seira-release.jks --ks-key-alias seira \
   --out app-release.apk app-release-unsigned.apk
 
 "$APKSIGNER" verify --verbose --print-certs app-release.apk
@@ -135,24 +135,29 @@ silently inherit a stale `keystore.properties` from a cached workspace.
 `android/keystore.properties` (gitignored):
 
 ```properties
-storeFile=/absolute/path/to/openmausbot-release.jks
+storeFile=/absolute/path/to/seira-release.jks
 storePassword=…
-keyAlias=openmausbot
+keyAlias=seira
 keyPassword=…
 ```
 
 or the environment, for CI secrets:
 
 ```
-OPENMAUSBOT_KEYSTORE_FILE
-OPENMAUSBOT_KEYSTORE_PASSWORD
-OPENMAUSBOT_KEY_ALIAS
-OPENMAUSBOT_KEY_PASSWORD   # optional; PKCS12 reuses the store password
+SEIRA_KEYSTORE_FILE
+SEIRA_KEYSTORE_PASSWORD
+SEIRA_KEY_ALIAS
+SEIRA_KEY_PASSWORD   # optional; PKCS12 reuses the store password
 ```
 
 Supply all of it or none of it. A build handed only part of the material stops
 and names what is missing, rather than quietly producing an unsigned APK that
 looks finished and cannot be published.
+
+Up to 1.2.1 these variables began with `OPENMAUSBOT_`. A build that finds any
+of the old names stops and asks for the `SEIRA_` names. It does not use the old
+values, and it does not fall back to `keystore.properties`.
+`node scripts/check-release-signing.mjs` checks each of these cases.
 
 Both paths declare v2 and v3 signature schemes. v3 is what makes the key
 rotatable later: without a v3 block there is no signing lineage for a new key to

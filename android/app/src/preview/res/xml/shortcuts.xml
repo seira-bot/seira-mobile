@@ -9,6 +9,6 @@
         <intent
             android:action="bot.seira.companion.action.TALK"
             android:targetPackage="bot.seira.companion.preview"
-            android:targetClass="com.openmausbot.companion.MainActivity" />
+            android:targetClass="bot.seira.companion.MainActivity" />
     </shortcut>
 </shortcuts>
