@@ -159,6 +159,52 @@ rotatable later: without a v3 block there is no signing lineage for a new key to
 prove it descends from the old one. v1 stays off — it is JAR signing, for
 Android 6 and below, which `minSdk 26` already excludes.
 
+## Publishing to Google Play from CI
+
+The workflow `.github/workflows/android-play.yml` builds the signed release bundle
+and sends it to Google Play. It uses `scripts/play-publish.mjs`, which calls the
+Google Play Android Developer API and needs only Node.
+
+To release:
+
+1. Change `appVersionName` in `app/build.gradle.kts`.
+2. Add the release notes in `android/PlayStore/release-notes/<version>/`.
+   Follow `android/PlayStore/release-notes/README.md`.
+3. Merge the change into `main`.
+4. Push the tag. The tag must match `appVersionName`. It starts a release to the `production` track.
+
+```sh
+git tag android-vX.Y.Z && git push origin android-vX.Y.Z
+```
+
+To pick the ref, the track, the status, a rollout percent or a dry run, start it by hand:
+
+```sh
+gh workflow run android-play.yml -f track=internal
+```
+
+The workflow keeps the bundle and `mapping.txt` as run artifacts for 90 days.
+
+Set these secrets in the GitHub environment `play-store`:
+
+| Secret | Content |
+|--------|---------|
+| `ANDROID_UPLOAD_KEYSTORE_BASE64` | The upload keystore file, encoded in base64 |
+| `ANDROID_UPLOAD_KEYSTORE_PASSWORD` | The keystore password |
+| `ANDROID_UPLOAD_KEY_ALIAS` | The key alias in the keystore |
+| `ANDROID_UPLOAD_KEY_PASSWORD` | The key password. Optional: leave it out when it equals the keystore password |
+| `ANDROID_GOOGLE_SERVICES_JSON` | The content of `google-services.json` |
+| `PLAY_SERVICE_ACCOUNT_JSON` | The JSON key of the Google Cloud service account |
+
+With none of the five required secrets, the workflow builds an unsigned bundle and uploads
+nothing. With only some of them, it fails and names the missing ones.
+
+One-time setup in Google:
+
+1. Create a Google Cloud service account and enable the Google Play Android Developer API in its project.
+2. In Play Console, open Users and permissions and invite the service account.
+3. Give it release permissions for this app.
+
 ## Versioning
 
 There is one line to edit per release, in `app/build.gradle.kts`:
