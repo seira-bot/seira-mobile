@@ -110,7 +110,9 @@ struct LiveCallSettingsSheet: View {
                 }
             }
             .overlay {
-                if settings == nil { ProgressView() }
+                if settings == nil {
+                    ProgressView().accessibilityIdentifier("live-call-settings-loading")
+                }
             }
             .task {
                 let loaded = await session.configStatus()?.live

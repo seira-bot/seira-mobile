@@ -138,6 +138,13 @@ final class Session: ObservableObject {
     /// panel can be pushed twice in a navigation stack, and the last one to
     /// close is the one that should turn screens back off.
     private var screenWatchers = 0
+    /// Threads a chat screen shows now, and how many screens show each.
+    private var openThreads: [String: Int] = [:]
+    /// Text deltas for threads that no screen shows, held while a chat is
+    /// open. See `deliver(_:)`.
+    private var heldFrames: [StreamFrame] = []
+    private var heldGeneration = 0
+    private var heldFlush: Task<Void, Never>?
     /// Authenticated avatar bytes shared by roster, header, group and task
     /// surfaces. Both entry count and byte cost are bounded because one valid
     /// uploaded image may be 10 MB.
@@ -477,7 +484,7 @@ final class Session: ObservableObject {
             do {
                 for try await batch in eventBatches(events) {
                     guard !Task.isCancelled, let self else { return }
-                    BusyFleetProbe.measure("fold") { self.applyStreamBatch(batch) }
+                    BusyFleetProbe.measure("fold") { self.deliver(batch) }
                 }
             } catch { /* offline fixture cancellation */ }
         }
@@ -1149,7 +1156,7 @@ final class Session: ObservableObject {
                     // resets the backoff, so hello-then-close slows down.
                     reconnectDelay = 0
                     framesAfterHello += batch.count
-                    applyStreamBatch(batch)
+                    deliver(batch)
                 }
                 // A live stream that closes reopens on its route. One that
                 // never said hello never connected: report it as a route
@@ -1182,6 +1189,64 @@ final class Session: ObservableObject {
         }
     }
 
+    /// Counts `threadId` as on screen until the calling task is cancelled.
+    /// ChatView calls it from `.task(id:)`, so a covered or closed chat
+    /// stops counting.
+    func keepOpen(_ threadId: String) async {
+        openThreads[threadId, default: 0] += 1
+        flushHeldFrames()
+        defer {
+            let count = (openThreads[threadId] ?? 1) - 1
+            openThreads[threadId] = count > 0 ? count : nil
+            if openThreads.isEmpty { flushHeldFrames() }
+        }
+        while !Task.isCancelled {
+            try? await Task.sleep(nanoseconds: 3_600_000_000_000)
+        }
+    }
+
+    /// Folds a batch from the stream. While a chat is open, text deltas for
+    /// threads that no screen shows wait up to a second and fold as one
+    /// batch. Each fold redraws every view that observes the session, and a
+    /// busy fleet sends about ten batches a second (CI, 2026-11-28).
+    private func deliver(_ batch: [StreamFrame]) {
+        guard !openThreads.isEmpty, !batch.isEmpty, batch.allSatisfy({ isHiddenDelta($0) }) else {
+            applyStreamBatch(takeHeldFrames() + batch)
+            return
+        }
+        if heldGeneration != streamGeneration {
+            heldFrames = []
+            heldGeneration = streamGeneration
+        }
+        heldFrames += batch
+        guard heldFlush == nil else { return }
+        heldFlush = Task { [weak self] in
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+            guard let self, !Task.isCancelled else { return }
+            self.heldFlush = nil
+            self.flushHeldFrames()
+        }
+    }
+
+    private func isHiddenDelta(_ frame: StreamFrame) -> Bool {
+        guard case let .runtime(event) = frame.frame, event.type == "content.delta" else { return false }
+        return openThreads[event.threadId] == nil
+    }
+
+    /// Empties the held deltas. Deltas from an older stream are dropped:
+    /// the cursor did not move past them, so the new stream sends them again.
+    private func takeHeldFrames() -> [StreamFrame] {
+        heldFlush?.cancel()
+        heldFlush = nil
+        defer { heldFrames = [] }
+        return heldGeneration == streamGeneration ? heldFrames : []
+    }
+
+    private func flushHeldFrames() {
+        let held = takeHeldFrames()
+        if !held.isEmpty { applyStreamBatch(held) }
+    }
+
     private func applyStreamBatch(_ batch: [StreamFrame]) {
         var updated = state
         updated.applyBatch(batch)
@@ -1203,12 +1268,16 @@ final class Session: ObservableObject {
         // Notification navigation can refresh while run() continues folding
         // live events. Retry once if that makes the fetched snapshot stale.
         for _ in 0..<2 {
+            flushHeldFrames()
             let expectedCursor = state.cursor
             let snapshot = try await client.fleetForHydration(messages: 50)
             try Task.checkCancellation()
             guard streamGeneration == generation, self.client?.connection.id == client.connection.id else {
                 throw CancellationError()
             }
+            // Deltas held during the fetch move the cursor here, as live
+            // folds did, so a stale snapshot is still caught.
+            flushHeldFrames()
             guard state.hydrate(snapshot.fleet, waitingThreads: snapshot.waitingThreads,
                                 ifCursorMatches: expectedCursor) else { continue }
             log.info("hydrated \(snapshot.fleet.bots.count, privacy: .public) bots, \(snapshot.fleet.groups.count, privacy: .public) rooms")

@@ -49,12 +49,15 @@ final class ResponsivenessUITests: XCTestCase {
         input.typeText("Busy Gmail draft")
         XCTAssertEqual(input.value as? String, "Busy Gmail draft")
         let typing = record("Typed Gmail draft", started: typingStarted, progress: progress)
-        noteMainThread(from: typingProbe, to: probe(app), seconds: typing, while: "typing into Gmail")
         pause(2)
         let gmailRedraws = counter(redraws) - redrawsBefore
         noteRedraws(gmailRedraws, while: "typing into Gmail and for 2 s after, other threads streaming")
 
+        // One read ends the typing window and starts the switching one: a
+        // read can take seconds under the flood, and the flood has to last
+        // to the end of the switching.
         let switchingProbe = probe(app)
+        noteMainThread(from: typingProbe, to: switchingProbe, seconds: typing, while: "typing into Gmail and 2 s after")
         let switchingStarted = Date()
         selectThread("preview-icloud", title: "Triage iCloud", in: app)
         XCTAssertNotEqual(input.value as? String, "Busy Gmail draft")
@@ -279,7 +282,12 @@ final class ResponsivenessUITests: XCTestCase {
     private func noteMainThread(from before: [String: Double], to after: [String: Double], seconds: TimeInterval, while action: String) {
         func delta(_ key: String) -> Double { (after[key] ?? 0) - (before[key] ?? 0) }
         let awake = delta("awake")
-        var lines = [String(format: "Main thread awake %.2f s of %.2f s (%.0f%%)", awake, seconds, seconds > 0 ? awake / seconds * 100 : 0)]
+        let span = delta("at")
+        var lines = [
+            String(format: "Main thread awake %.2f s of %.2f s between the probe reads (%.0f%%)",
+                   awake, span, span > 0 ? awake / span * 100 : 0),
+            String(format: "Action took %.2f s", seconds),
+        ]
         for key in after.keys.sorted() where key.hasPrefix("t.") && !key.hasSuffix("#") {
             lines.append("\(key): " + String(format: "%.3f s in %.0f passes", delta(key), delta(key + "#")))
         }
@@ -310,7 +318,7 @@ final class ResponsivenessUITests: XCTestCase {
     private func selectThread(_ id: String, title: String, in app: XCUIApplication) {
         app.openAllThreads()
         let thread = app.buttons["thread-\(id)"]
-        XCTAssertTrue(thread.waitForExistence(timeout: 10))
+        XCTAssertTrue(thread.exists || thread.waitForExistence(timeout: 10))
         thread.tap()
         let titleArrived = XCTNSPredicateExpectation(
             predicate: NSPredicate(format: "value == %@", title),

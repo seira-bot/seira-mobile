@@ -346,6 +346,7 @@ struct ChatView: View {
             if case let .bot(bot) = current { ComputerView(bot: bot) }
         }
         .task(id: threadId) { await enterThread() }
+        .task(id: threadId) { await session.keepOpen(threadId) }
         .onValueChange(of: selectedThreadWasRemoved) { removed in
             if removed { dismiss() }
         }

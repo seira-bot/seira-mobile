@@ -27,10 +27,7 @@ final class BrowserControlUITests: XCTestCase {
         shot.lifetime = .keepAlways
         add(shot)
         app.buttons["Keyboard"].tap()
-        // A new simulator covers its first keyboard with the slide-to-type
-        // intro, and the keys under it get no text.
-        let keyboardIntro = app.buttons["Continue"]
-        if keyboardIntro.waitForExistence(timeout: 2) { keyboardIntro.tap() }
+        app.waitForKeyboardKeys()
         app.typeText("Ada")
         expectation(for: NSPredicate(format: "value CONTAINS %@", "typed?value=Ada"), evaluatedWith: address)
         waitForExpectations(timeout: 5)

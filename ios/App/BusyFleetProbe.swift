@@ -73,9 +73,15 @@ enum BusyFleetProbe {
         passes[name, default: 0] += 1
     }
 
-    /// `awake=<s>;t.<name>=<count>/<s>;n.<name>=<count>`, sorted by name.
+    /// `at=<s>;awake=<s>;t.<name>=<count>/<s>;n.<name>=<count>`, sorted by
+    /// name. `at` is when the badge drew this summary, so the test can
+    /// divide by the time between two reads, not by its own clock.
     static var summary: String {
-        var parts = [String(format: "awake=%.3f", awake)]
+        let now = CFAbsoluteTimeGetCurrent()
+        var parts = [
+            String(format: "at=%.3f", now),
+            String(format: "awake=%.3f", awake + (wokeAt.map { now - $0 } ?? 0)),
+        ]
         parts += timed.keys.sorted().map { name in
             let entry = timed[name] ?? (0, 0)
             return "t.\(name)=\(entry.count)/" + String(format: "%.3f", entry.seconds)

@@ -95,8 +95,9 @@ final class LiveCallUITests: XCTestCase {
     }
 
     /// A start can take seconds; the person must not have to wait it out.
-    /// The preview holds the Mac's 201 back, so the bar stays on "Calling…"
-    /// long enough to hang up, and the late 201 must not bring the call back.
+    /// The preview holds the Mac's 201 back until the app gives the start
+    /// up, so the bar stays on "Calling…" until the hang-up lands, however
+    /// slow the simulator, and the late 201 must not bring the call back.
     @MainActor
     func testACallCanBeHungUpWhileItIsStillCalling() {
         let app = launch(["-live-call-preview-slow-start"])
@@ -121,7 +122,8 @@ final class LiveCallUITests: XCTestCase {
         waitForExpectations(timeout: 5)
         XCTAssertTrue(start.waitForExistence(timeout: 5), "the header offers a call again at once")
 
-        // The held 201 lands now; the controller ends that call instead.
+        // The held 201 landed half a second after the hang-up; the
+        // controller ends that call instead. Give a revived bar time to show.
         Thread.sleep(forTimeInterval: 4)
         XCTAssertFalse(bar.exists, "a late answer does not revive a call that was hung up")
         XCTAssertTrue(start.exists)
@@ -206,9 +208,7 @@ final class LiveCallUITests: XCTestCase {
         app.buttons["live-call-settings"].tap()
         let toggle = app.switches["Read replies to typed messages"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        let progress = app.activityIndicators.firstMatch
-        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: progress)
-        waitForExpectations(timeout: 5)
+        waitForTheMacsSettings(app)
         XCTAssertEqual(toggle.value as? String, "1")
         flip(toggle)
 
@@ -232,9 +232,7 @@ final class LiveCallUITests: XCTestCase {
         app.buttons["live-call-settings"].tap()
         let idle = app.descendants(matching: .any)["live-call-idle"]
         XCTAssertTrue(idle.waitForExistence(timeout: 5))
-        let progress = app.activityIndicators.firstMatch
-        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: progress)
-        waitForExpectations(timeout: 5)
+        waitForTheMacsSettings(app)
         XCTAssertTrue(shown(idle).contains("5 minutes"), shown(idle))
 
         idle.tap()
@@ -268,9 +266,7 @@ final class LiveCallUITests: XCTestCase {
             app.buttons["live-call-settings"].tap()
             let toggle = app.switches["Read replies to typed messages"]
             XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-            let progress = app.activityIndicators.firstMatch
-            expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: progress)
-            waitForExpectations(timeout: 5)
+            waitForTheMacsSettings(app)
             XCTAssertEqual(toggle.value as? String, "1", "round \(round): the Mac's setting")
             flip(toggle)
             expectation(for: NSPredicate(format: "value == '0'"), evaluatedWith: toggle)
@@ -320,9 +316,7 @@ final class LiveCallUITests: XCTestCase {
         app.buttons["live-call-settings"].tap()
         let toggle = app.switches["Read replies to typed messages"]
         XCTAssertTrue(toggle.waitForExistence(timeout: 5))
-        let progress = app.activityIndicators.firstMatch
-        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: progress)
-        waitForExpectations(timeout: 5)
+        waitForTheMacsSettings(app)
         flip(toggle)
 
         let notice = app.staticTexts["live-call-signed-out"]
@@ -542,6 +536,16 @@ final class LiveCallUITests: XCTestCase {
         let title = app.staticTexts["live-call-title"]
         expectation(for: NSPredicate(format: "label BEGINSWITH %@", "Live with Pepper"), evaluatedWith: title)
         waitForExpectations(timeout: 10)
+    }
+
+    /// Waits for the settings sheet's first read from the Mac. While the
+    /// voice talks, one look at the screen took 4 s on CI (2026-11-27), so
+    /// 5 s allowed a single look; 15 s allows several.
+    @MainActor
+    private func waitForTheMacsSettings(_ app: XCUIApplication) {
+        let loading = app.activityIndicators["live-call-settings-loading"]
+        expectation(for: NSPredicate(format: "exists == false"), evaluatedWith: loading)
+        waitForExpectations(timeout: 15)
     }
 
     /// What a Form picker row shows: its label and the chosen value, which

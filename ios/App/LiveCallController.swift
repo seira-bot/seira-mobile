@@ -167,6 +167,9 @@ final class LiveCallController: ObservableObject {
             // Kept, not dropped: its POST runs on to the Mac's answer (see
             // `begin`), and a redial waits for that start to finish.
             startTask?.cancel()
+            #if DEBUG
+            LiveCallPreviewProtocol.noteStartAbandoned()
+            #endif
         case let .closeMedia(sendClose):
             closeMedia(sendClose: sendClose)
         case let .endOnServer(callId):
