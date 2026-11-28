@@ -1,5 +1,5 @@
 {
-  "note": "Layout and captions for the App Store screenshots. tools/compose.mjs reads this file. Screens come from ../raw/<device>-<lang>-<shot>.png, cast heads from the Play folder android/PlayStore/raw/cast/, night plates from android/PlayStore/graphics/source/bg/, and Geist from android/PlayStore/tools/fonts/. Sizes are canvas pixels. A box is [x, y, width, height] in raw pixels. Card boxes and screen crops are raw pixels. cropW and cropH keep only the left and top part of a raw screen. A shot with no raw for a device is left out of that layout. A card lifts one box out of the screen, or out of another raw when it has a src, at a larger scale. Title lines split on \\n, and the {hl} part takes the accent colour. A sub or title can hold one text per device when the devices differ.",
+  "note": "Layout and captions for the App Store screenshots. tools/compose.mjs reads this file. Screens come from ../raw/<device>-<lang>-<shot>.png, cast heads from the Play folder android/PlayStore/raw/cast/, night plates from android/PlayStore/graphics/source/bg/, and Geist from android/PlayStore/tools/fonts/. Sizes are canvas pixels. A box is [x, y, width, height] in raw pixels. Card boxes and screen crops are raw pixels. cropW and cropH keep only the left and top part of a raw screen. A shot with no raw for a device is left out of that layout. A card lifts one box out of the screen, or out of another raw when it has a src, at a larger scale. Title lines split on \\n, and the {hl} part takes the accent colour. A sub or title can hold one text per device when the devices differ. The mac layout puts an iPad raw screen in a plain macOS window: bar is the title bar height, cropY and cropH pick the slice of the raw screen that shows.",
   "locales": {
     "en-US": "en",
     "id": "id"
@@ -93,6 +93,38 @@
         "y": 2130,
         "size": 760
       }
+    },
+    "mac": {
+      "device": "mac",
+      "rawDevice": "ipad",
+      "textDevice": "mac",
+      "size": [
+        2880,
+        1800
+      ],
+      "screen": {
+        "y": 440,
+        "width": 2000,
+        "radius": 30,
+        "cropH": 1280
+      },
+      "chrome": {
+        "bar": 64,
+        "dot": 22,
+        "gap": 24
+      },
+      "caption": {
+        "top": 60,
+        "width": 2600,
+        "title": 120,
+        "sub": 54,
+        "gap": 28,
+        "subWidth": 2000
+      },
+      "card": {
+        "scale": 0.82,
+        "radius": 48
+      }
     }
   },
   "thread": "M -80 1700 C 300 1520 700 1880 1080 1640 S 1800 1400 2160 1720 S 2900 1900 3240 1600 S 3900 1380 4320 1740 S 5050 1880 5400 1560 S 6100 1440 6600 1700",
@@ -103,7 +135,8 @@
       "raw": {
         "iphone": "01-home",
         "ipad": "01-home",
-        "duo": "01-home"
+        "duo": "01-home",
+        "mac": "01-home"
       },
       "head": "seira",
       "title": {
@@ -112,7 +145,11 @@
       },
       "sub": {
         "en-US": "The iPhone and iPad app for Seira on your computer.",
-        "id": "Aplikasi iPhone dan iPad untuk Seira di komputermu."
+        "id": "Aplikasi iPhone dan iPad untuk Seira di komputermu.",
+        "mac": {
+          "en-US": "The companion app for Seira, now on your Mac.",
+          "id": "Aplikasi pendamping Seira, kini di Mac-mu."
+        }
       },
       "card": {
         "ipad": {
@@ -130,6 +167,9 @@
       "screen": {
         "duo": {
           "cropW": 1180
+        },
+        "mac": {
+          "cropY": 0
         }
       }
     },
@@ -139,7 +179,8 @@
       "raw": {
         "iphone": "02-approval",
         "ipad": "02-approval",
-        "duo": "02-approval"
+        "duo": "02-approval",
+        "mac": "02-approval"
       },
       "title": {
         "en-US": "When a bot asks,\n{you decide.}",
@@ -182,6 +223,11 @@
           "width": 1560,
           "radius": 80
         }
+      },
+      "screen": {
+        "mac": {
+          "cropY": 1472
+        }
       }
     },
     {
@@ -189,7 +235,8 @@
       "plate": "night-b",
       "raw": {
         "iphone": "01-home",
-        "ipad": "01-home"
+        "ipad": "01-home",
+        "mac": "01-home"
       },
       "title": {
         "en-US": "See who {needs you}\nat a glance",
@@ -201,6 +248,10 @@
           "id": "Selama Seira berjalan, Dynamic Island dan Lock Screen menampilkan bot yang perlu kamu."
         },
         "ipad": {
+          "en-US": "While Seira runs, the Lock Screen shows the bot that needs you.",
+          "id": "Selama Seira berjalan, Lock Screen menampilkan bot yang perlu kamu."
+        },
+        "mac": {
           "en-US": "While Seira runs, the Lock Screen shows the bot that needs you.",
           "id": "Selama Seira berjalan, Lock Screen menampilkan bot yang perlu kamu."
         }
@@ -246,6 +297,11 @@
             "radius": 64
           }
         ]
+      },
+      "screen": {
+        "mac": {
+          "cropY": 1472
+        }
       }
     },
     {
@@ -254,7 +310,8 @@
       "raw": {
         "iphone": "04-live",
         "ipad": "04-live",
-        "duo": "04-live"
+        "duo": "04-live",
+        "mac": "04-live"
       },
       "title": {
         "en-US": "Watch the work\n{come in}",
@@ -276,6 +333,11 @@
           "y": 1500,
           "radius": 56
         }
+      },
+      "screen": {
+        "mac": {
+          "cropY": 1160
+        }
       }
     },
     {
@@ -284,7 +346,8 @@
       "raw": {
         "iphone": "05-look",
         "ipad": "05-look",
-        "duo": "05-look"
+        "duo": "05-look",
+        "mac": "05-look"
       },
       "title": {
         "en-US": "Give every bot\n{its own face}",
@@ -298,6 +361,9 @@
         "iphone": {
           "width": 1000,
           "cropH": 2340
+        },
+        "mac": {
+          "cropY": 600
         }
       },
       "card": {

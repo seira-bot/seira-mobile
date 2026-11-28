@@ -2,15 +2,17 @@
 // Checks and uploads the App Store listing text, screenshots and creative assets in ios/AppStore.
 //
 //   node ios/AppStore/tools/asc-listing.mjs check
-//   node ios/AppStore/tools/asc-listing.mjs status
-//   node ios/AppStore/tools/asc-listing.mjs text
-//   node ios/AppStore/tools/asc-listing.mjs screenshots [--replace]
+//   node ios/AppStore/tools/asc-listing.mjs status [--platform IOS|MAC_OS]
+//   node ios/AppStore/tools/asc-listing.mjs text [--platform IOS|MAC_OS]
+//   node ios/AppStore/tools/asc-listing.mjs screenshots [--replace] [--platform IOS|MAC_OS]
 //   node ios/AppStore/tools/asc-listing.mjs assets
 //   node ios/AppStore/tools/asc-listing.mjs place [--replace]
 //
 // "assets" uploads the header, the search-results image and the iPhone Duo screenshots
 // to the App Asset Library. It does not touch any version.
 // "place" attaches those images to the editable version. It refuses when no version is editable.
+// --platform picks the version to change. The default is IOS. MAC_OS uses frames/<locale>/mac/
+// and the screenshot type APP_DESKTOP. "assets" and "place" work for IOS only.
 // "check" needs nothing. The other commands call the App Store Connect API and read:
 //   ASC_KEY_ID, ASC_ISSUER_ID   the API key (App Manager or Admin role)
 //   ASC_KEY_PATH                path to the AuthKey_<id>.p8 file
@@ -21,6 +23,7 @@ import crypto from "node:crypto";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { basename, dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { api, env, listAll } from "./asc-api.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const LOCALES = readdirSync(root).filter((d) => /^[a-z]{2}(-[A-Z]{2})?$/.test(d) && statSync(join(root, d)).isDirectory());
@@ -30,8 +33,16 @@ const LIMITS = { name: 30, subtitle: 30, promotional_text: 170, description: 400
 const URL_FIELDS = ["marketing_url", "support_url", "privacy_url"];
 
 // Folder name under frames/<locale>/ -> App Store Connect screenshot display type.
-const DISPLAY_TYPES = { "iphone-6.9": "APP_IPHONE_67", "ipad-13": "APP_IPAD_PRO_3GEN_129" };
-const SIZES = { "iphone-6.9": [[1320, 2868], [1290, 2796]], "ipad-13": [[2064, 2752], [2048, 2732]] };
+const DISPLAY_TYPES_BY_PLATFORM = {
+  IOS: { "iphone-6.9": "APP_IPHONE_67", "ipad-13": "APP_IPAD_PRO_3GEN_129" },
+  MAC_OS: { mac: "APP_DESKTOP" },
+};
+const ALL_FOLDERS = Object.assign({}, ...Object.values(DISPLAY_TYPES_BY_PLATFORM));
+const SIZES = {
+  "iphone-6.9": [[1320, 2868], [1290, 2796]],
+  "ipad-13": [[2064, 2752], [2048, 2732]],
+  mac: [[2880, 1800], [2560, 1600], [1440, 900], [1280, 800]],
+};
 const DUO_SIZES = [[2007, 2853], [1398, 2034], [2853, 2007], [2034, 1398]];
 // Path under frames/<locale>/ -> App Asset Library settings (rules read on 2026-11-27).
 const LIBRARY = {
@@ -99,7 +110,7 @@ function check() {
       if (!text || !/^https:\/\/\S+$/.test(text)) problems.push(`${locale}/${field}.txt must hold one https URL`);
     }
     const frames = join(root, "frames", locale);
-    for (const folder of Object.keys(DISPLAY_TYPES)) {
+    for (const folder of Object.keys(ALL_FOLDERS)) {
       const dir = join(frames, folder);
       const files = existsSync(dir) ? readdirSync(dir).filter((f) => f.endsWith(".png")) : [];
       if (files.length < 3 || files.length > 10) problems.push(`frames/${locale}/${folder} has ${files.length} PNG files, App Store needs 3 to 10`);
@@ -137,50 +148,26 @@ function pngInfo(file) {
   return [b.readUInt32BE(16), b.readUInt32BE(20), colorType === 4 || colorType === 6];
 }
 
-function env(name) {
-  const v = process.env[name];
-  if (!v) throw new Error(`Set ${name}`);
+async function platformVersions(appId, platform) {
+  return (await api("GET", `/v1/apps/${appId}/appStoreVersions?filter[platform]=${platform}&limit=50`)).data;
+}
+
+async function editableVersion(appId, platform) {
+  const v = (await platformVersions(appId, platform)).find((x) => EDITABLE.has(x.attributes.appStoreState));
+  if (!v) throw new Error(`No editable ${platform} version. Create the version in App Store Connect first.`);
   return v;
 }
 
-function token() {
-  const b64u = (x) => Buffer.from(x).toString("base64url");
-  const now = Math.floor(Date.now() / 1000);
-  const head = b64u(JSON.stringify({ alg: "ES256", kid: env("ASC_KEY_ID"), typ: "JWT" }));
-  const body = b64u(JSON.stringify({ iss: env("ASC_ISSUER_ID"), iat: now, exp: now + 1100, aud: "appstoreconnect-v1" }));
-  const key = crypto.createPrivateKey(readFileSync(env("ASC_KEY_PATH")));
-  const sig = crypto.sign("sha256", Buffer.from(`${head}.${body}`), { key, dsaEncoding: "ieee-p1363" });
-  return `${head}.${body}.${b64u(sig)}`;
-}
-
-async function api(method, path, body) {
-  const res = await fetch(path.startsWith("http") ? path : `https://api.appstoreconnect.apple.com${path}`, {
-    method,
-    headers: { Authorization: `Bearer ${token()}`, "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  const text = await res.text();
-  const json = text ? JSON.parse(text) : null;
-  if (!res.ok) {
-    const detail = (json?.errors ?? []).map((e) => `${e.code}: ${e.detail ?? e.title}`).join("; ");
-    const err = new Error(`${method} ${path.split("?")[0]} -> ${res.status} ${detail}`);
-    err.status = res.status;
-    throw err;
-  }
-  return json;
-}
-
-async function editableVersion(appId) {
-  const res = await api("GET", `/v1/apps/${appId}/appStoreVersions?filter[platform]=IOS&limit=10`);
-  const v = res.data.find((x) => EDITABLE.has(x.attributes.appStoreState));
-  if (!v) throw new Error("No editable iOS version. Create the version in App Store Connect first.");
-  return v;
-}
-
-async function editableAppInfo(appId) {
+async function editableAppInfo(appId, platform) {
   const res = await api("GET", `/v1/apps/${appId}/appInfos`);
-  const info = res.data.find((x) => EDITABLE.has(x.attributes.appStoreState ?? x.attributes.state)) ?? res.data[0];
-  return info;
+  const editable = res.data.find((x) => EDITABLE.has(x.attributes.appStoreState ?? x.attributes.state));
+  if (platform === "IOS") return editable ?? res.data[0];
+  return editable ?? null;
+}
+
+// App Store Connect refuses "What's New" on the first version of a platform.
+async function isFirstVersion(appId, platform, version) {
+  return (await platformVersions(appId, platform)).every((x) => x.id === version.id);
 }
 
 async function upsert(listPath, type, parentRel, parentId, locale, attributes) {
@@ -196,23 +183,27 @@ async function upsert(listPath, type, parentRel, parentId, locale, attributes) {
   return made.data.id;
 }
 
-async function pushText() {
+async function pushText(platform) {
   const appId = env("ASC_APP_ID");
-  const version = await editableVersion(appId);
-  const info = await editableAppInfo(appId);
+  const version = await editableVersion(appId, platform);
+  const info = await editableAppInfo(appId, platform);
+  const first = await isFirstVersion(appId, platform, version);
+  if (!info) console.log("No editable app info. Name, subtitle and privacy URL are left as they are.");
   for (const locale of LOCALES) {
-    await upsert(`/v1/appInfos/${info.id}/appInfoLocalizations`, "appInfoLocalizations", "appInfo", info.id, locale, {
-      name: read(locale, "name"),
-      subtitle: read(locale, "subtitle"),
-      privacyPolicyUrl: read(locale, "privacy_url"),
-    });
+    if (info) {
+      await upsert(`/v1/appInfos/${info.id}/appInfoLocalizations`, "appInfoLocalizations", "appInfo", info.id, locale, {
+        name: read(locale, "name"),
+        subtitle: read(locale, "subtitle"),
+        privacyPolicyUrl: read(locale, "privacy_url"),
+      });
+    }
     const attrs = {
       description: read(locale, "description"),
       keywords: read(locale, "keywords"),
       promotionalText: read(locale, "promotional_text"),
       marketingUrl: read(locale, "marketing_url"),
       supportUrl: read(locale, "support_url"),
-      whatsNew: read(locale, "release_notes"),
+      whatsNew: first ? undefined : read(locale, "release_notes"),
     };
     const listPath = `/v1/appStoreVersions/${version.id}/appStoreVersionLocalizations`;
     try {
@@ -224,7 +215,7 @@ async function pushText() {
       await upsert(listPath, "appStoreVersionLocalizations", "appStoreVersion", version.id, locale, attrs);
       console.log(`${locale}: What's New skipped (first version)`);
     }
-    console.log(`${locale}: text ok (version ${version.attributes.versionString})`);
+    console.log(`${locale}: text ok (${platform} version ${version.attributes.versionString}${first ? ", What's New skipped: first version" : ""})`);
   }
 }
 
@@ -246,15 +237,15 @@ async function uploadScreenshot(setId, file) {
   return shot.id;
 }
 
-async function pushScreenshots(replace) {
+async function pushScreenshots(replace, platform) {
   const appId = env("ASC_APP_ID");
-  const version = await editableVersion(appId);
+  const version = await editableVersion(appId, platform);
   const locs = await api("GET", `/v1/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=50`);
   for (const locale of LOCALES) {
     const loc = locs.data.find((x) => x.attributes.locale === locale);
     if (!loc) throw new Error(`${locale}: run "text" first`);
     const sets = await api("GET", `/v1/appStoreVersionLocalizations/${loc.id}/appScreenshotSets?limit=50`);
-    for (const [folder, displayType] of Object.entries(DISPLAY_TYPES)) {
+    for (const [folder, displayType] of Object.entries(DISPLAY_TYPES_BY_PLATFORM[platform])) {
       const dir = join(root, "frames", locale, folder);
       if (!existsSync(dir)) continue;
       const files = readdirSync(dir).filter((f) => f.endsWith(".png")).sort();
@@ -283,17 +274,6 @@ async function pushScreenshots(replace) {
       console.log(`${locale} ${folder}: ${ids.length} screenshot(s) uploaded`);
     }
   }
-}
-
-async function listAll(path) {
-  const out = [];
-  let next = path;
-  while (next) {
-    const res = await api("GET", next);
-    out.push(...res.data);
-    next = res.links?.next ?? null;
-  }
-  return out;
 }
 
 async function libraryId(appId) {
@@ -419,15 +399,20 @@ async function placeAssets(replace) {
   }
 }
 
-async function status() {
+async function status(platform) {
   const appId = env("ASC_APP_ID");
-  const version = await editableVersion(appId);
-  const info = await editableAppInfo(appId);
-  console.log(`version ${version.attributes.versionString} ${version.attributes.appStoreState}`);
-  for (const x of (await api("GET", `/v1/appInfos/${info.id}/appInfoLocalizations`)).data) {
-    const a = x.attributes;
-    console.log(`${a.locale} info: name=${a.name ?? "-"} subtitle=${a.subtitle ?? "-"} privacy=${a.privacyPolicyUrl ?? "-"}`);
+  const version = await editableVersion(appId, platform);
+  const info = await editableAppInfo(appId, platform);
+  console.log(`${platform} version ${version.attributes.versionString} ${version.attributes.appStoreState}`);
+  if (info) {
+    for (const x of (await api("GET", `/v1/appInfos/${info.id}/appInfoLocalizations`)).data) {
+      const a = x.attributes;
+      console.log(`${a.locale} info: name=${a.name ?? "-"} subtitle=${a.subtitle ?? "-"} privacy=${a.privacyPolicyUrl ?? "-"}`);
+    }
   }
+  const detail = await api("GET", `/v1/appStoreVersions/${version.id}/appStoreReviewDetail`).then((r) => r.data, (e) => { if (e.status === 404) return null; throw e; });
+  const detailFields = ["contactFirstName", "contactLastName", "contactPhone", "contactEmail", "demoAccountName", "demoAccountPassword", "notes"];
+  console.log(detail ? `review detail: ${detailFields.map((k) => `${k}=${detail.attributes[k] ? "yes" : "no"}`).join(" ")}` : "review detail: none");
   const locs = await api("GET", `/v1/appStoreVersions/${version.id}/appStoreVersionLocalizations?limit=50`);
   for (const x of locs.data) {
     const a = x.attributes;
@@ -441,10 +426,28 @@ async function status() {
   }
 }
 
-const [cmd, flag] = process.argv.slice(2);
-const run = { check: async () => process.exit(check() ? 0 : 1), status, text: pushText, screenshots: () => pushScreenshots(flag === "--replace"), assets: pushAssets, place: () => placeAssets(flag === "--replace") }[cmd];
+const [cmd, ...flags] = process.argv.slice(2);
+const replace = flags.includes("--replace");
+const platformAt = flags.indexOf("--platform");
+const platform = platformAt === -1 ? "IOS" : flags[platformAt + 1];
+if (!DISPLAY_TYPES_BY_PLATFORM[platform]) {
+  console.log("--platform must be IOS or MAC_OS");
+  process.exit(2);
+}
+if ((cmd === "assets" || cmd === "place") && platform !== "IOS") {
+  console.log(`"${cmd}" works for IOS only`);
+  process.exit(2);
+}
+const run = {
+  check: async () => process.exit(check() ? 0 : 1),
+  status: () => status(platform),
+  text: () => pushText(platform),
+  screenshots: () => pushScreenshots(replace, platform),
+  assets: pushAssets,
+  place: () => placeAssets(replace),
+}[cmd];
 if (!run) {
-  console.log("usage: asc-listing.mjs check | status | text | screenshots [--replace] | assets | place [--replace]");
+  console.log("usage: asc-listing.mjs check | status | text | screenshots [--replace] | assets | place [--replace]  (--platform IOS|MAC_OS)");
   process.exit(2);
 }
 run().catch((e) => {

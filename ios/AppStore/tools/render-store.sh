@@ -18,7 +18,7 @@ if [ -n "$SAFE" ]; then
   node tools/compose-creative.mjs "$work/pages" --safe >/dev/null
   echo "[]" > "$work/pages/pages.json"
 else
-  node tools/compose.mjs "$work/pages" >/dev/null
+  node tools/compose.mjs "$work/pages" "$FILTER" >/dev/null
   node tools/compose-creative.mjs "$work/pages" >/dev/null
 fi
 python3 -I - "$work" "$CHROMIUM" "$FILTER" "$SAFE" <<'PY'

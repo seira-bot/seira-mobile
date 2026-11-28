@@ -7,6 +7,7 @@ Each set exists in two locales (`en-US`, `id`).
 |------------------------------|------|-------|-------------|
 | `iphone-6.9/` | 1320x2868 | 5 | `screenshots` |
 | `ipad-13/` | 2064x2752 | 5 | `screenshots` |
+| `mac/` | 2880x1800 | 5 | `screenshots --platform MAC_OS` |
 | `iphone-duo/` | 2007x2853 | 4 | `assets`, then `place` |
 | `creative/header.png` | 3840x1646 | 1 | `assets`, then `place` |
 | `creative/search-results.png` | 3840x2560 | 1 | `assets`, then `place` |
@@ -60,6 +61,12 @@ systemd-run --user --scope -q -p MemoryMax=4G -p MemorySwapMax=0 bash ios/AppSto
 Apple rules for the header and the search results image: a short phrase is allowed, but no price,
 URL, copyright sign, unproven claim, other platform logo or Apple badge.
 
+### Mac screenshots
+
+The layout `mac` in `frames/shots.json` places an iPad raw screen in a plain macOS window.
+It reads the same raw files as the iPad layout (`ipad-<lang>-<shot>.png`). `cropY` and `cropH` pick the part of the screen to show.
+Draw only these frames with `render-store.sh __mac`.
+
 ## 3. Upload
 
 ```bash
@@ -74,6 +81,7 @@ node ios/AppStore/tools/asc-listing.mjs place --replace
 
 - `check` needs no credentials. The other commands call the App Store Connect API.
 - `screenshots` uploads the iPhone 6.9" and iPad 13" sets to the editable version.
+  With `--platform MAC_OS` it uploads `frames/<locale>/mac/` to the editable macOS version. `text` and `status` take the same option.
 - `assets` uploads the Duo screenshots, the header and the search results image to the
   App Asset Library. It reuses an image that has the same content. It changes no version.
 - `place` attaches those images to the editable version. It refuses when no version is editable.
