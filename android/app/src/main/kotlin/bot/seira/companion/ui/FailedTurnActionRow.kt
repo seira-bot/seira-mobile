@@ -135,6 +135,7 @@ internal fun FailedTurnActionRow(chat: Chat, message: Message) {
         ModelPickerSheet(
             bot = chat.bot,
             unavailable = unavailable,
+            updatesBotDefault = false,
             onSwitched = { label ->
                 switchedTo = label
                 picking = false

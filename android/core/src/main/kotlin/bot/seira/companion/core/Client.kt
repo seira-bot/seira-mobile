@@ -834,14 +834,21 @@ class CompanionClient(
     /**
      * A captured task changes only that task's model. The optional legacy form
      * retains the narrow profile/default model route for older callers.
+     * [updateBotDefault] also makes the selection the bot's default model.
      */
-    suspend fun updateModel(botId: String, selection: ModelSelection, threadId: String? = null): Bot {
+    suspend fun updateModel(
+        botId: String,
+        selection: ModelSelection,
+        threadId: String? = null,
+        updateBotDefault: Boolean = false,
+    ): Bot {
         val model = CompanionJson.encodeToJsonElement(ModelSelection.serializer(), selection).jsonObject
         val path = if (threadId == null) "/api/bots/${segment(botId)}/model"
             else "/api/bots/${segment(botId)}/tasks/${segment(threadId)}"
         val body = if (threadId == null) model else buildJsonObject {
             put("modelSelection", model)
             put("requireAvailableModel", true)
+            if (updateBotDefault) put("updateBotDefault", true)
         }
         return send<BotResponse>(
             makeRequest("PATCH", path, body = body),

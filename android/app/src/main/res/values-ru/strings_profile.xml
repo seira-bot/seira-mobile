@@ -88,4 +88,5 @@
     <string name="team_memory_delete_title">Удалить эту заметку?</string>
     <string name="team_memory_delete_body">Боты перестанут читать «%1$s».</string>
     <string name="team_memory_changed">Эта заметка изменилась. Показана последняя версия.</string>
+    <string name="voice_engine_change_on_computer">Измените голосовой движок на вашем компьютере.</string>
 </resources>

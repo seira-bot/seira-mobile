@@ -67,9 +67,17 @@ const candidates = [
   ...(existsSync(join(root, "docs/verification")) ? readdirSync(join(root, "docs/verification")).filter((f) => f.endsWith(".md")).map((f) => `docs/verification/${f}`) : []),
 ].filter((f) => !SELF.has(f));
 
+// Launchers keep icons and pinned shortcuts by component name, so the launcher alias keeps the pre-1.2.2 name.
+const LEGACY_LAUNCHER = "com.openmausbot.companion.MainActivity";
+const KEPT = "\u0000legacy-launcher\u0000";
+
 for (const file of candidates) {
   const before = readFileSync(join(root, file), "utf8");
-  let after = before.replaceAll("com.openmausbot.companion", "bot.seira.companion").replaceAll("com/openmausbot/companion", "bot/seira/companion");
+  let after = before
+    .replaceAll(LEGACY_LAUNCHER, KEPT)
+    .replaceAll("com.openmausbot.companion", "bot.seira.companion")
+    .replaceAll("com/openmausbot/companion", "bot/seira/companion")
+    .replaceAll(KEPT, LEGACY_LAUNCHER);
   if (file.startsWith("android/")) after = after.replace(/\bOpenMausApp\b/g, "SeiraApp").replaceAll("Theme.OpenMausMobile", "Theme.SeiraMobile");
   if (after !== before) {
     writeFileSync(join(root, file), after);

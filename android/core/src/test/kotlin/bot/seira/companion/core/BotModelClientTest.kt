@@ -75,6 +75,16 @@ class BotModelClientTest {
     }
 
     @Test
+    fun taskModelUpdateCanAskForTheBotDefaultToo() = runBlocking {
+        server.enqueue(json(botResponse(effort = null)))
+        client.updateModel("bot-1", ModelSelection("codex", "gpt-5"), "task-a", updateBotDefault = true)
+
+        val body = CompanionJson.parseToJsonElement(server.takeRequest().body.readUtf8()).jsonObject
+        assertEquals(setOf("modelSelection", "requireAvailableModel", "updateBotDefault"), body.keys)
+        assertEquals("true", body.getValue("updateBotDefault").jsonPrimitive.content)
+    }
+
+    @Test
     fun engineDefaultOmitsEffortRatherThanSendingNull() = runBlocking {
         server.enqueue(json(botResponse(effort = null)))
 

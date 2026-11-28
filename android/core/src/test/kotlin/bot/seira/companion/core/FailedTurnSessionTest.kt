@@ -92,6 +92,36 @@ class FailedTurnSessionTest {
     }
 
     @Test
+    fun aBotDefaultSwitchSendsTheFlag() = runTest {
+        val bot = bot()
+        val session = session(bot)
+        server.enqueue(json(botResponse("codex", "gpt-5")))
+
+        val updated = session.updateModel(ModelSelection("codex", "gpt-5"), bot, updateBotDefault = true)
+
+        val request = server.takeRequest()
+        assertEquals("/api/bots/b1/tasks/task-a", request.path)
+        val sent = CompanionJson.parseToJsonElement(request.body.readUtf8()).jsonObject
+        assertEquals(setOf("modelSelection", "requireAvailableModel", "updateBotDefault"), sent.keys)
+        assertEquals("true", sent.getValue("updateBotDefault").jsonPrimitive.content)
+        assertEquals("gpt-5", updated?.modelSelection?.model)
+        assertNull(session.actionError)
+    }
+
+    @Test
+    fun aRefusedBotDefaultSwitchReturnsNullAndShowsTheReason() = runTest {
+        for (code in listOf(400, 409)) {
+            val bot = bot()
+            val session = session(bot)
+            server.enqueue(json("""{"error":"model is not available"}""", code = code))
+
+            assertNull(session.updateModel(ModelSelection("codex", "gpt-5"), bot, updateBotDefault = true))
+
+            assertEquals("model is not available", session.actionError)
+        }
+    }
+
+    @Test
     fun aQuietSwitchFailureRaisesNoBanner() = runTest {
         val bot = bot()
         val session = session(bot)

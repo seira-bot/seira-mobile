@@ -59,6 +59,7 @@ final class Session: ObservableObject {
     /// `Connection.canAdminister`. Views hide owner-only controls when this
     /// is false rather than offer buttons the server would answer 403 to.
     var canAdminister: Bool { connection?.canAdminister ?? false }
+    var canChangeVoiceEngine: Bool { connection?.canChangeVoiceEngine ?? false }
     /// Paired with a server directly rather than through the companion
     /// sidecar: see `Connection.pairedWithServer`.
     var pairedWithServer: Bool { connection?.pairedWithServer ?? false }
@@ -2513,10 +2514,12 @@ final class Session: ObservableObject {
         return instance?.models.options.first { $0.id == selection.model }?.label ?? selection.model
     }
 
-    func updateModel(_ selection: ModelSelection, for bot: Bot) async -> Bot? {
+    func updateModel(_ selection: ModelSelection, for bot: Bot, updateBotDefault: Bool = false) async -> Bot? {
         guard let client else { return nil }
         do {
-            let updated = try await client.updateModel(botId: bot.id, selection: selection, threadId: bot.threadId)
+            let updated = try await client.updateModel(
+                botId: bot.id, selection: selection, threadId: bot.threadId, updateBotDefault: updateBotDefault
+            )
             guard !Task.isCancelled else { return nil }
             state.apply(.bot(updated))
             return updated

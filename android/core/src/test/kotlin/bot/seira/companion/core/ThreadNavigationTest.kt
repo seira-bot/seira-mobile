@@ -127,13 +127,31 @@ class ThreadNavigationTest {
         // The wire flag decodes, and a legacy bot-level wait reaches its
         // single synthesized thread.
         val decoded = CompanionJson.decodeFromString<BotTask>(
-            """{"threadId":"dispatch","title":"Dispatch","createdAt":0,"waitingOnTeammate":true}"""
+            """{"threadId":"dispatch","title":"Dispatch","createdAt":0,"waitingForTeammates":true}"""
         )
         assertTrue(decoded.waitingOnTeammate == true)
         val legacy = bot.copy(busy = false, activity = "idle", waitingOnTeammate = true)
         val thread = legacy.threadGroups().single().tasks.single()
         assertEquals("current", thread.threadId)
         assertTrue(thread.isWaitingOnTeammate)
+    }
+
+    @Test
+    fun theComputersWaitingForTeammatesFlagReachesTheBotAndItsThreads() {
+        val decoded = CompanionJson.decodeFromString<Bot>(
+            """
+            {"id":"scout","threadId":"a","name":"Scout","title":"","description":"",
+             "notifications":true,"color":"blue","unread":false,"createdAt":1,
+             "modelSelection":{"instanceId":"default","model":"default"},
+             "waitingForTeammates":true,
+             "tasks":[{"threadId":"a","title":"A","createdAt":0,"waitingForTeammates":true},
+                      {"threadId":"b","title":"B","createdAt":0}]}
+            """.trimIndent(),
+        )
+        assertEquals(true, decoded.waitingOnTeammate)
+        assertEquals(true, decoded.tasks?.first { it.threadId == "a" }?.waitingOnTeammate)
+        assertEquals(true, decoded.forTask("a")?.waitingOnTeammate)
+        assertNull(decoded.tasks?.first { it.threadId == "b" }?.waitingOnTeammate)
     }
 
     @Test

@@ -113,6 +113,15 @@ struct AgentProfileView: View {
     private var usesChatterbox: Bool { config?.voiceProvider == .chatterbox }
     private var usesFishAudio: Bool { config?.voiceProvider == .fish }
 
+    private var engineLabel: LocalizedStringKey {
+        switch config?.voiceProvider ?? .elevenlabs {
+        case .elevenlabs: return "ElevenLabs"
+        case .fish: return "Fish Audio"
+        case .system: return "Built-in Mac voices"
+        case .chatterbox: return "Chatterbox (local)"
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
@@ -269,17 +278,24 @@ struct AgentProfileView: View {
 
     private var voiceSection: some View {
         Section {
-            Picker("Voice engine", selection: $engine) {
-                Text("ElevenLabs").tag(VoiceProvider.elevenlabs)
-                Text("Fish Audio").tag(VoiceProvider.fish)
-                Text("Built-in Mac voices")
-                    .tag(VoiceProvider.system)
-                    .disabled(!hostIsMac)
-                Text("Chatterbox (local)").tag(VoiceProvider.chatterbox)
+            if session.canChangeVoiceEngine {
+                Picker("Voice engine", selection: $engine) {
+                    Text("ElevenLabs").tag(VoiceProvider.elevenlabs)
+                    Text("Fish Audio").tag(VoiceProvider.fish)
+                    Text("Built-in Mac voices")
+                        .tag(VoiceProvider.system)
+                        .disabled(!hostIsMac)
+                    Text("Chatterbox (local)").tag(VoiceProvider.chatterbox)
+                }
+                .disabled(switchingEngine)
+            } else {
+                LabeledContent("Voice engine") { Text(engineLabel) }
+                Text("Change the voice engine on your computer.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
             }
-            .disabled(switchingEngine)
 
-            if usesChatterbox {
+            if usesChatterbox, session.canChangeVoiceEngine {
                 chatterboxFields
             }
 
@@ -420,6 +436,7 @@ struct AgentProfileView: View {
     /// because every engine offers different voices. A failed switch snaps
     /// the picker back to whatever the server still reports.
     private func switchEngine(to selected: VoiceProvider) async {
+        guard session.canChangeVoiceEngine else { return }
         guard selected != (config?.voiceProvider ?? .elevenlabs) else { return }
         switchingEngine = true
         defer { switchingEngine = false }
@@ -444,6 +461,7 @@ struct AgentProfileView: View {
     }
 
     private func saveChatterboxServer() async {
+        guard session.canChangeVoiceEngine else { return }
         let address = chatterboxURL.trimmingCharacters(in: .whitespacesAndNewlines)
         guard address.hasPrefix("http://") || address.hasPrefix("https://") else {
             serverProblem = String(localized: "The server address must start with http:// or https://.")
@@ -498,13 +516,12 @@ struct AgentProfileView: View {
         guard canApplyModel else { return }
         busy = true
         defer { busy = false }
-        if let updated = await session.updateModel(modelDraft, for: current) {
-            let model = updated.projected(forThread: bot.threadId)?.currentTaskModelSelection ?? modelDraft
-            selectedInstanceID = model.instanceId
-            selectedModelID = model.model
-            selectedEffort = model.effort
-            savedModel = model
-        }
+        let updated = await session.updateModel(modelDraft, for: current, updateBotDefault: session.canAdminister)
+        let model = updated.map { $0.projected(forThread: bot.threadId)?.currentTaskModelSelection ?? modelDraft } ?? savedModel
+        selectedInstanceID = model.instanceId
+        selectedModelID = model.model
+        selectedEffort = model.effort
+        savedModel = model
     }
 
     private func selectDefaults(for instanceID: String) {

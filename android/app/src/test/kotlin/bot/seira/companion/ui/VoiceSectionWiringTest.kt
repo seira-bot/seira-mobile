@@ -84,10 +84,10 @@ class VoiceSectionWiringTest {
         node.children.forEach { addAll(spoken(it)) }
     }
 
-    private fun sectionFor(config: ConfigStatus?): List<String> {
+    private fun sectionFor(config: ConfigStatus?, canChangeEngine: Boolean = true): List<String> {
         compose.setContent {
             CompanionTheme(darkTheme = false) {
-                VoiceSection(config = config) { Text(pickerSlot) }
+                VoiceSection(config = config, canChangeEngine = canChangeEngine) { Text(pickerSlot) }
             }
         }
         return spoken(compose.onRoot().fetchSemanticsNode())
@@ -126,6 +126,20 @@ class VoiceSectionWiringTest {
             listOf("VOICE") + engine + listOf(pickerSlot, readyFooter),
             sectionFor(
                 ConfigStatus(tts = ConfigFlag(configured = true, voice = "Albert", provider = "system")),
+            ),
+        )
+    }
+
+    @Test
+    fun `where the phone cannot change the engine it shows the engine as text and no picker`() {
+        assertEquals(
+            listOf(
+                "VOICE", "Voice engine", "ElevenLabs", "Change the voice engine on your computer.",
+                pickerSlot, readyFooter,
+            ),
+            sectionFor(
+                ConfigStatus(tts = ConfigFlag(configured = true, voice = "shared-voice")),
+                canChangeEngine = false,
             ),
         )
     }

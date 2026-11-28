@@ -2777,10 +2777,15 @@ class Session(
         }
     }
 
-    suspend fun updateModel(selection: ModelSelection, forBot: Bot, quietly: Boolean = false): Bot? {
+    suspend fun updateModel(
+        selection: ModelSelection,
+        forBot: Bot,
+        quietly: Boolean = false,
+        updateBotDefault: Boolean = false,
+    ): Bot? {
         val activeClient = client ?: return null
         return try {
-            val updated = activeClient.updateModel(forBot.id, selection, forBot.threadId)
+            val updated = activeClient.updateModel(forBot.id, selection, forBot.threadId, updateBotDefault)
             currentCoroutineContext().ensureActive()
             _state.update { it.apply(Frame.Bot(updated)) }
             updated.forTask(forBot.threadId)
@@ -2930,6 +2935,7 @@ class Session(
 
     /** This pairing may read the model list and continue at a limit reset. */
     val canAdminister: Boolean get() = _connection.value?.canAdminister ?: false
+    val canChangeVoiceEngine: Boolean get() = _connection.value?.canChangeVoiceEngine ?: false
 
     private val _modelListForbidden = MutableStateFlow(false)
 

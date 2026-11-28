@@ -84,4 +84,5 @@
     <string name="team_memory_delete_title">Excluir esta nota?</string>
     <string name="team_memory_delete_body">Os bots deixam de ler “%1$s”.</string>
     <string name="team_memory_changed">Esta nota mudou. Mostrando a mais recente.</string>
+    <string name="voice_engine_change_on_computer">Mude o mecanismo de voz no seu computador.</string>
 </resources>

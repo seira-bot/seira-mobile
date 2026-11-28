@@ -45,6 +45,13 @@ data class Connection(
      */
     val canAdminister: Boolean get() = !pairedWithServer || serverScopes?.contains("admin") == true
 
+    /**
+     * Whether this phone may save the voice engine. The write goes through the
+     * server's config route, which a desktop pairing never allows and a server
+     * pairing allows only with the `admin` scope.
+     */
+    val canChangeVoiceEngine: Boolean get() = pairedWithServer && canAdminister
+
     val baseUrl: URI?
         get() {
             activeEndpoint?.let { endpoint ->

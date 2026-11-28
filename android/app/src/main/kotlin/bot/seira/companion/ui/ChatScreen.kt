@@ -1600,6 +1600,7 @@ private fun LoadedChat(
         ModelPickerSheet(
             bot = bot,
             unavailable = remember { ModelSelection("", "", null) },
+            updatesBotDefault = session.canAdminister,
             onSwitched = { showingModel = false },
             onDismiss = { showingModel = false },
         )
