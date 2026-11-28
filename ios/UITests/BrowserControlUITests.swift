@@ -44,8 +44,16 @@ final class BrowserControlUITests: XCTestCase {
         XCTAssertFalse(address.isEnabled)
         take.tap()
         XCTAssertTrue(app.buttons["Hand back"].waitForExistence(timeout: 5))
-        app.navigationBars.buttons["Browser fixture"].tap()
-        app.buttons["Open browser"].tap()
+        // A back tap made while the app is busy can get lost (CI,
+        // 2026-11-28): tap until the fixture's list shows.
+        let back = app.navigationBars.buttons["Browser fixture"]
+        let open = app.buttons["Open browser"]
+        for _ in 0..<3 where !open.exists && back.exists {
+            back.tap()
+            _ = open.waitForExistence(timeout: 5)
+        }
+        XCTAssertTrue(open.waitForExistence(timeout: 5), "the back tap reached the fixture's list")
+        open.tap()
         XCTAssertTrue(take.waitForExistence(timeout: 5))
         expectation(for: NSPredicate(format: "value CONTAINS %@", "releases=3"), evaluatedWith: address)
         waitForExpectations(timeout: 5)
