@@ -27,8 +27,8 @@ The bundle output, relative to the repository root, is
 
 Gradle reads signing material from the environment or the gitignored
 `android/keystore.properties`; environment values take precedence. The required
-settings are `OPENMAUSBOT_KEYSTORE_FILE`, `OPENMAUSBOT_KEYSTORE_PASSWORD`, and
-`OPENMAUSBOT_KEY_ALIAS`. `OPENMAUSBOT_KEY_PASSWORD` is optional and defaults to
+settings are `SEIRA_KEYSTORE_FILE`, `SEIRA_KEYSTORE_PASSWORD`, and
+`SEIRA_KEY_ALIAS`. `SEIRA_KEY_PASSWORD` is optional and defaults to
 the store password. File equivalents are `storeFile`, `storePassword`,
 `keyAlias`, and `keyPassword`.
 
@@ -143,7 +143,7 @@ Account for each supported connection, provider, and hosting configuration:
 - [Network configuration](../app/src/main/res/xml/network_security_config.xml)
   permits cleartext local LAN traffic. Do not claim all traffic is encrypted in
   transit based on the availability of HTTPS or Tailscale routes.
-- [Composer dictation](../app/src/main/kotlin/com/openmausbot/companion/dictation/SpeechDictation.kt)
+- [Composer dictation](../app/src/main/kotlin/bot/seira/companion/dictation/SpeechDictation.kt)
   can fall back to a platform speech recognizer that uses the network. Review
   that processing alongside messages, attachments, credentials, identifiers,
   optional hosted sign-in, and any other enabled data flows.

@@ -101,8 +101,8 @@ jobs:
           set -o pipefail
           cd ios
           xcodebuild \
-            -project OpenMausCompanion.xcodeproj \
-            -scheme OpenMausCompanion \
+            -project SeiraCompanion.xcodeproj \
+            -scheme SeiraCompanion \
             -configuration Debug \
             -sdk iphonesimulator \
             -destination 'generic/platform=iOS Simulator' \
@@ -189,12 +189,12 @@ jobs:
             case "$name" in
               *[!A-Za-z0-9_]*) echo "::error::Not a test class name: $name"; exit 1 ;;
             esac
-            only+=("-only-testing:OpenMausCompanionUITests/$name")
+            only+=("-only-testing:SeiraCompanionUITests/$name")
           done
           set +f
           xcodebuild \
-            -project OpenMausCompanion.xcodeproj \
-            -scheme OpenMausCompanion \
+            -project SeiraCompanion.xcodeproj \
+            -scheme SeiraCompanion \
             -configuration Debug \
             -destination "platform=iOS Simulator,id=${simulator_id}" \
             -derivedDataPath "$RUNNER_TEMP/derived-data" \
@@ -276,11 +276,11 @@ jobs:
             case "$name" in
               *[!A-Za-z0-9_]*) echo "::error::Not a test method name: $name"; exit 1 ;;
             esac
-            only+=("-only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests/$name")
+            only+=("-only-testing:SeiraCompanionUITests/StoreListingScreenshotUITests/$name")
           done
           set +f
           if [ "${#only[@]}" -eq 0 ]; then
-            only=("-only-testing:OpenMausCompanionUITests/StoreListingScreenshotUITests")
+            only=("-only-testing:SeiraCompanionUITests/StoreListingScreenshotUITests")
           fi
           xcodebuild -version
           cd ios
@@ -319,8 +319,8 @@ jobs:
             xcrun simctl status_bar "$simulator_id" override --time 9:41 --batteryState charged --batteryLevel 100 --wifiBars 3 --cellularMode active --cellularBars 4
             bundle="$RUNNER_TEMP/store-${device}.xcresult"
             TEST_RUNNER_STORE_DEVICE="$device" xcodebuild \
-              -project OpenMausCompanion.xcodeproj \
-              -scheme OpenMausCompanion \
+              -project SeiraCompanion.xcodeproj \
+              -scheme SeiraCompanion \
               -configuration Debug \
               -destination "platform=iOS Simulator,id=${simulator_id}" \
               -derivedDataPath "$RUNNER_TEMP/derived-data" \
